@@ -14,6 +14,37 @@ export default function YaMRSpektroskopiya() {
 
       <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
+        {/* ── BIRIKMALAR YaMR TAHLILI KARTASI ── */}
+        <Link 
+          href="/ilmiy/tahlil/nmr/birikmalar"
+          className="group block bg-gradient-to-r from-green-900/40 to-purple-900/40 border border-green-700/50 rounded-2xl p-6 hover:bg-green-900/60 hover:border-green-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl hover:shadow-green-500/10"
+        >
+          <div className="flex items-center gap-4">
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
+              🔍
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-green-400 group-hover:text-green-300 transition-colors">
+                Birikmalarning YaMR tahlili
+              </h3>
+              <p className="text-purple-300 text-sm mt-1 group-hover:text-purple-200 transition-colors">
+                Kompleks birikmalarning ¹H, ¹³C, ¹⁹⁵Pt, ⁵⁹Co YaMR spektrlari tahlili. 
+                Kimyoviy siljishlar, multipletlik, diamagnit va paramagnit komplekslar farqi.
+              </p>
+            </div>
+            <div className="text-3xl text-green-400 group-hover:translate-x-1 transition-transform">
+              →
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <span className="bg-green-600/20 text-green-400 border border-green-600/30 px-3 py-1 rounded-full text-xs">12 ta birikma</span>
+            <span className="bg-purple-600/20 text-purple-400 border border-purple-600/30 px-3 py-1 rounded-full text-xs">¹H, ¹³C, ¹⁹⁵Pt, ⁵⁹Co</span>
+            <span className="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-3 py-1 rounded-full text-xs">Kimyoviy siljish</span>
+            <span className="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-3 py-1 rounded-full text-xs">Multipletlik</span>
+            <span className="bg-red-600/20 text-red-400 border border-red-600/30 px-3 py-1 rounded-full text-xs">Paramagnit effekti</span>
+          </div>
+        </Link>
+
         {/* 1. ASOSIY MA'LUMOT */}
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-6">📋 YaMR spektroskopiya haqida</h2>
@@ -24,7 +55,7 @@ export default function YaMRSpektroskopiya() {
               <strong className="text-yellow-400"> tuzilishini aniqlashda</strong> eng kuchli usullardan biri.
               Kompleks birikmalarda <strong className="text-yellow-400">ligandlarning joylashuvi</strong>, 
               <strong className="text-yellow-400"> dinamik jarayonlar</strong> (ligand almashinish) va 
-              <strong className="text-yellow-400"> eritmadagi muvozanat</strong> o'rganiladi.
+              <strong className="text-yellow-400"> eritmadagi muvozanat</strong> o&apos;rganiladi.
             </p>
           </div>
 
@@ -33,7 +64,7 @@ export default function YaMRSpektroskopiya() {
               <h3 className="text-yellow-400 font-bold mb-2">Nimani aniqlaydi?</h3>
               <ul className="text-purple-200 space-y-1 text-sm">
                 <li>• <strong>Kimyoviy siljish</strong> (δ, ppm)</li>
-                <li>• <strong>Spin-spin bog'lanish</strong> (J, Hz)</li>
+                <li>• <strong>Spin-spin bog&apos;lanish</strong> (J, Hz)</li>
                 <li>• <strong>Ligandlar soni va joylashuvi</strong></li>
                 <li>• <strong>Dinamik jarayonlar</strong> tezligi</li>
                 <li>• <strong>Sis-trans izomerlar</strong> farqi</li>
@@ -42,10 +73,10 @@ export default function YaMRSpektroskopiya() {
             <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
               <h3 className="text-yellow-400 font-bold mb-2">Qanday ishlaydi?</h3>
               <ul className="text-purple-200 space-y-1 text-sm">
-                <li>• Kuchli <strong>magnit maydoni</strong> qo'llaniladi</li>
-                <li>• Yadrolar <strong>radi to'lqinlarni</strong> yutadi</li>
-                <li>• Har bir kimyoviy muhit <strong>o'ziga xos signal</strong> beradi</li>
-                <li>• ¹H, ¹³C, ³¹P, ¹⁹F — eng ko'p ishlatiladi</li>
+                <li>• Kuchli <strong>magnit maydoni</strong> qo&apos;llaniladi</li>
+                <li>• Yadrolar <strong>radi to&apos;lqinlarni</strong> yutadi</li>
+                <li>• Har bir kimyoviy muhit <strong>o&apos;ziga xos signal</strong> beradi</li>
+                <li>• ¹H, ¹³C, ³¹P, ¹⁹F — eng ko&apos;p ishlatiladi</li>
               </ul>
             </div>
           </div>
@@ -53,7 +84,7 @@ export default function YaMRSpektroskopiya() {
 
         {/* 2. KOMPLEKSLARDA NMR */}
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">🧪 Kompleks birikmalarda YaMR qo'llanishi</h2>
+          <h2 className="text-xl font-bold text-white mb-6">🧪 Kompleks birikmalarda YaMR qo&apos;llanishi</h2>
           
           <div className="space-y-4">
             <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
@@ -80,8 +111,8 @@ export default function YaMRSpektroskopiya() {
                 signallari farqlanadi. Almashinish tezligiga qarab:
               </p>
               <ul className="text-purple-300 text-sm space-y-1 mt-2">
-                <li>• <strong>Sekin almashinish:</strong> ikkala signal ham ko'rinadi</li>
-                <li>• <strong>Tez almashinish:</strong> bitta o'rtacha signal ko'rinadi</li>
+                <li>• <strong>Sekin almashinish:</strong> ikkala signal ham ko&apos;rinadi</li>
+                <li>• <strong>Tez almashinish:</strong> bitta o&apos;rtacha signal ko&apos;rinadi</li>
                 <li>• <strong>Oraliq:</strong> kengaygan signallar</li>
               </ul>
             </div>
@@ -90,7 +121,7 @@ export default function YaMRSpektroskopiya() {
               <h3 className="text-yellow-400 font-bold mb-2">3. Paramagnit komplekslarda YaMR</h3>
               <p className="text-purple-200 text-sm">
                 Paramagnit markaziy atom (toq elektronli) signallarni <strong>kengaytiradi</strong> va 
-                <strong>siljitadi</strong>. Bu kengayish miqdori metall-markaz masofasiga bog'liq.
+                <strong>siljitadi</strong>. Bu kengayish miqdori metall-markaz masofasiga bog&apos;liq.
               </p>
             </div>
           </div>
@@ -128,7 +159,7 @@ export default function YaMRSpektroskopiya() {
         <div className="bg-gradient-to-r from-green-600/10 to-purple-600/10 border border-green-500/20 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li>NMR — <strong className="text-yellow-400">tuzilish va dinamikani</strong> o'rganishda asosiy usul</li>
+            <li>NMR — <strong className="text-yellow-400">tuzilish va dinamikani</strong> o&apos;rganishda asosiy usul</li>
             <li>Sis-trans izomerlar <strong>har xil kimyoviy siljish</strong> beradi</li>
             <li>Ligand almashinish tezligini <strong>signallar shaklidan</strong> aniqlash mumkin</li>
             <li>Paramagnit metallar signallarni <strong>kengaytiradi va siljitadi</strong></li>

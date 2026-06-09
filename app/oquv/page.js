@@ -7,7 +7,7 @@ export default function Oquv() {
       icon: "📖",
       title: "Nomlanishi",
       desc: "IUPAC qoidalari, formula yozish, ligandlar",
-      badge: "Bepul",
+      badge: "oson",
       badgeColor: "bg-green-600/20 text-green-400 border-green-600/30"
     },
     {
@@ -15,7 +15,7 @@ export default function Oquv() {
       icon: "📊",
       title: "Klassifikatsiyasi",
       desc: "Sinf, ligand, zaryad bo'yicha tasniflash",
-      badge: "Bepul",
+      badge: "oson",
       badgeColor: "bg-green-600/20 text-green-400 border-green-600/30"
     },
     {
@@ -23,7 +23,7 @@ export default function Oquv() {
       icon: "💎",
       title: "Fazoviy tuzilishi",
       desc: "Geometrik shakllar va 3D modellar",
-      badge: "Bepul",
+      badge: "o'rtacha qiyin",
       badgeColor: "bg-green-600/20 text-green-400 border-green-600/30"
     },
     {
@@ -31,7 +31,7 @@ export default function Oquv() {
       icon: "🔄",
       title: "Izomeriyasi",
       desc: "Tuzilish va stereoizomeriya turlari",
-      badge: "Bepul",
+      badge: "o'rtacha qiyin",
       badgeColor: "bg-green-600/20 text-green-400 border-green-600/30"
     },
     {
@@ -39,7 +39,7 @@ export default function Oquv() {
       icon: "🔗",
       title: "Kimyoviy bog'lanish",
       desc: "VB nazariyasi, kristall maydon, Yan-Teller effekti",
-      badge: "⭐ Premium",
+      badge: "biroz murakab",
       badgeColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
     },
     {
@@ -47,7 +47,7 @@ export default function Oquv() {
       icon: "🎬",
       title: "Video darsliklar va quiz testlar",
       desc: "Barcha mavzular bo'yicha videolar va testlar",
-      badge: "⭐ Premium",
+      badge: "mustahkamlaydi",
       badgeColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
     }
   ]
