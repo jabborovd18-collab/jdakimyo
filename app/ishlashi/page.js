@@ -151,7 +151,7 @@ const FEATURES = [
   {
     icon: "🇺🇿",
     title: "O'zbek tilida",
-    desc: "O'zbekistondagi yagona kompleks birikmalar platformasi — to'liq o'zbek tilida"
+    desc: "O'zbekistondagi kompleks birikmalar platformasi — to'liq o'zbek tilida"
   }
 ]
 
@@ -286,7 +286,7 @@ export default function IshlashiPage() {
             </h2>
 
             <p className="text-lg md:text-xl text-purple-200 max-w-3xl mb-8 leading-relaxed">
-              <strong className="text-yellow-400">JDA KIMYO</strong> — O'zbekistondagi yagona koordinatsion kimyo platformasi.
+              <strong className="text-yellow-400">JDA KIMYO</strong> — O'zbekistondagi  koordinatsion kimyo platformasi.
               Nazariyadan tortib ilmiy tadqiqotlargacha, interaktiv modellar va zamonaviy tahlil usullari —
               <strong className="text-orange-400"> barchasi bir joyda</strong>.
             </p>
