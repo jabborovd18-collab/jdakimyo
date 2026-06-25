@@ -1,15 +1,14 @@
-import { Syne } from "next/font/google";
-import { DM_Sans } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const spaceGrotesk = Space_Grotesk({
   variable: "--font-syne",
   subsets: ["latin"],
-  weight: ["700", "800"],
+  weight: ["500", "700"],
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const inter = Inter({
   variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500"],
@@ -42,7 +41,7 @@ export const metadata = {
     siteName: "JDA KIMYO",
     title: "JDA KIMYO — Kompleks birikmalar kimyosi",
     description:
-      "O'zbek tilida kompleks birikmalarni o'rganish platformasi. IUPAC nomlanishi, izomeriya, fazoviy tuzilish va video darsliklar.",
+      "O'zbek tilida kompleks birikmalarni o'rganish platformasi.",
   },
   twitter: {
     card: "summary_large_image",
@@ -63,10 +62,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="uz"
-      className={`${syne.variable} ${dmSans.variable}`}
-    >
+    <html lang="uz" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body className="min-h-screen flex flex-col antialiased">
         {children}
       </body>

@@ -14,6 +14,33 @@ export default function RentgenDifraksiyasi() {
 
       <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
+        {/* ── BIRIKMALAR KRISTALLOGRAFIK TAHLILI KARTASI ── */}
+        <Link 
+          href="/ilmiy/tahlil/rentgen/birikmalar"
+          className="group block bg-gradient-to-r from-yellow-900/40 to-purple-900/40 border border-yellow-700/50 rounded-2xl p-6 hover:bg-yellow-900/60 hover:border-yellow-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl hover:shadow-yellow-500/10"
+        >
+          <div className="flex items-center gap-4">
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">💎</div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-yellow-400 group-hover:text-yellow-300 transition-colors">
+                Birikmalarning kristallografik tahlili
+              </h3>
+              <p className="text-purple-300 text-sm mt-1 group-hover:text-purple-200 transition-colors">
+                Kompleks birikmalarning rentgen difraksiyasi ma'lumotlari. Kristall panjara parametrlari, 
+                fazoviy guruhlar, bog' uzunliklari, burchaklar va strukturaviy xususiyatlar har bir birikma uchun batafsil.
+              </p>
+            </div>
+            <div className="text-3xl text-yellow-400 group-hover:translate-x-1 transition-transform">→</div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <span className="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-3 py-1 rounded-full text-xs">12 ta birikma</span>
+            <span className="bg-purple-600/20 text-purple-400 border border-purple-600/30 px-3 py-1 rounded-full text-xs">Panjara parametrlari</span>
+            <span className="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-3 py-1 rounded-full text-xs">Fazoviy guruhlar</span>
+            <span className="bg-green-600/20 text-green-400 border border-green-600/30 px-3 py-1 rounded-full text-xs">Bog' uzunliklari</span>
+            <span className="bg-orange-600/20 text-orange-400 border border-orange-600/30 px-3 py-1 rounded-full text-xs">Struktura vizualizatsiyasi</span>
+          </div>
+        </Link>
+
         {/* 1. ASOSIY MA'LUMOT */}
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-6">📋 Rentgen difraksiyasi haqida</h2>

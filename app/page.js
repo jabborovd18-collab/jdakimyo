@@ -1,148 +1,316 @@
-"use client"
-
 import Link from "next/link"
-import { useState, useEffect } from "react"
 
 export default function Home() {
-  const [qidiruv, setQidiruv] = useState("")
-  const [barchaMalumotlar, setBarchaMalumotlar] = useState([])
-  const [natijalar, setNatijalar] = useState([])
-  const [showResults, setShowResults] = useState(false)
-
-  useEffect(() => {
-    fetch("/data/search-index.json")
-      .then(res => res.json())
-      .then(data => setBarchaMalumotlar(data))
-      .catch(() => setBarchaMalumotlar([]))
-  }, [])
-
-  const handleQidiruv = (value) => {
-    setQidiruv(value)
-    if (value.length < 2) {
-      setNatijalar([])
-      setShowResults(false)
-      return
-    }
-    const q = value.toLowerCase()
-    const filtered = barchaMalumotlar.filter(m =>
-      m.title.toLowerCase().includes(q) ||
-      m.desc.toLowerCase().includes(q) ||
-      (m.keys && m.keys.toLowerCase().includes(q))
-    )
-    setNatijalar(filtered.slice(0, 10))
-    setShowResults(true)
-  }
-
-  const typeLabels = {
-    birikma: "Birikma", maqola: "Maqola", tahlil: "Tahlil usuli",
-    chuqur: "Chuqur mavzu", oquv: "O'quv bo'limi", umumiy: "Umumiy"
-  }
-  const typeColors = {
-    birikma: "bg-red-600/20 text-red-400 border-red-600/30",
-    maqola: "bg-green-600/20 text-green-400 border-green-600/30",
-    tahlil: "bg-purple-600/20 text-purple-400 border-purple-600/30",
-    chuqur: "bg-orange-600/20 text-orange-400 border-orange-600/30",
-    oquv: "bg-blue-600/20 text-blue-400 border-blue-600/30",
-    umumiy: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
-  }
-  const rangMap = {
-    birikma: "text-red-400", maqola: "text-green-400", tahlil: "text-purple-400",
-    chuqur: "text-orange-400", oquv: "text-blue-400", umumiy: "text-yellow-400"
-  }
-
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950 to-purple-950 text-white overflow-hidden">
       
-      <header className="flex justify-between items-center px-6 py-4 border-b border-purple-800/50">
+      {/* HEADER */}
+      <header className="flex justify-between items-center px-6 py-4 border-b border-purple-800/50 sticky top-0 z-50 bg-purple-950/80 backdrop-blur-xl">
         <Link href="/" className="text-2xl font-extrabold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
           JDA KIMYO
         </Link>
-        <div className="flex gap-4 items-center">
-          <Link href="/hamkorlik/boglanish" className="p-2 hover:bg-purple-800/50 rounded-full transition-all" title="Bog'lanish">📞</Link>
-          <Link href="/hamkorlik/yangiliklar" className="p-2 hover:bg-purple-800/50 rounded-full transition-all" title="Yangiliklar">🔔</Link>
-          <Link href="/sertifikat" className="p-2 hover:bg-purple-800/50 rounded-full transition-all" title="Sertifikat">🏅</Link>
+        
+        <nav className="hidden md:flex items-center gap-6">
+          <Link href="/oquv" className="text-purple-300 hover:text-yellow-400 transition-colors text-sm font-medium">O'quv</Link>
+          <Link href="/ilmiy" className="text-purple-300 hover:text-yellow-400 transition-colors text-sm font-medium">Ilmiy</Link>
+          <Link href="/birikmalar" className="text-purple-300 hover:text-yellow-400 transition-colors text-sm font-medium">Birikmalar</Link>
+          <Link href="/sertifikat" className="text-purple-300 hover:text-yellow-400 transition-colors text-sm font-medium">Sertifikat</Link>
+        </nav>
+
+        <div className="flex gap-2 items-center">
+          <Link href="/qidiruv" className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
+            <span>🔍</span>
+            <span className="hidden sm:inline">Qidiruv</span>
+            <kbd className="hidden lg:inline-block text-[10px] bg-purple-950/80 px-1.5 py-0.5 rounded border border-purple-700">Ctrl+K</kbd>
+          </Link>
           <Link href="/hamkorlik" className="p-2 hover:bg-purple-800/50 rounded-full transition-all" title="Hamkorlik">🤝</Link>
         </div>
       </header>
 
-      <section className="flex flex-col items-center justify-center text-center px-4 py-16 relative">
+      {/* HERO SECTION */}
+      <section className="relative flex flex-col items-center justify-center text-center px-4 py-20 md:py-28 overflow-hidden">
         
-        <h1 className="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent">
-          JDA KIMYO
-        </h1>
+        {/* Floating decorative elements */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl"></div>
         
-        <p className="text-lg md:text-xl text-purple-200 max-w-2xl mb-10">
-          Kompleks birikmalar bo'yicha o'zbek tilidagi o'rganishni osonlashtiradigan platforma
-        </p>
-        
-        <div className="w-full max-w-2xl relative z-20">
-          <div className="relative">
-            <input type="text" value={qidiruv} onChange={(e) => handleQidiruv(e.target.value)}
-              placeholder="Birikma, maqola, tahlil usuli yoki mavzu qidiring..."
-              className="w-full px-6 py-5 pl-16 rounded-2xl bg-purple-900/70 border-2 border-purple-600 text-white placeholder-purple-400 focus:outline-none focus:border-yellow-400 transition-all text-lg shadow-2xl shadow-purple-900/50"
-            />
-            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-3xl">🔍</span>
-            {qidiruv && (
-              <button onClick={() => { setQidiruv(""); setNatijalar([]); setShowResults(false) }}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-purple-400 hover:text-white transition-colors text-2xl">✕</button>
-            )}
+        {/* Floating molecules */}
+        <div className="absolute top-32 right-20 text-6xl opacity-20 animate-bounce" style={{animationDuration: '3s'}}>⚛️</div>
+        <div className="absolute bottom-32 left-20 text-6xl opacity-20 animate-bounce" style={{animationDuration: '4s', animationDelay: '0.5s'}}>🧪</div>
+        <div className="absolute top-1/2 right-1/4 text-4xl opacity-10 animate-bounce" style={{animationDuration: '5s', animationDelay: '1s'}}>🔬</div>
+
+        <div className="relative z-10 max-w-5xl">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-purple-800/40 border border-purple-600/50 rounded-full text-xs font-semibold text-purple-200 mb-6 backdrop-blur-sm">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            O'zbek tilidagi kompleks birikmalar platformasi
           </div>
 
-          {showResults && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-purple-900/95 border border-purple-700/50 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm">
-              {natijalar.length === 0 ? (
-                <div className="p-6 text-center text-purple-400">Hech narsa topilmadi</div>
-              ) : (
-                <div className="max-h-96 overflow-y-auto">
-                  {natijalar.map((n, i) => (
-                    <Link key={i} href={n.href}
-                      className="flex items-center gap-4 p-4 hover:bg-purple-800/50 transition-all border-b border-purple-800/30 last:border-none"
-                      onClick={() => { setQidiruv(""); setShowResults(false) }}>
-                      <span className={`text-lg font-bold ${rangMap[n.type] || "text-white"} flex-shrink-0 w-8 text-center`}>
-                        {n.type === "birikma" ? "🧪" : n.type === "maqola" ? "📄" : n.type === "tahlil" ? "📊" : n.type === "chuqur" ? "🔬" : n.type === "oquv" ? "📖" : "📌"}
-                      </span>
-                      <div className="flex-1 text-left">
-                        <span className={`text-xs px-2 py-0.5 rounded-full border ${typeColors[n.type] || ""}`}>{typeLabels[n.type] || n.type}</span>
-                        <p className="font-bold text-white mt-1">{n.title}</p>
-                        <p className="text-purple-400 text-sm">{n.desc}</p>
-                      </div>
-                      <span className="text-purple-500">→</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent">
+              Kompleks
+            </span>
+            <br />
+            <span className="text-white">birikmalar dunyosi</span>
+          </h1>
+          
+          <p className="text-lg md:text-xl text-purple-200 max-w-3xl mb-10 leading-relaxed">
+            Koordinatsion kimyoning barcha jihatlarini — <strong className="text-yellow-400">nazariyadan tortib</strong> 
+            <strong className="text-orange-400"> ilmiy tadqiqotlargacha</strong> — interaktiv, tushunarli va 
+            professional darajada o'rganing.
+          </p>
 
-        <p className="text-purple-400 text-sm mt-4">
-          Masalan: "qizil qon tuzi", "sisplatin", "UB-Vis", "Yan-Teller" deb qidirib ko'ring
-        </p>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl w-full mt-12">
-          {[
-            { href: "/oquv", icon: "📚", title: "O'quv", desc: "Kompleks birikmalarni o'rganish" },
-            { href: "/ilmiy", icon: "🔬", title: "Ilmiy", desc: "Ilmiy tadqiqotlar uchun" },
-            { href: "/sertifikat", icon: "🏅", title: "Sertifikat", desc: "O'rganish darajasiga qarab" },
-            { href: "/hamkorlik", icon: "🤝", title: "Hamkorlik", desc: "Ilmiy tadqiqotchilar uchun" }
-          ].map((item, i) => (
-            <Link key={i} href={item.href}
-              className="group bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 text-center hover:bg-purple-800/60 hover:border-yellow-400/50 transition-all transform hover:-translate-y-2">
-              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{item.icon}</div>
-              <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">{item.title}</h3>
-              <p className="text-purple-300 text-xs">{item.desc}</p>
+          <div className="flex flex-wrap gap-4 justify-center mb-12">
+            <Link href="/qidiruv" className="group px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 rounded-2xl text-black font-bold text-lg shadow-2xl shadow-orange-500/30 transition-all transform hover:-translate-y-1 flex items-center gap-3">
+              <span>🔍</span>
+              <span>Qidiruv</span>
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
             </Link>
-          ))}
+            <Link href="/ishlashi" className="px-8 py-4 bg-purple-800/50 hover:bg-purple-700/70 border-2 border-purple-600/50 rounded-2xl text-white font-bold text-lg backdrop-blur-sm transition-all transform hover:-translate-y-1 flex items-center gap-3">
+              <span>📖</span>
+              <span>Sayt qanday ishlatiladi</span>
+            </Link>
+          </div>
+
+          {/* Quick stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+            {[
+              { value: "120+", label: "Birikmalar", icon: "🧪" },
+              { value: "20", label: "Tahlil usuli", icon: "📊" },
+              { value: "50+", label: "Maqolalar", icon: "📄" },
+              { value: "∞", label: "Interaktiv", icon: "⚡" },
+            ].map((stat, i) => (
+              <div key={i} className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-4 backdrop-blur-sm hover:bg-purple-800/50 transition-all">
+                <div className="text-2xl mb-1">{stat.icon}</div>
+                <div className="text-2xl md:text-3xl font-extrabold text-yellow-400">{stat.value}</div>
+                <div className="text-purple-300 text-xs mt-1">{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <footer className="text-center py-10 border-t border-purple-800/50 px-4">
-        <p className="text-purple-300 mb-2">Yaratuvchi</p>
-        <p className="text-xl font-bold text-white mb-2">Diyorbek Jabborov Arslonivich</p>
-        <a href="https://t.me/diyorbek_jabborov" target="_blank"
-          className="text-yellow-400 hover:text-yellow-300 transition-all inline-flex items-center gap-2">
-          <span>✈️</span> @diyorbek_jabborov
-        </a>
+      {/* ASOSIY BO'LIMLAR (YANGI STRUKTURA) */}
+      <section className="px-4 py-16 max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3 text-white">Asosiy bo'limlar</h2>
+          <p className="text-purple-300">Har bir bo'lim alohida auditoriya uchun mo'ljallangan</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* 3.1 O'QUV BO'LIM */}
+          <Link href="/oquv" 
+            className="group bg-gradient-to-br from-purple-600/20 to-purple-900/40 border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-2 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30 bg-purple-500"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-5xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                  📚
+                </div>
+                <span className="text-[10px] font-mono px-2 py-1 rounded-lg bg-purple-600/30 text-purple-300">
+                  01
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">
+                O'quv bo'lim
+              </h3>
+              <p className="text-purple-200 text-sm mb-4 leading-relaxed">
+                Talabalar uchun — asoslardan boshlab murakkab mavzulargacha
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Boshlang'ich mavzular
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  3D interaktiv
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Quiz testlar
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Video darsliklar
+                </span>
+              </div>
+            </div>
+          </Link>
+
+          {/* 3.2 ILMIIY BO'LIM */}
+          <Link href="/ilmiy" 
+            className="group bg-gradient-to-br from-blue-600/20 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-2 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30 bg-blue-500"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-5xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                  🔬
+                </div>
+                <span className="text-[10px] font-mono px-2 py-1 rounded-lg bg-blue-600/30 text-blue-300">
+                  02
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">
+                Ilmiy bo'lim
+              </h3>
+              <p className="text-purple-200 text-sm mb-4 leading-relaxed">
+                Tadqiqotchilar uchun — zamonaviy tahlil usullari va ilmiy ishlar
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Chuqurlashgan mavzular
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Ilmiy tadqiqotlar
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Birikmalar to'plami
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Tahliliy usullar
+                </span>
+              </div>
+            </div>
+          </Link>
+
+          {/* 3.3 SERTIFIKAT */}
+          <Link href="/sertifikat" 
+            className="group bg-gradient-to-br from-yellow-600/20 to-yellow-900/40 border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-2 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30 bg-yellow-500"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-5xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                  🏅
+                </div>
+                <span className="text-[10px] font-mono px-2 py-1 rounded-lg bg-yellow-600/30 text-yellow-300">
+                  03
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">
+                Sertifikat
+              </h3>
+              <p className="text-purple-200 text-sm mb-4 leading-relaxed">
+                Bilimingizni tasdiqlang — o'rganganingizga qarab daraja oling
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  C daraja
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  B daraja
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  A daraja
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-yellow-600/30 border border-yellow-600/50 rounded-full text-yellow-300 font-bold">
+                  A+ daraja
+                </span>
+              </div>
+            </div>
+          </Link>
+
+          {/* 3.4 HAMKORLIK */}
+          <Link href="/hamkorlik" 
+            className="group bg-gradient-to-br from-red-600/20 to-red-900/40 border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-2 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30 bg-red-500"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-5xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                  🤝
+                </div>
+                <span className="text-[10px] font-mono px-2 py-1 rounded-lg bg-red-600/30 text-red-300">
+                  04
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">
+                Hamkorlik
+              </h3>
+              <p className="text-purple-200 text-sm mb-4 leading-relaxed">
+                Jamoa bilan birga o'rganing va loyihalarda ishtirok eting
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Guruhga taklif
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  FAQ
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Bog'lanish
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
+                  Sayt yangiliklari
+                </span>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* FOOTER (SODDALASHTIRILGAN) */}
+      <footer className="border-t border-purple-800/50 px-4 py-12 mt-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 md:p-10 backdrop-blur-sm text-center md:text-left">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              
+              {/* Yaratuvchi ma'lumotlari */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 justify-center md:justify-start mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl">
+                    👨‍🔬
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white text-lg">Yaratuvchi</h4>
+                    <p className="text-purple-300 text-sm">Diyorbek Jabborov Arslonivich</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                  <a 
+                    href="mailto:jabborovd18@gmail.com" 
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-yellow-400 hover:text-yellow-300 transition-all text-sm"
+                  >
+                    <span>📧</span>
+                    <span>jabborovd18@gmail.com</span>
+                  </a>
+                  <a 
+                    href="https://t.me/diyorbek_jabborov" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-yellow-400 hover:text-yellow-300 transition-all text-sm"
+                  >
+                    <span>✈️</span>
+                    <span>@diyorbek_jabborov</span>
+                  </a>
+                  <a 
+                    href="https://jdakimyo.uz" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-yellow-400 hover:text-yellow-300 transition-all text-sm"
+                  >
+                    <span>🌐</span>
+                    <span>jdakimyo.uz</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Versiya va Copyright */}
+              <div className="flex flex-col items-center md:items-end gap-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600/20 border border-green-600/30 rounded-full">
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                  <span className="text-green-400 text-xs font-mono font-bold">v2.0.0</span>
+                </div>
+                <p className="text-purple-400 text-xs text-center md:text-right">
+                  © 2026 JDA KIMYO
+                </p>
+                <p className="text-purple-500 text-[10px] text-center md:text-right">
+                  Kompleks birikmalar platformasi
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </footer>
       
     </main>

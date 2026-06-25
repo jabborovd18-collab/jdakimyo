@@ -14,6 +14,33 @@ export default function ElektrokimyoviyTahlil() {
 
       <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
+        {/* BIRIKMALAR SAHIFASIGA LINK */}
+        <Link 
+          href="/ilmiy/tahlil/elektrokimyo/birikmalar"
+          className="group block bg-gradient-to-r from-cyan-900/40 to-purple-900/40 border border-cyan-700/50 rounded-2xl p-6 hover:bg-cyan-900/60 hover:border-cyan-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl hover:shadow-cyan-500/10"
+        >
+          <div className="flex items-center gap-4">
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">⚡</div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-cyan-300 group-hover:text-cyan-200 transition-colors">
+                Birikmalarning elektrokimyoviy tahlili
+              </h3>
+              <p className="text-purple-300 text-sm mt-1 group-hover:text-purple-200 transition-colors">
+                Kompleks birikmalarning redoks xossalarini siklik voltamperometriya (CV) yordamida o'rganish.
+                Redoks potensiallar, elektron ko'chish soni, barqarorlik konstantasi har bir birikma uchun batafsil.
+              </p>
+            </div>
+            <div className="text-3xl text-cyan-300 group-hover:translate-x-1 transition-transform">→</div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <span className="bg-cyan-600/20 text-cyan-300 border border-cyan-600/30 px-3 py-1 rounded-full text-xs">12 ta birikma</span>
+            <span className="bg-purple-600/20 text-purple-400 border border-purple-600/30 px-3 py-1 rounded-full text-xs">Redoks potensiallar</span>
+            <span className="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-3 py-1 rounded-full text-xs">CV voltamperogramma</span>
+            <span className="bg-green-600/20 text-green-400 border border-green-600/30 px-3 py-1 rounded-full text-xs">Barqarorlik konstantasi</span>
+            <span className="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-3 py-1 rounded-full text-xs">Elektron ko'chish</span>
+          </div>
+        </Link>
+
         {/* 1. ASOSIY MA'LUMOT */}
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-6">📋 Elektrokimyoviy tahlil haqida</h2>
@@ -76,7 +103,7 @@ export default function ElektrokimyoviyTahlil() {
               <h3 className="text-red-400 font-bold mb-3">Qaytmas sistemada:</h3>
               <ul className="text-purple-200 text-sm space-y-2">
                 <li>• <strong>Faqat bitta pik</strong> (anod yoki katod)</li>
-                <li>• ΔE &gt; 59/n mV</li>
+                <li>• ΔE {'>'} 59/n mV</li>
                 <li>• Piklar <strong>keng va yassi</strong></li>
                 <li>• Elektron ko'chish <strong>sekin</strong></li>
               </ul>

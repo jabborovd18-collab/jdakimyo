@@ -102,7 +102,7 @@ export default function Ilmiy() {
             <div className="text-purple-300 text-sm">Kompleks birikmalar</div>
           </div>
           <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 text-center">
-            <div className="text-3xl font-extrabold text-blue-400">8</div>
+            <div className="text-3xl font-extrabold text-blue-400">20</div>
             <div className="text-purple-300 text-sm">Tahlil usullari</div>
           </div>
           <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 text-center">
