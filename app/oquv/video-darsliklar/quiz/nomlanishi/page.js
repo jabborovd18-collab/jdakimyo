@@ -1,230 +1,366 @@
 "use client"
+import { useState, useEffect, useMemo } from "react"
+import QUIZ_BANK from "./data"
+import { getRandomQuestions, getPreviousIds, saveQuizHistory } from "./utils/storage"
+import { generateQuizPDF, prepareAnswersForPDF } from "./utils/pdf"
 
-import Link from "next/link"
-import { useState } from "react"
-
-export default function QuizNomlanishi() {
-  const [currentQ, setCurrentQ] = useState(0)
+export default function QuizNomlanishiPage() {
+  const [showNameModal, setShowNameModal] = useState(true)
+  const [userName, setUserName] = useState("")
+  const [quizStarted, setQuizStarted] = useState(false)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [selectedAnswer, setSelectedAnswer] = useState(null)
+  const [isConfirmed, setIsConfirmed] = useState(false)
   const [answers, setAnswers] = useState([])
   const [showResult, setShowResult] = useState(false)
-  const [selectedAnswer, setSelectedAnswer] = useState(null)
+  
+  // Vaqt hisoblash
+  const [startTime, setStartTime] = useState(null)
+  const [elapsedTime, setElapsedTime] = useState(0)
 
-  const questions = [
-    {
-      q: "[Ag(NH₃)₂]Cl ning IUPAC bo'yicha nomi qanday?",
-      options: ["diamminkumush(I) xlorid", "diamminkumush(II) xlorid", "kumush diamminklorid", "diaminargentum xlorid"],
-      correct: 0
-    },
-    {
-      q: "K₄[Fe(CN)₆] ning IUPAC bo'yicha nomi qanday?",
-      options: ["kaliy geksasiyanoferrat(II)", "kaliy geksasiyanoferrat(III)", "kaliy geksasiyanotemir(II)", "temir kaliy sianid"],
-      correct: 0
-    },
-    {
-      q: "H₂O ligandi IUPAC bo'yicha qanday nomlanadi?",
-      options: ["gidro", "akva", "okso", "gidroksoniy"],
-      correct: 1
-    },
-    {
-      q: "NH₃ ligandi IUPAC bo'yicha qanday nomlanadi?",
-      options: ["amid", "amin", "ammin", "ammoniy"],
-      correct: 2
-    },
-    {
-      q: "CO ligandi IUPAC bo'yicha qanday nomlanadi?",
-      options: ["karbonat", "karbonil", "karboksil", "karbon"],
-      correct: 1
-    },
-    {
-      q: "Cl⁻ ligandi kompleks birikmada qanday nomlanadi?",
-      options: ["xlor", "xlorid", "xloro", "xlorit"],
-      correct: 2
-    },
-    {
-      q: "[Co(NH₃)₆]Cl₃ ning to'g'ri nomini toping.",
-      options: ["geksaamminkobalt(III) xlorid", "geksaamminkobalt(II) xlorid", "kobalt geksaammin xlorid", "geksaamminxlorokobalt"],
-      correct: 0
-    },
-    {
-      q: "CN⁻ ligandi qanday nomlanadi?",
-      options: ["sian", "sianid", "siyano", "sianato"],
-      correct: 2
-    },
-    {
-      q: "Kompleks birikma nomini aytishda dastlab nima aytiladi?",
-      options: ["anion", "kation", "ligand", "markaziy atom"],
-      correct: 1
-    },
-    {
-      q: "OH⁻ ligandi qanday nomlanadi?",
-      options: ["gidroksil", "gidroksid", "gidrokso", "gidro"],
-      correct: 2
-    },
-    {
-      q: "[Fe(CN)₆]³⁻ da Fe ning oksidlanish darajasi necha?",
-      options: ["+2", "+3", "+4", "+6"],
-      correct: 1
-    },
-    {
-      q: "Polidentat ligandlar sonini ko'rsatishda qanday prefiks ishlatiladi?",
-      options: ["di-, tri-, tetra-", "do-, tro-, tetro-", "bis-, tris-, tetrakis-", "ikki, uch, to'rt"],
-      correct: 2
-    },
-    {
-      q: "Anion komplekslarda markaziy atom nomiga nima qo'shiladi?",
-      options: ["\"it\" qo'shimchasi", "\"at\" qo'shimchasi", "\"id\" qo'shimchasi", "o'zgartirish kiritilmaydi"],
-      correct: 1
-    },
-    {
-      q: "Fe anion kompleksda qanday nomlanadi?",
-      options: ["temir", "ferrat", "ferrit", "ferrum"],
-      correct: 1
-    },
-    {
-      q: "Ligandlar qaysi ketma-ketlikda aytiladi?",
-      options: ["kation → neytral → anion", "anion → neytral → kation", "neytral → anion → kation", "alfavit tartibida, zaryadga qaralmaydi"],
-      correct: 1
+  // 20 ta tasodifiy savol tanlash
+  const questions = useMemo(() => {
+    const previousIds = getPreviousIds("nomlanishi")
+    return getRandomQuestions(QUIZ_BANK, 20, previousIds)
+  }, [])
+
+  // Timer
+  useEffect(() => {
+    if (quizStarted && !showResult && startTime) {
+      const interval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000)
+        setElapsedTime(elapsed)
+      }, 1000)
+      return () => clearInterval(interval)
     }
-  ]
+  }, [quizStarted, showResult, startTime])
 
-  const handleAnswer = (index) => {
-    setSelectedAnswer(index)
-    
-    setTimeout(() => {
-      const newAnswers = [...answers, index]
-      setAnswers(newAnswers)
+  // Ism-family kiritish
+  const handleNameSubmit = () => {
+    if (userName.trim().length >= 2) {
+      setShowNameModal(false)
+    }
+  }
+
+  // Quiz boshlash
+  const startQuiz = () => {
+    setQuizStarted(true)
+    setStartTime(Date.now())
+  }
+
+  // Javob tanlash
+  const handleAnswerSelect = (answerIndex) => {
+    if (!isConfirmed) {
+      setSelectedAnswer(answerIndex)
+    }
+  }
+
+  // Javobni tasdiqlash
+  const handleConfirm = () => {
+    if (selectedAnswer !== null && !isConfirmed) {
+      setIsConfirmed(true)
+      const currentQuestion = questions[currentQuestionIndex]
+      const isCorrect = selectedAnswer === currentQuestion.correct
+      
+      setAnswers([
+        ...answers,
+        {
+          questionIndex: currentQuestionIndex,
+          question: currentQuestion.question,
+          selectedAnswer,
+          correctAnswer: currentQuestion.correct,
+          isCorrect,
+          explanation: currentQuestion.explanation
+        }
+      ])
+    }
+  }
+
+  // Keyingi savol
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
       setSelectedAnswer(null)
-      
-      if (currentQ < questions.length - 1) {
-        setCurrentQ(currentQ + 1)
-      } else {
-        setShowResult(true)
-      }
-    }, 600)
+      setIsConfirmed(false)
+    } else {
+      setShowResult(true)
+      // Tarixni saqlash
+      const questionIds = questions.map(q => q.id)
+      saveQuizHistory("nomlanishi", questionIds)
+    }
   }
 
-  const getScore = () => {
-    let correct = 0
-    answers.forEach((ans, i) => {
-      if (ans === questions[i].correct) correct++
+  // PDF generatsiya (Premium dizayn)
+  const handleExportPDF = () => {
+    const preparedAnswers = prepareAnswersForPDF(answers)
+    
+    generateQuizPDF({
+      userName,
+      answers: preparedAnswers,
+      questions,
+      elapsedTime,
+      quizName: "Nomlanish"
     })
-    return correct
   }
 
-  const restart = () => {
-    setCurrentQ(0)
-    setAnswers([])
-    setShowResult(false)
-    setSelectedAnswer(null)
+  // Vaqtni formatlash
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
-        <Link href="/oquv/video-darsliklar/quiz" className="text-purple-400 hover:text-purple-300 transition-all text-lg">← Orqaga</Link>
-        <div>
-          <h1 className="text-2xl font-bold text-red-400">📖 Nomlanishi — Quiz</h1>
-          <p className="text-purple-400 text-sm">15 ta savol • IUPAC qoidalari asosida</p>
+  // Hisoblash
+  const correctCount = answers.filter(a => a.isCorrect).length
+  const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0
+
+  // Ism-family modal
+  if (showNameModal) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
+        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 max-w-md w-full">
+          <h2 className="text-2xl font-bold text-purple-300 mb-4">Ism-familyangizni kiriting</h2>
+          <p className="text-purple-300 text-sm mb-6">
+            Bu ma'lumot natijalar PDF faylida ko'rsatiladi.
+          </p>
+          <input
+            type="text"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleNameSubmit()}
+            placeholder="Masalan: Aliyev Ali"
+            className="w-full bg-purple-950/50 border border-purple-700/50 rounded-lg px-4 py-3 text-white placeholder-purple-500 focus:border-purple-500 outline-none mb-4"
+            autoFocus
+          />
+          <button
+            onClick={handleNameSubmit}
+            disabled={userName.trim().length < 2}
+            className="w-full bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition-colors"
+          >
+            Davom etish
+          </button>
         </div>
-      </header>
+      </main>
+    )
+  }
 
-      <section className="max-w-2xl mx-auto px-6 py-12">
-        
-        {!showResult ? (
-          <div className="space-y-6">
-            {/* Progress bar */}
-            <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6">
-              <div className="flex justify-between mb-3">
-                <span className="text-purple-300">Savol {currentQ + 1} / {questions.length}</span>
-                <span className="text-purple-400">{Math.round((currentQ / questions.length) * 100)}%</span>
+  // Quiz boshlanmagan
+  if (!quizStarted) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
+        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 max-w-2xl w-full text-center">
+          <h2 className="text-3xl font-bold text-purple-300 mb-4">Nomlanish Quiz</h2>
+          <p className="text-purple-300 mb-6">
+            150 ta savol bazasidan 20 ta tasodifiy savol tanlanadi. Har safar yangi savollar!
+          </p>
+          <div className="bg-purple-950/50 rounded-lg p-4 mb-6 text-left">
+            <h3 className="text-purple-300 font-semibold mb-2">Qanday ishlaydi:</h3>
+            <ul className="text-purple-300 text-sm space-y-2">
+              <li>✓ Har bir savolda 4 ta variant</li>
+              <li>✓ Javobni tanlang va tasdiqlang</li>
+              <li>✓ To'g'ri = yashil, xato = qizil + tushuntirish</li>
+              <li>✓ Oxirida PDF natija (faqat xato savollar)</li>
+            </ul>
+          </div>
+          <button
+            onClick={startQuiz}
+            className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+          >
+            Quizni boshlash
+          </button>
+        </div>
+      </main>
+    )
+  }
+
+  // Natijalar sahifasi
+  if (showResult) {
+    const minutes = Math.floor(elapsedTime / 60)
+    const seconds = elapsedTime % 60
+    const timeString = `${minutes} daqiqa ${seconds} soniya`
+
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 mb-6">
+            <h2 className="text-3xl font-bold text-purple-300 mb-6 text-center">Quiz Natijasi</h2>
+            
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="bg-purple-950/50 rounded-lg p-4 text-center">
+                <div className="text-3xl font-bold text-green-400">{correctCount}</div>
+                <div className="text-sm text-purple-300">To'g'ri</div>
               </div>
-              <div className="w-full h-2 bg-purple-800 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-red-500 to-orange-500 rounded-full transition-all duration-500"
-                  style={{ width: `${((currentQ + 1) / questions.length) * 100}%` }}
-                />
+              <div className="bg-purple-950/50 rounded-lg p-4 text-center">
+                <div className="text-3xl font-bold text-red-400">{questions.length - correctCount}</div>
+                <div className="text-sm text-purple-300">Xato</div>
+              </div>
+              <div className="bg-purple-950/50 rounded-lg p-4 text-center">
+                <div className="text-3xl font-bold text-purple-300">{percentage}%</div>
+                <div className="text-sm text-purple-300">Foiz</div>
               </div>
             </div>
 
-            {/* Savol */}
+            <div className="bg-purple-950/50 rounded-lg p-4 mb-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="text-sm text-purple-300">Ism-familya</div>
+                  <div className="text-lg font-semibold text-white">{userName}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-purple-300">Sarflangan vaqt</div>
+                  <div className="text-lg font-semibold text-white">{timeString}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={handleExportPDF}
+                className="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
+                📄 PDF yuklab olish (faqat xato savollar)
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex-1 bg-purple-800 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
+                🔄 Qayta boshlash
+              </button>
+            </div>
+          </div>
+
+          {/* Xato javoblar */}
+          {answers.filter(a => !a.isCorrect).length > 0 && (
             <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-              <h2 className="text-xl font-bold text-white mb-6">{questions[currentQ].q}</h2>
-              
-              <div className="space-y-3">
-                {questions[currentQ].options.map((opt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleAnswer(i)}
-                    disabled={selectedAnswer !== null}
-                    className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
-                      selectedAnswer === i 
-                        ? i === questions[currentQ].correct 
-                          ? "bg-green-600/20 border-green-500 text-green-300"
-                          : "bg-red-600/20 border-red-500 text-red-300"
-                        : "bg-purple-800/30 border-purple-700/30 text-purple-200 hover:bg-purple-700/40 hover:border-red-400/50"
-                    }`}
-                  >
-                    <span className="font-bold mr-3">{String.fromCharCode(65 + i)}.</span>
-                    {opt}
-                  </button>
+              <h3 className="text-2xl font-bold text-red-400 mb-6">Xato javoblar ({answers.filter(a => !a.isCorrect).length} ta)</h3>
+              <div className="space-y-6">
+                {answers.filter(a => !a.isCorrect).map((answer, index) => (
+                  <div key={index} className="bg-red-900/20 border border-red-700/50 rounded-lg p-6">
+                    <div className="mb-4">
+                      <div className="text-sm text-purple-300 mb-2">Savol {answer.questionIndex + 1}</div>
+                      <div className="text-lg font-semibold text-white">{answer.question}</div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-red-400">✗</span>
+                        <span className="text-red-400">Sizning javob: {String.fromCharCode(65 + answer.selectedAnswer)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-green-400">✓</span>
+                        <span className="text-green-400">To'g'ri javob: {String.fromCharCode(65 + answer.correctAnswer)}</span>
+                      </div>
+                    </div>
+                    <div className="bg-purple-950/50 rounded-lg p-4">
+                      <div className="text-sm font-semibold text-purple-300 mb-2">Tushuntirish:</div>
+                      <div className="text-sm text-purple-200">{answer.explanation}</div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-          </div>
-        ) : (
-          /* NATIJA */
-          <div className="text-center">
-            <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-10">
-              {(() => {
-                const score = getScore()
-                const percent = Math.round((score / questions.length) * 100)
-                
-                let emoji, title, message, color
-                if (percent >= 90) {
-                  emoji = "🏆"; title = "Ajoyib natija!"; color = "text-yellow-400"
-                  message = "Siz nomlanish qoidalarini mukammal bilasiz! IUPAC bo'yicha haqiqiy mutaxassissiz!"
-                } else if (percent >= 70) {
-                  emoji = "👍"; title = "Yaxshi natija!"; color = "text-green-400"
-                  message = "Bilimingiz yaxshi, lekin yana bir oz takrorlasangiz mukammal bo'ladi. Davom eting!"
-                } else if (percent >= 50) {
-                  emoji = "📖"; title = "O'rtacha natija"; color = "text-blue-400"
-                  message = "Bilimingiz yetarli, lekin yana ko'proq o'rganish kerak. Nomlanish qoidalarini qayta ko'rib chiqing."
-                } else {
-                  emoji = "💪"; title = "Harakat qilish kerak"; color = "text-pink-400"
-                  message = "Hozircha natija pastroq, lekin bu — o'rganish uchun ajoyib imkoniyat! Qoidalarni takrorlang va qayta urinib ko'ring."
-                }
+          )}
+        </div>
+      </main>
+    )
+  }
 
-                return (
-                  <>
-                    <div className="text-7xl mb-4">{emoji}</div>
-                    <h2 className={`text-3xl font-bold ${color} mb-2`}>{title}</h2>
-                    <div className="text-5xl font-extrabold text-white my-4">{percent}%</div>
-                    <p className="text-purple-300 text-sm mb-2">To'g'ri javoblar: {score} / {questions.length}</p>
-                    <p className="text-purple-200 mb-8">{message}</p>
-                  </>
-                )
-              })()}
+  // Quiz davom etmoqda
+  const currentQuestion = questions[currentQuestionIndex]
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button 
-                  onClick={restart}
-                  className="px-8 py-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl font-bold hover:from-red-400 hover:to-orange-400 transition-all transform hover:scale-105"
-                >
-                  🔄 Qayta yechish
-                </button>
-                <Link 
-                  href="/oquv/video-darsliklar/quiz"
-                  className="px-8 py-4 border-2 border-purple-500 rounded-xl font-bold hover:bg-purple-800/50 transition-all"
-                >
-                  📋 Boshqa testlar
-                </Link>
-              </div>
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-sm text-purple-300">
+              Savol {currentQuestionIndex + 1} / {questions.length}
+            </div>
+            <div className="text-sm text-purple-300">
+              Vaqt: {formatTime(elapsedTime)}
             </div>
           </div>
-        )}
+          <div className="w-full bg-purple-950/50 rounded-full h-2">
+            <div
+              className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
 
-      </section>
+        {/* Savol */}
+        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 mb-6">
+          <h2 className="text-2xl font-bold text-white mb-6">{currentQuestion.question}</h2>
+          
+          <div className="space-y-3">
+            {currentQuestion.options.map((option, index) => {
+              const isSelected = selectedAnswer === index
+              const isCorrect = index === currentQuestion.correct
+              const showCorrect = isConfirmed && isCorrect
+              const showWrong = isConfirmed && isSelected && !isCorrect
+
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleAnswerSelect(index)}
+                  disabled={isConfirmed}
+                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                    showCorrect
+                      ? "bg-green-900/40 border-green-500"
+                      : showWrong
+                      ? "bg-red-900/40 border-red-500"
+                      : isSelected
+                      ? "bg-purple-800/60 border-purple-500"
+                      : "bg-purple-950/50 border-purple-700/50 hover:border-purple-500"
+                  } ${isConfirmed ? "cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold">{String.fromCharCode(65 + index)}</span>
+                    <span>{option}</span>
+                    {showCorrect && <span className="ml-auto text-green-400">✓</span>}
+                    {showWrong && <span className="ml-auto text-red-400">✗</span>}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Tushuntirish */}
+          {isConfirmed && (
+            <div className={`mt-6 p-4 rounded-lg ${
+              selectedAnswer === currentQuestion.correct
+                ? "bg-green-900/20 border border-green-700/50"
+                : "bg-red-900/20 border border-red-700/50"
+            }`}>
+              <div className="text-sm font-semibold mb-2">
+                {selectedAnswer === currentQuestion.correct ? "✓ To'g'ri!" : "✗ Xato"}
+              </div>
+              <div className="text-sm text-purple-200">{currentQuestion.explanation}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Tugmalar */}
+        <div className="flex gap-4">
+          {!isConfirmed ? (
+            <button
+              onClick={handleConfirm}
+              disabled={selectedAnswer === null}
+              className="flex-1 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition-colors"
+            >
+              Javobni tasdiqlash
+            </button>
+          ) : (
+            <button
+              onClick={handleNext}
+              className="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors"
+            >
+              {currentQuestionIndex < questions.length - 1 ? "Keyingi savol" : "Natijalarni ko'rish"}
+            </button>
+          )}
+        </div>
+      </div>
     </main>
   )
 }
