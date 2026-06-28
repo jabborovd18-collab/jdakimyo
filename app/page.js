@@ -2,9 +2,12 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import { useSession, signOut } from "next-auth/react"
 
 export default function Home() {
+  const { data: session, status } = useSession()
   const [showMobileWarning, setShowMobileWarning] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
 
   useEffect(() => {
     const isMobile = window.innerWidth < 768
@@ -18,6 +21,17 @@ export default function Home() {
   const dismissMobileWarning = () => {
     localStorage.setItem("mobileWarningDismissed", "true")
     setShowMobileWarning(false)
+  }
+
+  // Foydalanuvchi ismining bosh harfi
+  const getUserInitial = () => {
+    if (session?.user?.fullName) {
+      return session.user.fullName.charAt(0).toUpperCase()
+    }
+    if (session?.user?.username) {
+      return session.user.username.charAt(0).toUpperCase()
+    }
+    return "U"
   }
 
   return (
@@ -94,6 +108,172 @@ export default function Home() {
             <span className="hidden sm:inline">Qidiruv</span>
             <kbd className="hidden lg:inline-block text-[10px] bg-purple-950/80 px-1.5 py-0.5 rounded border border-purple-700">Ctrl+K</kbd>
           </Link>
+
+          {/* ═══════════════════════════════════════════════════ */}
+          {/* PROFIL / KIRISH TUGMASI */}
+          {/* ═══════════════════════════════════════════════════ */}
+          {status === "loading" ? (
+            <div className="w-10 h-10 rounded-full bg-purple-800/50 animate-pulse"></div>
+          ) : session ? (
+            // LOGGED IN - User Menu
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-gradient-to-r from-purple-800/50 to-purple-700/50 hover:from-purple-700/70 hover:to-purple-600/70 border border-purple-600/50 rounded-full transition-all group"
+              >
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-sm font-bold text-black">
+                  {getUserInitial()}
+                </div>
+                <span className="hidden sm:inline text-sm font-medium text-white max-w-[120px] truncate">
+                  {session.user?.fullName || session.user?.username || "Profil"}
+                </span>
+                <svg 
+                  className={`w-4 h-4 text-purple-300 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {showUserMenu && (
+                <>
+                  {/* Backdrop */}
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setShowUserMenu(false)}
+                  />
+                  
+                  {/* Menu */}
+                  <div className="absolute right-0 mt-2 w-64 bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-xl border border-purple-700/50 rounded-2xl shadow-2xl shadow-black/50 z-50 overflow-hidden">
+                    
+                    {/* User Info Header */}
+                    <div className="px-4 py-4 border-b border-purple-700/50 bg-purple-950/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-xl font-bold text-black flex-shrink-0">
+                          {getUserInitial()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-white truncate">
+                            {session.user?.fullName || session.user?.username}
+                          </div>
+                          <div className="text-xs text-purple-400 truncate">
+                            @{session.user?.username}
+                          </div>
+                          <div className="text-xs text-yellow-400 font-mono mt-0.5">
+                            ID: {session.user?.userId}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="p-2">
+                      <Link
+                        href="/profil"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-purple-800/50 transition-all group"
+                      >
+                        <span className="text-xl">👤</span>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold text-white group-hover:text-yellow-400 transition-colors">
+                            Shaxsiy kabinet
+                          </div>
+                          <div className="text-xs text-purple-400">Profil, statistika, do'stlar</div>
+                        </div>
+                        <span className="text-purple-500 group-hover:text-yellow-400 group-hover:translate-x-1 transition-all">→</span>
+                      </Link>
+
+                      <Link
+                        href="/profil?tab=quizzes"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-purple-800/50 transition-all group"
+                      >
+                        <span className="text-xl">📝</span>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold text-white group-hover:text-yellow-400 transition-colors">
+                            Quiz natijalarim
+                          </div>
+                          <div className="text-xs text-purple-400">Barcha test tarixi</div>
+                        </div>
+                        <span className="text-purple-500 group-hover:text-yellow-400 group-hover:translate-x-1 transition-all">→</span>
+                      </Link>
+
+                      <Link
+                        href="/profil?tab=achievements"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-purple-800/50 transition-all group"
+                      >
+                        <span className="text-xl">🏆</span>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold text-white group-hover:text-yellow-400 transition-colors">
+                            Yutuqlarim
+                          </div>
+                          <div className="text-xs text-purple-400">Badges va mukofotlar</div>
+                        </div>
+                        <span className="text-purple-500 group-hover:text-yellow-400 group-hover:translate-x-1 transition-all">→</span>
+                      </Link>
+
+                      <Link
+                        href="/profil?tab=friends"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-purple-800/50 transition-all group"
+                      >
+                        <span className="text-xl">👥</span>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold text-white group-hover:text-yellow-400 transition-colors">
+                            Do'stlarim
+                          </div>
+                          <div className="text-xs text-purple-400">Do'stlarni boshqarish</div>
+                        </div>
+                        <span className="text-purple-500 group-hover:text-yellow-400 group-hover:translate-x-1 transition-all">→</span>
+                      </Link>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-purple-700/50 p-2">
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false)
+                          signOut({ callbackUrl: '/' })
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-900/30 transition-all group"
+                      >
+                        <span className="text-xl">🚪</span>
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-semibold text-red-400 group-hover:text-red-300 transition-colors">
+                            Chiqish
+                          </div>
+                          <div className="text-xs text-purple-400">Hisobdan chiqish</div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            // NOT LOGGED IN - Login/Register Buttons
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-sm font-semibold transition-all flex items-center gap-2"
+              >
+                <span>🔐</span>
+                <span className="hidden sm:inline">Kirish</span>
+              </Link>
+              <Link
+                href="/register"
+                className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black rounded-xl text-sm font-bold transition-all transform hover:-translate-y-0.5 shadow-lg shadow-yellow-500/20 flex items-center gap-2"
+              >
+                <span>✨</span>
+                <span className="hidden sm:inline">Ro'yxatdan o'tish</span>
+              </Link>
+            </div>
+          )}
+          
           <Link href="/hamkorlik" className="p-2 hover:bg-purple-800/50 rounded-full transition-all" title="Hamkorlik">🤝</Link>
         </div>
       </header>
@@ -238,7 +418,7 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* 03 QUIZ TESTLAR VA VIDEO DARSLIKLAR (BIRLASHTIRILGAN) */}
+          {/* 03 QUIZ TESTLAR VA VIDEO DARSLIKLAR */}
           <Link href="/oquv/video-darsliklar" 
             className="group bg-gradient-to-br from-yellow-600/20 to-yellow-900/40 border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-2 relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30 bg-yellow-500"></div>
@@ -305,7 +485,6 @@ export default function Home() {
                 <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300">
                   Yangiliklar
                 </span>
-                {/* OLTIN RANG - SAYT HAMKORLARI */}
                 <span className="text-[10px] px-2 py-0.5 bg-gradient-to-r from-yellow-600/30 to-amber-600/30 border border-yellow-500/50 rounded-full text-yellow-300 font-semibold flex items-center gap-1">
                   <span>🏆</span>
                   <span>Sayt hamkorlari</span>
