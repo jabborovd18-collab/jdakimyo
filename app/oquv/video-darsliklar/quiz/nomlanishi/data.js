@@ -1,1384 +1,1403 @@
 // app/oquv/video-darsliklar/quiz/nomlanishi/data.js
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// NOMLANISH QUIZ — SAVOL BAZASI (150 TA SAVOL)
-// Manbalar: IUPAC 2005 Recommendations, Cotton-Wilkinson, Miessler-Tarr
-// Xususiyat: 6 ta guruh — ligandlar, kation, anion, oksidlanish, polidentat, aralash
+// NOMLANISH QUIZ — SAVOL BAZASI (150 TA SAVOL) — TAHRIRLANGAN VERSIYA
+// ═══════════════════════════════════════════════════════════════════════════════
+// Manba: Nasimov A.M., Tashpulatov X.Sh. "Noorganik kimyoning tanlangan boblari"
+//        SamDU nashriyoti, 2022 (asosiy adabiyot)
+//        IUPAC 1971 Recommendations (an'anaviy nomenklatura)
+//        Cotton-Wilkinson "Advanced Inorganic Chemistry"
+//
+// QABUL QILINGAN KONVENTSIYA:
+//  1) Ligandlar tartibi: ANION → NEYTRAL → KATION (har bir guruh ichida alifbo)
+//  2) Anion ligandlarga "-o" qo'shimchasi: xloro, siano, okso, gidrokso, nitro
+//  3) Anion komplekslarda metallning LOTINCHA o'zagi + "-at":
+//     Fe → ferrat, Cu → kuprat, Ag → argentat, Au → aurat, Sn → stannat,
+//     Pb → plumbat, Pt → platinat, Ni → nikelat, Co → kobaltat, Cr → xromat,
+//     Mn → manganat, Zn → sinkat, Al → aluminat
+//  4) Kation va neytral komplekslarda metall O'ZBEKCHA: mis, temir, kumush,
+//     oltin, qoʻrgʻoshin, qalay, kobalt, nikel, platina, xrom, marganets, sink
+//  5) Polidentat yoki murakkab nomli ligandlar uchun bis-, tris-, tetrakis-
+//  6) Markaziy atom oksidlanish darajasi qavsda rim raqami bilan: (II), (III)
+//  7) Nol oksidlanish darajasi (0) ko'rsatiladi: tetrakarbonilnikel(0)
+//
+// 6 GURUH: ligandlar / kation komplekslar / anion komplekslar /
+//          oksidlanish darajasi / polidentat / aralash + izomeriya
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const QUIZ_BANK = [
   // ═══════════════════════════════════════════════════════════════════════════
-  // 1-GURUH: LIGAND NOMLARI (30 ta savol)
+  // 1-GURUH: LIGAND NOMLARI (30 ta savol) — IDs 1–30
   // ═══════════════════════════════════════════════════════════════════════════
   {
     id: 1,
     question: "H₂O ligandi IUPAC bo'yicha qanday nomlanadi?",
-    options: ["gidro", "akva", "okso", "gidroksoniy"],
-    correct: 1,
+    options: ["gidro", "okso", "akva", "gidroksoniy"],
+    correct: 2,
     difficulty: "oson",
     tags: ["ligand", "akva", "neytral"],
-    explanation: "H₂O ligandi IUPAC bo'yicha 'akva' (aqua) deb nomlanadi. Bu neytral ligand, metalga O atomi orqali bog'lanadi."
+    explanation: "H₂O — neytral ligand, IUPAC bo'yicha 'akva' (lot. aqua) deb nomlanadi. Metall bilan O atomi orqali bog'lanadi."
   },
   {
     id: 2,
     question: "NH₃ ligandi IUPAC bo'yicha qanday nomlanadi?",
-    options: ["amid", "amin", "ammin", "ammoniy"],
-    correct: 2,
+    options: ["amid", "ammin", "amin", "ammoniy"],
+    correct: 1,
     difficulty: "oson",
     tags: ["ligand", "ammin", "neytral"],
-    explanation: "NH₃ ligandi IUPAC bo'yicha 'ammin' (ammine) deb nomlanadi — ikki 'm' bilan. Neytral ligand, N atomi orqali bog'lanadi."
+    explanation: "NH₃ ligandi 'ammin' (ikki 'm' bilan) deb nomlanadi — bu organik 'amin' (bitta 'm') dan farqlanadi. Neytral ligand, N orqali bog'lanadi."
   },
   {
     id: 3,
     question: "CN⁻ ligandi qanday nomlanadi?",
-    options: ["sian", "sianid", "siyano", "sianato"],
-    correct: 2,
+    options: ["sian", "sianid", "sianato", "siano"],
+    correct: 3,
     difficulty: "oson",
-    tags: ["ligand", "siyano", "anion"],
-    explanation: "CN⁻ ligandi IUPAC bo'yicha 'siyano' (cyano) deb nomlanadi. Anion ligand, C atomi orqali bog'lanadi."
+    tags: ["ligand", "siano", "anion"],
+    explanation: "CN⁻ — anion ligand, 'siano' deb nomlanadi. Odatda C atomi orqali bog'lanadi (ambidentat: izosiano — N orqali)."
   },
   {
     id: 4,
     question: "CO ligandi IUPAC bo'yicha qanday nomlanadi?",
-    options: ["karbonat", "karbonil", "karboksil", "karbon"],
-    correct: 1,
+    options: ["karbonat", "karboksil", "karbonil", "karbid"],
+    correct: 2,
     difficulty: "oson",
     tags: ["ligand", "karbonil", "neytral"],
-    explanation: "CO ligandi IUPAC bo'yicha 'karbonil' (carbonyl) deb nomlanadi. Neytral ligand, C atomi orqali bog'lanadi."
+    explanation: "CO — neytral ligand, 'karbonil' deb nomlanadi. C atomi orqali bog'lanadi. Misol: [Ni(CO)₄] — tetrakarbonilnikel(0)."
   },
   {
     id: 5,
     question: "Cl⁻ ligandi kompleks birikmada qanday nomlanadi?",
-    options: ["xlor", "xlorid", "xloro", "xlorit"],
-    correct: 2,
+    options: ["xloro", "xlor", "xlorid", "xlorit"],
+    correct: 0,
     difficulty: "oson",
     tags: ["ligand", "xloro", "anion"],
-    explanation: "Cl⁻ ligandi kompleks birikmada 'xloro' (chloro) deb nomlanadi. Anion ligand, Cl atomi orqali bog'lanadi."
+    explanation: "Cl⁻ — anion ligand, kompleksda 'xloro' deb nomlanadi. Tuz tarkibidagi tashqi sferada esa 'xlorid' deyiladi."
   },
   {
     id: 6,
     question: "OH⁻ ligandi qanday nomlanadi?",
-    options: ["gidroksil", "gidroksid", "gidrokso", "gidro"],
+    options: ["gidroksil", "gidroksid", "gidrokso", "gidrid"],
     correct: 2,
     difficulty: "oson",
     tags: ["ligand", "gidrokso", "anion"],
-    explanation: "OH⁻ ligandi IUPAC bo'yicha 'gidrokso' (hydroxo) deb nomlanadi. Anion ligand, O atomi orqali bog'lanadi."
+    explanation: "OH⁻ — anion ligand, 'gidrokso' deb nomlanadi. O atomi orqali bog'lanadi. H⁻ esa 'gidrido' (anion, faqat H)."
   },
   {
     id: 7,
-    question: "NO₂⁻ ligandi N orqali bog'langanda qanday nomlanadi?",
-    options: ["nitro", "nitrito", "nitrito-N", "nitro-N"],
-    correct: 0,
+    question: "NO₂⁻ ligandi N atomi orqali bog'langanda qanday nomlanadi?",
+    options: ["nitrito", "nitro", "nitrozil", "nitrato"],
+    correct: 1,
     difficulty: "o'rta",
     tags: ["ligand", "nitro", "linkage"],
-    explanation: "NO₂⁻ ligandi N orqali bog'langanda 'nitro' deb nomlanadi. O orqali bog'langanda 'nitrito-O' deb nomlanadi (linkage izomerizm)."
+    explanation: "NO₂⁻ ambidentat ligand: N orqali — 'nitro' (M–NO₂), O orqali — 'nitrito' (M–ONO). Bu bog'lanish (linkage) izomeriyasini beradi."
   },
   {
     id: 8,
-    question: "NO₂⁻ ligandi O orqali bog'langanda qanday nomlanadi?",
-    options: ["nitro", "nitrito", "nitrito-O", "nitro-O"],
+    question: "NO₂⁻ ligandi O atomi orqali bog'langanda qanday nomlanadi?",
+    options: ["nitro", "nitrozil", "nitrito", "nitrat"],
     correct: 2,
     difficulty: "o'rta",
     tags: ["ligand", "nitrito", "linkage"],
-    explanation: "NO₂⁻ ligandi O orqali bog'langanda 'nitrito-O' deb nomlanadi. Bu linkage izomerizm — ambidentat ligand."
+    explanation: "O atomi orqali bog'langan NO₂⁻ — 'nitrito' (–ONO). N orqali bog'langani — 'nitro'. Bu ikkisi linkage izomerlar."
   },
   {
     id: 9,
-    question: "SCN⁻ ligandi S orqali bog'langanda qanday nomlanadi?",
-    options: ["tiotsianato", "tiotsianato-S", "tiotsianato-S", "tiotsianato-S"],
-    correct: 1,
+    question: "SCN⁻ ligandi S atomi orqali bog'langanda qanday nomlanadi?",
+    options: ["izotiosianato", "tiosianid", "tio", "tiosianato"],
+    correct: 3,
     difficulty: "o'rta",
-    tags: ["ligand", "tiotsianato", "linkage"],
-    explanation: "SCN⁻ ligandi S orqali bog'langanda 'tiotsianato-S' (thiocyanato-S) deb nomlanadi. Ambidentat ligand."
+    tags: ["ligand", "tiosianato", "linkage"],
+    explanation: "SCN⁻ S orqali bog'langanda 'tiosianato' (M–SCN), N orqali bog'langanda 'izotiosianato' (M–NCS) deb nomlanadi. Ambidentat ligand."
   },
   {
     id: 10,
-    question: "SCN⁻ ligandi N orqali bog'langanda qanday nomlanadi?",
-    options: ["izotiotsianato", "tiotsianato-N", "izosiyanato", "tiotsianato"],
+    question: "SCN⁻ ligandi N atomi orqali bog'langanda qanday nomlanadi?",
+    options: ["tiosianato", "izotiosianato", "sianato", "tio"],
     correct: 1,
     difficulty: "o'rta",
-    tags: ["ligand", "tiotsianato", "linkage"],
-    explanation: "SCN⁻ ligandi N orqali bog'langanda 'tiotsianato-N' deb nomlanadi. Ambidentat ligand — S yoki N orqali bog'lanishi mumkin."
+    tags: ["ligand", "izotiosianato", "linkage"],
+    explanation: "N orqali bog'langan SCN⁻ — 'izotiosianato' (M–NCS). S orqali bog'langani — 'tiosianato' (M–SCN). Linkage izomerlar."
   },
   {
     id: 11,
     question: "F⁻ ligandi qanday nomlanadi?",
-    options: ["ftor", "ftorid", "ftoro", "ftorit"],
-    correct: 2,
+    options: ["ftoro", "ftor", "ftorid", "ftorat"],
+    correct: 0,
     difficulty: "oson",
     tags: ["ligand", "ftoro", "anion"],
-    explanation: "F⁻ ligandi IUPAC bo'yicha 'ftoro' (fluoro) deb nomlanadi. Anion ligand."
+    explanation: "F⁻ — anion ligand, kompleks ichida 'ftoro' deb nomlanadi. Tashqi sferada esa 'ftorid'."
   },
   {
     id: 12,
     question: "Br⁻ ligandi qanday nomlanadi?",
-    options: ["brom", "bromid", "bromo", "bromit"],
-    correct: 2,
+    options: ["brom", "bromid", "bromat", "bromo"],
+    correct: 3,
     difficulty: "oson",
     tags: ["ligand", "bromo", "anion"],
-    explanation: "Br⁻ ligandi IUPAC bo'yicha 'bromo' deb nomlanadi. Anion ligand."
+    explanation: "Br⁻ — anion ligand, 'bromo' deb nomlanadi. Tashqi sferada 'bromid'."
   },
   {
     id: 13,
     question: "I⁻ ligandi qanday nomlanadi?",
-    options: ["yod", "yodid", "yodo", "yodit"],
+    options: ["yod", "yodid", "yodo", "yodat"],
     correct: 2,
     difficulty: "oson",
     tags: ["ligand", "yodo", "anion"],
-    explanation: "I⁻ ligandi IUPAC bo'yicha 'yodo' (iodo) deb nomlanadi. Anion ligand."
+    explanation: "I⁻ — anion ligand, 'yodo' deb nomlanadi. Tashqi sferada 'yodid'."
   },
   {
     id: 14,
     question: "O²⁻ ligandi qanday nomlanadi?",
-    options: ["okso", "oksid", "okso", "oksid"],
-    correct: 0,
+    options: ["oksid", "okso", "peroksid", "gidroksid"],
+    correct: 1,
     difficulty: "o'rta",
     tags: ["ligand", "okso", "anion"],
-    explanation: "O²⁻ ligandi IUPAC bo'yicha 'okso' (oxo) deb nomlanadi. Anion ligand."
+    explanation: "O²⁻ — anion ligand, 'okso' deb nomlanadi. Misol: [MnO₄]⁻ — tetraoksomanganat(VII)."
   },
   {
     id: 15,
     question: "S²⁻ ligandi qanday nomlanadi?",
-    options: ["sulfid", "tio", "tio", "sulfido"],
-    correct: 1,
+    options: ["tio", "sulfid", "sulfato", "sulfit"],
+    correct: 0,
     difficulty: "o'rta",
     tags: ["ligand", "tio", "anion"],
-    explanation: "S²⁻ ligandi IUPAC bo'yicha 'tio' (thio) deb nomlanadi. Anion ligand."
+    explanation: "S²⁻ — anion ligand, 'tio' deb nomlanadi (yunoncha θεῖον — oltingugurt). Misol: [MoS₄]²⁻ — tetratiomolibdat(VI)."
   },
   {
     id: 16,
     question: "NO⁺ ligandi qanday nomlanadi?",
-    options: ["nitrozil", "nitro", "nitrito", "nitrozil"],
-    correct: 0,
+    options: ["nitro", "nitrito", "nitrozil", "nitrat"],
+    correct: 2,
     difficulty: "o'rta",
     tags: ["ligand", "nitrozil", "kation"],
-    explanation: "NO⁺ ligandi IUPAC bo'yicha 'nitrozil' (nitrosyl) deb nomlanadi. Kation ligand."
+    explanation: "NO⁺ — kation ligand, 'nitrozil' deb nomlanadi. NO₂⁻ esa 'nitro' (N orqali) yoki 'nitrito' (O orqali) bo'ladi."
   },
   {
     id: 17,
-    question: "C₅H₅⁻ (siklopentadienil) ligandi qanday nomlanadi?",
-    options: ["siklopentadienil", "siklopentadienil", "siklopentadienil", "siklopentadienil"],
-    correct: 0,
+    question: "C₅H₅⁻ (siklopentadienil-anion) ligandi qanday nomlanadi?",
+    options: ["siklopentadien", "pentametildien", "siklopentadienil", "siklopentil"],
+    correct: 2,
     difficulty: "o'rta",
     tags: ["ligand", "siklopentadienil", "anion"],
-    explanation: "C₅H₅⁻ ligandi 'siklopentadienil' (cyclopentadienyl) deb nomlanadi. η⁵-bog'lanish (pentahapto)."
+    explanation: "C₅H₅⁻ — 'siklopentadienil' (Cp), η⁵-koordinatsiya (pentahapto). Misol: ferrotsen [Fe(η⁵-C₅H₅)₂]."
   },
   {
     id: 18,
-    question: "en (etilendiamin) ligandi qanday nomlanadi?",
-    options: ["etilendiamin", "etilendiamin", "diaminoetan", "etilendiamin"],
-    correct: 0,
+    question: "en (etilendiamin, H₂N–CH₂–CH₂–NH₂) qanday turdagi ligand?",
+    options: ["monodentat neytral", "bidentat anion", "bidentat neytral", "tridentat neytral"],
+    correct: 2,
     difficulty: "oson",
     tags: ["ligand", "etilendiamin", "bidentat"],
-    explanation: "en (etilendiamin, ethylenediamine) — bidentat ligand, ikkita N atomi orqali bog'lanadi."
+    explanation: "en — bidentat NEYTRAL ligand: ikkita N atomi orqali metallga koordinatsiyalanadi va 5-a'zoli xelat halqasi hosil qiladi."
   },
   {
     id: 19,
-    question: "ox²⁻ (oksalat) ligandi qanday nomlanadi?",
-    options: ["oksalato", "oksalat", "oksalato", "oksalat"],
+    question: "C₂O₄²⁻ (oksalat) ligandi qanday nomlanadi?",
+    options: ["oksalato", "oksal", "oksid", "perokso"],
     correct: 0,
     difficulty: "o'rta",
     tags: ["ligand", "oksalato", "bidentat"],
-    explanation: "ox²⁻ (oksalat, oxalate) ligandi IUPAC bo'yicha 'oksalato' (oxalato) deb nomlanadi. Bidentat ligand, ikkita O atomi orqali bog'lanadi."
+    explanation: "C₂O₄²⁻ — bidentat anion ligand, 'oksalato' deb nomlanadi. Ikkita O atomi orqali bog'lanadi va 5-a'zoli xelat halqa hosil qiladi."
   },
   {
     id: 20,
-    question: "acac⁻ (atsetilasetonat) ligandi qanday nomlanadi?",
-    options: ["atsetilasetonato", "atsetilasetonat", "atsetilasetonato", "atsetilasetonat"],
-    correct: 0,
+    question: "acac⁻ (atsetilasetonat) qanday turdagi ligand?",
+    options: ["monodentat anion", "bidentat anion", "bidentat neytral", "tridentat anion"],
+    correct: 1,
     difficulty: "o'rta",
     tags: ["ligand", "atsetilasetonato", "bidentat"],
-    explanation: "acac⁻ (atsetilasetonat, acetylacetonate) ligandi IUPAC bo'yicha 'atsetilasetonato' deb nomlanadi. Bidentat ligand, ikkita O atomi orqali bog'lanadi."
+    explanation: "acac⁻ ([CH₃COCHCOCH₃]⁻) — bidentat anion ligand, ikkita O atomi orqali bog'lanib, 6-a'zoli xelat halqa hosil qiladi."
   },
   {
     id: 21,
-    question: "py (piridin) ligandi qanday nomlanadi?",
-    options: ["piridin", "piridin", "piridin", "piridin"],
-    correct: 0,
+    question: "py (piridin, C₅H₅N) qanday turdagi ligand?",
+    options: ["bidentat neytral", "monodentat anion", "kation", "monodentat neytral"],
+    correct: 3,
     difficulty: "oson",
     tags: ["ligand", "piridin", "neytral"],
-    explanation: "py (piridin, pyridine) — neytral ligand, N atomi orqali bog'lanadi."
+    explanation: "py — monodentat NEYTRAL ligand, N atomi orqali bog'lanadi. Nomda ham 'piridin' deyiladi."
   },
   {
     id: 22,
-    question: "phen (1,10-fenantrolin) ligandi qanday nomlanadi?",
-    options: ["1,10-fenantrolin", "fenantroline", "1,10-fenantrolin", "fenantroline"],
+    question: "phen (1,10-fenantrolin) qanday turdagi ligand?",
+    options: ["bidentat neytral", "monodentat neytral", "tridentat", "bidentat anion"],
     correct: 0,
     difficulty: "o'rta",
-    tags: ["ligand", "fenantroline", "bidentat"],
-    explanation: "phen (1,10-fenantrolin, 1,10-phenanthroline) — bidentat ligand, ikkita N atomi orqali bog'lanadi."
+    tags: ["ligand", "fenantrolin", "bidentat"],
+    explanation: "phen — bidentat NEYTRAL ligand, ikkita N atomi (1- va 10-holatda) orqali bog'lanadi. Tetraedrik va oktaedrik komplekslar uchun keng qo'llaniladi."
   },
   {
     id: 23,
-    question: "EDTA⁴⁻ ligandi qanday nomlanadi?",
-    options: ["etilendiamintetraatsetato", "etilendiamintetraatsetat", "etilendiamintetraatsetato", "etilendiamintetraatsetat"],
-    correct: 0,
+    question: "EDTA⁴⁻ ligandi nechta donor atomga ega va qanday turda?",
+    options: ["4 ta donor, tetradentat", "8 ta donor, oktadentat", "6 ta donor, geksadentat", "2 ta donor, bidentat"],
+    correct: 2,
     difficulty: "qiyin",
     tags: ["ligand", "EDTA", "geksadentat"],
-    explanation: "EDTA⁴⁻ (etilendiamintetraatsetat, ethylenediaminetetraacetate) — geksadentat ligand, 6 ta donor atom (2 N, 4 O)."
+    explanation: "EDTA⁴⁻ — geksadentat anion ligand: 2 ta N atomi va 4 ta karboksilat O atomi (jami 6 donor) orqali bog'lanadi."
   },
   {
     id: 24,
-    question: "PPh₃ (trifenilfosfin) ligandi qanday nomlanadi?",
-    options: ["trifenilfosfin", "trifenilfosfin", "trifenilfosfin", "trifenilfosfin"],
+    question: "PPh₃ (trifenilfosfin) qanday turdagi ligand?",
+    options: ["monodentat neytral, P-donor", "bidentat neytral", "monodentat anion", "tridentat"],
     correct: 0,
     difficulty: "o'rta",
     tags: ["ligand", "trifenilfosfin", "neytral"],
-    explanation: "PPh₃ (trifenilfosfin, triphenylphosphine) — neytral ligand, P atomi orqali bog'lanadi."
+    explanation: "PPh₃ — monodentat NEYTRAL ligand, P atomi orqali bog'lanadi. π-akseptor xususiyatga ega, past oksidlanish darajalardagi metallarni barqarorlashtiradi."
   },
   {
     id: 25,
     question: "NO₃⁻ ligandi qanday nomlanadi?",
-    options: ["nitrato", "nitrat", "nitrato", "nitrat"],
-    correct: 0,
+    options: ["nitro", "nitrato", "nitrito", "nitrozil"],
+    correct: 1,
     difficulty: "o'rta",
     tags: ["ligand", "nitrato", "anion"],
-    explanation: "NO₃⁻ ligandi IUPAC bo'yicha 'nitrato' (nitrato) deb nomlanadi. Anion ligand."
+    explanation: "NO₃⁻ — anion ligand, 'nitrato' deb nomlanadi. Monodentat yoki bidentat bo'lib koordinatsiyalanishi mumkin."
   },
   {
     id: 26,
     question: "SO₄²⁻ ligandi qanday nomlanadi?",
-    options: ["sulfato", "sulfat", "sulfato", "sulfat"],
+    options: ["sulfato", "sulfit", "tio", "sulfid"],
     correct: 0,
     difficulty: "o'rta",
     tags: ["ligand", "sulfato", "anion"],
-    explanation: "SO₄²⁻ ligandi IUPAC bo'yicha 'sulfato' (sulfato) deb nomlanadi. Anion ligand."
+    explanation: "SO₄²⁻ — anion ligand, 'sulfato' deb nomlanadi. Tashqi sferada 'sulfat'. Monodentat yoki bidentat bo'lishi mumkin."
   },
   {
     id: 27,
     question: "CO₃²⁻ ligandi qanday nomlanadi?",
-    options: ["karbonato", "karbonat", "karbonato", "karbonat"],
+    options: ["karbonato", "karbonil", "karbid", "karboksilato"],
     correct: 0,
     difficulty: "o'rta",
     tags: ["ligand", "karbonato", "anion"],
-    explanation: "CO₃²⁻ ligandi IUPAC bo'yicha 'karbonato' (carbonato) deb nomlanadi. Anion ligand."
+    explanation: "CO₃²⁻ — anion ligand, 'karbonato' deb nomlanadi. CO (neytral) — 'karbonil' bilan adashtirmaslik kerak."
   },
   {
     id: 28,
     question: "CH₃COO⁻ (atsetat) ligandi qanday nomlanadi?",
-    options: ["atsetato", "atsetat", "atsetato", "atsetat"],
-    correct: 0,
+    options: ["atsetil", "atsetat", "etanoil", "atsetato"],
+    correct: 3,
     difficulty: "o'rta",
     tags: ["ligand", "atsetato", "anion"],
-    explanation: "CH₃COO⁻ (atsetat, acetate) ligandi IUPAC bo'yicha 'atsetato' (acetato) deb nomlanadi. Anion ligand."
+    explanation: "CH₃COO⁻ — anion ligand, kompleks ichida 'atsetato' deb nomlanadi. Tashqi sferada 'atsetat'."
   },
   {
     id: 29,
-    question: "C₂O₄²⁻ (oksalat) ligandi qanday nomlanadi?",
-    options: ["oksalato", "oksalat", "oksalato", "oksalat"],
-    correct: 0,
+    question: "Quyidagilardan qaysisi BIDENTAT ligand emas?",
+    options: ["etilendiamin (en)", "oksalat (C₂O₄²⁻)", "ammin (NH₃)", "fenantrolin (phen)"],
+    correct: 2,
     difficulty: "o'rta",
-    tags: ["ligand", "oksalato", "bidentat"],
-    explanation: "C₂O₄²⁻ (oksalat, oxalate) ligandi IUPAC bo'yicha 'oksalato' (oxalato) deb nomlanadi. Bidentat ligand."
+    tags: ["ligand", "bidentat", "monodentat"],
+    explanation: "NH₃ (ammin) — MONODENTAT ligand, faqat bitta N atomi orqali bog'lanadi. Boshqa uchtasi — bidentat (ikkita donor)."
   },
   {
     id: 30,
     question: "H⁻ (gidrid) ligandi qanday nomlanadi?",
-    options: ["gidrido", "gidrid", "gidrido", "gidrid"],
+    options: ["gidrido", "gidro", "gidrokso", "gidrogen"],
     correct: 0,
     difficulty: "o'rta",
     tags: ["ligand", "gidrido", "anion"],
-    explanation: "H⁻ (gidrid, hydride) ligandi IUPAC bo'yicha 'gidrido' (hydrido) deb nomlanadi. Anion ligand."
+    explanation: "H⁻ — anion ligand, 'gidrido' deb nomlanadi. OH⁻ esa 'gidrokso' — bu ikkisini farqlash muhim."
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 2-GURUH: KATION KOMPLEKSLAR (25 ta savol)
+  // 2-GURUH: KATION KOMPLEKSLAR (25 ta savol) — IDs 31–55
   // ═══════════════════════════════════════════════════════════════════════════
   {
     id: 31,
     question: "[Ag(NH₃)₂]Cl ning IUPAC bo'yicha nomi qanday?",
-    options: ["diamminkumush(I) xlorid", "diamminkumush(II) xlorid", "kumush diamminklorid", "diaminargentum xlorid"],
+    options: ["diamminkumush xlorid", "diamminkumush(II) xlorid", "kumush diamminxlorid", "diammargentum xlorid"],
     correct: 0,
     difficulty: "o'rta",
     tags: ["kation", "kumush", "ammin", "xlorid"],
-    explanation: "Kation kompleks: ligandlar alifbo tartibida (ammin), metall nomi (kumush), oksidlanish darajasi (I), anion (xlorid). [Ag(NH₃)₂]⁺ — kation, Cl⁻ — anion."
+    explanation: "Ag oksidlanish darajasi +1 (NH₃ — neytral, umumiy zaryad +1). Kumush uchun +1 yagona va odatiy oksidlanish darajasi bo'lgani uchun rim raqami ko'rsatilmasligi mumkin: diamminkumush xlorid."
   },
   {
     id: 32,
     question: "[Co(NH₃)₆]Cl₃ ning to'g'ri nomini toping.",
-    options: ["geksaamminkobalt(III) xlorid", "geksaamminkobalt(II) xlorid", "kobalt geksaammin xlorid", "geksaamminxlorokobalt"],
-    correct: 0,
+    options: ["geksaamminkobalt(II) xlorid", "kobalt(III) geksaamminxlorid", "geksaamminxlorokobalt(III)", "geksaamminkobalt(III) xlorid"],
+    correct: 3,
     difficulty: "o'rta",
     tags: ["kation", "kobalt", "ammin", "xlorid"],
-    explanation: "[Co(NH₃)₆]³⁺ — kation (geksaamminkobalt(III)), 3 Cl⁻ — anion (xlorid). Co³⁺ oksidlanish darajasi."
+    explanation: "[Co(NH₃)₆]³⁺ — kation. NH₃ neytral, 3 Cl⁻ tashqi sferada. Co + 0 = +3, ya'ni Co(III). To'g'ri nomi: geksaamminkobalt(III) xlorid."
   },
   {
     id: 33,
     question: "[Cu(NH₃)₄]SO₄ ning IUPAC nomi qanday?",
-    options: ["tetraamminkumush(II) sulfat", "tetraamminkumush(II) sulfat", "tetraamminkumush(II) sulfat", "tetraamminkumush(II) sulfat"],
-    correct: 0,
+    options: ["tetraamminkumush(II) sulfat", "tetraamminmis(II) sulfat", "tetraamminmis(I) sulfat", "tetraamminkuprum sulfat"],
+    correct: 1,
     difficulty: "o'rta",
     tags: ["kation", "mis", "ammin", "sulfat"],
-    explanation: "[Cu(NH₃)₄]²⁺ — kation (tetraamminkumush(II)), SO₄²⁻ — anion (sulfat). Cu²⁺ oksidlanish darajasi."
+    explanation: "Cu = MIS (kumush emas, kumush = Ag). NH₃ neytral, SO₄²⁻ tashqi sferada. Cu²⁺. To'g'ri nomi: tetraamminmis(II) sulfat."
   },
   {
     id: 34,
     question: "[Co(NH₃)₅Cl]Cl₂ ning to'g'ri nomini toping.",
-    options: ["pentaamminklorokobalt(III) xlorid", "pentaamminklorokobalt(II) xlorid", "pentaamminkobalt(III) xlorid", "pentaxloroamminkobalt(III)"],
-    correct: 0,
+    options: ["pentaamminxlorokobalt(II) xlorid", "pentaamminkobalt(III) trixlorid", "pentaxloroamminkobalt(III)", "xloropentaamminkobalt(III) xlorid"],
+    correct: 3,
     difficulty: "qiyin",
     tags: ["kation", "kobalt", "ammin", "xloro"],
-    explanation: "[Co(NH₃)₅Cl]²⁺ — kation (pentaamminklorokobalt(III)), 2 Cl⁻ — anion. Ligandlar alifbo tartibida: ammin, xloro."
+    explanation: "Kitobning tartibi: ANION ligand oldin (xloro), keyin NEYTRAL (ammin). [Co(NH₃)₅Cl]²⁺ — kation, 2 Cl⁻ — tashqi sfera. Co + (-1) = +2 → Co = +3. Nomi: xloropentaamminkobalt(III) xlorid."
   },
   {
     id: 35,
-    question: "[Pt(NH₃)₄Cl₂] ning to'g'ri nomini toping.",
-    options: ["tetraammindikloroplatina(II)", "tetraammindikloroplatina(IV)", "tetraammindikloroplatina(II)", "dixlorotetraamminplatina(II)"],
-    correct: 0,
+    question: "[Pt(NH₃)₄Cl₂]Cl₂ ning to'g'ri nomini toping.",
+    options: ["tetraammindikloroplatina(II) xlorid", "dixlorotetraamminplatina(IV) xlorid", "platina tetraammindixlorid", "dixlorotetraamminplatina(II)"],
+    correct: 1,
     difficulty: "qiyin",
     tags: ["kation", "platina", "ammin", "xloro"],
-    explanation: "[Pt(NH₃)₄Cl₂] — neytral kompleks. Ligandlar alifbo tartibida: ammin, xloro. Pt²⁺ oksidlanish darajasi."
+    explanation: "[Pt(NH₃)₄Cl₂]²⁺ — kation, 2 Cl⁻ tashqi sferada. Pt + 4(0) + 2(-1) = +2 → Pt = +4. Anion oldin: dixlorotetraamminplatina(IV) xlorid."
   },
   {
     id: 36,
-    question: "[Ni(CN)₄]²⁻ ning to'g'ri nomini toping.",
-    options: ["tetratsianonikelat(II)", "tetratsianonikel(II)", "tetratsianonikelat(II)", "tetratsianonikelat(II)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["anion", "nikel", "siyano"],
-    explanation: "[Ni(CN)₄]²⁻ — anion kompleks. Anion komplekslarda metall nomiga '-at' qo'shimchasi qo'shiladi: nikel → nikelat."
+    question: "[Cr(NH₃)₆]Cl₃ ning to'g'ri nomini toping.",
+    options: ["geksaamminxrom(II) xlorid", "geksaamminxrom(III) xlorid", "xrom geksaamminxlorid", "geksaamminxromat(III)"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["kation", "xrom", "ammin"],
+    explanation: "[Cr(NH₃)₆]³⁺ — kation. 3 Cl⁻ tashqi sferada. Cr³⁺. Kation kompleksda metall o'zbekcha — xrom. Nomi: geksaamminxrom(III) xlorid."
   },
   {
     id: 37,
-    question: "[Fe(CN)₆]⁴⁻ ning to'g'ri nomini toping.",
-    options: ["geksatsianoferrat(II)", "geksatsianoferrat(III)", "geksatsianotemir(II)", "geksatsianoferrat(II)"],
+    question: "[Co(NH₃)₅(H₂O)]Cl₃ ning to'g'ri nomini toping.",
+    options: ["akvapentaamminkobalt(III) xlorid", "pentaamminakvakobalt(III) xlorid", "kobalt(III) pentaamminakvaxlorid", "pentaamminkobalt(III) akvaxlorid"],
     correct: 0,
     difficulty: "qiyin",
-    tags: ["anion", "temir", "siyano"],
-    explanation: "[Fe(CN)₆]⁴⁻ — anion kompleks. Fe²⁺ oksidlanish darajasi. Anion komplekslarda temir → ferrat."
+    tags: ["kation", "kobalt", "akva", "ammin"],
+    explanation: "Ikkala ligand ham NEYTRAL — alifbo tartibi qo'llaniladi: akva (a-k-v) keyin ammin (a-m-m). [Co(NH₃)₅(H₂O)]³⁺. Co³⁺. Nomi: akvapentaamminkobalt(III) xlorid."
   },
   {
     id: 38,
-    question: "[Fe(CN)₆]³⁻ ning to'g'ri nomini toping.",
-    options: ["geksatsianoferrat(III)", "geksatsianoferrat(II)", "geksatsianoferrat(III)", "geksatsianotemir(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["anion", "temir", "siyano"],
-    explanation: "[Fe(CN)₆]³⁻ — anion kompleks. Fe³⁺ oksidlanish darajasi. Anion komplekslarda temir → ferrat."
-  },
-  {
-    id: 39,
-    question: "[PtCl₆]²⁻ ning to'g'ri nomini toping.",
-    options: ["geksaxloroplatinat(IV)", "geksaxloroplatina(IV)", "geksaxloroplatinat(II)", "geksaxloroplatinat(IV)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["anion", "platina", "xloro"],
-    explanation: "[PtCl₆]²⁻ — anion kompleks. Pt⁴⁺ oksidlanish darajasi. Anion komplekslarda platina → platinat."
-  },
-  {
-    id: 40,
-    question: "[Co(NH₃)₆]³⁺ ning to'g'ri nomini toping.",
-    options: ["geksaamminkobalt(III)", "geksaamminkobalt(II)", "geksaamminkobalt(III)", "geksaamminkobalt"],
-    correct: 0,
-    difficulty: "o'rta",
-    tags: ["kation", "kobalt", "ammin"],
-    explanation: "[Co(NH₃)₆]³⁺ — kation kompleks. Co³⁺ oksidlanish darajasi. Kation komplekslarda metall nomi o'zgarmaydi."
-  },
-  {
-    id: 41,
-    question: "[Cu(en)₃]²⁺ ning to'g'ri nomini toping.",
-    options: ["tris(etilendiamin)kumush(II)", "tris(etilendiamin)kumush(II)", "tris(etilendiamin)kumush(II)", "tris(etilendiamin)kumush(II)"],
+    question: "[Cu(en)₂]SO₄ ning to'g'ri nomini toping.",
+    options: ["bis(etilendiamin)mis(II) sulfat", "bis(etilendiamin)mis(I) sulfat", "di(etilendiamin)mis(II) sulfat", "bisetilendiaminmis(II) sulfat"],
     correct: 0,
     difficulty: "qiyin",
     tags: ["kation", "mis", "etilendiamin", "polidentat"],
-    explanation: "[Cu(en)₃]²⁺ — kation kompleks. Polidentat ligand (en) uchun 'tris' prefiksi ishlatiladi. Cu²⁺ oksidlanish darajasi."
+    explanation: "en — polidentat ligand bo'lgani uchun 'bis-' prefiksi va qavs ishlatiladi. [Cu(en)₂]²⁺ — kation, SO₄²⁻ — tashqi. Cu²⁺. Nomi: bis(etilendiamin)mis(II) sulfat."
+  },
+  {
+    id: 39,
+    question: "[Co(en)₃]Cl₃ ning to'g'ri nomini toping.",
+    options: ["trietilendiaminkobalt(III) xlorid", "tris(etilendiamin)kobalt(II) xlorid", "tris(etilendiamin)kobalt(III) xlorid", "geksaaminkobalt(III) xlorid"],
+    correct: 2,
+    difficulty: "qiyin",
+    tags: ["kation", "kobalt", "etilendiamin", "polidentat"],
+    explanation: "3 ta en polidentat ligand → 'tris-' va qavs. [Co(en)₃]³⁺ — kation, 3 Cl⁻ — tashqi. Co³⁺. Nomi: tris(etilendiamin)kobalt(III) xlorid."
+  },
+  {
+    id: 40,
+    question: "[Al(H₂O)₆]Cl₃ ning to'g'ri nomini toping.",
+    options: ["geksaakvaaluminiy(III) xlorid", "geksaakvaaluminat(III) xlorid", "geksaakvaaluminiy xlorid", "aluminiy geksaakvaxlorid"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["kation", "aluminiy", "akva"],
+    explanation: "Al uchun +3 yagona barqaror oksidlanish darajasi, shu sababli rim raqami yozilmaydi. [Al(H₂O)₆]³⁺. Nomi: geksaakvaaluminiy xlorid (kitob varianti)."
+  },
+  {
+    id: 41,
+    question: "[Cr(H₂O)₆]Cl₃ ning to'g'ri nomini toping.",
+    options: ["geksaakvaxrom(III) xlorid", "geksaakvaxrom(II) xlorid", "xrom(III) geksaakvaxlorid", "geksaakvaxromat(III)"],
+    correct: 0,
+    difficulty: "o'rta",
+    tags: ["kation", "xrom", "akva"],
+    explanation: "H₂O neytral, 3 Cl⁻ — tashqi. Cr + 0 = +3 → Cr(III). Nomi: geksaakvaxrom(III) xlorid."
   },
   {
     id: 42,
-    question: "[Co(en)₃]³⁺ ning to'g'ri nomini toping.",
-    options: ["tris(etilendiamin)kobalt(III)", "tris(etilendiamin)kobalt(II)", "tris(etilendiamin)kobalt(III)", "tris(etilendiamin)kobalt"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["kation", "kobalt", "etilendiamin", "polidentat"],
-    explanation: "[Co(en)₃]³⁺ — kation kompleks. Polidentat ligand uchun 'tris' prefiksi. Co³⁺ oksidlanish darajasi."
+    question: "[Fe(H₂O)₆]SO₄ ning to'g'ri nomini toping.",
+    options: ["geksaakvatemir(III) sulfat", "geksaakvaferrat(II) sulfat", "geksaakvatemir(II) sulfat", "temir(II) geksaakvasulfat"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["kation", "temir", "akva"],
+    explanation: "SO₄²⁻ tashqi sferada → kation zaryadi +2. H₂O neytral, demak Fe²⁺. Kation kompleksda temir o'zbekcha. Nomi: geksaakvatemir(II) sulfat."
   },
   {
     id: 43,
-    question: "[Fe(C₂O₄)₃]³⁻ ning to'g'ri nomini toping.",
-    options: ["tris(oksalato)ferrat(III)", "tris(oksalato)ferrat(II)", "tris(oksalato)temir(III)", "tris(oksalato)ferrat(III)"],
+    question: "[Co(NH₃)₄Cl₂]Cl ning to'g'ri nomini toping.",
+    options: ["dixlorotetraamminkobalt(III) xlorid", "dixlorotetraamminkobalt(II) xlorid", "tetraammindixlorokobalt(III) xlorid", "kobalt(III) tetraammindixlorid"],
     correct: 0,
     difficulty: "qiyin",
-    tags: ["anion", "temir", "oksalato", "polidentat"],
-    explanation: "[Fe(C₂O₄)₃]³⁻ — anion kompleks. Polidentat ligand (oksalato) uchun 'tris' prefiksi. Fe³⁺ oksidlanish darajasi. Anion → ferrat."
+    tags: ["kation", "kobalt", "ammin", "xloro"],
+    explanation: "Tartib: ANION oldin (xloro), keyin NEYTRAL (ammin). [Co(NH₃)₄Cl₂]⁺ — kation. Co + 4(0) + 2(-1) = +1 → Co = +3. Nomi: dixlorotetraamminkobalt(III) xlorid."
   },
   {
     id: 44,
-    question: "[Cr(NH₃)₆]³⁺ ning to'g'ri nomini toping.",
-    options: ["geksaamminkrom(III)", "geksaamminkrom(II)", "geksaamminkrom(III)", "geksaamminkrom"],
-    correct: 0,
-    difficulty: "o'rta",
-    tags: ["kation", "xrom", "ammin"],
-    explanation: "[Cr(NH₃)₆]³⁺ — kation kompleks. Cr³⁺ oksidlanish darajasi."
+    question: "[Co(NH₃)₄Br(H₂O)](NO₃)₂ ning to'g'ri nomini toping.",
+    options: ["akvabromtetraamminkobalt(III) nitrat", "bromoakvatetraamminkobalt(III) nitrat", "tetraamminbromoakvakobalt(III) nitrat", "bromoakvatetraamminkobaltat(III) nitrat"],
+    correct: 1,
+    difficulty: "qiyin",
+    tags: ["kation", "kobalt", "ammin", "bromo", "akva"],
+    explanation: "Anion (bromo) → neytrallar (akva, ammin alifbo bo'yicha). 2 NO₃⁻ tashqi sferada → kation zaryadi +2. Co + (-1) + 0 + 0 = +2 → Co = +3. Nomi: bromoakvatetraamminkobalt(III) nitrat."
   },
   {
     id: 45,
-    question: "[Ni(CO)₄] ning to'g'ri nomini toping.",
-    options: ["tetrakarbonilnikel(0)", "tetrakarbonilnikel(II)", "tetrakarbonilnikel(0)", "tetrakarbonilnikel"],
-    correct: 0,
+    question: "[Ni(CO)₄] ning to'g'ri nomini toping (neytral kompleks).",
+    options: ["tetrakarbonilnikelat(0)", "tetrakarbonilnikel(IV)", "tetrakarbonilnikel(0)", "nikel tetrakarbonil"],
+    correct: 2,
     difficulty: "qiyin",
     tags: ["neytral", "nikel", "karbonil"],
-    explanation: "[Ni(CO)₄] — neytral kompleks. Ni⁰ oksidlanish darajasi (CO neytral ligand)."
+    explanation: "[Ni(CO)₄] — neytral kompleks, anion emas, demak nikelat emas. CO neytral, umumiy zaryad 0 → Ni(0). Nomi: tetrakarbonilnikel(0)."
   },
   {
     id: 46,
     question: "[Fe(CO)₅] ning to'g'ri nomini toping.",
-    options: ["pentakarboniltemir(0)", "pentakarboniltemir(II)", "pentakarboniltemir(0)", "pentakarboniltemir"],
-    correct: 0,
+    options: ["pentakarbonilferrat(0)", "pentakarboniltemir(II)", "temir pentakarbonil", "pentakarboniltemir(0)"],
+    correct: 3,
     difficulty: "qiyin",
     tags: ["neytral", "temir", "karbonil"],
-    explanation: "[Fe(CO)₅] — neytral kompleks. Fe⁰ oksidlanish darajasi."
+    explanation: "Neytral kompleks, demak ferrat emas — temir. CO neytral, Fe(0). Nomi: pentakarboniltemir(0)."
   },
   {
     id: 47,
-    question: "[Co(NH₃)₄Cl₂]⁺ ning to'g'ri nomini toping.",
-    options: ["tetraammindiklorokobalt(III)", "tetraammindiklorokobalt(II)", "tetraammindiklorokobalt(III)", "dixlorotetraamminkobalt(III)"],
-    correct: 0,
+    question: "[Pt(NH₃)₂Cl₂] ning to'g'ri nomini toping (neytral, sisplatin).",
+    options: ["diammindixloroplatina(II)", "dixlorodiamminplatina(IV)", "dixlorodiamminplatina(II)", "platina(II) diammindixlorid"],
+    correct: 2,
     difficulty: "qiyin",
-    tags: ["kation", "kobalt", "ammin", "xloro"],
-    explanation: "[Co(NH₃)₄Cl₂]⁺ — kation kompleks. Ligandlar alifbo tartibida: ammin, xloro. Co³⁺ oksidlanish darajasi."
+    tags: ["neytral", "platina", "ammin", "xloro"],
+    explanation: "Tartib: ANION (xloro) oldin, NEYTRAL (ammin) keyin. Umumiy zaryad 0: Pt + 2(0) + 2(-1) = 0 → Pt = +2. Nomi: dixlorodiamminplatina(II) (sisplatin — antishish dori)."
   },
   {
     id: 48,
-    question: "[Pt(NH₃)₂Cl₂] ning to'g'ri nomini toping.",
-    options: ["diammindixloroplatina(II)", "diammindixloroplatina(IV)", "diammindixloroplatina(II)", "dixlorodiamminplatina(II)"],
+    question: "[Co(NH₃)₃Cl₃] ning to'g'ri nomini toping (neytral kompleks).",
+    options: ["trixlorotriamminkobalt(III)", "triammintrixlorokobalt(III)", "trixlorotriamminkobalt(II)", "kobalt(III) trixlorotriammin"],
     correct: 0,
     difficulty: "qiyin",
-    tags: ["neytral", "platina", "ammin", "xloro"],
-    explanation: "[Pt(NH₃)₂Cl₂] — neytral kompleks. Ligandlar alifbo tartibida: ammin, xloro. Pt²⁺ oksidlanish darajasi."
+    tags: ["neytral", "kobalt", "ammin", "xloro"],
+    explanation: "ANION oldin: trixloro, keyin NEYTRAL: triammin. Umumiy zaryad 0 → Co = +3. fac- va mer- izomerlari mavjud."
   },
   {
     id: 49,
-    question: "[Co(NH₃)₅(H₂O)]³⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkvakobalt(III)", "pentaamminkvakobalt(II)", "pentaamminkvakobalt(III)", "akvapentaamminkobalt(III)"],
-    correct: 0,
+    question: "[Co(en)₂Cl₂]Cl ning to'g'ri nomini toping.",
+    options: ["bis(etilendiamin)dixlorokobalt(III) xlorid", "dixlorobis(etilendiamin)kobalt(III) xlorid", "di(etilendiamin)dixlorokobalt(III) xlorid", "dixloro(etilendiamin)kobalt(III) xlorid"],
+    correct: 1,
     difficulty: "qiyin",
-    tags: ["kation", "kobalt", "ammin", "akva"],
-    explanation: "[Co(NH₃)₅(H₂O)]³⁺ — kation kompleks. Ligandlar alifbo tartibida: akva, ammin. Co³⁺ oksidlanish darajasi."
+    tags: ["kation", "kobalt", "etilendiamin", "xloro"],
+    explanation: "ANION oldin (dixloro), keyin POLIDENTAT (bis(etilendiamin)). Kation, 1 Cl⁻ tashqi. Co + (-2) + 0 = +1 → Co = +3. Nomi: dixlorobis(etilendiamin)kobalt(III) xlorid."
   },
   {
     id: 50,
-    question: "[Co(NH₃)₅(NO₂)]²⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkobalt(III) nitro", "pentaamminkobalt(II) nitro", "pentaamminkobalt(III) nitro", "nitropentaamminkobalt(III)"],
-    correct: 0,
+    question: "[Co(NH₃)₅(NO₂)]Cl₂ ning to'g'ri nomini toping (nitro-izomer).",
+    options: ["pentaamminnitrokobalt(III) xlorid", "nitropentaamminkobalt(III) xlorid", "pentaamminnitritokobalt(III) xlorid", "nitritopentaamminkobalt(III) xlorid"],
+    correct: 1,
     difficulty: "qiyin",
     tags: ["kation", "kobalt", "ammin", "nitro"],
-    explanation: "[Co(NH₃)₅(NO₂)]²⁺ — kation kompleks. Ligandlar alifbo tartibida: ammin, nitro. Co³⁺ oksidlanish darajasi."
+    explanation: "ANION (nitro, N orqali) oldin → NEYTRAL (ammin). Kation, 2 Cl⁻ tashqi. Co + (-1) + 0 = +2 → Co = +3. Nomi: nitropentaamminkobalt(III) xlorid."
   },
   {
     id: 51,
-    question: "[Co(NH₃)₅(ONO)]²⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkobalt(III) nitrito-O", "pentaamminkobalt(II) nitrito-O", "pentaamminkobalt(III) nitrito-O", "nitrito-O-pentaamminkobalt(III)"],
+    question: "[Co(NH₃)₅(ONO)]Cl₂ ning to'g'ri nomini toping (nitrito-izomer).",
+    options: ["nitritopentaamminkobalt(III) xlorid", "pentaamminnitritokobalt(III) xlorid", "nitropentaamminkobalt(III) xlorid", "pentaamminnitrokobalt(III) xlorid"],
     correct: 0,
     difficulty: "qiyin",
-    tags: ["kation", "kobalt", "ammin", "nitrito"],
-    explanation: "[Co(NH₃)₅(ONO)]²⁺ — kation kompleks. NO₂⁻ O orqali bog'langan (nitrito-O). Linkage izomerizm."
+    tags: ["kation", "kobalt", "ammin", "nitrito", "linkage"],
+    explanation: "NO₂⁻ O orqali bog'langan → 'nitrito'. ANION oldin → NEYTRAL. Nomi: nitritopentaamminkobalt(III) xlorid. Bu nitro-izomer (#50) ning linkage izomeri."
   },
   {
     id: 52,
-    question: "[Co(NH₃)₅(SCN)]²⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkobalt(III) tiotsianato-S", "pentaamminkobalt(II) tiotsianato-S", "pentaamminkobalt(III) tiotsianato-S", "tiotsianato-S-pentaamminkobalt(III)"],
-    correct: 0,
+    question: "[Co(NH₃)₅(SCN)]Cl₂ ning to'g'ri nomini toping (S orqali).",
+    options: ["pentaammintiosianatokobalt(III) xlorid", "izotiosianatopentaamminkobalt(III) xlorid", "tiosianatopentaamminkobalt(III) xlorid", "pentaamminizotiosianatokobalt(III) xlorid"],
+    correct: 2,
     difficulty: "qiyin",
-    tags: ["kation", "kobalt", "ammin", "tiotsianato"],
-    explanation: "[Co(NH₃)₅(SCN)]²⁺ — kation kompleks. SCN⁻ S orqali bog'langan (tiotsianato-S). Ambidentat ligand."
+    tags: ["kation", "kobalt", "ammin", "tiosianato"],
+    explanation: "SCN⁻ S orqali bog'langan → 'tiosianato'. ANION oldin → NEYTRAL. Nomi: tiosianatopentaamminkobalt(III) xlorid."
   },
   {
     id: 53,
-    question: "[Co(NH₃)₅(NCS)]²⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkobalt(III) tiotsianato-N", "pentaamminkobalt(II) tiotsianato-N", "pentaamminkobalt(III) tiotsianato-N", "tiotsianato-N-pentaamminkobalt(III)"],
-    correct: 0,
+    question: "[Co(NH₃)₅(NCS)]Cl₂ ning to'g'ri nomini toping (N orqali).",
+    options: ["tiosianatopentaamminkobalt(III) xlorid", "nitropentaamminkobalt(III) xlorid", "izotiosianatopentaamminkobalt(III) xlorid", "izotiosianatopentaamminkobalt(II) xlorid"],
+    correct: 2,
     difficulty: "qiyin",
-    tags: ["kation", "kobalt", "ammin", "tiotsianato"],
-    explanation: "[Co(NH₃)₅(NCS)]²⁺ — kation kompleks. SCN⁻ N orqali bog'langan (tiotsianato-N). Linkage izomerizm."
+    tags: ["kation", "kobalt", "ammin", "izotiosianato", "linkage"],
+    explanation: "NCS⁻ — SCN⁻ ning N orqali bog'langan shakli → 'izotiosianato'. Bu #52 ning linkage izomeri."
   },
   {
     id: 54,
-    question: "[Co(NH₃)₄Cl₂]Cl ning to'g'ri nomini toping.",
-    options: ["tetraammindiklorokobalt(III) xlorid", "tetraammindiklorokobalt(II) xlorid", "tetraammindiklorokobalt(III) xlorid", "dixlorotetraamminkobalt(III) xlorid"],
-    correct: 0,
+    question: "[FeCl(H₂O)₅]Cl ning to'g'ri nomini toping.",
+    options: ["pentaakvaxlorotemir(II) xlorid", "xloropentaakvaferrat(II) xlorid", "xloropentaakvatemir(II) xlorid", "temir(II) xloropentaakvaxlorid"],
+    correct: 2,
     difficulty: "qiyin",
-    tags: ["kation", "kobalt", "ammin", "xloro"],
-    explanation: "[Co(NH₃)₄Cl₂]⁺ — kation (tetraammindiklorokobalt(III)), Cl⁻ — anion (xlorid). Co³⁺ oksidlanish darajasi."
+    tags: ["kation", "temir", "xloro", "akva"],
+    explanation: "ANION (xloro) oldin → NEYTRAL (akva). Kation, 1 Cl⁻ tashqi. Fe + (-1) + 0 = +1 → Fe = +2. Nomi: xloropentaakvatemir(II) xlorid."
   },
   {
     id: 55,
-    question: "[Co(NH₃)₆][Cr(CN)₆] ning to'g'ri nomini toping.",
-    options: ["geksaamminkobalt(III) geksatsianokromat(III)", "geksaamminkobalt(II) geksatsianokromat(III)", "geksaamminkobalt(III) geksatsianokromat(III)", "geksaamminkobalt(III) geksatsianokrom(III)"],
-    correct: 0,
+    question: "[Co(NH₃)₆][Cr(CN)₆] ning to'g'ri nomini toping (kation + anion kompleks).",
+    options: ["geksaamminkobalt(III) geksasianoxrom(III)", "geksaamminkobaltat(III) geksasianokromat(III)", "geksasianokromat(III) geksaamminkobalt(III)", "geksaamminkobalt(III) geksasianokromat(III)"],
+    correct: 3,
     difficulty: "qiyin",
-    tags: ["kation", "anion", "kobalt", "xrom"],
-    explanation: "[Co(NH₃)₆]³⁺ — kation (geksaamminkobalt(III)), [Cr(CN)₆]³⁻ — anion (geksatsianokromat(III)). Koordinatsion birikma."
+    tags: ["kation", "anion", "kobalt", "xrom", "siano"],
+    explanation: "[Co(NH₃)₆]³⁺ — kation (kobalt o'zbekcha), [Cr(CN)₆]³⁻ — anion (xrom + lotin -at = kromat). Avval kation, keyin anion."
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 3-GURUH: OKSIDLANISH DARAJASI HISOBLASH (25 ta savol)
+  // 3-GURUH: ANION KOMPLEKSLAR (25 ta savol) — IDs 56–80
   // ═══════════════════════════════════════════════════════════════════════════
   {
     id: 56,
-    question: "[Fe(CN)₆]⁴⁻ da Fe ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
+    question: "[Fe(CN)₆]⁴⁻ ioni qanday nomlanadi?",
+    options: ["geksasianoferrat(II)", "geksasianotemir(II)", "geksasianoferrat(III)", "geksasianotemir(IV)"],
     correct: 0,
     difficulty: "o'rta",
-    tags: ["oksidlanish", "temir", "anion"],
-    explanation: "CN⁻ zaryadi -1, 6 ta CN⁻ = -6. Umumiy zaryad -4. Fe + (-6) = -4 → Fe = +2."
+    tags: ["anion", "temir", "siano", "ferrat"],
+    explanation: "Anion kompleksda Fe → ferrat (lotin Ferrum + -at). 6(-1) + Fe = -4 → Fe = +2. Nomi: geksasianoferrat(II) (sariq qon tuzi anioni)."
   },
   {
     id: 57,
-    question: "[Fe(CN)₆]³⁻ da Fe ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 1,
+    question: "K₄[Fe(CN)₆] ning to'g'ri nomini toping.",
+    options: ["kaliy geksasianoferrat(III)", "kaliy geksasianotemir(II)", "tetrakaliy geksasianoferrat", "kaliy geksasianoferrat(II)"],
+    correct: 3,
     difficulty: "o'rta",
-    tags: ["oksidlanish", "temir", "anion"],
-    explanation: "CN⁻ zaryadi -1, 6 ta CN⁻ = -6. Umumiy zaryad -3. Fe + (-6) = -3 → Fe = +3."
+    tags: ["anion", "temir", "siano", "kaliy"],
+    explanation: "Avval kation (kaliy), keyin anion. [Fe(CN)₆]⁴⁻ → geksasianoferrat(II). To'liq nomi: kaliy geksasianoferrat(II) — 'sariq qon tuzi'."
   },
   {
     id: 58,
-    question: "[Co(NH₃)₆]³⁺ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
+    question: "K₃[Fe(CN)₆] ning to'g'ri nomini toping.",
+    options: ["kaliy geksasianoferrat(II)", "kaliy geksasianoferrat(III)", "trikaliy geksasianotemir(III)", "kaliy geksasianoferrat"],
     correct: 1,
-    difficulty: "oson",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "NH₃ neytral ligand (zaryad 0). Umumiy zaryad +3. Co + 0 = +3 → Co = +3."
+    difficulty: "o'rta",
+    tags: ["anion", "temir", "siano", "kaliy"],
+    explanation: "6(-1) + Fe = -3 → Fe = +3. Nomi: kaliy geksasianoferrat(III) — 'qizil qon tuzi' (qon analizida ishlatiladi)."
   },
   {
     id: 59,
-    question: "[Co(NH₃)₅Cl]²⁺ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+5"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "NH₃ neytral (0), Cl⁻ zaryadi -1. Umumiy zaryad +2. Co + 0 + (-1) = +2 → Co = +3."
+    question: "K₂[PtCl₆] ning to'g'ri nomini toping.",
+    options: ["kaliy geksaxloroplatinat(II)", "kaliy geksaxloroplatina(IV)", "dikaliy geksaxloroplatinat", "kaliy geksaxloroplatinat(IV)"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["anion", "platina", "xloro", "kaliy"],
+    explanation: "6(-1) + Pt = -2 → Pt = +4. Anion kompleksda Pt → platinat. Nomi: kaliy geksaxloroplatinat(IV)."
   },
   {
     id: 60,
-    question: "[Ag(NH₃)₂]⁺ da Ag ning oksidlanish darajasi necha?",
-    options: ["+1", "+2", "+3", "+4"],
+    question: "K₂[PtCl₄] ning to'g'ri nomini toping.",
+    options: ["kaliy tetraxloroplatinat(II)", "kaliy tetraxloroplatinat(IV)", "kaliy tetraxloroplatina(II)", "dikaliy tetraxloroplatinat"],
     correct: 0,
-    difficulty: "oson",
-    tags: ["oksidlanish", "kumush", "kation"],
-    explanation: "NH₃ neytral (0). Umumiy zaryad +1. Ag + 0 = +1 → Ag = +1."
+    difficulty: "o'rta",
+    tags: ["anion", "platina", "xloro", "kaliy"],
+    explanation: "4(-1) + Pt = -2 → Pt = +2. Nomi: kaliy tetraxloroplatinat(II). Bu kvadrat-tekis kompleks (d⁸)."
   },
   {
     id: 61,
-    question: "[Cu(NH₃)₄]²⁺ da Cu ning oksidlanish darajasi necha?",
-    options: ["+1", "+2", "+3", "+4"],
-    correct: 1,
-    difficulty: "oson",
-    tags: ["oksidlanish", "mis", "kation"],
-    explanation: "NH₃ neytral (0). Umumiy zaryad +2. Cu + 0 = +2 → Cu = +2."
+    question: "K₂[CuCl₄] ning to'g'ri nomini toping.",
+    options: ["kaliy tetraxlorokuprat(II)", "kaliy tetraxlorokuprat(I)", "kaliy tetraxloromis(II)", "dikaliy tetraxlorokuprum"],
+    correct: 0,
+    difficulty: "o'rta",
+    tags: ["anion", "mis", "xloro", "kuprat"],
+    explanation: "Anion kompleksda Cu → kuprat (lot. Cuprum). 4(-1) + Cu = -2 → Cu = +2. Nomi: kaliy tetraxlorokuprat(II)."
   },
   {
     id: 62,
-    question: "[PtCl₆]²⁻ da Pt ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 2,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "platina", "anion"],
-    explanation: "Cl⁻ zaryadi -1, 6 ta Cl⁻ = -6. Umumiy zaryad -2. Pt + (-6) = -2 → Pt = +4."
+    question: "K₂[CuCl₃] ning to'g'ri nomini toping.",
+    options: ["kaliy trixlorokuprat(I)", "kaliy trixlorokuprat(II)", "kaliy trixloromis(I)", "dikaliy trixlorokuprum"],
+    correct: 0,
+    difficulty: "qiyin",
+    tags: ["anion", "mis", "xloro", "kuprat"],
+    explanation: "3(-1) + Cu = -2 → Cu = +1. Cu(I) holatda kompleks Cu²⁺ ga qaraganda kamroq uchraydi, lekin xlorid bilan mavjud."
   },
   {
     id: 63,
-    question: "[PtCl₄]²⁻ da Pt ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 0,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "platina", "anion"],
-    explanation: "Cl⁻ zaryadi -1, 4 ta Cl⁻ = -4. Umumiy zaryad -2. Pt + (-4) = -2 → Pt = +2."
+    question: "K₂[SnF₆] ning to'g'ri nomini toping.",
+    options: ["kaliy geksaftorostannat(II)", "kaliy geksaftorostannat(IV)", "kaliy geksaftoroqalay(IV)", "kaliy geksaftorostannit"],
+    correct: 1,
+    difficulty: "qiyin",
+    tags: ["anion", "qalay", "ftoro", "stannat"],
+    explanation: "Anion kompleksda Sn → stannat (lot. Stannum). 6(-1) + Sn = -2 → Sn = +4. Nomi: kaliy geksaftorostannat(IV)."
   },
   {
     id: 64,
-    question: "[Ni(CO)₄] da Ni ning oksidlanish darajasi necha?",
-    options: ["0", "+2", "+3", "+4"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["oksidlanish", "nikel", "neytral"],
-    explanation: "CO neytral ligand (zaryad 0). Umumiy zaryad 0. Ni + 0 = 0 → Ni = 0."
+    question: "K₂[Zn(OH)₄] ning to'g'ri nomini toping.",
+    options: ["kaliy tetragidroksosinkat(II)", "kaliy tetragidroksosinkat", "kaliy tetragidroksosink(II)", "dikaliy tetragidroksosink"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["anion", "sink", "gidrokso", "sinkat"],
+    explanation: "Anion kompleksda Zn → sinkat. Zn faqat +2 oksidlanish darajasiga ega bo'lgani uchun rim raqami yozilmasligi mumkin: kaliy tetragidroksosinkat."
   },
   {
     id: 65,
-    question: "[Fe(CO)₅] da Fe ning oksidlanish darajasi necha?",
-    options: ["0", "+2", "+3", "+5"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["oksidlanish", "temir", "neytral"],
-    explanation: "CO neytral ligand (zaryad 0). Umumiy zaryad 0. Fe + 0 = 0 → Fe = 0."
+    question: "Na[Ag(CN)₂] ning to'g'ri nomini toping.",
+    options: ["natriy disianoargentat(I)", "natriy disianokumush(I)", "natriy disianoargentat", "natriy disianoargentit"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["anion", "kumush", "siano", "argentat"],
+    explanation: "Anion kompleksda Ag → argentat (lot. Argentum). Ag faqat +1 holatda bo'lgani uchun rim raqami ko'rsatilmasligi mumkin: natriy disianoargentat."
   },
   {
     id: 66,
-    question: "[Cr(C₂O₄)₃]³⁻ da Cr ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "xrom", "anion"],
-    explanation: "C₂O₄²⁻ zaryadi -2, 3 ta C₂O₄²⁻ = -6. Umumiy zaryad -3. Cr + (-6) = -3 → Cr = +3."
+    question: "K₃[Cr(C₂O₄)₃] ning to'g'ri nomini toping.",
+    options: ["kaliy trioksalatoxromat(III)", "kaliy tris(oksalato)xrom(III)", "trikaliy tris(oksalato)xromat", "kaliy tris(oksalato)xromat(III)"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["anion", "xrom", "oksalato", "polidentat"],
+    explanation: "3 ta bidentat ligand → 'tris-' va qavs. 3(-2) + Cr = -3 → Cr = +3. Anion: kromat. Nomi: kaliy tris(oksalato)xromat(III)."
   },
   {
     id: 67,
-    question: "[Co(C₂O₄)₃]³⁻ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "kobalt", "anion"],
-    explanation: "C₂O₄²⁻ zaryadi -2, 3 ta C₂O₄²⁻ = -6. Umumiy zaryad -3. Co + (-6) = -3 → Co = +3."
+    question: "K₃[Co(C₂O₄)₃] ning to'g'ri nomini toping.",
+    options: ["kaliy tris(oksalato)kobaltat(III)", "kaliy trioksalatokobaltat(III)", "kaliy tris(oksalato)kobalt(III)", "trikaliy tris(oksalato)kobaltat"],
+    correct: 0,
+    difficulty: "qiyin",
+    tags: ["anion", "kobalt", "oksalato", "polidentat"],
+    explanation: "Anion kompleksda Co → kobaltat. 3(-2) + Co = -3 → Co = +3. Nomi: kaliy tris(oksalato)kobaltat(III)."
   },
   {
     id: 68,
-    question: "[Co(en)₃]³⁺ da Co ning oksidlanish darajasi necha?",
+    question: "Na₂[PtCl₂(C₂O₄)₂] ning to'g'ri nomini toping.",
+    options: ["natriy bis(oksalato)dixloroplatinat(IV)", "natriy dixlorobis(oksalato)platina(IV)", "natriy dixlorobis(oksalato)platinat(IV)", "natriy dixlorodioksalatoplatinat(IV)"],
+    correct: 2,
+    difficulty: "qiyin",
+    tags: ["anion", "platina", "xloro", "oksalato", "polidentat"],
+    explanation: "ANION oldin alifboda: dixloro keyin bis(oksalato). 2(-1) + 2(-2) + Pt = -2 → Pt = +4. Nomi: natriy dixlorobis(oksalato)platinat(IV) (kitobning aniq misoli)."
+  },
+  {
+    id: 69,
+    question: "K[Fe(EDTA)] ning to'g'ri nomini toping.",
+    options: ["kaliy etilendiamintetraatsetatotemir(III)", "kaliy EDTA-ferrat(II)", "kaliy etilendiamintetraatsetatoferrat(II)", "kaliy etilendiamintetraatsetatoferrat(III)"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["anion", "temir", "EDTA", "ferrat", "geksadentat"],
+    explanation: "EDTA⁴⁻ — geksadentat. (-4) + Fe = -1 → Fe = +3. Anion → ferrat. Nomi: kaliy etilendiamintetraatsetatoferrat(III)."
+  },
+  {
+    id: 70,
+    question: "[Ag(NH₃)₂][Ag(CN)₂] ning to'g'ri nomini toping.",
+    options: ["diamminargentat disianokumush", "diamminkumush disianoargentat", "bis(ammin)kumush bis(siano)argentat", "diamminkumush(I) disianoargentat(I)"],
+    correct: 1,
+    difficulty: "qiyin",
+    tags: ["kation", "anion", "kumush", "ammin", "siano"],
+    explanation: "Kation [Ag(NH₃)₂]⁺ — diamminkumush (o'zbekcha), anion [Ag(CN)₂]⁻ — disianoargentat (lotin -at). Ag(I) bo'lgani uchun rim raqami yozilmaydi (kitob varianti)."
+  },
+  {
+    id: 71,
+    question: "Na₂[Ni(CN)₄] ning to'g'ri nomini toping.",
+    options: ["natriy tetrasianonikel(II)", "natriy tetrasianonikelat", "natriy tetrasianonikelat(II)", "natriy tetrasianonikkelat(II)"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["anion", "nikel", "siano", "nikelat"],
+    explanation: "Anion kompleksda Ni → nikelat. 4(-1) + Ni = -2 → Ni = +2. Nomi: natriy tetrasianonikelat(II). Bu kvadrat-tekis kompleks (d⁸)."
+  },
+  {
+    id: 72,
+    question: "K₃[Mn(CN)₆] ning to'g'ri nomini toping.",
+    options: ["kaliy geksasianomanganat(III)", "kaliy geksasianomanganat(II)", "kaliy geksasianomarganets(III)", "trikaliy geksasianomanganat"],
+    correct: 0,
+    difficulty: "qiyin",
+    tags: ["anion", "marganets", "siano", "manganat"],
+    explanation: "Anion kompleksda Mn → manganat. 6(-1) + Mn = -3 → Mn = +3. Nomi: kaliy geksasianomanganat(III)."
+  },
+  {
+    id: 73,
+    question: "Na[Au(CN)₂] ning to'g'ri nomini toping.",
+    options: ["natriy disianooltin(I)", "natriy disianoaurat(I)", "natriy disianoaurat", "natriy disianoaurat(III)"],
+    correct: 2,
+    difficulty: "qiyin",
+    tags: ["anion", "oltin", "siano", "aurat"],
+    explanation: "Anion kompleksda Au → aurat (lot. Aurum). 2(-1) + Au = -1 → Au = +1. Au(I) — barqaror holat (oltinni sianidli usul bilan ajratish)."
+  },
+  {
+    id: 74,
+    question: "Na₃[AlF₆] ning to'g'ri nomini toping (kriolit).",
+    options: ["natriy geksaftoroaluminiy", "natriy geksaftoroaluminat(III)", "natriy geksaftoroaluminit", "natriy geksaftoroaluminat"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["anion", "aluminiy", "ftoro", "aluminat"],
+    explanation: "Anion kompleksda Al → aluminat. Al faqat +3 holatda bo'lgani uchun rim raqami yozilmasligi mumkin: natriy geksaftoroaluminat (kriolit, Na₃AlF₆ — alyuminiy elektrolizida ishlatiladi)."
+  },
+  {
+    id: 75,
+    question: "K[Co(NH₃)₂(NO₂)₄] ning to'g'ri nomini toping.",
+    options: ["kaliy tetranitrodiamminkobaltat(III)", "kaliy diamminitritetrakobaltat(III)", "kaliy diammintetranitrokobaltat(III)", "kaliy diammintetranitrokobalt(III)"],
+    correct: 0,
+    difficulty: "qiyin",
+    tags: ["anion", "kobalt", "ammin", "nitro"],
+    explanation: "ANION (tetranitro) oldin, NEYTRAL (diammin) keyin. 4(-1) + 0 + Co = -1 → Co = +3. Anion → kobaltat. Nomi: kaliy tetranitrodiamminkobaltat(III)."
+  },
+  {
+    id: 76,
+    question: "[Co(NH₃)₆][Fe(CN)₆] ning to'g'ri nomini toping.",
+    options: ["geksaamminkobaltat(III) geksasianoferrat(III)", "geksaamminkobalt(II) geksasianoferrat(II)", "geksasianoferrat(III) geksaamminkobalt(III)", "geksaamminkobalt(III) geksasianoferrat(III)"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["kation", "anion", "kobalt", "temir"],
+    explanation: "Kation [Co(NH₃)₆]³⁺ — geksaamminkobalt(III). Anion [Fe(CN)₆]³⁻ — geksasianoferrat(III). Avval kation, keyin anion."
+  },
+  {
+    id: 77,
+    question: "K₂[HgI₄] ning to'g'ri nomini toping (Nessler reagenti).",
+    options: ["kaliy tetrayodosimob(II)", "kaliy tetrayodomerkurat", "kaliy tetrayodomerkurat(II)", "kaliy tetrayodogidrargirat(II)"],
+    correct: 2,
+    difficulty: "qiyin",
+    tags: ["anion", "simob", "yodo", "merkurat"],
+    explanation: "Anion kompleksda Hg → merkurat (lot. Mercurius). 4(-1) + Hg = -2 → Hg = +2. Nomi: kaliy tetrayodomerkurat(II) — Nessler reagenti (NH₄⁺ aniqlash uchun)."
+  },
+  {
+    id: 78,
+    question: "K₂[Pb(OH)₄] ning to'g'ri nomini toping.",
+    options: ["kaliy tetragidroksoqo'rg'oshin(II)", "kaliy tetragidroksoplumbat(IV)", "kaliy tetragidroksoplumbit", "kaliy tetragidroksoplumbat(II)"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["anion", "qo'rg'oshin", "gidrokso", "plumbat"],
+    explanation: "Anion kompleksda Pb → plumbat (lot. Plumbum). 4(-1) + Pb = -2 → Pb = +2. Nomi: kaliy tetragidroksoplumbat(II)."
+  },
+  {
+    id: 79,
+    question: "Anion kompleksda metallning -at qo'shimchasi qaysi metall uchun NOTO'G'RI yozilgan?",
+    options: ["Fe → ferrat", "Ni → nikkelat", "Cu → kuprat", "Pb → plumbat"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["anion", "nomlash", "qoidalar"],
+    explanation: "To'g'ri shakl: Ni → 'nikelat' (bir 'k' bilan). Boshqalari to'g'ri: ferrat, kuprat, plumbat, argentat, aurat, stannat, kobaltat."
+  },
+  {
+    id: 80,
+    question: "[Cu(NH₃)₄][PtCl₄] ning to'g'ri nomini toping.",
+    options: ["tetraamminkuprum(II) tetraxloroplatinat(II)", "tetraxloroplatinat(II) tetraamminmis(II)", "tetraamminmis(II) tetraxloroplatinat(II)", "tetraamminmis(II) tetraxloroplatina(II)"],
+    correct: 2,
+    difficulty: "qiyin",
+    tags: ["kation", "anion", "mis", "platina"],
+    explanation: "Kation [Cu(NH₃)₄]²⁺ — tetraamminmis(II) (o'zbekcha). Anion [PtCl₄]²⁻ — tetraxloroplatinat(II) (lotin -at). Avval kation, keyin anion."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 4-GURUH: OKSIDLANISH DARAJASI HISOBLASH (25 ta savol) — IDs 81–105
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: 81,
+    question: "[Fe(CN)₆]⁴⁻ da Fe ning oksidlanish darajasi qancha?",
+    options: ["+3", "+2", "+4", "+6"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "temir", "anion"],
+    explanation: "Har bir CN⁻ = -1, 6 ta CN⁻ = -6. Umumiy zaryad -4. Fe + (-6) = -4 → Fe = +2."
+  },
+  {
+    id: 82,
+    question: "[Fe(CN)₆]³⁻ da Fe ning oksidlanish darajasi qancha?",
+    options: ["+2", "+4", "+3", "+6"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "temir", "anion"],
+    explanation: "6(-1) + Fe = -3 → Fe = +3."
+  },
+  {
+    id: 83,
+    question: "[Co(NH₃)₆]Cl₃ da Co ning oksidlanish darajasi qancha?",
     options: ["+2", "+3", "+4", "+6"],
     correct: 1,
     difficulty: "oson",
     tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "en neytral ligand (zaryad 0). Umumiy zaryad +3. Co + 0 = +3 → Co = +3."
+    explanation: "NH₃ neytral (0), 3 Cl⁻ tashqi → kation +3. 6(0) + Co = +3 → Co = +3."
   },
   {
-    id: 69,
-    question: "[Cu(en)₂]²⁺ da Cu ning oksidlanish darajasi necha?",
+    id: 84,
+    question: "[Co(NH₃)₅Cl]Cl₂ da Co ning oksidlanish darajasi qancha?",
+    options: ["+2", "+4", "+3", "+5"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "kobalt", "kation"],
+    explanation: "2 Cl⁻ tashqi → kation +2. Ichida: 5(0) + (-1) + Co = +2 → Co = +3."
+  },
+  {
+    id: 85,
+    question: "[Ag(NH₃)₂]Cl da Ag ning oksidlanish darajasi qancha?",
+    options: ["+2", "+1", "+3", "0"],
+    correct: 1,
+    difficulty: "oson",
+    tags: ["oksidlanish", "kumush", "kation"],
+    explanation: "1 Cl⁻ tashqi → kation +1. 2(0) + Ag = +1 → Ag = +1 (kumush uchun odatiy holat)."
+  },
+  {
+    id: 86,
+    question: "[Cu(NH₃)₄]SO₄ da Cu ning oksidlanish darajasi qancha?",
     options: ["+1", "+2", "+3", "+4"],
     correct: 1,
     difficulty: "oson",
     tags: ["oksidlanish", "mis", "kation"],
-    explanation: "en neytral ligand (zaryad 0). Umumiy zaryad +2. Cu + 0 = +2 → Cu = +2."
-  },
-  {
-    id: 70,
-    question: "[Co(NH₃)₄Cl₂]⁺ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+5"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "NH₃ neytral (0), Cl⁻ zaryadi -1, 2 ta Cl⁻ = -2. Umumiy zaryad +1. Co + 0 + (-2) = +1 → Co = +3."
-  },
-  {
-    id: 71,
-    question: "[Pt(NH₃)₂Cl₂] da Pt ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 0,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "platina", "neytral"],
-    explanation: "NH₃ neytral (0), Cl⁻ zaryadi -1, 2 ta Cl⁻ = -2. Umumiy zaryad 0. Pt + 0 + (-2) = 0 → Pt = +2."
-  },
-  {
-    id: 72,
-    question: "[Co(NH₃)₅(H₂O)]³⁺ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+5"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "NH₃ neytral (0), H₂O neytral (0). Umumiy zaryad +3. Co + 0 + 0 = +3 → Co = +3."
-  },
-  {
-    id: 73,
-    question: "[Co(NH₃)₅(NO₂)]²⁺ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+5"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "NH₃ neytral (0), NO₂⁻ zaryadi -1. Umumiy zaryad +2. Co + 0 + (-1) = +2 → Co = +3."
-  },
-  {
-    id: 74,
-    question: "[Co(NH₃)₅(ONO)]²⁺ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+5"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "NH₃ neytral (0), ONO⁻ zaryadi -1. Umumiy zaryad +2. Co + 0 + (-1) = +2 → Co = +3."
-  },
-  {
-    id: 75,
-    question: "[Co(NH₃)₅(SCN)]²⁺ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+5"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "NH₃ neytral (0), SCN⁻ zaryadi -1. Umumiy zaryad +2. Co + 0 + (-1) = +2 → Co = +3."
-  },
-  {
-    id: 76,
-    question: "[Co(NH₃)₅(NCS)]²⁺ da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+5"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "NH₃ neytral (0), NCS⁻ zaryadi -1. Umumiy zaryad +2. Co + 0 + (-1) = +2 → Co = +3."
-  },
-  {
-    id: 77,
-    question: "[Co(NH₃)₄Cl₂]Cl da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+5"],
-    correct: 1,
-    difficulty: "qiyin",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "[Co(NH₃)₄Cl₂]⁺ — kation. NH₃ neytral (0), Cl⁻ zaryadi -1, 2 ta Cl⁻ = -2. Umumiy zaryad +1. Co + 0 + (-2) = +1 → Co = +3."
-  },
-  {
-    id: 78,
-    question: "[Co(NH₃)₆][Cr(CN)₆] da Co ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 1,
-    difficulty: "qiyin",
-    tags: ["oksidlanish", "kobalt", "kation"],
-    explanation: "[Co(NH₃)₆]³⁺ — kation. NH₃ neytral (0). Umumiy zaryad +3. Co + 0 = +3 → Co = +3."
-  },
-  {
-    id: 79,
-    question: "[Co(NH₃)₆][Cr(CN)₆] da Cr ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 1,
-    difficulty: "qiyin",
-    tags: ["oksidlanish", "xrom", "anion"],
-    explanation: "[Cr(CN)₆]³⁻ — anion. CN⁻ zaryadi -1, 6 ta CN⁻ = -6. Umumiy zaryad -3. Cr + (-6) = -3 → Cr = +3."
-  },
-  {
-    id: 80,
-    question: "[Ni(CN)₄]²⁻ da Ni ning oksidlanish darajasi necha?",
-    options: ["+2", "+3", "+4", "+6"],
-    correct: 0,
-    difficulty: "o'rta",
-    tags: ["oksidlanish", "nikel", "anion"],
-    explanation: "CN⁻ zaryadi -1, 4 ta CN⁻ = -4. Umumiy zaryad -2. Ni + (-4) = -2 → Ni = +2."
-  },
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 4-GURUH: POLIDENTAT LIGANDLAR (20 ta savol)
-  // ═══════════════════════════════════════════════════════════════════════════
-  {
-    id: 81,
-    question: "Polidentat ligandlar sonini ko'rsatishda qanday prefiks ishlatiladi?",
-    options: ["di-, tri-, tetra-", "do-, tro-, tetro-", "bis-, tris-, tetrakis-", "ikki, uch, to'rt"],
-    correct: 2,
-    difficulty: "qiyin",
-    tags: ["polidentat", "prefiks", "bis", "tris"],
-    explanation: "Polidentat ligandlar uchun bis-, tris-, tetrakis- prefikslari ishlatiladi (masalan, tris(etilendiamin))."
-  },
-  {
-    id: 82,
-    question: "en (etilendiamin) ligandi nechta donor atomga ega?",
-    options: ["1", "2", "3", "4"],
-    correct: 1,
-    difficulty: "oson",
-    tags: ["polidentat", "etilendiamin", "bidentat"],
-    explanation: "en (etilendiamin) — bidentat ligand, ikkita N atomi orqali bog'lanadi."
-  },
-  {
-    id: 83,
-    question: "ox²⁻ (oksalat) ligandi nechta donor atomga ega?",
-    options: ["1", "2", "3", "4"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["polidentat", "oksalat", "bidentat"],
-    explanation: "ox²⁻ (oksalat) — bidentat ligand, ikkita O atomi orqali bog'lanadi."
-  },
-  {
-    id: 84,
-    question: "acac⁻ (atsetilasetonat) ligandi nechta donor atomga ega?",
-    options: ["1", "2", "3", "4"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["polidentat", "atsetilasetonat", "bidentat"],
-    explanation: "acac⁻ (atsetilasetonat) — bidentat ligand, ikkita O atomi orqali bog'lanadi."
-  },
-  {
-    id: 85,
-    question: "phen (1,10-fenantrolin) ligandi nechta donor atomga ega?",
-    options: ["1", "2", "3", "4"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["polidentat", "fenantroline", "bidentat"],
-    explanation: "phen (1,10-fenantrolin) — bidentat ligand, ikkita N atomi orqali bog'lanadi."
-  },
-  {
-    id: 86,
-    question: "EDTA⁴⁻ ligandi nechta donor atomga ega?",
-    options: ["2", "4", "6", "8"],
-    correct: 2,
-    difficulty: "qiyin",
-    tags: ["polidentat", "EDTA", "geksadentat"],
-    explanation: "EDTA⁴⁻ — geksadentat ligand, 6 ta donor atom (2 N, 4 O)."
+    explanation: "SO₄²⁻ tashqi → kation +2. 4(0) + Cu = +2 → Cu = +2."
   },
   {
     id: 87,
-    question: "[Co(en)₃]³⁺ da nechta donor atom bor?",
-    options: ["3", "6", "9", "12"],
-    correct: 1,
+    question: "[PtCl₆]²⁻ da Pt ning oksidlanish darajasi qancha?",
+    options: ["+2", "+3", "+6", "+4"],
+    correct: 3,
     difficulty: "o'rta",
-    tags: ["polidentat", "etilendiamin", "bidentat"],
-    explanation: "3 ta en ligand × 2 donor atom = 6 ta donor atom. Koordinatsion son = 6."
+    tags: ["oksidlanish", "platina", "anion"],
+    explanation: "6(-1) + Pt = -2 → Pt = +4."
   },
   {
     id: 88,
-    question: "[Co(C₂O₄)₃]³⁻ da nechta donor atom bor?",
-    options: ["3", "6", "9", "12"],
-    correct: 1,
+    question: "[PtCl₄]²⁻ da Pt ning oksidlanish darajasi qancha?",
+    options: ["+3", "+4", "+2", "+6"],
+    correct: 2,
     difficulty: "o'rta",
-    tags: ["polidentat", "oksalat", "bidentat"],
-    explanation: "3 ta C₂O₄²⁻ ligand × 2 donor atom = 6 ta donor atom. Koordinatsion son = 6."
+    tags: ["oksidlanish", "platina", "anion"],
+    explanation: "4(-1) + Pt = -2 → Pt = +2."
   },
   {
     id: 89,
-    question: "[Co(acac)₃] da nechta donor atom bor?",
-    options: ["3", "6", "9", "12"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["polidentat", "atsetilasetonat", "bidentat"],
-    explanation: "3 ta acac⁻ ligand × 2 donor atom = 6 ta donor atom. Koordinatsion son = 6."
+    question: "[Ni(CO)₄] da Ni ning oksidlanish darajasi qancha?",
+    options: ["+2", "+3", "+4", "0"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["oksidlanish", "nikel", "neytral", "karbonil"],
+    explanation: "CO neytral (0). Umumiy zaryad 0. 4(0) + Ni = 0 → Ni = 0. Bu karbonilli kompleks past oksidlanish darajasi misoli."
   },
   {
     id: 90,
-    question: "[Fe(EDTA)]⁻ da nechta donor atom bor?",
-    options: ["2", "4", "6", "8"],
-    correct: 2,
+    question: "[Fe(CO)₅] da Fe ning oksidlanish darajasi qancha?",
+    options: ["+2", "+3", "+5", "0"],
+    correct: 3,
     difficulty: "qiyin",
-    tags: ["polidentat", "EDTA", "geksadentat"],
-    explanation: "EDTA⁴⁻ — geksadentat ligand, 6 ta donor atom (2 N, 4 O). Koordinatsion son = 6."
+    tags: ["oksidlanish", "temir", "neytral", "karbonil"],
+    explanation: "CO neytral. 5(0) + Fe = 0 → Fe = 0."
   },
   {
     id: 91,
-    question: "[Co(en)₃]³⁺ ning to'g'ri nomini toping.",
-    options: ["tris(etilendiamin)kobalt(III)", "tri(etilendiamin)kobalt(III)", "tris(etilendiamin)kobalt(II)", "tri(etilendiamin)kobalt(II)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["polidentat", "etilendiamin", "kation"],
-    explanation: "[Co(en)₃]³⁺ — kation kompleks. Polidentat ligand uchun 'tris' prefiksi. Co³⁺ oksidlanish darajasi."
+    question: "K₃[Cr(C₂O₄)₃] da Cr ning oksidlanish darajasi qancha?",
+    options: ["+2", "+3", "+4", "+6"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "xrom", "anion", "oksalato"],
+    explanation: "3 K⁺ tashqi → anion -3. 3 ta C₂O₄²⁻ = -6. (-6) + Cr = -3 → Cr = +3."
   },
   {
     id: 92,
-    question: "[Co(C₂O₄)₃]³⁻ ning to'g'ri nomini toping.",
-    options: ["tris(oksalato)kobaltat(III)", "tri(oksalato)kobaltat(III)", "tris(oksalato)kobalt(III)", "tri(oksalato)kobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["polidentat", "oksalat", "anion"],
-    explanation: "[Co(C₂O₄)₃]³⁻ — anion kompleks. Polidentat ligand uchun 'tris' prefiksi. Anion → kobaltat. Co³⁺."
+    question: "[Co(en)₃]Cl₃ da Co ning oksidlanish darajasi qancha?",
+    options: ["+2", "+4", "+3", "+6"],
+    correct: 2,
+    difficulty: "oson",
+    tags: ["oksidlanish", "kobalt", "etilendiamin", "kation"],
+    explanation: "en — NEYTRAL ligand (0). 3 Cl⁻ tashqi → kation +3. 3(0) + Co = +3 → Co = +3."
   },
   {
     id: 93,
-    question: "[Co(acac)₃] ning to'g'ri nomini toping.",
-    options: ["tris(atsetilasetonato)kobalt(III)", "tri(atsetilasetonato)kobalt(III)", "tris(atsetilasetonato)kobalt(III)", "tri(atsetilasetonato)kobalt(II)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["polidentat", "atsetilasetonat", "neytral"],
-    explanation: "[Co(acac)₃] — neytral kompleks. Polidentat ligand uchun 'tris' prefiksi. Co³⁺ oksidlanish darajasi."
+    question: "[Cu(en)₂]SO₄ da Cu ning oksidlanish darajasi qancha?",
+    options: ["+1", "+2", "+3", "+4"],
+    correct: 1,
+    difficulty: "oson",
+    tags: ["oksidlanish", "mis", "etilendiamin", "kation"],
+    explanation: "en neytral, SO₄²⁻ tashqi → kation +2. 2(0) + Cu = +2 → Cu = +2."
   },
   {
     id: 94,
-    question: "[Fe(EDTA)]⁻ ning to'g'ri nomini toping.",
-    options: ["etilendiamintetraatsetatoferrat(III)", "etilendiamintetraatsetatoferrat(II)", "etilendiamintetraatsetatoferrat(III)", "etilendiamintetraatsetatotemir(III)"],
+    question: "[Co(NH₃)₄Cl₂]Cl da Co ning oksidlanish darajasi qancha?",
+    options: ["+3", "+2", "+4", "+5"],
     correct: 0,
-    difficulty: "qiyin",
-    tags: ["polidentat", "EDTA", "anion"],
-    explanation: "[Fe(EDTA)]⁻ — anion kompleks. EDTA⁴⁻ — geksadentat ligand. Fe³⁺ oksidlanish darajasi. Anion → ferrat."
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "kobalt", "ammin", "xloro"],
+    explanation: "1 Cl⁻ tashqi → kation +1. 4(0) + 2(-1) + Co = +1 → Co = +3."
   },
   {
     id: 95,
-    question: "Xelat effekti nima?",
-    options: ["Polidentat ligandlarning kuchliroq bog'lanishi", "Monodentat ligandlarning kuchliroq bog'lanishi", "Kation komplekslarning barqarorligi", "Anion komplekslarning barqarorligi"],
-    correct: 0,
+    question: "[Pt(NH₃)₂Cl₂] (sisplatin) da Pt ning oksidlanish darajasi qancha?",
+    options: ["+3", "+4", "+2", "+6"],
+    correct: 2,
     difficulty: "o'rta",
-    tags: ["polidentat", "xelat", "barqarorlik"],
-    explanation: "Xelat effekti — polidentat ligandlar monodentat ligandlarga qaraganda kuchliroq bog'lanadi (entropiya effekti)."
+    tags: ["oksidlanish", "platina", "neytral", "sisplatin"],
+    explanation: "Neytral kompleks (zaryad 0). 2(0) + 2(-1) + Pt = 0 → Pt = +2."
   },
   {
     id: 96,
-    question: "[Co(en)₃]³⁺ qaysi turdagi kompleks?",
-    options: ["Xelat kompleks", "Monodentat kompleks", "Anion kompleks", "Neytral kompleks"],
-    correct: 0,
-    difficulty: "oson",
-    tags: ["polidentat", "xelat", "kation"],
-    explanation: "[Co(en)₃]³⁺ — xelat kompleks (polidentat ligandlar). Kation kompleks."
+    question: "[Co(NH₃)₅(H₂O)]Cl₃ da Co ning oksidlanish darajasi qancha?",
+    options: ["+2", "+3", "+4", "+5"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "kobalt", "ammin", "akva"],
+    explanation: "H₂O va NH₃ — ikkalasi ham neytral. 3 Cl⁻ tashqi → kation +3. Co = +3."
   },
   {
     id: 97,
-    question: "[Fe(C₂O₄)₃]³⁻ qaysi turdagi kompleks?",
-    options: ["Xelat kompleks", "Monodentat kompleks", "Kation kompleks", "Neytral kompleks"],
-    correct: 0,
-    difficulty: "oson",
-    tags: ["polidentat", "xelat", "anion"],
-    explanation: "[Fe(C₂O₄)₃]³⁻ — xelat kompleks (polidentat ligandlar). Anion kompleks."
+    question: "[Co(NH₃)₅(NO₂)]Cl₂ da Co ning oksidlanish darajasi qancha?",
+    options: ["+2", "+4", "+5", "+3"],
+    correct: 3,
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "kobalt", "ammin", "nitro"],
+    explanation: "NO₂⁻ = -1, NH₃ = 0. 2 Cl⁻ tashqi → kation +2. 5(0) + (-1) + Co = +2 → Co = +3."
   },
   {
     id: 98,
-    question: "EDTA⁴⁻ ligandi qaysi turdagi ligand?",
-    options: ["Monodentat", "Bidentat", "Tridentat", "Geksadentat"],
+    question: "[Co(NH₃)₄(SO₄)]NO₃ da Co ning oksidlanish darajasi qancha?",
+    options: ["+2", "+4", "+5", "+3"],
     correct: 3,
     difficulty: "qiyin",
-    tags: ["polidentat", "EDTA", "geksadentat"],
-    explanation: "EDTA⁴⁻ — geksadentat ligand (6 ta donor atom: 2 N, 4 O)."
+    tags: ["oksidlanish", "kobalt", "ammin", "sulfato"],
+    explanation: "SO₄²⁻ ligand sifatida = -2, NH₃ = 0, NO₃⁻ tashqi → kation +1. 4(0) + (-2) + Co = +1 → Co = +3."
   },
   {
     id: 99,
-    question: "[Co(en)₂Cl₂]⁺ ning to'g'ri nomini toping.",
-    options: ["bis(etilendiamin)dixlorokobalt(III)", "di(etilendiamin)dixlorokobalt(III)", "bis(etilendiamin)dixlorokobalt(II)", "di(etilendiamin)dixlorokobalt(II)"],
+    question: "K₄[Mn(CN)₆] da Mn ning oksidlanish darajasi qancha?",
+    options: ["+2", "+3", "+4", "+6"],
     correct: 0,
-    difficulty: "qiyin",
-    tags: ["polidentat", "etilendiamin", "kation"],
-    explanation: "[Co(en)₂Cl₂]⁺ — kation kompleks. Polidentat ligand uchun 'bis' prefiksi. Co³⁺ oksidlanish darajasi."
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "marganets", "siano", "anion"],
+    explanation: "4 K⁺ tashqi → anion -4. 6(-1) + Mn = -4 → Mn = +2."
   },
   {
     id: 100,
-    question: "[Co(en)₂Cl₂]Cl ning to'g'ri nomini toping.",
-    options: ["bis(etilendiamin)dixlorokobalt(III) xlorid", "di(etilendiamin)dixlorokobalt(III) xlorid", "bis(etilendiamin)dixlorokobalt(II) xlorid", "di(etilendiamin)dixlorokobalt(II) xlorid"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["polidentat", "etilendiamin", "kation"],
-    explanation: "[Co(en)₂Cl₂]⁺ — kation (bis(etilendiamin)dixlorokobalt(III)), Cl⁻ — anion (xlorid). Co³⁺."
+    question: "K[Au(CN)₂] da Au ning oksidlanish darajasi qancha?",
+    options: ["+2", "+1", "+3", "+4"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "oltin", "siano", "anion"],
+    explanation: "1 K⁺ tashqi → anion -1. 2(-1) + Au = -1 → Au = +1."
   },
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 5-GURUH: ARALASH LIGANDLI KOMPLEKSLAR (20 ta savol)
-  // ═══════════════════════════════════════════════════════════════════════════
   {
     id: 101,
-    question: "[Co(NH₃)₄Cl₂]⁺ ning to'g'ri nomini toping.",
-    options: ["tetraammindiklorokobalt(III)", "tetraammindiklorokobalt(II)", "tetraammindiklorokobalt(III)", "dixlorotetraamminkobalt(III)"],
-    correct: 0,
+    question: "[Co(NH₃)₆]₂(SO₄)₃ da Co ning oksidlanish darajasi qancha?",
+    options: ["+2", "+4", "+6", "+3"],
+    correct: 3,
     difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "xloro"],
-    explanation: "[Co(NH₃)₄Cl₂]⁺ — kation kompleks. Ligandlar alifbo tartibida: ammin, xloro. Co³⁺."
+    tags: ["oksidlanish", "kobalt", "ammin", "kation"],
+    explanation: "3 SO₄²⁻ tashqi = -6, 2 ta kation → har biri +3. Kompleksda 6(0) + Co = +3 → Co = +3."
   },
   {
     id: 102,
-    question: "[Co(NH₃)₄Cl₂]Cl ning to'g'ri nomini toping.",
-    options: ["tetraammindiklorokobalt(III) xlorid", "tetraammindiklorokobalt(II) xlorid", "tetraammindiklorokobalt(III) xlorid", "dixlorotetraamminkobalt(III) xlorid"],
+    question: "Na₂[Fe(CN)₅NO] (nitroprussid) da Fe ning oksidlanish darajasi qancha?",
+    options: ["+2", "+3", "+4", "0"],
     correct: 0,
     difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "xloro"],
-    explanation: "[Co(NH₃)₄Cl₂]⁺ — kation (tetraammindiklorokobalt(III)), Cl⁻ — anion (xlorid). Co³⁺."
+    tags: ["oksidlanish", "temir", "siano", "nitrozil"],
+    explanation: "2 Na⁺ tashqi → anion -2. NO bu yerda NO⁺ deb hisoblanadi (nitrozil ligandi). 5(-1) + (+1) + Fe = -2 → Fe = +2. Nitroprussid — qon bosimini tushiruvchi dori."
   },
   {
     id: 103,
-    question: "[Pt(NH₃)₂Cl₂] ning to'g'ri nomini toping.",
-    options: ["diammindixloroplatina(II)", "diammindixloroplatina(IV)", "diammindixloroplatina(II)", "dixlorodiamminplatina(II)"],
-    correct: 0,
+    question: "[Cr(H₂O)₄Cl₂]Cl·2H₂O da Cr ning oksidlanish darajasi qancha?",
+    options: ["+2", "+4", "+6", "+3"],
+    correct: 3,
     difficulty: "qiyin",
-    tags: ["aralash", "platina", "ammin", "xloro"],
-    explanation: "[Pt(NH₃)₂Cl₂] — neytral kompleks. Ligandlar alifbo tartibida: ammin, xloro. Pt²⁺."
+    tags: ["oksidlanish", "xrom", "gidrat", "akva", "xloro"],
+    explanation: "Kristallizatsiya suvi (·2H₂O) hisobga olinmaydi. 1 Cl⁻ tashqi → kation +1. 4(0) + 2(-1) + Cr = +1 → Cr = +3."
   },
   {
     id: 104,
-    question: "[Co(NH₃)₅(H₂O)]³⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkvakobalt(III)", "pentaamminkvakobalt(II)", "pentaamminkvakobalt(III)", "akvapentaamminkobalt(III)"],
+    question: "[Pt(NH₃)₄][PtCl₄] da har bir Pt ning oksidlanish darajasi qancha?",
+    options: ["ikkalasi +2", "ikkalasi +4", "kationda +4, anionda +2", "kationda +2, anionda +4"],
     correct: 0,
     difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "akva"],
-    explanation: "[Co(NH₃)₅(H₂O)]³⁺ — kation kompleks. Ligandlar alifbo tartibida: akva, ammin. Co³⁺."
+    tags: ["oksidlanish", "platina", "kation", "anion"],
+    explanation: "Kation [Pt(NH₃)₄]²⁺: 4(0) + Pt = +2 → Pt(II). Anion [PtCl₄]²⁻: 4(-1) + Pt = -2 → Pt(II). Ikkalasi ham Pt(II)."
   },
   {
     id: 105,
-    question: "[Co(NH₃)₅(NO₂)]²⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkobalt(III) nitro", "pentaamminkobalt(II) nitro", "pentaamminkobalt(III) nitro", "nitropentaamminkobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "nitro"],
-    explanation: "[Co(NH₃)₅(NO₂)]²⁺ — kation kompleks. Ligandlar alifbo tartibida: ammin, nitro. Co³⁺."
-  },
-  {
-    id: 106,
-    question: "[Co(NH₃)₅(ONO)]²⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkobalt(III) nitrito-O", "pentaamminkobalt(II) nitrito-O", "pentaamminkobalt(III) nitrito-O", "nitrito-O-pentaamminkobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "nitrito"],
-    explanation: "[Co(NH₃)₅(ONO)]²⁺ — kation kompleks. NO₂⁻ O orqali bog'langan (nitrito-O). Linkage izomerizm."
-  },
-  {
-    id: 107,
-    question: "[Co(NH₃)₅(SCN)]²⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkobalt(III) tiotsianato-S", "pentaamminkobalt(II) tiotsianato-S", "pentaamminkobalt(III) tiotsianato-S", "tiotsianato-S-pentaamminkobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "tiotsianato"],
-    explanation: "[Co(NH₃)₅(SCN)]²⁺ — kation kompleks. SCN⁻ S orqali bog'langan (tiotsianato-S). Ambidentat ligand."
-  },
-  {
-    id: 108,
-    question: "[Co(NH₃)₅(NCS)]²⁺ ning to'g'ri nomini toping.",
-    options: ["pentaamminkobalt(III) tiotsianato-N", "pentaamminkobalt(II) tiotsianato-N", "pentaamminkobalt(III) tiotsianato-N", "tiotsianato-N-pentaamminkobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "tiotsianato"],
-    explanation: "[Co(NH₃)₅(NCS)]²⁺ — kation kompleks. SCN⁻ N orqali bog'langan (tiotsianato-N). Linkage izomerizm."
-  },
-  {
-    id: 109,
-    question: "[Co(en)₂Cl₂]⁺ ning to'g'ri nomini toping.",
-    options: ["bis(etilendiamin)dixlorokobalt(III)", "di(etilendiamin)dixlorokobalt(III)", "bis(etilendiamin)dixlorokobalt(II)", "di(etilendiamin)dixlorokobalt(II)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "etilendiamin", "xloro"],
-    explanation: "[Co(en)₂Cl₂]⁺ — kation kompleks. Polidentat ligand uchun 'bis' prefiksi. Co³⁺."
-  },
-  {
-    id: 110,
-    question: "[Co(en)₂Cl₂]Cl ning to'g'ri nomini toping.",
-    options: ["bis(etilendiamin)dixlorokobalt(III) xlorid", "di(etilendiamin)dixlorokobalt(III) xlorid", "bis(etilendiamin)dixlorokobalt(II) xlorid", "di(etilendiamin)dixlorokobalt(II) xlorid"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "etilendiamin", "xloro"],
-    explanation: "[Co(en)₂Cl₂]⁺ — kation (bis(etilendiamin)dixlorokobalt(III)), Cl⁻ — anion (xlorid). Co³⁺."
-  },
-  {
-    id: 111,
-    question: "[Co(NH₃)₄(H₂O)₂]³⁺ ning to'g'ri nomini toping.",
-    options: ["tetraammindikvakobalt(III)", "tetraammindikvakobalt(II)", "tetraammindikvakobalt(III)", "diakvatetraamminkobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "akva"],
-    explanation: "[Co(NH₃)₄(H₂O)₂]³⁺ — kation kompleks. Ligandlar alifbo tartibida: akva, ammin. Co³⁺."
-  },
-  {
-    id: 112,
-    question: "[Co(NH₃)₄(H₂O)₂]Cl₃ ning to'g'ri nomini toping.",
-    options: ["tetraammindikvakobalt(III) xlorid", "tetraammindikvakobalt(II) xlorid", "tetraammindikvakobalt(III) xlorid", "diakvatetraamminkobalt(III) xlorid"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "akva"],
-    explanation: "[Co(NH₃)₄(H₂O)₂]³⁺ — kation (tetraammindikvakobalt(III)), 3 Cl⁻ — anion (xlorid). Co³⁺."
-  },
-  {
-    id: 113,
-    question: "[Co(NH₃)₃Cl₃] ning to'g'ri nomini toping.",
-    options: ["triammintrixlorokobalt(III)", "triammintrixlorokobalt(II)", "triammintrixlorokobalt(III)", "trixlorotriamminkobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "xloro"],
-    explanation: "[Co(NH₃)₃Cl₃] — neytral kompleks. Ligandlar alifbo tartibida: ammin, xloro. Co³⁺."
-  },
-  {
-    id: 114,
-    question: "[Pt(NH₃)₄Cl₂] ning to'g'ri nomini toping.",
-    options: ["tetraammindikloroplatina(II)", "tetraammindikloroplatina(IV)", "tetraammindikloroplatina(II)", "dixlorotetraamminplatina(II)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "platina", "ammin", "xloro"],
-    explanation: "[Pt(NH₃)₄Cl₂] — neytral kompleks. Ligandlar alifbo tartibida: ammin, xloro. Pt²⁺."
-  },
-  {
-    id: 115,
-    question: "[Co(NH₃)₄(C₂O₄)]⁺ ning to'g'ri nomini toping.",
-    options: ["tetraamminkobalt(III) oksalato", "tetraamminkobalt(II) oksalato", "tetraamminkobalt(III) oksalato", "oksalatotetraamminkobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "oksalato"],
-    explanation: "[Co(NH₃)₄(C₂O₄)]⁺ — kation kompleks. Ligandlar alifbo tartibida: ammin, oksalato. Co³⁺."
-  },
-  {
-    id: 116,
-    question: "[Co(NH₃)₄(C₂O₄)]Cl ning to'g'ri nomini toping.",
-    options: ["tetraamminkobalt(III) oksalato xlorid", "tetraamminkobalt(II) oksalato xlorid", "tetraamminkobalt(III) oksalato xlorid", "oksalatotetraamminkobalt(III) xlorid"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "oksalato"],
-    explanation: "[Co(NH₃)₄(C₂O₄)]⁺ — kation (tetraamminkobalt(III) oksalato), Cl⁻ — anion (xlorid). Co³⁺."
-  },
-  {
-    id: 117,
-    question: "[Co(en)(NH₃)₂Cl₂]⁺ ning to'g'ri nomini toping.",
-    options: ["diammin(etilendiamin)dixlorokobalt(III)", "diammin(etilendiamin)dixlorokobalt(II)", "diammin(etilendiamin)dixlorokobalt(III)", "dixlorodiammin(etilendiamin)kobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "etilendiamin"],
-    explanation: "[Co(en)(NH₃)₂Cl₂]⁺ — kation kompleks. Ligandlar alifbo tartibida: ammin, etilendiamin, xloro. Co³⁺."
-  },
-  {
-    id: 118,
-    question: "[Co(en)(NH₃)₂Cl₂]Cl ning to'g'ri nomini toping.",
-    options: ["diammin(etilendiamin)dixlorokobalt(III) xlorid", "diammin(etilendiamin)dixlorokobalt(II) xlorid", "diammin(etilendiamin)dixlorokobalt(III) xlorid", "dixlorodiammin(etilendiamin)kobalt(III) xlorid"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "etilendiamin"],
-    explanation: "[Co(en)(NH₃)₂Cl₂]⁺ — kation (diammin(etilendiamin)dixlorokobalt(III)), Cl⁻ — anion (xlorid). Co³⁺."
-  },
-  {
-    id: 119,
-    question: "[Co(NH₃)₄(NO₂)₂]⁺ ning to'g'ri nomini toping.",
-    options: ["tetraammindinitrokobalt(III)", "tetraammindinitrokobalt(II)", "tetraammindinitrokobalt(III)", "dinitrotetraamminkobalt(III)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "nitro"],
-    explanation: "[Co(NH₃)₄(NO₂)₂]⁺ — kation kompleks. Ligandlar alifbo tartibida: ammin, nitro. Co³⁺."
-  },
-  {
-    id: 120,
-    question: "[Co(NH₃)₄(NO₂)₂]Cl ning to'g'ri nomini toping.",
-    options: ["tetraammindinitrokobalt(III) xlorid", "tetraammindinitrokobalt(II) xlorid", "tetraammindinitrokobalt(III) xlorid", "dinitrotetraamminkobalt(III) xlorid"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["aralash", "kobalt", "ammin", "nitro"],
-    explanation: "[Co(NH₃)₄(NO₂)₂]⁺ — kation (tetraammindinitrokobalt(III)), Cl⁻ — anion (xlorid). Co³⁺."
+    question: "K₂[OsCl₆] da Os ning oksidlanish darajasi qancha?",
+    options: ["+2", "+3", "+4", "+6"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["oksidlanish", "osmiy", "xloro", "anion"],
+    explanation: "2 K⁺ tashqi → anion -2. 6(-1) + Os = -2 → Os = +4."
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 6-GURUH: QO'SHIMCHA SAVOLLAR (30 ta savol)
+  // 5-GURUH: POLIDENTAT LIGANDLAR & ARALASH KOMPLEKSLAR (25 ta) — IDs 106–130
   // ═══════════════════════════════════════════════════════════════════════════
   {
-    id: 121,
-    question: "Kompleks birikma nomini aytishda dastlab nima aytiladi?",
-    options: ["anion", "kation", "ligand", "markaziy atom"],
-    correct: 1,
+    id: 106,
+    question: "Polidentat (yoki murakkab nomli) ligand sonini ko'rsatishda qaysi prefikslar ishlatiladi?",
+    options: ["di-, tri-, tetra-", "do-, tro-, tetro-", "bis-, tris-, tetrakis-", "uno-, duo-, trio-"],
+    correct: 2,
+    difficulty: "qiyin",
+    tags: ["polidentat", "prefiks", "qoidalar"],
+    explanation: "Polidentat ligandlar yoki tarkibida grekcha prefiks bo'lgan ligandlar uchun bis- (2), tris- (3), tetrakis- (4), pentakis- (5) ishlatiladi va ligand qavsga olinadi."
+  },
+  {
+    id: 107,
+    question: "en (etilendiamin) nechta donor atomga ega va qaysi atomlar?",
+    options: ["2 ta, ikkalasi N", "1 ta, N", "2 ta, N va O", "4 ta, 2 N + 2 H"],
+    correct: 0,
     difficulty: "oson",
-    tags: ["nomlash", "kation", "anion"],
-    explanation: "Kompleks birikma nomini aytishda dastlab kation, keyin anion aytiladi. Masalan: [Co(NH₃)₆]Cl₃ — geksaamminkobalt(III) xlorid."
+    tags: ["polidentat", "etilendiamin", "bidentat"],
+    explanation: "en (H₂N–CH₂–CH₂–NH₂) — bidentat, ikkita N atomi orqali bog'lanadi. 5-a'zoli xelat halqa hosil qiladi."
   },
   {
-    id: 122,
-    question: "Anion komplekslarda markaziy atom nomiga nima qo'shiladi?",
-    options: ["\"it\" qo'shimchasi", "\"at\" qo'shimchasi", "\"id\" qo'shimchasi", "o'zgartirish kiritilmaydi"],
+    id: 108,
+    question: "C₂O₄²⁻ (oksalat) nechta donor atomga ega va qaysi atomlar?",
+    options: ["1 ta, O", "2 ta, ikkalasi O", "2 ta, C va O", "4 ta, ikkalasi O dan"],
     correct: 1,
     difficulty: "o'rta",
-    tags: ["nomlash", "anion", "ferrat"],
-    explanation: "Anion komplekslarda markaziy atom nomiga '-at' qo'shimchasi qo'shiladi. Masalan: temir → ferrat, kobalt → kobaltat."
+    tags: ["polidentat", "oksalat", "bidentat"],
+    explanation: "C₂O₄²⁻ — bidentat, ikkita karboksilat O atomi orqali bog'lanadi. 5-a'zoli xelat halqa."
   },
   {
-    id: 123,
-    question: "Fe anion kompleksda qanday nomlanadi?",
-    options: ["temir", "ferrat", "ferrit", "ferrum"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["nomlash", "anion", "temir"],
-    explanation: "Fe anion kompleksda 'ferrat' deb nomlanadi. Masalan: [Fe(CN)₆]⁴⁻ — geksatsianoferrat(II)."
-  },
-  {
-    id: 124,
-    question: "Co anion kompleksda qanday nomlanadi?",
-    options: ["kobalt", "kobaltat", "kobaltit", "kobaltum"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["nomlash", "anion", "kobalt"],
-    explanation: "Co anion kompleksda 'kobaltat' deb nomlanadi. Masalan: [Co(CN)₆]³⁻ — geksatsianokobaltat(III)."
-  },
-  {
-    id: 125,
-    question: "Cu anion kompleksda qanday nomlanadi?",
-    options: ["mis", "kuprat", "kuprit", "kuprum"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["nomlash", "anion", "mis"],
-    explanation: "Cu anion kompleksda 'kuprat' deb nomlanadi. Masalan: [Cu(CN)₄]²⁻ — tetratsianokuprat(II)."
-  },
-  {
-    id: 126,
-    question: "Ni anion kompleksda qanday nomlanadi?",
-    options: ["nikel", "nikelat", "nikelit", "nikelum"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["nomlash", "anion", "nikel"],
-    explanation: "Ni anion kompleksda 'nikelat' deb nomlanadi. Masalan: [Ni(CN)₄]²⁻ — tetratsianonikelat(II)."
-  },
-  {
-    id: 127,
-    question: "Pt anion kompleksda qanday nomlanadi?",
-    options: ["platina", "platinat", "platinat", "platinum"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["nomlash", "anion", "platina"],
-    explanation: "Pt anion kompleksda 'platinat' deb nomlanadi. Masalan: [PtCl₆]²⁻ — geksaxloroplatinat(IV)."
-  },
-  {
-    id: 128,
-    question: "Cr anion kompleksda qanday nomlanadi?",
-    options: ["xrom", "xromat", "xromit", "xromum"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["nomlash", "anion", "xrom"],
-    explanation: "Cr anion kompleksda 'xromat' deb nomlanadi. Masalan: [Cr(CN)₆]³⁻ — geksatsianoxromat(III)."
-  },
-  {
-    id: 129,
-    question: "Mn anion kompleksda qanday nomlanadi?",
-    options: ["marganets", "manganat", "manganit", "manganum"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["nomlash", "anion", "marganets"],
-    explanation: "Mn anion kompleksda 'manganat' deb nomlanadi. Masalan: [Mn(CN)₆]⁴⁻ — geksatsianomanganat(II)."
-  },
-  {
-    id: 130,
-    question: "Ag anion kompleksda qanday nomlanadi?",
-    options: ["kumush", "argentat", "argentit", "argentum"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["nomlash", "anion", "kumush"],
-    explanation: "Ag anion kompleksda 'argentat' deb nomlanadi. Masalan: [Ag(CN)₂]⁻ — ditsianoargentat(I)."
-  },
-  {
-    id: 131,
-    question: "Ligandlar qaysi ketma-ketlikda aytiladi?",
-    options: ["kation → neytral → anion", "anion → neytral → kation", "neytral → anion → kation", "alfavit tartibida, zaryadga qaralmaydi"],
-    correct: 3,
-    difficulty: "qiyin",
-    tags: ["nomlash", "ligand", "alifbo"],
-    explanation: "Ligandlar alifbo tartibida aytiladi, zaryadga qaralmaydi. Masalan: ammin, xloro (a, x)."
-  },
-  {
-    id: 132,
-    question: "[Co(NH₃)₅Cl]²⁺ da ligandlar qaysi tartibda aytiladi?",
-    options: ["ammin, xloro", "xloro, ammin", "ammin, xloro (alifbo)", "xloro, ammin (alifbo)"],
+    id: 109,
+    question: "acac⁻ nechta donor atomga ega va qaysi atomlar?",
+    options: ["2 ta, ikkalasi O", "1 ta, O", "2 ta, N va O", "3 ta, 1 C + 2 O"],
     correct: 0,
-    difficulty: "qiyin",
-    tags: ["nomlash", "ligand", "alifbo"],
-    explanation: "Ligandlar alifbo tartibida: ammin (a), xloro (x). 'a' harfi 'x' dan oldin keladi."
+    difficulty: "o'rta",
+    tags: ["polidentat", "atsetilasetonat", "bidentat"],
+    explanation: "acac⁻ — bidentat, ikkita karbonil O atomi orqali bog'lanadi. 6-a'zoli xelat halqa hosil qiladi."
   },
   {
-    id: 133,
-    question: "[Co(NH₃)₄Cl₂]⁺ da ligandlar qaysi tartibda aytiladi?",
-    options: ["ammin, xloro", "xloro, ammin", "ammin, xloro (alifbo)", "xloro, ammin (alifbo)"],
-    correct: 0,
+    id: 110,
+    question: "EDTA⁴⁻ nechta va qaysi donor atomlarga ega?",
+    options: ["4 ta O", "8 ta: 4 N + 4 O", "6 ta: 2 N + 4 O", "6 ta: 6 O"],
+    correct: 2,
     difficulty: "qiyin",
-    tags: ["nomlash", "ligand", "alifbo"],
-    explanation: "Ligandlar alifbo tartibida: ammin (a), xloro (x). 'a' harfi 'x' dan oldin keladi."
+    tags: ["polidentat", "EDTA", "geksadentat"],
+    explanation: "EDTA⁴⁻ — geksadentat: 2 ta uchlamchi amin N atomi + 4 ta karboksilat O atomi. Beshta 5-a'zoli xelat halqa hosil qiladi."
   },
   {
-    id: 134,
-    question: "[Co(NH₃)₅(H₂O)]³⁺ da ligandlar qaysi tartibda aytiladi?",
-    options: ["akva, ammin", "ammin, akva", "akva, ammin (alifbo)", "ammin, akva (alifbo)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["nomlash", "ligand", "alifbo"],
-    explanation: "Ligandlar alifbo tartibida: akva (a), ammin (a). 'ak' harfi 'am' dan oldin keladi."
-  },
-  {
-    id: 135,
-    question: "[Co(NH₃)₅(NO₂)]²⁺ da ligandlar qaysi tartibda aytiladi?",
-    options: ["ammin, nitro", "nitro, ammin", "ammin, nitro (alifbo)", "nitro, ammin (alifbo)"],
-    correct: 0,
-    difficulty: "qiyin",
-    tags: ["nomlash", "ligand", "alifbo"],
-    explanation: "Ligandlar alifbo tartibida: ammin (a), nitro (n). 'a' harfi 'n' dan oldin keladi."
-  },
-  {
-    id: 136,
-    question: "[Co(en)₃]³⁺ ning koordinatsion soni necha?",
-    options: ["3", "6", "9", "12"],
+    id: 111,
+    question: "Xelat effekti nima?",
+    options: ["Faqat anion ligandlarning barqarorligi", "Polidentat ligandlarning monodentat ligandlarga qaraganda kuchliroq va barqarorroq komplekslar hosil qilishi", "Faqat kation komplekslarning barqarorligi", "Ligandning metallga vodorod bog'i hosil qilishi"],
     correct: 1,
+    difficulty: "o'rta",
+    tags: ["polidentat", "xelat", "barqarorlik"],
+    explanation: "Xelat effekti — polidentat ligandlar bilan hosil bo'lgan komplekslarning monodentat analoglariga qaraganda yuqori barqarorligi. Asosan entropiya omiliga bog'liq (ΔS > 0)."
+  },
+  {
+    id: 112,
+    question: "[Co(en)₃]³⁺ ning koordinatsion soni nechaga teng?",
+    options: ["6", "3", "4", "9"],
+    correct: 0,
     difficulty: "o'rta",
     tags: ["koordinatsion", "etilendiamin", "bidentat"],
-    explanation: "en — bidentat ligand (2 donor atom). 3 ta en × 2 = 6 ta donor atom. Koordinatsion son = 6."
+    explanation: "3 ta bidentat ligand × 2 donor atom = 6. Koordinatsion son = 6, geometriya — oktaedrik."
   },
   {
-    id: 137,
-    question: "[Co(C₂O₄)₃]³⁻ ning koordinatsion soni necha?",
-    options: ["3", "6", "9", "12"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["koordinatsion", "oksalat", "bidentat"],
-    explanation: "C₂O₄²⁻ — bidentat ligand (2 donor atom). 3 ta C₂O₄²⁻ × 2 = 6 ta donor atom. Koordinatsion son = 6."
-  },
-  {
-    id: 138,
-    question: "[Co(acac)₃] ning koordinatsion soni necha?",
-    options: ["3", "6", "9", "12"],
-    correct: 1,
-    difficulty: "o'rta",
-    tags: ["koordinatsion", "atsetilasetonat", "bidentat"],
-    explanation: "acac⁻ — bidentat ligand (2 donor atom). 3 ta acac⁻ × 2 = 6 ta donor atom. Koordinatsion son = 6."
-  },
-  {
-    id: 139,
-    question: "[Fe(EDTA)]⁻ ning koordinatsion soni necha?",
+    id: 113,
+    question: "[Fe(EDTA)]⁻ ning koordinatsion soni nechaga teng?",
     options: ["2", "4", "6", "8"],
     correct: 2,
     difficulty: "qiyin",
     tags: ["koordinatsion", "EDTA", "geksadentat"],
-    explanation: "EDTA⁴⁻ — geksadentat ligand (6 donor atom: 2 N, 4 O). Koordinatsion son = 6."
+    explanation: "EDTA⁴⁻ — geksadentat (6 donor). Koordinatsion son = 6, geometriya — buralgan oktaedrik."
   },
   {
-    id: 140,
-    question: "[Co(en)₂Cl₂]⁺ ning koordinatsion soni necha?",
-    options: ["2", "4", "6", "8"],
-    correct: 2,
+    id: 114,
+    question: "[Co(en)₂Cl₂]⁺ ning koordinatsion soni nechaga teng?",
+    options: ["2", "4", "8", "6"],
+    correct: 3,
     difficulty: "o'rta",
     tags: ["koordinatsion", "etilendiamin", "xloro"],
-    explanation: "2 ta en (2 × 2 = 4 donor atom) + 2 ta Cl⁻ (2 × 1 = 2 donor atom) = 6 ta donor atom. Koordinatsion son = 6."
+    explanation: "2 ta en (2×2=4 donor) + 2 ta Cl⁻ (2 donor) = 6 donor. Koordinatsion son = 6, oktaedrik."
   },
   {
-    id: 141,
-    question: "sis-[Co(NH₃)₄Cl₂]⁺ da Cl ligandlari qanday joylashgan?",
-    options: ["90° burchak ostida", "180° burchak ostida", "120° burchak ostida", "60° burchak ostida"],
-    correct: 0,
-    difficulty: "o'rta",
-    tags: ["geometrik", "sis", "oktaedr"],
-    explanation: "sis-izomerda bir xil ligandlar 90° burchak ostida joylashgan (qo'shni pozitsiyalar)."
+    id: 115,
+    question: "Kompleks birikma nomida nima birinchi aytiladi?",
+    options: ["Markaziy metall", "Kation (ichki yoki tashqi sferada)", "Tashqi sferadagi anion", "Ligandlar nomi"],
+    correct: 1,
+    difficulty: "oson",
+    tags: ["nomlash", "qoidalar", "kation"],
+    explanation: "IUPAC qoidasi: AVVAL KATION, KEYIN ANION nomi aytiladi. Kation kompleks bo'lsa, kompleks ioni birinchi keladi; anion kompleks bo'lsa — tashqi kation birinchi."
   },
   {
-    id: 142,
-    question: "trans-[Co(NH₃)₄Cl₂]⁺ da Cl ligandlari qanday joylashgan?",
-    options: ["90° burchak ostida", "180° burchak ostida", "120° burchak ostida", "60° burchak ostida"],
+    id: 116,
+    question: "Kitobning konventsiyasi bo'yicha ichki sferada ligandlar qaysi tartibda sanaladi?",
+    options: ["Faqat alifbo tartibida", "kation → neytral → anion", "Ligand massa bo'yicha", "anion → neytral → kation (har guruh ichida alifbo)"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["nomlash", "ligand", "tartib"],
+    explanation: "Kitob (Nasimov–Tashpulatov, 2022) qoidasi: anion ligandlar oldin, keyin neytral, keyin kation. Har bir guruh ichida alifbo tartibi. (Eslatma: IUPAC 2005 da faqat alifbo tartibi qabul qilingan.)"
+  },
+  {
+    id: 117,
+    question: "Anion kompleksda Fe markaziy atom qanday nomlanadi?",
+    options: ["temir", "ferrat", "ferrum", "temir(at)"],
     correct: 1,
     difficulty: "o'rta",
-    tags: ["geometrik", "trans", "oktaedr"],
-    explanation: "trans-izomerda bir xil ligandlar 180° burchak ostida joylashgan (qarama-qarshi pozitsiyalar)."
+    tags: ["nomlash", "anion", "temir", "ferrat"],
+    explanation: "Anion kompleksda metall lotincha o'zagi + '-at' bilan nomlanadi: Fe (Ferrum) → ferrat. Misol: [Fe(CN)₆]⁴⁻ — geksasianoferrat(II)."
   },
   {
-    id: 143,
-    question: "fac-[Co(NH₃)₃Cl₃] da Cl ligandlari qanday joylashgan?",
-    options: ["Bir yuzda (facial)", "Meridian bo'ylab (meridional)", "Qarama-qarshi", "Tasodifiy"],
+    id: 118,
+    question: "Anion kompleksda Cu markaziy atom qanday nomlanadi?",
+    options: ["kuprat", "mis", "kuprum", "misat"],
+    correct: 0,
+    difficulty: "o'rta",
+    tags: ["nomlash", "anion", "mis", "kuprat"],
+    explanation: "Cu (Cuprum) → kuprat. Misol: [CuCl₄]²⁻ — tetraxlorokuprat(II)."
+  },
+  {
+    id: 119,
+    question: "Anion kompleksda Au markaziy atom qanday nomlanadi?",
+    options: ["oltin", "aurum", "oltinat", "aurat"],
+    correct: 3,
+    difficulty: "o'rta",
+    tags: ["nomlash", "anion", "oltin", "aurat"],
+    explanation: "Au (Aurum) → aurat. Misol: [Au(CN)₂]⁻ — disianoaurat(I)."
+  },
+  {
+    id: 120,
+    question: "Anion kompleksda Sn markaziy atom qanday nomlanadi?",
+    options: ["qalay", "stannat", "stannum", "qalayat"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["nomlash", "anion", "qalay", "stannat"],
+    explanation: "Sn (Stannum) → stannat. Misol: [SnF₆]²⁻ — geksaftorostannat(IV)."
+  },
+  {
+    id: 121,
+    question: "Anion kompleksda Pb markaziy atom qanday nomlanadi?",
+    options: ["plumbat", "qo'rg'oshin", "plumbum", "qo'rg'oshinat"],
+    correct: 0,
+    difficulty: "o'rta",
+    tags: ["nomlash", "anion", "qo'rg'oshin", "plumbat"],
+    explanation: "Pb (Plumbum) → plumbat. Misol: [Pb(OH)₄]²⁻ — tetragidroksoplumbat(II)."
+  },
+  {
+    id: 122,
+    question: "Anion kompleksda Ag markaziy atom qanday nomlanadi?",
+    options: ["kumush", "argentum", "argentat", "kumushat"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["nomlash", "anion", "kumush", "argentat"],
+    explanation: "Ag (Argentum) → argentat. Misol: [Ag(CN)₂]⁻ — disianoargentat(I)."
+  },
+  {
+    id: 123,
+    question: "Anion kompleksda Hg markaziy atom qanday nomlanadi?",
+    options: ["simob", "gidrargirat", "merkurat", "merkurium"],
+    correct: 2,
+    difficulty: "qiyin",
+    tags: ["nomlash", "anion", "simob", "merkurat"],
+    explanation: "Hg → merkurat (lat. Mercurius). Misol: [HgI₄]²⁻ — tetrayodomerkurat(II) (Nessler reagenti)."
+  },
+  {
+    id: 124,
+    question: "[Co(NH₃)₄Cl₂]⁺ kationining nomi qanday bo'ladi?",
+    options: ["tetraammindixlorokobalt(III)", "kobalt(III) tetraammindixlorid", "dixlorotetraamminkobaltat(III)", "dixlorotetraamminkobalt(III)"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["aralash", "kobalt", "ammin", "xloro"],
+    explanation: "Anion (dixloro) oldin, neytral (tetraammin) keyin. Kation kompleks (bukobaltat emas, kobalt). Co = +3."
+  },
+  {
+    id: 125,
+    question: "[Co(NH₃)₄(H₂O)₂]Cl₃ ning to'g'ri nomini toping.",
+    options: ["tetraammindiakvakobalt(III) xlorid", "diakvatetraamminkobalt(III) trixlorid", "diakvatetraamminkobaltat(III) xlorid", "diakvatetraamminkobalt(III) xlorid"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["aralash", "kobalt", "ammin", "akva"],
+    explanation: "Faqat neytral ligandlar — alifbo: akva (a-k) keyin ammin (a-m). 3 Cl⁻ tashqi → kation +3. Co = +3."
+  },
+  {
+    id: 126,
+    question: "[Co(en)(NH₃)₂Cl₂]Cl ning to'g'ri nomini toping.",
+    options: ["dixlorodiammin(etilendiamin)kobalt(III) xlorid", "diammin(etilendiamin)dixlorokobalt(III) xlorid", "dixloro(etilendiamin)diamminkobalt(III) xlorid", "dixlorodiamminetilendiaminkobalt(III) xlorid"],
+    correct: 0,
+    difficulty: "qiyin",
+    tags: ["aralash", "kobalt", "ammin", "etilendiamin", "xloro"],
+    explanation: "ANION (dixloro) oldin → NEYTRALLAR alifboda: diammin (a-m) keyin (etilendiamin) (e). Murakkab ligand → bis emas, lekin qavs ishlatiladi (faqat 1 ta, demak (etilendiamin))."
+  },
+  {
+    id: 127,
+    question: "K[Co(NH₃)₂(C₂O₄)₂] ning to'g'ri nomini toping.",
+    options: ["kaliy diamminbis(oksalato)kobaltat(III)", "kaliy bis(oksalato)diamminkobalt(III)", "kaliy bis(oksalato)diamminkobaltat(III)", "kaliy bisoksalatodiamminkobaltat(III)"],
+    correct: 2,
+    difficulty: "qiyin",
+    tags: ["aralash", "kobalt", "ammin", "oksalato", "anion"],
+    explanation: "ANION (bis(oksalato)) oldin → NEYTRAL (diammin). 1 K⁺ tashqi → anion -1. 2(0)+2(-2)+Co=-1 → Co=+3. Anion → kobaltat."
+  },
+  {
+    id: 128,
+    question: "[Cr(NH₃)₃(H₂O)₃]Cl₃ ning to'g'ri nomini toping.",
+    options: ["triammintriakvaxrom(III) xlorid", "triakvatriamminxrom(III) xlorid", "triakvatriamminxrom(III) trixlorid", "triakvatriamminxromat(III) xlorid"],
+    correct: 1,
+    difficulty: "qiyin",
+    tags: ["aralash", "xrom", "ammin", "akva"],
+    explanation: "Neytrallar alifboda: triakva (a-k) keyin triammin (a-m). 3 Cl⁻ tashqi → kation +3. Cr = +3. fac- va mer- izomerlari bor."
+  },
+  {
+    id: 129,
+    question: "Quyidagi nomlardan qaysi biri sintaktik jihatdan TO'G'RI yozilgan?",
+    options: ["tetraamminkobalt(III)", "tetra amin kobalt (III)", "tetra-ammin-kobalt(III)", "tetraamminkobalt (III)"],
+    correct: 0,
+    difficulty: "o'rta",
+    tags: ["nomlash", "sintaksis", "qoidalar"],
+    explanation: "Kompleks birikma nomi BIR SO'Z sifatida yoziladi: bo'sh joy yoki tire qo'yilmaydi. Oksidlanish darajasi metall nomidan keyin to'g'ridan-to'g'ri (bo'sh joysiz) qavsda yoziladi: 'tetraamminkobalt(III)'."
+  },
+  {
+    id: 130,
+    question: "Quyidagi nomlardan qaysi biri ligand prefikslari uchun TO'G'RI?",
+    options: ["bis(etilendiamin) — 2 ta en", "di(etilendiamin) — 2 ta en", "ditrietilendiamin — 2 ta en", "ikki(etilendiamin) — 2 ta en"],
+    correct: 0,
+    difficulty: "o'rta",
+    tags: ["nomlash", "polidentat", "prefiks"],
+    explanation: "Murakkab nomli (yoki polidentat) ligand uchun 'di-' o'rniga 'bis-' va qavs ishlatiladi: bis(etilendiamin), tris(etilendiamin)."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 6-GURUH: IZOMERIYA & NOMENKLATURA QOIDALARI (20 ta) — IDs 131–150
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: 131,
+    question: "Kompleks birikmalarning izomeriyasi qaysi ikki katta turga bo'linadi?",
+    options: ["organik va noorganik", "geometrik va optik", "tuzilish (struktura) va stereoizomeriya", "ichki va tashqi"],
+    correct: 2,
+    difficulty: "o'rta",
+    tags: ["izomeriya", "tasnif"],
+    explanation: "Kompleks birikmalarda IZOMERIYA ikkita katta turga bo'linadi: 1) tuzilish (struktura) izomeriyasi: ionlanish, gidrat, koordinatsion, bog'lanish (linkage); 2) stereoizomeriya: geometrik (sis-trans, fac-mer) va optik."
+  },
+  {
+    id: 132,
+    question: "sis-[Co(NH₃)₄Cl₂]⁺ izomerida ikkita Cl ligandi qanday joylashgan?",
+    options: ["180° burchak ostida (qarama-qarshi)", "120° burchak ostida", "tasodifiy", "90° burchak ostida (qo'shni qirralar)"],
+    correct: 3,
+    difficulty: "o'rta",
+    tags: ["geometrik", "sis", "oktaedr"],
+    explanation: "Sis-izomerda bir xil ligandlar oktaedrning qo'shni uchlarida (90° burchak ostida) joylashgan."
+  },
+  {
+    id: 133,
+    question: "trans-[Co(NH₃)₄Cl₂]⁺ izomerida ikkita Cl ligandi qanday joylashgan?",
+    options: ["180° burchak ostida (qarama-qarshi)", "90° burchak ostida", "120° burchak ostida", "60° burchak ostida"],
+    correct: 0,
+    difficulty: "o'rta",
+    tags: ["geometrik", "trans", "oktaedr"],
+    explanation: "Trans-izomerda bir xil ligandlar oktaedrning qarama-qarshi uchlarida (180° burchak ostida) joylashgan."
+  },
+  {
+    id: 134,
+    question: "fac-[Co(NH₃)₃Cl₃] izomerida uchta Cl ligandi qanday joylashgan?",
+    options: ["bir uchburchak yuzda (facial)", "meridian bo'ylab (meridional)", "qarama-qarshi", "qator bo'ylab"],
     correct: 0,
     difficulty: "qiyin",
     tags: ["geometrik", "fac", "oktaedr"],
-    explanation: "fac-izomerda bir xil ligandlar bir yuzda (facial) joylashgan. Uchta Cl bir uchburchak yuzida."
+    explanation: "fac- (facial) izomerda 3 ta bir xil ligand oktaedrning bir uchburchak yuzini hosil qiladi. Har bir juftlik orasidagi burchak — 90°."
   },
   {
-    id: 144,
-    question: "mer-[Co(NH₃)₃Cl₃] da Cl ligandlari qanday joylashgan?",
-    options: ["Bir yuzda (facial)", "Meridian bo'ylab (meridional)", "Qarama-qarshi", "Tasodifiy"],
+    id: 135,
+    question: "mer-[Co(NH₃)₃Cl₃] izomerida uchta Cl ligandi qanday joylashgan?",
+    options: ["bir yuzda (facial)", "meridian bo'ylab (markaz va ikki qutb)", "qarama-qarshi", "uchburchak burchaklarda"],
     correct: 1,
     difficulty: "qiyin",
     tags: ["geometrik", "mer", "oktaedr"],
-    explanation: "mer-izomerda bir xil ligandlar meridian bo'ylab joylashgan. Uchta Cl bir tekislikda."
+    explanation: "mer- (meridional) izomerda 3 ta bir xil ligand oktaedrning meridian chizig'i bo'ylab joylashgan (ikkita 90° va bitta 180° burchak)."
   },
   {
-    id: 145,
+    id: 136,
     question: "[Co(en)₃]³⁺ qaysi turdagi izomeriyaga ega?",
-    options: ["Geometrik izomeriya", "Optik izomeriya", "Linkage izomeriya", "Koordinatsion izomeriya"],
-    correct: 1,
+    options: ["optik (Δ va Λ enantiomerlar)", "geometrik (sis-trans)", "linkage", "ionlanish"],
+    correct: 0,
     difficulty: "qiyin",
     tags: ["optik", "xelat", "enantiomer"],
-    explanation: "[Co(en)₃]³⁺ — optik izomeriyaga ega (Δ va Λ enantiomerlar). Xelat halqalari tufayli xirallik."
+    explanation: "[Co(en)₃]³⁺ propellerga o'xshash xiral struktura hosil qiladi: ikkita ko'zgu aksi — Δ (delta, o'ng) va Λ (lambda, chap) enantiomerlar."
   },
   {
-    id: 146,
-    question: "Δ-[Co(en)₃]³⁺ va Λ-[Co(en)₃]³⁺ qanday izomerlar?",
-    options: ["Geometrik izomerlar", "Optik izomerlar (enantiomerlar)", "Linkage izomerlar", "Koordinatsion izomerlar"],
+    id: 137,
+    question: "Δ va Λ belgilari nimani anglatadi?",
+    options: ["sis va trans izomerlar", "xiral oktaedrik komplekslarning enantiomerlari (chap va o'ng)", "ionlanish izomerlari", "linkage izomerlari"],
     correct: 1,
     difficulty: "qiyin",
     tags: ["optik", "enantiomer", "xirallik"],
-    explanation: "Δ va Λ — optik izomerlar (enantiomerlar). Ular bir-birining ko'zgudagi aksidir."
+    explanation: "Δ (delta) va Λ (lambda) — xiral oktaedrik komplekslarning enantiomerlarini belgilash. Δ — o'ng propeller, Λ — chap. IUPAC tomonidan rasmiy qabul qilingan."
+  },
+  {
+    id: 138,
+    question: "[Co(NH₃)₅(NO₂)]Cl₂ va [Co(NH₃)₅(ONO)]Cl₂ qanday turdagi izomerlar?",
+    options: ["geometrik (sis-trans)", "optik (Δ, Λ)", "koordinatsion izomerlar", "bog'lanish (linkage) izomerlari"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["linkage", "ambidentat", "nitro"],
+    explanation: "NO₂⁻ — ambidentat ligand: N orqali (nitro) yoki O orqali (nitrito) bog'lanishi mumkin. Bu bog'lanish (linkage) izomeriyasi."
+  },
+  {
+    id: 139,
+    question: "[Co(NH₃)₆][Cr(CN)₆] va [Cr(NH₃)₆][Co(CN)₆] qanday turdagi izomerlar?",
+    options: ["geometrik", "optik", "linkage", "koordinatsion izomerlar"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["koordinatsion", "izomeriya"],
+    explanation: "Koordinatsion izomeriya: ligandlar ikki metall (kation va anion komplekslar) orasida o'rin almashadi. Bu yerda NH₃ va CN⁻ Co va Cr orasida almashadi."
+  },
+  {
+    id: 140,
+    question: "[Co(NH₃)₅Cl]Br₂ va [Co(NH₃)₅Br]Br·Cl qanday turdagi izomerlar?",
+    options: ["geometrik", "optik", "gidrat izomerlari", "ionlanish izomerlari"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["ionlanish", "izomeriya"],
+    explanation: "Ionlanish izomeriyasi: ichki va tashqi sferalardagi anionlar o'rin almashadi (Cl⁻ va Br⁻). Eritmada turli ionlar hosil qilishadi."
+  },
+  {
+    id: 141,
+    question: "[Cr(H₂O)₆]Cl₃ (binafsha) va [Cr(H₂O)₅Cl]Cl₂·H₂O (havorang) qanday izomerlar?",
+    options: ["optik", "gidrat izomerlari", "linkage", "geometrik"],
+    correct: 1,
+    difficulty: "qiyin",
+    tags: ["gidrat", "izomeriya", "xrom"],
+    explanation: "Gidrat (yoki solvat) izomeriyasi: H₂O molekulalari ichki sfera va kristallizatsiya suvi sifatida o'rin almashadi. Bu izomerlar turli ranglarga ega — klassik misol."
+  },
+  {
+    id: 142,
+    question: "[Pt(NH₃)₂Cl₂] sisplatin qaysi geometrik izomeri?",
+    options: ["trans-diammindixloroplatina(II)", "sis-diammindixloroplatina(II)", "fac-izomer", "mer-izomer"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["geometrik", "sisplatin", "platina"],
+    explanation: "Sisplatin — sis-[Pt(NH₃)₂Cl₂], onkologik dori. trans-izomer fiziologik faol emas. Kvadrat-tekis kompleks (Pt²⁺, d⁸)."
+  },
+  {
+    id: 143,
+    question: "Quyidagilardan qaysi biri [Pt(NH₃)₂Cl₂] da geometrik izomeriyaga olib keladi?",
+    options: ["Pt ning oktaedrik geometriyasi", "Pt(IV) holati", "ligandlarning xelat hosil qilishi", "Pt ning d⁸ konfiguratsiyasi va kvadrat-tekis geometriya"],
+    correct: 3,
+    difficulty: "qiyin",
+    tags: ["geometrik", "platina", "kvadrat-tekis"],
+    explanation: "[Pt(NH₃)₂Cl₂] kvadrat-tekis (kv. tekis, square planar) Pt(II) d⁸ kompleksi. Kvadratning qo'shni (sis) va qarama-qarshi (trans) burchaklari uchun ikki izomer mumkin."
+  },
+  {
+    id: 144,
+    question: "Tetraedrik komplekslarda geometrik (sis-trans) izomeriya mavjudmi?",
+    options: ["Ha, har doim", "Yo'q, tetraedrda barcha burchaklar teng (109.5°)", "Faqat MA₂B₂ uchun", "Faqat xelatli ligandlar bilan"],
+    correct: 1,
+    difficulty: "qiyin",
+    tags: ["geometrik", "tetraedr"],
+    explanation: "Tetraedrik geometriyada barcha 4 ta uchli pozitsiyalar geometrik jihatdan ekvivalent (burchak 109.5°), shu sababli MA₂B₂ tetraedrik kompleksda sis-trans izomeriya YO'Q. Faqat oktaedrik va kvadrat-tekis komplekslarda mavjud."
+  },
+  {
+    id: 145,
+    question: "trans-[Co(en)₂Cl₂]⁺ optik izomeriyaga egami?",
+    options: ["Ha, ikki enantiomeri bor", "Faqat sis- izomeri optik faol", "Yo'q, ko'zgu aksi bilan o'zi ustma-ust tushadi", "Hech qachon optik faol bo'lmaydi"],
+    correct: 1,
+    difficulty: "qiyin",
+    tags: ["optik", "geometrik", "kobalt"],
+    explanation: "trans-[Co(en)₂Cl₂]⁺ ning simmetriya tekisligi bor (Cl–Co–Cl o'qiga perpendikulyar), shu sababli optik faol EMAS. Faqat sis-[Co(en)₂Cl₂]⁺ Δ va Λ enantiomerlarga ega."
+  },
+  {
+    id: 146,
+    question: "[Co(NH₃)₄Cl₂]⁺ ning nechta geometrik izomeri bor?",
+    options: ["1 (faqat bitta)", "2 (sis va trans)", "3 (fac, mer, sis)", "4"],
+    correct: 1,
+    difficulty: "o'rta",
+    tags: ["geometrik", "oktaedr", "kobalt"],
+    explanation: "Oktaedrik MA₄B₂ tipi 2 ta geometrik izomerga ega: sis- (B–M–B = 90°) va trans- (B–M–B = 180°)."
   },
   {
     id: 147,
-    question: "[Co(NH₃)₅(NO₂)]²⁺ va [Co(NH₃)₅(ONO)]²⁺ qanday izomerlar?",
-    options: ["Geometrik izomerlar", "Optik izomerlar", "Linkage izomerlar", "Koordinatsion izomerlar"],
-    correct: 2,
+    question: "[Co(NH₃)₃Cl₃] (oktaedrik MA₃B₃) nechta geometrik izomerga ega?",
+    options: ["1", "3", "4", "2 (fac va mer)"],
+    correct: 3,
     difficulty: "qiyin",
-    tags: ["linkage", "ambidentat", "nitro"],
-    explanation: "[Co(NH₃)₅(NO₂)]²⁺ va [Co(NH₃)₅(ONO)]²⁺ — linkage izomerlar. NO₂⁻ ambidentat ligand (N yoki O orqali)."
+    tags: ["geometrik", "fac", "mer"],
+    explanation: "Oktaedrik MA₃B₃ tipi 2 ta izomerga ega: fac- (uchta bir xil ligand bir yuzda) va mer- (uchta bir xil ligand meridian bo'ylab)."
   },
   {
     id: 148,
-    question: "[Co(NH₃)₆][Cr(CN)₆] va [Cr(NH₃)₆][Fe(CN)₆] qanday izomerlar?",
-    options: ["Geometrik izomerlar", "Optik izomerlar", "Linkage izomerlar", "Koordinatsion izomerlar"],
+    question: "Ionlanish izomeriyasi uchun [Co(NH₃)₅Br]SO₄ ning izomeri qaysi?",
+    options: ["[Co(NH₃)₅Cl]SO₄", "[Co(NH₃)₄Br₂]SO₄", "[Co(NH₃)₅Br]·H₂SO₄", "[Co(NH₃)₅(SO₄)]Br"],
     correct: 3,
     difficulty: "qiyin",
-    tags: ["koordinatsion", "kation", "anion"],
-    explanation: "[Co(NH₃)₆][Cr(CN)₆] va [Cr(NH₃)₆][Fe(CN)₆] — koordinatsion izomerlar. Kation va anion o'rin almashgan."
+    tags: ["ionlanish", "izomeriya"],
+    explanation: "Ionlanish izomerida Br⁻ va SO₄²⁻ ichki va tashqi sferalar o'rtasida o'rin almashadi: [Co(NH₃)₅Br]SO₄ ↔ [Co(NH₃)₅(SO₄)]Br. Eritmada turli ionlarga dissotsilanadi."
   },
   {
     id: 149,
-    question: "[Co(NH₃)₅Cl]Br₂ va [Co(NH₃)₅Br]ClBr qanday izomerlar?",
-    options: ["Geometrik izomerlar", "Optik izomerlar", "Ionlanish izomerlar", "Koordinatsion izomerlar"],
-    correct: 2,
-    difficulty: "qiyin",
-    tags: ["ionlanish", "kation", "anion"],
-    explanation: "[Co(NH₃)₅Cl]Br₂ va [Co(NH₃)₅Br]ClBr — ionlanish izomerlar. Cl⁻ va Br⁻ o'rin almashgan (kation ichida va tashqarisida)."
+    question: "Quyidagilardan qaysi biri xelat halqa hosil qilmaydi?",
+    options: ["en (etilendiamin)", "oksalat (C₂O₄²⁻)", "EDTA⁴⁻", "ammin (NH₃)"],
+    correct: 3,
+    difficulty: "o'rta",
+    tags: ["xelat", "monodentat", "polidentat"],
+    explanation: "Xelat halqa hosil qilish uchun ligand POLIDENTAT bo'lishi kerak (kamida 2 donor). NH₃ — monodentat, shu sababli xelat halqa hosil qilmaydi. Boshqalari — bidentat yoki geksadentat."
   },
   {
     id: 150,
-    question: "[Co(NH₃)₅(H₂O)]Cl₃ va [Co(NH₃)₅Cl]Cl₂·H₂O qanday izomerlar?",
-    options: ["Geometrik izomerlar", "Optik izomerlar", "Gidrat izomerlar", "Koordinatsion izomerlar"],
-    correct: 2,
+    question: "Quyidagi kompleks nomlardan qaysi biri TO'LIQ TO'G'RI yozilgan?",
+    options: ["geksaamminkobalt(III) trixlorid", "geksaminkobalt(III) xlorid", "geksaamminkobaltat(III) xlorid", "geksaamminkobalt(III) xlorid"],
+    correct: 3,
     difficulty: "qiyin",
-    tags: ["gidrat", "kation", "anion"],
-    explanation: "[Co(NH₃)₅(H₂O)]Cl₃ va [Co(NH₃)₅Cl]Cl₂·H₂O — gidrat izomerlar. H₂O kation ichida va tashqarisida."
+    tags: ["nomlash", "umumlashtirish", "qoidalar"],
+    explanation: "[Co(NH₃)₆]Cl₃ — geksaamminkobalt(III) xlorid. ✗ 'trixlorid' yozilmaydi — tashqi sferadagi anion soni nomda ko'rsatilmaydi (kation zaryadidan kelib chiqadi). ✗ 'geksamin' emas 'geksaammin' (ikki 'm'). ✗ kation kompleks — 'kobaltat' emas 'kobalt'."
   }
 ]
 

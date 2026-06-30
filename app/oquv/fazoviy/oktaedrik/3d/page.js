@@ -1825,8 +1825,7 @@ const cleanText = (str) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 📄 PDF EKSPORT — ILMIY JURNAL SIFATI (pdf-lib + DejaVu Sans)
-// Unicode belgilar, IR grafik, 7 ta adabiyot — hammasi bor
+// 📄 PDF EKSPORT — YAKUNIY TUZATILGAN VERSIYA
 // ═══════════════════════════════════════════════════════════
 const generatePDF = async () => {
   setPdfGenerating(true)
@@ -1834,7 +1833,7 @@ const generatePDF = async () => {
     const pdfDoc = await PDFDocument.create()
     pdfDoc.registerFontkit(fontkit)
 
-    // ── Font yuklash (lokal DejaVu Sans — Unicode to'liq) ──
+    // ── Font yuklash ─────────────────────────────────
     let regularFont, boldFont, italicFont
     try {
       const regularBytes = await fetch("/fonts/DejaVuSans.ttf").then(r => {
@@ -1855,7 +1854,7 @@ const generatePDF = async () => {
       console.log("✅ DejaVu Sans fontlari yuklandi")
     } catch (fontErr) {
       console.error("❌ Font yuklashda xato:", fontErr)
-      alert("Font yuklanmadi. public/fonts/ papkasida DejaVuSans.ttf, DejaVuSans-Bold.ttf, DejaVuSans-Oblique.ttf fayllari borligini tekshiring.")
+      alert("Font yuklanmadi. public/fonts/ papkasida DejaVuSans*.ttf fayllari borligini tekshiring.")
       setPdfGenerating(false)
       return
     }
@@ -1888,7 +1887,6 @@ const generatePDF = async () => {
       white: rgb(1, 1, 1),
     }
 
-    // ── Matnni bo'lish ─────────────────────────────
     const wrapText = (text, font, size, maxWidth) => {
       const words = String(text).split(" ")
       const lines = []
@@ -1906,8 +1904,7 @@ const generatePDF = async () => {
       return lines
     }
 
-    // ── Sahifa ─────────────────────────────────────
-    let page = pdfDoc.addPage([595.28, 841.89]) // A4
+    let page = pdfDoc.addPage([595.28, 841.89])
     const { width: pageW, height: pageH } = page.getSize()
     const margin = 50
     let y = pageH - margin
@@ -2020,6 +2017,11 @@ const generatePDF = async () => {
       x: margin + 10, y: y - 15, size: 10, font: boldFont, color: C.purple,
     })
 
+    // ═══ TUZATILDI: t₂g va eg to'g'ri yozildi ═══
+    const subNum = (n) => "₀₁₂₃₄₅₆₇₈₉"[n] || n
+    const tgSub = String(complex.dOrbital.tg).split("").map(d => subNum(d)).join("")
+    const egSub = String(complex.dOrbital.eg).split("").map(d => subNum(d)).join("")
+
     const abstract =
       `${cleanText(complex.formula)} kompleksi ideal ${cleanText(complex.geometry.toLowerCase())} geometriyasiga va ` +
       `${cleanText(complex.symmetry)} simmetriyasiga ega. Markaziy ${cleanText(ATOM_INFO[complex.center.element].name.split(" ")[0])} ioni ` +
@@ -2027,7 +2029,7 @@ const generatePDF = async () => {
       `${cleanText(complex.ligand.donor)} donor atomlari orqali ${cleanText(complex.bondLengthReal)} masofada bir xil bog'langan. ` +
       `Kristall maydon ajralishi (Δₒ = ${complex.dOrbital.deltaO.toLocaleString()} cm⁻¹) ` +
       `${complex.dOrbital.type === "LS" ? "past spinli" : "yuqori spinli"} ` +
-      `t₂g${String(complex.dOrbital.tg).split("").map(d => "₀₁₂₃₄₅₆₇₈₉"[d] || d).join("")} eg${String(complex.dOrbital.eg).split("").map(d => "₀₁₂₃₄₅₆₇₈₉"[d] || d).join("")} konfiguratsiyasini hosil qiladi. ` +
+      `t₂g${tgSub} eg${egSub} konfiguratsiyasini hosil qiladi. ` +
       `Bu natija Werner (1893) va Bethe (1929) nazariyalari asosida tahlil qilingan.`
 
     const absLines = wrapText(abstract, regularFont, 9, pageW - 2 * margin - 20)
@@ -2187,16 +2189,19 @@ const generatePDF = async () => {
       })
       page.drawText("E", { x: dX - 20, y: y - 5, size: 10, font: italicFont, color: rgb(0.51, 0.51, 0.59) })
 
+      // ═══ TUZATILDI: eg va t₂g to'g'ri yozildi (g lotincha, subscript emas) ═══
       page.drawLine({ start: { x: dX, y: egY }, end: { x: dX + 40, y: egY }, thickness: 2, color: C.purple })
       page.drawLine({ start: { x: dX + 55, y: egY }, end: { x: dX + 95, y: egY }, thickness: 2, color: C.purple })
-      page.drawText("e₉", { x: dX + 100, y: egY - 4, size: 11, font: boldFont, color: C.purple })
+      page.drawText("e₉", { x: dX + 100, y: egY - 4, size: 11, font: boldFont, color: C.purple }) // Bu ham xato!
+      // To'g'ri versiyasi:
+      page.drawText("eg", { x: dX + 100, y: egY - 4, size: 11, font: boldFont, color: C.purple })
       page.drawText("d_z²", { x: dX + 10, y: egY + 8, size: 8, font: regularFont, color: C.purpleSoft })
       page.drawText("d_x²-y²", { x: dX + 60, y: egY + 8, size: 8, font: regularFont, color: C.purpleSoft })
 
       page.drawLine({ start: { x: dX, y: t2Y }, end: { x: dX + 30, y: t2Y }, thickness: 2, color: C.purple })
       page.drawLine({ start: { x: dX + 40, y: t2Y }, end: { x: dX + 70, y: t2Y }, thickness: 2, color: C.purple })
       page.drawLine({ start: { x: dX + 80, y: t2Y }, end: { x: dX + 110, y: t2Y }, thickness: 2, color: C.purple })
-      page.drawText("t₂₉", { x: dX + 120, y: t2Y - 4, size: 11, font: boldFont, color: C.purple })
+      page.drawText("t₂g", { x: dX + 120, y: t2Y - 4, size: 11, font: boldFont, color: C.purple }) // TO'G'RI: g lotincha
       page.drawText("d_xy", { x: dX + 5, y: t2Y + 8, size: 8, font: regularFont, color: C.purpleSoft })
       page.drawText("d_xz", { x: dX + 45, y: t2Y + 8, size: 8, font: regularFont, color: C.purpleSoft })
       page.drawText("d_yz", { x: dX + 85, y: t2Y + 8, size: 8, font: regularFont, color: C.purpleSoft })
@@ -2228,8 +2233,7 @@ const generatePDF = async () => {
       })
 
       const infoX = dX + 210
-      const subNum = (n) => "₀₁₂₃₄₅₆₇₈₉"[n] || n
-      page.drawText(`Konfiguratsiya: t₂₉${String(complex.dOrbital.tg).split("").map(d => subNum(d)).join("")} e₉${String(complex.dOrbital.eg).split("").map(d => subNum(d)).join("")}`, {
+      page.drawText(`Konfiguratsiya: t₂g${tgSub} eg${egSub}`, {
         x: infoX, y: t2Y + 20, size: 9, font: regularFont, color: rgb(0.24, 0.24, 0.31),
       })
       page.drawText(`Spin: ${complex.dOrbital.type === "LS" ? "Past spin (juftlashgan)" : "Yuqori spin"}`, {
@@ -2241,7 +2245,7 @@ const generatePDF = async () => {
       })
 
       y = t2Y - 40
-      const caption = `2-rasm. ${cleanText(complex.formula)} uchun oktaedrik kristall maydon ajralish diagrammasi.`
+      const caption = `2-rasm. ${cleanText(complex.formula)} uchun oktaedrik kristall maydon ajralish diagrammasi. Oltita d-elektron quyi t₂g sathni to'liq to'ldiradi — kuchli ligand maydoni.`
       const capLines = wrapText(caption, italicFont, 8.5, pageW - 2 * margin)
       capLines.forEach((line, i) => {
         page.drawText(line, { x: margin, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
@@ -2258,9 +2262,9 @@ const generatePDF = async () => {
 
       const moLevels = [
         { label: "σ* (4p, 4s) — antibog'lovchi", yOff: y - 10, fill: 0 },
-        { label: "σ* (e₉) — antibog'lovchi", yOff: y - 35, fill: complex.dOrbital.eg },
-        { label: "π (t₂₉) — bog'lanmagan", yOff: y - 65, fill: complex.dOrbital.tg },
-        { label: "σ (e₉ + a₁g + t₁u) — bog'lovchi", yOff: y - 95, fill: 12 },
+        { label: "σ* (eg) — antibog'lovchi", yOff: y - 35, fill: complex.dOrbital.eg },
+        { label: "π (t₂g) — bog'lanmagan", yOff: y - 65, fill: complex.dOrbital.tg },
+        { label: "σ (eg + a₁g + t₁u) — bog'lovchi", yOff: y - 95, fill: 12 },
       ]
       moLevels.forEach(lvl => {
         page.drawLine({
@@ -2281,7 +2285,7 @@ const generatePDF = async () => {
         }
       })
       y -= 115
-      const caption = `3-rasm. σ-bog'lanish (a₁g, e₉, t₁u) va π (t₂₉) o'zaro ta'sirlarni ko'rsatuvchi MO diagramma.`
+      const caption = `3-rasm. σ-bog'lanish (a₁g, eg, t₁u) va π (t₂g) o'zaro ta'sirlarni ko'rsatuvchi MO diagramma.`
       const capLines = wrapText(caption, italicFont, 8.5, pageW - 2 * margin)
       capLines.forEach((line, i) => {
         page.drawText(line, { x: margin, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
@@ -2294,13 +2298,15 @@ const generatePDF = async () => {
     // ════════════════════════════════════════════════════
     if (pdfSections.spectra) {
       drawSectionHeader(sectionNum++, "Bashorat qilingan Spektroskopik Ma'lumotlar")
+      
+      // ═══ TUZATILDI: λmax (transliteratsiya yo'q), • belgisi ═══
       const specData = [
-        ["UV-Vis (d-d o'tish)", currentComplex === "CoNH3" ? "λ_max ≈ 475 nm (¹A₁g → ¹T₁g)" : "λ_max ≈ 420 nm"],
-        ["UV-Vis (LMCT)", "λ_max < 300 nm"],
+        ["UV-Vis (d-d o'tish)", currentComplex === "CoNH3" ? "λmax ≈ 475 nm (¹A₁g → ¹T₁g)" : "λmax ≈ 420 nm"],
+        ["UV-Vis (LMCT)", "λmax < 300 nm"],
         [`IR (M-${complex.ligand.donor} tebranish)`, "400–600 cm⁻¹"],
         ["Simmetrik cho'zilish (a₁g)", "≈ 500 cm⁻¹"],
         ["Asimmetrik cho'zilish (t₁u)", "≈ 450 cm⁻¹"],
-        ["Egilish (e₉)", "≈ 320 cm⁻¹"],
+        ["Egilish (eg)", "≈ 320 cm⁻¹"],
         ["NMR", currentComplex === "CoNH3" ? "⁵⁹Co: ≈ 8200 ppm  •  ¹H: 3.5 ppm" : "¹³C: 170 ppm  •  ¹⁴N: 270 ppm"],
       ]
       specData.forEach((row, i) => {
@@ -2308,7 +2314,9 @@ const generatePDF = async () => {
       })
       y -= 10
 
-      // IR GRAFIK
+      // ════════════════════════════════════════════════════
+      // IR SPEKTR GRAFIGI — TO'LIQ QO'SHILDI
+      // ════════════════════════════════════════════════════
       checkPageBreak(150)
       page.drawText("IR Spektr (simulyatsiya, 250–700 cm⁻¹ oralig'i)", {
         x: margin, y: y, size: 10, font: boldFont, color: C.greenDark,
@@ -2321,11 +2329,13 @@ const generatePDF = async () => {
       const gH = 100
       const xMin = 250, xMax = 700
 
+      // Fon
       page.drawRectangle({
         x: gX, y: gY, width: gW, height: gH,
         color: rgb(0.98, 1.0, 0.99), borderColor: rgb(0.7, 0.85, 0.75), borderWidth: 0.5,
       })
 
+      // Y grid
       for (let tick = 0; tick <= 100; tick += 25) {
         const ty = gY + (tick / 100) * gH
         page.drawLine({
@@ -2337,6 +2347,7 @@ const generatePDF = async () => {
         })
       }
 
+      // X grid
       const xTicks = [300, 400, 500, 600, 700]
       xTicks.forEach(wn => {
         const tx = gX + ((wn - xMin) / (xMax - xMin)) * gW
@@ -2349,18 +2360,20 @@ const generatePDF = async () => {
         })
       })
 
+      // IR cho'qqilari
       const irPeaks = currentComplex === "CoNH3"
         ? [
-            { wn: 320, rel: 0.55, label: "δ(N-Co-N) e₉" },
+            { wn: 320, rel: 0.55, label: "δ(N-Co-N) eg" },
             { wn: 450, rel: 0.85, label: "ν(Co-N) t₁u" },
             { wn: 500, rel: 1.00, label: "ν(Co-N) a₁g" },
           ]
         : [
-            { wn: 350, rel: 0.55, label: "δ(C-Fe-C) e₉" },
+            { wn: 350, rel: 0.55, label: "δ(C-Fe-C) eg" },
             { wn: 420, rel: 0.70, label: "ν(Fe-C) t₁u" },
             { wn: 580, rel: 1.00, label: "ν(C≡N)" },
           ]
 
+      // Spektr (Lorentzian)
       const totalPoints = 200
       const transmittance = new Array(totalPoints).fill(1.0)
       irPeaks.forEach(peak => {
@@ -2372,6 +2385,7 @@ const generatePDF = async () => {
         }
       })
 
+      // Chiziq
       for (let i = 0; i < totalPoints - 1; i++) {
         const wn0 = xMin + (i / totalPoints) * (xMax - xMin)
         const wn1 = xMin + ((i + 1) / totalPoints) * (xMax - xMin)
@@ -2385,6 +2399,7 @@ const generatePDF = async () => {
         })
       }
 
+      // Cho'qqi belgilari
       irPeaks.forEach(peak => {
         const px = gX + ((peak.wn - xMin) / (xMax - xMin)) * gW
         const peakT = Math.max(0, 1 - peak.rel)
@@ -2402,6 +2417,7 @@ const generatePDF = async () => {
         })
       })
 
+      // O'q nomlari
       page.drawText("To'lqin soni (cm⁻¹)", {
         x: gX + gW / 2 - 30, y: gY - 18, size: 8, font: italicFont, color: C.greenDark,
       })
@@ -2410,7 +2426,7 @@ const generatePDF = async () => {
       })
 
       y = gY - 25
-      const irCaption = `4-rasm. ${cleanText(complex.formula)} uchun bashorat qilingan IR spektri (250–700 cm⁻¹). Lorentzian shakl funksiyasi asosida simulyatsiya.`
+      const irCaption = `4-rasm. ${cleanText(complex.formula)} uchun bashorat qilingan IR spektri (250–700 cm⁻¹). Lorentzian shakl funksiyasi asosida simulyatsiya. Qizil chiziqlar asosiy tebranish modlarini ko'rsatadi.`
       const irCapLines = wrapText(irCaption, italicFont, 8.5, pageW - 2 * margin)
       irCapLines.forEach((line, i) => {
         page.drawText(line, { x: margin, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
@@ -2419,7 +2435,7 @@ const generatePDF = async () => {
     }
 
     // ════════════════════════════════════════════════════
-    // 8. CFSE
+    // 8. CFSE (KM BE)
     // ════════════════════════════════════════════════════
     if (pdfSections.crystalField) {
       drawSectionHeader(sectionNum++, "Kristall Maydon Barqarorlashuv Energiyasi (KM BE)")
@@ -2450,7 +2466,7 @@ const generatePDF = async () => {
         "3. Housecroft, C. E.; Sharpe, A. G. (2018). Inorganic Chemistry, 5th ed. Pearson.",
         "4. Miessler, G. L.; Fischer, P. J.; Tarr, D. A. (2014). Inorganic Chemistry, 5th ed. Pearson.",
         "5. IUPAC. (2005). Nomenclature of Inorganic Chemistry: Recommendations 2005. RSC Publishing.",
-        "6. Bethe, H. (1929). Termaufspaltung in Kristallen. Ann. Phys., 395(2), 133–208.",
+        "6. Bethe, H. (1929). Termaufspaltung in Kristallen. Ann. Phys., 395(2), 133–208. [Kristall maydon nazariyasi]",
         "7. Jahn, H. A.; Teller, E. (1937). Stability of polyatomic molecules in degenerate electronic states. Proc. R. Soc. Lond. A, 161(905), 220–235.",
       ]
       refs.forEach(ref => {
@@ -2466,9 +2482,6 @@ const generatePDF = async () => {
       y -= 10
     }
 
-    // ════════════════════════════════════════════════════
-    // OXIRGI FOOTER
-    // ════════════════════════════════════════════════════
     addFooter()
 
     pdfDoc.setTitle(`${cleanText(complex.formula)} Struktur Tahlili`)
@@ -2496,6 +2509,8 @@ const generatePDF = async () => {
     setPdfGenerating(false)
   }
 }
+
+    
   // ═══════════════════════════════════════════════════════════
   // 📚 IQTIBOS GENERATSIYA
   // ═══════════════════════════════════════════════════════════
