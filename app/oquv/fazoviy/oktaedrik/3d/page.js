@@ -269,6 +269,80 @@ export default function Oktaedrik3D() {
   const [citationModalOpen, setCitationModalOpen] = useState(false)
   const [citationFormat, setCitationFormat] = useState("apa")
   const [pdfGenerating, setPdfGenerating] = useState(false)
+
+  // ═══════════════════════════════════════════════════════════
+  // 🖱️ BOSHQARUV PANELI — KO'CHIRILADIGAN (draggable)
+  // ═══════════════════════════════════════════════════════════
+  const [panelPos, setPanelPos] = useState({ x: 12, y: 12 })
+  const [isPanelDragging, setIsPanelDragging] = useState(false)
+  const panelRef = useRef(null)
+  const dragOffsetRef = useRef({ x: 0, y: 0 })
+
+  // Panelni ushlab siljitish — sichqoncha va tegish (touch) uchun
+  const handlePanelDragStart = useCallback((clientX, clientY) => {
+    if (!panelRef.current) return
+    const rect = panelRef.current.getBoundingClientRect()
+    dragOffsetRef.current = {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    }
+    setIsPanelDragging(true)
+  }, [])
+
+  const handlePanelDragMove = useCallback((clientX, clientY) => {
+    if (!panelRef.current) return
+    const container = panelRef.current.parentElement
+    if (!container) return
+    const cRect = container.getBoundingClientRect()
+    const pW = panelRef.current.offsetWidth
+    const pH = panelRef.current.offsetHeight
+    // Konteyner ichida qoladigan qilib chegaralaymiz
+    let nx = clientX - cRect.left - dragOffsetRef.current.x
+    let ny = clientY - cRect.top - dragOffsetRef.current.y
+    nx = Math.max(0, Math.min(cRect.width - pW, nx))
+    ny = Math.max(0, Math.min(cRect.height - pH, ny))
+    setPanelPos({ x: nx, y: ny })
+  }, [])
+
+  const handlePanelDragEnd = useCallback(() => {
+    setIsPanelDragging(false)
+  }, [])
+
+  // Global mouse/touch event listener'lar
+  useEffect(() => {
+    if (!isPanelDragging) return
+    const onMouseMove = (e) => handlePanelDragMove(e.clientX, e.clientY)
+    const onMouseUp = () => handlePanelDragEnd()
+    const onTouchMove = (e) => {
+      if (e.touches.length > 0) {
+        e.preventDefault()
+        handlePanelDragMove(e.touches[0].clientX, e.touches[0].clientY)
+      }
+    }
+    const onTouchEnd = () => handlePanelDragEnd()
+
+    window.addEventListener("mousemove", onMouseMove)
+    window.addEventListener("mouseup", onMouseUp)
+    window.addEventListener("touchmove", onTouchMove, { passive: false })
+    window.addEventListener("touchend", onTouchEnd)
+    window.addEventListener("touchcancel", onTouchEnd)
+
+    // Body cursor & selection off
+    const prevCursor = document.body.style.cursor
+    const prevSelect = document.body.style.userSelect
+    document.body.style.cursor = "grabbing"
+    document.body.style.userSelect = "none"
+
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove)
+      window.removeEventListener("mouseup", onMouseUp)
+      window.removeEventListener("touchmove", onTouchMove)
+      window.removeEventListener("touchend", onTouchEnd)
+      window.removeEventListener("touchcancel", onTouchEnd)
+      document.body.style.cursor = prevCursor
+      document.body.style.userSelect = prevSelect
+    }
+  }, [isPanelDragging, handlePanelDragMove, handlePanelDragEnd])
   const [pdfSections, setPdfSections] = useState({
     snapshot: true,
     info: true,
@@ -1808,24 +1882,24 @@ export default function Oktaedrik3D() {
   // 📄 PDF EKSPORT — ilmiy maqola uslubida
   // ═══════════════════════════════════════════════════════════
   // ═══════════════════════════════════════════════════════════
-// 🧹 PDF UCHUN MATN TOZALAGICH (Unicode -> ASCII)
+// 🧹 PDF UCHUN MATN TOZALAGICH — FAQAT XAVFLI BELGILARNI OLIB TASHLAYDI
+// (DejaVu Sans Unicode ni to'liq qo'llab-quvvatlaydi, shuning uchun
+//  Δ, λ, σ, π, ⁻¹, ², ₒ va boshqa belgilar O'ZGARTIRILMAYDI)
 // ═══════════════════════════════════════════════════════════
 const cleanText = (str) => {
-  if (!str) return "";
+  if (str === null || str === undefined) return ""
   return String(str)
-    .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, (m) => "0123456789"["₀₁₂₃₄₅₆₇₈₉".indexOf(m)])
-    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, (m) => "0123456789"["⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(m)])
-    .replace(/⁺/g, "+").replace(/⁻/g, "-")
-    .replace(/Å/g, "A").replace(/Δ/g, "D").replace(/ₒ/g, "o")
-    .replace(/σ/g, "sigma").replace(/π/g, "pi").replace(/λ/g, "lambda")
-    .replace(/→/g, "->").replace(/⇌/g, "<=>").replace(/≈/g, "~")
-    .replace(/↑/g, "^").replace(/↓/g, "v")
-    .replace(/α/g, "a").replace(/β/g, "b").replace(/γ/g, "g")
-    .replace(/×/g, "x").replace(/•/g, "-").replace(/²/g, "2").replace(/³/g, "3");
-};
+    .replace(/<[^>]*>/g, "")     // HTML teglar
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")        // Ortiqcha bo'shliqlar
+    .trim()
+}
 
 // ═══════════════════════════════════════════════════════════
-// 📄 PDF EKSPORT — YAKUNIY TUZATILGAN VERSIYA
+// 📄 PDF EKSPORT — IDEAL VERSIYA (chegaralar, markazlash, joylashuv)
 // ═══════════════════════════════════════════════════════════
 const generatePDF = async () => {
   setPdfGenerating(true)
@@ -1885,145 +1959,251 @@ const generatePDF = async () => {
       bgAbstract: rgb(0.96, 0.94, 1.0),
       bgSnapshot: rgb(0.04, 0.02, 0.09),
       white: rgb(1, 1, 1),
+      red: rgb(0.80, 0.20, 0.20),
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // O'LCHAMLAR — A4 va marginlar
+    // ═══════════════════════════════════════════════════════════
+    const PAGE_W = 595.28
+    const PAGE_H = 841.89
+    const MARGIN = 55                          // Chetlardan bir tekis
+    const CONTENT_W = PAGE_W - 2 * MARGIN      // 485.28 pt
+    const FOOTER_Y = 30
+    const HEADER_H = 65
+
+    let page = pdfDoc.addPage([PAGE_W, PAGE_H])
+    let y = PAGE_H - MARGIN
+    let pageNum = 1
+
+    // ═══════════════════════════════════════════════════════════
+    // YORDAMCHI FUNKSIYALAR — barcha matn chegaradan chiqmasligi uchun
+    // ═══════════════════════════════════════════════════════════
+
+    // Matn kengligini o'lchash
+    const measure = (text, font, size) => font.widthOfTextAtSize(String(text), size)
+
+    // Matnni belgilar bo'yicha qisqartirish (agar juda uzun bo'lsa)
+    const truncate = (text, font, size, maxWidth) => {
+      const s = String(text)
+      if (measure(s, font, size) <= maxWidth) return s
+      let lo = 0, hi = s.length
+      while (lo < hi) {
+        const mid = (lo + hi + 1) >> 1
+        if (measure(s.slice(0, mid) + "…", font, size) <= maxWidth) lo = mid
+        else hi = mid - 1
+      }
+      return s.slice(0, lo) + "…"
+    }
+
+    // Matnni bir nechta qatorga bo'lish (wrap)
     const wrapText = (text, font, size, maxWidth) => {
-      const words = String(text).split(" ")
+      if (!text) return [""]
+      const words = String(text).split(/\s+/)
       const lines = []
       let current = ""
-      words.forEach(word => {
-        const test = current ? `${current} ${word}` : word
-        if (font.widthOfTextAtSize(test, size) > maxWidth && current) {
+      for (const word of words) {
+        const test = current ? current + " " + word : word
+        if (measure(test, font, size) > maxWidth && current) {
           lines.push(current)
           current = word
         } else {
           current = test
         }
-      })
+        // Agar bitta so'z juda uzun bo'lsa — belgilar bo'yicha uzamiz
+        if (measure(current, font, size) > maxWidth) {
+          let piece = ""
+          for (const ch of current) {
+            if (measure(piece + ch, font, size) > maxWidth) {
+              lines.push(piece)
+              piece = ch
+            } else piece += ch
+          }
+          current = piece
+        }
+      }
       if (current) lines.push(current)
       return lines
     }
 
-    let page = pdfDoc.addPage([595.28, 841.89])
-    const { width: pageW, height: pageH } = page.getSize()
-    const margin = 50
-    let y = pageH - margin
-    let pageNum = 1
+    // ── Xavfsiz drawText — chegaradan chiqmaydi, kerak bo'lsa qisqartiradi ──
+    const safeText = (text, opts) => {
+      const {
+        x, y: ty, size = 10, font = regularFont, color = C.textDark,
+        align = "left", maxWidth = null,
+      } = opts
+      const s = cleanText(text)
+      const limit = maxWidth ?? (PAGE_W - MARGIN - x)   // O'ng chetdan chiqmaslik
+      const finalText = truncate(s, font, size, limit)
+      let fx = x
+      const w = measure(finalText, font, size)
+      if (align === "center") fx = x - w / 2
+      else if (align === "right") fx = x - w
+      page.drawText(finalText, { x: fx, y: ty, size, font, color })
+    }
 
+    // ── Matnni markazlashtirilgan holda ko'p qatorli chiqarish ──
+    const drawCenteredText = (text, cy, size, font, color, maxW = CONTENT_W) => {
+      const lines = wrapText(cleanText(text), font, size, maxW)
+      lines.forEach((line, i) => {
+        const w = measure(line, font, size)
+        page.drawText(line, {
+          x: (PAGE_W - w) / 2,
+          y: cy - i * (size + 3),
+          size, font, color,
+        })
+      })
+      return lines.length * (size + 3)
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // Footer & yangi sahifa
+    // ══════════════════════════════════════════════════════════
     const addFooter = () => {
-      page.drawText(
+      // Chap tomonda hujjat nomi (chegaradan chiqmasin!)
+      const leftText = truncate(
         `Oktaedrik 3D Lab PRO  •  ${cleanText(complex.formula)}  •  ${new Date().toLocaleDateString("uz-UZ")}`,
-        { x: margin, y: 30, size: 8, font: regularFont, color: C.textGray }
+        regularFont, 8, CONTENT_W - 30
       )
-      page.drawText(`${pageNum}`, {
-        x: pageW - margin, y: 30, size: 8,
-        font: regularFont, color: C.textGray, textAlign: "right",
+      page.drawText(leftText, {
+        x: MARGIN, y: FOOTER_Y, size: 8, font: regularFont, color: C.textGray,
+      })
+      // O'ng tomonda sahifa raqami — o'ng chetdan hisoblanadi
+      const pageStr = `${pageNum}`
+      const w = measure(pageStr, regularFont, 8)
+      page.drawText(pageStr, {
+        x: PAGE_W - MARGIN - w, y: FOOTER_Y, size: 8,
+        font: regularFont, color: C.textGray,
+      })
+      // Nozik ajratuvchi chiziq
+      page.drawLine({
+        start: { x: MARGIN, y: FOOTER_Y + 12 },
+        end:   { x: PAGE_W - MARGIN, y: FOOTER_Y + 12 },
+        thickness: 0.3, color: C.grayLine,
       })
     }
 
     const addNewPage = () => {
       addFooter()
-      page = pdfDoc.addPage([595.28, 841.89])
+      page = pdfDoc.addPage([PAGE_W, PAGE_H])
       pageNum++
-      y = pageH - margin
+      y = PAGE_H - MARGIN
     }
 
     const checkPageBreak = (need) => {
-      if (y - need < 60) addNewPage()
+      if (y - need < FOOTER_Y + 25) addNewPage()
     }
 
+    // ══════════════════════════════════════════════════════════
+    // Bo'lim sarlavhasi
+    // ══════════════════════════════════════════════════════════
     const drawSectionHeader = (num, title) => {
-      checkPageBreak(40)
-      page.drawRectangle({ x: margin, y: y - 18, width: 12, height: 18, color: C.purple })
-      page.drawText(`${num}. ${cleanText(title)}`, {
-        x: margin + 18, y: y - 14, size: 13, font: boldFont, color: C.purple,
+      checkPageBreak(45)
+      page.drawRectangle({
+        x: MARGIN, y: y - 18, width: 4, height: 18, color: C.purple,
+      })
+      safeText(`${num}. ${title}`, {
+        x: MARGIN + 10, y: y - 14, size: 13,
+        font: boldFont, color: C.purple,
+        maxWidth: CONTENT_W - 15,
       })
       y -= 24
       page.drawLine({
-        start: { x: margin, y: y }, end: { x: pageW - margin, y: y },
+        start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y },
         thickness: 0.5, color: C.grayLine,
       })
-      y -= 12
+      y -= 14
     }
 
+    // ══════════════════════════════════════════════════════════
+    // Jadval qatori — label chap, value o'ng
+    // ══════════════════════════════════════════════════════════
     const drawTableRow = (label, value, bgColor = C.bgPurple, labelColor = C.purple) => {
-      const labelWidth = 185
-      const rowHeight = 18
-      checkPageBreak(rowHeight + 2)
+      const rowH = 20
+      const labelW = 190              // Yorliq ustuni kengligi
+      const valueX = MARGIN + labelW + 6
+      const valueMaxW = CONTENT_W - labelW - 12
+
+      checkPageBreak(rowH + 2)
       page.drawRectangle({
-        x: margin, y: y - rowHeight, width: pageW - 2 * margin, height: rowHeight, color: bgColor,
+        x: MARGIN, y: y - rowH, width: CONTENT_W, height: rowH, color: bgColor,
       })
-      page.drawText(cleanText(label), {
-        x: margin + 4, y: y - 12, size: 9, font: boldFont, color: labelColor,
+      // Yorliq
+      safeText(label, {
+        x: MARGIN + 6, y: y - 13, size: 9,
+        font: boldFont, color: labelColor,
+        maxWidth: labelW - 8,
       })
-      page.drawText(cleanText(value), {
-        x: margin + labelWidth + 4, y: y - 12, size: 9, font: regularFont, color: C.textDark,
+      // Qiymat — ko'p qatorli bo'lishi mumkin, lekin biz bitta qatorga sig'diramiz
+      const valStr = cleanText(value)
+      const finalVal = truncate(valStr, regularFont, 9, valueMaxW)
+      page.drawText(finalVal, {
+        x: valueX, y: y - 13, size: 9,
+        font: regularFont, color: C.textDark,
       })
-      y -= rowHeight
+      y -= rowH
     }
 
-    // ════════════════════════════════════════════════════
-    // HEADER
-    // ════════════════════════════════════════════════════
-    page.drawRectangle({ x: 0, y: pageH - 65, width: pageW, height: 65, color: C.purpleDark })
-    page.drawText(
-      "JDA-KIMYO ILMIY BYULLETENI  •  Koordinatsion Kimyo  •  Vol. 2, Son 1",
-      { x: margin, y: pageH - 25, size: 9, font: regularFont, color: C.purpleLight }
-    )
-    page.drawText(`Chop etilgan: ${new Date().toLocaleDateString("uz-UZ")}`, {
-      x: pageW - margin, y: pageH - 25, size: 9,
-      font: regularFont, color: C.purpleLight, textAlign: "right",
+    // ═══════════════════════════════════════════════════════════
+    // SARLAVHA POLOSASI
+    // ═══════════════════════════════════════════════════════════
+    page.drawRectangle({ x: 0, y: PAGE_H - HEADER_H, width: PAGE_W, height: HEADER_H, color: C.purpleDark })
+
+    safeText("JDA-KIMYO ILMIY BYULLETENI  •  Koordinatsion Kimyo  •  Vol. 2, Son 1", {
+      x: MARGIN, y: PAGE_H - 25, size: 9, font: regularFont, color: C.purpleLight,
+      maxWidth: CONTENT_W * 0.65,
     })
+
+    // O'ng tomonda sana — o'ng chetdan hisoblab
+    safeText(`Chop etilgan: ${new Date().toLocaleDateString("uz-UZ")}`, {
+      x: PAGE_W - MARGIN, y: PAGE_H - 25, size: 9,
+      font: regularFont, color: C.purpleLight, align: "right",
+      maxWidth: CONTENT_W * 0.3,
+    })
+
     page.drawLine({
-      start: { x: margin, y: pageH - 37 }, end: { x: pageW - margin, y: pageH - 37 },
+      start: { x: MARGIN, y: PAGE_H - 37 }, end: { x: PAGE_W - MARGIN, y: PAGE_H - 37 },
       thickness: 1, color: C.purpleMid,
     })
-    page.drawText("Interaktiv 3D Molekulyar Modellashtirish Platformasi", {
-      x: margin, y: pageH - 50, size: 7.5, font: regularFont, color: rgb(0.71, 0.71, 0.86),
-    })
-    page.drawText("DOI: 10.0000/jda-kimyo.2026.001", {
-      x: pageW - margin, y: pageH - 50, size: 7.5,
-      font: regularFont, color: rgb(0.71, 0.71, 0.86), textAlign: "right",
-    })
-    y = pageH - 95
 
-    // ════════════════════════════════════════════════════
-    // TITLE
-    // ════════════════════════════════════════════════════
-    page.drawText(`${cleanText(complex.formula)} Struktur Tahlili`, {
-      x: pageW / 2, y: y, size: 20, font: boldFont, color: C.textDark, textAlign: "center",
+    safeText("Interaktiv 3D Molekulyar Modellashtirish Platformasi", {
+      x: MARGIN, y: PAGE_H - 52, size: 8, font: regularFont, color: rgb(0.71, 0.71, 0.86),
+      maxWidth: CONTENT_W * 0.65,
     })
-    y -= 25
-    page.drawText(cleanText(complex.name), {
-      x: pageW / 2, y: y, size: 12, font: italicFont, color: C.purpleSoft, textAlign: "center",
+    safeText("DOI: 10.0000/jda-kimyo.2026.001", {
+      x: PAGE_W - MARGIN, y: PAGE_H - 52, size: 8,
+      font: regularFont, color: rgb(0.71, 0.71, 0.86), align: "right",
+      maxWidth: CONTENT_W * 0.3,
     })
-    y -= 20
-    page.drawText(
-      `Geometriya: ${cleanText(complex.geometry)} (${cleanText(complex.symmetry)})  •  Gibridlanish: ${cleanText(complex.hybridization)}  •  ${cleanText(complex.magnetism)}`,
-      { x: pageW / 2, y: y, size: 9, font: regularFont, color: C.textMuted, textAlign: "center" }
+    y = PAGE_H - HEADER_H - 30
+
+    // ═══════════════════════════════════════════════════════════
+    // TITLE — markazlashtirilgan
+    // ═══════════════════════════════════════════════════════════
+    drawCenteredText(
+      `${cleanText(complex.formula)} Struktur Tahlili`,
+      y, 20, boldFont, C.textDark
     )
-    y -= 30
+    y -= 28
 
-    // ════════════════════════════════════════════════════
-    // ABSTRACT
-    // ════════════════════════════════════════════════════
-    checkPageBreak(110)
-    const boxH = 95
-    page.drawRectangle({
-      x: margin, y: y - boxH, width: pageW - 2 * margin, height: boxH,
-      color: C.bgAbstract, borderColor: C.purpleMid, borderWidth: 1,
-    })
-    page.drawText("QISQACHA XULOSA (ANNOTATSIYA)", {
-      x: margin + 10, y: y - 15, size: 10, font: boldFont, color: C.purple,
-    })
+    drawCenteredText(cleanText(complex.name), y, 12, italicFont, C.purpleSoft)
+    y -= 20
 
-    // ═══ TUZATILDI: t₂g va eg to'g'ri yozildi ═══
-    const subNum = (n) => "₀₁₂₃₄₅₆₇₈₉"[n] || n
-    const tgSub = String(complex.dOrbital.tg).split("").map(d => subNum(d)).join("")
-    const egSub = String(complex.dOrbital.eg).split("").map(d => subNum(d)).join("")
+    drawCenteredText(
+      `Geometriya: ${cleanText(complex.geometry)} (${cleanText(complex.symmetry)})  •  Gibridlanish: ${cleanText(complex.hybridization)}  •  ${cleanText(complex.magnetism)}`,
+      y, 9, regularFont, C.textMuted
+    )
+    y -= 28
+
+    // ═══════════════════════════════════════════════════════════
+    // ANNOTATSIYA (Abstract) — chegaralar ichida
+    // ═══════════════════════════════════════════════════════════
+    const subNum = (n) => "₀₁₂₃₄₅₆₇₈₉"[n] ?? String(n)
+    const tgSub = String(complex.dOrbital.tg).split("").map(d => subNum(+d)).join("")
+    const egSub = String(complex.dOrbital.eg).split("").map(d => subNum(+d)).join("")
 
     const abstract =
-      `${cleanText(complex.formula)} kompleksi ideal ${cleanText(complex.geometry.toLowerCase())} geometriyasiga va ` +
+      `${cleanText(complex.formula)} kompleksi ideal ${cleanText(complex.geometry).toLowerCase()} geometriyasiga va ` +
       `${cleanText(complex.symmetry)} simmetriyasiga ega. Markaziy ${cleanText(ATOM_INFO[complex.center.element].name.split(" ")[0])} ioni ` +
       `oltita ${complex.ligand.type === "NH3" ? "ammiak" : "tsianid"} ligandi bilan ` +
       `${cleanText(complex.ligand.donor)} donor atomlari orqali ${cleanText(complex.bondLengthReal)} masofada bir xil bog'langan. ` +
@@ -2032,19 +2212,33 @@ const generatePDF = async () => {
       `t₂g${tgSub} eg${egSub} konfiguratsiyasini hosil qiladi. ` +
       `Bu natija Werner (1893) va Bethe (1929) nazariyalari asosida tahlil qilingan.`
 
-    const absLines = wrapText(abstract, regularFont, 9, pageW - 2 * margin - 20)
+    const absPadding = 12
+    const absInnerW = CONTENT_W - 2 * absPadding
+    const absLines = wrapText(cleanText(abstract), regularFont, 9.5, absInnerW)
+    const boxH = 24 + absLines.length * 13 + 8
+
+    checkPageBreak(boxH + 20)
+    page.drawRectangle({
+      x: MARGIN, y: y - boxH, width: CONTENT_W, height: boxH,
+      color: C.bgAbstract, borderColor: C.purpleMid, borderWidth: 1,
+    })
+    safeText("QISQACHA XULOSA (ANNOTATSIYA)", {
+      x: MARGIN + absPadding, y: y - 16, size: 10, font: boldFont, color: C.purple,
+      maxWidth: absInnerW,
+    })
     absLines.forEach((line, i) => {
       page.drawText(line, {
-        x: margin + 10, y: y - 30 - i * 12, size: 9, font: regularFont, color: C.textDark,
+        x: MARGIN + absPadding, y: y - 32 - i * 13,
+        size: 9.5, font: regularFont, color: C.textDark,
       })
     })
-    y -= boxH + 20
+    y -= boxH + 22
 
     let sectionNum = 1
 
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     // 1. 3D SNAPSHOT
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.snapshot) {
       drawSectionHeader(sectionNum++, "3D Vizualizatsiya (Ko'rinish)")
       const renderer = rendererRef.current
@@ -2081,34 +2275,34 @@ const generatePDF = async () => {
         cam.lookAt(savedTarget)
         renderer.render(sceneRef.current, cam)
 
-        const imgW = pageW - 2 * margin
+        const imgW = CONTENT_W
         const imgH = imgW * (1080 / 1920)
-        checkPageBreak(imgH + 50)
+        checkPageBreak(imgH + 40)
 
         page.drawRectangle({
-          x: margin, y: y - imgH, width: imgW, height: imgH,
+          x: MARGIN, y: y - imgH, width: imgW, height: imgH,
           color: C.bgSnapshot, borderColor: C.purpleMid, borderWidth: 1.5,
         })
         page.drawImage(pngImage, {
-          x: margin + 2, y: y - imgH + 2, width: imgW - 4, height: imgH - 4,
+          x: MARGIN + 2, y: y - imgH + 2, width: imgW - 4, height: imgH - 4,
         })
-        y -= imgH + 8
+        y -= imgH + 10
 
         const caption =
           `1-rasm. ${cleanText(complex.formula)} ning ` +
           `${viewMode === "ball-stick" ? "shar-tayoqcha" : viewMode === "space-filling" ? "fazo to'ldiruvchi (CPK)" : "karkas"} ` +
           `ko'rinishidagi 3D modeli. Oktaedrik ${cleanText(complex.symmetry)} simmetriya. ${moleculeCount > 1 ? `${moleculeCount} ta molekula ${ensembleMode} ansamblida.` : "Bitta molekula."}`
-        const capLines = wrapText(caption, italicFont, 8.5, pageW - 2 * margin)
+        const capLines = wrapText(cleanText(caption), italicFont, 8.5, CONTENT_W)
         capLines.forEach((line, i) => {
-          page.drawText(line, { x: margin, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
+          page.drawText(line, { x: MARGIN, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
         })
-        y -= capLines.length * 11 + 15
+        y -= capLines.length * 11 + 18
       }
     }
 
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     // 2. BIRIKMA IDENTIFIKATSIYASI
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.info) {
       drawSectionHeader(sectionNum++, "Birikma Identifikatsiyasi")
       const infoTable = [
@@ -2120,8 +2314,8 @@ const generatePDF = async () => {
         ["Nuqtaviy guruh", complex.symmetry],
         ["Gibridlanish", complex.hybridization],
         ["Magnit xossasi", complex.magnetism],
-        ["Rangi (qattiq)", complex.color],
-        ["d-elektronlar", `d${complex.dElectrons}`],
+        ["Rangi (qattiq holatda)", complex.color],
+        ["d-elektronlar soni", `d${complex.dElectrons}`],
       ]
       infoTable.forEach((row, i) => {
         drawTableRow(row[0], row[1], i % 2 === 0 ? C.bgPurple : C.white, C.purple)
@@ -2129,18 +2323,18 @@ const generatePDF = async () => {
       y -= 15
     }
 
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     // 3. MOLEKULYAR GEOMETRIYA
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.geometry) {
       drawSectionHeader(sectionNum++, "Molekulyar Geometriya")
       const angles = computeAllAngles()
       const geomData = [
-        [`M-${complex.ligand.donor} bog' uzunligi`, complex.bondLengthReal],
-        ["Ideal L-M-L (cis)", "90.0°"],
-        ["Ideal L-M-L (trans)", "180.0°"],
-        ["Hisoblangan cis burchaklar (n=12)", `${angles.filter(a => parseFloat(a.angle) < 95).length} × 90°`],
-        ["Hisoblangan trans burchaklar (n=3)", `${angles.filter(a => parseFloat(a.angle) > 170).length} × 180°`],
+        [`M–${complex.ligand.donor} bog' uzunligi`, complex.bondLengthReal],
+        ["Ideal L–M–L (cis)", "90.0°"],
+        ["Ideal L–M–L (trans)", "180.0°"],
+        ["Hisoblangan cis burchaklar", `${angles.filter(a => parseFloat(a.angle) < 95).length} × 90°`],
+        ["Hisoblangan trans burchaklar", `${angles.filter(a => parseFloat(a.angle) > 170).length} × 180°`],
         ["Ideal Oh dan og'ish (RMSD)", "< 0.001 Å"],
       ]
       geomData.forEach((row, i) => {
@@ -2149,19 +2343,19 @@ const generatePDF = async () => {
       y -= 15
     }
 
-    // ════════════════════════════════════════════════════
-    // 4. SIMULYATSIYA SHARTLARI
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
+    // 4. SIMULYATSIYA SHAROITLARI
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.conditions) {
       drawSectionHeader(sectionNum++, "Simulyatsiya Sharoitlari")
       const cond = [
         ["Molekulalar soni", `${moleculeCount}`],
         ["Ansambl rejimi", ensembleMode === "crystal" ? "Kristall panjara" : "Eritma"],
-        ["Vizualizatsiya rejimi", viewMode],
+        ["Vizualizatsiya rejimi", viewMode === "ball-stick" ? "Shar-tayoqcha" : viewMode === "space-filling" ? "Fazo to'ldiruvchi (CPK)" : "Karkas"],
       ]
-      if (showTemperature) cond.push(["Temperatura", `${temperature} K (${(temperature - 273).toFixed(0)} °C)`])
+      if (showTemperature) cond.push(["Temperatura", `${temperature} K  (${(temperature - 273).toFixed(0)} °C)`])
       if (showPressure) cond.push(["Bosim", `${pressure.toLocaleString()} atm`])
-      if (showPH) cond.push(["pH muhit", `${phLevel} (${phLevel < 7 ? "kislotali" : phLevel > 7 ? "ishqoriy" : "neytral"})`])
+      if (showPH) cond.push(["pH muhit", `${phLevel}  (${phLevel < 7 ? "kislotali" : phLevel > 7 ? "ishqoriy" : "neytral"})`])
       if (showSolvation) {
         cond.push(["Erituvchi", solventType])
         cond.push(["Solvatatsiya qobig'i", `${solvationDensity} ta molekula`])
@@ -2172,161 +2366,252 @@ const generatePDF = async () => {
       y -= 15
     }
 
-    // ════════════════════════════════════════════════════
-    // 5. d-ORBITAL DIAGRAMMASI
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
+    // 5. d-ORBITAL DIAGRAMMASI — TO'LIQ QAYTA TARTIBLANDI
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.dorbital) {
       drawSectionHeader(sectionNum++, "Kristall Maydon d-Orbital Ajralishi")
-      checkPageBreak(180)
+      checkPageBreak(210)
 
-      const dX = margin + 40
-      const egY = y - 30
-      const t2Y = y - 100
+      // Diagramma joylashuvi — chegaralar ichida
+      const diagX = MARGIN + 30              // E o'qi shu yerda
+      const levelW = 130                      // Bir sath uchun umumiy en
+      const egY = y - 25
+      const t2Y = y - 105
 
+      // E o'qi
       page.drawLine({
-        start: { x: dX - 10, y: y }, end: { x: dX - 10, y: t2Y - 20 },
+        start: { x: diagX, y: y }, end: { x: diagX, y: t2Y - 25 },
         thickness: 1, color: rgb(0.63, 0.63, 0.71),
       })
-      page.drawText("E", { x: dX - 20, y: y - 5, size: 10, font: italicFont, color: rgb(0.51, 0.51, 0.59) })
+      // O'q strelkasi (yuqoriga)
+      page.drawLine({ start: { x: diagX - 3, y: y - 3 }, end: { x: diagX, y: y + 2 }, thickness: 1, color: rgb(0.63, 0.63, 0.71) })
+      page.drawLine({ start: { x: diagX + 3, y: y - 3 }, end: { x: diagX, y: y + 2 }, thickness: 1, color: rgb(0.63, 0.63, 0.71) })
 
-      // ═══ TUZATILDI: eg va t₂g to'g'ri yozildi (g lotincha, subscript emas) ═══
-      page.drawLine({ start: { x: dX, y: egY }, end: { x: dX + 40, y: egY }, thickness: 2, color: C.purple })
-      page.drawLine({ start: { x: dX + 55, y: egY }, end: { x: dX + 95, y: egY }, thickness: 2, color: C.purple })
-      page.drawText("e₉", { x: dX + 100, y: egY - 4, size: 11, font: boldFont, color: C.purple }) // Bu ham xato!
-      // To'g'ri versiyasi:
-      page.drawText("eg", { x: dX + 100, y: egY - 4, size: 11, font: boldFont, color: C.purple })
-      page.drawText("d_z²", { x: dX + 10, y: egY + 8, size: 8, font: regularFont, color: C.purpleSoft })
-      page.drawText("d_x²-y²", { x: dX + 60, y: egY + 8, size: 8, font: regularFont, color: C.purpleSoft })
+      page.drawText("E", { x: diagX - 12, y: y - 5, size: 10, font: italicFont, color: rgb(0.51, 0.51, 0.59) })
 
-      page.drawLine({ start: { x: dX, y: t2Y }, end: { x: dX + 30, y: t2Y }, thickness: 2, color: C.purple })
-      page.drawLine({ start: { x: dX + 40, y: t2Y }, end: { x: dX + 70, y: t2Y }, thickness: 2, color: C.purple })
-      page.drawLine({ start: { x: dX + 80, y: t2Y }, end: { x: dX + 110, y: t2Y }, thickness: 2, color: C.purple })
-      page.drawText("t₂g", { x: dX + 120, y: t2Y - 4, size: 11, font: boldFont, color: C.purple }) // TO'G'RI: g lotincha
-      page.drawText("d_xy", { x: dX + 5, y: t2Y + 8, size: 8, font: regularFont, color: C.purpleSoft })
-      page.drawText("d_xz", { x: dX + 45, y: t2Y + 8, size: 8, font: regularFont, color: C.purpleSoft })
-      page.drawText("d_yz", { x: dX + 85, y: t2Y + 8, size: 8, font: regularFont, color: C.purpleSoft })
+      // ═══ eg SATH (yuqori) — 2 ta orbital ═══
+      const egOrb1X = diagX + 12
+      const egOrb2X = diagX + 62
+      const orbLineW = 38
+      page.drawLine({ start: { x: egOrb1X, y: egY }, end: { x: egOrb1X + orbLineW, y: egY }, thickness: 2, color: C.purple })
+      page.drawLine({ start: { x: egOrb2X, y: egY }, end: { x: egOrb2X + orbLineW, y: egY }, thickness: 2, color: C.purple })
 
-      const arrows = [
-        { x: dX + 10, y: t2Y + 5, char: "↑", show: complex.dOrbital.tg >= 1 },
-        { x: dX + 18, y: t2Y + 5, char: "↓", show: complex.dOrbital.tg >= 2 },
-        { x: dX + 50, y: t2Y + 5, char: "↑", show: complex.dOrbital.tg >= 3 },
-        { x: dX + 58, y: t2Y + 5, char: "↓", show: complex.dOrbital.tg >= 4 },
-        { x: dX + 90, y: t2Y + 5, char: "↑", show: complex.dOrbital.tg >= 5 },
-        { x: dX + 98, y: t2Y + 5, char: "↓", show: complex.dOrbital.tg >= 6 },
-        { x: dX + 15, y: egY + 5, char: "↑", show: complex.dOrbital.eg >= 1 },
-        { x: dX + 23, y: egY + 5, char: "↓", show: complex.dOrbital.eg >= 2 },
+      // eg yorlig'i (chizmalardan o'ngga)
+      page.drawText("eg", { x: diagX + 118, y: egY - 4, size: 11, font: boldFont, color: C.purple })
+
+      // Orbital nomlari (chiziq ustida)
+      page.drawText("dz²", { x: egOrb1X + 8, y: egY + 6, size: 7, font: regularFont, color: C.purpleSoft })
+      page.drawText("dx²-y²", { x: egOrb2X + 4, y: egY + 6, size: 7, font: regularFont, color: C.purpleSoft })
+
+      // ═══ t₂g SATH (past) — 3 ta orbital ═══
+      const tOrb1X = diagX + 8
+      const tOrb2X = diagX + 48
+      const tOrb3X = diagX + 88
+      const tOrbW = 32
+      page.drawLine({ start: { x: tOrb1X, y: t2Y }, end: { x: tOrb1X + tOrbW, y: t2Y }, thickness: 2, color: C.purple })
+      page.drawLine({ start: { x: tOrb2X, y: t2Y }, end: { x: tOrb2X + tOrbW, y: t2Y }, thickness: 2, color: C.purple })
+      page.drawLine({ start: { x: tOrb3X, y: t2Y }, end: { x: tOrb3X + tOrbW, y: t2Y }, thickness: 2, color: C.purple })
+
+      page.drawText("t₂g", { x: diagX + 128, y: t2Y - 4, size: 11, font: boldFont, color: C.purple })
+      page.drawText("dxy", { x: tOrb1X + 8, y: t2Y + 6, size: 7, font: regularFont, color: C.purpleSoft })
+      page.drawText("dxz", { x: tOrb2X + 8, y: t2Y + 6, size: 7, font: regularFont, color: C.purpleSoft })
+      page.drawText("dyz", { x: tOrb3X + 8, y: t2Y + 6, size: 7, font: regularFont, color: C.purpleSoft })
+
+      // ═══ ELEKTRONLAR ═══ — orbital ostiga joylanadi
+      const drawElectron = (cx, cy, isUp) => {
+        page.drawText(isUp ? "↑" : "↓", {
+          x: cx - 3, y: cy - 4, size: 11, font: boldFont, color: C.orange,
+        })
+      }
+
+      // t₂g elektronlari (3 ta orbital × 2 elektron = 6 gacha)
+      const tgOrbs = [
+        [tOrb1X + orbLineW / 2 - 4, tOrb1X + orbLineW / 2 + 6],
+        [tOrb2X + tOrbW / 2 - 4, tOrb2X + tOrbW / 2 + 6],
+        [tOrb3X + tOrbW / 2 - 4, tOrb3X + tOrbW / 2 + 6],
       ]
-      arrows.forEach(a => {
-        if (a.show) page.drawText(a.char, { x: a.x, y: a.y, size: 14, font: regularFont, color: C.orange })
-      })
+      let elFilled = 0
+      for (let i = 0; i < 3 && elFilled < complex.dOrbital.tg; i++) {
+        drawElectron(tgOrbs[i][0], t2Y + 8, true); elFilled++
+        if (elFilled < complex.dOrbital.tg) {
+          drawElectron(tgOrbs[i][1], t2Y + 8, false); elFilled++
+        }
+      }
+      // eg elektronlari
+      const egOrbs = [
+        [egOrb1X + orbLineW / 2 - 4, egOrb1X + orbLineW / 2 + 6],
+        [egOrb2X + orbLineW / 2 - 4, egOrb2X + orbLineW / 2 + 6],
+      ]
+      elFilled = 0
+      for (let i = 0; i < 2 && elFilled < complex.dOrbital.eg; i++) {
+        drawElectron(egOrbs[i][0], egY + 8, true); elFilled++
+        if (elFilled < complex.dOrbital.eg) {
+          drawElectron(egOrbs[i][1], egY + 8, false); elFilled++
+        }
+      }
 
-      const arX = dX + 145
+      // ═══ Δₒ STRELKASI ═══
+      const arX = diagX + 165
       page.drawLine({ start: { x: arX, y: egY }, end: { x: arX, y: t2Y }, thickness: 1.5, color: C.orange })
-      page.drawLine({ start: { x: arX - 3, y: egY + 5 }, end: { x: arX, y: egY }, thickness: 1.5, color: C.orange })
-      page.drawLine({ start: { x: arX + 3, y: egY + 5 }, end: { x: arX, y: egY }, thickness: 1.5, color: C.orange })
-      page.drawLine({ start: { x: arX - 3, y: t2Y - 5 }, end: { x: arX, y: t2Y }, thickness: 1.5, color: C.orange })
-      page.drawLine({ start: { x: arX + 3, y: t2Y - 5 }, end: { x: arX, y: t2Y }, thickness: 1.5, color: C.orange })
+      // Yuqori strelka
+      page.drawLine({ start: { x: arX - 3, y: egY - 5 }, end: { x: arX, y: egY }, thickness: 1.5, color: C.orange })
+      page.drawLine({ start: { x: arX + 3, y: egY - 5 }, end: { x: arX, y: egY }, thickness: 1.5, color: C.orange })
+      // Past strelka
+      page.drawLine({ start: { x: arX - 3, y: t2Y + 5 }, end: { x: arX, y: t2Y }, thickness: 1.5, color: C.orange })
+      page.drawLine({ start: { x: arX + 3, y: t2Y + 5 }, end: { x: arX, y: t2Y }, thickness: 1.5, color: C.orange })
 
-      page.drawText("Δₒ", { x: arX + 10, y: (egY + t2Y) / 2, size: 14, font: boldFont, color: C.orangeDeep })
-      page.drawText(`${complex.dOrbital.deltaO.toLocaleString()} cm⁻¹`, {
-        x: arX + 10, y: (egY + t2Y) / 2 - 15, size: 9, font: regularFont, color: C.orangeDeep,
+      // Δₒ yorlig'i va qiymati
+      const midY = (egY + t2Y) / 2
+      page.drawText("Δₒ", { x: arX + 8, y: midY + 4, size: 13, font: boldFont, color: C.orangeDeep })
+      page.drawText(`= ${complex.dOrbital.deltaO.toLocaleString()} cm⁻¹`, {
+        x: arX + 8, y: midY - 10, size: 9, font: regularFont, color: C.orangeDeep,
       })
 
-      const infoX = dX + 210
-      page.drawText(`Konfiguratsiya: t₂g${tgSub} eg${egSub}`, {
-        x: infoX, y: t2Y + 20, size: 9, font: regularFont, color: rgb(0.24, 0.24, 0.31),
+      // ═══ MA'LUMOTLAR — o'ng tomonda alohida ustun ═══
+      const infoX = arX + 105
+      const infoMaxW = PAGE_W - MARGIN - infoX
+
+      safeText(`Konfiguratsiya:`, {
+        x: infoX, y: egY, size: 8.5, font: boldFont, color: C.textDark,
+        maxWidth: infoMaxW,
       })
-      page.drawText(`Spin: ${complex.dOrbital.type === "LS" ? "Past spin (juftlashgan)" : "Yuqori spin"}`, {
-        x: infoX, y: t2Y + 5, size: 9, font: regularFont, color: rgb(0.24, 0.24, 0.31),
+      safeText(`t₂g${tgSub} eg${egSub}`, {
+        x: infoX, y: egY - 13, size: 9, font: regularFont, color: C.textDark,
+        maxWidth: infoMaxW,
       })
+
+      safeText(`Spin holati:`, {
+        x: infoX, y: midY + 8, size: 8.5, font: boldFont, color: C.textDark,
+        maxWidth: infoMaxW,
+      })
+      safeText(complex.dOrbital.type === "LS" ? "Past spin" : "Yuqori spin", {
+        x: infoX, y: midY - 5, size: 9, font: regularFont, color: C.textDark,
+        maxWidth: infoMaxW,
+      })
+
       const cfse = (-0.4 * complex.dOrbital.tg + 0.6 * complex.dOrbital.eg).toFixed(2)
-      page.drawText(`CFSE: ${cfse} Δₒ = ${(Math.abs(cfse) * complex.dOrbital.deltaO * 0.012).toFixed(0)} kJ/mol`, {
-        x: infoX, y: t2Y - 10, size: 9, font: regularFont, color: rgb(0.24, 0.24, 0.31),
+      const cfseE = (Math.abs(cfse) * complex.dOrbital.deltaO * 0.012).toFixed(0)
+      safeText(`CFSE:`, {
+        x: infoX, y: t2Y + 5, size: 8.5, font: boldFont, color: C.textDark,
+        maxWidth: infoMaxW,
+      })
+      safeText(`${cfse} Δₒ`, {
+        x: infoX, y: t2Y - 8, size: 9, font: regularFont, color: C.textDark,
+        maxWidth: infoMaxW,
+      })
+      safeText(`≈ ${cfseE} kJ/mol`, {
+        x: infoX, y: t2Y - 20, size: 9, font: regularFont, color: C.textDark,
+        maxWidth: infoMaxW,
       })
 
-      y = t2Y - 40
-      const caption = `2-rasm. ${cleanText(complex.formula)} uchun oktaedrik kristall maydon ajralish diagrammasi. Oltita d-elektron quyi t₂g sathni to'liq to'ldiradi — kuchli ligand maydoni.`
-      const capLines = wrapText(caption, italicFont, 8.5, pageW - 2 * margin)
+      y = t2Y - 45
+      const caption = `2-rasm. ${cleanText(complex.formula)} uchun oktaedrik kristall maydon ajralish diagrammasi. Oltita d-elektron quyi t₂g sathni to'liq to'ldiradi — bu kuchli ligand maydonining natijasi.`
+      const capLines = wrapText(cleanText(caption), italicFont, 8.5, CONTENT_W)
       capLines.forEach((line, i) => {
-        page.drawText(line, { x: margin, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
+        page.drawText(line, { x: MARGIN, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
       })
-      y -= capLines.length * 11 + 15
+      y -= capLines.length * 11 + 18
     }
 
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     // 6. MO DIAGRAMMA
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.mo) {
       drawSectionHeader(sectionNum++, "Molekulyar Orbital Diagramma")
-      checkPageBreak(140)
+      checkPageBreak(160)
 
       const moLevels = [
-        { label: "σ* (4p, 4s) — antibog'lovchi", yOff: y - 10, fill: 0 },
-        { label: "σ* (eg) — antibog'lovchi", yOff: y - 35, fill: complex.dOrbital.eg },
-        { label: "π (t₂g) — bog'lanmagan", yOff: y - 65, fill: complex.dOrbital.tg },
-        { label: "σ (eg + a₁g + t₁u) — bog'lovchi", yOff: y - 95, fill: 12 },
+        { label: "σ* (4p, 4s) — antibog'lovchi", fill: 0 },
+        { label: "σ* (eg) — antibog'lovchi", fill: complex.dOrbital.eg },
+        { label: "π (t₂g) — bog'lanmagan", fill: complex.dOrbital.tg },
+        { label: "σ (eg + a₁g + t₁u) — bog'lovchi", fill: 12 },
       ]
-      moLevels.forEach(lvl => {
+      const lineX = MARGIN + 30
+      const lineW = 50
+      const labelX = lineX + lineW + 15
+      const labelMaxW = CONTENT_W - (labelX - MARGIN) - 5
+
+      moLevels.forEach((lvl, i) => {
+        const ly = y - 15 - i * 30
         page.drawLine({
-          start: { x: margin + 48, y: lvl.yOff }, end: { x: margin + 90, y: lvl.yOff },
-          thickness: 1.2, color: rgb(0.59, 0.39, 0.78),
+          start: { x: lineX, y: ly }, end: { x: lineX + lineW, y: ly },
+          thickness: 1.5, color: rgb(0.59, 0.39, 0.78),
         })
-        page.drawText(lvl.label, {
-          x: margin + 95, y: lvl.yOff - 3, size: 9, font: regularFont, color: C.purpleSoft,
+        // Yorliq
+        safeText(lvl.label, {
+          x: labelX, y: ly - 3, size: 9, font: regularFont, color: C.purpleSoft,
+          maxWidth: labelMaxW,
         })
+        // Elektronlar (chiziq ustida)
         if (lvl.fill > 0) {
-          let xOff = margin + 52
-          for (let k = 0; k < Math.min(lvl.fill, 8); k++) {
+          const maxSlots = 6
+          const shown = Math.min(lvl.fill, maxSlots)
+          const totalW = shown * 6
+          let ex = lineX + (lineW - totalW) / 2
+          for (let k = 0; k < shown; k++) {
             page.drawText(k % 2 === 0 ? "↑" : "↓", {
-              x: xOff, y: lvl.yOff - 2, size: 12, font: regularFont, color: C.orange,
+              x: ex, y: ly - 2, size: 11, font: boldFont, color: C.orange,
             })
-            xOff += 5
+            ex += 6
+          }
+          if (lvl.fill > maxSlots) {
+            page.drawText(`+${lvl.fill - maxSlots}`, {
+              x: lineX + lineW + 2, y: ly - 3, size: 8, font: regularFont, color: C.orangeDeep,
+            })
           }
         }
       })
-      y -= 115
-      const caption = `3-rasm. σ-bog'lanish (a₁g, eg, t₁u) va π (t₂g) o'zaro ta'sirlarni ko'rsatuvchi MO diagramma.`
-      const capLines = wrapText(caption, italicFont, 8.5, pageW - 2 * margin)
+      y -= 15 + moLevels.length * 30 + 10
+
+      const caption = `3-rasm. σ-bog'lanish (a₁g, eg, t₁u) va π (t₂g) o'zaro ta'sirlarni ko'rsatuvchi molekulyar orbital diagramma.`
+      const capLines = wrapText(cleanText(caption), italicFont, 8.5, CONTENT_W)
       capLines.forEach((line, i) => {
-        page.drawText(line, { x: margin, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
+        page.drawText(line, { x: MARGIN, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
       })
-      y -= capLines.length * 11 + 15
+      y -= capLines.length * 11 + 18
     }
 
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     // 7. SPEKTROSKOPIK MA'LUMOTLAR + IR GRAFIK
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.spectra) {
       drawSectionHeader(sectionNum++, "Bashorat qilingan Spektroskopik Ma'lumotlar")
-      
-      // ═══ TUZATILDI: λmax (transliteratsiya yo'q), • belgisi ═══
+
       const specData = [
-        ["UV-Vis (d-d o'tish)", currentComplex === "CoNH3" ? "λmax ≈ 475 nm (¹A₁g → ¹T₁g)" : "λmax ≈ 420 nm"],
-        ["UV-Vis (LMCT)", "λmax < 300 nm"],
-        [`IR (M-${complex.ligand.donor} tebranish)`, "400–600 cm⁻¹"],
+        ["UV-Vis (d–d o'tish)", currentComplex === "CoNH3" ? "λmax ≈ 475 nm  (¹A₁g → ¹T₁g)" : "λmax ≈ 420 nm"],
+        ["UV-Vis (LMCT o'tish)", "λmax < 300 nm"],
+        [`IR (M–${complex.ligand.donor} tebranish)`, "400–600 cm⁻¹"],
         ["Simmetrik cho'zilish (a₁g)", "≈ 500 cm⁻¹"],
         ["Asimmetrik cho'zilish (t₁u)", "≈ 450 cm⁻¹"],
-        ["Egilish (eg)", "≈ 320 cm⁻¹"],
-        ["NMR", currentComplex === "CoNH3" ? "⁵⁹Co: ≈ 8200 ppm  •  ¹H: 3.5 ppm" : "¹³C: 170 ppm  •  ¹⁴N: 270 ppm"],
+        ["Egilish tebranishi (eg)", "≈ 320 cm⁻¹"],
+        ["NMR ma'lumotlari", currentComplex === "CoNH3" ? "⁵⁹Co: ≈ 8200 ppm  •  ¹H: 3.5 ppm" : "¹³C: 170 ppm  •  ¹⁴N: 270 ppm"],
       ]
       specData.forEach((row, i) => {
         drawTableRow(row[0], row[1], i % 2 === 0 ? C.bgGreen : C.white, C.green)
       })
-      y -= 10
+      y -= 12
 
-      // ════════════════════════════════════════════════════
-      // IR SPEKTR GRAFIGI — TO'LIQ QO'SHILDI
-      // ════════════════════════════════════════════════════
-      checkPageBreak(150)
-      page.drawText("IR Spektr (simulyatsiya, 250–700 cm⁻¹ oralig'i)", {
-        x: margin, y: y, size: 10, font: boldFont, color: C.greenDark,
+      // ═══════════════════════════════════════════════════════════
+      // IR SPEKTR GRAFIGI — YAXSHI JOYLASHUV
+      // ═══════════════════════════════════════════════════════════
+      const graphNeed = 190       // Grafik uchun kerakli balandlik
+      checkPageBreak(graphNeed)
+
+      safeText("IR Spektr (simulyatsiya, 250–700 cm⁻¹ oralig'i)", {
+        x: MARGIN, y, size: 10, font: boldFont, color: C.greenDark,
+        maxWidth: CONTENT_W,
       })
-      y -= 8
+      y -= 15
 
-      const gX = margin + 15
-      const gY = y - 100
-      const gW = pageW - 2 * margin - 30
+      // Grafik joylashuvi
+      const gLeftPad = 32        // Y o'qi belgilash uchun bo'shliq
+      const gBotPad = 22         // X o'qi belgilash uchun bo'shliq
+      const gTopPad = 28         // Cho'qqi belgilari uchun bo'shliq
+      const gX = MARGIN + gLeftPad
+      const gW = CONTENT_W - gLeftPad - 5
       const gH = 100
+      const gY = y - gH - gTopPad
       const xMin = 250, xMax = 700
 
       // Fon
@@ -2335,45 +2620,53 @@ const generatePDF = async () => {
         color: rgb(0.98, 1.0, 0.99), borderColor: rgb(0.7, 0.85, 0.75), borderWidth: 0.5,
       })
 
-      // Y grid
+      // Y grid + belgilar (T% 0-100)
       for (let tick = 0; tick <= 100; tick += 25) {
         const ty = gY + (tick / 100) * gH
-        page.drawLine({
-          start: { x: gX, y: ty }, end: { x: gX + gW, y: ty },
-          thickness: 0.2, color: rgb(0.8, 0.9, 0.85),
-        })
-        page.drawText(`${tick}`, {
-          x: gX - 12, y: ty - 2, size: 6, font: regularFont, color: rgb(0.4, 0.5, 0.45),
+        if (tick > 0 && tick < 100) {
+          page.drawLine({
+            start: { x: gX, y: ty }, end: { x: gX + gW, y: ty },
+            thickness: 0.2, color: rgb(0.85, 0.92, 0.88),
+          })
+        }
+        const label = `${tick}`
+        const lw = measure(label, regularFont, 6.5)
+        page.drawText(label, {
+          x: gX - lw - 4, y: ty - 2.5, size: 6.5,
+          font: regularFont, color: rgb(0.4, 0.5, 0.45),
         })
       }
 
-      // X grid
+      // X grid + belgilar
       const xTicks = [300, 400, 500, 600, 700]
       xTicks.forEach(wn => {
         const tx = gX + ((wn - xMin) / (xMax - xMin)) * gW
         page.drawLine({
           start: { x: tx, y: gY }, end: { x: tx, y: gY + gH },
-          thickness: 0.2, color: rgb(0.8, 0.9, 0.85),
+          thickness: 0.2, color: rgb(0.85, 0.92, 0.88),
         })
-        page.drawText(`${wn}`, {
-          x: tx - 8, y: gY - 8, size: 6, font: regularFont, color: rgb(0.4, 0.5, 0.45),
+        const label = `${wn}`
+        const lw = measure(label, regularFont, 6.5)
+        page.drawText(label, {
+          x: tx - lw / 2, y: gY - 10, size: 6.5,
+          font: regularFont, color: rgb(0.4, 0.5, 0.45),
         })
       })
 
       // IR cho'qqilari
       const irPeaks = currentComplex === "CoNH3"
         ? [
-            { wn: 320, rel: 0.55, label: "δ(N-Co-N) eg" },
-            { wn: 450, rel: 0.85, label: "ν(Co-N) t₁u" },
-            { wn: 500, rel: 1.00, label: "ν(Co-N) a₁g" },
+            { wn: 320, rel: 0.55, label: "δ(N–Co–N)" },
+            { wn: 450, rel: 0.85, label: "ν(Co–N) t₁u" },
+            { wn: 500, rel: 1.00, label: "ν(Co–N) a₁g" },
           ]
         : [
-            { wn: 350, rel: 0.55, label: "δ(C-Fe-C) eg" },
-            { wn: 420, rel: 0.70, label: "ν(Fe-C) t₁u" },
+            { wn: 350, rel: 0.55, label: "δ(C–Fe–C)" },
+            { wn: 420, rel: 0.70, label: "ν(Fe–C) t₁u" },
             { wn: 580, rel: 1.00, label: "ν(C≡N)" },
           ]
 
-      // Spektr (Lorentzian)
+      // Spektr chizig'i (Lorentzian)
       const totalPoints = 200
       const transmittance = new Array(totalPoints).fill(1.0)
       irPeaks.forEach(peak => {
@@ -2385,7 +2678,6 @@ const generatePDF = async () => {
         }
       })
 
-      // Chiziq
       for (let i = 0; i < totalPoints - 1; i++) {
         const wn0 = xMin + (i / totalPoints) * (xMax - xMin)
         const wn1 = xMin + ((i + 1) / totalPoints) * (xMax - xMin)
@@ -2395,59 +2687,73 @@ const generatePDF = async () => {
         const y1 = gY + gH - transmittance[i + 1] * (gH - 4) - 2
         page.drawLine({
           start: { x: x0, y: y0 }, end: { x: x1, y: y1 },
-          thickness: 0.8, color: C.greenDark,
+          thickness: 0.9, color: C.greenDark,
         })
       }
 
-      // Cho'qqi belgilari
-      irPeaks.forEach(peak => {
+      // Cho'qqi belgilari — grafik ichida, chegaralarda
+      irPeaks.forEach((peak, idx) => {
         const px = gX + ((peak.wn - xMin) / (xMax - xMin)) * gW
         const peakT = Math.max(0, 1 - peak.rel)
         const py = gY + gH - peakT * (gH - 4) - 2
 
+        // Cho'qqi chiziq
         page.drawLine({
           start: { x: px, y: py }, end: { x: px, y: gY + gH },
-          thickness: 0.4, color: rgb(0.8, 0.2, 0.2),
+          thickness: 0.4, color: C.red,
         })
-        page.drawText(`${peak.wn}`, {
-          x: px - 8, y: py + 3, size: 7, font: boldFont, color: rgb(0.7, 0.2, 0.2),
+        // Cho'qqi to'lqin soni — grafik ichida, ustida
+        const wnStr = `${peak.wn}`
+        const wnW = measure(wnStr, boldFont, 7)
+        page.drawText(wnStr, {
+          x: Math.max(gX + 2, Math.min(gX + gW - wnW - 2, px - wnW / 2)),
+          y: gY + gH + 4, size: 7, font: boldFont, color: C.red,
         })
-        page.drawText(peak.label, {
-          x: px - 12, y: py + 10, size: 6, font: regularFont, color: rgb(0.5, 0.3, 0.3),
+        // Label — grafik ustida, siljigan holda (ustma-ust bo'lmaslik uchun)
+        const lblStr = peak.label
+        const lblW = measure(lblStr, regularFont, 6.5)
+        const lblY = gY + gH + 14 + (idx % 2) * 8   // Zig-zag joylashuv
+        page.drawText(lblStr, {
+          x: Math.max(gX + 2, Math.min(gX + gW - lblW - 2, px - lblW / 2)),
+          y: lblY, size: 6.5, font: regularFont, color: rgb(0.5, 0.3, 0.3),
         })
       })
 
       // O'q nomlari
-      page.drawText("To'lqin soni (cm⁻¹)", {
-        x: gX + gW / 2 - 30, y: gY - 18, size: 8, font: italicFont, color: C.greenDark,
+      const xAxisLabel = "To'lqin soni (cm⁻¹)"
+      const xAxisW = measure(xAxisLabel, italicFont, 8)
+      page.drawText(xAxisLabel, {
+        x: gX + (gW - xAxisW) / 2, y: gY - 20, size: 8,
+        font: italicFont, color: C.greenDark,
       })
+      // Y o'q — vertikal chapdan
       page.drawText("T%", {
-        x: gX - 20, y: gY + gH / 2, size: 8, font: italicFont, color: C.greenDark,
+        x: gX - 22, y: gY + gH / 2 - 3, size: 8, font: italicFont, color: C.greenDark,
       })
 
-      y = gY - 25
-      const irCaption = `4-rasm. ${cleanText(complex.formula)} uchun bashorat qilingan IR spektri (250–700 cm⁻¹). Lorentzian shakl funksiyasi asosida simulyatsiya. Qizil chiziqlar asosiy tebranish modlarini ko'rsatadi.`
-      const irCapLines = wrapText(irCaption, italicFont, 8.5, pageW - 2 * margin)
+      y = gY - 32
+      const irCaption = `4-rasm. ${cleanText(complex.formula)} uchun bashorat qilingan IR spektri (250–700 cm⁻¹). Lorentzian shakl funksiyasi asosida simulyatsiya. Qizil chiziqlar asosiy tebranish modlari o'rnini ko'rsatadi.`
+      const irCapLines = wrapText(cleanText(irCaption), italicFont, 8.5, CONTENT_W)
       irCapLines.forEach((line, i) => {
-        page.drawText(line, { x: margin, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
+        page.drawText(line, { x: MARGIN, y: y - i * 11, size: 8.5, font: italicFont, color: C.purpleSoft })
       })
-      y -= irCapLines.length * 11 + 15
+      y -= irCapLines.length * 11 + 18
     }
 
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     // 8. CFSE (KM BE)
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.crystalField) {
-      drawSectionHeader(sectionNum++, "Kristall Maydon Barqarorlashuv Energiyasi (KM BE)")
+      drawSectionHeader(sectionNum++, "Kristall Maydon Barqarorlashuv Energiyasi (KMBE)")
       const cfse = -0.4 * complex.dOrbital.tg + 0.6 * complex.dOrbital.eg
       const cfData = [
         ["Ligand maydon kuchi", showCrystalField ? ligandFieldStrength : "o'rta (standart)"],
         ["Ajralish parametri Δₒ", `${complex.dOrbital.deltaO.toLocaleString()} cm⁻¹`],
-        ["Energiya (kJ/mol)", `${(complex.dOrbital.deltaO * 0.012).toFixed(1)} kJ/mol`],
-        ["KM BE (Δₒ birligida)", `${cfse.toFixed(2)} Δₒ`],
-        ["KM BE (energiya)", `${(cfse * complex.dOrbital.deltaO * 0.012).toFixed(1)} kJ/mol`],
-        ["Juftlashuv energiyasi", "≈ 20,000 cm⁻¹"],
-        ["Bashorat spin", complex.dOrbital.type === "LS" ? "Past spin (Δₒ > P)" : "Yuqori spin (Δₒ < P)"],
+        ["Energiya ekvivalenti", `${(complex.dOrbital.deltaO * 0.012).toFixed(1)} kJ/mol`],
+        ["KMBE (Δₒ birligida)", `${cfse.toFixed(2)} Δₒ`],
+        ["KMBE (energiya)", `${(cfse * complex.dOrbital.deltaO * 0.012).toFixed(1)} kJ/mol`],
+        ["Juftlashuv energiyasi (P)", "≈ 20 000 cm⁻¹"],
+        ["Bashorat qilingan spin", complex.dOrbital.type === "LS" ? "Past spin  (Δₒ > P)" : "Yuqori spin  (Δₒ < P)"],
       ]
       cfData.forEach((row, i) => {
         drawTableRow(row[0], row[1], i % 2 === 0 ? C.bgYellow : C.white, C.brown)
@@ -2455,9 +2761,9 @@ const generatePDF = async () => {
       y -= 15
     }
 
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     // 9. ADABIYOTLAR
-    // ════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
     if (pdfSections.references) {
       drawSectionHeader(sectionNum++, "Foydalanilgan Adabiyotlar")
       const refs = [
@@ -2470,14 +2776,16 @@ const generatePDF = async () => {
         "7. Jahn, H. A.; Teller, E. (1937). Stability of polyatomic molecules in degenerate electronic states. Proc. R. Soc. Lond. A, 161(905), 220–235.",
       ]
       refs.forEach(ref => {
-        checkPageBreak(15)
-        const refLines = wrapText(ref, regularFont, 8.5, pageW - 2 * margin)
+        const refLines = wrapText(cleanText(ref), regularFont, 8.5, CONTENT_W - 10)
+        checkPageBreak(refLines.length * 11 + 6)
         refLines.forEach((line, i) => {
+          const px = i === 0 ? MARGIN : MARGIN + 12    // Ikkinchi qatordan indent
           page.drawText(line, {
-            x: margin, y: y - i * 11, size: 8.5, font: regularFont, color: C.textDark,
+            x: px, y: y - i * 11, size: 8.5,
+            font: regularFont, color: C.textDark,
           })
         })
-        y -= refLines.length * 11 + 3
+        y -= refLines.length * 11 + 5
       })
       y -= 10
     }
@@ -2509,6 +2817,7 @@ const generatePDF = async () => {
     setPdfGenerating(false)
   }
 }
+
 
     
   // ═══════════════════════════════════════════════════════════
@@ -2719,11 +3028,36 @@ const generatePDF = async () => {
       {/* ASOSIY SCENE */}
       <div className="flex-1 flex flex-row relative overflow-hidden">
 
-        {/* CHAP — Boshqaruv paneli (akkordeon) */}
-        <div className="absolute top-3 left-3 z-20 bg-purple-950/90 backdrop-blur-md rounded-xl border border-purple-700/50 p-3 w-[260px] shadow-2xl max-h-[calc(100vh-130px)] overflow-y-auto custom-scrollbar">
-          <h3 className="text-xs font-bold text-purple-300 mb-3 uppercase tracking-wide flex items-center gap-2">
-            <span>🎛️</span> Boshqaruv paneli
-          </h3>
+        {/* CHAP — Boshqaruv paneli (akkordeon) — KO'CHIRILADIGAN */}
+        <div
+          ref={panelRef}
+          className={`absolute z-20 bg-purple-950/90 backdrop-blur-md rounded-xl border border-purple-700/50 w-[260px] shadow-2xl max-h-[calc(100vh-130px)] flex flex-col ${isPanelDragging ? 'shadow-purple-500/50 border-purple-500/80 select-none' : ''}`}
+          style={{ left: `${panelPos.x}px`, top: `${panelPos.y}px` }}
+        >
+          {/* Sarlavha — ushlab siljitish uchun handle (mouse & touch) */}
+          <div
+            onMouseDown={(e) => {
+              // Faqat chap tugma
+              if (e.button !== 0) return
+              e.preventDefault()
+              handlePanelDragStart(e.clientX, e.clientY)
+            }}
+            onTouchStart={(e) => {
+              if (e.touches.length > 0) {
+                handlePanelDragStart(e.touches[0].clientX, e.touches[0].clientY)
+              }
+            }}
+            className={`flex items-center justify-between px-3 py-2 border-b border-purple-700/40 rounded-t-xl ${isPanelDragging ? 'cursor-grabbing bg-purple-800/60' : 'cursor-grab bg-purple-900/40 hover:bg-purple-800/50'} transition-colors select-none touch-none`}
+            title="Ushlab siljiting — panelni istagan joyingizga qo'ying"
+          >
+            <h3 className="text-xs font-bold text-purple-300 uppercase tracking-wide flex items-center gap-2">
+              <span className="text-purple-400">⋮⋮</span>
+              <span>🎛️</span> Boshqaruv paneli
+            </h3>
+            <span className="text-purple-400 text-[10px] opacity-70">↕ ↔</span>
+          </div>
+          {/* Panel tanasi — scrollable */}
+          <div className="p-3 overflow-y-auto custom-scrollbar flex-1">
 
           {/* ═══ MOLEKULALAR SONI (har doim ko'rinadi) ═══ */}
           <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 rounded-lg p-2 border border-yellow-700/30 mb-2">
@@ -3088,6 +3422,7 @@ const generatePDF = async () => {
               </button>
             </div>
           )}
+          </div>{/* /panel tanasi */}
         </div>
         )
 
