@@ -43,6 +43,8 @@ model User {
   friendships1 Friendship[] @relation("User1")
   friendships2 Friendship[] @relation("User2")
   achievements Achievement[]
+  followers   Follow[] @relation("Following") // Menga obuna bo'lganlar
+  following   Follow[] @relation("Follower")  // Men obuna bo'lganlar
 }
 
 model Account {
@@ -143,4 +145,16 @@ model Achievement {
   earnedAt       DateTime @default(now())
 
   @@unique([userId, achievementKey])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   // Kim obuna bo'lyapti
+  followingId String   // Kimga obuna bo'lyapti
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId]) // Bir odamga ikki marta obuna bo'lib bo'lmaydi
 }

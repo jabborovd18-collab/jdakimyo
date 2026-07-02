@@ -1,6 +1,5 @@
 // app/profil/[userId]/page.js
 "use client"
-
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
@@ -15,6 +14,8 @@ export default function PublicProfilePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [friendshipStatus, setFriendshipStatus] = useState('none')
+  const [followStatus, setFollowStatus] = useState('none')
+  const [isFollowLoading, setIsFollowLoading] = useState(false)
 
   useEffect(() => {
     if (params?.userId) {
@@ -25,27 +26,86 @@ export default function PublicProfilePage() {
   const fetchProfile = async () => {
     setIsLoading(true)
     setError(null)
-    
     try {
       console.log('[Frontend] Fetching profile for userId:', params.userId)
-      
       const response = await fetch(`/api/users/${params.userId}`)
       const data = await response.json()
-      
       console.log('[Frontend] API Response:', { ok: response.ok, data })
-      
+
       if (!response.ok) {
         throw new Error(data.error || 'Foydalanuvchi topilmadi')
       }
 
       setProfile(data)
       setFriendshipStatus(data.friendshipStatus || 'none')
+      setFollowStatus(data.followStatus || 'none')
     } catch (error) {
       console.error('[Frontend] Error:', error)
       setError(error.message)
       toast.error(error.message)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // 🆕 Obuna bo'lish (Follow)
+  const handleFollow = async () => {
+    if (!session) {
+      toast.error('Avval tizimga kiring')
+      router.push('/login')
+      return
+    }
+
+    setIsFollowLoading(true)
+    try {
+      const response = await fetch('/api/follow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ followingId: profile.user.id })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error)
+      }
+
+      toast.success('✓ Obuna bo\'ldingiz!')
+      setFollowStatus('following')
+      // Profilni yangilash (sonlar o'zgarishi uchun)
+      fetchProfile()
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsFollowLoading(false)
+    }
+  }
+
+  // 🆕 Obunani bekor qilish (Unfollow)
+  const handleUnfollow = async () => {
+    if (!confirm('Obunani bekor qilmoqchimisiz?')) return
+
+    setIsFollowLoading(true)
+    try {
+      const response = await fetch('/api/follow', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ followingId: profile.user.id })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error)
+      }
+
+      toast.success('Obuna bekor qilindi')
+      setFollowStatus('not_following')
+      fetchProfile()
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsFollowLoading(false)
     }
   }
 
@@ -62,14 +122,11 @@ export default function PublicProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ receiverId: profile.user.id })
       })
-
       const data = await response.json()
-
       if (!response.ok) {
         throw new Error(data.error)
       }
-
-      toast.success('Do\'stlik taklifi yuborildi!')
+      toast.success("Do'stlik taklifi yuborildi!")
       setFriendshipStatus('sent')
     } catch (error) {
       toast.error(error.message)
@@ -83,13 +140,10 @@ export default function PublicProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action })
       })
-
       const data = await response.json()
-
       if (!response.ok) {
         throw new Error(data.error)
       }
-
       toast.success(data.message)
       fetchProfile()
     } catch (error) {
@@ -118,8 +172,8 @@ export default function PublicProfilePage() {
         <div className="bg-red-900/20 border border-red-700/50 rounded-2xl p-8 max-w-md text-center">
           <div className="text-6xl mb-4">😕</div>
           <h2 className="text-2xl font-bold text-red-400 mb-2">Profil topilmadi</h2>
-          <p className="text-purple-300 mb-6">{error || 'Noma\'lum xatolik'}</p>
-          <Link 
+          <p className="text-purple-300 mb-6">{error || "Noma'lum xatolik"}</p>
+          <Link
             href="/profil"
             className="inline-block px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
           >
@@ -130,8 +184,7 @@ export default function PublicProfilePage() {
     )
   }
 
-  const { user, friends, achievements, quizResults } = profile
-
+  const { user, friends, achievements, quizResults, followersCount, followingCount } = profile
   const roleLabels = {
     bakalavr: '🎓 Bakalavr',
     magistr: '📚 Magistr',
@@ -151,8 +204,8 @@ export default function PublicProfilePage() {
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 border-b border-purple-800/50 bg-purple-950/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.back()} 
+          <button
+            onClick={() => router.back()}
             className="text-purple-400 hover:text-purple-300 transition-all flex items-center gap-2"
           >
             <span>←</span>
@@ -169,17 +222,19 @@ export default function PublicProfilePage() {
         {/* Profile Header */}
         <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 mb-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-          
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
             {/* Avatar */}
             <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500 flex items-center justify-center text-5xl md:text-6xl font-bold text-black shadow-2xl shadow-yellow-500/30">
-              {user.fullName?.charAt(0)?.toUpperCase() || user.username.charAt(0).toUpperCase()}
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover rounded-2xl" />
+              ) : (
+                user.fullName?.charAt(0)?.toUpperCase() || user.username.charAt(0).toUpperCase()
+              )}
             </div>
 
             {/* Info */}
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-extrabold mb-2">{user.fullName || user.username}</h1>
-              
               <div className="flex flex-wrap gap-2 mb-3">
                 <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm text-purple-200">
                   @{user.username}
@@ -191,7 +246,6 @@ export default function PublicProfilePage() {
                   {roleLabels[user.role] || user.role}
                 </span>
               </div>
-
               {user.university && (
                 <div className="text-purple-200 text-sm mb-2 flex items-center gap-2">
                   <span>🏛️</span>
@@ -199,16 +253,50 @@ export default function PublicProfilePage() {
                   {user.faculty && <span className="text-purple-400">• {user.faculty}</span>}
                 </div>
               )}
-
               {user.bio && (
                 <p className="text-purple-200 mt-3 leading-relaxed max-w-2xl italic">
-                  "{user.bio}"
+                  &ldquo;{user.bio}&rdquo;
                 </p>
               )}
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-2">
+              {/* 🆕 FOLLOW TUGMASI */}
+              {session && (
+                <>
+                  {followStatus === 'not_following' && (
+                    <button
+                      onClick={handleFollow}
+                      disabled={isFollowLoading}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5 shadow-lg shadow-blue-500/20 flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {isFollowLoading ? (
+                        <span className="animate-spin">⏳</span>
+                      ) : (
+                        <span>➕</span>
+                      )}
+                      <span>Obuna bo'lish</span>
+                    </button>
+                  )}
+                  {followStatus === 'following' && (
+                    <button
+                      onClick={handleUnfollow}
+                      disabled={isFollowLoading}
+                      className="px-6 py-3 bg-blue-600/20 border border-blue-600/30 hover:bg-red-600/20 hover:border-red-600/30 text-blue-400 hover:text-red-400 font-bold rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {isFollowLoading ? (
+                        <span className="animate-spin">⏳</span>
+                      ) : (
+                        <span>✓</span>
+                      )}
+                      <span>Obuna</span>
+                    </button>
+                  )}
+                </>
+              )}
+
+              {/* FRIENDSHIP TUGMALARI */}
               {friendshipStatus === 'none' && session && (
                 <button
                   onClick={sendFriendRequest}
@@ -218,14 +306,12 @@ export default function PublicProfilePage() {
                   <span>Do'stlik taklif qilish</span>
                 </button>
               )}
-
               {friendshipStatus === 'sent' && (
                 <div className="px-6 py-3 bg-yellow-600/20 border border-yellow-600/30 rounded-xl text-yellow-400 font-semibold flex items-center gap-2">
                   <span>⏳</span>
                   <span>Taklif yuborildi</span>
                 </div>
               )}
-
               {friendshipStatus === 'received' && (
                 <div className="flex gap-2">
                   <button
@@ -244,50 +330,50 @@ export default function PublicProfilePage() {
                   </button>
                 </div>
               )}
-
               {friendshipStatus === 'friend' && (
                 <div className="px-6 py-3 bg-green-600/20 border border-green-600/30 rounded-xl text-green-400 font-semibold flex items-center gap-2">
                   <span>✓</span>
                   <span>Do'stlar</span>
                 </div>
               )}
-
               {!session && (
                 <Link
                   href="/login"
                   className="px-6 py-3 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-sm font-semibold text-center"
                 >
-                  Do'st bo'lish uchun kiring
+                  Obuna bo'lish uchun kiring
                 </Link>
               )}
             </div>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {/* Stats - 🆕 FOLLOWERS/FOLLOWING QO'SHILDI */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm">
             <div className="text-3xl mb-2">🎯</div>
             <div className="text-3xl font-bold text-yellow-400 mb-1">Lvl {user.level_points}</div>
             <div className="text-xs text-purple-300">Daraja</div>
           </div>
-
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm">
             <div className="text-3xl mb-2">⭐</div>
             <div className="text-3xl font-bold text-yellow-400 mb-1">{user.totalPoints}</div>
             <div className="text-xs text-purple-300">Umumiy ball</div>
           </div>
-
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm">
             <div className="text-3xl mb-2">👥</div>
             <div className="text-3xl font-bold text-yellow-400 mb-1">{friends.length}</div>
             <div className="text-xs text-purple-300">Do'stlar</div>
           </div>
-
-          <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm">
-            <div className="text-3xl mb-2">📝</div>
-            <div className="text-3xl font-bold text-yellow-400 mb-1">{quizResults.length}</div>
-            <div className="text-xs text-purple-300">Quizlar</div>
+          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-5 backdrop-blur-sm">
+            <div className="text-3xl mb-2">👤</div>
+            <div className="text-3xl font-bold text-cyan-400 mb-1">{followersCount}</div>
+            <div className="text-xs text-purple-300">Obunachilar</div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-5 backdrop-blur-sm">
+            <div className="text-3xl mb-2">👁️</div>
+            <div className="text-3xl font-bold text-cyan-400 mb-1">{followingCount}</div>
+            <div className="text-xs text-purple-300">Obuna bo'lgan</div>
           </div>
         </div>
 
@@ -319,13 +405,17 @@ export default function PublicProfilePage() {
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {friends.map(friend => (
-                <Link 
-                  key={friend.id} 
+                <Link
+                  key={friend.id}
                   href={`/profil/${friend.userId}`}
                   className="bg-purple-950/50 rounded-xl p-4 text-center border border-purple-700/30 hover:border-yellow-500/50 transition-all"
                 >
                   <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-2xl font-bold mb-2">
-                    {friend.fullName?.charAt(0)?.toUpperCase() || friend.username.charAt(0).toUpperCase()}
+                    {friend.avatar ? (
+                      <img src={friend.avatar} alt={friend.fullName} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      friend.fullName?.charAt(0)?.toUpperCase() || friend.username.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <div className="font-semibold text-sm">{friend.fullName || friend.username}</div>
                   <div className="text-xs text-purple-400">@{friend.username}</div>

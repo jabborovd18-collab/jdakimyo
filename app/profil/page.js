@@ -1,6 +1,5 @@
 // app/profil/page.js
 "use client"
-
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -8,6 +7,7 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import FriendSearch from '@/components/FriendSearch'
 import FriendRequests from '@/components/FriendRequests'
+import AvatarUpload from '@/components/AvatarUpload'
 
 export default function ProfilPage() {
   const { data: session, status } = useSession()
@@ -24,7 +24,6 @@ export default function ProfilPage() {
       router.push('/login')
       return
     }
-
     if (status === 'authenticated') {
       fetchProfile()
     }
@@ -45,17 +44,13 @@ export default function ProfilPage() {
     try {
       const response = await fetch('/api/profil')
       const data = await response.json()
-      
       console.log('[Profile API Response]:', data)
-      
       if (!response.ok) {
         throw new Error(data.error || 'Profilni yuklashda xatolik')
       }
-
       if (!data.user) {
         throw new Error('Profil ma\'lumotlari to\'liq emas')
       }
-
       setProfile(data)
       setFormData(data.user)
     } catch (error) {
@@ -73,9 +68,7 @@ export default function ProfilPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       })
-
       if (!response.ok) throw new Error('Xatolik')
-
       toast.success('✓ Profil muvaffaqiyatli yangilandi!')
       setIsEditing(false)
       fetchProfile()
@@ -106,7 +99,7 @@ export default function ProfilPage() {
           <div className="text-6xl mb-4">😕</div>
           <h2 className="text-2xl font-bold text-red-400 mb-2">Profil yuklanmadi</h2>
           <p className="text-purple-300 mb-6">Profil ma'lumotlarini olishda xatolik yuz berdi</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
           >
@@ -117,7 +110,7 @@ export default function ProfilPage() {
     )
   }
 
-  const { user, friends = [], friendRequests = [], quizResults = [], certificates = [], achievements = [] } = profile
+  const { user, friends = [], friendRequests = [], quizResults = [], certificates = [], achievements = [], followers = [], following = [] } = profile
 
   // Default qiymatlar
   const levelPoints = user.level_points || 1
@@ -158,7 +151,6 @@ export default function ProfilPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
-      
       {/* MOBILE OGOHLANTIRISH */}
       {showMobileWarning && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -208,15 +200,13 @@ export default function ProfilPage() {
         </div>
       </header>
 
-      {/* HERO SECTION - PROFIL HEADER */}
+      {/* HERO SECTION */}
       <section className="relative px-4 py-8 md:py-12 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
         
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="bg-gradient-to-br from-purple-900/60 to-blue-900/60 border border-purple-700/50 rounded-3xl p-6 md:p-8 backdrop-blur-sm relative overflow-hidden">
-            
-            {/* Edit tugmasi */}
             <button
               onClick={() => setIsEditing(!isEditing)}
               className="absolute top-6 right-6 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-yellow-500/20 text-sm z-20"
@@ -225,20 +215,25 @@ export default function ProfilPage() {
             </button>
 
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              {/* Avatar */}
               <div className="relative">
-                <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500 flex items-center justify-center text-5xl md:text-6xl font-bold text-black shadow-2xl shadow-yellow-500/30">
-                  {user.fullName?.charAt(0)?.toUpperCase() || user.username.charAt(0).toUpperCase()}
-                </div>
-                <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-sm font-bold shadow-lg border-4 border-purple-900">
+                <AvatarUpload
+                  currentAvatar={user.avatar}
+                  userName={user.fullName || user.username}
+                  onUploadSuccess={(newAvatarUrl) => {
+                    setProfile(prev => ({
+                      ...prev,
+                      user: { ...prev.user, avatar: newAvatarUrl }
+                    }))
+                    setFormData(prev => ({ ...prev, avatar: newAvatarUrl }))
+                  }}
+                />
+                <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-sm font-bold shadow-lg border-4 border-purple-900 z-10">
                   {levelPoints}
                 </div>
               </div>
 
-              {/* Ma'lumotlar */}
               <div className="flex-1">
                 <h1 className="text-3xl md:text-4xl font-extrabold mb-2">{user.fullName || user.username}</h1>
-                
                 <div className="flex flex-wrap gap-2 mb-3">
                   <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm text-purple-200">
                     @{user.username}
@@ -250,7 +245,7 @@ export default function ProfilPage() {
                     {roleLabels[user.role] || user.role}
                   </span>
                 </div>
-
+                
                 {user.university && (
                   <div className="text-purple-200 text-sm mb-2 flex items-center gap-2 flex-wrap">
                     <span>🏛️</span>
@@ -258,14 +253,13 @@ export default function ProfilPage() {
                     {user.faculty && <span className="text-purple-400">• {user.faculty}</span>}
                   </div>
                 )}
-
+                
                 {user.bio && (
                   <p className="text-purple-200 mt-3 leading-relaxed max-w-2xl italic">
                     &ldquo;{user.bio}&rdquo;
                   </p>
                 )}
 
-                {/* Ijtimoiy tarmoqlar */}
                 {(user.telegram || user.instagram || user.linkedin) && (
                   <div className="flex gap-2 mt-3 flex-wrap">
                     {user.telegram && (
@@ -291,7 +285,6 @@ export default function ProfilPage() {
               </div>
             </div>
 
-            {/* Level Progress */}
             <div className="mt-6 pt-6 border-t border-purple-700/30">
               <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -443,9 +436,9 @@ export default function ProfilPage() {
         </section>
       )}
 
-      {/* STATS GRID */}
+      {/* STATS GRID - 🆕 FOLLOWERS/FOLLOWING QO'SHILDI */}
       <section className="px-4 pb-6 max-w-6xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm hover:border-yellow-500/50 transition-all transform hover:-translate-y-1 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
             <div className="relative z-10">
@@ -454,7 +447,6 @@ export default function ProfilPage() {
               <div className="text-xs text-purple-300">Daraja</div>
             </div>
           </div>
-
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm hover:border-yellow-500/50 transition-all transform hover:-translate-y-1 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full blur-2xl group-hover:bg-yellow-500/20 transition-all"></div>
             <div className="relative z-10">
@@ -463,7 +455,6 @@ export default function ProfilPage() {
               <div className="text-xs text-purple-300">Umumiy ball</div>
             </div>
           </div>
-
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm hover:border-yellow-500/50 transition-all transform hover:-translate-y-1 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
             <div className="relative z-10">
@@ -472,13 +463,28 @@ export default function ProfilPage() {
               <div className="text-xs text-purple-300">Quizlar</div>
             </div>
           </div>
-
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm hover:border-yellow-500/50 transition-all transform hover:-translate-y-1 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl group-hover:bg-pink-500/20 transition-all"></div>
             <div className="relative z-10">
               <div className="text-3xl mb-2">🏆</div>
               <div className="text-3xl font-bold text-yellow-400 mb-1">{certificates.length}</div>
               <div className="text-xs text-purple-300">Sertifikatlar</div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-5 backdrop-blur-sm hover:border-yellow-500/50 transition-all transform hover:-translate-y-1 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-all"></div>
+            <div className="relative z-10">
+              <div className="text-3xl mb-2">👤</div>
+              <div className="text-3xl font-bold text-cyan-400 mb-1">{followers.length}</div>
+              <div className="text-xs text-purple-300">Obunachilar</div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-5 backdrop-blur-sm hover:border-yellow-500/50 transition-all transform hover:-translate-y-1 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-all"></div>
+            <div className="relative z-10">
+              <div className="text-3xl mb-2">👁️</div>
+              <div className="text-3xl font-bold text-cyan-400 mb-1">{following.length}</div>
+              <div className="text-xs text-purple-300">Obuna bo'lgan</div>
             </div>
           </div>
         </div>
@@ -488,7 +494,6 @@ export default function ProfilPage() {
       <section className="px-4 pb-6 max-w-6xl mx-auto">
         <div className="bg-gradient-to-r from-orange-600/20 via-red-600/20 to-pink-600/20 border border-orange-500/30 rounded-3xl p-6 md:p-8 backdrop-blur-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
-          
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="text-6xl animate-bounce" style={{animationDuration: '2s'}}>🔥</div>
@@ -497,7 +502,6 @@ export default function ProfilPage() {
                 <div className="text-4xl font-bold text-white">{currentStreak} <span className="text-lg text-orange-300">kun</span></div>
               </div>
             </div>
-            
             <div className="flex gap-4">
               <div className="text-center">
                 <div className="text-xs text-orange-300 mb-1">Eng uzun</div>
@@ -515,13 +519,15 @@ export default function ProfilPage() {
         </div>
       </section>
 
-      {/* TAB NAVIGATION */}
+      {/* TAB NAVIGATION - 🆕 FOLLOWERS TAB QO'SHILDI */}
       <section className="px-4 pb-6 max-w-6xl mx-auto">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {[
             { id: 'overview', label: '📊 Umumiy ko\'rinish', count: null },
             { id: 'achievements', label: '🏅 Yutuqlar', count: achievements.length },
             { id: 'friends', label: '👥 Do\'stlar', count: friends.length },
+            { id: 'followers', label: '👤 Obunachilar', count: followers.length },
+            { id: 'following', label: '👁️ Obunalar', count: following.length },
             { id: 'quizzes', label: '📝 Quizlar', count: quizResults.length },
           ].map(tab => (
             <button
@@ -548,29 +554,24 @@ export default function ProfilPage() {
 
       {/* TAB CONTENT */}
       <section className="px-4 pb-12 max-w-6xl mx-auto">
-
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
-            {/* Friend Requests */}
             {friendRequests.length > 0 && (
               <FriendRequests requests={friendRequests} onUpdate={fetchProfile} />
             )}
 
-            {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link href="/oquv/video-darsliklar/quiz" className="group bg-gradient-to-br from-green-600/20 to-emerald-900/40 border border-green-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-1">
                 <div className="text-4xl mb-3">📝</div>
                 <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">Quiz yechish</h3>
                 <p className="text-sm text-purple-300">Bilimingizni sinab ko'ring</p>
               </Link>
-
               <Link href="/oquv/video-darsliklar" className="group bg-gradient-to-br from-blue-600/20 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-1">
                 <div className="text-4xl mb-3">🎬</div>
                 <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">Video darslar</h3>
                 <p className="text-sm text-purple-300">Yangi mavzularni o'rganing</p>
               </Link>
-
               <Link href="/birikmalar" className="group bg-gradient-to-br from-pink-600/20 to-rose-900/40 border border-pink-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-1">
                 <div className="text-4xl mb-3">🧪</div>
                 <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">Birikmalar</h3>
@@ -578,7 +579,6 @@ export default function ProfilPage() {
               </Link>
             </div>
 
-            {/* Recent Activity */}
             {quizResults.length > 0 && (
               <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -617,7 +617,6 @@ export default function ProfilPage() {
               <span>🏅</span>
               Mening yutuqlarim
             </h2>
-
             {achievements.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {achievements.map(achievement => (
@@ -656,18 +655,15 @@ export default function ProfilPage() {
         {/* FRIENDS TAB */}
         {activeTab === 'friends' && (
           <div className="space-y-6">
-            {/* Friend Search */}
             <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
               <FriendSearch />
             </div>
 
-            {/* Friends List */}
             <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
               <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <span>👥</span>
                 Do'stlarim ({friends.length})
               </h2>
-
               {friends.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {friends.map(friend => (
@@ -676,8 +672,12 @@ export default function ProfilPage() {
                       href={`/profil/${friend.userId}`}
                       className="group bg-purple-950/50 rounded-2xl p-4 text-center border border-purple-700/30 hover:border-yellow-500/50 transition-all transform hover:-translate-y-1"
                     >
-                      <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-2xl font-bold mb-2 group-hover:scale-110 transition-transform">
-                        {friend.fullName?.charAt(0)?.toUpperCase() || friend.username?.charAt(0).toUpperCase() || '?'}
+                      <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-2xl font-bold mb-2 group-hover:scale-110 transition-transform overflow-hidden">
+                        {friend.avatar ? (
+                          <img src={friend.avatar} alt={friend.fullName} className="w-full h-full object-cover" />
+                        ) : (
+                          friend.fullName?.charAt(0)?.toUpperCase() || friend.username?.charAt(0).toUpperCase() || '?'
+                        )}
                       </div>
                       <div className="font-semibold text-sm text-white group-hover:text-yellow-400 transition-colors truncate">
                         {friend.fullName || friend.username}
@@ -700,6 +700,96 @@ export default function ProfilPage() {
           </div>
         )}
 
+        {/* 🆕 FOLLOWERS TAB */}
+        {activeTab === 'followers' && (
+          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <span>👤</span>
+              Obunachilarim ({followers.length})
+            </h2>
+            {followers.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {followers.map(follower => (
+                  <Link 
+                    key={follower.id} 
+                    href={`/profil/${follower.userId}`}
+                    className="group bg-purple-950/50 rounded-2xl p-4 text-center border border-purple-700/30 hover:border-cyan-500/50 transition-all transform hover:-translate-y-1"
+                  >
+                    <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-2xl font-bold mb-2 group-hover:scale-110 transition-transform overflow-hidden">
+                      {follower.avatar ? (
+                        <img src={follower.avatar} alt={follower.fullName} className="w-full h-full object-cover" />
+                      ) : (
+                        follower.fullName?.charAt(0)?.toUpperCase() || follower.username?.charAt(0).toUpperCase() || '?'
+                      )}
+                    </div>
+                    <div className="font-semibold text-sm text-white group-hover:text-cyan-400 transition-colors truncate">
+                      {follower.fullName || follower.username}
+                    </div>
+                    <div className="text-xs text-purple-400 truncate">@{follower.username}</div>
+                    {follower.university && (
+                      <div className="text-xs text-purple-500 mt-1 truncate">🏛️ {follower.university}</div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">👤</div>
+                <h3 className="text-xl font-bold text-white mb-2">Hali obunachilar yo'q</h3>
+                <p className="text-purple-300">Profillaringizni to'ldiring va faol bo'ling!</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 🆕 FOLLOWING TAB */}
+        {activeTab === 'following' && (
+          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <span>👁️</span>
+              Obuna bo'lganlarim ({following.length})
+            </h2>
+            {following.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {following.map(followed => (
+                  <Link 
+                    key={followed.id} 
+                    href={`/profil/${followed.userId}`}
+                    className="group bg-purple-950/50 rounded-2xl p-4 text-center border border-purple-700/30 hover:border-cyan-500/50 transition-all transform hover:-translate-y-1"
+                  >
+                    <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-2xl font-bold mb-2 group-hover:scale-110 transition-transform overflow-hidden">
+                      {followed.avatar ? (
+                        <img src={followed.avatar} alt={followed.fullName} className="w-full h-full object-cover" />
+                      ) : (
+                        followed.fullName?.charAt(0)?.toUpperCase() || followed.username?.charAt(0).toUpperCase() || '?'
+                      )}
+                    </div>
+                    <div className="font-semibold text-sm text-white group-hover:text-cyan-400 transition-colors truncate">
+                      {followed.fullName || followed.username}
+                    </div>
+                    <div className="text-xs text-purple-400 truncate">@{followed.username}</div>
+                    {followed.university && (
+                      <div className="text-xs text-purple-500 mt-1 truncate">🏛️ {followed.university}</div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">👁️</div>
+                <h3 className="text-xl font-bold text-white mb-2">Hali hech kimga obuna bo'lmagansiz</h3>
+                <p className="text-purple-300 mb-6">Boshqa kimyogarlarga obuna bo'ling!</p>
+                <Link 
+                  href="/qidiruv"
+                  className="inline-block px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-xl transition-all"
+                >
+                  Foydalanuvchilarni qidirish →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* QUIZZES TAB */}
         {activeTab === 'quizzes' && (
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
@@ -707,7 +797,6 @@ export default function ProfilPage() {
               <span>📝</span>
               Barcha quiz natijalari
             </h2>
-
             {quizResults.length > 0 ? (
               <div className="space-y-3">
                 {quizResults.map(quiz => (
@@ -769,7 +858,7 @@ export default function ProfilPage() {
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600/20 border border-green-600/30 rounded-full">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              <span className="text-green-400 text-xs font-mono font-bold">v2.1.0</span>
+              <span className="text-green-400 text-xs font-mono font-bold">v2.2.0</span>
             </div>
           </div>
         </div>

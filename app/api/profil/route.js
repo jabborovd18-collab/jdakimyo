@@ -8,7 +8,6 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -35,6 +34,36 @@ export async function GET() {
         receivedRequests: {
           where: { status: 'pending' },
           include: { sender: true }
+        },
+        // 🆕 FOLLOWERS (menga obuna bo'lganlar)
+        followers: {
+          include: { 
+            follower: {
+              select: {
+                id: true,
+                userId: true,
+                username: true,
+                fullName: true,
+                avatar: true,
+                university: true
+              }
+            }
+          }
+        },
+        // 🆕 FOLLOWING (men obuna bo'lganlar)
+        following: {
+          include: { 
+            following: {
+              select: {
+                id: true,
+                userId: true,
+                username: true,
+                fullName: true,
+                avatar: true,
+                university: true
+              }
+            }
+          }
         }
       }
     })
@@ -43,7 +72,7 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Do'stlar ro'yxatini tayyorlash
+    // Do'stlar ro'yxati
     const friends = [
       ...user.friendships1.map(f => ({
         id: f.user2.id,
@@ -64,6 +93,12 @@ export async function GET() {
         role: f.user1.role
       }))
     ]
+
+    // 🆕 Followers ro'yxati
+    const followers = user.followers.map(f => f.follower)
+    
+    // 🆕 Following ro'yxati
+    const following = user.following.map(f => f.following)
 
     return NextResponse.json({
       user: {
@@ -95,9 +130,11 @@ export async function GET() {
       friendRequests: user.receivedRequests,
       quizResults: user.quizResults,
       certificates: user.certificates,
-      achievements: user.achievements
+      achievements: user.achievements,
+      // 🆕 Yangi maydonlar
+      followers,
+      following
     })
-
   } catch (error) {
     console.error('Profile GET error:', error)
     return NextResponse.json(
@@ -111,13 +148,11 @@ export async function GET() {
 export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
-
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-
     const user = await prisma.user.update({
       where: { id: session.user.id },
       data: {
@@ -135,7 +170,6 @@ export async function PUT(request) {
     })
 
     return NextResponse.json({ success: true, user })
-
   } catch (error) {
     console.error('Profile PUT error:', error)
     return NextResponse.json(
