@@ -12,6 +12,7 @@ import DailyMissions from '@/components/DailyMissions'
 import StarsDisplay from '@/components/StarsDisplay'
 import PrivacySettings from '@/components/PrivacySettings'
 import ActivityHeatmap from '@/components/ActivityHeatmap'
+import DailyQuoteCard from '@/components/DailyQuoteCard'
 
 export default function ProfilPage() {
   const { data: session, status } = useSession()
@@ -153,6 +154,10 @@ export default function ProfilPage() {
     legendary: 'from-yellow-500 to-orange-500'
   }
 
+  // 🆕 Admin tekshiruv
+  const isAdmin = session?.user?.role && ['admin', 'superadmin', 'moderator'].includes(session.user.role)
+  const isSuperAdmin = session?.user?.role === 'superadmin'
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
       {/* MOBILE OGOHLANTIRISH */}
@@ -190,6 +195,19 @@ export default function ProfilPage() {
           <span className="text-purple-300 text-sm hidden md:inline">Shaxsiy kabinet</span>
         </div>
         <div className="flex items-center gap-3">
+          {/* 🆕 ADMIN PANEL TUGMASI - Faqat admin/moderator/superadmin uchun */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 hover:from-yellow-500/30 hover:to-orange-500/30 border border-yellow-500/50 rounded-xl text-sm transition-all flex items-center gap-2 group"
+            >
+              <span className="group-hover:rotate-12 transition-transform">⚙️</span>
+              <span className="hidden sm:inline text-yellow-400 font-semibold">Admin Panel</span>
+              {isSuperAdmin && (
+                <span className="text-xs">👑</span>
+              )}
+            </Link>
+          )}
           <Link href="/" className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-sm transition-all hidden md:inline-flex items-center gap-2">
             <span>🏠</span>
             <span>Bosh sahifa</span>
@@ -210,12 +228,30 @@ export default function ProfilPage() {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="bg-gradient-to-br from-purple-900/60 to-blue-900/60 border border-purple-700/50 rounded-3xl p-6 md:p-8 backdrop-blur-sm relative overflow-hidden">
+            
+            {/* 🆕 ADMIN BADGE - Chap tomonda */}
+            {isAdmin && (
+              <div className="absolute top-6 left-6 z-20">
+                <div className={`px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1 ${
+                  isSuperAdmin
+                    ? 'bg-yellow-600/20 border-yellow-500/50 text-yellow-400'
+                    : session.user.role === 'admin'
+                    ? 'bg-orange-600/20 border-orange-500/50 text-orange-400'
+                    : 'bg-purple-600/20 border-purple-500/50 text-purple-400'
+                }`}>
+                  {isSuperAdmin ? '👑' : session.user.role === 'admin' ? '⚡' : '🛡️'}
+                  <span className="uppercase">{session.user.role}</span>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={() => setIsEditing(!isEditing)}
               className="absolute top-6 right-6 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-yellow-500/20 text-sm z-20"
             >
               {isEditing ? '✖ Bekor qilish' : '✏️ Tahrirlash'}
             </button>
+            
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="relative">
                 <AvatarUpload
@@ -295,7 +331,7 @@ export default function ProfilPage() {
                 </span>
               </div>
               <div className="w-full h-3 bg-purple-950/70 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-full transition-all duration-500 relative"
                   style={{ width: `${xpProgress}%` }}
                 >
@@ -491,7 +527,7 @@ export default function ProfilPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="text-6xl animate-bounce" style={{animationDuration: '2s'}}>🔥</div>
+              <div className="text-6xl animate-bounce" style={{ animationDuration: '2s' }}>🔥</div>
               <div>
                 <div className="text-sm text-orange-300 mb-1">Hozirgi seriya</div>
                 <div className="text-4xl font-bold text-white">{currentStreak} <span className="text-lg text-orange-300">kun</span></div>
@@ -559,7 +595,10 @@ export default function ProfilPage() {
             {friendRequests.length > 0 && (
               <FriendRequests requests={friendRequests} onUpdate={fetchProfile} />
             )}
-
+            
+            {/* 🆕 BUGUNGI MOTIVATSION GAP */}
+            <DailyQuoteCard />
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link href="/oquv/video-darsliklar/quiz" className="group bg-gradient-to-br from-green-600/20 to-emerald-900/40 border border-green-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-1">
                 <div className="text-4xl mb-3">📝</div>
@@ -577,13 +616,13 @@ export default function ProfilPage() {
                 <p className="text-sm text-purple-300">120+ kompleks birikma</p>
               </Link>
             </div>
-
+            
             {/* Daily Missions */}
             <DailyMissions onStatsUpdate={fetchProfile} />
-
+            
             {/* Stars Leaderboard */}
             <StarsDisplay />
-
+            
             {quizResults.length > 0 && (
               <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -634,8 +673,8 @@ export default function ProfilPage() {
             {achievements.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {achievements.map(achievement => (
-                  <div 
-                    key={achievement.id} 
+                  <div
+                    key={achievement.id}
                     className="bg-purple-950/50 rounded-2xl p-5 text-center border border-purple-700/30 hover:border-yellow-500/50 transition-all transform hover:-translate-y-1 relative overflow-hidden group"
                   >
                     <div className={`absolute inset-0 bg-gradient-to-br ${rarityColors[achievement.rarity] || rarityColors.common} opacity-10 group-hover:opacity-20 transition-opacity`}></div>
@@ -655,7 +694,7 @@ export default function ProfilPage() {
                 <div className="text-6xl mb-4">🏅</div>
                 <h3 className="text-xl font-bold text-white mb-2">Hali yutuqlar yo'q</h3>
                 <p className="text-purple-300 mb-6">Quizlarni yechib, yangi yutuqlarni qo'lga kiriting!</p>
-                <Link 
+                <Link
                   href="/oquv/video-darsliklar/quiz"
                   className="inline-block px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all"
                 >
@@ -682,8 +721,8 @@ export default function ProfilPage() {
               {friends.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {friends.map(friend => (
-                    <Link 
-                      key={friend.id} 
+                    <Link
+                      key={friend.id}
                       href={`/profil/${friend.userId}`}
                       className="group bg-purple-950/50 rounded-2xl p-4 text-center border border-purple-700/30 hover:border-yellow-500/50 transition-all transform hover:-translate-y-1"
                     >
@@ -727,8 +766,8 @@ export default function ProfilPage() {
             {followers.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {followers.map(follower => (
-                  <Link 
-                    key={follower.id} 
+                  <Link
+                    key={follower.id}
                     href={`/profil/${follower.userId}`}
                     className="group bg-purple-950/50 rounded-2xl p-4 text-center border border-purple-700/30 hover:border-cyan-500/50 transition-all transform hover:-translate-y-1"
                   >
@@ -771,8 +810,8 @@ export default function ProfilPage() {
             {following.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {following.map(followed => (
-                  <Link 
-                    key={followed.id} 
+                  <Link
+                    key={followed.id}
                     href={`/profil/${followed.userId}`}
                     className="group bg-purple-950/50 rounded-2xl p-4 text-center border border-purple-700/30 hover:border-cyan-500/50 transition-all transform hover:-translate-y-1"
                   >
@@ -798,7 +837,7 @@ export default function ProfilPage() {
                 <div className="text-6xl mb-4">👁️</div>
                 <h3 className="text-xl font-bold text-white mb-2">Hali hech kimga obuna bo'lmagansiz</h3>
                 <p className="text-purple-300 mb-6">Boshqa kimyogarlarga obuna bo'ling!</p>
-                <Link 
+                <Link
                   href="/qidiruv"
                   className="inline-block px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-xl transition-all"
                 >
@@ -841,7 +880,7 @@ export default function ProfilPage() {
                       </div>
                     </div>
                     <div className="mt-3 w-full h-2 bg-purple-800/50 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className={`h-full rounded-full transition-all ${
                           quiz.percentage >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
                           quiz.percentage >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
@@ -858,7 +897,7 @@ export default function ProfilPage() {
                 <div className="text-6xl mb-4">📝</div>
                 <h3 className="text-xl font-bold text-white mb-2">Hali quizlar yechilmagan</h3>
                 <p className="text-purple-300 mb-6">Birinchi quizingizni yechib, natijalarni kuzating!</p>
-                <Link 
+                <Link
                   href="/oquv/video-darsliklar/quiz"
                   className="inline-block px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all"
                 >
@@ -886,7 +925,7 @@ export default function ProfilPage() {
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600/20 border border-green-600/30 rounded-full">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              <span className="text-green-400 text-xs font-mono font-bold">v2.4.0</span>
+              <span className="text-green-400 text-xs font-mono font-bold">v2.6.0</span>
             </div>
           </div>
         </div>

@@ -34,6 +34,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // 🆕 ADMIN UCHUN
+  isBanned     Boolean   @default(false)
+  bannedAt     DateTime?
+  bannedReason String?
+
   // 🆕 STARS TIZIMI
   stars         Int       @default(0)
   weeklyStars   Int       @default(0)
@@ -59,6 +64,11 @@ model User {
 
     // 🆕 ACTIVITY RELATION
   dailyActivities DailyActivity[]
+
+  // 🆕 Moderation relations
+  reportsMade     Report[]     @relation("Reporter")
+  reportsReceived Report[]     @relation("ReportTarget")
+  auditLogs       AuditLog[]
 }
 
 
@@ -219,4 +229,231 @@ model DailyActivity {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@unique([userId, date])  // Har bir foydalanuvchi uchun har kuni bitta yozuv
+}
+
+// 🆕 KOMPLEKS BIRIKMALAR BAZASI
+model Compound {
+  id                 String   @id @default(cuid())
+  formula            String   // Masalan: [Cu(NH3)4]SO4
+  name               String   // Masalan: Tetraamminmis(II) sulfat
+  centralAtom        String   // Masalan: Cu
+  ligands            String   // Masalan: NH3
+  coordinationNumber Int      // Masalan: 4
+  geometry           String   // Masalan: Kvadrat tekislik
+  oxidationState     Int      // Masalan: 2
+  color              String?  // Masalan: Ko'k
+  category           String   // Kation, Anion, Neytral
+  description        String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // 🆕 3D Molekula bilan bog'lanish
+  molecule3D Molecule3D?
+}
+
+// 🆕 QUIZ SAVOLLARI BAZASI (Admin tomonidan boshqariladi)
+model QuizQuestion {
+  id          String   @id @default(cuid())
+  category    String   // nomlanishi, klassifikatsiyasi, fazoviy, izomeriya, aralash
+  question    String   @db.Text
+  options     Json     // ["Variant A", "Variant B", "Variant C", "Variant D"]
+  correct     Int      // 0, 1, 2 yoki 3 (to'g'ri javob indeksi)
+  explanation String?  @db.Text
+  difficulty  String   @default("o'rta") // oson, o'rta, qiyin
+  tags        Json?    // ["tag1", "tag2"]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([difficulty])
+}
+
+// 🆕 TAHLIL USULLARI (20+ usul)
+model AnalysisMethod {
+  id          String   @id @default(cuid())
+  name        String   // "Gravimetrik tahlil"
+  nameUz      String   // O'zbekcha nomi
+  nameEn      String?  // Inglizcha nomi (ixtiyoriy)
+  category    String   // "klassik", "instrumental", "elektrokimyoviy", "spektral", "xromatografik"
+  description String   @db.Text
+  application String?  @db.Text  // Qaysi komplekslar uchun
+  advantages  String?  @db.Text
+  disadvantages String? @db.Text
+  accuracy    String?  // "Yuqori", "O'rta", "Past"
+  cost        String?  // "Arzon", "O'rta", "Qimmat"
+  time        String?  // "Tez", "O'rta", "Sekin"
+  icon        String   @default("🔬")
+  color       String   @default("blue")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category])
+  @@index([isActive])
+}
+
+model Molecule3D {
+  id                  String   @id @default(cuid())
+  name                String
+  formula             String
+  smiles              String?
+  
+  molData             String   @db.Text
+  pdbData             String?  @db.Text
+  
+  category            String
+  centralAtom         String
+  ligands             String
+  coordinationNumber  Int
+  geometry            String
+  
+  description         String?  @db.Text
+  color               String   @default("blue")
+  isFeatured          Boolean  @default(false)
+  isActive            Boolean  @default(true)
+  
+  // 🆕 TO'G'RILANGAN: @unique qo'shildi
+  compoundId          String?  @unique
+  compound            Compound? @relation(fields: [compoundId], references: [id])
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([category])
+  @@index([centralAtom])
+  @@index([isFeatured])
+}
+
+// 🆕 YUTUQLAR TA'RIFI (Admin tomonidan boshqariladi)
+model AchievementDefinition {
+  id          String   @id @default(cuid())
+  key         String   @unique  // "first_quiz", "streak_7", ...
+  name        String
+  description String   @db.Text
+  icon        String   @default("🏆")
+  rarity      String   @default("common") // common, rare, epic, legendary
+  category    String   @default("general") // quiz, streak, social, milestone, special
+  requirement String?  @db.Text // JSON shartlari
+  xpReward    Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category])
+  @@index([rarity])
+  @@index([isActive])
+}
+
+// 🆕 REPORT (Shikoyatlar)
+model Report {
+  id          String   @id @default(cuid())
+  reporterId  String
+  targetId    String   // Report qilingan foydalanuvchi ID
+  targetType  String   // "user", "quiz", "comment" (kelajakda)
+  reason      String   @db.Text
+  category    String   @default("spam") // spam, harassment, inappropriate, cheating, other
+  status      String   @default("pending") // pending, reviewed, resolved, dismissed
+  priority    String   @default("medium") // low, medium, high, urgent
+  
+  // Admin tomonidan
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  resolution  String?  @db.Text
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  reporter    User     @relation("Reporter", fields: [reporterId], references: [id])
+  target      User     @relation("ReportTarget", fields: [targetId], references: [id])
+  
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+// 🆕 AUDIT LOG (Admin harakatlarini kuzatish)
+model AuditLog {
+  id          String   @id @default(cuid())
+  adminId     String
+  action      String   // "ban_user", "unban_user", "delete_report", "change_role", ...
+  targetType  String   // "user", "report", "quiz", ...
+  targetId    String?
+  details     String?  @db.Text
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  
+  admin       User     @relation(fields: [adminId], references: [id])
+  
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// 🆕 SAYT SOZLAMALARI
+model SiteSettings {
+  id          String   @id @default("main") // Faqat bitta qator bo'ladi
+  siteName    String   @default("JDA KIMYO")
+  siteDescription String @default("Koordinatsion kimyo platformasi")
+  logo        String?
+  favicon     String?
+  
+  // Maintenance mode
+  maintenanceMode Boolean @default(false)
+  maintenanceMessage String? @db.Text
+  
+  // Umumiy sozlamalar
+  footerText  String?  @db.Text
+  contactEmail String?
+  contactPhone String?
+  telegramGroup String?
+  instagramLink String?
+  
+  // Gamification sozlamalari
+  defaultXpCommon    Int @default(10)
+  defaultXpRare      Int @default(50)
+  defaultXpEpic      Int @default(100)
+  defaultXpLegendary Int @default(500)
+  
+  // Quiz sozlamalari
+  questionsPerQuiz   Int @default(20)
+  quizTimeLimit      Int?  // soniyalarda (null = cheksiz)
+  
+  updatedAt DateTime @updatedAt
+  
+  @@map("site_settings")
+}
+
+// 🆕 MOTIVATSION GAPLAR (Kunlik iqtiboslar)
+model DailyQuote {
+  id          String   @id @default(cuid())
+  
+  // Asosiy ma'lumotlar
+  textUz      String   @db.Text  // O'zbekcha gap
+  textEn      String?  @db.Text  // Inglizcha tarjimasi (ixtiyoriy)
+  author      String   // Muallif (masalan: "D.I. Mendeleyev")
+  authorInfo  String?  @db.Text  // Muallif haqida qisqacha
+  
+  // Kategoriyalar
+  category    String   @default("motivation") // motivation, science, history, humor, advice
+  tags        String[] // ["kimyo", "mehnat", "muvaffaqiyat"]
+  
+  // Ko'rinish
+  icon        String   @default("💡")
+  color       String   @default("purple") // purple, blue, green, yellow, pink
+  
+  // Faollik
+  isActive    Boolean  @default(true)
+  displayDate DateTime? // Maxsus sana uchun (null = tasodifiy)
+  
+  // Statistika
+  timesShown  Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category])
+  @@index([isActive])
+  @@index([displayDate])
 }
