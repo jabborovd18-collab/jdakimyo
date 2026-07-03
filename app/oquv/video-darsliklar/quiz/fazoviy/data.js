@@ -926,3 +926,5 @@ export const QUIZ_BANK = [
     difficulty: "qiyin"
   }
 ]
+
+export default QUIZ_BANK
