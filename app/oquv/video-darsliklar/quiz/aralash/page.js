@@ -1,6 +1,8 @@
 "use client"
-
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 import { QUIZ_BANK as NOMLANISH_BANK } from "../nomlanishi/data"
 import { QUIZ_BANK as KLASSIFIKATSIYA_BANK } from "../klassifikatsiyasi/data"
 import { QUIZ_BANK as FAZOVIY_BANK } from "../fazoviy/data"
@@ -28,8 +30,13 @@ function pickFromBank(bank, count, excludeIds = []) {
 }
 
 export default function AralashQuizPage() {
-  const [showNameModal, setShowNameModal] = useState(true)
-  const [name, setName] = useState("")
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  
+  const isAuthenticated = status === "authenticated"
+  
+  const [showNameModal, setShowNameModal] = useState(false)
+  const [userName, setUserName] = useState("")
   const [quizStarted, setQuizStarted] = useState(false)
   const [questions, setQuestions] = useState([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -37,10 +44,19 @@ export default function AralashQuizPage() {
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [answers, setAnswers] = useState([])
   const [showResult, setShowResult] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [startTime, setStartTime] = useState(null)
   const [elapsedTime, setElapsedTime] = useState(0)
 
-  const quizName = "aralash"
+  // 🆕 Session yuklanganda avtomatik ismni o'rnatish
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      setUserName(session.user.fullName || session.user.username || "")
+      setShowNameModal(false)
+    } else if (status === "unauthenticated") {
+      setShowNameModal(true)
+    }
+  }, [status, session])
 
   // Vaqt hisoblash
   useEffect(() => {
@@ -51,21 +67,21 @@ export default function AralashQuizPage() {
     return () => clearInterval(timer)
   }, [quizStarted, showResult, startTime])
 
-  // Ism modal
+  // Ism modal (faqat mehmonlar uchun)
   const handleNameSubmit = () => {
-    if (name.trim()) setShowNameModal(false)
+    if (userName.trim().length >= 2) setShowNameModal(false)
   }
 
   // Quiz boshlash
   const handleStartQuiz = () => {
     const previousIds = getPreviousIds("aralash")
-
+    
     // Har bir mavzudan 5 tadan
     const nomlanish = pickFromBank(NOMLANISH_BANK, 5, previousIds).map(q => ({ ...q, category: "Nomlanishi" }))
     const klassifikatsiya = pickFromBank(KLASSIFIKATSIYA_BANK, 5, previousIds).map(q => ({ ...q, category: "Klassifikatsiyasi" }))
     const fazoviy = pickFromBank(FAZOVIY_BANK, 5, previousIds).map(q => ({ ...q, category: "Fazoviy" }))
     const izomeriya = pickFromBank(IZOMERIYA_BANK, 5, previousIds).map(q => ({ ...q, category: "Izomeriya" }))
-
+    
     // Barchasini birlashtirib aralashtirish
     const allQuestions = shuffle([
       ...nomlanish,
@@ -73,7 +89,7 @@ export default function AralashQuizPage() {
       ...fazoviy,
       ...izomeriya
     ])
-
+    
     setQuestions(allQuestions)
     setQuizStarted(true)
     setStartTime(Date.now())
@@ -89,7 +105,6 @@ export default function AralashQuizPage() {
     if (selectedAnswer === null) return
     const currentQuestion = questions[currentQuestionIndex]
     const isCorrect = selectedAnswer === currentQuestion.correct
-
     setAnswers([
       ...answers,
       {
@@ -105,16 +120,69 @@ export default function AralashQuizPage() {
     setIsConfirmed(true)
   }
 
+  // 🆕 Natijani database'ga saqlash
+  const submitQuizResult = async (score, percentage, timeSpent) => {
+    if (!isAuthenticated) return
+    
+    try {
+      const response = await fetch('/api/quiz/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quizName: 'Aralash test (barcha mavzular)',
+          score,
+          totalQuestions: questions.length,
+          percentage,
+          timeSpent
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Natijani saqlashda xatolik')
+      }
+
+      if (data.missionResult?.success) {
+        setTimeout(() => {
+          toast.success(`🎯 ${data.missionResult.message}`, { duration: 4000 })
+        }, 1000)
+      }
+
+      if (data.missionResult?.starEarned) {
+        setTimeout(() => {
+          toast.success('🌟 Tabriklaymiz! Siz bugungi yulduzni oldingiz!', { duration: 5000 })
+        }, 2500)
+      }
+
+      return data
+    } catch (error) {
+      console.error('[Quiz Submit Error]:', error)
+      toast.error('Natijani saqlashda xatolik: ' + error.message)
+      return null
+    }
+  }
+
   // Keyingi savol
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
       setSelectedAnswer(null)
       setIsConfirmed(false)
     } else {
-      setShowResult(true)
+      setIsSubmitting(true)
+      
       const questionIds = questions.map(q => q.id)
       saveQuizHistory("aralash", questionIds)
+      
+      const correctCount = answers.filter(a => a.isCorrect).length + 
+        (selectedAnswer === questions[currentQuestionIndex].correct ? 1 : 0)
+      const percentage = Math.round((correctCount / questions.length) * 100)
+      
+      await submitQuizResult(correctCount, percentage, elapsedTime)
+      
+      setShowResult(true)
+      setIsSubmitting(false)
     }
   }
 
@@ -122,12 +190,17 @@ export default function AralashQuizPage() {
   const handleExportPDF = () => {
     const preparedAnswers = prepareAnswersForPDF(answers)
     generateQuizPDF({
-      userName: name,
+      userName,
       answers: preparedAnswers,
       questions,
       elapsedTime,
       quizName: "Aralash test"
     })
+  }
+
+  // Profilga o'tish
+  const goToProfile = () => {
+    router.push('/profil?tab=quizzes')
   }
 
   // Qayta boshlash
@@ -152,30 +225,56 @@ export default function AralashQuizPage() {
     }
   }
 
+  // Loading session
+  if (status === "loading") {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-4xl mb-4 animate-pulse">
+            ⏳
+          </div>
+          <div className="text-purple-300 text-lg">Yuklanmoqda...</div>
+        </div>
+      </main>
+    )
+  }
+
   // ═══════════════════════════════════════════════════
-  // ISM MODAL
+  // ISM MODAL (FAQAT MEHMONLAR UCHUN)
   // ═══════════════════════════════════════════════════
-  if (showNameModal) {
+  if (showNameModal && !isAuthenticated) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 max-w-md w-full">
-          <h2 className="text-2xl font-bold text-purple-300 mb-4">Ismingizni kiriting</h2>
+          <h2 className="text-2xl font-bold text-purple-300 mb-4">Ism-familyangizni kiriting</h2>
+          <p className="text-purple-300 text-sm mb-6">
+            Bu ma'lumot natijalar PDF faylida ko'rsatiladi.
+          </p>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleNameSubmit()}
-            placeholder="Ismingiz"
+            placeholder="Masalan: Aliyev Ali"
             className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 mb-4"
             autoFocus
           />
           <button
             onClick={handleNameSubmit}
-            disabled={!name.trim()}
+            disabled={userName.trim().length < 2}
             className="w-full py-3 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 disabled:cursor-not-allowed text-white rounded-lg font-semibold"
           >
             Davom etish
           </button>
+          <div className="mt-4 text-center">
+            <p className="text-purple-400 text-xs mb-2">yoki</p>
+            <button
+              onClick={() => router.push('/login')}
+              className="text-yellow-400 hover:text-yellow-300 text-sm font-semibold"
+            >
+              🔐 Tizimga kiring (natijalaringiz saqlanadi)
+            </button>
+          </div>
         </div>
       </main>
     )
@@ -191,6 +290,20 @@ export default function AralashQuizPage() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-6">
             Aralash Quiz
           </h1>
+
+          {/* 🆕 Tizimga kirganlik xabari */}
+          {isAuthenticated && (
+            <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-3 mb-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-lg font-bold text-black flex-shrink-0">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <div className="text-left flex-1">
+                <div className="text-green-400 text-sm font-semibold">Salom, {userName}!</div>
+                <div className="text-green-300/70 text-xs">Natijalaringiz profilingizga saqlanadi + XP olasiz 🎯</div>
+              </div>
+            </div>
+          )}
+          
           <p className="text-purple-200 mb-8 text-lg">
             Barcha mavzulardan 20 ta tasodifiy savol. Har safar yangi savollar!
           </p>
@@ -219,9 +332,20 @@ export default function AralashQuizPage() {
             </div>
           </div>
 
+          {isAuthenticated && (
+            <div className="bg-yellow-900/20 border border-yellow-700/50 rounded-xl p-4 mb-6 text-left">
+              <div className="text-yellow-400 text-sm font-semibold mb-1">🎁 Tizimga kirganlar uchun:</div>
+              <ul className="text-yellow-300/80 text-xs space-y-1">
+                <li>⭐ +XP har bir quiz uchun</li>
+                <li>🎯 Kunlik missiya bajariladi</li>
+                <li>📊 Natija profilingizda saqlanadi</li>
+              </ul>
+            </div>
+          )}
+          
           <button
             onClick={handleStartQuiz}
-            className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white rounded-lg font-semibold text-lg"
+            className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black rounded-lg font-bold text-lg"
           >
             Quizni boshlash
           </button>
@@ -238,7 +362,7 @@ export default function AralashQuizPage() {
     const percentage = Math.round((correctCount / questions.length) * 100)
     const minutes = Math.floor(elapsedTime / 60)
     const seconds = elapsedTime % 60
-
+    
     // Mavzu bo'yicha statistika
     const categories = ["Nomlanishi", "Klassifikatsiyasi", "Fazoviy", "Izomeriya"]
     const categoryStats = categories.map(cat => {
@@ -246,13 +370,32 @@ export default function AralashQuizPage() {
       const catCorrect = catAnswers.filter(a => a.isCorrect).length
       return { name: cat, total: catAnswers.length, correct: catCorrect }
     })
-
+    
     return (
       <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 mb-6">
             <h1 className="text-3xl font-bold text-purple-300 mb-6 text-center">Aralash Quiz Natijasi</h1>
 
+            {/* 🆕 Tizimga kirganlik uchun bonus */}
+            {isAuthenticated && (
+              <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border border-yellow-500/50 rounded-xl p-4 mb-6 flex items-center gap-4">
+                <div className="text-4xl">🎉</div>
+                <div className="flex-1">
+                  <div className="text-yellow-400 font-bold">Tabriklaymiz, {userName}!</div>
+                  <div className="text-yellow-300/80 text-sm">
+                    Natija profilingizga saqlandi • Kunlik missiya bajarildi ✓
+                  </div>
+                </div>
+                <button
+                  onClick={goToProfile}
+                  className="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg transition-all"
+                >
+                  Profilga →
+                </button>
+              </div>
+            )}
+            
             <div className="grid grid-cols-3 gap-4 mb-8">
               <div className="bg-green-900/20 border border-green-700/50 rounded-xl p-4 text-center">
                 <div className="text-3xl font-bold text-green-400 mb-1">{correctCount}</div>
@@ -263,11 +406,14 @@ export default function AralashQuizPage() {
                 <div className="text-sm text-red-300">Xato</div>
               </div>
               <div className="bg-purple-900/20 border border-purple-700/50 rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-purple-400 mb-1">{percentage}%</div>
+                <div className={`text-3xl font-bold mb-1 ${
+                  percentage >= 80 ? 'text-green-400' :
+                  percentage >= 60 ? 'text-yellow-400' : 'text-red-400'
+                }`}>{percentage}%</div>
                 <div className="text-sm text-purple-300">Foiz</div>
               </div>
             </div>
-
+            
             {/* Mavzu bo'yicha statistika */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               {categoryStats.map((cat, i) => (
@@ -279,12 +425,12 @@ export default function AralashQuizPage() {
                 </div>
               ))}
             </div>
-
+            
             <div className="bg-purple-950/50 rounded-xl p-4 mb-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-purple-400 mb-1">Ism:</div>
-                  <div className="text-lg font-semibold text-purple-200">{name}</div>
+                  <div className="text-lg font-semibold text-purple-200">{userName}</div>
                 </div>
                 <div>
                   <div className="text-sm text-purple-400 mb-1">Vaqt:</div>
@@ -294,23 +440,31 @@ export default function AralashQuizPage() {
                 </div>
               </div>
             </div>
-
-            <div className="flex gap-4">
+            
+            <div className="flex gap-4 flex-wrap">
               <button
                 onClick={handleExportPDF}
-                className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold"
+                className="flex-1 min-w-[200px] py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold"
               >
                 📄 PDF yuklab olish
               </button>
+              {isAuthenticated && (
+                <button
+                  onClick={goToProfile}
+                  className="flex-1 min-w-[200px] py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black rounded-lg font-bold"
+                >
+                  👤 Profildagi natijalar
+                </button>
+              )}
               <button
                 onClick={handleRestart}
-                className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold"
+                className="flex-1 min-w-[200px] py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold"
               >
                 🔄 Qayta boshlash
               </button>
             </div>
           </div>
-
+          
           {/* Xato javoblar */}
           {answers.filter(a => !a.isCorrect).length > 0 && (
             <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6">
@@ -362,13 +516,13 @@ export default function AralashQuizPage() {
   // ═══════════════════════════════════════════════════
   const currentQuestion = questions[currentQuestionIndex]
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100
-
+  
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Progress bar */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-xl p-4 mb-6">
-          <div className="flex justify-between items-center mb-2">
+        {/* Header */}
+        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-3">
               <span className="text-sm text-purple-300">
                 Savol {currentQuestionIndex + 1} / {questions.length}
@@ -377,9 +531,22 @@ export default function AralashQuizPage() {
                 {currentQuestion.category}
               </span>
             </div>
-            <span className="text-sm text-purple-300">
-              {Math.round(progress)}%
-            </span>
+            <div className="flex items-center gap-3">
+              {/* 🆕 Foydalanuvchi ismi */}
+              {isAuthenticated && (
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-xs font-bold text-black">
+                    {userName.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-yellow-400 text-sm font-semibold hidden sm:inline">
+                    {userName.split(' ')[0]}
+                  </span>
+                </div>
+              )}
+              <span className="text-sm text-purple-300">
+                {Math.round(progress)}%
+              </span>
+            </div>
           </div>
           <div className="w-full bg-purple-950/50 rounded-full h-2">
             <div
@@ -392,13 +559,11 @@ export default function AralashQuizPage() {
         {/* Savol */}
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
           <h2 className="text-2xl font-bold text-white mb-6">{currentQuestion.question}</h2>
-
           <div className="space-y-3 mb-6">
             {currentQuestion.options.map((option, index) => {
               const isSelected = selectedAnswer === index
               const isCorrect = isConfirmed && index === currentQuestion.correct
               const isWrong = isConfirmed && isSelected && index !== currentQuestion.correct
-
               return (
                 <button
                   key={index}
@@ -426,7 +591,7 @@ export default function AralashQuizPage() {
               )
             })}
           </div>
-
+          
           {/* Tushuntirish */}
           {isConfirmed && (
             <div className={`p-4 rounded-xl mb-6 ${
@@ -438,7 +603,7 @@ export default function AralashQuizPage() {
               <div className="text-sm text-purple-200">{currentQuestion.explanation}</div>
             </div>
           )}
-
+          
           {/* Tugmalar */}
           <div className="flex gap-4">
             {!isConfirmed ? (
@@ -452,9 +617,17 @@ export default function AralashQuizPage() {
             ) : (
               <button
                 onClick={handleNextQuestion}
-                className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold"
+                disabled={isSubmitting}
+                className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 text-white rounded-lg font-semibold"
               >
-                {currentQuestionIndex < questions.length - 1 ? "Keyingi savol →" : "Natijalarni ko'rish"}
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="animate-spin">⏳</span>
+                    <span>Saqlanmoqda...</span>
+                  </span>
+                ) : (
+                  currentQuestionIndex < questions.length - 1 ? "Keyingi savol →" : "Natijalarni ko'rish"
+                )}
               </button>
             )}
           </div>

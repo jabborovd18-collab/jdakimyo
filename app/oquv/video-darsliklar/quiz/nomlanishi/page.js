@@ -1,11 +1,20 @@
 "use client"
 import { useState, useEffect, useMemo } from "react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 import QUIZ_BANK from "./data"
 import { getRandomQuestions, getPreviousIds, saveQuizHistory } from "./utils/storage"
 import { generateQuizPDF, prepareAnswersForPDF } from "./utils/pdf"
 
 export default function QuizNomlanishiPage() {
-  const [showNameModal, setShowNameModal] = useState(true)
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  
+  // 🆕 Tizimga kirganmi?
+  const isAuthenticated = status === "authenticated"
+  
+  const [showNameModal, setShowNameModal] = useState(false)
   const [userName, setUserName] = useState("")
   const [quizStarted, setQuizStarted] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -13,7 +22,8 @@ export default function QuizNomlanishiPage() {
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [answers, setAnswers] = useState([])
   const [showResult, setShowResult] = useState(false)
-  
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   // Vaqt hisoblash
   const [startTime, setStartTime] = useState(null)
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -23,6 +33,16 @@ export default function QuizNomlanishiPage() {
     const previousIds = getPreviousIds("nomlanishi")
     return getRandomQuestions(QUIZ_BANK, 20, previousIds)
   }, [])
+
+  // 🆕 Session yuklanganda avtomatik ismni o'rnatish
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      setUserName(session.user.fullName || session.user.username || "")
+      setShowNameModal(false) // Modal kerak emas
+    } else if (status === "unauthenticated") {
+      setShowNameModal(true) // Mehmonlar uchun modal
+    }
+  }, [status, session])
 
   // Timer
   useEffect(() => {
@@ -35,7 +55,7 @@ export default function QuizNomlanishiPage() {
     }
   }, [quizStarted, showResult, startTime])
 
-  // Ism-family kiritish
+  // Ism-family kiritish (faqat mehmonlar uchun)
   const handleNameSubmit = () => {
     if (userName.trim().length >= 2) {
       setShowNameModal(false)
@@ -61,7 +81,6 @@ export default function QuizNomlanishiPage() {
       setIsConfirmed(true)
       const currentQuestion = questions[currentQuestionIndex]
       const isCorrect = selectedAnswer === currentQuestion.correct
-      
       setAnswers([
         ...answers,
         {
@@ -76,24 +95,79 @@ export default function QuizNomlanishiPage() {
     }
   }
 
+  // 🆕 Natijani database'ga saqlash (faqat tizimga kirganlar uchun)
+  const submitQuizResult = async (score, percentage, timeSpent) => {
+    if (!isAuthenticated) return // Mehmonlar uchun emas
+    
+    try {
+      const response = await fetch('/api/quiz/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quizName: 'Koordinatsion birikmalarning nomlanishi',
+          score,
+          totalQuestions: questions.length,
+          percentage,
+          timeSpent
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Natijani saqlashda xatolik')
+      }
+
+      // 🆕 Missiya bajarildi xabari
+      if (data.missionResult?.success) {
+        setTimeout(() => {
+          toast.success(`🎯 ${data.missionResult.message}`, { duration: 4000 })
+        }, 1000)
+      }
+
+      if (data.missionResult?.starEarned) {
+        setTimeout(() => {
+          toast.success('🌟 Tabriklaymiz! Siz bugungi yulduzni oldingiz!', { duration: 5000 })
+        }, 2500)
+      }
+
+      return data
+    } catch (error) {
+      console.error('[Quiz Submit Error]:', error)
+      toast.error('Natijani saqlashda xatolik: ' + error.message)
+      return null
+    }
+  }
+
   // Keyingi savol
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
       setSelectedAnswer(null)
       setIsConfirmed(false)
     } else {
-      setShowResult(true)
-      // Tarixni saqlash
+      setIsSubmitting(true)
+      
+      // Tarixni saqlash (localStorage - barcha uchun)
       const questionIds = questions.map(q => q.id)
       saveQuizHistory("nomlanishi", questionIds)
+      
+      // Natijani hisoblash
+      const correctCount = answers.filter(a => a.isCorrect).length + 
+        (selectedAnswer === questions[currentQuestionIndex].correct ? 1 : 0)
+      const percentage = Math.round((correctCount / questions.length) * 100)
+      
+      // 🆕 Natijani database'ga saqlash (faqat authenticated)
+      await submitQuizResult(correctCount, percentage, elapsedTime)
+      
+      setShowResult(true)
+      setIsSubmitting(false)
     }
   }
 
-  // PDF generatsiya (Premium dizayn)
+  // PDF generatsiya
   const handleExportPDF = () => {
     const preparedAnswers = prepareAnswersForPDF(answers)
-    
     generateQuizPDF({
       userName,
       answers: preparedAnswers,
@@ -101,6 +175,11 @@ export default function QuizNomlanishiPage() {
       elapsedTime,
       quizName: "Nomlanish"
     })
+  }
+
+  // Profilga o'tish
+  const goToProfile = () => {
+    router.push('/profil?tab=quizzes')
   }
 
   // Vaqtni formatlash
@@ -114,8 +193,22 @@ export default function QuizNomlanishiPage() {
   const correctCount = answers.filter(a => a.isCorrect).length
   const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0
 
-  // Ism-family modal
-  if (showNameModal) {
+  // Loading session
+  if (status === "loading") {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-4xl mb-4 animate-pulse">
+            ⏳
+          </div>
+          <div className="text-purple-300 text-lg">Yuklanmoqda...</div>
+        </div>
+      </main>
+    )
+  }
+
+  // 🆕 Ism-family modal (FAQAT MEHMONLAR UCHUN)
+  if (showNameModal && !isAuthenticated) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 max-w-md w-full">
@@ -139,6 +232,15 @@ export default function QuizNomlanishiPage() {
           >
             Davom etish
           </button>
+          <div className="mt-4 text-center">
+            <p className="text-purple-400 text-xs mb-2">yoki</p>
+            <button
+              onClick={() => router.push('/login')}
+              className="text-yellow-400 hover:text-yellow-300 text-sm font-semibold"
+            >
+              🔐 Tizimga kiring (natijalaringiz saqlanadi)
+            </button>
+          </div>
         </div>
       </main>
     )
@@ -150,6 +252,20 @@ export default function QuizNomlanishiPage() {
       <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 max-w-2xl w-full text-center">
           <h2 className="text-3xl font-bold text-purple-300 mb-4">Nomlanish Quiz</h2>
+          
+          {/* 🆕 Tizimga kirganlik xabari */}
+          {isAuthenticated && (
+            <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-3 mb-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-lg font-bold text-black flex-shrink-0">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <div className="text-left flex-1">
+                <div className="text-green-400 text-sm font-semibold">Salom, {userName}!</div>
+                <div className="text-green-300/70 text-xs">Natijalaringiz profilingizga saqlanadi + XP olasiz 🎯</div>
+              </div>
+            </div>
+          )}
+
           <p className="text-purple-300 mb-6">
             150 ta savol bazasidan 20 ta tasodifiy savol tanlanadi. Har safar yangi savollar!
           </p>
@@ -160,6 +276,12 @@ export default function QuizNomlanishiPage() {
               <li>✓ Javobni tanlang va tasdiqlang</li>
               <li>✓ To'g'ri = yashil, xato = qizil + tushuntirish</li>
               <li>✓ Oxirida PDF natija (faqat xato savollar)</li>
+              {isAuthenticated && (
+                <>
+                  <li className="text-yellow-400">⭐ +XP har bir quiz uchun</li>
+                  <li className="text-yellow-400">🎯 Kunlik missiya bajariladi</li>
+                </>
+              )}
             </ul>
           </div>
           <button
@@ -178,13 +300,32 @@ export default function QuizNomlanishiPage() {
     const minutes = Math.floor(elapsedTime / 60)
     const seconds = elapsedTime % 60
     const timeString = `${minutes} daqiqa ${seconds} soniya`
-
+    
     return (
       <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 mb-6">
             <h2 className="text-3xl font-bold text-purple-300 mb-6 text-center">Quiz Natijasi</h2>
             
+            {/* 🆕 Tizimga kirganlik uchun bonus */}
+            {isAuthenticated && (
+              <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border border-yellow-500/50 rounded-xl p-4 mb-6 flex items-center gap-4">
+                <div className="text-4xl">🎉</div>
+                <div className="flex-1">
+                  <div className="text-yellow-400 font-bold">Tabriklaymiz, {userName}!</div>
+                  <div className="text-yellow-300/80 text-sm">
+                    Natija profilingizga saqlandi • Kunlik missiya bajarildi ✓
+                  </div>
+                </div>
+                <button
+                  onClick={goToProfile}
+                  className="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg transition-all"
+                >
+                  Profilga →
+                </button>
+              </div>
+            )}
+
             <div className="grid grid-cols-3 gap-4 mb-8">
               <div className="bg-purple-950/50 rounded-lg p-4 text-center">
                 <div className="text-3xl font-bold text-green-400">{correctCount}</div>
@@ -195,11 +336,14 @@ export default function QuizNomlanishiPage() {
                 <div className="text-sm text-purple-300">Xato</div>
               </div>
               <div className="bg-purple-950/50 rounded-lg p-4 text-center">
-                <div className="text-3xl font-bold text-purple-300">{percentage}%</div>
+                <div className={`text-3xl font-bold ${
+                  percentage >= 80 ? 'text-green-400' :
+                  percentage >= 60 ? 'text-yellow-400' : 'text-red-400'
+                }`}>{percentage}%</div>
                 <div className="text-sm text-purple-300">Foiz</div>
               </div>
             </div>
-
+            
             <div className="bg-purple-950/50 rounded-lg p-4 mb-6">
               <div className="flex justify-between items-center">
                 <div>
@@ -212,17 +356,25 @@ export default function QuizNomlanishiPage() {
                 </div>
               </div>
             </div>
-
-            <div className="flex gap-4">
+            
+            <div className="flex gap-4 flex-wrap">
               <button
                 onClick={handleExportPDF}
-                className="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="flex-1 min-w-[200px] bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors"
               >
-                📄 PDF yuklab olish (faqat xato savollar)
+                📄 PDF yuklab olish
               </button>
+              {isAuthenticated && (
+                <button
+                  onClick={goToProfile}
+                  className="flex-1 min-w-[200px] bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black py-3 rounded-lg font-bold transition-all"
+                >
+                  👤 Profildagi natijalar
+                </button>
+              )}
               <button
                 onClick={() => window.location.reload()}
-                className="flex-1 bg-purple-800 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="flex-1 min-w-[200px] bg-purple-800 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 🔄 Qayta boshlash
               </button>
@@ -232,7 +384,9 @@ export default function QuizNomlanishiPage() {
           {/* Xato javoblar */}
           {answers.filter(a => !a.isCorrect).length > 0 && (
             <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-red-400 mb-6">Xato javoblar ({answers.filter(a => !a.isCorrect).length} ta)</h3>
+              <h3 className="text-2xl font-bold text-red-400 mb-6">
+                Xato javoblar ({answers.filter(a => !a.isCorrect).length} ta)
+              </h3>
               <div className="space-y-6">
                 {answers.filter(a => !a.isCorrect).map((answer, index) => (
                   <div key={index} className="bg-red-900/20 border border-red-700/50 rounded-lg p-6">
@@ -267,7 +421,7 @@ export default function QuizNomlanishiPage() {
   // Quiz davom etmoqda
   const currentQuestion = questions[currentQuestionIndex]
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100
-
+  
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 p-4">
       <div className="max-w-4xl mx-auto">
@@ -277,8 +431,21 @@ export default function QuizNomlanishiPage() {
             <div className="text-sm text-purple-300">
               Savol {currentQuestionIndex + 1} / {questions.length}
             </div>
-            <div className="text-sm text-purple-300">
-              Vaqt: {formatTime(elapsedTime)}
+            <div className="flex items-center gap-3">
+              {/* 🆕 Foydalanuvchi ismi */}
+              {isAuthenticated && (
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-xs font-bold text-black">
+                    {userName.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-yellow-400 text-sm font-semibold hidden sm:inline">
+                    {userName.split(' ')[0]}
+                  </span>
+                </div>
+              )}
+              <div className="text-sm text-purple-300">
+                Vaqt: {formatTime(elapsedTime)}
+              </div>
             </div>
           </div>
           <div className="w-full bg-purple-950/50 rounded-full h-2">
@@ -292,14 +459,12 @@ export default function QuizNomlanishiPage() {
         {/* Savol */}
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 mb-6">
           <h2 className="text-2xl font-bold text-white mb-6">{currentQuestion.question}</h2>
-          
           <div className="space-y-3">
             {currentQuestion.options.map((option, index) => {
               const isSelected = selectedAnswer === index
               const isCorrect = index === currentQuestion.correct
               const showCorrect = isConfirmed && isCorrect
               const showWrong = isConfirmed && isSelected && !isCorrect
-
               return (
                 <button
                   key={index}
@@ -354,9 +519,17 @@ export default function QuizNomlanishiPage() {
           ) : (
             <button
               onClick={handleNext}
-              className="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 text-white py-3 rounded-lg font-semibold transition-colors"
             >
-              {currentQuestionIndex < questions.length - 1 ? "Keyingi savol" : "Natijalarni ko'rish"}
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="animate-spin">⏳</span>
+                  <span>Saqlanmoqda...</span>
+                </span>
+              ) : (
+                currentQuestionIndex < questions.length - 1 ? "Keyingi savol" : "Natijalarni ko'rish"
+              )}
             </button>
           )}
         </div>

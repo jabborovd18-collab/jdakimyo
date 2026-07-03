@@ -3,11 +3,11 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { completeMission } from '@/lib/missions' // 🆕 Import
 
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -41,7 +41,7 @@ export async function POST(request) {
       )
     }
 
-    // Allaқachon do'stmi?
+    // Allaqachon do'stmi?
     const existingFriendship = await prisma.friendship.findFirst({
       where: {
         OR: [
@@ -58,7 +58,7 @@ export async function POST(request) {
       )
     }
 
-    // Allaқachon taklif yuborilganmi?
+    // Allaqachon taklif yuborilganmi?
     const existingRequest = await prisma.friendRequest.findFirst({
       where: {
         OR: [
@@ -95,9 +95,17 @@ export async function POST(request) {
       }
     })
 
+    // 🆕 MISSIYANI AVTOMATIK BAJARISH
+    const missionResult = await completeMission(session.user.id, 'friend')
+    
+    if (missionResult.success) {
+      console.log(`[Friend] Mission completed for user ${session.user.id}:`, missionResult.message)
+    }
+
     return NextResponse.json({ 
       success: true, 
-      request: friendRequest 
+      request: friendRequest,
+      missionResult // 🆕 Missiya natijasini qaytarish
     })
 
   } catch (error) {

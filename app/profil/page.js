@@ -8,6 +8,10 @@ import toast from 'react-hot-toast'
 import FriendSearch from '@/components/FriendSearch'
 import FriendRequests from '@/components/FriendRequests'
 import AvatarUpload from '@/components/AvatarUpload'
+import DailyMissions from '@/components/DailyMissions'
+import StarsDisplay from '@/components/StarsDisplay'
+import PrivacySettings from '@/components/PrivacySettings'
+import ActivityHeatmap from '@/components/ActivityHeatmap'
 
 export default function ProfilPage() {
   const { data: session, status } = useSession()
@@ -204,7 +208,6 @@ export default function ProfilPage() {
       <section className="relative px-4 py-8 md:py-12 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-        
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="bg-gradient-to-br from-purple-900/60 to-blue-900/60 border border-purple-700/50 rounded-3xl p-6 md:p-8 backdrop-blur-sm relative overflow-hidden">
             <button
@@ -213,7 +216,6 @@ export default function ProfilPage() {
             >
               {isEditing ? '✖ Bekor qilish' : '✏️ Tahrirlash'}
             </button>
-
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="relative">
                 <AvatarUpload
@@ -231,7 +233,6 @@ export default function ProfilPage() {
                   {levelPoints}
                 </div>
               </div>
-
               <div className="flex-1">
                 <h1 className="text-3xl md:text-4xl font-extrabold mb-2">{user.fullName || user.username}</h1>
                 <div className="flex flex-wrap gap-2 mb-3">
@@ -245,7 +246,6 @@ export default function ProfilPage() {
                     {roleLabels[user.role] || user.role}
                   </span>
                 </div>
-                
                 {user.university && (
                   <div className="text-purple-200 text-sm mb-2 flex items-center gap-2 flex-wrap">
                     <span>🏛️</span>
@@ -253,13 +253,11 @@ export default function ProfilPage() {
                     {user.faculty && <span className="text-purple-400">• {user.faculty}</span>}
                   </div>
                 )}
-                
                 {user.bio && (
                   <p className="text-purple-200 mt-3 leading-relaxed max-w-2xl italic">
                     &ldquo;{user.bio}&rdquo;
                   </p>
                 )}
-
                 {(user.telegram || user.instagram || user.linkedin) && (
                   <div className="flex gap-2 mt-3 flex-wrap">
                     {user.telegram && (
@@ -284,7 +282,6 @@ export default function ProfilPage() {
                 )}
               </div>
             </div>
-
             <div className="mt-6 pt-6 border-t border-purple-700/30">
               <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -323,7 +320,6 @@ export default function ProfilPage() {
                 <p className="text-sm text-purple-300">Ma'lumotlaringizni yangilang</p>
               </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm text-purple-300 mb-1 block">Ism-familiya</label>
@@ -413,7 +409,6 @@ export default function ProfilPage() {
                 />
               </div>
             </div>
-
             <div className="flex gap-3 mt-6">
               <button
                 onClick={handleSave}
@@ -436,7 +431,7 @@ export default function ProfilPage() {
         </section>
       )}
 
-      {/* STATS GRID - 🆕 FOLLOWERS/FOLLOWING QO'SHILDI */}
+      {/* STATS GRID */}
       <section className="px-4 pb-6 max-w-6xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm hover:border-yellow-500/50 transition-all transform hover:-translate-y-1 relative overflow-hidden group">
@@ -519,16 +514,18 @@ export default function ProfilPage() {
         </div>
       </section>
 
-      {/* TAB NAVIGATION - 🆕 FOLLOWERS TAB QO'SHILDI */}
+      {/* TAB NAVIGATION */}
       <section className="px-4 pb-6 max-w-6xl mx-auto">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {[
             { id: 'overview', label: '📊 Umumiy ko\'rinish', count: null },
+            { id: 'activity', label: '📈 Faoliyat', count: null },
             { id: 'achievements', label: '🏅 Yutuqlar', count: achievements.length },
             { id: 'friends', label: '👥 Do\'stlar', count: friends.length },
             { id: 'followers', label: '👤 Obunachilar', count: followers.length },
             { id: 'following', label: '👁️ Obunalar', count: following.length },
             { id: 'quizzes', label: '📝 Quizlar', count: quizResults.length },
+            { id: 'privacy', label: '🔒 Maxfiylik', count: null },
           ].map(tab => (
             <button
               key={tab.id}
@@ -554,7 +551,9 @@ export default function ProfilPage() {
 
       {/* TAB CONTENT */}
       <section className="px-4 pb-12 max-w-6xl mx-auto">
+        {/* ═══════════════════════════════════════════ */}
         {/* OVERVIEW TAB */}
+        {/* ═══════════════════════════════════════════ */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {friendRequests.length > 0 && (
@@ -578,6 +577,12 @@ export default function ProfilPage() {
                 <p className="text-sm text-purple-300">120+ kompleks birikma</p>
               </Link>
             </div>
+
+            {/* Daily Missions */}
+            <DailyMissions onStatsUpdate={fetchProfile} />
+
+            {/* Stars Leaderboard */}
+            <StarsDisplay />
 
             {quizResults.length > 0 && (
               <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
@@ -610,7 +615,16 @@ export default function ProfilPage() {
           </div>
         )}
 
+        {/* ═══════════════════════════════════════════ */}
+        {/* ACTIVITY TAB (O'rganish grafigi) */}
+        {/* ═══════════════════════════════════════════ */}
+        {activeTab === 'activity' && (
+          <ActivityHeatmap userId={user.id} />
+        )}
+
+        {/* ═══════════════════════════════════════════ */}
         {/* ACHIEVEMENTS TAB */}
+        {/* ═══════════════════════════════════════════ */}
         {activeTab === 'achievements' && (
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -652,13 +666,14 @@ export default function ProfilPage() {
           </div>
         )}
 
+        {/* ═══════════════════════════════════════════ */}
         {/* FRIENDS TAB */}
+        {/* ═══════════════════════════════════════════ */}
         {activeTab === 'friends' && (
           <div className="space-y-6">
             <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
               <FriendSearch />
             </div>
-
             <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
               <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <span>👥</span>
@@ -700,7 +715,9 @@ export default function ProfilPage() {
           </div>
         )}
 
-        {/* 🆕 FOLLOWERS TAB */}
+        {/* ═══════════════════════════════════════════ */}
+        {/* FOLLOWERS TAB */}
+        {/* ═══════════════════════════════════════════ */}
         {activeTab === 'followers' && (
           <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-6">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -742,7 +759,9 @@ export default function ProfilPage() {
           </div>
         )}
 
-        {/* 🆕 FOLLOWING TAB */}
+        {/* ═══════════════════════════════════════════ */}
+        {/* FOLLOWING TAB */}
+        {/* ═══════════════════════════════════════════ */}
         {activeTab === 'following' && (
           <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-6">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -790,7 +809,9 @@ export default function ProfilPage() {
           </div>
         )}
 
+        {/* ═══════════════════════════════════════════ */}
         {/* QUIZZES TAB */}
+        {/* ═══════════════════════════════════════════ */}
         {activeTab === 'quizzes' && (
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -847,6 +868,13 @@ export default function ProfilPage() {
             )}
           </div>
         )}
+
+        {/* ═══════════════════════════════════════════ */}
+        {/* PRIVACY TAB */}
+        {/* ═══════════════════════════════════════════ */}
+        {activeTab === 'privacy' && (
+          <PrivacySettings />
+        )}
       </section>
 
       {/* FOOTER */}
@@ -858,7 +886,7 @@ export default function ProfilPage() {
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600/20 border border-green-600/30 rounded-full">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              <span className="text-green-400 text-xs font-mono font-bold">v2.2.0</span>
+              <span className="text-green-400 text-xs font-mono font-bold">v2.4.0</span>
             </div>
           </div>
         </div>

@@ -6,14 +6,12 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(request, { params }) {
   try {
-    // ⚠️ MUHIM: params ni await qilish kerak (Next.js 15+)
     const { userId } = await params
-    
     console.log('[Public Profile] Requested userId:', userId)
 
     if (!userId) {
       return NextResponse.json(
-        { error: 'User ID ko\'rsatilmagan' },
+        { error: "User ID ko'rsatilmagan" },
         { status: 400 }
       )
     }
@@ -39,6 +37,12 @@ export async function GET(request, { params }) {
         },
         friendships2: {
           include: { user1: true }
+        },
+        followers: {
+          include: { follower: true }
+        },
+        following: {
+          include: { following: true }
         }
       }
     })
@@ -51,29 +55,99 @@ export async function GET(request, { params }) {
       )
     }
 
+    // 🆕 MAXFIYLIK SOZLAMALARINI TEKSHIRISH
+    let privacySettings = {
+      profilePublic: true,
+      showFriends: true,
+      showQuizResults: true,
+      showAchievements: true,
+      showFollowers: true
+    }
+
+    try {
+      if (user.privacySettings) {
+        privacySettings = typeof user.privacySettings === 'string'
+          ? JSON.parse(user.privacySettings)
+          : user.privacySettings
+      }
+    } catch (e) {
+      console.error('Privacy parse error:', e)
+    }
+
+    // O'z profili yoki do'stmi?
+    const isOwnProfile = session && session.user.id === user.id
+    const isFriend = session ? await prisma.friendship.findFirst({
+      where: {
+        OR: [
+          { user1Id: session.user.id, user2Id: user.id },
+          { user1Id: user.id, user2Id: session.user.id }
+        ]
+      }
+    }) : null
+
+    // Profil maxfiymi va bu o'z profili emasmi?
+    if (!privacySettings.profilePublic && !isOwnProfile && !isFriend) {
+      return NextResponse.json({
+        user: {
+          id: user.id,
+          userId: user.userId,
+          username: user.username,
+          fullName: user.fullName,
+          role: user.role,
+          avatar: user.avatar,
+          university: user.university,
+        },
+        error: 'PROFILE_PRIVATE',
+        message: 'Bu profil maxfiy'
+      })
+    }
+
     // Do'stlar ro'yxati
-    const friends = [
-      ...user.friendships1.map(f => ({
-        id: f.user2.id,
-        userId: f.user2.userId,
-        username: f.user2.username,
-        fullName: f.user2.fullName,
-        avatar: f.user2.avatar,
-        university: f.user2.university
-      })),
-      ...user.friendships2.map(f => ({
-        id: f.user1.id,
-        userId: f.user1.userId,
-        username: f.user1.username,
-        fullName: f.user1.fullName,
-        avatar: f.user1.avatar,
-        university: f.user1.university
-      }))
-    ]
+    let friends = []
+    if (privacySettings.showFriends || isOwnProfile || isFriend) {
+      friends = [
+        ...user.friendships1.map(f => ({
+          id: f.user2.id,
+          userId: f.user2.userId,
+          username: f.user2.username,
+          fullName: f.user2.fullName,
+          avatar: f.user2.avatar,
+          university: f.user2.university
+        })),
+        ...user.friendships2.map(f => ({
+          id: f.user1.id,
+          userId: f.user1.userId,
+          username: f.user1.username,
+          fullName: f.user1.fullName,
+          avatar: f.user1.avatar,
+          university: f.user1.university
+        }))
+      ]
+    }
+
+    // Quiz natijalari
+    const quizResults = (privacySettings.showQuizResults || isOwnProfile || isFriend)
+      ? user.quizResults
+      : []
+
+    // Yutuqlar
+    const achievements = (privacySettings.showAchievements || isOwnProfile || isFriend)
+      ? user.achievements
+      : []
+
+    // Obunachilar
+    const followersCount = (privacySettings.showFollowers || isOwnProfile || isFriend)
+      ? user.followers.length
+      : null
+
+    const followingCount = (privacySettings.showFollowers || isOwnProfile || isFriend)
+      ? user.following.length
+      : null
 
     // Do'stlik holatini aniqlash
     let friendshipStatus = 'none'
     let requestId = null
+    let followStatus = 'none'
 
     if (session && session.user.id !== user.id) {
       // Do'stmi?
@@ -117,13 +191,19 @@ export async function GET(request, { params }) {
           }
         }
       }
-    }
 
-    console.log('[Public Profile] Success:', {
-      username: user.username,
-      friendshipStatus,
-      friendsCount: friends.length
-    })
+      // Follow holati
+      const myFollow = await prisma.follow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId: session.user.id,
+            followingId: user.id
+          }
+        }
+      })
+
+      followStatus = myFollow ? 'following' : 'not_following'
+    }
 
     return NextResponse.json({
       user: {
@@ -142,17 +222,22 @@ export async function GET(request, { params }) {
         createdAt: user.createdAt,
       },
       friends,
-      quizResults: user.quizResults,
+      friendsCount: friends.length,
+      quizResults,
       certificates: user.certificates,
-      achievements: user.achievements,
+      achievements,
       friendshipStatus,
-      requestId
+      requestId,
+      followersCount,
+      followingCount,
+      followStatus,
+      // 🆕 Maxfiylik holati
+      isPrivate: !privacySettings.profilePublic
     })
-
   } catch (error) {
     console.error('[Public Profile] Error:', error)
     return NextResponse.json(
-      { error: 'Profilni yuklashda xatolik: ' + error.message },
+      { error: "Profilni yuklashda xatolik: " + error.message },
       { status: 500 }
     )
   }
