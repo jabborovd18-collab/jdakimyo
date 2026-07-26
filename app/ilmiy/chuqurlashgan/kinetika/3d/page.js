@@ -243,8 +243,10 @@ export default function Kinetika3D() {
 
     models[selectedMech]?.(animStep)
 
+    let frameId
+
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       controls.update()
       renderer.render(scene, camera)
     }
@@ -259,7 +261,7 @@ export default function Kinetika3D() {
 
     return () => {
       window.removeEventListener("resize", hr)
-      container.removeChild(renderer.domElement)
+      cancelAnimationFrame(frameId); container.removeChild(renderer.domElement); renderer.dispose()
     }
   }, [selectedMech, animStep])
 

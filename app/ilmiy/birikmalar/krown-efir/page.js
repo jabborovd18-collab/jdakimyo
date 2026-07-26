@@ -851,14 +851,14 @@ export default function KCrown6() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/creutz-taube"
+              href="/ilmiy/birikmalar/creutz-taube"
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
               <span>←</span>
               <span className="hidden sm:inline">Creutz-Taube ioni</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/ferrosen"
+              href="/ilmiy/birikmalar/ferrosen"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white font-bold transition-all shadow-lg shadow-yellow-500/30 flex items-center gap-2"
             >
               <span className="hidden sm:inline">Ferrosen</span>

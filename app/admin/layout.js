@@ -33,6 +33,7 @@ export default async function AdminLayout({ children }) {
       title: 'Kontent',
       items: [
         { name: 'Birikmalar', href: '/admin/compounds', icon: '🧪' },
+        { name: 'Reaksiyalar', href: '/admin/reactions', icon: '⚗️' },
         { name: 'Quiz savollari', href: '/admin/quizzes', icon: '📝' },
         { name: 'Tahlil usullari', href: '/admin/analysis', icon: '🔬' },
         { name: '3D Molekulalar', href: '/admin/molecules', icon: '🔷' },
@@ -49,6 +50,7 @@ export default async function AdminLayout({ children }) {
     {
       title: 'Tizim',
       items: [
+        { name: 'Muhokama', href: '/admin/forum', icon: '💬' },
         { name: 'Moderatsiya', href: '/admin/moderation', icon: '🛡️' },
         { name: 'Loglar', href: '/admin/logs', icon: '📋' },
         { name: 'Sozlamalar', href: '/admin/settings', icon: '⚙️' },

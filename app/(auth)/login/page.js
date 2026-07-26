@@ -10,8 +10,9 @@ import toast from 'react-hot-toast'
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    email: '',
+    login: '',
     password: ''
   })
 
@@ -25,7 +26,7 @@ export default function LoginPage() {
 
     try {
       const result = await signIn('credentials', {
-        email: formData.email,
+        login: formData.login,
         password: formData.password,
         redirect: false
       })
@@ -60,29 +61,47 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm text-purple-300 mb-1 block">Email</label>
+              <label className="text-sm text-purple-300 mb-1 block">Username yoki email</label>
               <input
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="login"
+                value={formData.login}
                 onChange={handleChange}
-                placeholder="diyorbek@example.com"
+                placeholder="diyorbek_j"
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 required
                 className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
               />
+              <p className="text-xs text-purple-400 mt-1">
+                Username yoki ro'yxatdan o'tgan email manzilingizni kiriting
+              </p>
             </div>
 
             <div>
               <label className="text-sm text-purple-300 mb-1 block">Parol</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••"
-                required
-                className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••"
+                  autoComplete="current-password"
+                  required
+                  className="w-full px-4 py-3 pr-12 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Parolni yashirish' : "Parolni ko'rsatish"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-400 hover:text-yellow-400 transition-colors text-lg"
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </div>
 
             <button

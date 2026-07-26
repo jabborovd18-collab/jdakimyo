@@ -2,9 +2,12 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { ACADEMIC_ROLES, PRIVILEGED_ROLES, ALL_ROLES, roleInfo, roleLabel } from '@/lib/roles'
 
 export default function AdminUsersPage() {
+  const searchParams = useSearchParams()
   const [users, setUsers] = useState([])
   const [stats, setStats] = useState({
     total: 0,
@@ -19,7 +22,7 @@ export default function AdminUsersPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [roleFilter, setRoleFilter] = useState('all')
+  const [roleFilter, setRoleFilter] = useState(searchParams.get('role') || 'all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('desc')
@@ -29,7 +32,7 @@ export default function AdminUsersPage() {
   const [showBanModal, setShowBanModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
-  const [newRole, setNewRole] = useState('user')
+  const [newRole, setNewRole] = useState('bakalavr')
   const [banReason, setBanReason] = useState('')
   const [isActionLoading, setIsActionLoading] = useState(false)
 
@@ -208,25 +211,9 @@ export default function AdminUsersPage() {
     })
   }
 
-  const getRoleBadge = (role) => {
-    const badges = {
-      user: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
-      moderator: 'bg-purple-600/20 text-purple-400 border-purple-600/30',
-      admin: 'bg-orange-600/20 text-orange-400 border-orange-600/30',
-      superadmin: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30'
-    }
-    return badges[role] || badges.user
-  }
-
-  const getRoleLabel = (role) => {
-    const labels = {
-      user: '👤 Foydalanuvchi',
-      moderator: '🛡️ Moderator',
-      admin: '⚡ Admin',
-      superadmin: '👑 Super Admin'
-    }
-    return labels[role] || role
-  }
+  // Rol nomlari va ranglari lib/roles.js dan — barcha sahifalar bir xil ko'rsatishi uchun
+  const getRoleBadge = (role) => roleInfo(role).badge
+  const getRoleLabel = (role) => roleLabel(role)
 
   return (
     <div className="space-y-6">
@@ -310,10 +297,9 @@ export default function AdminUsersPage() {
             className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white focus:border-purple-500 outline-none"
           >
             <option value="all">Barcha rollar</option>
-            <option value="user">Foydalanuvchilar</option>
-            <option value="moderator">Moderatorlar</option>
-            <option value="admin">Adminlar</option>
-            <option value="superadmin">Super Adminlar</option>
+            {Object.entries(ALL_ROLES).map(([key, info]) => (
+              <option key={key} value={key}>{info.icon} {info.label}</option>
+            ))}
           </select>
 
           {/* Status filtri */}
@@ -562,10 +548,16 @@ export default function AdminUsersPage() {
                 onChange={(e) => setNewRole(e.target.value)}
                 className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white focus:border-purple-500 outline-none"
               >
-                <option value="user">👤 Foydalanuvchi</option>
-                <option value="moderator">🛡️ Moderator</option>
-                <option value="admin">⚡ Admin</option>
-                <option value="superadmin">👑 Super Admin</option>
+                <optgroup label="Akademik daraja (imtiyozsiz)">
+                  {Object.entries(ACADEMIC_ROLES).map(([key, info]) => (
+                    <option key={key} value={key}>{info.icon} {info.label}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Imtiyozli rollar (panelga kirish)">
+                  {Object.entries(PRIVILEGED_ROLES).map(([key, info]) => (
+                    <option key={key} value={key}>{info.icon} {info.label}</option>
+                  ))}
+                </optgroup>
               </select>
             </div>
             <div className="flex gap-3">

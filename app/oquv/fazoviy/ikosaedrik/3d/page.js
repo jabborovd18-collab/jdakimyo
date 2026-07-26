@@ -87,8 +87,10 @@ export default function Ikosaedrik3D() {
     starsGeo.setAttribute("position", new THREE.BufferAttribute(sp, 3))
     scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: .01, transparent: true, opacity: .4 })))
 
+    let frameId
+
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       glow.scale.setScalar(1 + Math.sin(Date.now() * .002) * .04)
       centerAtom.rotation.y += .003
       controls.update()
@@ -97,7 +99,7 @@ export default function Ikosaedrik3D() {
     animate()
     const hr = () => { camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight) }
     window.addEventListener("resize", hr)
-    return () => { window.removeEventListener("resize", hr); container.removeChild(renderer.domElement) }
+    return () => { window.removeEventListener("resize", hr); cancelAnimationFrame(frameId); container.removeChild(renderer.domElement); renderer.dispose() }
   }, [])
 
   return (

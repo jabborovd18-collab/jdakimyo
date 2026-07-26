@@ -181,8 +181,9 @@ export default function CuYanTeller3D() {
     )
 
     // Animatsiya
+    let frameId
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       glow.scale.setScalar(1 + Math.sin(Date.now() * 0.002) * 0.04)
       centerAtom.rotation.y += 0.003
       controls.update()
@@ -200,7 +201,7 @@ export default function CuYanTeller3D() {
 
     return () => {
       window.removeEventListener("resize", hr)
-      container.removeChild(renderer.domElement)
+      cancelAnimationFrame(frameId); container.removeChild(renderer.domElement); renderer.dispose()
     }
   }, [])
 

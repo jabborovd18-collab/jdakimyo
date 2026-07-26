@@ -2,6 +2,12 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { SELF_REGISTER_ROLES, DEFAULT_ROLE } from '@/lib/roles'
+
+// Username uchun ruxsat etilgan ko'rinish. "@" ataylab taqiqlangan:
+// login username YOKI email bo'yicha ishlagani uchun, "@" li username
+// boshqa foydalanuvchining email'iga teng bo'lib qolishi mumkin edi.
+const USERNAME_PATTERN = /^[a-z0-9._]{3,30}$/
 
 function generateUserId() {
   return Math.floor(100000000 + Math.random() * 900000000).toString()
@@ -10,7 +16,14 @@ function generateUserId() {
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { username, email, password, fullName, role, university } = body
+    const { password, role } = body
+
+    // Normalizatsiya: bo'sh joy va registr sababli keyinchalik
+    // login qilib bo'lmay qolmasligi uchun.
+    const username = (body.username || '').trim().toLowerCase()
+    const email = (body.email || '').trim().toLowerCase()
+    const fullName = (body.fullName || '').trim()
+    const university = (body.university || '').trim()
 
     // Validatsiya
     if (!username || !email || !password || !fullName) {
@@ -27,6 +40,13 @@ export async function POST(request) {
       )
     }
 
+    if (!USERNAME_PATTERN.test(username)) {
+      return NextResponse.json(
+        { error: 'Username faqat kichik harflar, raqamlar, "." va "_" dan iborat bo\'lishi kerak (3-30 ta belgi)' },
+        { status: 400 }
+      )
+    }
+
     if (password.length < 6) {
       return NextResponse.json(
         { error: 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak' },
@@ -34,9 +54,9 @@ export async function POST(request) {
       )
     }
 
-    // Username tekshirish
-    const existingUsername = await prisma.user.findUnique({
-      where: { username }
+    // Username tekshirish (registrni hisobga olmagan holda)
+    const existingUsername = await prisma.user.findFirst({
+      where: { username: { equals: username, mode: 'insensitive' } }
     })
 
     if (existingUsername) {
@@ -46,9 +66,9 @@ export async function POST(request) {
       )
     }
 
-    // Email tekshirish
-    const existingEmail = await prisma.user.findUnique({
-      where: { email }
+    // Email tekshirish (registrni hisobga olmagan holda)
+    const existingEmail = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } }
     })
 
     if (existingEmail) {
@@ -74,6 +94,11 @@ export async function POST(request) {
       }
     }
 
+    // Ro'yxatdan o'tishda faqat akademik rollarga ruxsat beriladi.
+    // Ustoz/moderator/admin kabi imtiyozli rollar faqat admin panel orqali beriladi
+    // (ro'yxat lib/roles.js da — barcha joy uchun yagona manba).
+    const safeRole = SELF_REGISTER_ROLES.includes(role) ? role : DEFAULT_ROLE
+
     // Foydalanuvchini yaratish
     const user = await prisma.user.create({
       data: {
@@ -82,7 +107,7 @@ export async function POST(request) {
         email,
         password: hashedPassword,
         fullName,
-        role: role || 'bakalavr',
+        role: safeRole,
         university: university || null,
       }
     })

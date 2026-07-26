@@ -3,7 +3,7 @@ import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcryptjs'
+import { verifyCredentials } from '@/lib/credentials'
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -11,29 +11,12 @@ export const authOptions = {
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
+        login: { label: "Username yoki email", type: "text" },
         password: { label: "Parol", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email va parol kiriting')
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        })
-
-        if (!user) {
-          throw new Error('Foydalanuvchi topilmadi')
-        }
-
-        const isValid = await bcrypt.compare(credentials.password, user.password)
-
-        if (!isValid) {
-          throw new Error('Parol noto\'g\'ri')
-        }
-
-        return user
+        // Mantiq lib/credentials.js da — mobil login endpoint'i ham shuni ishlatadi
+        return await verifyCredentials(credentials?.login, credentials?.password)
       }
     })
   ],

@@ -905,14 +905,14 @@ export default function WilkinsonKatalizatori() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/vaska-kompleksi"
+              href="/ilmiy/birikmalar/vaska-kompleksi"
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
               <span>←</span>
               <span className="hidden sm:inline">Vaska kompleksi</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/ferrosen"
+              href="/ilmiy/birikmalar/ferrosen"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-bold transition-all shadow-lg shadow-pink-500/30 flex items-center gap-2"
             >
               <span className="hidden sm:inline">Ferrosen</span>

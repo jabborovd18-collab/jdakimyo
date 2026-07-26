@@ -1171,7 +1171,7 @@ export default function FeCO5() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/trans-pt-nh3-2-cl2"
+              href="/ilmiy/birikmalar/trans-pt-nh3-2-cl2"
               onClick={(e) => { e.preventDefault(); window.history.back(); }}
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
@@ -1179,7 +1179,7 @@ export default function FeCO5() {
               <span className="hidden sm:inline">trans-[Pt(NH₃)₂Cl₂]</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/ni-co-4"
+              href="/ilmiy/birikmalar/ni-co-4"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2"
             >
               <span className="hidden sm:inline">[Ni(CO)₄]</span>

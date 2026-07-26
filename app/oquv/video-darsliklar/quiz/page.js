@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { getQuizStats } from "./nomlanishi/utils/storage"
+import { getQuizStats } from "./_shared/utils/storage"
 
 export default function QuizTest() {
   const [stats, setStats] = useState({

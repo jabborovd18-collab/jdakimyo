@@ -1649,7 +1649,7 @@ export default function FeAcac3Page() {
 
         <div className="flex justify-between pt-6">
           <Link href="/ilmiy/tahlil/nmr/birikmalar" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300">← Birikmalar katalogi</Link>
-          <Link href="/ilmiy/tahlil/nmr/birikmares/fe-phen-3" className="px-6 py-3 bg-red-600/80 rounded-xl hover:bg-red-500 text-white font-semibold">Ferroin [Fe(phen)₃]²⁺ →</Link>
+          <Link href="/ilmiy/tahlil/nmr/birikmalar/fe-phen-3" className="px-6 py-3 bg-red-600/80 rounded-xl hover:bg-red-500 text-white font-semibold">Ferroin [Fe(phen)₃]²⁺ →</Link>
         </div>
       </section>
 

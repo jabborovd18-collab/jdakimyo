@@ -1,4 +1,5 @@
 "use client"
+import { sana } from '@/lib/sana'
 import { useState, useEffect } from 'react'
 
 export default function ActivityHeatmap({ userId }) {
@@ -277,11 +278,7 @@ export default function ActivityHeatmap({ userId }) {
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
                       <div className="bg-purple-950 border border-purple-700 rounded-lg p-2 shadow-xl whitespace-nowrap">
                         <div className="text-xs font-bold text-white mb-1">
-                          {new Date(day.date).toLocaleDateString('uz-UZ', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+                          {sana(day.date)}
                         </div>
                         <div className="text-xs text-purple-300 space-y-0.5">
                           {day.quizCount > 0 && <div>📝 {day.quizCount} ta quiz</div>}
@@ -322,11 +319,7 @@ export default function ActivityHeatmap({ userId }) {
             <div className="flex-1">
               <div className="text-sm text-yellow-400 font-bold">Eng faol kun</div>
               <div className="text-xs text-yellow-200/80">
-                {new Date(mostActiveDay.date).toLocaleDateString('uz-UZ', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })} — {mostActiveDay.totalActivities} ta faoliyat
+                {sana(mostActiveDay.date)} — {mostActiveDay.totalActivities} ta faoliyat
               </div>
             </div>
           </div>

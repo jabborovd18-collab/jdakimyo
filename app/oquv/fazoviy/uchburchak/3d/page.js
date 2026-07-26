@@ -166,8 +166,10 @@ export default function Uchburchak3D() {
       new THREE.PointsMaterial({ color: 0xffffff, size: 0.01, transparent: true, opacity: 0.4 })
     ))
 
+    let frameId
+
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       const time = Date.now() * 0.001
       glow.scale.setScalar(1 + Math.sin(time * 2) * 0.04)
       centerAtom.rotation.y += 0.003
@@ -184,7 +186,7 @@ export default function Uchburchak3D() {
     window.addEventListener("resize", handleResize)
     return () => {
       window.removeEventListener("resize", handleResize)
-      container.removeChild(renderer.domElement)
+      cancelAnimationFrame(frameId); container.removeChild(renderer.domElement); renderer.dispose()
     }
   }, [])
 

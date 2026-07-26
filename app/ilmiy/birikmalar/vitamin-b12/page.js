@@ -960,7 +960,7 @@ export default function VitaminB12() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/xlorofill"
+              href="/ilmiy/birikmalar/xlorofill"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-bold transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2"
             >
               <span>🌿</span>

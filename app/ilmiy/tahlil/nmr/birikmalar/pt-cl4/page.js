@@ -1674,7 +1674,7 @@ export default function PtCl4Page() {
 
         <div className="flex justify-between pt-6">
           <Link href="/ilmiy/tahlil/nmr/birikmalar" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300">← Birikmalar katalogi</Link>
-          <Link href="/ilmiy/tahlil/nmr/birikmares/rh-pph3-3-cl" className="px-6 py-3 bg-amber-600/80 rounded-xl hover:bg-amber-500 text-white font-semibold">Wilkinson katalizatori →</Link>
+          <Link href="/ilmiy/tahlil/nmr/birikmalar/rh-pph3-3-cl" className="px-6 py-3 bg-amber-600/80 rounded-xl hover:bg-amber-500 text-white font-semibold">Wilkinson katalizatori →</Link>
         </div>
       </section>
 

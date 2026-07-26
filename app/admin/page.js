@@ -8,6 +8,7 @@ export default async function AdminDashboard() {
     totalUsers,
     todayActiveUsers,
     todayRegistrations,
+    totalTeachers,
     totalQuizzes,
     todayQuizResults,
     totalCompounds,
@@ -33,6 +34,8 @@ export default async function AdminDashboard() {
         createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
       }
     }),
+    // Ustoz panelidagi o'qituvchilar soni
+    prisma.user.count({ where: { role: 'teacher' } }),
     // Quizzes
     prisma.quizQuestion.count(),
     prisma.quizResult.count({
@@ -103,6 +106,16 @@ export default async function AdminDashboard() {
       borderColor: 'border-orange-700/50',
       subtitle: `${totalUsers > 0 ? Math.round((todayActiveUsers / totalUsers) * 100) : 0}% faollik`,
       href: '/admin/users'
+    },
+    {
+      title: 'Ustozlar',
+      value: totalTeachers,
+      icon: '👨‍🏫',
+      color: 'from-emerald-500 to-green-500',
+      bgColor: 'from-emerald-600/20 to-green-600/20',
+      borderColor: 'border-emerald-700/50',
+      subtitle: 'Ustoz panelidan foydalanuvchilar',
+      href: '/admin/users?role=teacher'
     },
     {
       title: 'Quiz savollari',

@@ -143,8 +143,10 @@ export default function KvadratAntiprizma3D() {
     starsGeo.setAttribute("position", new THREE.BufferAttribute(sp, 3))
     scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.01, transparent: true, opacity: 0.4 })))
 
+    let frameId
+
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       glow.scale.setScalar(1 + Math.sin(Date.now() * 0.002) * 0.04)
       centerAtom.rotation.y += 0.003
       controls.update()
@@ -160,7 +162,7 @@ export default function KvadratAntiprizma3D() {
     window.addEventListener("resize", hr)
     return () => {
       window.removeEventListener("resize", hr)
-      container.removeChild(renderer.domElement)
+      cancelAnimationFrame(frameId); container.removeChild(renderer.domElement); renderer.dispose()
     }
   }, [])
 

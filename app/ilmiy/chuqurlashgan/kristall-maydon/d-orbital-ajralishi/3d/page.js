@@ -136,8 +136,10 @@ export default function Ajralish3D() {
     starsGeo.setAttribute("position", new THREE.BufferAttribute(sp, 3))
     scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.015, transparent: true, opacity: 0.4 })))
 
+    let frameId
+
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       controls.update()
       renderer.render(scene, camera)
     }
@@ -149,7 +151,7 @@ export default function Ajralish3D() {
       renderer.setSize(container.clientWidth, container.clientHeight)
     }
     window.addEventListener("resize", hr)
-    return () => { window.removeEventListener("resize", hr); container.removeChild(renderer.domElement) }
+    return () => { window.removeEventListener("resize", hr); cancelAnimationFrame(frameId); container.removeChild(renderer.domElement); renderer.dispose() }
   }, [])
 
   return (

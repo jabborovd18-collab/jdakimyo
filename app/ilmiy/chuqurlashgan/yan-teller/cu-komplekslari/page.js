@@ -191,8 +191,9 @@ function Cu3DModel() {
     scene.add(particles)
 
     // ── Animatsiya ──
+    let frameId
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       controls.update()
       particles.rotation.y += 0.0003
       glow.scale.setScalar(1 + Math.sin(Date.now() * 0.003) * 0.04)
@@ -210,7 +211,9 @@ function Cu3DModel() {
 
     return () => {
       window.removeEventListener("resize", handleResize)
+      cancelAnimationFrame(frameId)
       mount.removeChild(renderer.domElement)
+      renderer.dispose()
     }
   }, [])
 

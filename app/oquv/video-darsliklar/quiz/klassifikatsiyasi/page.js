@@ -1,11 +1,11 @@
 "use client"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
-import QUIZ_BANK from "./data"
-import { getRandomQuestions, getPreviousIds, saveQuizHistory } from "./utils/storage"
-import { generateQuizPDF, prepareAnswersForPDF } from "./utils/pdf"
+import { saveQuizHistory } from "../_shared/utils/storage"
+import { generateQuizPDF, prepareAnswersForPDF } from "../_shared/utils/pdf"
+import { useQuizBank } from "../_shared/useQuizBank"
 
 export default function QuizKlassifikatsiyasiPage() {
   const { data: session, status } = useSession()
@@ -26,10 +26,8 @@ export default function QuizKlassifikatsiyasiPage() {
   const [startTime, setStartTime] = useState(null)
   const [elapsedTime, setElapsedTime] = useState(0)
 
-  const questions = useMemo(() => {
-    const previousIds = getPreviousIds("klassifikatsiyasi")
-    return getRandomQuestions(QUIZ_BANK, 20, previousIds)
-  }, [])
+  // 20 ta tasodifiy savol — bazadan yuklanadi (admin panel boshqaradi)
+  const { questions, isLoading: bankLoading, error: bankError } = useQuizBank("klassifikatsiyasi", 20)
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
@@ -174,7 +172,7 @@ export default function QuizKlassifikatsiyasiPage() {
   const correctCount = answers.filter(a => a.isCorrect).length
   const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0
 
-  if (status === "loading") {
+  if (status === "loading" || bankLoading) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
         <div className="text-center">
@@ -182,6 +180,25 @@ export default function QuizKlassifikatsiyasiPage() {
             ⏳
           </div>
           <div className="text-purple-300 text-lg">Yuklanmoqda...</div>
+        </div>
+      </main>
+    )
+  }
+
+  // Savollarni yuklab bo‘lmadi (tarmoq yoki bazada savol yo‘q)
+  if (bankError) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
+        <div className="bg-red-900/20 border border-red-700/50 rounded-2xl p-8 max-w-md w-full text-center">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-red-400 mb-2">Savollarni yuklab bo&apos;lmadi</h2>
+          <p className="text-purple-300 text-sm mb-6">{bankError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
+          >
+            🔄 Qayta urinish
+          </button>
         </div>
       </main>
     )

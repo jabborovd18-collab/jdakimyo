@@ -916,14 +916,14 @@ export default function CoNH36Cl3() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/k-crown-6"
+              href="/ilmiy/birikmalar/krown-efir"
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
               <span>←</span>
               <span className="hidden sm:inline">[K(18-crown-6)]⁺</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/co-nh3-5-cl-cl2"
+              href="/ilmiy/birikmalar/co-nh3-5-cl-cl2"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2"
             >
               <span className="hidden sm:inline">[Co(NH₃)₅Cl]Cl₂</span>

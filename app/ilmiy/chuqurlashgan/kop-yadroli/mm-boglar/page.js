@@ -118,15 +118,17 @@ function Re2Cl8_3D() {
 
     const grid = new THREE.GridHelper(5, 20, 0x222244, 0x111122); grid.position.y = -2.2; scene.add(grid)
 
+    let frameId
+
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       re1.rotation.y += 0.003; re2.rotation.y += 0.003
       controls.update()
       renderer.render(scene, camera)
     }
     animate()
 
-    return () => { container.removeChild(renderer.domElement) }
+    return () => { cancelAnimationFrame(frameId); container.removeChild(renderer.domElement); renderer.dispose() }
   }, [])
 
   return (

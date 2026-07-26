@@ -944,14 +944,14 @@ export default function CreutzTaube() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/prussian-blue"
+              href="/ilmiy/birikmalar/prussian-blue"
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
               <span>←</span>
               <span className="hidden sm:inline">Prussian Blue</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/wilkinson-katalizatori"
+              href="/ilmiy/birikmalar/wilkinson-katalizatori"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-400 hover:to-violet-400 text-white font-bold transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"
             >
               <span className="hidden sm:inline">Wilkinson katalizatori</span>

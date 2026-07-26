@@ -4,7 +4,45 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 
-// GET - Profil ma'lumotlarini olish
+const USER_FIELDS = {
+  id: true,
+  userId: true,
+  username: true,
+  email: true,
+  fullName: true,
+  role: true,
+  avatar: true,
+  bio: true,
+  university: true,
+  faculty: true,
+  specialty: true,
+  level: true,
+  telegram: true,
+  instagram: true,
+  linkedin: true,
+  location: true,
+  level_points: true,
+  experience: true,
+  totalPoints: true,
+  currentStreak: true,
+  longestStreak: true,
+  lastActive: true,
+  createdAt: true,
+  birthDate: true,
+  academicDegree: true,
+  studentId: true,
+  enrollmentYear: true,
+  github: true,
+  twitter: true,
+  website: true,
+  googleScholar: true,
+  orcid: true,
+  notificationSettings: true,
+  interfaceSettings: true,
+  learningPreferences: true,
+}
+
+// GET - Dashboard uchun yengil profil ma'lumotlari (to'liq ro'yxatlar emas, sonlar)
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
@@ -12,139 +50,62 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        quizResults: {
-          orderBy: { completedAt: 'desc' },
-          take: 10
-        },
-        certificates: {
-          orderBy: { issuedAt: 'desc' }
-        },
-        achievements: {
-          orderBy: { earnedAt: 'desc' }
-        },
-        friendships1: {
-          include: { user2: true }
-        },
-        friendships2: {
-          include: { user1: true }
-        },
-        receivedRequests: {
-          where: { status: 'pending' },
-          include: { sender: true }
-        },
-        // 🆕 FOLLOWERS (menga obuna bo'lganlar)
-        followers: {
-          include: { 
-            follower: {
-              select: {
-                id: true,
-                userId: true,
-                username: true,
-                fullName: true,
-                avatar: true,
-                university: true
-              }
-            }
-          }
-        },
-        // 🆕 FOLLOWING (men obuna bo'lganlar)
-        following: {
-          include: { 
-            following: {
-              select: {
-                id: true,
-                userId: true,
-                username: true,
-                fullName: true,
-                avatar: true,
-                university: true
-              }
+    const userId = session.user.id
+
+    const [user, friendsAsUser1, friendsAsUser2, pendingFriendRequests] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          ...USER_FIELDS,
+          quizResults: {
+            orderBy: { completedAt: 'desc' },
+            take: 5
+          },
+          _count: {
+            select: {
+              certificates: true,
+              achievements: true,
+              followers: true,
+              following: true,
+              quizResults: true
             }
           }
         }
-      }
-    })
+      }),
+      prisma.friendship.count({ where: { user1Id: userId } }),
+      prisma.friendship.count({ where: { user2Id: userId } }),
+      prisma.friendRequest.count({ where: { receiverId: userId, status: 'pending' } })
+    ])
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Do'stlar ro'yxati
-    const friends = [
-      ...user.friendships1.map(f => ({
-        id: f.user2.id,
-        userId: f.user2.userId,
-        username: f.user2.username,
-        fullName: f.user2.fullName,
-        avatar: f.user2.avatar,
-        university: f.user2.university,
-        role: f.user2.role
-      })),
-      ...user.friendships2.map(f => ({
-        id: f.user1.id,
-        userId: f.user1.userId,
-        username: f.user1.username,
-        fullName: f.user1.fullName,
-        avatar: f.user1.avatar,
-        university: f.user1.university,
-        role: f.user1.role
-      }))
-    ]
-
-    // 🆕 Followers ro'yxati
-    const followers = user.followers.map(f => f.follower)
-    
-    // 🆕 Following ro'yxati
-    const following = user.following.map(f => f.following)
+    const { quizResults, _count, ...userFields } = user
 
     return NextResponse.json({
-      user: {
-        id: user.id,
-        userId: user.userId,
-        username: user.username,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-        avatar: user.avatar,
-        bio: user.bio,
-        university: user.university,
-        faculty: user.faculty,
-        specialty: user.specialty,
-        level: user.level,
-        telegram: user.telegram,
-        instagram: user.instagram,
-        linkedin: user.linkedin,
-        location: user.location,
-        level_points: user.level_points,
-        experience: user.experience,
-        totalPoints: user.totalPoints,
-        currentStreak: user.currentStreak,
-        longestStreak: user.longestStreak,
-        lastActive: user.lastActive,
-        createdAt: user.createdAt,
-      },
-      friends,
-      friendRequests: user.receivedRequests,
-      quizResults: user.quizResults,
-      certificates: user.certificates,
-      achievements: user.achievements,
-      // 🆕 Yangi maydonlar
-      followers,
-      following
+      user: userFields,
+      quizResults,
+      counts: {
+        quizzes: _count.quizResults,
+        certificates: _count.certificates,
+        achievements: _count.achievements,
+        followers: _count.followers,
+        following: _count.following,
+        friends: friendsAsUser1 + friendsAsUser2,
+        pendingFriendRequests
+      }
     })
   } catch (error) {
     console.error('Profile GET error:', error)
     return NextResponse.json(
-      { error: 'Profilni yuklashda xatolik' },
+      { error: 'Profilni yuklashda xatolik: ' + error.message },
       { status: 500 }
     )
   }
 }
 
-// PUT - Profilni yangilash
+// PUT - Profilni yangilash (KENGAYTIRILGAN)
 export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
@@ -152,28 +113,112 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
-    const user = await prisma.user.update({
+    const data = await request.json()
+
+    // Ruxsat etilgan maydonlar (whitelist)
+    const allowedFields = {
+      // Shaxsiy
+      fullName: 'string',
+      bio: 'string',
+      location: 'string',
+      birthDate: 'string',
+
+      // Akademik
+      university: 'string',
+      faculty: 'string',
+      specialty: 'string',
+      level: 'number',
+      academicDegree: 'string',
+      studentId: 'string',
+      enrollmentYear: 'number',
+
+      // Ijtimoiy
+      telegram: 'string',
+      instagram: 'string',
+      linkedin: 'string',
+      github: 'string',
+      twitter: 'string',
+      website: 'string',
+      googleScholar: 'string',
+      orcid: 'string',
+
+      // Sozlamalar (JSON)
+      notificationSettings: 'object',
+      interfaceSettings: 'object',
+      learningPreferences: 'object',
+    }
+
+    // Ma'lumotlarni tozalash
+    const updateData = {}
+    for (const [key, type] of Object.entries(allowedFields)) {
+      if (data[key] !== undefined) {
+        if (type === 'string' && typeof data[key] === 'string') {
+          if (key === 'birthDate') {
+            const date = new Date(data[key])
+            if (!Number.isNaN(date.getTime())) updateData[key] = date
+          } else {
+            updateData[key] = data[key].trim() || null
+          }
+        } else if (type === 'number') {
+          const num = parseInt(data[key])
+          if (!isNaN(num)) updateData[key] = num
+        } else if (type === 'object' && typeof data[key] === 'object') {
+          updateData[key] = data[key]
+        }
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: "Yangilanishi kerak bo'lgan ma'lumot yo'q" },
+        { status: 400 }
+      )
+    }
+
+    const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
-      data: {
-        fullName: body.fullName,
-        bio: body.bio,
-        university: body.university,
-        faculty: body.faculty,
-        specialty: body.specialty,
-        level: body.level ? parseInt(body.level) : null,
-        telegram: body.telegram,
-        instagram: body.instagram,
-        linkedin: body.linkedin,
-        location: body.location,
+      data: updateData,
+      select: {
+        id: true,
+        fullName: true,
+        username: true,
+        email: true,
+        bio: true,
+        location: true,
+        university: true,
+        faculty: true,
+        specialty: true,
+        level: true,
+        avatar: true,
+        role: true,
+        telegram: true,
+        instagram: true,
+        linkedin: true,
+        github: true,
+        twitter: true,
+        website: true,
+        googleScholar: true,
+        orcid: true,
+        birthDate: true,
+        academicDegree: true,
+        studentId: true,
+        enrollmentYear: true,
+        notificationSettings: true,
+        interfaceSettings: true,
+        learningPreferences: true,
+        updatedAt: true
       }
     })
 
-    return NextResponse.json({ success: true, user })
+    return NextResponse.json({
+      success: true,
+      user: updatedUser,
+      message: "✓ Ma'lumotlar muvaffaqiyatli yangilandi"
+    })
   } catch (error) {
     console.error('Profile PUT error:', error)
     return NextResponse.json(
-      { error: 'Profilni yangilashda xatolik' },
+      { error: 'Profilni yangilashda xatolik: ' + error.message },
       { status: 500 }
     )
   }

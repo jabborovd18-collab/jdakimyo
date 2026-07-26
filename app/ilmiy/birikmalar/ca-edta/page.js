@@ -101,7 +101,7 @@ export default function CaEDTA() {
             
             <div className="flex gap-2">
               <Link 
-                href="/ilmiy/birikmares"
+                href="/ilmiy/birikmalar"
                 onClick={(e) => { e.preventDefault(); window.history.back(); }}
                 className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-semibold transition-all flex items-center gap-2"
               >
@@ -1042,7 +1042,7 @@ export default function CaEDTA() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/co-en2-cl2-cl"
+              href="/ilmiy/birikmalar/co-en2-cl2-cl"
               onClick={(e) => { e.preventDefault(); window.history.back(); }}
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
@@ -1050,7 +1050,7 @@ export default function CaEDTA() {
               <span className="hidden sm:inline">[Co(en)₂Cl₂]Cl</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/creutz-taube"
+              href="/ilmiy/birikmalar/creutz-taube"
               onClick={(e) => { e.preventDefault(); alert('Keyingi: Creutz-Taube ioni — mixed-valence klassikasi'); }}
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-white font-bold transition-all shadow-lg shadow-teal-500/30 flex items-center gap-2"
             >

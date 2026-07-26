@@ -1,231 +1,430 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 
-// ============================================================================
-// INTERAKTIV KONFIGURATSIYA SLAYDERI
-// ============================================================================
-function KonfiguratsiyaSlayder() {
-  const [dn, setDn] = useState(4)
-  const [spin, setSpin] = useState("HS")
-  
-  const configs = {
-    1: { hs: { t2g: "↑", eg: "—", unpaired: 1, example: "Ti³⁺ [Ti(H₂O)₆]³⁺", note: "Faqat bitta konfiguratsiya. t₂g¹. Binafsha rang.", color: "text-purple-400" } },
-    2: { hs: { t2g: "↑ ↑", eg: "—", unpaired: 2, example: "V³⁺ [V(H₂O)₆]³⁺", note: "Xund qoidasi: parallel spinli. t₂g².", color: "text-green-400" } },
-    3: { hs: { t2g: "↑ ↑ ↑", eg: "—", unpaired: 3, example: "Cr³⁺ [Cr(H₂O)₆]³⁺", note: "t₂g yarim to'lgan — barqaror. Yashil rang.", color: "text-blue-400" } },
-    4: { 
-      hs: { t2g: "↑ ↑ ↑", eg: "↑", unpaired: 4, example: "Cr²⁺ [Cr(H₂O)₆]²⁺", note: "Δ₀ kichik — 4-e⁻ eg ga chiqadi. Kuchsiz maydon.", color: "text-yellow-400" },
-      ls: { t2g: "↑↓ ↑ ↑", eg: "—", unpaired: 2, example: "Cr²⁺ [Cr(CN)₆]⁴⁻", note: "Δ₀ katta — elektronlar juftlashadi. Kuchli maydon.", color: "text-green-400" }
-    },
-    5: { 
-      hs: { t2g: "↑ ↑ ↑", eg: "↑ ↑", unpaired: 5, example: "Fe³⁺ [Fe(H₂O)₆]³⁺, Mn²⁺ [Mn(H₂O)₆]²⁺", note: "Maksimal toq elektron (5). Eng yuqori spinli. Rangsiz yoki och.", color: "text-yellow-400" },
-      ls: { t2g: "↑↓ ↑↓ ↑", eg: "—", unpaired: 1, example: "Fe³⁺ [Fe(CN)₆]³⁻", note: "Kuchli maydon. Faqat 1 ta toq e⁻. Qizil rang (LMCT).", color: "text-red-400" }
-    },
-    6: { 
-      hs: { t2g: "↑↓ ↑ ↑", eg: "↑ ↑", unpaired: 4, example: "Fe²⁺ [Fe(H₂O)₆]²⁺", note: "Paramagnit (μ ≈ 4.9 μB). Och yashil rang. Kuchsiz maydon.", color: "text-yellow-400" },
-      ls: { t2g: "↑↓ ↑↓ ↑↓", eg: "—", unpaired: 0, example: "Fe²⁺ [Fe(CN)₆]⁴⁻", note: "DIAMAGNIT! t₂g⁶. Ferrosianid — sariq rang. d⁶ LS — eng barqaror.", color: "text-green-400" }
-    },
-    7: { 
-      hs: { t2g: "↑↓ ↑↓ ↑", eg: "↑ ↑", unpaired: 3, example: "Co²⁺ [Co(H₂O)₆]²⁺", note: "Pushti rang. Kuchsiz maydon. t₂g⁵ eg².", color: "text-yellow-400" },
-      ls: { t2g: "↑↓ ↑↓ ↑↓", eg: "↑", unpaired: 1, example: "Co²⁺ [Co(CN)₆]⁴⁻", note: "Kuchli maydon. t₂g⁶ eg¹. Jahn-Teller faol.", color: "text-red-400" }
-    },
-    8: { hs: { t2g: "↑↓ ↑↓ ↑↓", eg: "↑ ↑", unpaired: 2, example: "Ni²⁺ [Ni(H₂O)₆]²⁺", note: "Faqat bitta konfiguratsiya. Yashil rang.", color: "text-blue-400" } },
-    9: { hs: { t2g: "↑↓ ↑↓ ↑↓", eg: "↑↓ ↑", unpaired: 1, example: "Cu²⁺ [Cu(H₂O)₆]²⁺", note: "Jahn-Teller effekti! Cho'zilgan oktaedr. Moviy rang.", color: "text-cyan-400" } },
-    10: { hs: { t2g: "↑↓ ↑↓ ↑↓", eg: "↑↓ ↑↓", unpaired: 0, example: "Zn²⁺ [Zn(H₂O)₆]²⁺", note: "To'liq to'lgan — diamagnit. Rangsiz. d¹⁰.", color: "text-gray-400" } },
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1. d¹–d¹⁰ KONFIGURATSIYA — TO'LIQ MA'LUMOT BAZASI
+// ═══════════════════════════════════════════════════════════════════════════════
+const D_CONFIGS = {
+  1: {
+    ions: "Ti³⁺, V⁴⁺", config: "t₂g¹", hsCfse: -0.40, lsCfse: -0.40, hsSpin: 1, lsSpin: 1,
+    mag: "1.73 BM", color: "text-purple-400", ohConfig: "t₂g¹ e_g⁰",
+    hsConfig: "t₂g¹ e_g⁰", lsConfig: "—",
+    note: "Bitta konfiguratsiya. [Ti(H₂O)₆]³⁺ — binafsha rang (d-d o'tish: 20300 cm⁻¹).",
+    example: "Ti³⁺ → [Ti(H₂O)₆]³⁺ (binafsha)"
+  },
+  2: {
+    ions: "V³⁺, Mo⁴⁺", config: "t₂g²", hsCfse: -0.80, lsCfse: -0.80, hsSpin: 2, lsSpin: 2,
+    mag: "2.83 BM", color: "text-green-400", ohConfig: "t₂g² e_g⁰",
+    hsConfig: "t₂g² e_g⁰", lsConfig: "—",
+    note: "Parallel spinlar (Xund). [V(H₂O)₆]³⁺ — yashil rang.",
+    example: "V³⁺ → [V(H₂O)₆]³⁺ (yashil)"
+  },
+  3: {
+    ions: "Cr³⁺, V²⁺, Mo³⁺", config: "t₂g³", hsCfse: -1.20, lsCfse: -1.20, hsSpin: 3, lsSpin: 3,
+    mag: "3.87 BM", color: "text-blue-400", ohConfig: "t₂g³ e_g⁰",
+    hsConfig: "t₂g³ e_g⁰", lsConfig: "—",
+    note: "t₂g yarim to'lgan — barqaror. [Cr(H₂O)₆]³⁺ — moviy-binafsha.",
+    example: "Cr³⁺ → [Cr(H₂O)₆]³⁺ (moviy)"
+  },
+  4: {
+    ions: "Cr²⁺, Mn³⁺", config: "t₂g³eg¹ / t₂g⁴",
+    hsCfse: -0.60, lsCfse: -1.60, hsSpin: 4, lsSpin: 2,
+    mag: "4.90 / 2.83 BM", color: "text-yellow-400", ohConfig: "t₂g³ e_g¹ / t₂g⁴ e_g⁰",
+    hsConfig: "t₂g³ e_g¹", lsConfig: "t₂g⁴ e_g⁰",
+    note: "HS: Δ₀ < P → 4-e⁻ e_g ga chiqadi. LS: Δ₀ > P → t₂g da juftlashadi.",
+    example: "HS: Cr²⁺(H₂O), LS: Cr²⁺(CN⁻) — kuchli maydon"
+  },
+  5: {
+    ions: "Fe³⁺, Mn²⁺, Ru³⁺", config: "t₂g³eg² / t₂g⁵",
+    hsCfse: 0.00, lsCfse: -2.00, hsSpin: 5, lsSpin: 1,
+    mag: "5.92 / 1.73 BM", color: "text-red-400", ohConfig: "t₂g³ e_g² / t₂g⁵ e_g⁰",
+    hsConfig: "t₂g³ e_g²", lsConfig: "t₂g⁵ e_g⁰",
+    note: "HS: 5 ta parallel spin — maksimal! LS: 1 ta toq e⁻ — [Fe(CN)₆]³⁻ qizil.",
+    example: "HS: Fe³⁺(H₂O), Mn²⁺(H₂O). LS: Fe³⁺(CN⁻)"
+  },
+  6: {
+    ions: "Fe²⁺, Co³⁺, Ru²⁺", config: "t₂g⁴eg² / t₂g⁶",
+    hsCfse: -0.40, lsCfse: -2.40, hsSpin: 4, lsSpin: 0,
+    mag: "4.90 / 0 BM", color: "text-emerald-400", ohConfig: "t₂g⁴ e_g² / t₂g⁶ e_g⁰",
+    hsConfig: "t₂g⁴ e_g²", lsConfig: "t₂g⁶ e_g⁰",
+    note: "LS: DIAMAGNIT! t₂g⁶ — eng barqaror holat. [Fe(CN)₆]⁴⁻ sariq.",
+    example: "HS: Fe²⁺(H₂O) och yashil. LS: Fe²⁺(CN⁻) sariq (ferrosianid)"
+  },
+  7: {
+    ions: "Co²⁺, Ni³⁺, Rh²⁺", config: "t₂g⁵eg² / t₂g⁶eg¹",
+    hsCfse: -0.80, lsCfse: -1.80, hsSpin: 3, lsSpin: 1,
+    mag: "3.87 / 1.73 BM", color: "text-cyan-400", ohConfig: "t₂g⁵ e_g² / t₂g⁶ e_g¹",
+    hsConfig: "t₂g⁵ e_g²", lsConfig: "t₂g⁶ e_g¹",
+    note: "LS: Jahn-Teller faol (e_g¹ → degenerat). [Co(H₂O)₆]²⁺ pushti.",
+    example: "HS: Co²⁺(H₂O) pushti. LS: Co²⁺(CN⁻) — kuchli maydon"
+  },
+  8: {
+    ions: "Ni²⁺, Pd²⁺, Pt²⁺", config: "t₂g⁶eg²", hsCfse: -1.20, lsCfse: -1.20, hsSpin: 2, lsSpin: 2,
+    mag: "2.83 BM", color: "text-green-400", ohConfig: "t₂g⁶ e_g²",
+    hsConfig: "t₂g⁶ e_g²", lsConfig: "—",
+    note: "Bitta konfiguratsiya. d⁸ — oktaedrik/Kvadrat. Platina guruhi.",
+    example: "Ni²⁺ → [Ni(H₂O)₆]²⁺ (yashil). Pt²⁺ → [PtCl₄]²⁻ (kvadrat)"
+  },
+  9: {
+    ions: "Cu²⁺, Ag²⁺", config: "t₂g⁶eg³", hsCfse: -0.60, lsCfse: -0.60, hsSpin: 1, lsSpin: 1,
+    mag: "1.73 BM", color: "text-sky-400", ohConfig: "t₂g⁶ e_g³",
+    hsConfig: "t₂g⁶ e_g³", lsConfig: "—",
+    note: "Jahn-Teller effekti! e_g³ → oktaedr cho'ziladi. [Cu(H₂O)₆]²⁺ moviy.",
+    example: "Cu²⁺ → [Cu(H₂O)₆]²⁺ (moviy) — JT faol"
+  },
+  10: {
+    ions: "Zn²⁺, Cu⁺, Ag⁺, Au⁺", config: "t₂g⁶eg⁴", hsCfse: 0.00, lsCfse: 0.00, hsSpin: 0, lsSpin: 0,
+    mag: "0 BM", color: "text-gray-400", ohConfig: "t₂g⁶ e_g⁴",
+    hsConfig: "t₂g⁶ e_g⁴", lsConfig: "—",
+    note: "To'liq to'lgan — diamagnit. Rangsiz komplekslar. Zn²⁺ — d¹⁰.",
+    example: "Zn²⁺ → [Zn(H₂O)₆]²⁺ (rangsiz). Cu⁺ → [CuCl₂]⁻"
   }
-
-  const config = configs[dn]
-  const current = config[spin === "LS" && config.ls ? "ls" : "hs"]
-  const hasLS = config.ls !== undefined
-  const showLS = spin === "LS" && hasLS
-
-  return (
-    <div className="space-y-4">
-      <h3 className="text-white font-semibold">🎚️ d-elektron konfiguratsiyalar — interaktiv slayder</h3>
-      
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-        <div className="flex items-center gap-4 mb-4">
-          <span className="text-xs text-purple-400">d¹</span>
-          <input 
-            type="range" 
-            min="1" max="10" 
-            value={dn} 
-            onChange={(e) => { setDn(+e.target.value); setSpin("HS") }}
-            className="flex-1 h-2 bg-gradient-to-r from-purple-500 via-blue-500 to-gray-500 rounded-lg appearance-none cursor-pointer"
-          />
-          <span className="text-xs text-purple-400">d¹⁰</span>
-        </div>
-
-        {hasLS && (
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={() => setSpin("HS")}
-              className={`px-4 py-2 rounded-lg text-xs font-bold ${!showLS ? "bg-yellow-600/80 text-white" : "bg-purple-800/40 text-purple-300"}`}
-            >
-              Yuqori spin (HS)
-            </button>
-            <button
-              onClick={() => setSpin("LS")}
-              className={`px-4 py-2 rounded-lg text-xs font-bold ${showLS ? "bg-green-600/80 text-white" : "bg-purple-800/40 text-purple-300"}`}
-            >
-              Quyi spin (LS)
-            </button>
-          </div>
-        )}
-
-        <div className={`rounded-xl p-5 border ${showLS ? "bg-green-600/10 border-green-500/30" : "bg-yellow-600/10 border-yellow-500/30"}`}>
-          <div className="flex items-center justify-between mb-4">
-            <h4 className={`font-bold text-lg ${current.color}`}>d{dn} — {showLS ? "Quyi spinli" : "Yuqori spinli"}</h4>
-            <span className="text-xs bg-purple-900/50 px-3 py-1 rounded-full text-purple-300">
-              {current.unpaired} ta toq e⁻
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 text-center mb-4">
-            <div className="bg-purple-900/50 rounded-lg p-4">
-              <p className="text-red-400 font-bold text-sm mb-2">e_g (+0.6Δ₀)</p>
-              <div className="flex justify-center gap-2 text-2xl font-mono">
-                {current.eg === "—" ? (
-                  <span className="text-gray-500">—</span>
-                ) : (
-                  current.eg.split(" ").map((s, i) => (
-                    <span key={i} className={s.includes("↓") ? "text-red-400" : "text-red-300"}>{s}</span>
-                  ))
-                )}
-              </div>
-            </div>
-            <div className="bg-purple-900/50 rounded-lg p-4">
-              <p className="text-green-400 font-bold text-sm mb-2">t₂g (−0.4Δ₀)</p>
-              <div className="flex justify-center gap-2 text-2xl font-mono">
-                {current.t2g === "—" ? (
-                  <span className="text-gray-500">—</span>
-                ) : (
-                  current.t2g.split(" ").map((s, i) => (
-                    <span key={i} className={s.includes("↓") ? "text-green-400" : "text-green-300"}>{s}</span>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-purple-900/50 rounded-lg p-4 text-xs">
-            <p className="text-yellow-400 font-bold mb-1">Misol:</p>
-            <p className="text-purple-200">{current.example}</p>
-            <p className="text-purple-400 mt-1">{current.note}</p>
-          </div>
-
-          {/* Magnit moment */}
-          <div className="bg-purple-900/50 rounded-lg p-3 mt-3 text-center text-xs">
-            <p className="text-purple-400">
-              <strong>Spin-formula:</strong> μ_s = √(n(n+2)) μB = <strong className="text-yellow-400">{current.unpaired > 0 ? Math.sqrt(current.unpaired * (current.unpaired + 2)).toFixed(2) : "0"} μB</strong>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
 }
 
-// ============================================================================
-// JUFTLASHISH ENERGIYASI VS Δ₀ INTERAKTIV
-// ============================================================================
-function JuftlanishEnergiyasi() {
-  const [showComparison, setShowComparison] = useState(false)
-  
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1. INTERAKTIV KONFIGURATSIYA VIZUALIZATORI
+// ═══════════════════════════════════════════════════════════════════════════════
+function KonfiguratsiyaVizual() {
+  const [dN, setDN] = useState(6)
+  const [spin, setSpin] = useState("auto")
+
+  const cfg = D_CONFIGS[dN]
+  const isHS = spin === "auto" ? dN <= 5 : spin === "hs"
+  const isLS = !isHS
+
+  // d-electron filling visual
+  const fillOrbitals = (count, hsMode) => {
+    const arr = ["·", "·", "·", "·", "·"]
+    const t2gSlots = 3
+    const egSlots = 2
+
+    if (hsMode) {
+      // HS: fill with parallel spins first
+      let n = count
+      for (let i = 0; i < t2gSlots && n > 0; i++) { arr[i] = "↑"; n-- }
+      for (let i = 0; i < egSlots && n > 0; i++) { arr[3 + i] = "↑"; n-- }
+      // pair in t2g
+      for (let i = 0; i < t2gSlots && n > 0; i++) { arr[i] = "↑↓"; n-- }
+      // pair in eg
+      for (let i = 0; i < egSlots && n > 0; i++) { arr[3 + i] = "↑↓"; n-- }
+    } else {
+      // LS: fill t2g completely first, then eg
+      let n = count
+      for (let i = 0; i < t2gSlots && n > 0; i++) { arr[i] = n >= 2 ? "↑↓" : "↑"; n -= Math.min(n, 2) }
+      for (let i = 0; i < egSlots && n > 0; i++) { arr[3 + i] = n >= 2 ? "↑↓" : "↑"; n -= Math.min(n, 2) }
+    }
+    return arr
+  }
+
+  const orbitals = ["d_xy", "d_xz", "d_yz", "d_z²", "d_x²−y²"]
+  const hsFilling = fillOrbitals(dN, true)
+  const lsFilling = dN >= 4 && dN <= 7 ? fillOrbitals(dN, false) : hsFilling
+  const currentFilling = isHS ? hsFilling : lsFilling
+
+  const canHSLS = dN >= 4 && dN <= 7
+
+  const unpaired = currentFilling.filter(s => s === "↑").length
+  const mu = unpaired > 0 ? Math.sqrt(unpaired * (unpaired + 2)).toFixed(2) : "0"
+
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">⚡ Juftlashish energiyasi (P) vs Δ₀</h3>
-      
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-        <p className="text-purple-200 text-sm mb-4">
-          <strong className="text-yellow-400">Spin holati</strong> Δ₀ va P nisbatiga bog'liq.
-          P — ikkita elektronni bir orbitalga juftlash uchun zarur energiya.
-          Elektronlararo itarilish tufayli juftlashish energiya talab qiladi.
-        </p>
+      <h3 className="text-white font-bold text-lg flex items-center gap-2">
+        <span className="text-cyan-400">🎯</span> d-elektron konfiguratsiyalar — interaktiv vizualizator
+      </h3>
 
-        <button
-          onClick={() => setShowComparison(!showComparison)}
-          className="px-4 py-2 bg-purple-600/80 rounded-lg text-white text-xs font-semibold mb-4"
-        >
-          {showComparison ? "Yashirish" : "d⁴−d⁷ barcha konfiguratsiyalarni ko'rish"}
-        </button>
+      <div className="bg-purple-900/30 border border-purple-700/40 rounded-xl p-4 sm:p-6">
+        {/* dⁿ tanlash */}
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          <span className="text-[10px] text-purple-400 self-center mr-1">dⁿ:</span>
+          {[0,1,2,3,4,5,6,7,8,9,10].map(n => (
+            <button key={n} onClick={() => { setDN(n); setSpin("auto") }}
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
+                dN === n ? "bg-purple-600 text-white ring-2 ring-purple-400" : "bg-purple-900/50 text-purple-300 hover:bg-purple-800"
+              }`}>{n}</button>
+          ))}
+        </div>
 
-        {showComparison && (
-          <div className="space-y-3 text-xs">
+        {/* HS/LS toggle */}
+        {canHSLS && (
+          <div className="flex gap-2 mb-4">
             {[
-              { dn: "d⁴", hsConfig: "t₂g³ eg¹", lsConfig: "t₂g⁴ eg⁰", hsExample: "Cr²⁺ (H₂O)", lsExample: "Cr²⁺ (CN⁻)", hsSpin: 4, lsSpin: 2 },
-              { dn: "d⁵", hsConfig: "t₂g³ eg²", lsConfig: "t₂g⁵ eg⁰", hsExample: "Fe³⁺, Mn²⁺ (H₂O)", lsExample: "Fe³⁺ (CN⁻)", hsSpin: 5, lsSpin: 1 },
-              { dn: "d⁶", hsConfig: "t₂g⁴ eg²", lsConfig: "t₂g⁶ eg⁰", hsExample: "Fe²⁺ (H₂O)", lsExample: "Fe²⁺ (CN⁻)", hsSpin: 4, lsSpin: 0 },
-              { dn: "d⁷", hsConfig: "t₂g⁵ eg²", lsConfig: "t₂g⁶ eg¹", hsExample: "Co²⁺ (H₂O)", lsExample: "Co²⁺ (CN⁻)", hsSpin: 3, lsSpin: 1 },
-            ].map((row, i) => (
-              <div key={i} className="bg-purple-900/50 rounded-lg p-3">
-                <p className="text-yellow-400 font-bold">{row.dn}</p>
-                <div className="grid grid-cols-2 gap-3 mt-2">
-                  <div className="bg-yellow-600/10 border border-yellow-500/30 rounded p-2">
-                    <p className="text-yellow-400 font-bold">HS: {row.hsConfig}</p>
-                    <p className="text-purple-300">{row.hsExample}</p>
-                    <p className="text-purple-400">{row.hsSpin} ta toq e⁻</p>
-                  </div>
-                  <div className="bg-green-600/10 border border-green-500/30 rounded p-2">
-                    <p className="text-green-400 font-bold">LS: {row.lsConfig}</p>
-                    <p className="text-purple-300">{row.lsExample}</p>
-                    <p className="text-purple-400">{row.lsSpin} ta toq e⁻</p>
-                  </div>
-                </div>
-              </div>
+              { id: "auto", label: "🔄 Avto" },
+              { id: "hs", label: "🔵 Yuqori spin (HS)" },
+              { id: "ls", label: "🔴 Past spin (LS)" },
+            ].map(s => (
+              <button key={s.id} onClick={() => setSpin(s.id)}
+                className={`px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
+                  spin === s.id ? "bg-purple-600 text-white" : "bg-purple-900/50 text-purple-300 hover:bg-purple-800"
+                }`}>{s.label}</button>
             ))}
           </div>
         )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {/* Orbital diagram */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between mb-1">
+              <h4 className="text-sm font-bold text-white">d{dN} — {isHS ? "Yuqori spin" : "Past spin"}</h4>
+              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                unpaired === 0 ? "bg-gray-600/20 text-gray-400" : "bg-yellow-600/20 text-yellow-400"
+              }`}>
+                {unpaired === 0 ? "Diamagnit" : `${unpaired} ta toq e⁻`}
+              </span>
+            </div>
+
+            {orbitals.map((name, i) => {
+              const fill = currentFilling[i]
+              const isT2g = i < 3
+              return (
+                <div key={i} className="flex items-center gap-2">
+                  <span className={`text-[9px] sm:text-[10px] font-mono w-16 sm:w-20 text-right ${isT2g ? "text-green-400" : "text-red-400"}`}>{name}</span>
+                  <div className={`flex-1 h-6 sm:h-7 rounded border flex items-center px-2 ${
+                    isT2g ? "bg-green-950/60 border-green-800/40" : "bg-red-950/60 border-red-800/40"
+                  }`}>
+                    <span className={`font-bold text-sm ${fill === "·" ? "text-purple-800" : fill.includes("↓") ? "text-yellow-300" : isT2g ? "text-green-300" : "text-red-300"}`}>{fill}</span>
+                  </div>
+                  <span className={`text-[8px] w-6 text-center ${isT2g ? "text-green-700" : "text-red-700"}`}>{isT2g ? "t₂g" : "e_g"}</span>
+                </div>
+              )
+            })}
+
+            {/* CFSE */}
+            <div className="bg-purple-950/70 border border-purple-700/30 rounded-lg p-2 mt-2">
+              <div className="flex justify-between text-[10px]">
+                <span className="text-purple-400">KMBE:</span>
+                <span className="text-yellow-300 font-mono">{(isHS ? cfg.hsCfse : cfg.lsCfse).toFixed(2)}Δ</span>
+                <span className="text-purple-400">μ:</span>
+                <span className="text-yellow-300 font-mono">{mu} μB</span>
+                <span className="text-purple-400">Konfig:</span>
+                <span className="text-purple-200 font-mono text-[9px]">{isHS ? cfg.hsConfig : (cfg.lsConfig !== "—" ? cfg.lsConfig : cfg.hsConfig)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="space-y-3">
+            <div className="bg-purple-950/70 border border-purple-700/30 rounded-lg p-3 space-y-1.5 text-xs">
+              {[
+                ["Ionlar", cfg.ions],
+                ["Oktaedrik", cfg.ohConfig],
+                ["KMBE (HS)", `${cfg.hsCfse.toFixed(2)}Δ`],
+                canHSLS ? ["KMBE (LS)", `${cfg.lsCfse.toFixed(2)}Δ`] : null,
+                ["Magnit moment", cfg.mag],
+              ].filter(Boolean).map(([l, v], i) => (
+                <div key={i} className="flex justify-between">
+                  <span className="text-purple-400">{l}:</span>
+                  <span className="text-purple-200 font-semibold">{v}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
+              <p className="text-yellow-400 font-bold mb-1">🔬 Misol:</p>
+              <p className="text-purple-200">{cfg.example}</p>
+              <p className="text-purple-300 mt-1">{cfg.note}</p>
+            </div>
+
+            {/* HS/LS comparison for d4-d7 */}
+            {canHSLS && (
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div className="bg-blue-600/10 border border-blue-500/30 rounded-lg p-2 text-center">
+                  <p className="text-blue-400 font-bold">🔵 HS</p>
+                  <p className="text-white font-mono">{cfg.hsConfig}</p>
+                  <p className="text-blue-300">{cfg.hsCfse.toFixed(2)}Δ</p>
+                  <p className="text-blue-300">{cfg.hsSpin} toq e⁻</p>
+                </div>
+                <div className="bg-red-600/10 border border-red-500/30 rounded-lg p-2 text-center">
+                  <p className="text-red-400 font-bold">🔴 LS</p>
+                  <p className="text-white font-mono">{cfg.lsConfig === "—" ? "—" : cfg.lsConfig}</p>
+                  <p className="text-red-300">{cfg.lsCfse.toFixed(2)}Δ</p>
+                  <p className="text-red-300">{cfg.lsSpin} toq e⁻</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-// ============================================================================
-// MAGNIT MOMENT KALKULYATORI
-// ============================================================================
-function MagnitMoment() {
-  const [unpaired, setUnpaired] = useState(4)
-  
-  const muSpin = Math.sqrt(unpaired * (unpaired + 2))
-  
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2. HS vs LS — Δ₀ vs P interaktiv taqqoslash
+// ═══════════════════════════════════════════════════════════════════════════════
+function HSvsLS() {
+  const [dN, setDN] = useState(6)
+  const [deltaVal, setDeltaVal] = useState(20000)
+
+  const configs = {
+    4: { hsConfig: "t₂g³e_g¹", lsConfig: "t₂g⁴", hsKMBE: -0.60, lsKMBE: -1.60, hsSpin: 4, lsSpin: 2, P: 21000 },
+    5: { hsConfig: "t₂g³e_g²", lsConfig: "t₂g⁵", hsKMBE: 0.00, lsKMBE: -2.00, hsSpin: 5, lsSpin: 1, P: 25000 },
+    6: { hsConfig: "t₂g⁴e_g²", lsConfig: "t₂g⁶", hsKMBE: -0.40, lsKMBE: -2.40, hsSpin: 4, lsSpin: 0, P: 21500 },
+    7: { hsConfig: "t₂g⁵e_g²", lsConfig: "t₂g⁶e_g¹", hsKMBE: -0.80, lsKMBE: -1.80, hsSpin: 3, lsSpin: 1, P: 22500 },
+  }
+
+  const c = configs[dN]
+  const isHS = deltaVal < c.P
+  const deltaE_HS = c.hsKMBE * deltaVal * 0.012
+  const deltaE_LS = c.lsKMBE * deltaVal * 0.012
+  const totalHS = -deltaE_HS
+  const totalLS = -deltaE_LS + c.P * 0.012 * (dN === 4 ? 1 : dN === 5 ? 2 : dN === 6 ? 2 : 1)
+
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">🧲 Magnit moment kalkulyatori</h3>
-      
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <h3 className="text-white font-bold text-lg flex items-center gap-2">
+        <span className="text-amber-400">⚡</span> HS vs LS — Δ₀ va juftlashish energiyasi (P) raqobati
+      </h3>
+
+      <div className="bg-purple-900/30 border border-purple-700/40 rounded-xl p-4 sm:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4">
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-purple-400">Toq e⁻ soni:</span>
-              <input 
-                type="range" min="0" max="5" value={unpaired} onChange={(e) => setUnpaired(+e.target.value)}
-                className="flex-1 h-2 bg-gradient-to-r from-gray-500 via-yellow-500 to-red-500 rounded-lg cursor-pointer"
-              />
-              <span className="text-yellow-400 font-bold text-lg">{unpaired}</span>
+            <div className="flex gap-1.5">
+              {[4,5,6,7].map(n => (
+                <button key={n} onClick={() => setDN(n)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${dN === n ? "bg-purple-600 text-white" : "bg-purple-900/50 text-purple-300 hover:bg-purple-800"}`}>
+                  d{n}
+                </button>
+              ))}
             </div>
-            <div className="bg-purple-900/50 rounded-lg p-4 text-center">
-              <p className="text-purple-400 text-xs mb-1">μ_s = √(n(n+2)) μB</p>
-              <p className="text-yellow-400 text-3xl font-bold">{muSpin.toFixed(2)} <span className="text-sm">μB</span></p>
+
+            <div>
+              <p className="text-purple-300 text-xs mb-1">Δ₀ = <span className="text-yellow-300">{deltaVal.toLocaleString()}</span> cm⁻¹</p>
+              <input type="range" min={5000} max={40000} step={500} value={deltaVal}
+                onChange={(e) => setDeltaVal(Number(e.target.value))}
+                className="w-full h-1.5 rounded-full appearance-none bg-purple-800 cursor-pointer" style={{ accentColor: "#a855f7" }} />
+              <div className="flex justify-between text-[9px] text-purple-500 mt-0.5">
+                <span>Kuchsiz 5 000</span>
+                <span>P ≈ {c.P.toLocaleString()} cm⁻¹</span>
+                <span>Kuchli 40 000</span>
+              </div>
+            </div>
+
+            <div className={`rounded-lg p-3 text-xs border ${isHS ? "bg-blue-600/10 border-blue-500/30" : "bg-red-600/10 border-red-500/30"}`}>
+              <p className={`font-bold ${isHS ? "text-blue-400" : "text-red-400"}`}>
+                {isHS ? "🔵 Yuqori spin (HS) barqaror" : "🔴 Past spin (LS) barqaror"}
+              </p>
+              <p className="text-purple-200 mt-1">
+                Δ₀ = {deltaVal.toLocaleString()} cm⁻¹, P = {c.P.toLocaleString()} cm⁻¹
+              </p>
+              <p className="text-purple-200">
+                Δ₀ {isHS ? "<" : ">"} P → {isHS ? "HS (kuchsiz maydon)" : "LS (kuchli maydon)"}
+              </p>
             </div>
           </div>
-          <div className="bg-purple-900/50 rounded-lg p-4 text-xs">
-            <p className="text-yellow-400 font-bold mb-2">Ma'lumot:</p>
-            <ul className="text-purple-200 space-y-1">
-              {[
-                { n: 0, mu: "0", example: "d⁶ LS, d¹⁰ — diamagnit" },
-                { n: 1, mu: "1.73", example: "d⁵ LS, d⁹ — Cu²⁺ komplekslari" },
-                { n: 2, mu: "2.83", example: "d⁴ LS, d⁸ — Ni²⁺ komplekslari" },
-                { n: 3, mu: "3.87", example: "d³, d⁷ HS — Cr³⁺, Co²⁺ (HS)" },
-                { n: 4, mu: "4.90", example: "d⁴ HS, d⁶ HS — Cr²⁺, Fe²⁺ (HS)" },
-                { n: 5, mu: "5.92", example: "d⁵ HS — Fe³⁺, Mn²⁺ (HS)" },
-              ].map((row, i) => (
-                <li key={i} className={unpaired === row.n ? "text-yellow-400 font-bold" : ""}>
-                  n={row.n}: μ = {row.mu} μB — {row.example}
-                </li>
+
+          <div className="space-y-2">
+            <div className={`rounded-lg p-3 border ${isHS ? "bg-blue-600/10 border-blue-500/30 ring-2 ring-blue-500/40" : "bg-purple-900/50 border-purple-700/30"}`}>
+              <p className="text-blue-400 font-bold text-xs">🔵 HS — {c.hsConfig}</p>
+              <p className="text-purple-200 text-[10px]">KMBE = {c.hsKMBE.toFixed(2)}Δ = {Math.abs(deltaE_HS).toFixed(1)} kJ/mol</p>
+              <p className="text-purple-200 text-[10px]">Juftlanmagan: {c.hsSpin} ta | μ = {Math.sqrt(c.hsSpin * (c.hsSpin + 2)).toFixed(2)} μB</p>
+            </div>
+            <div className={`rounded-lg p-3 border ${!isHS ? "bg-red-600/10 border-red-500/30 ring-2 ring-red-500/40" : "bg-purple-900/50 border-purple-700/30"}`}>
+              <p className="text-red-400 font-bold text-xs">🔴 LS — {c.lsConfig}</p>
+              <p className="text-purple-200 text-[10px]">KMBE = {c.lsKMBE.toFixed(2)}Δ = {Math.abs(deltaE_LS).toFixed(1)} kJ/mol</p>
+              <p className="text-purple-200 text-[10px]">Juftlanmagan: {c.lsSpin} ta | μ = {c.lsSpin > 0 ? Math.sqrt(c.lsSpin * (c.lsSpin + 2)).toFixed(2) : "0"} μB</p>
+            </div>
+
+            {/* Δ vs P vizual */}
+            <div className="bg-purple-950/70 border border-purple-700/30 rounded-lg p-3">
+              <p className="text-[9px] text-purple-400 mb-2">Δ₀ vs P vizual taqqoslash:</p>
+              <div className="h-6 relative bg-purple-950/80 rounded overflow-hidden border border-purple-700/30">
+                <div className="absolute inset-y-0 left-0 bg-yellow-600/50 transition-all" style={{ width: `${(deltaVal / 40000) * 100}%` }} />
+                <div className="absolute inset-y-0 bg-purple-400/30 transition-all" style={{ left: `${(c.P / 40000) * 100}%`, width: "3px" }} />
+                <div className="absolute inset-0 flex items-center justify-between px-2 text-[8px]">
+                  <span className="text-yellow-300">Δ₀ = {deltaVal.toLocaleString()}</span>
+                  <span className="text-purple-300">|</span>
+                  <span className="text-purple-400">P = {c.P.toLocaleString()}</span>
+                </div>
+              </div>
+              <p className="text-[9px] text-purple-400 mt-1">
+                {isHS ? "Δ₀ < P → HS barqaror (kuchsiz maydon)" : "Δ₀ > P → LS barqaror (kuchli maydan)"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-2 text-[10px]">
+          <p className="text-yellow-400 font-bold">💡 Nima uchun d⁴-d⁷ da ikki xil spin?</p>
+          <p className="text-purple-200">d⁴–d⁷ da elektronlar t₂g ni to'ldirgandan keyin yo e_g ga chiqadi (HS, Δ₀ {'<'} P), yoki t₂g da juftlashadi (LS, Δ₀ {'>'} P). Juftlashish energiyasi P ~ 20000-25000 cm⁻¹.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3. MAGNIT MOMENT — TO'LIQ KALKULYATOR
+// ═══════════════════════════════════════════════════════════════════════════════
+function MagnitKalkulyator() {
+  const [n, setN] = useState(3)
+  const spinMu = Math.sqrt(n * (n + 2))
+  const orbMu = Math.sqrt(n * (n + 2) + 0.5 * (n === 0 ? 0 : 1)).toFixed(2)
+
+  const ionData = [
+    { n: 0, ions: "Zn²⁺, Cu⁺, Fe²⁺(LS)", d: "d¹⁰ / d⁶ LS", mu: 0, type: "Diamagnit", color: "text-gray-400" },
+    { n: 1, ions: "Cu²⁺, Fe³⁺(LS), Co²⁺(LS)", d: "d⁹ / d⁵ LS / d⁷ LS", mu: 1.73, type: "Paramagnit", color: "text-sky-400" },
+    { n: 2, ions: "Ni²⁺, Cr²⁺(LS), V³⁺", d: "d⁸ / d⁴ LS / d²", mu: 2.83, type: "Paramagnit", color: "text-green-400" },
+    { n: 3, ions: "Cr³⁺, Co²⁺(HS), V²⁺", d: "d³ / d⁷ HS / d²", mu: 3.87, type: "Paramagnit", color: "text-blue-400" },
+    { n: 4, ions: "Fe²⁺(HS), Cr²⁺(HS)", d: "d⁶ HS / d⁴ HS", mu: 4.90, type: "Paramagnit", color: "text-orange-400" },
+    { n: 5, ions: "Fe³⁺(HS), Mn²⁺(HS)", d: "d⁵ HS", mu: 5.92, type: "Paramagnit", color: "text-red-400" },
+  ]
+
+  const match = ionData.find(i => i.n === n) || ionData[0]
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-white font-bold text-lg flex items-center gap-2">
+        <span className="text-rose-400">🧲</span> Magnit moment kalkulyatori — μ = √<span className="underline">n(n+2)</span>
+      </h3>
+
+      <div className="bg-purple-900/30 border border-purple-700/40 rounded-xl p-4 sm:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="space-y-3">
+            <p className="text-purple-300 text-xs">Toq elektronlar sonini tanlang:</p>
+            <div className="flex gap-1.5 flex-wrap">
+              {[0,1,2,3,4,5].map(i => (
+                <button key={i} onClick={() => setN(i)}
+                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-xs font-bold transition-all ${n === i ? "bg-rose-600 text-white ring-2 ring-rose-400" : "bg-purple-900/50 text-purple-300 hover:bg-purple-800"}`}>
+                  {i}
+                </button>
               ))}
-            </ul>
+            </div>
+
+            <div className="bg-purple-950/80 border border-rose-500/30 rounded-lg p-4 text-center">
+              <p className="text-purple-400 text-[10px]">Spin-only formula: μ = √{n}·({n}+2) = √{n*(n+2)}</p>
+              <p className="text-4xl font-bold text-yellow-300 font-mono">{spinMu.toFixed(2)} <span className="text-lg">μB</span></p>
+              <p className="text-purple-400 text-xs mt-1">{match.type}</p>
+            </div>
+
+            <div className="bg-purple-950/60 border border-purple-700/30 rounded-lg p-2 text-[9px]">
+              <p className="text-purple-400">Orbital hissasi bilan: μ_eff ≈ {orbMu} μB (spin-orbit bog'lanish)</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="text-white font-bold text-xs">dⁿ ionlar va magnit momentlari:</h4>
+            <div className="space-y-1">
+              {ionData.map((row, i) => (
+                <div key={i} className={`flex items-center justify-between p-1.5 rounded-lg text-[10px] sm:text-xs transition-all ${
+                  n === row.n ? "bg-rose-600/20 border border-rose-500/40 ring-1 ring-rose-500/30" : "bg-purple-950/40 hover:bg-purple-800/30"
+                }`} onClick={() => setN(row.n)}>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold w-6">{row.n}</span>
+                    <span className="text-purple-200">{row.ions}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-purple-400 text-[9px]">{row.d}</span>
+                    <span className={`font-mono font-bold ${row.color}`}>{row.mu.toFixed(2)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-2 text-[9px]">
+              <p className="text-yellow-400 font-bold">⚠️ Eslatma:</p>
+              <p className="text-purple-200">Spin-orbit bog'lanish + orbit hissasi tufayli eksperimental qiymatlar nazariydan farq qiladi. Masalan, Cu²⁺ va Ni²⁺ da spin-orbit katta.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -233,83 +432,247 @@ function MagnitMoment() {
   )
 }
 
-// ============================================================================
-// ASOSIY SAHIFA
-// ============================================================================
-export default function ElektronKonfiguratsiyalar() {
+// ═══════════════════════════════════════════════════════════════════════════════
+// 4. d¹–d¹⁰ TO'LIQ JADVAL
+// ═══════════════════════════════════════════════════════════════════════════════
+function DnJadval() {
+  const [sortBy, setSortBy] = useState("d")
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      <header className="flex flex-col gap-2 px-6 py-4 border-b border-purple-800/50">
-        <div className="flex items-center gap-2 text-sm">
-          <Link href="/" className="text-purple-400 hover:text-purple-300">🏠</Link>
-          <span className="text-purple-600">›</span>
-          <Link href="/ilmiy/chuqurlashgan" className="text-purple-400 hover:text-purple-300">Chuqurlashgan</Link>
-          <span className="text-purple-600">›</span>
-          <Link href="/ilmiy/chuqurlashgan/atom-tuzilishi" className="text-purple-400 hover:text-purple-300">Atom tuzilishi</Link>
-          <span className="text-purple-600">›</span>
-          <span className="text-blue-400">d-elektron konfiguratsiyalar</span>
+    <div className="space-y-4">
+      <h3 className="text-white font-bold text-lg flex items-center gap-2">
+        <span className="text-cyan-400">📊</span> d¹–d¹⁰ konfiguratsiyalar — to'liq jadval
+      </h3>
+
+      <div className="bg-purple-900/30 border border-purple-700/40 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-[9px] sm:text-xs">
+            <thead>
+              <tr className="bg-purple-800/70">
+                <th className="p-1.5 sm:p-2 text-left text-purple-200">dⁿ</th>
+                <th className="p-1.5 sm:p-2 text-left text-purple-200">Ionlar</th>
+                <th className="p-1.5 sm:p-2 text-center text-purple-200">HS konfig</th>
+                <th className="p-1.5 sm:p-2 text-center text-purple-200">LS konfig</th>
+                <th className="p-1.5 sm:p-2 text-center text-purple-200 hidden sm:table-cell">HS spin</th>
+                <th className="p-1.5 sm:p-2 text-center text-purple-200 hidden sm:table-cell">LS spin</th>
+                <th className="p-1.5 sm:p-2 text-center text-purple-200">μ (HS)</th>
+                <th className="p-1.5 sm:p-2 text-center text-purple-200 hidden md:table-cell">KMBE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(D_CONFIGS).map(([key, cfg], i) => (
+                <tr key={key} className={`border-t border-purple-800/30 ${i % 2 === 0 ? "bg-purple-900/20" : "bg-purple-950/20"} hover:bg-purple-800/30`}>
+                  <td className={`p-1.5 sm:p-2 font-bold font-mono ${cfg.color}`}>d{key}</td>
+                  <td className="p-1.5 sm:p-2 text-purple-200">{cfg.ions}</td>
+                  <td className="p-1.5 sm:p-2 text-center text-purple-200 font-mono">{cfg.hsConfig}</td>
+                  <td className="p-1.5 sm:p-2 text-center text-purple-200 font-mono">{cfg.lsConfig !== "—" ? cfg.lsConfig : "—"}</td>
+                  <td className="p-1.5 sm:p-2 text-center hidden sm:table-cell">{cfg.hsSpin}</td>
+                  <td className="p-1.5 sm:p-2 text-center hidden sm:table-cell">{cfg.lsSpin}</td>
+                  <td className="p-1.5 sm:p-2 text-center text-yellow-300 font-mono">{cfg.mag.split(" ")[0]}</td>
+                  <td className="p-1.5 sm:p-2 text-center text-yellow-300 font-mono hidden md:table-cell">{cfg.hsCfse.toFixed(2)}Δ</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-blue-400">🔄 d-elektron konfiguratsiyalar</h1>
-          <p className="text-purple-400 text-sm">d¹ dan d¹⁰ gacha • Xund qoidasi • Yuqori va quyi spin • Pauli prinsipi</p>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 5. TEST
+// ═══════════════════════════════════════════════════════════════════════════════
+function TestKonfig() {
+  const questions = [
+    { q: "Xund qoidasiga ko'ra, elektronlar orbitallarga qanday joylashadi?", a: "Avval parallel spin bilan, keyin juftlashadi", opts: ["Avval juftlashadi", "Avval parallel spin bilan, keyin juftlashadi", "Energiya bo'yicha", "Tasodifiy"], hint: "Energiya jihatidan eng qulay" },
+    { q: "Qaysi dⁿ konfiguratsiyada HS va LS mavjud bo'lishi mumkin?", a: "d⁴, d⁵, d⁶, d⁷", opts: ["d¹, d², d³", "d⁴, d⁵, d⁶, d⁷", "d⁸, d⁹, d¹⁰", "Barcha dⁿ"], hint: "t₂g to'lgandan keyingilari" },
+    { q: "d⁶ LS konfiguratsiyada nechta juftlanmagan elektron bor?", a: "0 (diamagnit)", opts: ["4", "2", "0 (diamagnit)", "1"], hint: "t₂g⁶ — to'liq to'lgan" },
+    { q: "μ = √n(n+2) formulada n nimani anglatadi?", a: "Juftlanmagan elektronlar soni", opts: ["Barcha elektronlar", "Juftlanmagan elektronlar soni", "Orbitallar soni", "dⁿ dagi n"], hint: "Spin-only formula" },
+    { q: "Kuchli maydon ligandlari (CN⁻, CO) qanday spin hosil qiladi?", a: "Past spin (LS)", opts: ["Yuqori spin (HS)", "Past spin (LS)", "Ikkala spin", "Spinsiz"], hint: "Δ₀ > P" },
+    { q: "Fe²⁺ (d⁶) uchun HS va LS magnit momentlari?", a: "HS: 4.90, LS: 0 BM", opts: ["HS: 4.90, LS: 0 BM", "HS: 5.92, LS: 1.73 BM", "HS: 3.87, LS: 1.73 BM", "HS: 0, LS: 4.90 BM"], hint: "HS da 4, LS da 0 juftlanmagan" },
+    { q: "Jahn-Teller effekti qaysi konfiguratsiyada kuzatiladi?", a: "d⁹ (Cu²⁺), d⁷ LS, d⁴ HS", opts: ["d¹⁰ (Zn²⁺)", "d⁹ (Cu²⁺), d⁷ LS, d⁴ HS", "d⁵ (Fe³⁺)", "d² (V³⁺)"], hint: "Degenerat sathlarda assimetrik to'ldirish" },
+    { q: "d⁸ konfiguratsiya nechta juftlanmagan elektronga ega?", a: "2 ta", opts: ["0", "1", "2 ta", "3 ta"], hint: "t₂g⁶ e_g²" },
+    { q: "Kuchsiz maydon ligandlari (I⁻, Br⁻) bilan qaysi spin barqaror?", a: "Yuqori spin (HS)", opts: ["Yuqori spin (HS)", "Past spin (LS)", "Ikkalasi", "Hech biri"], hint: "Kichik Δ₀" },
+    { q: "t₂g⁶ e_g² qaysi dⁿ ga to'g'ri keladi?", a: "d⁸", opts: ["d⁶", "d⁷", "d⁸", "d⁹"], hint: "t₂g da 6 + e_g da 2 = jami 8" },
+  ]
+
+  const [c, setC] = useState(0); const [s, setS] = useState(null); const [sc, setSc] = useState(0)
+  const [res, setRes] = useState(false); const [ans, setAns] = useState({})
+  const q = questions[c]
+
+  if (res) {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-white font-bold text-lg">📝 Test natijalari</h3>
+        <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/30 border border-purple-700/50 rounded-xl p-8 text-center">
+          <div className="text-6xl mb-4">{sc >= 8 ? "🏆" : sc >= 5 ? "👍" : "📚"}</div>
+          <p className="text-3xl font-bold text-white">{sc}/{questions.length}</p>
+          <button onClick={() => { setC(0); setS(null); setSc(0); setRes(false); setAns({}) }}
+            className="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm">Qayta</button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-white font-bold text-lg">📝 Bilim tekshirish — {c+1}/{questions.length}</h3>
+      <div className="bg-purple-900/30 border border-purple-700/40 rounded-xl p-6">
+        <p className="text-white font-bold text-base mb-4">{q.q}</p>
+        <div className="grid grid-cols-1 gap-2 mb-4">
+          {q.opts.map((opt, i) => (
+            <button key={i} onClick={() => !s && (() => { setS(opt); const ok = opt === q.a; if (ok && !ans[c]) setSc(p => p + 1); setAns(p => ({...p, [c]: ok})) })()}
+              className={`p-3 rounded-xl text-sm text-left border transition-all ${s === opt ? (opt === q.a ? "bg-green-600/20 border-green-500 text-green-200" : "bg-red-600/20 border-red-500 text-red-200") : s ? (opt === q.a ? "bg-green-600/20 border-green-500 text-green-200 opacity-60" : "bg-purple-800/40 border-purple-700/40 text-purple-300 opacity-50") : "bg-purple-800/40 border-purple-700/40 text-purple-200 hover:bg-purple-700/60"}`}>
+              {opt}
+            </button>
+          ))}
+        </div>
+        {s && (
+          <div className="space-y-2">
+            <div className={`text-xs p-3 rounded-lg ${s === q.a ? "bg-green-600/10 border-green-500 text-green-300" : "bg-red-600/10 border-red-500 text-red-300"}`}>
+              {s === q.a ? "✅ To'g'ri!" : "❌ Noto'g'ri"}
+            </div>
+            <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-2 text-xs">
+              <span className="text-yellow-400 font-bold">💡 </span><span className="text-purple-200">{q.hint}</span>
+            </div>
+            <button onClick={() => { if (c < questions.length - 1) { setC(p => p + 1); setS(null) } else setRes(true) }}
+              className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm">
+              {c < questions.length - 1 ? "Keyingi →" : "Natijalarni ko'rish"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ASOSIY SAHIFA
+// ═══════════════════════════════════════════════════════════════════════════════
+export default function ElektronKonfiguratsiyalar() {
+  const [view, setView] = useState("all")
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-indigo-950 to-blue-950 text-white">
+
+      <header className="sticky top-0 z-30 bg-purple-950/90 backdrop-blur-xl border-b border-purple-800/50 px-4 sm:px-6 py-3">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-purple-400 mb-1 flex-wrap">
+            <Link href="/" className="hover:text-purple-300">🏠</Link>
+            <span className="text-purple-600">›</span>
+            <Link href="/ilmiy" className="hover:text-purple-300">Ilmiy</Link>
+            <span className="text-purple-600">›</span>
+            <Link href="/ilmiy/chuqurlashgan" className="hover:text-purple-300">Chuqurlashgan</Link>
+            <span className="text-purple-600">›</span>
+            <Link href="/ilmiy/chuqurlashgan/atom-tuzilishi" className="hover:text-purple-300">Atom tuzilishi</Link>
+            <span className="text-purple-600">›</span>
+            <span className="text-cyan-400">Elektron konfiguratsiyalar</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg sm:text-2xl font-bold text-cyan-400 flex items-center gap-2">
+                <span>🔄</span> d-elektron konfiguratsiyalar
+              </h1>
+              <p className="text-[10px] sm:text-xs text-purple-500">d¹–d¹⁰ • Xund qoidasi • HS/LS • Magnit moment • OTM darajasi</p>
+            </div>
+            <button onClick={() => setView(view === "all" ? "calc" : "all")}
+              className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] font-semibold bg-purple-800/50 text-purple-300 hover:bg-purple-700/60 border border-purple-700/40">
+              {view === "all" ? "🧮 Kalkulyator" : "📄 To'liq"}
+            </button>
+          </div>
         </div>
       </header>
 
-      <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
+      <section className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-5 sm:space-y-8">
 
         {/* KIRISH */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Elektronlarning orbitallarga joylashish qoidalari</h2>
-          
-          <div className="space-y-4">
-            <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5">
-              <h3 className="text-blue-400 font-bold mb-2">1. Pauli prinsipi</h3>
-              <p className="text-purple-200 text-sm">Bir atomda <strong>4 ta kvant soni bir xil</strong> bo'lgan ikkita elektron bo'lishi mumkin emas. Har bir orbitalda ko'pi bilan <strong>2 ta elektron</strong> (↑↓) bo'ladi.</p>
+        <div className="bg-gradient-to-br from-purple-900/50 via-indigo-900/30 to-blue-900/30 border border-purple-700/40 rounded-2xl p-4 sm:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div>
+              <h2 className="text-base sm:text-xl font-bold text-white mb-3">📋 Elektronlarning joylashish qoidalari</h2>
+              <p className="text-xs sm:text-sm text-purple-200 leading-relaxed mb-3">
+                d-elektronlarning <strong className="text-cyan-400">orbitallarga joylashishi</strong> uchta asosiy qoidaga bo'ysunadi:
+                <strong className="text-yellow-400"> Pauli prinsipi, Xund qoidasi va energiya minimumi prinsipi.</strong>
+                Oktaedrik maydonda d-elektronlar avval t₂g (stabillashgan), keyin e_g (destabillashgan) orbitallarni to'ldiradi.
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="bg-cyan-600/20 text-cyan-400 border border-cyan-600/30 px-2 py-0.5 rounded-full text-[10px]">10 ta test</span>
+                <span className="bg-purple-600/20 text-purple-400 border border-purple-600/30 px-2 py-0.5 rounded-full text-[10px]">d¹–d¹⁰ jadval</span>
+                <span className="bg-rose-600/20 text-rose-400 border border-rose-600/30 px-2 py-0.5 rounded-full text-[10px]">Magnit kalk.</span>
+              </div>
             </div>
-            <div className="bg-green-600/10 border border-green-500/30 rounded-xl p-5">
-              <h3 className="text-green-400 font-bold mb-2">2. Xund qoidasi</h3>
-              <p className="text-purple-200 text-sm">Elektronlar bir xil energiyali orbitallarga avval <strong>bir xil spin bilan, juftlashmagan holda</strong> joylashadi. Juftlashish faqat barcha orbitallar yarim to'lgandan keyin boshlanadi.</p>
-            </div>
-            <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-xl p-5">
-              <h3 className="text-yellow-400 font-bold mb-2">3. Energiya minimumi prinsipi</h3>
-              <p className="text-purple-200 text-sm">Elektronlar avval <strong>eng past energiyali</strong> orbitallarni to'ldiradi. Oktaedrik maydonda: avval t₂g, keyin e_g.</p>
+            <div className="bg-purple-950/60 border border-purple-700/30 rounded-xl p-3 sm:p-4 text-xs space-y-1.5">
+              <p className="text-purple-300"><span className="text-cyan-400 font-bold">🎯 Maqsad:</span> d-elektronlarning orbitallarga joylashish qoidalari, HS/LS farqi, magnit moment hisobini tushunish.</p>
+              <p className="text-purple-300"><span className="text-cyan-400 font-bold">⏱️ Vaqt:</span> ~3.5 soat</p>
+              <p className="text-purple-300"><span className="text-cyan-400 font-bold">📚 Manba:</span> Cotton — Advanced Inorganic Chemistry; Housecroft — Inorganic Chemistry</p>
+              <div className="bg-purple-950/90 rounded p-2 mt-1 text-center border border-purple-700/30 flex gap-4 justify-center">
+                <span className="text-green-400 font-mono font-bold">t₂g (↓)</span>
+                <span className="text-purple-400">+</span>
+                <span className="text-red-400 font-mono font-bold">e_g (↑)</span>
+                <span className="text-purple-400">=</span>
+                <span className="text-yellow-300 font-mono font-bold">dⁿ</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* INTERAKTIV SLAYDER */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <KonfiguratsiyaSlayder />
+        {/* KONFIGURATSIYA VIZUALIZATORI (har doim) */}
+        <div className="bg-purple-900/40 border border-purple-700/40 rounded-2xl p-3 sm:p-6">
+          <KonfiguratsiyaVizual />
         </div>
 
-        {/* JUFTLASHISH ENERGIYASI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <JuftlanishEnergiyasi />
+        {view === "all" && (
+          <>
+            <div className="bg-purple-900/40 border border-purple-700/40 rounded-2xl p-3 sm:p-6">
+              <DnJadval />
+            </div>
+            <div className="bg-purple-900/40 border border-purple-700/40 rounded-2xl p-3 sm:p-6">
+              <HSvsLS />
+            </div>
+          </>
+        )}
+
+        {/* MAGNIT KALKULYATOR (har doim) */}
+        <div className="bg-purple-900/40 border border-purple-700/40 rounded-2xl p-3 sm:p-6">
+          <MagnitKalkulyator />
         </div>
 
-        {/* MAGNIT MOMENT */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <MagnitMoment />
+        {/* TEST */}
+        <div className="bg-purple-900/40 border border-purple-700/40 rounded-2xl p-3 sm:p-6">
+          <TestKonfig />
         </div>
 
         {/* XULOSA */}
-        <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
+        <div className="bg-gradient-to-r from-cyan-600/10 to-purple-600/10 border border-cyan-500/20 rounded-2xl p-4 sm:p-8">
+          <h2 className="text-base sm:text-xl font-bold text-white mb-3">✅ Asosiy xulosalar</h2>
+          <ol className="space-y-1 text-xs sm:text-sm text-purple-200 list-decimal list-inside">
             <li>Elektronlar <strong className="text-yellow-400">Pauli, Xund va energiya minimumi</strong> qoidalari asosida joylashadi</li>
-            <li><strong>Yuqori spin (HS):</strong> Δ₀ {'<'} P — ko'p toq e⁻, paramagnit</li>
-            <li><strong>Quyi spin (LS):</strong> Δ₀ {'>'} P — kam toq e⁻, diamagnit</li>
-            <li>d⁴−d⁷ konfiguratsiyalarda <strong>har ikkala holat ham</strong> mavjud bo'lishi mumkin</li>
-            <li>Magnit moment: <strong>μ_s = √(n(n+2)) μB</strong> — faqat spin hissasi</li>
+            <li>Oktaedrik maydonda: <strong>t₂g (stabillashgan) → e_g (destabillashgan)</strong></li>
+            <li><strong>HS:</strong> Δ₀ &lt; P — ko'p toq e⁻, paramagnit. <strong>LS:</strong> Δ₀ &gt; P — kam toq e⁻</li>
+            <li>d⁴–d⁷ konfiguratsiyalarda <strong>har ikkala spin holati</strong> mavjud</li>
+            <li><strong>d⁶ LS (t₂g⁶):</strong> diamagnit — eng barqaror. <strong>d⁹ (Cu²⁺):</strong> Jahn-Teller faol</li>
+            <li>Magnit moment: <strong>μ_s = √(n(n+2)) μB</strong></li>
+            <li>Kuchli ligand (CN⁻) → LS. Kuchsiz ligand (I⁻, Br⁻) → HS</li>
           </ol>
         </div>
 
-        <div className="flex justify-between pt-6">
-          <Link href="/ilmiy/chuqurlashgan/atom-tuzilishi/d-orbital-energiya" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300">← d-orbital energiyasi</Link>
-          <Link href="/ilmiy/chuqurlashgan/atom-tuzilishi/metallar" className="px-6 py-3 bg-red-600/80 rounded-xl hover:bg-red-500 text-white font-semibold">Kompleks metallar →</Link>
+        {/* NAVIGATSIYA */}
+        <div className="flex justify-between pt-2">
+          <Link href="/ilmiy/chuqurlashgan/atom-tuzilishi/d-orbital-energiya"
+            className="px-3 sm:px-6 py-2 sm:py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300 text-xs sm:text-sm flex items-center gap-2">
+            <span>←</span> d-orbital energiyasi
+          </Link>
+          <Link href="/ilmiy/chuqurlashgan/atom-tuzilishi/metallar"
+            className="px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/20">
+            Kompleks metallar <span>→</span>
+          </Link>
         </div>
 
+        <div className="bg-gradient-to-r from-purple-900/40 via-blue-900/30 to-purple-900/40 border border-purple-700/40 rounded-2xl p-3 sm:p-6 text-center">
+          <p className="text-xs text-purple-300">📚 <strong className="text-purple-200">Manbalar:</strong> Cotton & Wilkinson — Advanced Inorganic Chemistry | Housecroft — Inorganic Chemistry | Nasimov, Tashpulatov — Noorganik kimyo</p>
+          <p className="text-[9px] text-purple-500 mt-1">JDA-Kimyo © {new Date().getFullYear()}</p>
+        </div>
       </section>
     </main>
   )

@@ -1003,7 +1003,7 @@ export default function K4FeCN6() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/ni-co-4"
+              href="/ilmiy/birikmalar/ni-co-4"
               onClick={(e) => { e.preventDefault(); window.history.back(); }}
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
@@ -1011,7 +1011,7 @@ export default function K4FeCN6() {
               <span className="hidden sm:inline">[Ni(CO)₄]</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/k3-fe-cn-6"
+              href="/ilmiy/birikmalar/k3-fe-cn-6"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-400 hover:to-orange-400 text-white font-bold transition-all shadow-lg shadow-red-500/30 flex items-center gap-2"
             >
               <span className="hidden sm:inline">K₃[Fe(CN)₆] (Qizil qon tuzi)</span>

@@ -1061,7 +1061,7 @@ export default function NiCO4() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/fe-co-5"
+              href="/ilmiy/birikmalar/fe-co-5"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold transition-all shadow-lg shadow-amber-500/30 flex items-center gap-2"
             >
               <span>🟡</span>

@@ -136,8 +136,10 @@ export default function TrigonalBipiramida3D() {
     starsGeo.setAttribute("position", new THREE.BufferAttribute(sp, 3))
     scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.01, transparent: true, opacity: 0.4 })))
 
+    let frameId
+
     function animate() {
-      requestAnimationFrame(animate)
+      frameId = requestAnimationFrame(animate)
       const t = Date.now() * 0.001
       glow.scale.setScalar(1 + Math.sin(t * 2) * 0.04)
       centerAtom.rotation.y += 0.003
@@ -154,7 +156,7 @@ export default function TrigonalBipiramida3D() {
     window.addEventListener("resize", hr)
     return () => {
       window.removeEventListener("resize", hr)
-      container.removeChild(renderer.domElement)
+      cancelAnimationFrame(frameId); container.removeChild(renderer.domElement); renderer.dispose()
     }
   }, [])
 

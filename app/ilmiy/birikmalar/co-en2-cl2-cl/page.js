@@ -1553,7 +1553,7 @@ export default function CoEn2Cl2Cl() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/co-en3-cl3"
+              href="/ilmiy/birikmalar/co-en3-cl3"
               onClick={(e) => { e.preventDefault(); window.history.back(); }}
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
@@ -1561,7 +1561,7 @@ export default function CoEn2Cl2Cl() {
               <span className="hidden sm:inline">[Co(en)₃]Cl₃</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/co-nh3-4-cl2-cl"
+              href="/ilmiy/birikmalar/co-nh3-4-cl2-cl"
               onClick={(e) => { e.preventDefault(); alert('Keyingi: [Co(NH₃)₄Cl₂]Cl — Praseo/Violeo'); }}
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-400 hover:to-pink-400 text-white font-bold transition-all shadow-lg shadow-violet-500/30 flex items-center gap-2"
             >

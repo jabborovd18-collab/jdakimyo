@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { ASSIGNABLE_ROLES } from '@/lib/roles'
 
 // GET - Foydalanuvchilar ro'yxati (pagination, qidiruv, filtrlar bilan)
 export async function GET(request) {
@@ -201,8 +202,7 @@ export async function PUT(request) {
         if (!data?.role) {
           return NextResponse.json({ error: 'Yangi rol kerak' }, { status: 400 })
         }
-        const validRoles = ['user', 'moderator', 'admin', 'superadmin']
-        if (!validRoles.includes(data.role)) {
+        if (!ASSIGNABLE_ROLES.includes(data.role)) {
           return NextResponse.json({ error: 'Noto\'g\'ri rol' }, { status: 400 })
         }
         // Superadmin rolini faqat superadmin bera oladi

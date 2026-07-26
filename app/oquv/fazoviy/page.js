@@ -111,7 +111,7 @@ const shakllar = [
     misollar: ["[Re(S₂C₂Ph₂)₃]", "[W(CH₃)₆]", "[Mo(S₂C₂(CF₃)₂)₃]"],
     badge: "KS=6",
     rang: "amber",
-    has3D: false,
+    has3D: true,
     rarity: "Kam uchraydi"
   },
   
@@ -126,7 +126,7 @@ const shakllar = [
     misollar: ["[ZrF₇]³⁻", "[HfF₇]³⁻", "[UO₂F₅]³⁻"],
     badge: "KS=7",
     rang: "indigo",
-    has3D: false
+    has3D: true
   },
   {
     ks: 7,
@@ -138,7 +138,7 @@ const shakllar = [
     misollar: ["[NbOF₆]³⁻", "[TaF₇]²⁻"],
     badge: "KS=7",
     rang: "teal",
-    has3D: false
+    has3D: true
   },
   
   // ── KS=8 ──
@@ -152,7 +152,7 @@ const shakllar = [
     misollar: ["[Mo(CN)₈]⁴⁻", "[TaF₈]³⁻", "[PaF₈]³⁻"],
     badge: "KS=8",
     rang: "sky",
-    has3D: false
+    has3D: true
   },
   {
     ks: 8,
@@ -164,7 +164,7 @@ const shakllar = [
     misollar: ["[Zr(acac)₄]", "[Mo(CN)₈]⁴⁻"],
     badge: "KS=8",
     rang: "fuchsia",
-    has3D: false
+    has3D: true
   },
   {
     ks: 8,
@@ -176,7 +176,7 @@ const shakllar = [
     misollar: ["[XeF₈]²⁻", "[IF₈]⁻", "[TaF₈]³⁻"],
     badge: "KS=8",
     rang: "violet",
-    has3D: false
+    has3D: true
   },
   
   // ── KS=9 ──
@@ -190,7 +190,7 @@ const shakllar = [
     misollar: ["[ReH₉]²⁻", "[Nd(H₂O)₉]³⁺"],
     badge: "KS=9",
     rang: "lime",
-    has3D: false
+    has3D: true
   },
   
   // ── KS=10 ──
@@ -204,7 +204,7 @@ const shakllar = [
     misollar: ["[Th(C₂O₄)₄(H₂O)₂]⁴⁻"],
     badge: "KS=10",
     rang: "rose",
-    has3D: false
+    has3D: true
   },
   {
     ks: 10,
@@ -231,7 +231,7 @@ const shakllar = [
     misollar: ["[B₁₂H₁₂]²⁻", "C₆₀ (fulleren)", "[Th(NO₃)₆]²⁻"],
     badge: "KS=12",
     rang: "yellow",
-    has3D: false
+    has3D: true
   }
 ]
 
@@ -337,7 +337,7 @@ export default function FazoviyTuzilishi() {
                 Fazoviy tuzilishi
               </h1>
               <p className="text-purple-500 text-sm mt-1">
-                Koordinatsion son va VSEPR modeli asosida • KS=2 dan KS=12 gacha • 18 ta geometrik shakl
+                Koordinatsion son va VSEPR modeli asosida • KS={stats.ksRange[0]} dan KS={stats.ksRange[1]} gacha • {stats.total} ta geometrik shakl
               </p>
             </div>
             <Link 
@@ -372,18 +372,49 @@ export default function FazoviyTuzilishi() {
           </div>
         </div>
 
+        {/* ═════ CPK RANGLAR HAVOLASI ═════ */}
+        {/* Bu sahifa mavjud edi, lekin hech qayerdan havola qilinmagandi —
+            3D modellardagi atom ranglarini tushunish uchun kerak */}
+        <Link
+          href="/oquv/fazoviy/cpk-ranglar"
+          className="group flex items-center gap-4 bg-gradient-to-r from-slate-900/60 to-purple-900/40 border border-purple-700/50 hover:border-yellow-400/50 rounded-2xl p-4 sm:p-5 mb-8 transition-all"
+        >
+          <div className="flex gap-1 flex-shrink-0">
+            {["#FFFFFF", "#1A1A1A", "#3050F8", "#FF0D0D", "#1FF01F"].map((hex) => (
+              <span
+                key={hex}
+                className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-white/20"
+                style={{ backgroundColor: hex }}
+              />
+            ))}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-white text-sm sm:text-base group-hover:text-yellow-400 transition-colors">
+              CPK ranglar standarti
+            </div>
+            <div className="text-purple-300 text-xs">
+              3D modellardagi atomlar qaysi rangda ko&apos;rsatilishi
+            </div>
+          </div>
+          <span className="text-purple-500 group-hover:text-yellow-400 group-hover:translate-x-1 transition-all flex-shrink-0">
+            →
+          </span>
+        </Link>
+
         {/* ═════ KIRISH QISMI ═════ */}
         <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6 mb-8">
           <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <span>📋</span> Bu bo'limda nimalarni o'rganasiz?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm text-purple-200">
+            {/* Raqamlar stats'dan olinadi — qo'lda yozilgani eskirib qolgandi
+                ("18 ta shakl" va "8 ta 3D model" haqiqatga mos emas edi) */}
             {[
-              "18 ta geometrik shakl (KS=2 → KS=12)",
+              `${stats.total} ta geometrik shakl (KS=${stats.ksRange[0]} → KS=${stats.ksRange[1]})`,
               "CPK xalqaro ranglar standarti",
               "VSEPR va Kepert modellari",
               "Har bir shakl uchun 3-4 ta misol",
-              "Interaktiv 3D modellar (8 ta)",
+              `Interaktiv 3D modellar (${stats.with3D} ta)`,
               "Sendvich birikmalar (metallosenlar)"
             ].map((text, i) => (
               <div key={i} className="flex items-start gap-2">

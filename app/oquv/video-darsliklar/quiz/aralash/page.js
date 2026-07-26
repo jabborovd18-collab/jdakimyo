@@ -3,12 +3,17 @@ import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
-import { QUIZ_BANK as NOMLANISH_BANK } from "../nomlanishi/data"
-import { QUIZ_BANK as KLASSIFIKATSIYA_BANK } from "../klassifikatsiyasi/data"
-import { QUIZ_BANK as FAZOVIY_BANK } from "../fazoviy/data"
-import { QUIZ_BANK as IZOMERIYA_BANK } from "../izomeriya/data"
-import { getPreviousIds, saveQuizHistory } from "../nomlanishi/utils/storage"
-import { generateQuizPDF, prepareAnswersForPDF } from "../nomlanishi/utils/pdf"
+import { getPreviousIds, saveQuizHistory } from "../_shared/utils/storage"
+import { generateQuizPDF, prepareAnswersForPDF } from "../_shared/utils/pdf"
+
+// Savollar bazadan olinadi (admin panel boshqaradi), avval 4 ta data.js
+// faylidan import qilinardi. Kategoriya slug'i -> ko'rsatiladigan nom.
+const MAVZULAR = [
+  { slug: "nomlanishi", label: "Nomlanishi" },
+  { slug: "klassifikatsiyasi", label: "Klassifikatsiyasi" },
+  { slug: "fazoviy", label: "Fazoviy" },
+  { slug: "izomeriya", label: "Izomeriya" },
+]
 
 // Fisher-Yates shuffle
 function shuffle(array) {
@@ -48,6 +53,38 @@ export default function AralashQuizPage() {
   const [startTime, setStartTime] = useState(null)
   const [elapsedTime, setElapsedTime] = useState(0)
 
+  // Savollar bazasi (/api/quiz/bank) — barcha mavzular birga keladi
+  const [bank, setBank] = useState([])
+  const [bankLoading, setBankLoading] = useState(true)
+  const [bankError, setBankError] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadBank() {
+      try {
+        const response = await fetch("/api/quiz/bank?category=aralash")
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.error || "Savollarni yuklab bo'lmadi")
+        if (cancelled) return
+
+        if (!Array.isArray(data.questions) || data.questions.length === 0) {
+          throw new Error("Bazada savol topilmadi")
+        }
+        setBank(data.questions)
+        setBankLoading(false)
+      } catch (error) {
+        if (!cancelled) {
+          setBankError(error.message)
+          setBankLoading(false)
+        }
+      }
+    }
+
+    loadBank()
+    return () => { cancelled = true }
+  }, [])
+
   // 🆕 Session yuklanganda avtomatik ismni o'rnatish
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
@@ -72,25 +109,16 @@ export default function AralashQuizPage() {
     if (userName.trim().length >= 2) setShowNameModal(false)
   }
 
-  // Quiz boshlash
+  // Quiz boshlash — har bir mavzudan 5 tadan olib aralashtiramiz
   const handleStartQuiz = () => {
     const previousIds = getPreviousIds("aralash")
-    
-    // Har bir mavzudan 5 tadan
-    const nomlanish = pickFromBank(NOMLANISH_BANK, 5, previousIds).map(q => ({ ...q, category: "Nomlanishi" }))
-    const klassifikatsiya = pickFromBank(KLASSIFIKATSIYA_BANK, 5, previousIds).map(q => ({ ...q, category: "Klassifikatsiyasi" }))
-    const fazoviy = pickFromBank(FAZOVIY_BANK, 5, previousIds).map(q => ({ ...q, category: "Fazoviy" }))
-    const izomeriya = pickFromBank(IZOMERIYA_BANK, 5, previousIds).map(q => ({ ...q, category: "Izomeriya" }))
-    
-    // Barchasini birlashtirib aralashtirish
-    const allQuestions = shuffle([
-      ...nomlanish,
-      ...klassifikatsiya,
-      ...fazoviy,
-      ...izomeriya
-    ])
-    
-    setQuestions(allQuestions)
+
+    const tanlangan = MAVZULAR.flatMap(({ slug, label }) => {
+      const mavzuBank = bank.filter(q => q.category === slug)
+      return pickFromBank(mavzuBank, 5, previousIds).map(q => ({ ...q, category: label }))
+    })
+
+    setQuestions(shuffle(tanlangan))
     setQuizStarted(true)
     setStartTime(Date.now())
   }
@@ -225,8 +253,8 @@ export default function AralashQuizPage() {
     }
   }
 
-  // Loading session
-  if (status === "loading") {
+  // Loading session yoki savollar bazasi
+  if (status === "loading" || bankLoading) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
         <div className="text-center">
@@ -234,6 +262,25 @@ export default function AralashQuizPage() {
             ⏳
           </div>
           <div className="text-purple-300 text-lg">Yuklanmoqda...</div>
+        </div>
+      </main>
+    )
+  }
+
+  // Savollarni yuklab bo'lmadi
+  if (bankError) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
+        <div className="bg-red-900/20 border border-red-700/50 rounded-2xl p-8 max-w-md w-full text-center">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-red-400 mb-2">Savollarni yuklab bo&apos;lmadi</h2>
+          <p className="text-purple-300 text-sm mb-6">{bankError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
+          >
+            🔄 Qayta urinish
+          </button>
         </div>
       </main>
     )

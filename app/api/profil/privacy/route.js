@@ -78,7 +78,7 @@ export async function PUT(request) {
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        privacySettings: JSON.stringify(newSettings)
+        privacySettings: newSettings
       }
     })
 

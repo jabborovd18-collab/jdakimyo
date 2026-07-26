@@ -933,14 +933,14 @@ export default function ZeiseTuzi() {
           
           <div className="flex gap-3">
             <Link 
-              href="/ilmiy/birikmares/ferrosen"
+              href="/ilmiy/birikmalar/ferrosen"
               className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-2"
             >
               <span>←</span>
               <span className="hidden sm:inline">Ferrosen</span>
             </Link>
             <Link 
-              href="/ilmiy/birikmares/vitamin-b12"
+              href="/ilmiy/birikmalar/vitamin-b12"
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold transition-all shadow-lg shadow-amber-500/30 flex items-center gap-2"
             >
               <span className="hidden sm:inline">Vitamin B₁₂</span>

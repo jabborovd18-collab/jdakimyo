@@ -630,9 +630,10 @@ export default function OptikIzomeriya3D() {
   const [cdWavelength, setCdWavelength] = useState(490)
   const [ordWavelength, setOrdWavelength] = useState(589)
   const [pdfSections, setPdfSections] = useState({
-    snapshot: true, info: true, chirality: true, optical: true,
-    cd: true, ord: true, cip: true, werner: true,
-    pasteur: false, bijvoet: false, talidomid: false, references: true
+    chirality: true, cip: true, optical: true,
+    cd: true, ord: true, werner: true,
+    pasteur: true, bijvoet: true, table: true, talidomid: true,
+    references: true
   })
   const [citationFormat, setCitationFormat] = useState("APA")
 
@@ -942,508 +943,752 @@ export default function OptikIzomeriya3D() {
       currentComplex.optical.wavelength])
 
   // ═══════════════════════════════════════════════════════════
-  // 📄 PDF EKSPORT — ILMIY MAQOLA USLUBIDA (optik izomeriya)
+  // 📄 PDF EKSPORT — ILMIY MAQOLA USLUBIDA (premium arxitektura)
+  // Namuna: koordinatsion izomeriya PDF engine (jdakimyo.uz standarti)
   // ═══════════════════════════════════════════════════════════
   const generatePDF = useCallback(async () => {
     if (pdfGenerating) return
     setPdfGenerating(true)
     try {
+      // ═══════════════════════════════════════════════════════════
+      // FONT YUKLASH (DejaVu Sans — Unicode: Λ, Δ, α, ₃, ° va h.k.)
+      // ═══════════════════════════════════════════════════════════
       const pdfDoc = await PDFDocument.create()
       pdfDoc.registerFontkit(fontkit)
 
-      // ── Font yuklash (Unicode-mos font — Λ, Δ, ₃, α, ° va boshqa simvollar uchun) ──
-      // Bir necha CDN manba: birinchisi ishlamasa, keyingisi sinaladi
-      const fontCandidates = [
-        {
-          regular: "https://cdn.jsdelivr.net/npm/@fontsource/dejavu-sans@5.0.3/files/dejavu-sans-latin-400-normal.woff",
-          bold:    "https://cdn.jsdelivr.net/npm/@fontsource/dejavu-sans@5.0.3/files/dejavu-sans-latin-700-normal.woff",
-          italic:  "https://cdn.jsdelivr.net/npm/@fontsource/dejavu-sans@5.0.3/files/dejavu-sans-latin-400-italic.woff"
-        },
-        {
-          regular: "https://cdn.jsdelivr.net/gh/dejavu-fonts/dejavu-fonts@version_2_37/ttf/DejaVuSans.ttf",
-          bold:    "https://cdn.jsdelivr.net/gh/dejavu-fonts/dejavu-fonts@version_2_37/ttf/DejaVuSans-Bold.ttf",
-          italic:  "https://cdn.jsdelivr.net/gh/dejavu-fonts/dejavu-fonts@version_2_37/ttf/DejaVuSans-Oblique.ttf"
-        },
-        {
-          // Noto Sans — Google Fonts, Unicode qamrovi keng
-          regular: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans@5.0.20/files/noto-sans-latin-400-normal.ttf",
-          bold:    "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans@5.0.20/files/noto-sans-latin-700-normal.ttf",
-          italic:  "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans@5.0.20/files/noto-sans-latin-400-italic.ttf"
-        }
-      ]
-
-      let font, fontBold, fontItalic
-      let unicodeFont = false // Unicode font muvaffaqiyatli yuklandi/yuklanmadi bayrog'i
-
-      for (const set of fontCandidates) {
-        try {
-          const [fBytes, fbBytes, fiBytes] = await Promise.all([
-            fetch(set.regular).then(r => { if (!r.ok) throw new Error("font fetch failed"); return r.arrayBuffer() }),
-            fetch(set.bold).then(r => { if (!r.ok) throw new Error("font fetch failed"); return r.arrayBuffer() }),
-            fetch(set.italic).then(r => { if (!r.ok) throw new Error("font fetch failed"); return r.arrayBuffer() })
-          ])
-          font = await pdfDoc.embedFont(fBytes, { subset: true })
-          fontBold = await pdfDoc.embedFont(fbBytes, { subset: true })
-          fontItalic = await pdfDoc.embedFont(fiBytes, { subset: true })
-          unicodeFont = true
-          break
-        } catch (e) {
-          // keyingi manbaga o'tamiz
-          continue
-        }
+      let regularFont, boldFont, italicFont
+      try {
+        const [rBytes, bBytes, iBytes] = await Promise.all([
+          fetch("/fonts/DejaVuSans.ttf").then(r => { if (!r.ok) throw new Error("Regular"); return r.arrayBuffer() }),
+          fetch("/fonts/DejaVuSans-Bold.ttf").then(r => { if (!r.ok) throw new Error("Bold"); return r.arrayBuffer() }),
+          fetch("/fonts/DejaVuSans-Oblique.ttf").then(r => { if (!r.ok) throw new Error("Italic"); return r.arrayBuffer() })
+        ])
+        regularFont = await pdfDoc.embedFont(rBytes, { subset: true })
+        boldFont = await pdfDoc.embedFont(bBytes, { subset: true })
+        italicFont = await pdfDoc.embedFont(iBytes, { subset: true })
+      } catch (err) {
+        alert("Font yuklanmadi. public/fonts/ papkasida DejaVuSans*.ttf fayllari borligini tekshiring.")
+        setPdfGenerating(false)
+        return
       }
 
-      // Agar barcha manbalar ishlamasa — StandardFonts (WinAnsi) ga tushamiz
-      if (!unicodeFont) {
-        font = await pdfDoc.embedFont(StandardFonts.Helvetica)
-        fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-        fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique)
-      }
-
-      // ── Unicode → ASCII transliteratsiya jadvali (fallback rejim uchun) ──
-      // Unicode font yuklanmagan bo'lsa, WinAnsi ishlata olmaydigan belgilarni almashtiramiz
-      const asciiMap = {
-        "Λ": "Lambda", "Δ": "Delta", "λ": "lambda", "α": "alpha", "β": "beta",
-        "γ": "gamma", "δ": "delta", "ε": "epsilon", "π": "pi", "σ": "sigma",
-        "θ": "theta", "μ": "mu", "η": "eta", "ν": "nu", "ρ": "rho", "φ": "phi",
-        "ω": "omega", "Σ": "Sigma", "Ω": "Omega",
-        "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5",
-        "₆": "6", "₇": "7", "₈": "8", "₉": "9", "₊": "+", "₋": "-",
-        "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5",
-        "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁺": "+", "⁻": "-",
-        "°": " deg", "±": "+/-", "×": "x", "÷": "/", "≤": "<=", "≥": ">=",
-        "≈": "~", "≠": "!=", "→": "->", "←": "<-", "↔": "<->", "⇌": "<=>",
-        "↑": "^", "↓": "v",
-        "·": ".", "•": "*", "–": "-", "—": "--", "…": "...",
-        "\u2018": "'", "\u2019": "'", "\u201C": '"', "\u201D": '"',
-        "Å": "A", "℃": "C", "℉": "F", "¼": "1/4", "½": "1/2", "¾": "3/4",
-        "🪞": "[mirror]", "⚗️": "", "🧪": "", "📚": "", "📄": "",
-        "🏆": "", "💎": "", "⚠️": "", "🔮": "", "☀️": "", "📊": "",
-        "🌈": "", "📖": "", "🧬": "", "🎨": "", "🔬": ""
-      }
-      const toAscii = (s) => {
-        let out = String(s || "")
-        for (const [uni, ascii] of Object.entries(asciiMap)) {
-          out = out.split(uni).join(ascii)
-        }
-        // Qolgan barcha non-WinAnsi belgilarni tashlab yuboramiz
-        return out.replace(/[^\x20-\x7E\xA0-\xFF]/g, "?")
-      }
-
-      // ── Ranglar (jdakimyo.uz brand) ──
+      // ═══════════════════════════════════════════════════════════
+      // RANG PALITRASI (jdakimyo.uz brand)
+      // ═══════════════════════════════════════════════════════════
       const C = {
-        purple: rgb(0.42, 0.29, 0.70),
-        purpleDark: rgb(0.29, 0.20, 0.55),
-        cyan: rgb(0.28, 0.86, 0.98),   // Λ
-        pink: rgb(0.95, 0.41, 0.88),    // Δ
-        gold: rgb(1.0, 0.84, 0.0),
-        text: rgb(0.10, 0.10, 0.15),
-        subtle: rgb(0.45, 0.45, 0.55),
-        line: rgb(0.85, 0.85, 0.90),
-        bg: rgb(0.97, 0.96, 0.99),
-        green: rgb(0.20, 0.65, 0.35),
-        red: rgb(0.85, 0.20, 0.20)
+        // Asosiy binafsha oilasi
+        purple:      rgb(0.30, 0.11, 0.58),
+        purpleLight: rgb(0.86, 0.78, 1.00),
+        purpleMid:   rgb(0.65, 0.55, 0.98),
+        purpleDark:  rgb(0.12, 0.11, 0.29),
+        // Matnlar
+        textDark:    rgb(0.08, 0.08, 0.16),
+        textMuted:   rgb(0.47, 0.47, 0.55),
+        textGray:    rgb(0.47, 0.47, 0.47),
+        white:       rgb(1, 1, 1),
+        // Aktsentlar
+        gold:        rgb(0.80, 0.62, 0.05),
+        blue:        rgb(0.08, 0.31, 0.75),
+        orange:      rgb(0.86, 0.55, 0.00),
+        red:         rgb(0.80, 0.20, 0.20),
+        green:       rgb(0.08, 0.55, 0.31),
+        yellow:      rgb(0.75, 0.60, 0.10),
+        cyan:        rgb(0.10, 0.60, 0.80),  // Λ
+        pink:        rgb(0.85, 0.20, 0.75),  // Δ
+        // Yo'nalish/chiziqlar
+        grayLine:    rgb(0.78, 0.78, 0.86),
+        // Info box fonlari
+        bgPurple:    rgb(0.97, 0.96, 1.00),
+        bgOrange:    rgb(1.00, 0.97, 0.94),
+        bgBlue:      rgb(0.94, 0.98, 1.00),
+        bgGreen:     rgb(0.94, 1.00, 0.98),
+        bgYellow:    rgb(1.00, 0.98, 0.90),
+        bgRed:       rgb(1.00, 0.94, 0.94),
+        bgGold:      rgb(1.00, 0.98, 0.86),
+        bgCyan:      rgb(0.92, 0.98, 1.00),
+        bgPink:      rgb(1.00, 0.94, 0.99)
       }
 
-      // ── A4 sahifa ──
-      const PW = 595.28, PH = 841.89, M = 55
-      let page = pdfDoc.addPage([PW, PH])
-      let y = PH - M
+      // ═══════════════════════════════════════════════════════════
+      // GEOMETRIK KONSTANTALAR (A4)
+      // ═══════════════════════════════════════════════════════════
+      const PAGE_W = 595.28
+      const PAGE_H = 841.89
+      const MARGIN = 55
+      const CONTENT_W = PAGE_W - 2 * MARGIN
+      const FOOTER_Y = 50
 
-      // ── Xavfsiz drawText helper — unicode font yuklanmagan bo'lsa avtomatik ASCII ──
-      // targetPage ixtiyoriy: agar berilmasa, joriy `page` ni ishlatadi (footer uchun qulay)
-      const drawText = (text, x, yPos, opts = {}) => {
-        const { size = 10, font: f = font, color: col = C.text, maxWidth = PW - 2 * M, targetPage = null } = opts
-        const tp = targetPage || page
-        let cleaned = cleanText(text) || ""
-        // Agar Unicode font yuklanmagan bo'lsa — oldindan ASCII ga o'giramiz
-        if (!unicodeFont) cleaned = toAscii(cleaned)
-        try {
-          tp.drawText(cleaned, { x, y: yPos, size, font: f, color: col, maxWidth })
-        } catch {
-          // Fallback: hatto Unicode font yuklangan bo'lsa ham, agar biror belgi glyph'da yo'q bo'lsa
-          try {
-            tp.drawText(toAscii(cleaned), { x, y: yPos, size, font: f, color: col, maxWidth })
-          } catch {
-            // So'nggi chora — xatoni yutamiz, PDF hosil qilishni to'xtatmasin
-            try { tp.drawText("?", { x, y: yPos, size, font: f, color: col }) } catch {}
-          }
+      // ═══════════════════════════════════════════════════════════
+      // YORDAMCHI FUNKSIYALAR
+      // ═══════════════════════════════════════════════════════════
+      const measure = (text, f, size) => {
+        try { return f.widthOfTextAtSize(String(text || ""), size) }
+        catch { return String(text || "").length * size * 0.5 }
+      }
+
+      const truncate = (text, f, size, maxWidth) => {
+        const str = String(text || "")
+        if (measure(str, f, size) <= maxWidth) return str
+        let lo = 0, hi = str.length
+        while (lo < hi) {
+          const mid = Math.floor((lo + hi + 1) / 2)
+          if (measure(str.slice(0, mid) + "…", f, size) <= maxWidth) lo = mid
+          else hi = mid - 1
         }
+        return str.slice(0, lo) + "…"
       }
-      const wrapText = (text, maxCharsPerLine) => {
-        const words = String(text || "").split(/\s+/)
+
+      const wrapText = (text, f, size, maxWidth) => {
+        const clean = cleanText(text)
+        if (!clean) return [""]
+        const words = clean.split(/\s+/)
         const lines = []
-        let cur = ""
+        let curLine = ""
         for (const w of words) {
-          if ((cur + " " + w).trim().length > maxCharsPerLine) {
-            if (cur) lines.push(cur.trim())
-            cur = w
+          const test = curLine ? curLine + " " + w : w
+          if (measure(test, f, size) <= maxWidth) {
+            curLine = test
           } else {
-            cur = (cur + " " + w).trim()
+            if (curLine) lines.push(curLine)
+            // Agar bitta so'z ham sig'masa — belgi-belgi bo'lib boradi
+            if (measure(w, f, size) > maxWidth) {
+              let chunk = ""
+              for (const ch of w) {
+                if (measure(chunk + ch, f, size) <= maxWidth) chunk += ch
+                else { lines.push(chunk); chunk = ch }
+              }
+              curLine = chunk
+            } else {
+              curLine = w
+            }
           }
         }
-        if (cur) lines.push(cur.trim())
+        if (curLine) lines.push(curLine)
         return lines
       }
-      const newPageIfNeeded = (h = 40) => {
-        if (y - h < M + 40) {
-          page = pdfDoc.addPage([PW, PH])
-          y = PH - M
-        }
+
+      // ═══════════════════════════════════════════════════════════
+      // SAHIFA BOSHQARUVI
+      // ═══════════════════════════════════════════════════════════
+      let page = pdfDoc.addPage([PAGE_W, PAGE_H])
+      let y = PAGE_H - MARGIN
+      let pageNumber = 1
+
+      const addFooter = (p, pn) => {
+        // Chiziq
+        p.drawLine({
+          start: { x: MARGIN, y: FOOTER_Y + 12 },
+          end:   { x: PAGE_W - MARGIN, y: FOOTER_Y + 12 },
+          thickness: 0.3, color: C.grayLine
+        })
+        // Chap: brand + formula + sana
+        const dateStr = new Date().toLocaleDateString("uz-UZ")
+        const brandText = `Optik izomeriya 3D Lab  •  ${cleanText(currentComplex.formula)}  •  ${dateStr}`
+        const truncatedBrand = truncate(brandText, regularFont, 8, CONTENT_W - 30)
+        p.drawText(truncatedBrand, {
+          x: MARGIN, y: FOOTER_Y, size: 8, font: regularFont, color: C.textGray
+        })
+        // O'ng: sahifa raqami
+        const pageStr = `${pn}`
+        const pageWidth = measure(pageStr, regularFont, 8)
+        p.drawText(pageStr, {
+          x: PAGE_W - MARGIN - pageWidth, y: FOOTER_Y, size: 8, font: regularFont, color: C.textGray
+        })
       }
-      const sectionHeader = (num, title) => {
-        newPageIfNeeded(50)
+
+      const addNewPage = () => {
+        addFooter(page, pageNumber)
+        page = pdfDoc.addPage([PAGE_W, PAGE_H])
+        pageNumber += 1
+        y = PAGE_H - MARGIN
+      }
+
+      const checkBreak = (need) => {
+        if (y - need < FOOTER_Y + 25) addNewPage()
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // TUZUVCHI PRIMITIVLAR
+      // ═══════════════════════════════════════════════════════════
+      const drawSectionHeader = (num, title) => {
+        checkBreak(50)
+        // Vertikal binafsha aksent
         page.drawRectangle({
-          x: M - 5, y: y - 4, width: PW - 2 * M + 10, height: 22,
-          color: C.purpleDark
+          x: MARGIN, y: y - 18, width: 4, height: 18, color: C.purple
         })
-        drawText(`${num}. ${title}`, M + 5, y + 4, {
-          size: 12, font: fontBold, color: rgb(1, 1, 1)
+        // Raqam
+        page.drawText(`${num}.`, {
+          x: MARGIN + 10, y: y - 14, size: 14, font: boldFont, color: C.purple
         })
-        y -= 32
+        // Sarlavha
+        page.drawText(cleanText(title), {
+          x: MARGIN + 30, y: y - 14, size: 14, font: boldFont, color: C.textDark
+        })
+        y -= 30
       }
-      const drawTable = (rows, colWidths, opts = {}) => {
-        const { headerBg = C.purple, rowH = 18 } = opts
-        const startX = M
-        rows.forEach((row, ri) => {
-          newPageIfNeeded(rowH + 4)
-          const isHeader = ri === 0
-          if (isHeader) {
-            page.drawRectangle({
-              x: startX, y: y - rowH + 4, width: colWidths.reduce((a, b) => a + b, 0),
-              height: rowH, color: headerBg
-            })
-          } else if (ri % 2 === 0) {
-            page.drawRectangle({
-              x: startX, y: y - rowH + 4, width: colWidths.reduce((a, b) => a + b, 0),
-              height: rowH, color: C.bg
-            })
-          }
-          let cx = startX + 5
-          row.forEach((cell, ci) => {
-            drawText(cell, cx, y - 8, {
-              size: 9,
-              font: isHeader ? fontBold : font,
-              color: isHeader ? rgb(1, 1, 1) : C.text,
-              maxWidth: colWidths[ci] - 8
-            })
-            cx += colWidths[ci]
-          })
-          y -= rowH
-        })
-        y -= 8
-      }
+
       const drawParagraph = (text, opts = {}) => {
-        const { size = 10, indent = 0, italic = false } = opts
-        const maxChars = Math.floor((PW - 2 * M - indent) / (size * 0.5))
-        const lines = wrapText(text, maxChars)
-        lines.forEach(line => {
-          newPageIfNeeded(14)
-          drawText(line, M + indent, y, {
-            size, font: italic ? fontItalic : font, color: C.text,
-            maxWidth: PW - 2 * M - indent
+        const { size = 10, color = C.textDark, font: f = regularFont, indent = 0 } = opts
+        const lines = wrapText(text, f, size, CONTENT_W - indent)
+        for (const line of lines) {
+          checkBreak(size + 4)
+          page.drawText(line, {
+            x: MARGIN + indent, y: y - size, size, font: f, color
           })
           y -= size + 4
-        })
+        }
         y -= 4
       }
 
-      // ═════════════════════════════════════════════════════════
-      // BOSH SAHIFA
-      // ═════════════════════════════════════════════════════════
-      // Yuqori dekorativ chiziq
+      const drawBulletPoint = (text, opts = {}) => {
+        const { size = 10, color = C.textDark, bulletColor = C.purple } = opts
+        const lines = wrapText(text, regularFont, size, CONTENT_W - 20)
+        checkBreak(size + 3)
+        // Nuqta
+        page.drawCircle({
+          x: MARGIN + 7, y: y - size + 2, size: 2, color: bulletColor
+        })
+        // Matn
+        page.drawText(lines[0] || "", {
+          x: MARGIN + 20, y: y - size, size, font: regularFont, color
+        })
+        y -= size + 3
+        for (let i = 1; i < lines.length; i++) {
+          checkBreak(size + 3)
+          page.drawText(lines[i], {
+            x: MARGIN + 20, y: y - size, size, font: regularFont, color
+          })
+          y -= size + 3
+        }
+        y -= 2
+      }
+
+      const drawInfoBox = (title, body, opts = {}) => {
+        const {
+          bgColor = C.bgPurple, borderColor = C.purple,
+          titleColor = C.purple, textColor = C.textDark
+        } = opts
+        const titleLines = wrapText(title, boldFont, 11, CONTENT_W - 24)
+        const bodyLines = wrapText(body, regularFont, 10, CONTENT_W - 24)
+        const boxHeight = 10 + titleLines.length * 14 + bodyLines.length * 14 + 10
+        checkBreak(boxHeight + 8)
+        // Fon
+        page.drawRectangle({
+          x: MARGIN, y: y - boxHeight, width: CONTENT_W, height: boxHeight, color: bgColor
+        })
+        // Chap chegara (qalin)
+        page.drawRectangle({
+          x: MARGIN, y: y - boxHeight, width: 3, height: boxHeight, color: borderColor
+        })
+        let ty = y - 10
+        // Sarlavha
+        for (const line of titleLines) {
+          page.drawText(line, {
+            x: MARGIN + 12, y: ty - 11, size: 11, font: boldFont, color: titleColor
+          })
+          ty -= 14
+        }
+        ty -= 2
+        // Tana
+        for (const line of bodyLines) {
+          page.drawText(line, {
+            x: MARGIN + 12, y: ty - 10, size: 10, font: regularFont, color: textColor
+          })
+          ty -= 14
+        }
+        y -= boxHeight + 8
+      }
+
+      const drawFormula = (formula, opts = {}) => {
+        const { size = 12, color = C.purpleDark, center = false } = opts
+        checkBreak(size + 8)
+        const width = measure(formula, boldFont, size)
+        const x = center ? MARGIN + (CONTENT_W - width) / 2 : MARGIN + 20
+        page.drawText(cleanText(formula), {
+          x, y: y - size, size, font: boldFont, color
+        })
+        y -= size + 8
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // TITUL SAHIFA (Cover page)
+      // ═══════════════════════════════════════════════════════════
+      // Yuqori binafsha blok
       page.drawRectangle({
-        x: 0, y: PH - 25, width: PW, height: 25, color: C.purple
+        x: 0, y: PAGE_H - 200, width: PAGE_W, height: 200, color: C.purpleDark
       })
-      drawText("JDA-KIMYO • ILMIY BYULLETEN'", M, PH - 17, {
-        size: 10, font: fontBold, color: rgb(1, 1, 1)
-      })
-      drawText(new Date().toLocaleDateString("uz-UZ"), PW - M - 60, PH - 17, {
-        size: 9, font, color: rgb(1, 1, 1)
+      page.drawRectangle({
+        x: 0, y: PAGE_H - 205, width: PAGE_W, height: 5, color: C.purple
       })
 
-      y = PH - 60
-
-      // Sarlavha
-      drawText("OPTIK IZOMERIYA", M, y, { size: 22, font: fontBold, color: C.purpleDark })
-      y -= 26
-      drawText("Koordinatsion birikmalarda xirallik va enantiomerlar", M, y, {
-        size: 13, font: fontItalic, color: C.subtle
+      // JDA-KIMYO byulleten qatori (yuqori chap)
+      page.drawText("JDA-KIMYO • ILMIY BYULLETEN'", {
+        x: MARGIN, y: PAGE_H - 30, size: 9, font: boldFont, color: C.purpleLight
       })
-      y -= 20
-
-      // Chiziq
-      page.drawLine({
-        start: { x: M, y: y }, end: { x: PW - M, y: y },
-        thickness: 2, color: C.gold
+      page.drawText(new Date().toLocaleDateString("uz-UZ"), {
+        x: PAGE_W - MARGIN - measure(new Date().toLocaleDateString("uz-UZ"), regularFont, 9),
+        y: PAGE_H - 30, size: 9, font: regularFont, color: C.purpleLight
       })
-      y -= 18
 
-      // Meta table
-      drawText("Tadqiqot obyekti:", M, y, { size: 10, font: fontBold, color: C.purpleDark })
-      drawText(currentComplex.formula + " (" + currentComplex.name + ")", M + 110, y, { size: 10, font, color: C.text })
-      y -= 15
-      drawText("Simmetriya guruhi:", M, y, { size: 10, font: fontBold, color: C.purpleDark })
-      drawText(currentComplex.symmetry + " (nuqta guruhi)", M + 110, y, { size: 10, font, color: C.text })
-      y -= 15
-      drawText("Enantiomer jufti:", M, y, { size: 10, font: fontBold, color: C.purpleDark })
-      drawText("Λ (lambda) / Δ (delta) — chap va o'ng qo'l propeller", M + 110, y, { size: 10, font, color: C.text })
-      y -= 15
-      drawText("Optik faollik [α]D:", M, y, { size: 10, font: fontBold, color: C.purpleDark })
-      drawText(`${currentComplex.optical.alphaD_lambda}° (Λ) / +${currentComplex.optical.alphaD_delta}° (Δ) at ${currentComplex.optical.wavelength} nm`, M + 110, y, { size: 10, font, color: C.text })
-      y -= 25
-
-      // Annotatsiya
-      drawText("ANNOTATSIYA", M, y, { size: 11, font: fontBold, color: C.purpleDark })
-      y -= 15
-      page.drawLine({
-        start: { x: M, y: y + 3 }, end: { x: M + 100, y: y + 3 },
-        thickness: 1, color: C.purple
+      // Asosiy sarlavha
+      const mainTitle = "OPTIK IZOMERIYA"
+      const mtWidth = measure(mainTitle, boldFont, 26)
+      page.drawText(mainTitle, {
+        x: (PAGE_W - mtWidth) / 2, y: PAGE_H - 90,
+        size: 26, font: boldFont, color: C.white
       })
-      y -= 5
-      drawParagraph(
-        `Ushbu hisobotda ${currentComplex.formula} kompleksining optik izomeriyasi ` +
-        `atroflicha o'rganilgan. Λ va Δ enantiomerlarining fazoviy tuzilishi, xirallikning ` +
-        `matematik asoslari (nuqta guruhi ${currentComplex.symmetry}, Sn simmetriya elementlarining yo'qligi), ` +
-        `qutblangan yorug'likka ta'siri (optik faollik), CD (sirkulyar dixroizm) va ORD ` +
-        `(optik burilish dispersiyasi) spektrlari, ajratish usullari (Pasteur-Werner metodi) va ` +
-        `biologik ahamiyati (Talidomid halokati, dorishunoslik) tavsiflangan. ` +
-        `${currentComplex.scientificNotes}`
+
+      // Subtitl
+      const subtitle = "Koordinatsion birikmalarda xirallik va enantiomerlar"
+      const stWidth = measure(subtitle, italicFont, 12)
+      page.drawText(subtitle, {
+        x: (PAGE_W - stWidth) / 2, y: PAGE_H - 115,
+        size: 12, font: italicFont, color: C.purpleLight
+      })
+
+      // Kompleks formulasi
+      const formulaStr = cleanText(currentComplex.formula)
+      const fWidth = measure(formulaStr, boldFont, 15)
+      page.drawText(formulaStr, {
+        x: (PAGE_W - fWidth) / 2, y: PAGE_H - 145,
+        size: 15, font: boldFont, color: C.white
+      })
+
+      // Yunon harflari
+      const greekLine = "Λ (lambda) ↔ Δ (delta)"
+      const gWidth = measure(greekLine, boldFont, 14)
+      page.drawText(greekLine, {
+        x: (PAGE_W - gWidth) / 2, y: PAGE_H - 175,
+        size: 14, font: boldFont, color: C.purpleLight
+      })
+
+      // Titul ostidagi bo'sh joy
+      y = PAGE_H - 235
+
+      // "Tadqiqot obyekti" info bloki
+      drawInfoBox(
+        "Tanlangan xiral kompleks",
+        `Formula: ${cleanText(currentComplex.formula)}  |  Tuz: ${cleanText(currentComplex.fullSalt)}\n` +
+        `IUPAC nomi: ${currentComplex.name}\n` +
+        `Nuqta guruh: ${currentComplex.chirality.pointGroup} (${currentComplex.symmetry})  |  ` +
+        `Gibridlanish: ${currentComplex.hybridization}\n` +
+        `Enantiomer jufti: Λ va Δ  |  σ = 0  |  Sn = yo'q  |  Xirallik: ✓`,
+        { bgColor: C.bgPurple, borderColor: C.purple }
       )
 
-      // ═════════════════════════════════════════════════════════
-      // 1. XIRALLIK VA UNING SHARTLARI
-      // ═════════════════════════════════════════════════════════
+      // Optik faollik info bloki
+      drawInfoBox(
+        "Optik xossalar (Na D chizig'i, 589 nm, 298 K, suv)",
+        `[α]D (Λ) = ${currentComplex.optical.alphaD_lambda}° (laevo, chapga buruvchi)\n` +
+        `[α]D (Δ) = +${currentComplex.optical.alphaD_delta}° (dextro, o'ngga buruvchi)\n` +
+        `CD λmax = ${currentComplex.optical.cdMax.lambda} nm  |  ` +
+        `Cotton effekti: Λ = ${currentComplex.optical.cdMax.sign_lambda} , Δ = ${currentComplex.optical.cdMax.sign_delta}\n` +
+        `d-orbital splitting Δo = ${currentComplex.dOrbital.deltaO} cm⁻¹ (${currentComplex.dOrbital.type})`,
+        { bgColor: C.bgGold, borderColor: C.gold, titleColor: C.gold }
+      )
+
+      // Annotatsiya
+      y -= 5
+      drawSectionHeader("§", "Annotatsiya")
+      drawParagraph(
+        `Ushbu hisobotda ${currentComplex.formula} kompleksining optik izomeriyasi keng qamrovli ` +
+        `o'rganilgan. Λ va Δ enantiomerlarining fazoviy tuzilishi, xirallikning matematik asoslari ` +
+        `(nuqta guruh ${currentComplex.chirality.pointGroup}, S₁/σ va Sn simmetriya elementlarining yo'qligi), ` +
+        `qutblangan yorug'likka ta'siri (optik faollik, Biot qonuni), CD (sirkulyar dixroizm) va ORD ` +
+        `(optik burilish dispersiyasi) spektrlari, Werner-Pasteur ajratish usullari, Bijvoet absolyut ` +
+        `konfiguratsiya metodi va enantiomerlarning biologik ahamiyati (Talidomid darsi, chiral switch ` +
+        `paradigmasi) batafsil bayon etilgan.`
+      )
+      drawParagraph(currentComplex.scientificNotes, { font: italicFont, color: C.textMuted })
+
+      addNewPage()
+
+      // ═══════════════════════════════════════════════════════════
+      // 1. XIRALLIK — TA'RIF VA MATEMATIK ASOSLARI
+      // ═══════════════════════════════════════════════════════════
       if (pdfSections.chirality) {
-        sectionHeader("1", "XIRALLIK VA UNING SHARTLARI")
+        drawSectionHeader(1, "Xirallik — ta'rif va matematik asoslari")
         drawParagraph(
-          "Xirallik (yun. cheir — qo'l) — molekulaning o'z oyna aksi bilan ustma-ust " +
-          "qo'yilmaslik xususiyati. Xiral molekula va uning oyna aksi enantiomerlar deb ataladi. " +
-          "Bir molekula xiral bo'lishi uchun quyidagi shartlar bajarilishi kerak:"
+          "Xirallik (yunoncha \"cheir\" — qo'l) — molekulaning o'z oyna aksi bilan ustma-ust qo'yilmaslik " +
+          "xususiyati. Xiral molekula va uning oyna aksi enantiomerlar deb ataladi. Enantiomerlar bir xil " +
+          "atomlardan iborat, bir xil bog'lar tartibiga ega, lekin fazoviy joylashuvi bir-birining oyna " +
+          "aksidir."
         )
-        drawTable([
-          ["Shart", "Ta'rif", "Bizning kompleks"],
-          ["S1 (σ) tekislik yo'q", "Simmetriya tekisligi bo'lmasligi", "σ = " + currentComplex.chirality.sigmaCount],
-          ["S2 (i) markaz yo'q", "Inversiya markazi bo'lmasligi", "i = yo'q"],
-          ["Sn o'q yo'q (n≥1)", "Nomtaraf aylanish o'qi bo'lmasligi", "Sn = " + currentComplex.chirality.sn],
-          ["Faqat Cn ruxsat", "Sof aylanish o'qlari mumkin", currentComplex.symmetry + " ruxsat"]
-        ], [130, 220, 135])
-        drawParagraph(
-          `${currentComplex.formula} kompleksining nuqta guruhi ${currentComplex.chirality.pointGroup} ` +
-          `— faqat sof aylanish o'qlaridan iborat. Bu — xiral molekula ekanligining rasmiy isboti.`
+        drawInfoBox(
+          "IUPAC (2013) rasmiy ta'rif",
+          "Chirality: The geometric property of a rigid object of being non-superposable on its mirror " +
+          "image. Xiral molekulaga simmetriya S₁ (= σ, oyna tekislik), S₂ (= i, inversiya markazi) va " +
+          "umuman hech qanday Sn (n ≥ 1) o'q bo'lmasligi shart.",
+          { bgColor: C.bgPurple, borderColor: C.purple }
+        )
+        drawParagraph("Molekulaning xirallik shartlari (barchasi bajarilishi kerak):")
+        drawBulletPoint("S₁ (σ) — simmetriya tekislik bo'lmasligi kerak", { bulletColor: C.green })
+        drawBulletPoint("S₂ (i) — inversiya markazi bo'lmasligi kerak", { bulletColor: C.green })
+        drawBulletPoint("Sn (n ≥ 1) — hech qanday nomtaraf (improper) aylanish o'qi bo'lmasligi kerak", { bulletColor: C.green })
+        drawBulletPoint("Faqat Cn (n ≥ 1) — sof aylanish o'qlari ruxsat etiladi", { bulletColor: C.green })
+        drawInfoBox(
+          `${cleanText(currentComplex.formula)} — xirallik tekshiruvi`,
+          `Nuqta guruh: ${currentComplex.chirality.pointGroup}  |  ` +
+          `σ (tekislik) = ${currentComplex.chirality.sigmaCount}  |  ` +
+          `i (markaz) = yo'q  |  Sn = ${currentComplex.chirality.sn}\n` +
+          `Xulosa: Molekula xirallik shartlarini to'liq bajaradi — ${currentComplex.chirality.type} ` +
+          `enantiomer jufti mavjud.`,
+          { bgColor: C.bgGreen, borderColor: C.green, titleColor: C.green }
         )
       }
 
-      // ═════════════════════════════════════════════════════════
-      // 2. Λ / Δ NOMENKLATURA (CIP QOIDASI)
-      // ═════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════
+      // 2. Λ/Δ NOMENKLATURA (IUPAC 2005 RED BOOK)
+      // ═══════════════════════════════════════════════════════════
       if (pdfSections.cip) {
-        sectionHeader("2", "Λ/Δ NOMENKLATURA (IUPAC 2005)")
+        drawSectionHeader(2, "Λ/Δ nomenklatura — IUPAC 2005 Red Book")
         drawParagraph(
           "Koordinatsion birikmalarda xirallikni ifodalash uchun IUPAC (2005 Red Book) tavsiya etgan " +
-          "usul — Λ (lambda) va Δ (delta) stereodeskriptorlari. Bu belgilar molekula C₃ (yoki asosiy Cn) " +
-          "o'qi bo'ylab qaralganda xelat halqalarining aylanish yo'nalishini ko'rsatadi:"
+          "usul — Λ (lambda) va Δ (delta) stereodeskriptorlari. Bu belgilar molekula asosiy Cn o'qi " +
+          "bo'ylab qaralganda xelat halqalarining propeller yo'nalishini ko'rsatadi."
         )
-        drawTable([
-          ["Deskriptor", "Aylanish", "Vint", "Yunon harfi"],
-          ["Δ (delta)", "Soat mili yo'nalishida", "O'ng qo'l vint", "Yunoncha Δ (o'ng burchak)"],
-          ["Λ (lambda)", "Soat miliga qarshi", "Chap qo'l vint", "Yunoncha Λ (chap burchak)"]
-        ], [90, 170, 130, 95])
+        drawInfoBox(
+          "Δ (delta) — o'ng qo'l propeller",
+          "Molekulani asosiy simmetriya o'qi bo'ylab qaraganda xelat halqalari SOAT MILI YO'NALISHIDA " +
+          "aylanadi. Sinonim: P-konfiguratsiya. O'ng qo'l vint (dextro-rotatory tendensiya, lekin bu " +
+          "aloqasi umumiy emas — ba'zi Δ manfiy [α] beradi).",
+          { bgColor: C.bgPink, borderColor: C.pink, titleColor: C.pink }
+        )
+        drawInfoBox(
+          "Λ (lambda) — chap qo'l propeller",
+          "Molekulani asosiy simmetriya o'qi bo'ylab qaraganda xelat halqalari SOAT MILIGA QARSHI " +
+          "aylanadi. Sinonim: M-konfiguratsiya. Chap qo'l vint. Δ ning aynan oyna aksi.",
+          { bgColor: C.bgCyan, borderColor: C.cyan, titleColor: C.cyan }
+        )
         drawParagraph(
-          "MUHIM: R/S nomenklaturasi organik molekulalar uchun mo'ljallangan, chunki u atrofdagi 4 ta " +
-          "atom orasidagi CIP ustuvorlik tartibiga asoslanadi. Xelat komplekslarida esa xirallik " +
-          "ligandlarning halqa aylanishidan kelib chiqadi — shuning uchun Λ/Δ tizimi ishlatiladi. " +
-          "Ba'zi holatlarda Δ ↔ P, Λ ↔ M sinonimlari ham qo'llaniladi.",
-          { italic: true }
+          "MUHIM: R/S nomenklaturasi organik molekulalar uchun mo'ljallangan — u xiral markaz " +
+          "atrofidagi 4 ta guruhning CIP ustuvorlik tartibiga asoslanadi. Xelat komplekslarida esa " +
+          "xirallik ligandlarning halqa aylanishidan kelib chiqadi — shuning uchun Λ/Δ tizimi qo'llaniladi.",
+          { font: italicFont, color: C.textMuted }
         )
       }
 
-      // ═════════════════════════════════════════════════════════
-      // 3. OPTIK FAOLLIK VA [α]D
-      // ═════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════
+      // 3. OPTIK FAOLLIK — BIOT QONUNI
+      // ═══════════════════════════════════════════════════════════
       if (pdfSections.optical) {
-        sectionHeader("3", "OPTIK FAOLLIK VA MUAYYAN BURILISH [α]D")
+        drawSectionHeader(3, "Optik faollik — Biot qonuni va [α]D")
         drawParagraph(
-          "Optik faol modda tekis qutblangan yorug'likni burish qobiliyatiga ega. " +
-          "Burilish burchagi α (gradus, °) polarimetrda o'lchanadi va quyidagi Biot qonuniga bo'ysunadi:"
+          "Optik faol modda tekis qutblangan yorug'likni burish qobiliyatiga ega. Bu jarayon " +
+          "polarimetr asbobida o'lchanadi. Burilish burchagi α (gradus, °) quyidagi Biot qonuniga bo'ysunadi:"
         )
-        // Biot formulasi (matn)
-        drawText("[α]λ^T = α / (l · c)", M + 20, y, {
-          size: 12, font: fontBold, color: C.purpleDark
-        })
-        y -= 20
+        drawFormula("[α]λ^T  =  α / (l · c)", { center: true, size: 14 })
+        drawParagraph("Formula parametrlari:")
+        drawBulletPoint("α — o'lchangan burilish burchagi (gradus, °)", { bulletColor: C.gold })
+        drawBulletPoint("l — polarimetr kyuvetasi uzunligi (dm, detsimetr)", { bulletColor: C.gold })
+        drawBulletPoint("c — modda konsentratsiyasi (g/mL yoki g/cm³)", { bulletColor: C.gold })
+        drawBulletPoint("T — harorat (odatda 298 K = 25 °C)", { bulletColor: C.gold })
+        drawBulletPoint("λ — yorug'lik to'lqin uzunligi (odatda 589 nm — natriy D chizig'i)", { bulletColor: C.gold })
+        drawInfoBox(
+          `${cleanText(currentComplex.formula)} uchun eksperimental qiymatlar`,
+          `Λ-enantiomer: [α]D = ${currentComplex.optical.alphaD_lambda}°  (laevo, chapga burish, "−" belgi)\n` +
+          `Δ-enantiomer: [α]D = +${currentComplex.optical.alphaD_delta}°  (dextro, o'ngga burish, "+" belgi)\n` +
+          `Rasemik aralashma (±): [α]D = 0°  —  Λ va Δ effekti bir-birini bekor qiladi\n` +
+          `O'lchov sharoiti: λ = ${currentComplex.optical.wavelength} nm (Na D), T = 298 K, erituvchi = suv`,
+          { bgColor: C.bgGold, borderColor: C.gold, titleColor: C.gold }
+        )
         drawParagraph(
-          "bu yerda: α — o'lchangan burilish (°); l — kyuveta uzunligi (dm); " +
-          "c — konsentratsiya (g/mL); T — harorat (K); λ — yorug'lik to'lqin uzunligi (odatda 589 nm — Na D chizig'i)."
+          "Enantiomer ortiqchaligi (ee, enantiomeric excess) — nomunifikatsiya darajasini o'lchaydi:",
+          { color: C.textDark }
         )
-        drawTable([
-          ["Kattalik", "Λ-enantiomer", "Δ-enantiomer", "Rasemik (±)"],
-          ["[α]D (°·mL/g·dm)", `${currentComplex.optical.alphaD_lambda}`, `+${currentComplex.optical.alphaD_delta}`, "0"],
-          ["Belgi konvensiya", "(−) — laevo", "(+) — dextro", "(±)"],
-          ["Yorug'lik", `${currentComplex.optical.wavelength} nm`, `${currentComplex.optical.wavelength} nm`, "—"],
-          ["Erituvchi", "Suv, 298 K", "Suv, 298 K", "—"]
-        ], [140, 120, 120, 105])
+        drawFormula("ee (%) = ([R] − [S]) / ([R] + [S]) × 100%", { center: true, size: 12 })
+        drawParagraph(
+          "ee = 100%: sof enantiomer  •  ee = 0%: rasemik aralashma (50:50)  •  ee = 50%: 75:25 nisbat",
+          { font: italicFont, color: C.textMuted }
+        )
       }
 
-      // ═════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════
       // 4. CD SPEKTRI (Sirkulyar Dixroizm)
-      // ═════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════
       if (pdfSections.cd) {
-        sectionHeader("4", "SIRKULYAR DIXROIZM (CD) SPEKTRI")
+        drawSectionHeader(4, "Sirkulyar Dixroizm (CD) spektroskopiyasi")
         drawParagraph(
-          "CD spektroskopiya — chap va o'ng aylanadigan qutblangan yorug'likning ("+
-          "L-CPL va R-CPL) yutilishi orasidagi farqni o'lchaydi: Δε = εL − εR. " +
-          "Enantiomerlar CD spektrida bir xil to'lqin uzunligida bir xil intensivlikda, " +
-          "lekin QARAMA-QARSHI ishorada peakka ega. Bu — enantiomerlarni farqlashning " +
-          "eng aniq spektroskopik usuli."
+          "CD spektroskopiya — chap va o'ng aylanadigan qutblangan yorug'likning (L-CPL va R-CPL) " +
+          "yutilishi orasidagi farqni o'lchaydi. Bu enantiomerlarni farqlashning eng aniq spektroskopik usulidir."
         )
-        drawTable([
-          ["Parametr", "Λ-enantiomer", "Δ-enantiomer"],
-          ["λmax (nm)", `${currentComplex.optical.cdMax.lambda}`, `${currentComplex.optical.cdMax.delta}`],
-          ["Δε ishorasi", `${currentComplex.optical.cdMax.sign_lambda} (manfiy Cotton)`, `${currentComplex.optical.cdMax.sign_delta} (musbat Cotton)`],
-          ["O'tish turi", "d-d (¹A₁g → ¹T₁g)", "d-d (¹A₁g → ¹T₁g)"]
-        ], [155, 155, 175])
+        drawFormula("Δε(λ) = εL(λ) − εR(λ)", { center: true, size: 14 })
         drawParagraph(
-          "Cotton effekti — CD spektrida absorbsion band atrofida ishoraning o'zgarishi. " +
-          "Bu koordinatsion birikmalarda absolyut konfiguratsiyani aniqlashning empirik asosidir.",
-          { italic: true }
+          "Enantiomerlar CD spektrida bir xil to'lqin uzunligida bir xil intensivlikda, lekin " +
+          "QARAMA-QARSHI ISHORADA peak beradi — bu Cotton effekti deb ataladi."
+        )
+        drawInfoBox(
+          "Cotton effekti — Λ enantiomer",
+          `λmax = ${currentComplex.optical.cdMax.lambda} nm  |  Δε ishorasi: ${currentComplex.optical.cdMax.sign_lambda} (MANFIY Cotton)\n` +
+          "O'tish turi: d–d (¹A₁g → ¹T₁g) — kobalt(III) uchun spin-taqiqlangan lekin CD da kuchli.\n" +
+          "Manfiy Cotton effekti — Λ konfiguratsiyaning empirik markeri.",
+          { bgColor: C.bgCyan, borderColor: C.cyan, titleColor: C.cyan }
+        )
+        drawInfoBox(
+          "Cotton effekti — Δ enantiomer",
+          `λmax = ${currentComplex.optical.cdMax.delta} nm  |  Δε ishorasi: ${currentComplex.optical.cdMax.sign_delta} (MUSBAT Cotton)\n` +
+          "O'tish turi: d–d (¹A₁g → ¹T₁g) — Λ bilan bir xil, lekin ishora teskari.\n" +
+          "Musbat Cotton effekti — Δ konfiguratsiyaning empirik markeri.",
+          { bgColor: C.bgPink, borderColor: C.pink, titleColor: C.pink }
+        )
+        drawParagraph(
+          "CD spektri koordinatsion birikmalarning absolyut konfiguratsiyasini aniqlashning eng " +
+          "keng qo'llaniladigan usuli hisoblanadi. Bijvoet metodidan (X-ray) farqli o'laroq, " +
+          "eritmada ham o'lchash mumkin."
         )
       }
 
-      // ═════════════════════════════════════════════════════════
-      // 5. ORD (Optical Rotatory Dispersion)
-      // ═════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════
+      // 5. ORD SPEKTRI (Optik Burilish Dispersiyasi)
+      // ═══════════════════════════════════════════════════════════
       if (pdfSections.ord) {
-        sectionHeader("5", "OPTIK BURILISH DISPERSIYASI (ORD)")
+        drawSectionHeader(5, "Optik Burilish Dispersiyasi (ORD)")
         drawParagraph(
-          "ORD — [α] ning to'lqin uzunligiga bog'liqligini o'lchaydi. Drude tenglamasiga muvofiq: " +
-          "[α]λ = k / (λ² − λ₀²). Absorbsion band yaqinida [α] anomal o'zgaradi — bu ham Cotton effekti " +
-          "deb ataladi. ORD va CD birgalikda — enantiomerning tuzilishini aniqlashda kuchli vosita."
+          "ORD — [α] burilish burchagining yorug'lik to'lqin uzunligi λ ga bog'liqligini o'lchaydi. " +
+          "Absorbsion band yaqinida [α] anomal o'zgaradi — bu Cotton effekti deb ataladi. " +
+          "ORD Drude tenglamasi bilan tavsiflanadi:"
         )
+        drawFormula("[α]λ = k / (λ² − λ₀²)", { center: true, size: 14 })
+        drawParagraph("bu yerda k — modda konstantasi, λ₀ — absorbsion peak markazi.")
+        drawInfoBox(
+          "CD va ORD — birgalikda kuchli vosita",
+          "CD spektri o'tish energiyasi darajasini aniq ko'rsatadi (peak λmax); ORD esa peak atrofidagi " +
+          "burilish o'zgarishini (S-shaklidagi egri) ko'rsatadi. Ikkalasi ham birga ishlatilganda, " +
+          "koordinatsion birikmaning absolyut konfiguratsiyasini aniqlash empirik jihatdan juda ishonchli.",
+          { bgColor: C.bgPurple, borderColor: C.purpleMid, titleColor: C.purple }
+        )
+        drawParagraph("Amaliy foydalanish:")
+        drawBulletPoint("Absolyut konfiguratsiya aniqlash (Bijvoet metodi bilan birgalikda)")
+        drawBulletPoint("Enantiomer ortiqchaligi (ee%) hisoblash — ORD asosida")
+        drawBulletPoint("Reaksiya mexanizmini tekshirish (SN1 vs SN2 — rasemizatsiya darajasi)")
+        drawBulletPoint("Biomolekulalar konformatsiyasini o'rganish (oqsillar, DNK)")
       }
 
-      // ═════════════════════════════════════════════════════════
-      // 6. WERNER TAJRIBASI (1911)
-      // ═════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════
+      // 6. WERNER TAJRIBASI (1911) — TARIXIY ISBOT
+      // ═══════════════════════════════════════════════════════════
       if (pdfSections.werner) {
-        sectionHeader("6", "WERNER TAJRIBASI (1911) — TARIXIY ISBOT")
+        drawSectionHeader(6, "Werner tajribasi (1911) — tarixiy isbot")
         drawParagraph(
-          "Alfred Werner (Sюrix universiteti) 1911-yilda [Co(en)₃]³⁺ (yoki cis-[Co(en)₂Cl₂]⁺) " +
-          "kompleksini d-tartrat kislotasi bilan reaksiyaga kirishtirdi. Rasemik kompleks + optik faol " +
-          "kislota → 2 ta diastereomer tuz hosil bo'ladi:"
+          "Alfred Werner (1866–1919, Sюrix universiteti) 1911-yilda [Co(en)₃]³⁺ va cis-[Co(en)₂Cl₂]⁺ " +
+          "komplekslarini enantiomerlarga ajratdi. Bu — koordinatsion birikmalarda xirallik borligining " +
+          "birinchi eksperimental isboti bo'ldi va uglerodsiz xirallik nazariyasini yaratdi."
         )
-        drawText("(±)-[Co(en)₃]³⁺ + 2 d-tartrat²⁻  →  Λ-[Co(en)₃][d-tart] + Δ-[Co(en)₃][d-tart]", M, y, {
-          size: 9, font: fontItalic, color: C.purpleDark
-        })
-        y -= 18
-        drawParagraph(
-          "Diastereomerlar — fizikaviy xossalari (eruvchanlik, kristall shakli) farqlanadi, shuning uchun " +
-          "fraktsion kristallizatsiya yoki xromatografiya bilan ajratiladi. Ajratilgangan so'ng " +
-          "OH⁻ bilan tartrat ligand olib tashlanadi va sof enantiomer olinadi. Bu Werner uchun 1913-yil " +
-          "Nobel mukofotining asosi bo'ldi va koordinatsion kimyoni mustaqil fanga aylantirdi."
+        drawInfoBox(
+          "Ajratish reaksiyasi — diastereomer kristallizatsiya",
+          "Rasemik kompleks + optik faol kislota (d-tartrat) → 2 ta diastereomer tuz. " +
+          "Diastereomerlar fizikaviy xossalari (eruvchanlik, kristall shakli) bilan farqlanadi, " +
+          "shuning uchun fraktsion kristallizatsiya bilan ajratiladi.",
+          { bgColor: C.bgYellow, borderColor: C.yellow, titleColor: C.yellow }
+        )
+        drawFormula("(±)-[Co(en)₃]³⁺ + 2 d-tart²⁻  →  Λ-[Co(en)₃][d-tart] + Δ-[Co(en)₃][d-tart]", { size: 10 })
+        drawParagraph("Ajratish qadamlar (Werner protokoli):")
+        drawBulletPoint("1) Rasemik kompleks eritmasiga optik faol d-tartrat qo'shiladi")
+        drawBulletPoint("2) Ikki diastereomer tuz hosil bo'ladi — biri kam eruvchan, cho'kadi")
+        drawBulletPoint("3) Filtrat orqali ikkinchi diastereomer ajratiladi")
+        drawBulletPoint("4) Sof enantiomerdan OH⁻ bilan tartrat ligand olib tashlanadi")
+        drawBulletPoint("5) Polarimetrda [α]D o'lchanadi va tasdiqlanadi")
+        drawInfoBox(
+          "🏆 1913 Nobel mukofoti (Kimyo)",
+          "Werner \"koordinatsion nazariya va atomlarning molekulada joylashuvi\" bo'yicha ishlar uchun " +
+          "Kimyo bo'yicha Nobel mukofotini oldi. Bu koordinatsion kimyoni mustaqil fanga aylantirdi " +
+          "va zamonaviy stereokimyo asosini yaratdi.",
+          { bgColor: C.bgGold, borderColor: C.gold, titleColor: C.gold }
         )
       }
 
-      // ═════════════════════════════════════════════════════════
-      // 7. RASEMIZATSIYA KINETIKASI
-      // ═════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════
+      // 7. PASTEUR (1848) VA RASEMIZATSIYA KINETIKASI
+      // ═══════════════════════════════════════════════════════════
       if (pdfSections.pasteur) {
-        sectionHeader("7", "RASEMIZATSIYA KINETIKASI")
+        drawSectionHeader(7, "Pasteur (1848) va rasemizatsiya kinetikasi")
+        drawInfoBox(
+          "Louis Pasteur — 1848-yil",
+          "Pasteur mikroskop ostida natriy-ammoniy tartrat kristallarini qo'lda pintset yordamida " +
+          "ajratdi — hemihedral yuzlarining chap va o'ng shakli bo'yicha. Har bir ajratilgan " +
+          "to'plam qutblangan yorug'likni teskari yo'nalishda burdi. Bu — xirallikning birinchi " +
+          "eksperimental isboti bo'ldi. 60 yildan keyin Werner shu usulni koordinatsion komplekslarga qo'lladi.",
+          { bgColor: C.bgOrange, borderColor: C.orange, titleColor: C.orange }
+        )
         drawParagraph(
           "Rasemizatsiya — sof enantiomerdan rasemik (50:50 Λ:Δ) aralashma hosil bo'lish jarayoni. " +
-          "Bu birinchi tartibli reaksiya: k_rac = A · exp(−Ea/RT). [Co(en)₃]³⁺ uchun rasemizatsiya " +
-          "sekin (yarim yemirilish davri > 100 soat, 298 K); [Co(en)₂Cl₂]⁺ uchun tezroq. Yuqori haroratda " +
-          "rasemizatsiya sezilarli darajada tezlashadi (Arrenius qonuni)."
+          "Bu birinchi tartibli kinetika Arrenius qonuniga bo'ysunadi:"
         )
-        drawTable([
-          ["Harorat (K)", "t½ (soat, taxminiy)", "Rasemizatsiya"],
-          ["298 (25 °C)", "~ 150", "Juda sekin"],
-          ["333 (60 °C)", "~ 12", "Sekin"],
-          ["373 (100 °C)", "~ 0.8", "Sezilarli"]
-        ], [120, 180, 190])
+        drawFormula("k_rac = A · exp(−Ea / RT)", { center: true, size: 14 })
+        drawParagraph(
+          "bu yerda A — pre-eksponensial omil, Ea — aktivatsiya energiyasi, R — universal gaz " +
+          "konstantasi (8.314 J/mol·K), T — harorat (K)."
+        )
+        drawInfoBox(
+          "Rasemizatsiya haroratga bog'liqligi (namuna qiymatlar)",
+          "T = 298 K (25 °C):  t½ ≈ 150 soat  —  juda sekin (labor sharoiti)\n" +
+          "T = 333 K (60 °C):  t½ ≈ 12 soat  —  sekin, lekin sezilarli\n" +
+          "T = 373 K (100 °C):  t½ ≈ 0.8 soat  —  tez rasemizatsiya\n" +
+          "Ea taxminan ≈ 100 kJ/mol  |  Mexanizm: Bailar twist (trigonal prizmatik oraliq holat)",
+          { bgColor: C.bgYellow, borderColor: C.yellow, titleColor: C.yellow }
+        )
+        drawParagraph("Rasemizatsiya mexanizmlari (koordinatsion birikmalar uchun):")
+        drawBulletPoint("Bailar twist — trigonal prizmatik oraliq holat orqali (C₃v)")
+        drawBulletPoint("Ray–Dutt twist — noaniq (rombik) oraliq holat orqali")
+        drawBulletPoint("Bond rupture — Co–N bog'i uzilishi orqali (dissotsiativ)")
+        drawBulletPoint("Photorasemization — ultra binafsha nurlanish ta'sirida")
       }
 
-      // ═════════════════════════════════════════════════════════
-      // 8. BIJVOET METODI (Absolyut konfiguratsiya)
-      // ═════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════
+      // 8. BIJVOET METODI (1951) — ABSOLYUT KONFIGURATSIYA
+      // ═══════════════════════════════════════════════════════════
       if (pdfSections.bijvoet) {
-        sectionHeader("8", "BIJVOET METODI — ABSOLYUT KONFIGURATSIYA")
+        drawSectionHeader(8, "Bijvoet metodi (1951) — absolyut konfiguratsiya")
         drawParagraph(
-          "1951-yilda J. M. Bijvoet Amsterdam laboratoriyasida anomal X-nur difraksiyasi (Zn Kα, λ = 1.435 Å) " +
-          "usulini qo'llagan holda natriy rubidiy tartrat kristali uchun absolyut konfiguratsiyani birinchi " +
-          "marta aniqladi. Undan avval R/S va Λ/Δ belgilari faqat nisbiy edi — Fisher-Rosanoff konvensiyasiga " +
-          "asoslangan taxminiy edi. Bijvoet metodi zamonaviy X-ray kristallografiya asosini yaratdi va " +
-          "bugungi kunda [Co(en)₃]³⁺ ning absolyut konfiguratsiyasi ham shu usulda aniqlangan."
+          "1951-yilda J. M. Bijvoet Amsterdam laboratoriyasida anomal X-nur difraksiyasi (Zn Kα, " +
+          "λ = 1.435 Å) usulini qo'llagan holda natriy rubidiy tartrat kristali uchun absolyut " +
+          "konfiguratsiyani birinchi marta aniqladi. Undan avval R/S va Λ/Δ belgilari faqat nisbiy edi " +
+          "(Fisher–Rosanoff konvensiyasi asosidagi taxminiy qiymatlar)."
+        )
+        drawInfoBox(
+          "Ish tamoyili — anomal dispersiya",
+          "Og'ir atom yaqinida X-nurning anomal dispersiyasi (rezonans yutilishi) Friedel qonunini " +
+          "buzadi. Natijada Bijvoet juftlari (hkl vs h̄k̄l̄) intensivligi turlicha bo'ladi. Bu farq " +
+          "orqali kristallda atomlarning aynan qaysi kongfiguratsiyada joylashishi aniqlanadi.",
+          { bgColor: C.bgBlue, borderColor: C.blue, titleColor: C.blue }
+        )
+        drawParagraph("Ahamiyati:")
+        drawBulletPoint("Zamonaviy X-ray kristallografiya asosi (Nobel 1985 — Karle & Hauptman)")
+        drawBulletPoint("[Co(en)₃]³⁺ ning absolyut konfiguratsiyasi Bijvoet metodi bilan aniqlangan")
+        drawBulletPoint("D-glyukoza va D-tartratning absolyut konfiguratsiyasi tasdiqlangan")
+        drawBulletPoint("Bugungi kunda synchrotron va kriogen X-ray bilan yanada aniq")
+        drawParagraph(
+          "Nature jurnalidagi 1951 yildagi maqola (Bijvoet, Peerdeman, van Bommel) stereokimyo tarixidagi " +
+          "eng muhim maqolalardan biri hisoblanadi.",
+          { font: italicFont, color: C.textMuted }
         )
       }
 
-      // ═════════════════════════════════════════════════════════
-      // 9. TALIDOMID VA DORISHUNOSLIK
-      // ═════════════════════════════════════════════════════════
-      if (pdfSections.talidomid) {
-        sectionHeader("9", "TALIDOMID DARSI — ENANTIOMER FARQLARINING TIBBIY AHAMIYATI")
-        drawParagraph(
-          "1957-1962 yillarda 46 mamlakatda talidomid dori rasemik shaklda homilador ayollarga " +
-          "tinchlantiruvchi (sedativ) va antiemetik sifatida berildi. Keyinchalik ma'lum bo'ldiki, " +
-          "R-enantiomer terapevtik, S-enantiomer esa teratogen (jinnitxlik) — u DNK bilan bog'lanib " +
-          "embrion rivojlanishini buzadi. Natijada 10 000+ chaqaloq fokomeliya (qo'l-oyoq " +
-          "rivojlanmasligi) bilan tug'ildi."
-        )
-        drawParagraph(
-          "Bu fojia — enantiomerlar biologik faollik jihatidan mutlaq farqlanadi degan haqiqatning " +
-          "tibbiyot dunyosini larzaga solgan darsi. Bugun FDA va EMA yangi dori uchun (agar u xiral bo'lsa) " +
-          "har ikkala enantiomerni alohida biologik sinash talab qiladi. \"Chiral switch\" nazariyasi — " +
-          "faol enantiomerni ajratish orqali xavfsizroq versiya yaratish — hozirgi dorishunoslikning " +
-          "asosiy paradigmasi. Koordinatsion tibbiyotda (masalan, sisplatin analoglari) ham enantiomer " +
-          "farqi hayotiy muhim.",
-          { italic: true }
-        )
-      }
-
-      // ═════════════════════════════════════════════════════════
-      // 10. ADABIYOTLAR (References)
-      // ═════════════════════════════════════════════════════════
-      if (pdfSections.references) {
-        sectionHeader("10", "FOYDALANILGAN ADABIYOTLAR")
-        const refs = [
-          "[1] Werner A. (1911). Zur Kenntnis des asymmetrischen Kobaltatoms. Ber. Dtsch. Chem. Ges., 44, 1887–1898.",
-          "[2] Werner A. (1913). Nobel Lecture: On the Constitution and Configuration of Higher-Order Compounds. Nobel Foundation.",
-          "[3] Pasteur L. (1848). Recherches sur les relations qui peuvent exister entre la forme cristalline, la composition chimique et le sens de la polarisation rotatoire. Ann. Chim. Phys., 24, 442–459.",
-          "[4] Bijvoet J. M., Peerdeman A. F., van Bommel A. J. (1951). Determination of the Absolute Configuration of Optically Active Compounds by Means of X-rays. Nature, 168, 271–272.",
-          "[5] Cahn R. S., Ingold C. K., Prelog V. (1966). Specification of Molecular Chirality. Angew. Chem. Int. Ed., 5, 385–415.",
-          "[6] IUPAC (2005). Nomenclature of Inorganic Chemistry — IUPAC Recommendations. RSC Publishing (Red Book).",
-          "[7] Cotton F. A., Wilkinson G., Murillo C. A., Bochmann M. (1999). Advanced Inorganic Chemistry, 6th ed. Wiley.",
-          "[8] Miessler G. L., Fischer P. J., Tarr D. A. (2014). Inorganic Chemistry, 5th ed. Pearson.",
-          "[9] Housecroft C. E., Sharpe A. G. (2018). Inorganic Chemistry, 5th ed. Pearson.",
-          "[10] Berova N., Nakanishi K., Woody R. W. (2000). Circular Dichroism: Principles and Applications. Wiley-VCH."
+      // ═══════════════════════════════════════════════════════════
+      // 9. Λ vs Δ SOLISHTIRISH JADVALI
+      // ═══════════════════════════════════════════════════════════
+      if (pdfSections.table !== false) {
+        drawSectionHeader(9, "Λ va Δ enantiomerlar — solishtirish jadvali")
+        const rows = [
+          ["Xususiyat", "Λ-enantiomer", "Δ-enantiomer"],
+          ["Belgi", "Λ (lambda)", "Δ (delta)"],
+          ["Sinonim", "M-konfiguratsiya", "P-konfiguratsiya"],
+          ["Propeller", "Chap qo'l (soat miliga qarshi)", "O'ng qo'l (soat mili)"],
+          ["[α]D (°)", `${currentComplex.optical.alphaD_lambda}° (laevo, −)`, `+${currentComplex.optical.alphaD_delta}° (dextro, +)`],
+          ["CD Cotton", "Manfiy (−) at " + currentComplex.optical.cdMax.lambda + " nm", "Musbat (+) at " + currentComplex.optical.cdMax.delta + " nm"],
+          ["Simmetriya", currentComplex.chirality.pointGroup + " (chap)", currentComplex.chirality.pointGroup + " (o'ng)"],
+          ["Ranglar (vizual)", "Sxema: cyan/moviy", "Sxema: pushti/magenta"],
+          ["Biologik farq", "Turli enzim ta'siri", "Turli enzim ta'siri"]
         ]
-        refs.forEach(r => drawParagraph(r, { size: 9 }))
-      }
 
-      // ═════════════════════════════════════════════════════════
-      // OYOQ QISM (footer)
-      // ═════════════════════════════════════════════════════════
-      const totalPages = pdfDoc.getPageCount()
-      for (let i = 0; i < totalPages; i++) {
-        const p = pdfDoc.getPage(i)
-        p.drawLine({
-          start: { x: M, y: 30 }, end: { x: PW - M, y: 30 },
-          thickness: 0.5, color: C.line
+        const colW = [CONTENT_W * 0.24, CONTENT_W * 0.38, CONTENT_W * 0.38]
+        const rowH = 24
+        checkBreak(rows.length * rowH + 15)
+
+        rows.forEach((row, ri) => {
+          const isHeader = ri === 0
+          if (isHeader) {
+            page.drawRectangle({ x: MARGIN, y: y - rowH, width: CONTENT_W, height: rowH, color: C.purple })
+          } else if (ri % 2 === 0) {
+            page.drawRectangle({ x: MARGIN, y: y - rowH, width: CONTENT_W, height: rowH, color: C.bgPurple })
+          }
+          let cx = MARGIN + 8
+          row.forEach((cell, ci) => {
+            const f = isHeader ? boldFont : regularFont
+            const txt = truncate(cleanText(cell), f, 9, colW[ci] - 14)
+            let color = isHeader ? C.white : C.textDark
+            // Λ ustuni cyan, Δ ustuni pink
+            if (!isHeader && ci === 1) color = C.cyan
+            if (!isHeader && ci === 2) color = C.pink
+            page.drawText(txt, {
+              x: cx, y: y - rowH + 8, size: 9, font: f, color
+            })
+            cx += colW[ci]
+          })
+          y -= rowH
         })
-        // Xavfsiz drawText orqali — Unicode font yuklanmagan bo'lsa avtomatik ASCII ga tushadi
-        drawText(
-          `jdakimyo.uz • Optik izomeriya ilmiy hisoboti • ${currentComplex.formula}`,
-          M, 18,
-          { size: 8, font, color: C.subtle, targetPage: p }
-        )
-        drawText(
-          `${i + 1} / ${totalPages}`,
-          PW - M - 30, 18,
-          { size: 8, font, color: C.subtle, targetPage: p }
-        )
+        y -= 12
       }
 
-      // Yuklab olish
+      // ═══════════════════════════════════════════════════════════
+      // 10. TALIDOMID DARSI VA DORISHUNOSLIK
+      // ═══════════════════════════════════════════════════════════
+      if (pdfSections.talidomid) {
+        drawSectionHeader(10, "Talidomid darsi — enantiomerlarning tibbiy ahamiyati")
+        drawInfoBox(
+          "⚠️ Talidomid halokati (1957–1962)",
+          "46 mamlakatda talidomid rasemik dori sifatida homilador ayollarga tinchlantiruvchi va " +
+          "antiemetik dori sifatida sotildi. Keyinchalik ma'lum bo'ldiki: R-enantiomer terapevtik, " +
+          "S-enantiomer esa teratogen — u DNK bilan bog'lanib embrion rivojlanishini buzadi. " +
+          "Natijada 10 000+ chaqaloq fokomeliya (qo'l-oyoq rivojlanmasligi) bilan tug'ildi.",
+          { bgColor: C.bgRed, borderColor: C.red, titleColor: C.red }
+        )
+        drawParagraph("Enantiomer farqlarining tibbiy natijalari:")
+        drawBulletPoint("R-talidomid: sedativ, antiemetik (terapevtik faol)", { bulletColor: C.green })
+        drawBulletPoint("S-talidomid: teratogen, DNK bilan interkalyatsiya (jinnix kasal qiluvchi)", { bulletColor: C.red })
+        drawBulletPoint("In vivo racemization — R shakl ham tanada S ga aylanishi mumkin", { bulletColor: C.orange })
+        drawInfoBox(
+          "Chiral Switch — zamonaviy paradigma",
+          "FDA (AQSh) va EMA (Yevropa) 1992-yildan boshlab har bir yangi xiral dori uchun har ikkala " +
+          "enantiomerni alohida biologik sinash talab qiladi. \"Chiral switch\" — mavjud rasemik dorining " +
+          "sof enantiomer versiyasini yaratish orqali xavfsizlik va samaradorlikni oshirish strategiyasi. " +
+          "Misollar: (S)-omeprazol (Nexium), (S)-citalopram (Escitalopram), levofloksatsin.",
+          { bgColor: C.bgGreen, borderColor: C.green, titleColor: C.green }
+        )
+        drawParagraph("Koordinatsion tibbiyot va xirallik:")
+        drawBulletPoint("Sisplatin va oksaliplatin — Pt(II) va Pt(IV) kompleks dorilari (o'sma davolash)")
+        drawBulletPoint("Λ-[Ru(bpy)₃]²⁺ va Δ-[Ru(bpy)₃]²⁺ — DNK bilan turli affinlik (rak diagnostika)")
+        drawBulletPoint("Gd(III) MRT kontrast agentlari — xirallik nishonlash aniqligiga ta'sir qiladi")
+        drawBulletPoint("Fe(III) va Co(III) xelatlari — anemiya va B₁₂ vitamin analoglari")
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // 11. ADABIYOTLAR (References)
+      // ═══════════════════════════════════════════════════════════
+      if (pdfSections.references) {
+        drawSectionHeader(11, "Foydalanilgan adabiyotlar")
+        const refs = [
+          "Werner, A. (1911). Zur Kenntnis des asymmetrischen Kobaltatoms. Berichte der Deutschen Chemischen Gesellschaft, 44(2), 1887–1898.",
+          "Werner, A. (1913). Nobel Lecture: On the Constitution and Configuration of Higher-Order Compounds. The Nobel Foundation, Stockholm.",
+          "Pasteur, L. (1848). Recherches sur les relations qui peuvent exister entre la forme cristalline, la composition chimique et le sens de la polarisation rotatoire. Annales de Chimie et de Physique, 24, 442–459.",
+          "Bijvoet, J. M., Peerdeman, A. F., & van Bommel, A. J. (1951). Determination of the Absolute Configuration of Optically Active Compounds by Means of X-rays. Nature, 168, 271–272.",
+          "Cahn, R. S., Ingold, C. K., & Prelog, V. (1966). Specification of Molecular Chirality. Angewandte Chemie International Edition, 5(4), 385–415.",
+          "IUPAC (2005). Nomenclature of Inorganic Chemistry — IUPAC Recommendations 2005 (Red Book). RSC Publishing, Cambridge.",
+          "Cotton, F. A., Wilkinson, G., Murillo, C. A., & Bochmann, M. (1999). Advanced Inorganic Chemistry, 6th ed. Wiley-Interscience, New York.",
+          "Miessler, G. L., Fischer, P. J., & Tarr, D. A. (2014). Inorganic Chemistry, 5th ed. Pearson Education, Boston.",
+          "Housecroft, C. E., & Sharpe, A. G. (2018). Inorganic Chemistry, 5th ed. Pearson, Harlow.",
+          "Berova, N., Nakanishi, K., & Woody, R. W. (2000). Circular Dichroism: Principles and Applications, 2nd ed. Wiley-VCH, New York.",
+          "Van 't Hoff, J. H., & Le Bel, J. A. (1874). Sur les formules de structure dans l'espace. Bulletin de la Société Chimique de France, 22, 337–347.",
+          "Bailar, J. C. Jr. (1958). Some problems in the stereochemistry of coordination compounds. Journal of Inorganic and Nuclear Chemistry, 8, 165–175.",
+          "IUPAC (2013). Compendium of Chemical Terminology, 2nd ed. (the \"Gold Book\"). Compiled by A. D. McNaught and A. Wilkinson. Blackwell Scientific Publications, Oxford."
+        ]
+        refs.forEach((r, i) => {
+          drawParagraph(`[${i + 1}] ${r}`, { size: 9, color: C.textDark })
+        })
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // OXIRGI SAHIFAGA FOOTER
+      // ═══════════════════════════════════════════════════════════
+      addFooter(page, pageNumber)
+
+      // ═══════════════════════════════════════════════════════════
+      // METADATA
+      // ═══════════════════════════════════════════════════════════
+      pdfDoc.setTitle(`Optik izomeriya — ${cleanText(currentComplex.formula)}`)
+      pdfDoc.setSubject("Optik izomeriya, xirallik, Λ/Δ enantiomerlar — ilmiy hisobot")
+      pdfDoc.setAuthor("JDA-Kimyo (jdakimyo.uz)")
+      pdfDoc.setCreator("jdakimyo.uz Optik izomeriya 3D Lab")
+      pdfDoc.setProducer("pdf-lib + DejaVu Sans")
+      pdfDoc.setKeywords([
+        "optik izomeriya", "xirallik", "lambda", "delta", "enantiomer",
+        "koordinatsion kimyo", "Werner", "Pasteur", "Bijvoet", "CD spektri",
+        "ORD", "chirality", "coordination chemistry"
+      ])
+
+      // ═══════════════════════════════════════════════════════════
+      // FAYLNI YUKLAB OLISH
+      // ═══════════════════════════════════════════════════════════
       const pdfBytes = await pdfDoc.save()
       const blob = new Blob([pdfBytes], { type: "application/pdf" })
       const url = URL.createObjectURL(blob)
@@ -1457,7 +1702,7 @@ export default function OptikIzomeriya3D() {
       setShowPDFModal(false)
     } catch (err) {
       console.error("PDF generatsiyasida xatolik:", err)
-      alert("PDF yaratishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
+      alert("PDF yaratishda xatolik yuz berdi:\n" + (err?.message || err))
     } finally {
       setPdfGenerating(false)
     }
@@ -2173,25 +2418,28 @@ export default function OptikIzomeriya3D() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setPdfSections({
-                    snapshot: true, info: true, chirality: true, optical: true,
-                    cd: true, ord: true, cip: true, werner: true,
-                    pasteur: false, bijvoet: false, talidomid: false, references: true
+                    chirality: true, cip: true, optical: true,
+                    cd: true, ord: true, werner: true,
+                    pasteur: false, bijvoet: false, table: true,
+                    talidomid: false, references: true
                   })}
                   className="flex-1 px-3 py-1.5 rounded text-xs bg-purple-800/40 text-purple-200 border border-purple-700/50 hover:bg-purple-700/40"
                 >Standart</button>
                 <button
                   onClick={() => setPdfSections({
-                    snapshot: true, info: true, chirality: true, optical: true,
-                    cd: true, ord: true, cip: true, werner: true,
-                    pasteur: true, bijvoet: true, talidomid: true, references: true
+                    chirality: true, cip: true, optical: true,
+                    cd: true, ord: true, werner: true,
+                    pasteur: true, bijvoet: true, table: true,
+                    talidomid: true, references: true
                   })}
                   className="flex-1 px-3 py-1.5 rounded text-xs bg-gradient-to-r from-purple-700 to-pink-700 text-white font-semibold"
                 >To'liq (ilmiy)</button>
                 <button
                   onClick={() => setPdfSections({
-                    snapshot: false, info: false, chirality: false, optical: false,
-                    cd: false, ord: false, cip: false, werner: false,
-                    pasteur: false, bijvoet: false, talidomid: false, references: false
+                    chirality: false, cip: false, optical: false,
+                    cd: false, ord: false, werner: false,
+                    pasteur: false, bijvoet: false, table: false,
+                    talidomid: false, references: false
                   })}
                   className="flex-1 px-3 py-1.5 rounded text-xs bg-red-900/30 text-red-300 border border-red-700/40 hover:bg-red-800/40"
                 >Tozalash</button>
@@ -2200,17 +2448,17 @@ export default function OptikIzomeriya3D() {
               {/* Sections list */}
               <div className="text-xs text-purple-300 uppercase font-bold pt-2">Bo'limlarni tanlang:</div>
               {[
-                { k: "info", l: "ℹ️ Kompleks ma'lumotlari (formula, xossalar)" },
-                { k: "chirality", l: "🧬 Xirallik shartlari va simmetriya" },
-                { k: "cip", l: "📖 Λ/Δ nomenklaturasi (IUPAC 2005)" },
-                { k: "optical", l: "☀️ Optik faollik va [α]D" },
-                { k: "cd", l: "📊 CD spektri (Sirkulyar dixroizm)" },
-                { k: "ord", l: "🌈 ORD spektri (Drude tenglamasi)" },
-                { k: "werner", l: "⚗️ Werner tajribasi (1911)" },
-                { k: "pasteur", l: "🧪 Pasteur (1848) va rasemizatsiya kinetikasi" },
-                { k: "bijvoet", l: "💎 Bijvoet metodi (1951)" },
-                { k: "talidomid", l: "⚠️ Talidomid darsi va dorishunoslik" },
-                { k: "references", l: "📚 Foydalanilgan adabiyotlar (10 manba)" }
+                { k: "chirality", l: "1. 🧬 Xirallik — ta'rif va matematik asoslar" },
+                { k: "cip", l: "2. 📖 Λ/Δ nomenklatura (IUPAC 2005 Red Book)" },
+                { k: "optical", l: "3. ☀️ Optik faollik — Biot qonuni va [α]D" },
+                { k: "cd", l: "4. 📊 Sirkulyar Dixroizm (CD) — Cotton effekti" },
+                { k: "ord", l: "5. 🌈 Optik Burilish Dispersiyasi (ORD) — Drude" },
+                { k: "werner", l: "6. ⚗️ Werner tajribasi (1911) — Nobel 1913" },
+                { k: "pasteur", l: "7. 🧪 Pasteur (1848) va rasemizatsiya kinetikasi" },
+                { k: "bijvoet", l: "8. 💎 Bijvoet metodi (1951) — absolyut konfiguratsiya" },
+                { k: "table", l: "9. 📋 Λ vs Δ solishtirish jadvali" },
+                { k: "talidomid", l: "10. ⚠️ Talidomid darsi va dorishunoslik" },
+                { k: "references", l: "11. 📚 Foydalanilgan adabiyotlar (13 manba)" }
               ].map(it => (
                 <label key={it.k} className="flex items-center gap-2 text-sm text-purple-200 cursor-pointer hover:bg-purple-900/30 p-1.5 rounded">
                   <input
