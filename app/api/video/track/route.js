@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { completeMission } from '@/lib/missions'
+import { trackActivity } from '@/lib/streak'
 
 export async function POST(request) {
   try {
@@ -30,6 +31,10 @@ export async function POST(request) {
         message: `Video kamida ${MIN_WATCH_TIME} soniya ko'rilishi kerak`
       })
     }
+
+    // Faoliyat grafigi uchun qayd (missiyadan alohida — video missiyasi
+    // olib tashlangan bo'lsa ham ko'rilgan video grafikda ko'rinadi)
+    await trackActivity(session.user.id, 'video')
 
     // 🆕 MISSIYANI AVTOMATIK BAJARISH
     const missionResult = await completeMission(session.user.id, 'video')

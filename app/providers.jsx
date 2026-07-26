@@ -3,10 +3,13 @@
 
 import { SessionProvider } from 'next-auth/react'
 import { Toaster } from 'react-hot-toast'
+import ActivityPing from '@/components/ActivityPing'
 
 export function Providers({ children }) {
   return (
     <SessionProvider>
+      {/* Kunlik seriyani hisoblash uchun — SessionProvider ichida bo'lishi shart */}
+      <ActivityPing />
       {children}
       <Toaster 
         position="top-right"

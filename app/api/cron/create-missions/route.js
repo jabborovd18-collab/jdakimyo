@@ -3,9 +3,11 @@ import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
+// Video missiyasi ataylab olib tashlangan. Video ko'rish faoliyat grafigida
+// baribir qayd etiladi (app/api/video/track), lekin kunlik missiya sifatida
+// berilmaydi.
 const MISSION_TEMPLATES = [
   { type: 'quiz', title: 'Quiz yeching', description: "Har qanday quizni yechib, bilimingizni sinab ko'ring", xpReward: 10, icon: '📝', difficulty: 'easy' },
-  { type: 'video', title: "Video dars ko'ring", description: "Kamida bitta video darsni to'liq ko'ring", xpReward: 15, icon: '🎬', difficulty: 'medium' },
   { type: 'friend', title: "Do'st qo'shing", description: "Yangi do'st qo'shing yoki do'stlik taklifini yuboring", xpReward: 20, icon: '👥', difficulty: 'hard' }
 ]
 

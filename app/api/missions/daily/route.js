@@ -21,14 +21,9 @@ const MISSION_TEMPLATES = [
     icon: '📝',
     difficulty: 'easy'
   },
-  {
-    type: 'video',
-    title: 'Video dars ko\'ring',
-    description: 'Kamida bitta video darsni to\'liq ko\'ring',
-    xpReward: 15,
-    icon: '🎬',
-    difficulty: 'medium'
-  },
+  // Video missiyasi ataylab olib tashlangan — cron/create-missions bilan
+  // bir xil ro'yxat bo'lishi kerak, aks holda missiya qaysi yo'l bilan
+  // yaratilganiga qarab har xil bo'lib qoladi.
   {
     type: 'friend',
     title: 'Do\'st qo\'shing',
