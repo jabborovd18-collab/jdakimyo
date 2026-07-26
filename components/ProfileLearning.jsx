@@ -49,7 +49,25 @@ export default function ProfileLearning({ view }) {
 }
 
 function LearningCard({ card, view }) {
-  if (view === 'teachers') return <article className="rounded-2xl border border-purple-700/40 bg-slate-900/50 p-5"><h2 className="font-semibold text-white">{card.teacher.fullName || card.teacher.username}</h2><p className="mt-1 text-sm text-purple-300">{card.group?.name || 'Guruhsiz'} · {card.teacher.university || 'Ustoz'}</p></article>
+  // Ustoz kartasi oddiy matn edi — talaba ustozining ommaviy profiliga
+  // o'ta olmasdi. Endi karta /ustoz-profil/{id} ga olib boradi.
+  if (view === 'teachers') return (
+    <Link
+      href={`/ustoz-profil/${card.teacher.id}`}
+      className="flex items-center gap-3.5 rounded-2xl border border-purple-700/40 bg-slate-900/50 p-5 transition hover:border-yellow-500/60 hover:bg-slate-900/70"
+    >
+      <div className="grid h-12 w-12 flex-shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 text-lg font-bold text-black">
+        {card.teacher.avatar
+          ? <img src={card.teacher.avatar} alt="" className="h-full w-full object-cover" />
+          : (card.teacher.fullName || card.teacher.username || '?')[0].toUpperCase()}
+      </div>
+      <div className="min-w-0 flex-1">
+        <h2 className="truncate font-semibold text-white">{card.teacher.fullName || card.teacher.username}</h2>
+        <p className="mt-1 truncate text-sm text-purple-300">{card.group?.name || 'Guruhsiz'} · {card.teacher.university || 'Ustoz'}</p>
+      </div>
+      <span className="flex-shrink-0 text-purple-500">→</span>
+    </Link>
+  )
   if (view === 'assignments') {
     const submission = card.submissions[0]
     return <article className="rounded-2xl border border-purple-700/40 bg-slate-900/50 p-5"><h2 className="font-semibold text-white">{card.title}</h2><p className="mt-1 text-sm text-purple-300">{card.group.name} · {card.teacher.fullName || card.teacher.username}</p><p className="mt-3 text-sm text-yellow-300">Muddat: {formatDate(card.deadline)}</p><p className="mt-2 text-xs text-purple-300">{submission ? `Holat: ${submission.status}` : 'Hali topshirilmagan'}</p></article>

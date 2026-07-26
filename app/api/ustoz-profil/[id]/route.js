@@ -23,7 +23,10 @@ export async function GET(request, { params }) {
             avatar: true,
             university: true,
             faculty: true,
-            role: true
+            role: true,
+            // Sozlamada "email ko'rsatilsin" yoqilgan bo'lsagina qaytariladi —
+            // pastda tekshiriladi va aks holda javobdan olib tashlanadi.
+            email: true
           }
         }
       }
@@ -34,6 +37,11 @@ export async function GET(request, { params }) {
         { error: 'O\'qituvchi profili topilmadi yoki yashirilgan' },
         { status: 404 }
       )
+    }
+
+    // Email ochiq kontentga faqat ustozning o'zi ruxsat berganda chiqadi
+    if (!profile.showEmail) {
+      delete profile.user.email
     }
 
     // Ko'rishlar sonini oshirish
