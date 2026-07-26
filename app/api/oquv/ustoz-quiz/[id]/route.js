@@ -13,7 +13,9 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const quizId = params.id
+    // Next 16 da `params` — Promise. Avval `params.id` await'siz o'qilardi
+    // va undefined qaytarardi, ya'ni findUnique xato bilan tugardi.
+    const { id: quizId } = await params
     const studentId = session.user.id
 
     // Quizni topish
@@ -167,7 +169,9 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const quizId = params.id
+    // Next 16 da `params` — Promise. Avval `params.id` await'siz o'qilardi
+    // va undefined qaytarardi, ya'ni findUnique xato bilan tugardi.
+    const { id: quizId } = await params
     const studentId = session.user.id
     const { answers, timeSpent } = await request.json()
 

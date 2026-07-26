@@ -1,11 +1,24 @@
 // app/api/ustoz-profil/[id]/route.js
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 
 // GET - Ommaviy o'qituvchi profili (har kim ko'ra oladi)
 export async function GET(request, { params }) {
   try {
-    const userId = params.id
+    // Next 16 da `params` — Promise. Avval `params.id` to'g'ridan-to'g'ri
+    // o'qilardi va undefined qaytarardi; Prisma esa undefined filtrni
+    // tashlab yuboradi, ya'ni so'rov "birinchi faol profil" ga aylanib
+    // qolgandi. Bitta profil borligi uchun sezilmagan, lekin ikkinchi ustoz
+    // qo'shilishi bilan talabalar noto'g'ri profilni ko'rgan bo'lardi.
+    // Stats va publicQuizzes ham teacherId: undefined bilan, ya'ni butun
+    // sayt bo'yicha hisoblanardi.
+    const { id: userId } = await params
+
+    if (!userId) {
+      return NextResponse.json({ error: 'ID berilmadi' }, { status: 400 })
+    }
 
     // Profilni olish (faqat isActive bo'lsa)
     const profile = await prisma.teacherPublicProfile.findFirst({
@@ -44,11 +57,20 @@ export async function GET(request, { params }) {
       delete profile.user.email
     }
 
-    // Ko'rishlar sonini oshirish
-    await prisma.teacherPublicProfile.update({
-      where: { id: profile.id },
-      data: { views: { increment: 1 } }
-    })
+    // Ko'rishlar sonini oshirish — lekin ustozning o'zi ko'rsa hisoblanmaydi.
+    // Sozlash sahifasidagi "Ommaviy profilni ko'rish" tugmasi shu sahifani
+    // ochadi, ya'ni ustoz profilini har tekshirganda o'z sanoqchisini
+    // shishirib yuborardi.
+    const session = await getServerSession(authOptions)
+    const oziniki = session?.user?.id === userId
+
+    if (!oziniki) {
+      await prisma.teacherPublicProfile.update({
+        where: { id: profile.id },
+        data: { views: { increment: 1 } }
+      })
+      profile.views += 1
+    }
 
     // Statistika (agar showStats yoqilgan bo'lsa)
     let stats = null
