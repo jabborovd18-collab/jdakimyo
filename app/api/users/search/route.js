@@ -73,13 +73,18 @@ export async function GET(request) {
     // Har bir foydalanuvchi uchun do'stlik holatini aniqlash
     const usersWithStatus = users.map(user => {
       let status = 'none' // none, friend, sent, received
-      
+
+      // Taklifni qabul qilish uchun uning id'si kerak: qabul qilish yangi
+      // taklif yuborish emas, mavjudini PUT bilan tasdiqlash.
+      let requestId = null
+
       if (user.friendships1.length > 0 || user.friendships2.length > 0) {
         status = 'friend'
       } else if (user.receivedRequests.length > 0) {
         status = 'sent' // Siz yuborgansiz
       } else if (user.sentRequests.length > 0) {
         status = 'received' // Sizga yuborilgan
+        requestId = user.sentRequests[0].id
       }
 
       return {
@@ -91,7 +96,8 @@ export async function GET(request) {
         university: user.university,
         role: user.role,
         bio: user.bio,
-        status
+        status,
+        requestId
       }
     })
 

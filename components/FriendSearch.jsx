@@ -5,7 +5,12 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 
-export default function FriendSearch() {
+/**
+ * Foydalanuvchi qidirish va do'stlik taklifini yuborish.
+ * `onChange` — do'stlar ro'yxati o'zgarganda (taklif qabul qilinganda)
+ * chaqiriladi, shunda sahifadagi ro'yxat yangilanadi.
+ */
+export default function FriendSearch({ onChange }) {
   const [query, setQuery] = useState('')
   const [users, setUsers] = useState([])
   const [isLoading, setIsLoading] = useState(false)
@@ -50,11 +55,50 @@ export default function FriendSearch() {
       }
 
       toast.success('Do\'stlik taklifi yuborildi!')
-      
+
       // Statusni yangilash
-      setUsers(users.map(u => 
+      setUsers(prev => prev.map(u =>
         u.id === userId ? { ...u, status: 'sent' } : u
       ))
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
+  /**
+   * Bizga kelgan taklifni qabul qilish.
+   *
+   * Avval bu tugma ham sendFriendRequest chaqirardi, ya'ni mavjud taklifni
+   * tasdiqlash o'rniga YANGI taklif yuborishga urinardi — server esa uni
+   * "Taklif allaqachon yuborilgan" deb rad etardi. Qabul qilish mavjud
+   * taklifni PUT bilan tasdiqlashdir.
+   */
+  const acceptFriendRequest = async (user) => {
+    if (!user.requestId) {
+      toast.error('Taklif topilmadi')
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/friends/request/${user.requestId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'accept' })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error)
+      }
+
+      toast.success(data.message || 'Do\'stlik qabul qilindi!')
+
+      setUsers(prev => prev.map(u =>
+        u.id === user.id ? { ...u, status: 'friend', requestId: null } : u
+      ))
+
+      if (onChange) onChange()
     } catch (error) {
       toast.error(error.message)
     }
@@ -123,7 +167,11 @@ export default function FriendSearch() {
                 </Link>
 
                 <button
-                  onClick={() => sendFriendRequest(user.id)}
+                  onClick={() =>
+                    user.status === 'received'
+                      ? acceptFriendRequest(user)
+                      : sendFriendRequest(user.id)
+                  }
                   disabled={button.disabled}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all disabled:cursor-not-allowed ${button.className}`}
                 >

@@ -5,6 +5,48 @@ import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { completeMission } from '@/lib/missions' // 🆕 Import
 
+// ─── GET: menga kelgan, javob kutayotgan do'stlik takliflari ───
+//
+// /api/profil faqat takliflar SONINI qaytaradi, ro'yxatni emas — shu sababli
+// components/FriendRequests.jsx ni to'ldiradigan manba yo'q edi va taklifni
+// qabul qilishning yagona yo'li yuboruvchining profiliga kirish bo'lgan.
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const requests = await prisma.friendRequest.findMany({
+      where: { receiverId: session.user.id, status: 'pending' },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        message: true,
+        createdAt: true,
+        sender: {
+          select: {
+            id: true,
+            userId: true,
+            username: true,
+            fullName: true,
+            avatar: true,
+            university: true,
+          },
+        },
+      },
+    })
+
+    return NextResponse.json({ requests })
+  } catch (error) {
+    console.error('[Friends GET]', error)
+    return NextResponse.json(
+      { error: 'Takliflarni yuklashda xatolik' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
