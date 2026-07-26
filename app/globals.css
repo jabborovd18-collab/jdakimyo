@@ -17,3 +17,28 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-syne), Arial, sans-serif;
   letter-spacing: -0.02em;
 }
+
+/* ─── Ilmiy bo'lim: d-orbital ajralishi (app/ilmiy/page.js) ───────────
+   Ikkala pog'ona ham erkin ion sathidan (y=120) boshlanadi va o'z
+   o'rniga ajraladi — eg yuqoriga, t2g pastga. Diagramma aynan shu
+   ajralishni ko'rsatgani uchun yo'nalish muhim. */
+@keyframes ilmiy-eg {
+  from { transform: translateY(54px); }
+  to   { transform: translateY(0); }
+}
+@keyframes ilmiy-t2g {
+  from { transform: translateY(-43px); }
+  to   { transform: translateY(0); }
+}
+@keyframes ilmiy-delta {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ilmiy-eg    { animation: ilmiy-eg 1.4s cubic-bezier(.16, 1, .3, 1) both; }
+.ilmiy-t2g   { animation: ilmiy-t2g 1.4s cubic-bezier(.16, 1, .3, 1) both; }
+.ilmiy-delta { animation: ilmiy-delta .7s ease .85s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ilmiy-eg, .ilmiy-t2g, .ilmiy-delta { animation: none; }
+}

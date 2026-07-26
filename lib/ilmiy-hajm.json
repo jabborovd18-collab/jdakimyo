@@ -1,0 +1,32 @@
+{
+  "sanalgan": "2026-07-26",
+  "birikmalar": 34,
+  "usullar": 20,
+  "usulHajmi": {
+    "aas": 12,
+    "cd": 12,
+    "elektrokimyo": 12,
+    "element-analiz": 12,
+    "epr": 5,
+    "exafs": 12,
+    "fluoressensiya": 12,
+    "icp": 12,
+    "iq": 21,
+    "konduktometriya": 12,
+    "magnit": 12,
+    "mass": 12,
+    "mossbauer": 6,
+    "nmr": 12,
+    "raman": 12,
+    "rentgen": 12,
+    "termik": 12,
+    "titrlash": 12,
+    "ub-vis": 14,
+    "xps": 12
+  },
+  "usulBirikmaTahlili": 238,
+  "mavzular": 23,
+  "mavzuSahifalari": 170,
+  "modellar3d": 13,
+  "jamiTahlilVaMavzu": 408
+}

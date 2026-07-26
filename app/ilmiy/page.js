@@ -1,306 +1,323 @@
-"use client"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import hajm from "@/lib/ilmiy-hajm.json"
+import { maqolalar } from "@/lib/maqolalar"
 
+/**
+ * Ilmiy bo'limning bosh sahifasi.
+ *
+ * Avvalgi variantda sahifadagi eng ko'zga tashlanadigan element buzuq edi:
+ * to'rt bo'limning hammasida progress qo'lda 0 deb yozilgan, qiymat esa
+ * localStorage'dagi 'ilmiy-progress' dan o'qilardi — unga loyihada hech kim
+ * yozmasdi. Ya'ni odam kirganda birinchi ko'radigani doim "Umumiy progress
+ * 0%" bo'lardi. Progressni haqiqiy qilish uchun kuzatuv tizimi kerak, u esa
+ * hozir yo'q; shuning uchun sahifa endi bo'lim haqiqatan nimaga egaligini
+ * ko'rsatadi — raqamlar lib/ilmiy-hajm.json dan (scripts/count-ilmiy.js
+ * sanaydi), qo'lda yozilmaydi.
+ *
+ * Ranglar avvalgi sahifadagi bo'lim ranglarining o'zi. Yangiligi shundaki,
+ * har bir rang o'sha bo'limga mos keladigan haqiqiy kompleks ionining rangi
+ * sifatida izohlanadi — shunda rang bezak emas, ma'lumot bo'ladi.
+ */
+
+export const metadata = {
+  title: "Ilmiy bo'lim",
+  description:
+    "Koordinatsion kimyo: kompleks birikmalar, tahlil usullari, chuqurlashgan mavzular va ilmiy maqolalar.",
+}
+
+// Tailwind klasslari to'liq matn ko'rinishida turishi shart — aks holda
+// production build'da purge qilib yuboradi.
 const BOLIMLAR = [
   {
-    id: "chuqurlashgan",
-    href: "/ilmiy/chuqurlashgan",
-    icon: "🔬",
-    title: "Chuqurlashgan mavzular",
-    desc: "Kristall maydon nazariyasi, MO diagrammalari, termodinamik hisob-kitoblar, magnit xossalari",
-    color: "from-purple-500 to-violet-500",
-    step: 1,
-    progress: 0,
-    tags: ["CFT", "MO", "Termodinamika"]
-  },
-  {
-    id: "maqolalar",
-    href: "/ilmiy/maqolalar",
-    icon: "📝",
-    title: "Ilmiy maqolalar",
-    desc: "Yangi chiqqan maqolalar • Maqolalar bazasi • O'z maqolangizni joylashtirish",
-    color: "from-emerald-500 to-green-500",
-    step: 2,
-    progress: 0,
-    tags: ["Peer-reviewed", "Open access", "DOI"]
-  },
-  {
-    id: "birikmalar",
-    href: "/ilmiy/birikmalar",
-    icon: "🧪",
-    title: "Kompleks birikmalar",
-    desc: "Qidiruv tizimi • 50+ kompleks birikma • Barcha xossalari to'liq yoritilgan",
-    color: "from-blue-500 to-cyan-500",
-    step: 3,
-    progress: 0,
-    tags: ["3D modellar", "Spektrlar", "Xossalari"]
-  },
-  {
-    id: "tahlil",
     href: "/ilmiy/tahlil",
-    icon: "📊",
+    keng: true,
     title: "Tahlil usullari",
-    desc: "IR spektroskopiya • UV-Vis • NMR • Rentgen difraksiyasi • Kompleks birikmalarda qo'llanishi",
-    color: "from-amber-500 to-yellow-500",
-    step: 4,
-    progress: 0,
-    tags: ["IR", "NMR", "XRD"]
-  }
+    desc: "Har bir usul aniq birikmalarda qanday o'qilishi bilan ko'rsatilgan — quruq nazariya emas, spektrlarning o'zi.",
+    ion: "[Co(NH₃)₆]³⁺ — amber",
+    son: hajm.usulBirikmaTahlili,
+    birlik: `usul × birikma tahlili`,
+    nuqta: "bg-amber-400 shadow-[0_0_14px] shadow-amber-400/70",
+    matn: "text-amber-400",
+    chegara: "hover:border-amber-400/60",
+  },
+  {
+    href: "/ilmiy/chuqurlashgan",
+    keng: true,
+    title: "Chuqurlashgan mavzular",
+    desc: "Kristall va ligand maydon nazariyasi, simmetriya, Yan–Teller effekti, termodinamika — hisob-kitob va diagrammalar bilan.",
+    ion: "[Ti(H₂O)₆]³⁺ — binafsha",
+    son: hajm.mavzuSahifalari,
+    birlik: `sahifa · ${hajm.mavzular} mavzu`,
+    nuqta: "bg-violet-400 shadow-[0_0_14px] shadow-violet-400/70",
+    matn: "text-violet-300",
+    chegara: "hover:border-violet-400/60",
+  },
+  {
+    href: "/ilmiy/birikmalar",
+    keng: false,
+    title: "Kompleks birikmalar",
+    desc: "Tuzilishi, xossalari, olinishi va aylantirib ko'riladigan 3D modeli.",
+    ion: "[Cu(H₂O)₆]²⁺ — siyan",
+    son: hajm.birikmalar,
+    birlik: "birikma",
+    nuqta: "bg-cyan-400 shadow-[0_0_14px] shadow-cyan-400/70",
+    matn: "text-cyan-400",
+    chegara: "hover:border-cyan-400/60",
+    namunalar: ["ferrosen", "Prussiya ko'ki", "Zeise tuzi", "sisplatin", "vitamin B₁₂", "gemoglobin"],
+  },
+  {
+    href: "/ilmiy/maqolalar",
+    keng: false,
+    title: "Ilmiy maqolalar",
+    desc: "Maqolalar bazasi, dolzarb mavzular muhokamasi va o'z maqolangizni joylash.",
+    ion: "[Ni(H₂O)₆]²⁺ — yashil",
+    son: maqolalar.length,
+    birlik: "maqola · muhokama ochiq",
+    nuqta: "bg-emerald-400 shadow-[0_0_14px] shadow-emerald-400/70",
+    matn: "text-emerald-400",
+    chegara: "hover:border-emerald-400/60",
+  },
+]
+
+// Sanoq lib/ilmiy-hajm.json dan, ko'rinadigan nom shu yerdan.
+const USUL_NOMI = {
+  iq: "IQ", "ub-vis": "UB-Vis", nmr: "NMR", raman: "Raman", rentgen: "Rentgen",
+  magnit: "Magnit", xps: "XPS", exafs: "EXAFS", mass: "Mass-spektr", cd: "CD",
+  fluoressensiya: "Fluoressensiya", aas: "AAS", icp: "ICP",
+  "element-analiz": "Element analiz", termik: "Termik analiz", titrlash: "Titrlash",
+  konduktometriya: "Konduktometriya", elektrokimyo: "Elektrokimyo",
+  mossbauer: "Mössbauer", epr: "EPR",
+}
+
+// Mazmuni ko'p usul oldinda — tartib ham ma'lumot beradi
+const USULLAR = Object.entries(hajm.usulHajmi).sort((a, b) => b[1] - a[1])
+
+const SANOQLAR = [
+  { son: hajm.birikmalar, nom: "Birikma", rang: "text-cyan-400" },
+  { son: hajm.usullar, nom: "Tahlil usuli", rang: "text-amber-400" },
+  { son: hajm.mavzular, nom: "Chuqur mavzu", rang: "text-violet-300" },
+  { son: hajm.modellar3d, nom: "3D model", rang: "text-emerald-400" },
 ]
 
 export default function Ilmiy() {
-  const [progress, setProgress] = useState(BOLIMLAR)
-  const [hoveredCard, setHoveredCard] = useState(null)
-
-  useEffect(() => {
-    const saved = localStorage.getItem('ilmiy-progress')
-    if (saved) {
-      setProgress(JSON.parse(saved))
-    }
-  }, [])
-
-  const totalProgress = Math.round(
-    progress.reduce((sum, b) => sum + b.progress, 0) / progress.length
-  )
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
-      
+
       {/* HEADER */}
       <header className="border-b border-purple-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4 flex-wrap">
+          <nav className="flex items-center gap-2 text-xs text-purple-400" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-purple-300">🏠 Bosh sahifa</Link>
             <span className="text-purple-600">›</span>
             <span className="text-blue-400 font-semibold">Ilmiy bo'lim</span>
           </nav>
-          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-blue-400 flex items-center gap-2">
-                <span className="text-3xl">🔬</span>
-                Ilmiy bo'lim
-              </h1>
-              <p className="text-purple-400 text-sm mt-1">
-                Koordinatsion kimyo bo'yicha chuqur bilimlar va tadqiqotlar
-              </p>
-            </div>
-            <Link href="/" className="text-xs bg-blue-600/80 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors">
-              ← Bosh sahifa
-            </Link>
-          </div>
+          <Link
+            href="/qidiruv"
+            className="flex items-center gap-2 px-4 py-2 bg-purple-900/60 hover:bg-purple-800/70 border border-purple-700/50 rounded-xl text-sm text-purple-300 transition-colors"
+          >
+            🔍 Birikma, usul yoki mavzu izlash
+            <kbd className="hidden sm:inline-block text-[10px] bg-purple-950/80 px-1.5 py-0.5 rounded border border-purple-700">Ctrl+K</kbd>
+          </Link>
         </div>
       </header>
 
-      <section className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        
-        {/* HERO */}
-        <div className="bg-gradient-to-br from-purple-900/60 to-blue-900/60 border border-purple-700/50 rounded-3xl p-8 md:p-12 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -mr-20 -mt-20" />
-          <div className="relative z-10">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                Ilmiy tadqiqot
-              </span>
-              <br />
-              <span className="text-white text-2xl md:text-3xl">markazi</span>
-            </h2>
+      <div className="max-w-6xl mx-auto px-4">
 
-            <p className="text-lg text-purple-200 max-w-3xl mb-8 leading-relaxed">
-              4 ta yo'nalish — chuqurlashgan nazariyalardan tortib zamonaviy tahlil usullarigacha.
-              Har bir bo'lim ilmiy manbalar va amaliy misollar bilan.
+        {/* HERO — chap tomonda hajm, o'ngda mavzuning o'zi */}
+        <section className="grid lg:grid-cols-[1.15fr_.85fr] gap-10 lg:gap-14 items-center py-12 md:py-16">
+          <div>
+            <p className="text-xs tracking-[0.16em] uppercase text-amber-400 font-semibold mb-5">
+              Koordinatsion kimyo
+            </p>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.02] mb-5 text-balance">
+              Kompleks birikmalar
+              <br />
+              <span className="text-purple-400">kutubxonasi</span>
+            </h1>
+            <p className="text-purple-200 text-base md:text-lg leading-relaxed max-w-xl mb-8">
+              To'rt yo'nalish, <strong className="text-white font-semibold">{hajm.jamiTahlilVaMavzu} ta</strong> tahlil
+              va mavzu sahifasi. Kristall maydon nazariyasidan Mössbauer
+              spektroskopiyasigacha — har bir birikma o'z spektrlari va 3D modeli bilan.
             </p>
 
-            {/* Progress bar */}
-            <div className="bg-purple-950/50 rounded-2xl p-6 border border-purple-700/30">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-purple-300 text-sm">Umumiy progress</span>
-                <span className="text-2xl font-bold text-blue-400">{totalProgress}%</span>
-              </div>
-              <div className="w-full h-3 bg-purple-900/50 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-500"
-                  style={{ width: `${totalProgress}%` }}
-                />
-              </div>
-              <div className="grid grid-cols-4 gap-1 mt-3">
-                {progress.map((b, i) => (
-                  <div 
-                    key={i}
-                    className={`h-2 rounded-full ${b.progress > 0 ? `bg-gradient-to-r ${b.color}` : 'bg-purple-800/50'}`}
-                  />
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-x-9 gap-y-5">
+              {SANOQLAR.map((s) => (
+                <div key={s.nom}>
+                  <div className={`text-3xl font-extrabold tabular-nums leading-none mb-1.5 ${s.rang}`}>
+                    {s.son}
+                  </div>
+                  <div className="text-[10.5px] tracking-[0.09em] uppercase text-purple-500">
+                    {s.nom}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
+
+          {/* d-orbitalning oktaedrik maydonda ajralishi — bu bo'limning
+              eng xarakterli tasviri, shuning uchun hero'da shu turadi */}
+          <svg
+            viewBox="0 0 360 240"
+            className="w-full max-w-md mx-auto lg:mx-0 h-auto"
+            role="img"
+            aria-labelledby="orb-sarlavha orb-izoh"
+          >
+            <title id="orb-sarlavha">d-orbitallarning oktaedrik maydonda ajralishi</title>
+            <desc id="orb-izoh">
+              Erkin ionda beshta d-orbital bir xil energiyada; oktaedrik ligand
+              maydonida ular ikkita yuqori eg va uchta quyi t2g pog'onasiga
+              ajraladi, orasidagi farq delta o deb belgilanadi.
+            </desc>
+
+            <line x1="34" y1="120" x2="326" y2="120" stroke="#6B21A8" strokeWidth="1" strokeDasharray="2 4" />
+            <text x="34" y="112" fill="#A855F7" fontSize="9.5" letterSpacing="0.06em">erkin ion</text>
+
+            <g className="ilmiy-eg">
+              <line x1="206" y1="66" x2="248" y2="66" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="258" y1="66" x2="300" y2="66" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" />
+              <text x="308" y="70" fill="#F3E8FF" fontSize="11">e</text>
+              <text x="316" y="73" fill="#A855F7" fontSize="8.5">g</text>
+            </g>
+
+            <g className="ilmiy-t2g">
+              <line x1="188" y1="163" x2="222" y2="163" stroke="#22D3EE" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="230" y1="163" x2="264" y2="163" stroke="#22D3EE" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="272" y1="163" x2="306" y2="163" stroke="#22D3EE" strokeWidth="2.5" strokeLinecap="round" />
+              <text x="314" y="167" fill="#F3E8FF" fontSize="11">t</text>
+              <text x="320" y="170" fill="#A855F7" fontSize="8.5">2g</text>
+            </g>
+
+            <g className="ilmiy-delta">
+              <line x1="172" y1="66" x2="172" y2="163" stroke="#A855F7" strokeWidth="1" />
+              <path d="M168 74 L172 64 L176 74" fill="none" stroke="#A855F7" strokeWidth="1" />
+              <path d="M168 155 L172 165 L176 155" fill="none" stroke="#A855F7" strokeWidth="1" />
+              <text x="128" y="118" fill="#F3E8FF" fontSize="12" fontWeight="600">Δo</text>
+              <line x1="120" y1="120" x2="62" y2="120" stroke="#6B21A8" strokeWidth="1" strokeDasharray="2 4" />
+              <text x="62" y="136" fill="#A855F7" fontSize="9.5">oktaedrik</text>
+              <text x="62" y="148" fill="#A855F7" fontSize="9.5">maydon</text>
+            </g>
+          </svg>
+        </section>
+
+        {/* YO'NALISHLAR */}
+        <div className="flex items-baseline gap-4 flex-wrap border-b border-purple-800/40 pb-3 mb-5">
+          <h2 className="text-base font-bold text-white">Yo'nalishlar</h2>
+          <p className="text-xs text-purple-500 ml-auto">
+            Rang — bo'limga mos kompleks ionining haqiqiy rangi
+          </p>
         </div>
 
-        {/* BO'LIMLAR */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {progress.map((b, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3.5">
+          {BOLIMLAR.map((b) => (
             <Link
-              key={b.id}
+              key={b.href}
               href={b.href}
-              className="group relative bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 hover:border-blue-400/60 transition-all transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20"
-              onMouseEnter={() => setHoveredCard(i)}
-              onMouseLeave={() => setHoveredCard(null)}
+              className={`group flex flex-col bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 transition-all hover:-translate-y-1 hover:bg-purple-900/60 ${b.chegara} ${
+                b.keng ? "md:col-span-4" : "md:col-span-2"
+              }`}
             >
-              {/* Progress circle */}
-              <div className="absolute top-4 right-4">
-                <svg className="w-12 h-12 transform -rotate-90">
-                  <circle
-                    cx="24"
-                    cy="24"
-                    r="20"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    fill="none"
-                    className="text-purple-800/50"
-                  />
-                  <circle
-                    cx="24"
-                    cy="24"
-                    r="20"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    fill="none"
-                    strokeDasharray={`${2 * Math.PI * 20}`}
-                    strokeDashoffset={`${2 * Math.PI * 20 * (1 - b.progress / 100)}`}
-                    className={`transition-all duration-500`}
-                    style={{ stroke: `url(#gradient-${i})` }}
-                  />
-                  <defs>
-                    <linearGradient id={`gradient-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#3b82f6" />
-                      <stop offset="100%" stopColor="#06b6d4" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">{b.progress}%</span>
+              <div className="flex items-center gap-2.5 mb-4 text-[10.5px] tracking-[0.05em] text-purple-400">
+                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${b.nuqta}`} aria-hidden="true" />
+                {b.ion}
+              </div>
+
+              <h3 className="text-xl font-bold text-white mb-2">{b.title}</h3>
+              <p className="text-purple-300 text-sm leading-relaxed mb-5 max-w-prose">{b.desc}</p>
+
+              <div className={`text-5xl font-extrabold tabular-nums leading-none ${b.matn}`}>
+                {b.son}
+              </div>
+              <div className="text-[10.5px] tracking-[0.09em] uppercase text-purple-500 mt-2">
+                {b.birlik}
+              </div>
+
+              {b.namunalar && (
+                <div className="flex flex-wrap gap-1.5 mt-4">
+                  {b.namunalar.map((n) => (
+                    <span
+                      key={n}
+                      className="text-[10.5px] px-2 py-1 rounded-md border border-purple-700/50 bg-purple-950/40 text-purple-300"
+                    >
+                      {n}
+                    </span>
+                  ))}
                 </div>
-              </div>
+              )}
 
-              {/* Icon */}
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${b.color} flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                {b.icon}
-              </div>
-
-              {/* Step badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-950/50 rounded-full text-xs text-purple-300 mb-3">
-                <span className="w-2 h-2 bg-blue-400 rounded-full" />
-                Yo'nalish {b.step}
-              </div>
-
-              {/* Content */}
-              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
-                {b.title}
-              </h3>
-              <p className="text-purple-300 text-sm mb-4 leading-relaxed">
-                {b.desc}
-              </p>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-1.5">
-                {b.tags.map((tag, j) => (
-                  <span 
-                    key={j}
-                    className="text-[10px] px-2 py-0.5 bg-purple-900/50 border border-purple-700/50 rounded-full text-purple-300"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Arrow */}
-              <div className="flex items-center gap-2 text-blue-400 text-sm font-semibold mt-4">
-                <span>Batafsil ko'rish</span>
-                <span className="group-hover:translate-x-2 transition-transform">→</span>
+              <div className={`flex items-center gap-2 text-sm font-semibold mt-auto pt-5 ${b.matn}`}>
+                Ochish
+                <span className="transition-transform group-hover:translate-x-1.5">→</span>
               </div>
             </Link>
           ))}
         </div>
 
-        {/* QANDAY BOSHLASH */}
-        <div className="bg-gradient-to-r from-yellow-600/10 to-orange-600/10 border border-yellow-500/30 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-            <span className="text-3xl">🚀</span>
-            Qanday boshlash kerak?
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-yellow-400">📖 Yangi boshlovchilar</h3>
-              <ol className="space-y-3 text-sm text-purple-200">
-                <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-yellow-500/20 border border-yellow-500/50 flex items-center justify-center text-xs font-bold text-yellow-400 shrink-0">1</span>
-                  <span><strong>Chuqurlashgan mavzular</strong> — nazariy asoslar</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-yellow-500/20 border border-yellow-500/50 flex items-center justify-center text-xs font-bold text-yellow-400 shrink-0">2</span>
-                  <span><strong>Kompleks birikmalar</strong> — amaliy misollar</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-yellow-500/20 border border-yellow-500/50 flex items-center justify-center text-xs font-bold text-yellow-400 shrink-0">3</span>
-                  <span><strong>Tahlil usullari</strong> — eksperimental metodlar</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-yellow-500/20 border border-yellow-500/50 flex items-center justify-center text-xs font-bold text-yellow-400 shrink-0">4</span>
-                  <span>Har bir bo'limdan keyin <strong>manbalarni</strong> o'qing</span>
-                </li>
-              </ol>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-yellow-400">💡 Samarali o'rganish</h3>
-              <div className="space-y-3">
-                <div className="bg-purple-950/50 rounded-xl p-4">
-                  <p className="text-yellow-400 font-bold mb-1">📅 Har kuni 30-60 daq</p>
-                  <p className="text-purple-300 text-xs">Bir kunda 5 soatdan ko'ra, har kuni 30 daqiqa samaraliroq</p>
-                </div>
-                <div className="bg-purple-950/50 rounded-xl p-4">
-                  <p className="text-yellow-400 font-bold mb-1">✍️ Qo'lda yozing</p>
-                  <p className="text-purple-300 text-xs">Formulalar va misollarni qog'ozga yozing</p>
-                </div>
-                <div className="bg-purple-950/50 rounded-xl p-4">
-                  <p className="text-yellow-400 font-bold mb-1">🔄 Takrorlang</p>
-                  <p className="text-purple-300 text-xs">1, 3, 7 kun qoidasi</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* USULLAR RELI */}
+        <div className="flex items-baseline gap-4 flex-wrap border-b border-purple-800/40 pb-3 mb-5 mt-14">
+          <h2 className="text-base font-bold text-white">{hajm.usullar} ta tahlil usuli</h2>
+          <p className="text-xs text-purple-500 ml-auto">Yon tomonga suriladi</p>
         </div>
 
-        {/* CTA */}
-        <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-2xl p-8 text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">🎯 Tayyor? Birinchi yo'nalishdan boshlaymiz!</h2>
-          <p className="text-purple-200 mb-6 max-w-2xl mx-auto">
-            <strong className="text-blue-400">Chuqurlashgan mavzular</strong> — koordinatsion kimyo nazariyasining asosi.
-          </p>
+        <div className="overflow-x-auto pb-2">
+          <ul className="flex gap-2 min-w-min list-none p-0 m-0">
+            {USULLAR.map(([kalit, soni]) => (
+              <li key={kalit} className="shrink-0">
+                <Link
+                  href={`/ilmiy/tahlil/${kalit}`}
+                  className="block min-w-[112px] px-4 py-3 bg-purple-900/40 border border-purple-700/50 rounded-xl hover:border-amber-400/60 hover:bg-purple-900/60 hover:-translate-y-0.5 transition-all"
+                >
+                  <div className="font-bold text-sm text-white whitespace-nowrap mb-1">
+                    {USUL_NOMI[kalit] || kalit}
+                  </div>
+                  <div className="text-[10px] text-purple-400 tabular-nums">{soni} birikma</div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* BITTA KIRISH NUQTASI */}
+        <div className="mt-14 rounded-2xl border border-purple-700/50 bg-gradient-to-br from-amber-600/10 via-purple-900/40 to-purple-900/40 p-8 flex flex-wrap items-center gap-7">
+          <div className="flex-1 min-w-[300px]">
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Qaydan boshlash kerak?</h3>
+            <p className="text-purple-300 text-sm leading-relaxed max-w-prose">
+              Nazariyani oldindan bilish shart emas. Eng qisqa yo'l — bitta
+              birikmani tanlab, uning spektrlarini o'qish. Ferrosen buning uchun
+              eng qulay birinchi misol.
+            </p>
+          </div>
           <Link
-            href="/ilmiy/chuqurlashgan"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 rounded-xl text-white font-bold text-lg transition-all transform hover:-translate-y-1 shadow-xl shadow-blue-500/20"
+            href="/ilmiy/birikmalar/ferrosen"
+            className="group shrink-0 inline-flex items-center gap-2.5 px-7 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all hover:-translate-y-0.5"
           >
-            🔬 Chuqurlashgan mavzular — Boshlash
-            <span>→</span>
+            Ferrosendan boshlash
+            <span className="transition-transform group-hover:translate-x-1">→</span>
           </Link>
         </div>
 
-        {/* NAVIGATION */}
-        <div className="flex flex-col md:flex-row justify-between gap-4 pt-6">
-          <Link href="/" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300 text-center">
+        {/* NAVIGATSIYA */}
+        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-12 pb-4">
+          <Link
+            href="/"
+            className="px-6 py-3 border border-purple-600/50 rounded-xl hover:bg-purple-800/40 text-purple-300 text-center text-sm transition-colors"
+          >
             ← Bosh sahifa
           </Link>
-          <Link href="/oquv" className="px-6 py-3 bg-purple-600/60 hover:bg-purple-500/80 border border-purple-500/50 rounded-xl text-white font-semibold">
+          <Link
+            href="/oquv"
+            className="px-6 py-3 bg-purple-800/60 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-white font-semibold text-center text-sm transition-colors"
+          >
             📚 O'quv bo'lim →
           </Link>
         </div>
-      </section>
+      </div>
 
-      <footer className="border-t border-purple-800/30 py-8 mt-12">
-        <div className="max-w-6xl mx-auto px-4 text-center text-xs text-purple-500">
-          <p>© 2026 JDA KIMYO — Koordinatsion kimyo ilmiy portali</p>
-          <p className="mt-1">Ilmiy bo'lim • 4 ta yo'nalish • 50+ kompleks • 20+ tahlil usuli</p>
+      <footer className="border-t border-purple-800/30 mt-12 py-8">
+        <div className="max-w-6xl mx-auto px-4 flex flex-wrap justify-between gap-3 text-[11px] tracking-[0.06em] uppercase text-purple-600">
+          <span>© 2026 JDA KIMYO — Ilmiy bo'lim</span>
+          <span>
+            {hajm.birikmalar} birikma · {hajm.usullar} usul · {hajm.mavzular} mavzu · {hajm.modellar3d} 3D model
+          </span>
         </div>
       </footer>
     </main>
