@@ -2,12 +2,17 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { ACADEMIC_ROLES, PRIVILEGED_ROLES, ALL_ROLES, roleInfo, roleLabel } from '@/lib/roles'
 
 export default function AdminUsersPage() {
   const searchParams = useSearchParams()
+  const { data: session } = useSession()
+  // Parolni tiklash — faqat superadminda. Server tomonda ham tekshiriladi,
+  // bu yerdagisi shunchaki tugmani yashiradi.
+  const isSuperAdmin = session?.user?.role === 'superadmin'
   const [users, setUsers] = useState([])
   const [stats, setStats] = useState({
     total: 0,
@@ -31,6 +36,10 @@ export default function AdminUsersPage() {
   const [showRoleModal, setShowRoleModal] = useState(false)
   const [showBanModal, setShowBanModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  // Parolni tiklash oynasi. yangiParol — server qaytargan vaqtinchalik parol;
+  // u faqat shu javobda keladi, bazada xesh saqlanadi.
+  const [showParolModal, setShowParolModal] = useState(false)
+  const [yangiParol, setYangiParol] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
   const [newRole, setNewRole] = useState('bakalavr')
   const [banReason, setBanReason] = useState('')
@@ -96,6 +105,40 @@ export default function AdminUsersPage() {
       setShowRoleModal(false)
       setSelectedUser(null)
       fetchUsers()
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsActionLoading(false)
+    }
+  }
+
+  /**
+   * Parolni tiklash.
+   *
+   * Eski parolni ko'rsatish imkonsiz — u bcrypt bilan xeshlangan. Server
+   * yangi vaqtinchalik parol yaratib, uni javobda BIR MARTA qaytaradi;
+   * bazada faqat xesh saqlanadi. Shuning uchun oyna yopilgach, parolni
+   * hech qayerdan qayta ko'rib bo'lmaydi — qayta tiklash kerak bo'ladi.
+   */
+  const handleParolTiklash = async () => {
+    if (!selectedUser) return
+    setIsActionLoading(true)
+
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: selectedUser.id,
+          action: 'resetPassword',
+        }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
+
+      setYangiParol(data.temporaryPassword)
+      toast.success(data.message)
     } catch (error) {
       toast.error(error.message)
     } finally {
@@ -472,6 +515,22 @@ export default function AdminUsersPage() {
                             🚫
                           </button>
                         )}
+                        {/* Parolni tiklash — faqat superadmin.
+                            Parolni KO'RSATIB bo'lmaydi (bcrypt bir tomonlama),
+                            shuning uchun yangi vaqtinchalik parol beriladi. */}
+                        {isSuperAdmin && (
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user)
+                              setYangiParol(null)
+                              setShowParolModal(true)
+                            }}
+                            title="Parolni tiklash"
+                            className="px-3 py-1 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-600/50 rounded-lg text-xs text-yellow-400 transition-all"
+                          >
+                            🔑
+                          </button>
+                        )}
                         <button
                           onClick={() => {
                             setSelectedUser(user)
@@ -620,6 +679,96 @@ export default function AdminUsersPage() {
       )}
 
       {/* Delete Modal */}
+      {/* PAROLNI TIKLASH — faqat superadmin */}
+      {showParolModal && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-yellow-700/50 rounded-2xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-yellow-400 mb-4">🔑 Parolni tiklash</h3>
+
+            {!yangiParol ? (
+              <>
+                <div className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-3 mb-4">
+                  <p className="text-white font-semibold">
+                    {selectedUser.fullName || selectedUser.username}
+                  </p>
+                  <p className="text-purple-400 text-sm">
+                    @{selectedUser.username} · ID: {selectedUser.userId}
+                  </p>
+                </div>
+
+                <div className="bg-blue-950/30 border border-blue-700/30 rounded-lg p-3 mb-5">
+                  <p className="text-blue-300 text-sm leading-relaxed">
+                    Eski parolni ko&apos;rsatib bo&apos;lmaydi — u xeshlangan holda
+                    saqlanadi va uni ochish imkonsiz. Buning o&apos;rniga yangi
+                    vaqtinchalik parol yaratiladi.
+                  </p>
+                </div>
+
+                <p className="text-purple-300 text-sm mb-5">
+                  Foydalanuvchining eski paroli darhol ishlamay qoladi. Yangi parolni
+                  unga o&apos;zingiz yetkazasiz.
+                </p>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setShowParolModal(false); setSelectedUser(null) }}
+                    className="flex-1 py-3 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-xl text-white font-semibold transition-all"
+                  >
+                    Bekor qilish
+                  </button>
+                  <button
+                    onClick={handleParolTiklash}
+                    disabled={isActionLoading}
+                    className="flex-1 py-3 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-black font-bold transition-all disabled:opacity-50"
+                  >
+                    {isActionLoading ? 'Yaratilmoqda...' : 'Yangi parol yaratish'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-purple-300 text-sm mb-3">
+                  <strong className="text-white">
+                    {selectedUser.fullName || selectedUser.username}
+                  </strong>{' '}
+                  uchun yangi parol:
+                </p>
+
+                <div className="bg-black/50 border border-yellow-600/40 rounded-xl p-4 mb-4">
+                  <p className="text-2xl font-mono font-bold text-yellow-400 text-center tracking-wider select-all">
+                    {yangiParol}
+                  </p>
+                </div>
+
+                <div className="bg-red-950/30 border border-red-700/40 rounded-lg p-3 mb-5">
+                  <p className="text-red-300 text-sm leading-relaxed">
+                    ⚠️ Bu parol boshqa ko&apos;rsatilmaydi — bazada faqat xeshi
+                    saqlanadi. Hozir ko&apos;chirib oling. Yo&apos;qotsangiz, qaytadan
+                    tiklash kerak bo&apos;ladi.
+                  </p>
+                </div>
+
+                <p className="text-purple-400 text-xs mb-4">
+                  Foydalanuvchi kirgach, sozlamalardan o&apos;z parolini
+                  o&apos;zgartirishi kerak.
+                </p>
+
+                <button
+                  onClick={() => {
+                    setShowParolModal(false)
+                    setSelectedUser(null)
+                    setYangiParol(null)
+                  }}
+                  className="w-full py-3 bg-purple-800/60 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-white font-semibold transition-all"
+                >
+                  Ko&apos;chirib oldim, yopish
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {showDeleteModal && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-red-700/50 rounded-2xl p-6 max-w-md w-full">

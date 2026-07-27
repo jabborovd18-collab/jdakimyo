@@ -2,8 +2,31 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { ASSIGNABLE_ROLES } from '@/lib/roles'
+
+/**
+ * Vaqtinchalik parol yaratadi.
+ *
+ * Adashtiradigan belgilar (0/O, 1/l/I) ataylab olib tashlangan: parol
+ * og'zaki aytiladi yoki qo'lda ko'chiriladi, "0" bilan "O" ni chalkashtirish
+ * eng ko'p uchraydigan xato.
+ */
+function parolYarat() {
+  const belgilar = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'
+  const uzunlik = 12
+
+  // Math.random() emas — parol uchun kriptografik tasodif kerak
+  const baytlar = new Uint32Array(uzunlik)
+  crypto.getRandomValues(baytlar)
+
+  let parol = ''
+  for (let i = 0; i < uzunlik; i++) {
+    parol += belgilar[baytlar[i] % belgilar.length]
+  }
+  return parol
+}
 
 // GET - Foydalanuvchilar ro'yxati (pagination, qidiruv, filtrlar bilan)
 export async function GET(request) {
@@ -196,6 +219,9 @@ export async function PUT(request) {
 
     let updateData = {}
     let message = ''
+    // Faqat parol tiklanganda to'ladi va javobda BIR MARTA qaytariladi —
+    // bazada xesh saqlanadi, ya'ni keyin uni hech qayerdan ko'rib bo'lmaydi.
+    let vaqtinchalikParol = null
 
     switch (action) {
       case 'changeRole':
@@ -234,10 +260,42 @@ export async function PUT(request) {
         message = 'Foydalanuvchi ochildi'
         break
 
-      case 'resetPassword':
-        // Bu yerda parol reset qilish logikasi (email yuborish)
-        message = 'Parol reset qilindi (email yuborildi)'
+      case 'resetPassword': {
+        // Avval bu amal hech narsa qilmasdan "email yuborildi" deb
+        // qaytarardi — admin muvaffaqiyat xabarini ko'rardi-yu, parol
+        // o'zgarmasdi va foydalanuvchi baribir hisobiga kira olmasdi.
+        //
+        // Parolni KO'RSATIB bo'lmaydi: u bcrypt bilan xeshlangan, bu bir
+        // tomonlama amal. Shuning uchun yagona to'g'ri yordam — yangi
+        // vaqtinchalik parol o'rnatib, uni foydalanuvchiga berish.
+        if (session.user.role !== 'superadmin') {
+          return NextResponse.json(
+            { error: 'Parolni faqat superadmin tiklaydi' },
+            { status: 403 }
+          )
+        }
+
+        vaqtinchalikParol = parolYarat()
+        updateData = { password: await bcrypt.hash(vaqtinchalikParol, 12) }
+        message = 'Yangi vaqtinchalik parol yaratildi'
+
+        // Kim, kimga va qachon — javobgarlik uchun qaydnomaga yoziladi
+        await prisma.auditLog.create({
+          data: {
+            adminId: session.user.id,
+            action: 'resetPassword',
+            targetType: 'User',
+            targetId: userId,
+            details: `${targetUser.username} uchun vaqtinchalik parol o'rnatildi`,
+            ipAddress:
+              request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+              request.headers.get('x-real-ip') ||
+              null,
+            userAgent: request.headers.get('user-agent') || null,
+          },
+        })
         break
+      }
 
       default:
         return NextResponse.json({ error: 'Noma\'lum amal' }, { status: 400 })
@@ -261,7 +319,9 @@ export async function PUT(request) {
     return NextResponse.json({
       success: true,
       message,
-      user: updatedUser
+      user: updatedUser,
+      // Faqat parol tiklangan holatda keladi
+      ...(vaqtinchalikParol ? { temporaryPassword: vaqtinchalikParol } : {}),
     })
 
   } catch (error) {
