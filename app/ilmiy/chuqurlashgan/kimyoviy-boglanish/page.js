@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { oqilganlar, belginiAlmashtir, mavzuniYangila } from "@/lib/oquv-progress"
 import { useState, useEffect } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -704,21 +705,21 @@ export default function KimyoviyBoglanish() {
 
   useEffect(() => {
     setMounted(true)
-    try {
-      const saved = localStorage.getItem("jda-kimyoviy-progress")
-      if (saved) setProgress(JSON.parse(saved))
-    } catch (e) {}
+    setProgress(oqilganlar())
   }, [])
 
   const toggleProgress = (href) => {
-    const next = { ...progress, [href]: !progress[href] }
-    setProgress(next)
-    try { localStorage.setItem("jda-kimyoviy-progress", JSON.stringify(next)) } catch (e) {}
+    belginiAlmashtir(href)
+    // Barcha bo'limlar o'qilsa, mavzuning o'zi ham belgilanadi —
+    // shunda bosh sahifadagi progress o'zi o'sadi.
+    setProgress(mavzuniYangila("/ilmiy/chuqurlashgan/kimyoviy-boglanish", BOLIMLAR.map(b => b.href)))
   }
 
   const stats = {
     total: BOLIMLAR.length,
-    completed: Object.values(progress).filter(Boolean).length,
+    // Faqat shu mavzuning bo'limlari sanaladi — belgilar xaritasi
+    // umumiy, ya'ni boshqa mavzudagi belgilar ham unda bo'ladi.
+    completed: BOLIMLAR.filter(b => progress[b.href]).length,
     totalTime: BOLIMLAR.reduce((s, b) => s + parseInt(b.time), 0)
   }
 

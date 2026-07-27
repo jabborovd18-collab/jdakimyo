@@ -57,45 +57,61 @@ export default function Biorganometallik() {
           </div>
         </div>
 
-        {/* BO'LIMLAR */}
+        {/* TEGISHLI MAVZULAR
+            Avval bu yerda beshta karta bo'lib, hammasi shu bo'limning o'z
+            kichik sahifalariga havola qilardi — lekin ular yozilmagan
+            (papkalar bor, page.js yo'q), ya'ni beshta karta ham 404 ga
+            olib borardi. Shu mavzular saytda allaqachon boshqa joyda
+            batafsil yozilgani uchun kartalar o'shalarga yo'naltirildi. */}
         <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📂 Asosiy yo'nalishlar</h2>
-          
+          <h2 className="text-xl font-bold text-white mb-2">📂 Asosiy yo'nalishlar</h2>
+          <p className="text-purple-400 text-sm mb-6">
+            Har bir yo'nalish saytdagi batafsil sahifaga olib boradi
+          </p>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/ilmiy/chuqurlashgan/biorganometallik/tabiiy-birikmalar" 
+            <Link href="/ilmiy/chuqurlashgan/bioanorganik/b12-vitamini"
               className="bg-purple-800/40 border border-purple-700/30 rounded-xl p-5 hover:bg-purple-700/50 transition-colors group">
               <div className="text-3xl mb-2">🌿</div>
-              <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">Tabiiy birikmalar</h3>
-              <p className="text-purple-300 text-xs mt-2">B₁₂ vitamini • Nitrogenaza • Gidrogenaza</p>
+              <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">B₁₂ vitamini</h3>
+              <p className="text-purple-300 text-xs mt-2">Yagona tabiiy organometallik koenzim • Co−C bog'i</p>
             </Link>
 
-            <Link href="/ilmiy/chuqurlashgan/biorganometallik/suniy-metalofermentlar" 
+            <Link href="/ilmiy/chuqurlashgan/bioanorganik/metallofermentlar"
               className="bg-purple-800/40 border border-purple-700/30 rounded-xl p-5 hover:bg-purple-700/50 transition-colors group">
               <div className="text-3xl mb-2">🧪</div>
-              <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">Sun'iy metalofermentlar</h3>
-              <p className="text-purple-300 text-xs mt-2">Arsin tashuvchilar • Sun'iy restriktazalar</p>
+              <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">Metallofermentlar</h3>
+              <p className="text-purple-300 text-xs mt-2">Nitrogenaza • Gidrogenaza • Sitoxrom P450</p>
             </Link>
 
-            <Link href="/ilmiy/chuqurlashgan/biorganometallik/terapevtik" 
+            <Link href="/ilmiy/chuqurlashgan/bioanorganik/metall-dorilar"
               className="bg-purple-800/40 border border-purple-700/30 rounded-xl p-5 hover:bg-purple-700/50 transition-colors group">
               <div className="text-3xl mb-2">💊</div>
               <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">Terapevtik komplekslar</h3>
-              <p className="text-purple-300 text-xs mt-2">Ferrosen • Ru-aren • Oltin • CORMs</p>
+              <p className="text-purple-300 text-xs mt-2">Ru-aren • Oltin komplekslari • Sisplatin</p>
             </Link>
 
-            <Link href="/ilmiy/chuqurlashgan/biorganometallik/sensorlar" 
-              className="bg-purple-800/40 border border-purple-700/30 rounded-xl p-5 hover:bg-purple-700/50 transition-colors group">
-              <div className="text-3xl mb-2">📡</div>
-              <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">Sensorlar</h3>
-              <p className="text-purple-300 text-xs mt-2">Glyukoza • Ion-selektiv elektrodlar</p>
-            </Link>
-
-            <Link href="/ilmiy/chuqurlashgan/biorganometallik/bioikonjugatsiya" 
+            <Link href="/ilmiy/birikmalar/ferrosen"
               className="bg-purple-800/40 border border-purple-700/30 rounded-xl p-5 hover:bg-purple-700/50 transition-colors group">
               <div className="text-3xl mb-2">🔗</div>
-              <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">Biokonjugatsiya</h3>
-              <p className="text-purple-300 text-xs mt-2">Metall-antikor konjugatlari</p>
+              <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">Ferrosen</h3>
+              <p className="text-purple-300 text-xs mt-2">M−Cp bog'i • Dorilar asosi • 3D model</p>
             </Link>
+
+            <Link href="/ilmiy/chuqurlashgan/kop-yadroli/bioilhomlantirilgan"
+              className="bg-purple-800/40 border border-purple-700/30 rounded-xl p-5 hover:bg-purple-700/50 transition-colors group">
+              <div className="text-3xl mb-2">🏗️</div>
+              <h3 className="text-yellow-400 font-bold group-hover:text-yellow-300">Bioilhomlantirilgan tizimlar</h3>
+              <p className="text-purple-300 text-xs mt-2">Sun'iy analoglar • Model komplekslar</p>
+            </Link>
+
+            <div className="bg-purple-950/30 border border-purple-800/40 border-dashed rounded-xl p-5">
+              <div className="text-3xl mb-2 opacity-40">📡</div>
+              <h3 className="text-purple-400 font-bold">Sensorlar va biokonjugatsiya</h3>
+              <p className="text-purple-500 text-xs mt-2">
+                Glyukoza sensorlari • Metall-antikor konjugatlari — alohida sahifa hozircha yo'q
+              </p>
+            </div>
           </div>
         </div>
 
@@ -156,9 +172,9 @@ export default function Biorganometallik() {
             className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300">
             ← Bioilhomlantirilgan
           </Link>
-          <Link href="/ilmiy/chuqurlashgan/biorganometallik/tabiiy-birikmalar" 
+          <Link href="/ilmiy/chuqurlashgan/bioanorganik/b12-vitamini"
             className="px-6 py-3 bg-yellow-600/80 rounded-xl hover:bg-yellow-500 text-white font-semibold">
-            Tabiiy birikmalar →
+            B₁₂ vitamini →
           </Link>
         </div>
 

@@ -2,9 +2,12 @@
 
 import Link from "next/link"
 import { useState, useEffect, useMemo } from "react"
+import { oqilganlar, belginiAlmashtir } from "@/lib/oquv-progress"
 
 // ═══════════════════════════════════════════════════════════════════════════
-// MA'LUMOTLAR BAZASI — 22 ta mavzu + kategoriya + daraja + vaqt
+// MAVZULAR — kategoriya, daraja va vaqt bilan.
+// Mavzular soni bu yerda yozilmaydi: avval izohda "22 ta" deb turgan-u,
+// aslida 20 ta bo'lgan. Son kerak bo'lsa MAVZULAR.length dan olinadi.
 // ═══════════════════════════════════════════════════════════════════════════
 const MAVZULAR = [
   // ─── ASOSLAR ─────────────────────────────────
@@ -20,7 +23,6 @@ const MAVZULAR = [
     levelLabel: "Boshlang'ich",
     levelColor: "bg-green-600/20 text-green-400 border-green-600/30",
     time: "35 daqiqa",
-    progress: 0,
     topics: ["Kvant sonlar", "d-orbitallar", "Elektron konfiguratsiya", "Shredinger tenglamasi"]
   },
   {
@@ -35,7 +37,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "40 daqiqa",
-    progress: 0,
     topics: ["Russell-Saunders", "Mikroholatlar", "Hund qoidalari", "Term belgilar"]
   },
   {
@@ -50,7 +51,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "45 daqiqa",
-    progress: 0,
     topics: ["Nuqtali guruhlar", "Simmetriya elementlari", "Xarakterlar jadvali", "Tebranish modlari"]
   },
   {
@@ -65,7 +65,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "50 daqiqa",
-    progress: 0,
     topics: ["VB nazariyasi", "MO nazariyasi", "Gibridlanish", "σ/π bog'lar"]
   },
 
@@ -82,7 +81,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "50 daqiqa",
-    progress: 0,
     topics: ["d-orbital ajralishi", "KMBE", "Spektrokimyoviy qator", "Yuqori/past spin"]
   },
   {
@@ -97,7 +95,6 @@ const MAVZULAR = [
     levelLabel: "Ilg'or",
     levelColor: "bg-red-600/20 text-red-400 border-red-600/30",
     time: "55 daqiqa",
-    progress: 0,
     topics: ["σ-donor", "π-akseptor", "MLCT", "LMCT"]
   },
   {
@@ -112,7 +109,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "35 daqiqa",
-    progress: 0,
     topics: ["Oktaedrik buzilish", "d⁴/d⁹", "Cu²⁺ komplekslari", "Spektroskopiya"]
   },
   {
@@ -127,7 +123,6 @@ const MAVZULAR = [
     levelLabel: "Ilg'or",
     levelColor: "bg-red-600/20 text-red-400 border-red-600/30",
     time: "55 daqiqa",
-    progress: 0,
     topics: ["Orgel diagramma", "Tanabe-Sugano", "Tanlash qoidalari", "d-d o'tishlar"]
   },
   {
@@ -142,7 +137,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "40 daqiqa",
-    progress: 0,
     topics: ["Spin-only formula", "GUI usuli", "Diamagnetizm", "Paramagnetizm"]
   },
   {
@@ -157,7 +151,6 @@ const MAVZULAR = [
     levelLabel: "Ilg'or",
     levelColor: "bg-red-600/20 text-red-400 border-red-600/30",
     time: "45 daqiqa",
-    progress: 0,
     topics: ["MLCT", "LMCT", "MMCT", "IVCT"]
   },
 
@@ -174,7 +167,6 @@ const MAVZULAR = [
     levelLabel: "Boshlang'ich",
     levelColor: "bg-green-600/20 text-green-400 border-green-600/30",
     time: "35 daqiqa",
-    progress: 0,
     topics: ["VSEPR", "Kepert modeli", "Poliedrlar", "KCh 2-12"]
   },
   {
@@ -189,7 +181,6 @@ const MAVZULAR = [
     levelLabel: "Boshlang'ich",
     levelColor: "bg-green-600/20 text-green-400 border-green-600/30",
     time: "30 daqiqa",
-    progress: 0,
     topics: ["Sis/trans", "fac/mer", "Δ/Λ optik", "Ionlanish"]
   },
   {
@@ -204,7 +195,6 @@ const MAVZULAR = [
     levelLabel: "Ilg'or",
     levelColor: "bg-red-600/20 text-red-400 border-red-600/30",
     time: "50 daqiqa",
-    progress: 0,
     topics: ["Metall klasterlar", "M-M bog'lar", "Karbonillar", "Ko'p yadroli magnit"]
   },
 
@@ -221,7 +211,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "45 daqiqa",
-    progress: 0,
     topics: ["Labil komplekslar", "D/A/I mexanizmlar", "Eyring tenglamasi", "Trans ta'sir"]
   },
   {
@@ -236,7 +225,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "40 daqiqa",
-    progress: 0,
     topics: ["Oksidlanish-qaytarilish", "Oksidlovchi qo'shilish", "Monsanto", "Wacker"]
   },
   {
@@ -251,7 +239,6 @@ const MAVZULAR = [
     levelLabel: "Ilg'or",
     levelColor: "bg-red-600/20 text-red-400 border-red-600/30",
     time: "50 daqiqa",
-    progress: 0,
     topics: ["Qo'zg'algan holat", "[Ru(bpy)₃]²⁺", "Fotokataliz", "Lantanidlar"]
   },
 
@@ -268,7 +255,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "45 daqiqa",
-    progress: 0,
     topics: ["Kstab", "Irving-Uilyams", "Xelat effekti", "HSAB"]
   },
   {
@@ -283,7 +269,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "35 daqiqa",
-    progress: 0,
     topics: ["Sisplatin", "Ru komplekslar", "Auranofin", "Ferroquine"]
   },
   {
@@ -298,7 +283,6 @@ const MAVZULAR = [
     levelLabel: "O'rta",
     levelColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     time: "40 daqiqa",
-    progress: 0,
     topics: ["Gemoglobin", "B₁₂", "Xlorofill", "Nitrogenaza"]
   },
   {
@@ -313,8 +297,23 @@ const MAVZULAR = [
     levelLabel: "Ilg'or",
     levelColor: "bg-red-600/20 text-red-400 border-red-600/30",
     time: "50 daqiqa",
-    progress: 0,
     topics: ["MOF", "Host-guest", "Molekulyar tanib olish", "Ansambllar"]
+  },
+  {
+    // Bu mavzu sahifasi bor va jonli edi, lekin ro'yxatga kirmagani uchun
+    // saytdan unga yetib bo'lmasdi — faqat to'g'ridan-to'g'ri URL bilan.
+    href: "/ilmiy/chuqurlashgan/biorganometallik",
+    icon: "🧬",
+    title: "Biorganometallik kimyo",
+    desc: "Metall-uglerod (M−C) bog'i saqlovchi biomolekulalar: B₁₂ vitamini, nitrogenaza, gidrogenaza va ularning sun'iy analoglari",
+    badge: "Biologik",
+    badgeColor: "bg-lime-600/20 text-lime-400 border-lime-600/30",
+    category: "amaliy",
+    level: "ilgor",
+    levelLabel: "Ilg'or",
+    levelColor: "bg-red-600/20 text-red-400 border-red-600/30",
+    time: "35 daqiqa",
+    topics: ["M−C bog'i", "B₁₂ koenzim", "Nitrogenaza", "Terapevtik komplekslar"]
   },
 ]
 
@@ -345,25 +344,17 @@ export default function Chuqurlashgan() {
   const [mounted, setMounted] = useState(false)
   const [progress, setProgress] = useState({})
 
-  // LocalStorage dan progress ma'lumotlarini yuklash
+  // Belgilar endi lib/oquv-progress.js dagi umumiy manbadan. Avval bu sahifa
+  // faqat o'zining kalitini o'qirdi, mavzu sahifalari esa alohida kalitlarga
+  // yozardi — shuning uchun mavzu ichida o'qilgan bo'limlar bu yerda
+  // ko'rinmasdi.
   useEffect(() => {
     setMounted(true)
-    try {
-      const saved = localStorage.getItem("jda-chuqurlashgan-progress")
-      if (saved) setProgress(JSON.parse(saved))
-    } catch (e) {}
+    setProgress(oqilganlar())
   }, [])
 
-  // Progressni saqlash
   const toggleProgress = (href) => {
-    const newProgress = {
-      ...progress,
-      [href]: !progress[href]
-    }
-    setProgress(newProgress)
-    try {
-      localStorage.setItem("jda-chuqurlashgan-progress", JSON.stringify(newProgress))
-    } catch (e) {}
+    setProgress(belginiAlmashtir(href))
   }
 
   // Filtrlangan mavzular
@@ -385,7 +376,10 @@ export default function Chuqurlashgan() {
   // Progress statistikasi
   const stats = useMemo(() => {
     const total = MAVZULAR.length
-    const completed = Object.values(progress).filter(Boolean).length
+    // Faqat shu ro'yxatdagi mavzular sanaladi. Belgilar endi butun sayt
+    // bo'yicha umumiy xaritada (mavzu ichidagi bo'limlar ham shu yerda),
+    // shuning uchun xaritaning umumiy uzunligini olish to'g'ri bo'lmaydi.
+    const completed = MAVZULAR.filter(m => progress[m.href]).length
     const totalTime = MAVZULAR.reduce((sum, m) => {
       const min = parseInt(m.time) || 0
       return sum + min
@@ -631,7 +625,9 @@ export default function Chuqurlashgan() {
                       ? 'bg-emerald-500 border-emerald-400 text-white'
                       : 'border-purple-600/50 hover:border-purple-400 bg-purple-950/50'
                   }`}
-                  title={progress[m.href] ? "O'qilgan deb belgilash" : "O'qildi deb belgilash"}
+                  aria-label={progress[m.href] ? `${m.title}: belgini olish` : `${m.title}: o'qildi deb belgilash`}
+                  aria-pressed={Boolean(progress[m.href])}
+                  title={progress[m.href] ? "Belgini olish" : "O'qildi deb belgilash"}
                 >
                   {progress[m.href] ? (
                     <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
