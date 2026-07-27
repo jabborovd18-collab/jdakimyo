@@ -10,43 +10,15 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import {
   POST_SELECT, POST_MAX, TITLE_MAX,
-  cleanText, tezlikChekloviOshdimi, laykBosilganlar, postniTayyorla,
+  cleanText, tezlikChekloviOshdimi, postniTayyorla,
+  royxatParametrlari, mavzularniOl,
 } from '@/lib/forum'
 
-const DEFAULT_LIMIT = 20
-const MAX_LIMIT = 50
-
-// "Dolzarb" va "Ommabop" tartiblari layklar bilan javoblar yig'indisiga
-// tayanadi, Prisma esa ikki sanoqning yig'indisi bo'yicha tartiblay olmaydi.
-// Shuning uchun bu ikki tartib eng yangi shu qadar mavzu ichida hisoblanadi.
-// "Yangi" tartibi esa bazada tartiblanadi — to'liq tarix bo'yicha.
-const BALL_OYNASI = 200
-
-const BALLI_TARTIBLAR = ['dolzarb', 'ommabop']
-
-/**
- * Mavzu og'irligi va "dolzarblik" bali.
- *
- *   ball = (1 + layklar + 2 × javoblar) / (soat + 2)^1.5
- *
- * Javobga ikki barobar vazn: muhokamada javob laykdan kuchliroq signal.
- *
- * Boshdagi 1 — yangi mavzu hali hech kim javob bermaganda ham tepada
- * ko'rinishi uchun. Aks holda u pastda qolib ketadi va shu sababli hech
- * qachon javob olmaydi.
- *
- * Bo'luvchi mavzuni vaqt o'tishi bilan pastga tushiradi: "ommabop" uchun
- * susayish qo'llanmaydi — u butun tarix bo'yicha eng og'irini ko'rsatadi.
- */
-function ball(p, susayish) {
-  const ogirlik = 1 + p._count.likes + 2 * p._count.replies
-  if (!susayish) return ogirlik
-
-  const soat = (Date.now() - new Date(p.createdAt).getTime()) / 3_600_000
-  return ogirlik / Math.pow(soat + 2, 1.5)
-}
-
 // ─── GET: mavzular ro'yxati ───
+//
+// Ro'yxat mantiqi lib/forum.js da — mobil route (/api/mobile/forum) ham
+// o'shani ishlatadi. Farqi faqat autentifikatsiyada: bu yerda cookie
+// sessiyasi, mobil tomonda Bearer token.
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
@@ -54,75 +26,11 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url)
     const articleId = searchParams.get('articleId') // null bo'lsa — umumiy lenta
+    const { sort, limit, offset } = royxatParametrlari(searchParams, { articleId })
 
-    // Umumiy lentada standart tartib "dolzarb". Maqola ostidagi muhokama
-    // xronologik o'qiladi, shuning uchun u yerda "yangi".
-    const sortParam = searchParams.get('sort')
-    const sort = sortParam || (articleId ? 'yangi' : 'dolzarb')
+    const natija = await mavzularniOl({ articleId, sort, limit, offset, userId })
 
-    const requested = parseInt(searchParams.get('limit') || String(DEFAULT_LIMIT), 10)
-    const limit = Math.min(Math.max(Number.isFinite(requested) ? requested : DEFAULT_LIMIT, 1), MAX_LIMIT)
-    const offset = Math.max(parseInt(searchParams.get('offset') || '0', 10) || 0, 0)
-
-    // Faqat tasdiqlangan asosiy mavzular (javoblar alohida olinadi).
-    // Muallif o'zining kutayotgan postini ham ko'radi.
-    const where = {
-      parentId: null,
-      articleId: articleId || null,
-      OR: userId
-        ? [{ status: 'approved' }, { authorId: userId, status: 'pending' }]
-        : [{ status: 'approved' }],
-    }
-
-    const select = { ...POST_SELECT, status: true }
-
-    let total
-    let rows
-
-    if (BALLI_TARTIBLAR.includes(sort)) {
-      // Oynani olib, ballab, JS'da tartiblaymiz va so'ng bo'lamiz.
-      const oyna = await prisma.forumPost.findMany({
-        where,
-        orderBy: [{ createdAt: 'desc' }],
-        take: BALL_OYNASI,
-        select,
-      })
-
-      const susayish = sort === 'dolzarb'
-      oyna.sort(
-        (a, b) =>
-          Number(b.isPinned) - Number(a.isPinned) ||
-          ball(b, susayish) - ball(a, susayish)
-      )
-
-      total = oyna.length
-      rows = oyna.slice(offset, offset + limit)
-    } else {
-      // "Yangi": tartiblash ham, sahifalash ham bazada.
-      const [soni, sahifa] = await Promise.all([
-        prisma.forumPost.count({ where }),
-        prisma.forumPost.findMany({
-          where,
-          orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
-          skip: offset,
-          take: limit,
-          select,
-        }),
-      ])
-      total = soni
-      rows = sahifa
-    }
-
-    const laykSet = await laykBosilganlar(userId, rows.map((r) => r.id))
-
-    return NextResponse.json({
-      success: true,
-      sort,
-      total,
-      hasMore: offset + rows.length < total,
-      posts: rows.map((p) => postniTayyorla(p, laykSet)),
-      signedIn: Boolean(userId),
-    })
+    return NextResponse.json({ success: true, ...natija })
   } catch (error) {
     console.error('[Forum GET]', error)
     return NextResponse.json({ error: 'Muhokamani yuklashda xatolik' }, { status: 500 })
