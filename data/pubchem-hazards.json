@@ -1,0 +1,6595 @@
+{
+  "(C17H35COO)3C3H5": {
+    "cid": 11146,
+    "xavflar": []
+  },
+  "(CH3CO)2O": {
+    "cid": 7918,
+    "xavflar": [
+      {
+        "kod": "H226",
+        "matn": "Alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H313",
+        "matn": "May be harmful in contact with skin"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      }
+    ]
+  },
+  "(CH3COO)2Zn": {
+    "cid": 11192,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      }
+    ]
+  },
+  "(NH4)2Cr2O7": {
+    "cid": 24600,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      }
+    ]
+  },
+  "(NH4)2SO4": {
+    "cid": 6097028,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      }
+    ]
+  },
+  "Ag": {
+    "cid": 23954,
+    "xavflar": [
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "Ag2CrO4": {
+    "cid": 62666,
+    "xavflar": []
+  },
+  "Ag3PO4": {
+    "cid": 159913,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "AgBr": {
+    "cid": 66199,
+    "xavflar": [
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      }
+    ]
+  },
+  "AgCl": {
+    "cid": 24561,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      }
+    ]
+  },
+  "AgI": {
+    "cid": 6432717,
+    "xavflar": []
+  },
+  "AgNO3": {
+    "cid": 24470,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "Al": {
+    "cid": 5359268,
+    "xavflar": [
+      {
+        "kod": "H250",
+        "matn": "Havoda o'z-o'zidan alangalanadi"
+      },
+      {
+        "kod": "H261",
+        "matn": "Suv bilan alangalanuvchi gaz hosil qiladi"
+      },
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "Al(OH)3": {
+    "cid": 10176082,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "Al2(SO4)3": {
+    "cid": 24850,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "Al2O3": {
+    "cid": 9989226,
+    "xavflar": [
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "AlCl3": {
+    "cid": 24012,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "Ba(NO3)2": {
+    "cid": 24798,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H316",
+        "matn": "Causes mild skin irritation"
+      }
+    ]
+  },
+  "Ba(OH)2": {
+    "cid": 6093286,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "BaCl2": {
+    "cid": 25204,
+    "xavflar": [
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H413",
+        "matn": "May cause long lasting harmful effects to aquatic life"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "BaCrO4": {
+    "cid": 92026178,
+    "xavflar": []
+  },
+  "BaO": {
+    "cid": 62392,
+    "xavflar": [
+      {
+        "kod": "H271",
+        "matn": "Yong'in yoki portlashga sabab bo'lishi mumkin — kuchli oksidlovchi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H316",
+        "matn": "Causes mild skin irritation"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "BaSO4": {
+    "cid": 24414,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      }
+    ]
+  },
+  "Br2": {
+    "cid": 24408,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      }
+    ]
+  },
+  "C": {
+    "cid": 5462310,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "C12H22O11": {
+    "cid": 5988,
+    "xavflar": []
+  },
+  "C17H35COONa": {
+    "cid": 2724691,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "C2H2": {
+    "cid": 6326,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      }
+    ]
+  },
+  "C2H2Br4": {
+    "cid": 6588,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "C2H3Cl": {
+    "cid": 6338,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      }
+    ]
+  },
+  "C2H4": {
+    "cid": 6325,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H281",
+        "matn": "Contains refrigerated gas; may cause cryogenic burns or injury"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      }
+    ]
+  },
+  "C2H4Br2": {
+    "cid": 7839,
+    "xavflar": [
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "C2H5Br": {
+    "cid": 6332,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H420",
+        "matn": "Harms public health and the environment by destroying ozone in the upper atmosphere"
+      },
+      {
+        "kod": "H316",
+        "matn": "Causes mild skin irritation"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H333",
+        "matn": "May be harmful if inhaled"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "C2H5CN": {
+    "cid": 7854,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H310",
+        "matn": "Teriga tegsa halokatli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "C2H5OC2H5": {
+    "cid": 263,
+    "xavflar": [
+      {
+        "kod": "H226",
+        "matn": "Alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H305",
+        "matn": "May be harmful if swallowed and enters airways"
+      },
+      {
+        "kod": "H313",
+        "matn": "May be harmful in contact with skin"
+      }
+    ]
+  },
+  "C2H5OH": {
+    "cid": 702,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      }
+    ]
+  },
+  "C2H5ONa": {
+    "cid": 2723922,
+    "xavflar": [
+      {
+        "kod": "H251",
+        "matn": "Self-heating; may catch fire"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "C2H6": {
+    "cid": 6324,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H281",
+        "matn": "Contains refrigerated gas; may cause cryogenic burns or injury"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      }
+    ]
+  },
+  "C3H5(OH)3": {
+    "cid": 753,
+    "xavflar": []
+  },
+  "C3H6": {
+    "cid": 8252,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      }
+    ]
+  },
+  "C3H6O3": {
+    "cid": 612,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "C3H8": {
+    "cid": 6334,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      }
+    ]
+  },
+  "C6H12": {
+    "cid": 8078,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H305",
+        "matn": "May be harmful if swallowed and enters airways"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      }
+    ]
+  },
+  "C6H12O6": {
+    "cid": 102288,
+    "xavflar": []
+  },
+  "C6H14": {
+    "cid": 8058,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      }
+    ]
+  },
+  "C6H2(NO2)3CH3": {
+    "cid": 8376,
+    "xavflar": [
+      {
+        "kod": "H201",
+        "matn": "(Deleted) Explosive; mass explosion hazard"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      }
+    ]
+  },
+  "C6H2(NO2)3OH": {
+    "cid": 6954,
+    "xavflar": [
+      {
+        "kod": "H201",
+        "matn": "(Deleted) Explosive; mass explosion hazard"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      }
+    ]
+  },
+  "C6H2Br3OH": {
+    "cid": 1483,
+    "xavflar": [
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      }
+    ]
+  },
+  "C6H5Br": {
+    "cid": 7961,
+    "xavflar": [
+      {
+        "kod": "H226",
+        "matn": "Alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "C6H5CH3": {
+    "cid": 1140,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H362",
+        "matn": "May cause harm to breast-fed children"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H303",
+        "matn": "May be harmful if swallowed"
+      }
+    ]
+  },
+  "C6H5NH2": {
+    "cid": 6115,
+    "xavflar": [
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H227",
+        "matn": "Combustible liquid"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      }
+    ]
+  },
+  "C6H5NH3Cl": {
+    "cid": 8870,
+    "xavflar": [
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "C6H5NO2": {
+    "cid": 938,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      }
+    ]
+  },
+  "C6H5OH": {
+    "cid": 996,
+    "xavflar": [
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      }
+    ]
+  },
+  "C6H5ONa": {
+    "cid": 4445035,
+    "xavflar": []
+  },
+  "C6H6": {
+    "cid": 241,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      }
+    ]
+  },
+  "CH2Cl2": {
+    "cid": 6344,
+    "xavflar": [
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "CH3CHO": {
+    "cid": 177,
+    "xavflar": [
+      {
+        "kod": "H224",
+        "matn": "Juda tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      }
+    ]
+  },
+  "CH3COCl": {
+    "cid": 6367,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      }
+    ]
+  },
+  "CH3COOC2H5": {
+    "cid": 8857,
+    "xavflar": [
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "CH3COOH": {
+    "cid": 176,
+    "xavflar": [
+      {
+        "kod": "H226",
+        "matn": "Alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H303",
+        "matn": "May be harmful if swallowed"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "CH3COONH4": {
+    "cid": 517165,
+    "xavflar": []
+  },
+  "CH3COONa": {
+    "cid": 517045,
+    "xavflar": []
+  },
+  "CH3Cl": {
+    "cid": 6327,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "CH3NH2": {
+    "cid": 6329,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H224",
+        "matn": "Juda tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H225",
+        "matn": "Tez alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      }
+    ]
+  },
+  "CH3NH3Cl": {
+    "cid": 11637,
+    "xavflar": []
+  },
+  "CH4": {
+    "cid": 297,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H281",
+        "matn": "Contains refrigerated gas; may cause cryogenic burns or injury"
+      }
+    ]
+  },
+  "CO": {
+    "cid": 104730,
+    "xavflar": [
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H413",
+        "matn": "May cause long lasting harmful effects to aquatic life"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      }
+    ]
+  },
+  "CO(NH2)2": {
+    "cid": 1176,
+    "xavflar": []
+  },
+  "CO2": {
+    "cid": 280,
+    "xavflar": [
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H281",
+        "matn": "Contains refrigerated gas; may cause cryogenic burns or injury"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      }
+    ]
+  },
+  "Ca": {
+    "cid": 5460341,
+    "xavflar": [
+      {
+        "kod": "H261",
+        "matn": "Suv bilan alangalanuvchi gaz hosil qiladi"
+      },
+      {
+        "kod": "H250",
+        "matn": "Havoda o'z-o'zidan alangalanadi"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "Ca(HCO3)2": {
+    "cid": 10176262,
+    "xavflar": []
+  },
+  "Ca(OH)2": {
+    "cid": 6093208,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      }
+    ]
+  },
+  "Ca3(PO4)2": {
+    "cid": 24456,
+    "xavflar": [
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "CaC2": {
+    "cid": null,
+    "xavflar": []
+  },
+  "CaCO3": {
+    "cid": 10112,
+    "xavflar": []
+  },
+  "CaCl2": {
+    "cid": 5284359,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "CaO": {
+    "cid": 14778,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H303",
+        "matn": "May be harmful if swallowed"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "CaSO4": {
+    "cid": 24497,
+    "xavflar": [
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "CaSO4*2H2O": {
+    "cid": 24928,
+    "xavflar": [
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "CaSiO3": {
+    "cid": 26370,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "Cl2": {
+    "cid": 24526,
+    "xavflar": [
+      {
+        "kod": "H270",
+        "matn": "Yong'inni kuchaytiradi — oksidlovchi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "CoCl2": {
+    "cid": 3032536,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "Cr(OH)3": {
+    "cid": 166720,
+    "xavflar": []
+  },
+  "Cr2(SO4)3": {
+    "cid": 24930,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "Cr2O3": {
+    "cid": 517277,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "Cu": {
+    "cid": 23978,
+    "xavflar": [
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "Cu(NO3)2": {
+    "cid": 18616,
+    "xavflar": [
+      {
+        "kod": "H270",
+        "matn": "Yong'inni kuchaytiradi — oksidlovchi"
+      },
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      }
+    ]
+  },
+  "Cu(OH)2": {
+    "cid": 30154,
+    "xavflar": []
+  },
+  "Cu2O": {
+    "cid": 10313194,
+    "xavflar": []
+  },
+  "Cu2S": {
+    "cid": 10130093,
+    "xavflar": []
+  },
+  "CuCl2": {
+    "cid": 24014,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      }
+    ]
+  },
+  "CuO": {
+    "cid": 164827,
+    "xavflar": [
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "CuS": {
+    "cid": 165914,
+    "xavflar": []
+  },
+  "CuSO4": {
+    "cid": 24462,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      }
+    ]
+  },
+  "CuSO4*5H2O": {
+    "cid": 24463,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "F2": {
+    "cid": 24524,
+    "xavflar": [
+      {
+        "kod": "H270",
+        "matn": "Yong'inni kuchaytiradi — oksidlovchi"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H310",
+        "matn": "Teriga tegsa halokatli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      }
+    ]
+  },
+  "Fe": {
+    "cid": 23925,
+    "xavflar": [
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      },
+      {
+        "kod": "H251",
+        "matn": "Self-heating; may catch fire"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "Fe(OH)2": {
+    "cid": 10129897,
+    "xavflar": []
+  },
+  "Fe(OH)3": {
+    "cid": 445709,
+    "xavflar": []
+  },
+  "Fe(SCN)3": {
+    "cid": 165185,
+    "xavflar": []
+  },
+  "Fe2(SO4)3": {
+    "cid": 24826,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "Fe2O3": {
+    "cid": 14833,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "Fe3O4": {
+    "cid": 6432052,
+    "xavflar": []
+  },
+  "Fe3[Fe(CN)6]2": {
+    "cid": 129651543,
+    "xavflar": []
+  },
+  "Fe4[Fe(CN)6]3": {
+    "cid": 2724251,
+    "xavflar": [
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      }
+    ]
+  },
+  "FeCl2": {
+    "cid": 24458,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "FeCl3": {
+    "cid": 24380,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      }
+    ]
+  },
+  "FeSO4": {
+    "cid": 24393,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "H2": {
+    "cid": 783,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H281",
+        "matn": "Contains refrigerated gas; may cause cryogenic burns or injury"
+      }
+    ]
+  },
+  "H2C2O4": {
+    "cid": 971,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "H2CO3": {
+    "cid": 767,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "H2O": {
+    "cid": 962,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "H2O2": {
+    "cid": 784,
+    "xavflar": [
+      {
+        "kod": "H271",
+        "matn": "Yong'in yoki portlashga sabab bo'lishi mumkin — kuchli oksidlovchi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H313",
+        "matn": "May be harmful in contact with skin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      }
+    ]
+  },
+  "H2S": {
+    "cid": 402,
+    "xavflar": [
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "H2SO3": {
+    "cid": 1100,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      }
+    ]
+  },
+  "H2SO4": {
+    "cid": 1118,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H303",
+        "matn": "May be harmful if swallowed"
+      }
+    ]
+  },
+  "H3PO4": {
+    "cid": 1004,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H313",
+        "matn": "May be harmful in contact with skin"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      }
+    ]
+  },
+  "HBr": {
+    "cid": 260,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "HBrO": {
+    "cid": 83547,
+    "xavflar": []
+  },
+  "HCOOH": {
+    "cid": 284,
+    "xavflar": [
+      {
+        "kod": "H226",
+        "matn": "Alangalanuvchi suyuqlik va bug'"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "HCl": {
+    "cid": 313,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "HClO": {
+    "cid": 24341,
+    "xavflar": []
+  },
+  "HF": {
+    "cid": 23986,
+    "xavflar": [
+      {
+        "kod": "H250",
+        "matn": "Havoda o'z-o'zidan alangalanadi"
+      }
+    ]
+  },
+  "HI": {
+    "cid": 24841,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "HNO3": {
+    "cid": 944,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      }
+    ]
+  },
+  "HgCl2": {
+    "cid": 24085,
+    "xavflar": [
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H310",
+        "matn": "Teriga tegsa halokatli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "HgI2": {
+    "cid": 24485,
+    "xavflar": [
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H310",
+        "matn": "Teriga tegsa halokatli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "I2": {
+    "cid": 807,
+    "xavflar": [
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      }
+    ]
+  },
+  "K": {
+    "cid": 5462222,
+    "xavflar": [
+      {
+        "kod": "H260",
+        "matn": "Suv bilan alangalanuvchi gaz ajratadi"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "K2Cr2O7": {
+    "cid": 24502,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H310",
+        "matn": "Teriga tegsa halokatli"
+      }
+    ]
+  },
+  "K2CrO4": {
+    "cid": 24597,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H340",
+        "matn": "Genetik nuqsonlarga olib kelishi mumkin"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      }
+    ]
+  },
+  "K2MnO4": {
+    "cid": 131675742,
+    "xavflar": []
+  },
+  "K2SO4": {
+    "cid": 24507,
+    "xavflar": [
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "K2[HgI4]": {
+    "cid": 24542,
+    "xavflar": [
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H310",
+        "matn": "Teriga tegsa halokatli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      }
+    ]
+  },
+  "K3PO4": {
+    "cid": 62657,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "K3[Fe(CN)6]": {
+    "cid": 26250,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      }
+    ]
+  },
+  "K4[Fe(CN)6]": {
+    "cid": 9605257,
+    "xavflar": [
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      }
+    ]
+  },
+  "KBr": {
+    "cid": 253877,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "KCN": {
+    "cid": 9032,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H310",
+        "matn": "Teriga tegsa halokatli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H316",
+        "matn": "Causes mild skin irritation"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "KCl": {
+    "cid": 4873,
+    "xavflar": []
+  },
+  "KClO3": {
+    "cid": 6426889,
+    "xavflar": [
+      {
+        "kod": "H271",
+        "matn": "Yong'in yoki portlashga sabab bo'lishi mumkin — kuchli oksidlovchi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H316",
+        "matn": "Causes mild skin irritation"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "KI": {
+    "cid": 4875,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H362",
+        "matn": "May cause harm to breast-fed children"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      }
+    ]
+  },
+  "KMnO4": {
+    "cid": 516875,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "KNO3": {
+    "cid": 24434,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H303",
+        "matn": "May be harmful if swallowed"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "KOH": {
+    "cid": 14797,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      }
+    ]
+  },
+  "KSCN": {
+    "cid": 516872,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "Mg": {
+    "cid": 5462224,
+    "xavflar": [
+      {
+        "kod": "H250",
+        "matn": "Havoda o'z-o'zidan alangalanadi"
+      },
+      {
+        "kod": "H260",
+        "matn": "Suv bilan alangalanuvchi gaz ajratadi"
+      },
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      },
+      {
+        "kod": "H252",
+        "matn": "Self-heating in large quantities; may catch fire"
+      },
+      {
+        "kod": "H261",
+        "matn": "Suv bilan alangalanuvchi gaz hosil qiladi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "Mg(OH)2": {
+    "cid": 73981,
+    "xavflar": []
+  },
+  "MgCO3": {
+    "cid": 11029,
+    "xavflar": []
+  },
+  "MgCl2": {
+    "cid": 5360315,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "MgO": {
+    "cid": 14792,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "MnCl2": {
+    "cid": 24480,
+    "xavflar": []
+  },
+  "MnO2": {
+    "cid": 14801,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "MnSO4": {
+    "cid": 24580,
+    "xavflar": [
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "N2": {
+    "cid": 947,
+    "xavflar": [
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H281",
+        "matn": "Contains refrigerated gas; may cause cryogenic burns or injury"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      }
+    ]
+  },
+  "N2O": {
+    "cid": 948,
+    "xavflar": [
+      {
+        "kod": "H270",
+        "matn": "Yong'inni kuchaytiradi — oksidlovchi"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H281",
+        "matn": "Contains refrigerated gas; may cause cryogenic burns or injury"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "N2O5": {
+    "cid": 66242,
+    "xavflar": []
+  },
+  "NH3": {
+    "cid": 222,
+    "xavflar": [
+      {
+        "kod": "H221",
+        "matn": "Alangalanuvchi gaz"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H220",
+        "matn": "Juda tez alangalanuvchi gaz"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      }
+    ]
+  },
+  "NH4Cl": {
+    "cid": 25517,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H316",
+        "matn": "Causes mild skin irritation"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      }
+    ]
+  },
+  "NH4HCO3": {
+    "cid": 14013,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      }
+    ]
+  },
+  "NH4NO3": {
+    "cid": 22985,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H303",
+        "matn": "May be harmful if swallowed"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      }
+    ]
+  },
+  "NO": {
+    "cid": 24822,
+    "xavflar": []
+  },
+  "NO2": {
+    "cid": 3032552,
+    "xavflar": [
+      {
+        "kod": "H270",
+        "matn": "Yong'inni kuchaytiradi — oksidlovchi"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      }
+    ]
+  },
+  "Na": {
+    "cid": 5360545,
+    "xavflar": [
+      {
+        "kod": "H260",
+        "matn": "Suv bilan alangalanuvchi gaz ajratadi"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "Na2CO3": {
+    "cid": 10340,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H304",
+        "matn": "Nafas yo'liga tushsa halokatli bo'lishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      }
+    ]
+  },
+  "Na2HPO4": {
+    "cid": 24203,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "Na2O": {
+    "cid": 73971,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "Na2S": {
+    "cid": 14804,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      }
+    ]
+  },
+  "Na2S2O3": {
+    "cid": 24477,
+    "xavflar": []
+  },
+  "Na2S4O6": {
+    "cid": 10901658,
+    "xavflar": []
+  },
+  "Na2SO3": {
+    "cid": 24437,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "Na2SO4": {
+    "cid": 24436,
+    "xavflar": [
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "Na2SiO3": {
+    "cid": 23266,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "Na2[Zn(OH)4]": {
+    "cid": 166652,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      }
+    ]
+  },
+  "Na3PO4": {
+    "cid": 24243,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "Na3[Ag(S2O3)2]": {
+    "cid": 150303,
+    "xavflar": []
+  },
+  "Na3[Cr(OH)6]": {
+    "cid": null,
+    "xavflar": []
+  },
+  "NaAlO2": {
+    "cid": 14766,
+    "xavflar": [
+      {
+        "kod": "H271",
+        "matn": "Yong'in yoki portlashga sabab bo'lishi mumkin — kuchli oksidlovchi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "NaBr": {
+    "cid": 253881,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H336",
+        "matn": "Uyquchanlik yoki bosh aylanishiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      }
+    ]
+  },
+  "NaCl": {
+    "cid": 5234,
+    "xavflar": [
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "NaClO": {
+    "cid": 23665760,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "NaH2PO4": {
+    "cid": 23672064,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "NaHCO3": {
+    "cid": 516892,
+    "xavflar": []
+  },
+  "NaHSO4": {
+    "cid": 516919,
+    "xavflar": [
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      }
+    ]
+  },
+  "NaI": {
+    "cid": 5238,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      }
+    ]
+  },
+  "NaNO2": {
+    "cid": 23668193,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H362",
+        "matn": "May cause harm to breast-fed children"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "NaNO3": {
+    "cid": 24268,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "NaOH": {
+    "cid": 14798,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "Na[Al(OH)4]": {
+    "cid": 166673,
+    "xavflar": [
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "NiSO4": {
+    "cid": 24586,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H334",
+        "matn": "Nafas olinsa allergiya yoki astma keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H401",
+        "matn": "Toxic to aquatic life"
+      },
+      {
+        "kod": "H411",
+        "matn": "Suv organizmlari uchun zaharli"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H301",
+        "matn": "Yutilsa zaharli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "O2": {
+    "cid": 977,
+    "xavflar": [
+      {
+        "kod": "H270",
+        "matn": "Yong'inni kuchaytiradi — oksidlovchi"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H281",
+        "matn": "Contains refrigerated gas; may cause cryogenic burns or injury"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      }
+    ]
+  },
+  "P": {
+    "cid": 5462309,
+    "xavflar": [
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      },
+      {
+        "kod": "H250",
+        "matn": "Havoda o'z-o'zidan alangalanadi"
+      },
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      }
+    ]
+  },
+  "P2O5": {
+    "cid": 14812,
+    "xavflar": []
+  },
+  "PCl5": {
+    "cid": 24819,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H312",
+        "matn": "Teriga tegsa zararli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "POCl3": {
+    "cid": 24813,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H290",
+        "matn": "Metallarni yemirishi mumkin"
+      },
+      {
+        "kod": "H300",
+        "matn": "Yutilsa halokatli"
+      },
+      {
+        "kod": "H311",
+        "matn": "Teriga tegsa zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H402",
+        "matn": "Harmful to aquatic life"
+      }
+    ]
+  },
+  "Pb(NO3)2": {
+    "cid": 24924,
+    "xavflar": [
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H362",
+        "matn": "May cause harm to breast-fed children"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      }
+    ]
+  },
+  "PbI2": {
+    "cid": 24931,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "PbO": {
+    "cid": 5794,
+    "xavflar": [
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H317",
+        "matn": "Teri allergiyasiga sabab bo'lishi mumkin"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "PbSO4": {
+    "cid": 24008,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H351",
+        "matn": "Saraton keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H360",
+        "matn": "Homiladorlikka yoki nasl qoldirishga zarar yetkazishi mumkin"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H362",
+        "matn": "May cause harm to breast-fed children"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      }
+    ]
+  },
+  "S": {
+    "cid": 5362487,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      }
+    ]
+  },
+  "SO2": {
+    "cid": 1119,
+    "xavflar": [
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H331",
+        "matn": "Nafas olinsa zaharli"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H280",
+        "matn": "Bosim ostidagi gaz — qizdirilsa portlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      }
+    ]
+  },
+  "SO3": {
+    "cid": 1099,
+    "xavflar": []
+  },
+  "Si": {
+    "cid": 5461123,
+    "xavflar": [
+      {
+        "kod": "H228",
+        "matn": "Alangalanuvchi qattiq modda"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      }
+    ]
+  },
+  "SiO2": {
+    "cid": 24261,
+    "xavflar": [
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H350",
+        "matn": "Saraton kasalligini keltirib chiqarishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H373",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      }
+    ]
+  },
+  "Zn": {
+    "cid": 23994,
+    "xavflar": [
+      {
+        "kod": "H250",
+        "matn": "Havoda o'z-o'zidan alangalanadi"
+      },
+      {
+        "kod": "H260",
+        "matn": "Suv bilan alangalanuvchi gaz ajratadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H320",
+        "matn": "Causes eye irritation"
+      }
+    ]
+  },
+  "Zn(OH)2": {
+    "cid": 14809,
+    "xavflar": [
+      {
+        "kod": "H271",
+        "matn": "Yong'in yoki portlashga sabab bo'lishi mumkin — kuchli oksidlovchi"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H272",
+        "matn": "Yong'inni kuchaytirishi mumkin — oksidlovchi"
+      },
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      }
+    ]
+  },
+  "ZnCl2": {
+    "cid": 5727,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H314",
+        "matn": "Teriga og'ir kuyish va ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H370",
+        "matn": "A'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H310",
+        "matn": "Teriga tegsa halokatli"
+      },
+      {
+        "kod": "H330",
+        "matn": "Nafas olinsa halokatli"
+      },
+      {
+        "kod": "H341",
+        "matn": "Genetik nuqson keltirib chiqarishi ehtimoli bor"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      },
+      {
+        "kod": "H332",
+        "matn": "Nafas olinsa zararli"
+      }
+    ]
+  },
+  "ZnO": {
+    "cid": 14806,
+    "xavflar": []
+  },
+  "ZnSO4": {
+    "cid": 24424,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H318",
+        "matn": "Ko'zga jiddiy shikast yetkazadi"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H361",
+        "matn": "Nasl qoldirishga zarar yetkazishi ehtimoli bor"
+      },
+      {
+        "kod": "H371",
+        "matn": "A'zolarga shikast yetkazishi mumkin"
+      },
+      {
+        "kod": "H372",
+        "matn": "Uzoq ta'sirda a'zolarga shikast yetkazadi"
+      }
+    ]
+  },
+  "[Ag(NH3)2]Cl": {
+    "cid": 18398285,
+    "xavflar": []
+  },
+  "[Ag(NH3)2]NO3": {
+    "cid": 62774,
+    "xavflar": []
+  },
+  "[Ag(NH3)2]OH": {
+    "cid": 160853761,
+    "xavflar": []
+  },
+  "[Co(NH3)6]Cl2": {
+    "cid": 11264348,
+    "xavflar": []
+  },
+  "[Cu(NH3)4](OH)2": {
+    "cid": 14048736,
+    "xavflar": []
+  },
+  "[Cu(NH3)4]SO4": {
+    "cid": 167053,
+    "xavflar": [
+      {
+        "kod": "H302",
+        "matn": "Yutilsa zararli"
+      },
+      {
+        "kod": "H315",
+        "matn": "Terini qitiqlaydi"
+      },
+      {
+        "kod": "H319",
+        "matn": "Ko'zni kuchli qitiqlaydi"
+      },
+      {
+        "kod": "H335",
+        "matn": "Nafas yo'llarini qitiqlashi mumkin"
+      },
+      {
+        "kod": "H400",
+        "matn": "Suv organizmlari uchun o'ta zaharli"
+      },
+      {
+        "kod": "H410",
+        "matn": "Suv organizmlari uchun uzoq muddat zaharli"
+      },
+      {
+        "kod": "H412",
+        "matn": "Suv organizmlari uchun uzoq muddat zararli"
+      }
+    ]
+  },
+  "[Ni(NH3)6]SO4": {
+    "cid": 22315838,
+    "xavflar": []
+  },
+  "[Zn(NH3)4](OH)2": {
+    "cid": 14048737,
+    "xavflar": []
+  }
+}
