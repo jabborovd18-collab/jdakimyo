@@ -18,16 +18,25 @@ export async function GET(request, { params }) {
 
     const reaction = await prisma.reaction.findFirst({
       where: { id, isActive: true },
+      // Kim tasdiqlagani ilovada ko'rsatiladi — "tasdiqlangan" yorlig'i
+      // ortida aniq odam turishi kerak
+      include: { verifiedBy: { select: { username: true, fullName: true } } },
     })
 
     if (!reaction) {
       return NextResponse.json({ error: 'Reaksiya topilmadi' }, { status: 404 })
     }
 
-    // Qidiruv indeksi mijozga kerak emas
-    const { searchText, searchCompact, ...rest } = reaction
+    // Qidiruv indeksi va ichki id mijozga kerak emas
+    const { searchText, searchCompact, verifiedById, verifiedBy, ...rest } = reaction
 
-    return NextResponse.json({ success: true, reaction: rest })
+    return NextResponse.json({
+      success: true,
+      reaction: {
+        ...rest,
+        verifiedByName: verifiedBy?.fullName || verifiedBy?.username || null,
+      },
+    })
   } catch (error) {
     console.error('[Mobile reaction detail]', error)
     return NextResponse.json(

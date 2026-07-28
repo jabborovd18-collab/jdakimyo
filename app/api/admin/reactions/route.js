@@ -49,6 +49,29 @@ function buildData(body) {
   return data
 }
 
+/**
+ * Tasdiqlash holati o'zgargan bo'lsa, kim va qachon qilganini yozadi.
+ *
+ * Nega kerak: "tasdiqlangan" yorlig'i talabaga ma'lumot ishonchli degan
+ * signal beradi. Kim tasdiqlaganini bilmasak, bu yorliq javobgarliksiz qoladi.
+ * Tasdiq olib tashlansa maydonlar tozalanadi.
+ */
+function tasdiqniBelgila(data, admin, oldingiHolat) {
+  if (data.isVerified === undefined) return data
+  if (data.isVerified === oldingiHolat) return data
+
+  return {
+    ...data,
+    verifiedById: data.isVerified ? admin.id : null,
+    verifiedAt: data.isVerified ? new Date() : null,
+  }
+}
+
+/** Ro'yxatda va javobda tasdiqlovchining nomi ko'rinsin */
+const TASDIQLOVCHI = {
+  verifiedBy: { select: { id: true, username: true, fullName: true } },
+}
+
 /** Qidiruv indeksini qayta hisoblash */
 function withSearchIndex(data, current = {}) {
   const equation = data.equation ?? current.equation
@@ -88,6 +111,7 @@ export async function GET(request) {
         where,
         orderBy: [{ isVerified: 'asc' }, { updatedAt: 'desc' }],
         take: 200,
+        include: TASDIQLOVCHI,
       }),
       prisma.reaction.count({ where }),
       prisma.reaction.groupBy({ by: ['category'], _count: { _all: true } }),
@@ -123,7 +147,10 @@ export async function POST(request) {
     }
     if (!data.category) data.category = 'Boshqa'
 
-    const reaction = await prisma.reaction.create({ data: withSearchIndex(data) })
+    const reaction = await prisma.reaction.create({
+      data: withSearchIndex(tasdiqniBelgila(data, admin, false)),
+      include: TASDIQLOVCHI,
+    })
     return NextResponse.json({ success: true, reaction })
   } catch (error) {
     console.error('[Admin reactions POST]', error)
@@ -147,10 +174,11 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Reaksiya topilmadi' }, { status: 404 })
     }
 
-    const data = buildData(body)
+    const data = tasdiqniBelgila(buildData(body), admin, current.isVerified)
     const reaction = await prisma.reaction.update({
       where: { id: body.id },
       data: withSearchIndex(data, current),
+      include: TASDIQLOVCHI,
     })
 
     return NextResponse.json({ success: true, reaction })

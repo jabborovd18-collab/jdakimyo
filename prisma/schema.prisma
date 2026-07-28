@@ -93,6 +93,9 @@ model User {
   reportsReceived    Report[]             @relation("ReportTarget")
   auditLogs          AuditLog[]
 
+  // Kimyogar tasdiqlagan reaksiyalar
+  verifiedReactions  Reaction[]           @relation("ReactionVerifier")
+
   // KIMYOGAR KO'CHAT
   plant              Plant?
 
@@ -484,9 +487,18 @@ model Reaction {
   // ─── Manba va ishonchlilik ───
   source        String? // ma'lumot manbasi (atribut uchun)
   sourceUrl     String?
+
+  // ─── Tasdiqlash ───
   // Kimyogar ko'rib chiqib tasdiqlaganmi. Import qilingan ma'lumot
   // avtomatik ravishda false bo'ladi — talabaga tekshirilmagan deb ko'rsatiladi.
+  //
+  // "Kim tasdiqladi" saqlanishi shart: tasdiq javobgarlik bilan keladi.
+  // Foydalanuvchi o'chirilsa bog'lanish uziladi, lekin tasdiq sanasi qoladi.
   isVerified    Boolean  @default(false)
+  verifiedAt    DateTime?
+  verifiedById  String?
+  verifiedBy    User?    @relation("ReactionVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+
   isActive      Boolean  @default(true)
 
   createdAt     DateTime @default(now())
@@ -496,6 +508,7 @@ model Reaction {
   @@index([scale])
   @@index([isActive])
   @@index([isVerified])
+  @@index([verifiedById])
 }
 
 model AnalysisMethod {

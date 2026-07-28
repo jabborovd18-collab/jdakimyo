@@ -251,6 +251,16 @@ export default function AdminReactionsPage() {
                   >
                     {reaction.isVerified ? '✓ tasdiqlangan' : 'tasdiqlanmagan'}
                   </span>
+
+                  {/* Tasdiq ortida aniq odam turishi kerak */}
+                  {reaction.isVerified && (reaction.verifiedBy || reaction.verifiedAt) && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full border bg-purple-950/50 border-purple-700/50 text-purple-300">
+                      {reaction.verifiedBy?.fullName || reaction.verifiedBy?.username || 'noma\'lum'}
+                      {reaction.verifiedAt
+                        ? ` · ${new Date(reaction.verifiedAt).toLocaleDateString('uz-UZ')}`
+                        : ''}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex gap-2 flex-shrink-0">
@@ -407,17 +417,32 @@ export default function AdminReactionsPage() {
               </div>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={Boolean(editing.isVerified)}
-                onChange={(e) => set('isVerified', e.target.checked)}
-                className="accent-green-500"
-              />
-              <span className="text-sm text-white">
-                Kimyoviy jihatdan tekshirdim va tasdiqlayman
-              </span>
-            </label>
+            <div className="rounded-lg border border-purple-700/50 bg-purple-950/30 p-3 space-y-1">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={Boolean(editing.isVerified)}
+                  onChange={(e) => set('isVerified', e.target.checked)}
+                  className="accent-green-500"
+                />
+                <span className="text-sm text-white">
+                  Kimyoviy jihatdan tekshirdim va tasdiqlayman
+                </span>
+              </label>
+
+              <p className="text-[11px] text-purple-400 pl-6">
+                Belgilansa, ismingiz va sana yozib qo&apos;yiladi va ilovada
+                ko&apos;rinadi. Tasdiqlangan yozuvni seed skripti qayta yozmaydi.
+              </p>
+
+              {editing.verifiedAt && (
+                <p className="text-[11px] text-green-400 pl-6">
+                  Oxirgi tasdiq:{' '}
+                  {editing.verifiedBy?.fullName || editing.verifiedBy?.username || 'noma\'lum'} ·{' '}
+                  {new Date(editing.verifiedAt).toLocaleString('uz-UZ')}
+                </p>
+              )}
+            </div>
 
             <div className="flex gap-3 pt-2">
               <button
