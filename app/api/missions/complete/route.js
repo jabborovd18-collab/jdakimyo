@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { missiyaniBelgila, missiyaKuni } from '@/lib/missions'
 
 export async function POST(request) {
   try {
@@ -33,10 +34,14 @@ export async function POST(request) {
     }
 
     // Bugungi missiyami?
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    //
+    // Ikkala sana ham UTC yarim tuniga keltiriladi — missiyani yaratadigan
+    // cron ham shunday qiladi. Avval `setHours` (server mahalliy vaqti)
+    // ishlatilardi va server UTC bo'lmasa, /api/missions/daily ko'rsatgan
+    // missiyani bu yerda bajarib bo'lmasdi.
+    const today = missiyaKuni()
     const missionDate = new Date(mission.date)
-    missionDate.setHours(0, 0, 0, 0)
+    missionDate.setUTCHours(0, 0, 0, 0)
 
     if (missionDate.getTime() !== today.getTime()) {
       return NextResponse.json(
@@ -65,64 +70,24 @@ export async function POST(request) {
     // Action type'ni tekshirish (ixtiyoriy - keyinroq qo'shish mumkin)
     // Masalan: actionType === 'quiz' bo'lsa, haqiqatan ham quiz yechilganini tekshirish
 
-    // Missiyani bajarish
-    const completion = await prisma.missionCompletion.create({
-      data: {
-        userId: session.user.id,
-        missionId: missionId
-      },
-      include: {
-        mission: true
-      }
-    })
-
-    // Foydalanuvchiga XP qo'shish
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        experience: { increment: mission.xpReward },
-        totalMissions: { increment: 1 }
-      }
-    })
-
-    // Bugungi bajarilgan missiyalar sonini tekshirish
-    const todayCompletions = await prisma.missionCompletion.count({
-      where: {
-        userId: session.user.id,
-        mission: {
-          date: today
-        }
-      }
-    })
-
-    // Agar 3 ta missiya bajarilsa, avtomatik ⭐ berish
-    let starEarned = false
-    if (todayCompletions === 3) {
-      await prisma.user.update({
-        where: { id: session.user.id },
-        data: {
-          stars: { increment: 1 },
-          weeklyStars: { increment: 1 },
-          monthlyStars: { increment: 1 }
-        }
-      })
-      starEarned = true
-    }
+    // Mukofot mantig'i lib/missions.js da — u yerda ham, quiz yechilganda
+    // avtomatik chaqiriladigan yo'lda ham bir xil bo'lishi uchun.
+    const natija = await missiyaniBelgila(session.user.id, mission)
 
     return NextResponse.json({
       success: true,
-      message: `✓ Missiya bajarildi! +${mission.xpReward} XP`,
+      message: natija.message,
       completion: {
-        id: completion.id,
-        missionId: completion.missionId,
-        missionTitle: completion.mission.title,
+        missionId: mission.id,
+        missionTitle: mission.title,
         xpEarned: mission.xpReward,
-        completedAt: completion.completedAt
+        coinsEarned: natija.coinsEarned
       },
-      starEarned,
+      starEarned: natija.starEarned,
       stats: {
-        todayCompleted: todayCompletions,
-        canClaimStars: todayCompletions === 3
+        todayCompleted: natija.todayCompleted,
+        todayTotal: natija.todayTotal,
+        canClaimStars: natija.starEarned
       }
     })
 

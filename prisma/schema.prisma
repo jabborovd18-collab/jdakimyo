@@ -12,39 +12,48 @@ datasource db {
 // ═══════════════════════════════════════════════════════════════
 
 model User {
-  id                   String    @id @default(cuid())
-  userId               String    @unique
-  username             String    @unique
-  email                String    @unique
-  password             String
-  fullName             String?
-  role                 String    @default("bakalavr")
-  university           String?
-  faculty              String?
-  specialty            String?
-  level                Int?
-  avatar               String?
-  bio                  String?
-  telegram             String?
-  instagram            String?
-  linkedin             String?
-  location             String?
-  level_points         Int       @default(1)
-  experience           Int       @default(0)
-  totalPoints          Int       @default(0)
-  currentStreak        Int       @default(0)
-  longestStreak        Int       @default(0)
-  lastActive           DateTime?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  isBanned             Boolean   @default(false)
-  bannedAt             DateTime?
-  bannedReason         String?
-  stars                Int       @default(0)
-  weeklyStars          Int       @default(0)
-  monthlyStars         Int       @default(0)
-  totalMissions        Int       @default(0)
-  privacySettings      Json      @default("{\"profilePublic\": true, \"showFriends\": true, \"showQuizResults\": true, \"showAchievements\": true, \"showFollowers\": true}")
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  username      String    @unique
+  email         String    @unique
+  password      String
+  fullName      String?
+  role          String    @default("bakalavr")
+  university    String?
+  faculty       String?
+  specialty     String?
+  level         Int?
+  avatar        String?
+  bio           String?
+  telegram      String?
+  instagram     String?
+  linkedin      String?
+  location      String?
+  level_points  Int       @default(1)
+  experience    Int       @default(0)
+  totalPoints   Int       @default(0)
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+  lastActive    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isBanned      Boolean   @default(false)
+  bannedAt      DateTime?
+  bannedReason  String?
+  // Yulduz — akkaunt darajasi va reyting uchun. U SARFLANMAYDI:
+  // sarflansa, xarid qilgan odam leaderboard'da pastga tushib, o'ynagani
+  // uchun jazolangan bo'lardi. Laboratoriya uchun alohida valyuta bor.
+  stars         Int       @default(0)
+  weeklyStars   Int       @default(0)
+  monthlyStars  Int       @default(0)
+  totalMissions Int       @default(0)
+
+  // ─── Laboratoriya valyutalari ───
+  // coins — arzon posilka va oddiy jihoz, missiyadan topiladi
+  // gems  — ruda namunasi va nodir reagent, kam topiladi (keyinchalik xarid)
+  coins                Int   @default(0)
+  gems                 Int   @default(0)
+  privacySettings      Json  @default("{\"profilePublic\": true, \"showFriends\": true, \"showQuizResults\": true, \"showAchievements\": true, \"showFollowers\": true}")
   notificationSettings Json?
   interfaceSettings    Json?
   learningPreferences  Json?

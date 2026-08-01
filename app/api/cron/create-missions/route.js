@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { MISSIYA_SHABLONLARI, missiyaKuni } from '@/lib/missions'
 
 export const dynamic = 'force-dynamic'
-
-// Video missiyasi ataylab olib tashlangan. Video ko'rish faoliyat grafigida
-// baribir qayd etiladi (app/api/video/track), lekin kunlik missiya sifatida
-// berilmaydi.
-const MISSION_TEMPLATES = [
-  { type: 'quiz', title: 'Quiz yeching', description: "Har qanday quizni yechib, bilimingizni sinab ko'ring", xpReward: 10, icon: '📝', difficulty: 'easy' },
-  { type: 'friend', title: "Do'st qo'shing", description: "Yangi do'st qo'shing yoki do'stlik taklifini yuboring", xpReward: 20, icon: '👥', difficulty: 'hard' }
-]
 
 export async function GET(request) {
   if (!process.env.CRON_SECRET || request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -17,11 +10,10 @@ export async function GET(request) {
   }
 
   try {
-    const today = new Date()
-    today.setUTCHours(0, 0, 0, 0)
+    const today = missiyaKuni()
 
     const result = await prisma.mission.createMany({
-      data: MISSION_TEMPLATES.map((mission) => ({ ...mission, date: today })),
+      data: MISSIYA_SHABLONLARI.map((mission) => ({ ...mission, date: today })),
       skipDuplicates: true
     })
 

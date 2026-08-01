@@ -10,8 +10,12 @@ export default function DailyMissions({ onStatsUpdate }) {
     weeklyStars: 0,
     monthlyStars: 0,
     totalMissions: 0,
+    coins: 0,
+    gems: 0,
     todayCompleted: 0,
-    todayTotal: 3,
+    // 0 — haqiqiy son serverdan keladi. Avval bu yerda 3 turardi, kunlik
+    // missiya esa 2 ta: yuklanmasidan oldin "0/3" ko'rinib turardi.
+    todayTotal: 0,
     canClaimStars: false
   })
   const [isLoading, setIsLoading] = useState(true)
@@ -112,7 +116,9 @@ export default function DailyMissions({ onStatsUpdate }) {
     )
   }
 
-  const progressPercentage = (stats.todayCompleted / stats.todayTotal) * 100
+  // todayTotal serverdan kelmaguncha 0 — bo'lishdan NaN chiqmasligi uchun
+  const progressPercentage =
+    stats.todayTotal > 0 ? (stats.todayCompleted / stats.todayTotal) * 100 : 0
 
   return (
     <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
@@ -234,6 +240,24 @@ export default function DailyMissions({ onStatsUpdate }) {
         <div className="text-center">
           <div className="text-2xl font-bold text-pink-400">{stats.monthlyStars}</div>
           <div className="text-xs text-purple-300">Oylik 🌟</div>
+        </div>
+      </div>
+
+      {/* Laboratoriya valyutasi — missiyadan topiladi, laboratoriyada sarflanadi */}
+      <div className="mt-3 pt-3 border-t border-purple-700/30 grid grid-cols-2 gap-4">
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-xl">🪙</span>
+          <div>
+            <div className="text-xl font-bold text-amber-400">{stats.coins}</div>
+            <div className="text-[10px] text-purple-300">Tanga</div>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-xl">💎</span>
+          <div>
+            <div className="text-xl font-bold text-cyan-300">{stats.gems}</div>
+            <div className="text-[10px] text-purple-300">Olmos</div>
+          </div>
         </div>
       </div>
     </div>

@@ -3,36 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-
-// Bugungi sanani YYYY-MM-DD formatida olish
-function getTodayDate() {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  return today
-}
-
-// Missiya shablonlari (har kuni shu 3 ta missiya yaratiladi)
-const MISSION_TEMPLATES = [
-  {
-    type: 'quiz',
-    title: 'Quiz yeching',
-    description: 'Har qanday quizni yechib, bilimingizni sinab ko\'ring',
-    xpReward: 10,
-    icon: '📝',
-    difficulty: 'easy'
-  },
-  // Video missiyasi ataylab olib tashlangan — cron/create-missions bilan
-  // bir xil ro'yxat bo'lishi kerak, aks holda missiya qaysi yo'l bilan
-  // yaratilganiga qarab har xil bo'lib qoladi.
-  {
-    type: 'friend',
-    title: 'Do\'st qo\'shing',
-    description: 'Yangi do\'st qo\'shing yoki do\'stlik taklifini yuboring',
-    xpReward: 20,
-    icon: '👥',
-    difficulty: 'hard'
-  }
-]
+import { MISSIYA_SHABLONLARI, missiyaKuni } from '@/lib/missions'
 
 export async function GET() {
   try {
@@ -41,7 +12,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const today = getTodayDate()
+    const today = missiyaKuni()
 
     // Bugungi missiyalar mavjudmi?
     let missions = await prisma.mission.findMany({
@@ -56,7 +27,7 @@ export async function GET() {
 
     // Agar mavjud bo'lmasa, yaratish
     if (missions.length === 0) {
-      for (const template of MISSION_TEMPLATES) {
+      for (const template of MISSIYA_SHABLONLARI) {
         await prisma.mission.create({
           data: {
             date: today,
@@ -89,7 +60,9 @@ export async function GET() {
         stars: true,
         weeklyStars: true,
         monthlyStars: true,
-        totalMissions: true
+        totalMissions: true,
+        coins: true,
+        gems: true
       }
     })
 
@@ -116,9 +89,14 @@ export async function GET() {
         weeklyStars: user.weeklyStars,
         monthlyStars: user.monthlyStars,
         totalMissions: user.totalMissions,
+        coins: user.coins,
+        gems: user.gems,
         todayCompleted: completedCount,
         todayTotal: formattedMissions.length,
-        canClaimStars: completedCount === 3 // 3 ta bajarilsa, ⭐ olish mumkin
+        // Bugungi missiyalar soniga bog'landi. Avval bu yerda qattiq `=== 3`
+        // turardi, kunlik missiya esa 2 ta — shart hech qachon bajarilmasdi.
+        canClaimStars:
+          formattedMissions.length > 0 && completedCount === formattedMissions.length
       }
     })
 
