@@ -28,27 +28,90 @@ export default async function SertifikatVerify({ params }) {
   const { certId } = await params
   const natija = await sertifikatniTekshir(certId)
 
+  // Topilmagan holat ikki qismdan iborat.
+  //
+  // Birinchisi — xulosa, va u qat'iy qolishi shart: bu sahifaga soxta
+  // sertifikatni tekshirayotgan odam ham keladi. Xabar yumshatilsa, u
+  // "havola eskirgan ekan-da" deb o'ylab ketishi mumkin.
+  //
+  // Ikkinchisi — targ'ibot: bu yerga tushgan odamning ko'pchiligi shunchaki
+  // qiziquvchi. Ularni quruq tugatib yuborish o'rniga sertifikat qanday
+  // olinishini aytamiz.
   if (!natija) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center bg-slate-900/60 border border-red-800/50 rounded-2xl p-8">
-          <div className="text-6xl mb-4">❌</div>
-          <h1 className="text-2xl font-bold mb-2">Sertifikat topilmadi</h1>
-          <p className="text-purple-300 mb-2">
-            <code className="font-mono text-sm bg-purple-950/70 px-2 py-1 rounded">
-              {String(certId).toUpperCase()}
-            </code>
+      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white py-10 px-4">
+        <div className="max-w-lg mx-auto space-y-5">
+          <div className="text-center">
+            <Link
+              href="/"
+              className="text-2xl font-extrabold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent"
+            >
+              JDA KIMYO
+            </Link>
+            <p className="text-purple-400 text-sm mt-1">Sertifikatni tekshirish</p>
+          </div>
+
+          <div className="rounded-2xl border border-red-700/50 bg-red-950/40 p-6 text-center">
+            <div className="text-5xl mb-3">❌</div>
+            <h1 className="text-2xl font-bold text-red-300">Sertifikat topilmadi</h1>
+            <p className="mt-3">
+              <code className="font-mono text-sm bg-black/40 px-2 py-1 rounded text-red-200">
+                {String(certId).toUpperCase()}
+              </code>
+            </p>
+            <p className="text-red-200/80 text-sm mt-3">
+              Bunday raqamli sertifikat JDA KIMYO bazasida <strong>mavjud emas</strong>.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-purple-800/50 bg-slate-900/60 p-5">
+            <h2 className="text-sm font-bold text-purple-200 mb-2">Buning sabablari</h2>
+            <ul className="text-sm text-purple-300 space-y-1.5 leading-relaxed">
+              <li>• Raqam noto'g'ri ko'chirilgan — tekshirib qayta urinib ko'ring</li>
+              <li>• Sertifikat bazadan o'chirilgan</li>
+              <li>• Sertifikat JDA KIMYO tomonidan berilmagan</li>
+            </ul>
+          </div>
+
+          {/* Targ'ibot — bu yerga tushgan qiziquvchi quruq ketmasin */}
+          <div className="rounded-2xl border border-yellow-700/40 bg-gradient-to-br from-yellow-950/40 to-orange-950/30 p-6">
+            <h2 className="text-lg font-bold text-yellow-300 mb-2">
+              🎓 JDA KIMYO sertifikatini qanday olish mumkin?
+            </h2>
+            <p className="text-sm text-yellow-100/90 leading-relaxed mb-4">
+              Sertifikatni administratsiya beradi — olimpiada, tanlov va kurs
+              natijalari bo'yicha. Har biri noyob raqamga ega va shu sahifada
+              tekshiriladi. Yo'l esa oddiy: o'rganishdan boshlanadi.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/oquv"
+                className="rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 px-4 py-2.5 text-sm font-bold text-black transition hover:from-yellow-400 hover:to-orange-400"
+              >
+                📚 O'quv bo'limi
+              </Link>
+              <Link
+                href="/oquv/video-darsliklar/quiz"
+                className="rounded-xl border border-purple-600/50 bg-purple-800/40 px-4 py-2.5 text-sm font-semibold text-purple-100 transition hover:bg-purple-700/50"
+              >
+                📝 Testlar
+              </Link>
+              <Link
+                href="/"
+                className="rounded-xl border border-purple-700/40 bg-slate-900/60 px-4 py-2.5 text-sm font-semibold text-purple-300 transition hover:bg-slate-800/60"
+              >
+                Bosh sahifa
+              </Link>
+            </div>
+          </div>
+
+          <p className="text-center text-xs text-purple-500">
+            Sertifikat haqiqiyligiga shubha bo'lsa{' '}
+            <Link href="/hamkorlik/boglanish" className="text-purple-400 hover:text-purple-300">
+              biz bilan bog'laning
+            </Link>
+            .
           </p>
-          <p className="text-purple-400 text-sm mb-6">
-            Bunday raqamli sertifikat JDA KIMYO bazasida mavjud emas. Raqamni
-            tekshirib qayta urinib ko'ring.
-          </p>
-          <Link
-            href="/"
-            className="inline-block px-6 py-3 rounded-xl bg-purple-800/60 hover:bg-purple-700/70 border border-purple-600/50 font-semibold transition-colors"
-          >
-            Bosh sahifaga
-          </Link>
         </div>
       </main>
     )
