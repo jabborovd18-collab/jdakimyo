@@ -43,7 +43,7 @@
   {"title":"Maqolalar bazasi","desc":"Barcha maqolalar","href":"/ilmiy/maqolalar/baza","type":"maqola","keys":"baza, qidiruv, filtr, hamma"},
   {"title":"Maqola yaratish","desc":"DOCX yuklash","href":"/ilmiy/maqolalar/yaratish","type":"maqola","keys":"yuklash, yozish, chop etish, admin"},
   
-  {"title":"Sertifikat tizimi","desc":"4 daraja","href":"/sertifikat","type":"umumiy","keys":"A, B, C, A+, imtihon, baholash"},
+  {"title":"Mening sertifikatlarim","desc":"Administratsiya bergan sertifikatlar","href":"/profil/sertifikatlar","type":"umumiy","keys":"sertifikat, tasdiq, QR, tekshirish"},
   {"title":"Jamoaga taklif","desc":"Hamkorlik","href":"/hamkorlik/jamoaga-taklif","type":"umumiy","keys":"vakansiya, ish, dasturchi, kimyogar"},
   {"title":"Ustozlar bilan hamkorlik","desc":"Video darsliklar","href":"/hamkorlik/ustozlar","type":"umumiy","keys":"o'qituvchi, professor, video, pul"},
   {"title":"FAQ","desc":"Ko'p beriladigan savollar","href":"/hamkorlik/faq","type":"umumiy","keys":"savol, javob, yordam, premium, sertifikat"}

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
+import SertifikatKarta from './SertifikatKarta'
 
 const CONFIG = {
   achievements: { title: 'Yutuqlar', subtitle: 'Qo‘lga kiritgan yutuqlaringiz', icon: '🏆' },
@@ -20,6 +21,15 @@ const ODAMLAR = new Set(['friends', 'followers', 'following'])
 
 // Ro'yxat bo'sh bo'lganda nima qilish kerakligini aytadi
 const BOSH_HOLAT = {
+  // Ilgari foydalanuvchi sertifikatni o'zi yasab olardi. Endi uni faqat
+  // administratsiya beradi, shuning uchun bo'sh ro'yxat "qayerdan olaman?"
+  // degan savol qoldirmasligi kerak.
+  certificates: {
+    matn: 'Hali sertifikatingiz yo‘q.',
+    izoh:
+      'Sertifikatni JDA KIMYO administratsiyasi beradi — olimpiada, tanlov yoki ' +
+      'kurs natijasi bo‘yicha. Har biri noyob raqamga ega va QR orqali tekshiriladi.',
+  },
   friends: {
     matn: "Hali do'st qo'shmagansiz.",
     izoh: "Yuqoridagi qidiruvdan ism, username yoki ID bo'yicha odam toping.",
@@ -135,7 +145,9 @@ export default function ProfileCollection({ type, actions = null, refreshKey = 0
         <>
           <div className="grid gap-3 md:grid-cols-2">
             {items.map((item) =>
-              ODAMLAR.has(type) ? (
+              type === 'certificates' ? (
+                <SertifikatKarta key={item.id} sertifikat={item} />
+              ) : ODAMLAR.has(type) ? (
                 <Link
                   key={item.id}
                   href={`/profil/${item.userId}`}
@@ -161,7 +173,9 @@ export default function ProfileCollection({ type, actions = null, refreshKey = 0
                   <h2 className="font-semibold text-white">{nameOf(item)}</h2>
                   {item.description && <p className="mt-1 text-sm text-purple-300">{item.description}</p>}
                   <div className="mt-3 text-sm text-yellow-300">
-                    {item.percentage !== undefined ? `${item.percentage}%` : item.rarity || item.grade || item.username || ''}
+                    {/* `!= null` — sertifikatda ball ixtiyoriy, ya'ni bazadan
+                        null kelishi mumkin. `!== undefined` bo'lsa "null%" chiqadi. */}
+                    {item.percentage != null ? `${item.percentage}%` : item.rarity || item.grade || item.username || ''}
                   </div>
                 </article>
               )

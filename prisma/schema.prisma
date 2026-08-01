@@ -12,58 +12,61 @@ datasource db {
 // ═══════════════════════════════════════════════════════════════
 
 model User {
-  id            String    @id @default(cuid())
-  userId        String    @unique
-  username      String    @unique
-  email         String    @unique
-  password      String
-  fullName      String?
-  role          String    @default("bakalavr")
-  university    String?
-  faculty       String?
-  specialty     String?
-  level         Int?
-  avatar        String?
-  bio           String?
-  telegram      String?
-  instagram     String?
-  linkedin      String?
-  location      String?
-  level_points  Int       @default(1)
-  experience    Int       @default(0)
-  totalPoints   Int       @default(0)
-  currentStreak Int       @default(0)
-  longestStreak Int       @default(0)
-  lastActive    DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  isBanned      Boolean   @default(false)
-  bannedAt      DateTime?
-  bannedReason  String?
-  stars         Int       @default(0)
-  weeklyStars   Int       @default(0)
-  monthlyStars  Int       @default(0)
-  totalMissions Int       @default(0)
-  privacySettings Json    @default("{\"profilePublic\": true, \"showFriends\": true, \"showQuizResults\": true, \"showAchievements\": true, \"showFollowers\": true}")
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  username             String    @unique
+  email                String    @unique
+  password             String
+  fullName             String?
+  role                 String    @default("bakalavr")
+  university           String?
+  faculty              String?
+  specialty            String?
+  level                Int?
+  avatar               String?
+  bio                  String?
+  telegram             String?
+  instagram            String?
+  linkedin             String?
+  location             String?
+  level_points         Int       @default(1)
+  experience           Int       @default(0)
+  totalPoints          Int       @default(0)
+  currentStreak        Int       @default(0)
+  longestStreak        Int       @default(0)
+  lastActive           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  isBanned             Boolean   @default(false)
+  bannedAt             DateTime?
+  bannedReason         String?
+  stars                Int       @default(0)
+  weeklyStars          Int       @default(0)
+  monthlyStars         Int       @default(0)
+  totalMissions        Int       @default(0)
+  privacySettings      Json      @default("{\"profilePublic\": true, \"showFriends\": true, \"showQuizResults\": true, \"showAchievements\": true, \"showFollowers\": true}")
   notificationSettings Json?
   interfaceSettings    Json?
   learningPreferences  Json?
 
   // AUTH
-  accounts      Account[]
-  sessions      Session[]
+  accounts Account[]
+  sessions Session[]
 
   // QUIZ VA SERTIFIKATLAR
-  quizResults   QuizResult[]
-  certificates  Certificate[]
+  quizResults  QuizResult[]
+  certificates Certificate[]
+
+  // Admin sifatida bergan sertifikatlar
+  issuedCertificates Certificate[] @relation("CertificateIssuer")
 
   // DO'STLIK VA IJTIMOIY
-  sentRequests       FriendRequest[]      @relation("Sender")
-  receivedRequests   FriendRequest[]      @relation("Receiver")
-  friendships1       Friendship[]         @relation("User1")
-  friendships2       Friendship[]         @relation("User2")
-  followers          Follow[]             @relation("Following")
-  following          Follow[]             @relation("Follower")
+  sentRequests     FriendRequest[] @relation("Sender")
+  receivedRequests FriendRequest[] @relation("Receiver")
+  friendships1     Friendship[]    @relation("User1")
+  friendships2     Friendship[]    @relation("User2")
+  followers        Follow[]        @relation("Following")
+  following        Follow[]        @relation("Follower")
 
   // GAMIFICATION
   achievements       Achievement[]
@@ -71,50 +74,50 @@ model User {
   dailyActivities    DailyActivity[]
 
   // 🆕 Yopiq quizlar
-  createdClosedQuizzes     ClosedQuiz[]
-  closedQuizSubmissions    ClosedQuizSubmission[]
+  createdClosedQuizzes  ClosedQuiz[]
+  closedQuizSubmissions ClosedQuizSubmission[]
 
   // 🆕 Ommaviy akademik profil
   publicProfile TeacherPublicProfile?
 
   // 🆕 KENGAYTIRILGAN MA'LUMOTLAR
-  birthDate       DateTime?
-  academicDegree  String?
-  studentId       String?
-  enrollmentYear  Int?
-  github          String?
-  twitter         String?
-  website         String?
-  googleScholar   String?
-  orcid           String?
+  birthDate      DateTime?
+  academicDegree String?
+  studentId      String?
+  enrollmentYear Int?
+  github         String?
+  twitter        String?
+  website        String?
+  googleScholar  String?
+  orcid          String?
 
   // MODERATION
-  reportsMade        Report[]             @relation("Reporter")
-  reportsReceived    Report[]             @relation("ReportTarget")
-  auditLogs          AuditLog[]
+  reportsMade     Report[]   @relation("Reporter")
+  reportsReceived Report[]   @relation("ReportTarget")
+  auditLogs       AuditLog[]
 
   // Kimyogar tasdiqlagan reaksiyalar
-  verifiedReactions  Reaction[]           @relation("ReactionVerifier")
+  verifiedReactions Reaction[] @relation("ReactionVerifier")
 
   // KIMYOGAR KO'CHAT
-  plant              Plant?
+  plant Plant?
 
   // MUHOKAMA (FORUM)
-  forumPosts         ForumPost[]          @relation("ForumAuthor")
-  forumModerated     ForumPost[]          @relation("ForumModerator")
-  forumLikes         ForumLike[]
+  forumPosts     ForumPost[] @relation("ForumAuthor")
+  forumModerated ForumPost[] @relation("ForumModerator")
+  forumLikes     ForumLike[]
 
   // O'QITUVCHI PANELI - USTOZ SIFATIDA
-  teacherStudents    TeacherStudent[]     @relation("TeacherStudents")
-  teacherGroups      TeacherGroup[]
-  assignments        Assignment[]
-  announcements      Announcement[]
-  createdQuizzes     TeacherQuiz[]
+  teacherStudents TeacherStudent[] @relation("TeacherStudents")
+  teacherGroups   TeacherGroup[]
+  assignments     Assignment[]
+  announcements   Announcement[]
+  createdQuizzes  TeacherQuiz[]
 
   // O'QITUVCHI PANELI - TALABA SIFATIDA
-  studentTeachers          TeacherStudent[]       @relation("StudentTeachers")
-  assignmentSubmissions    AssignmentSubmission[]
-  quizAttempts             TeacherQuizAttempt[]
+  studentTeachers       TeacherStudent[]       @relation("StudentTeachers")
+  assignmentSubmissions AssignmentSubmission[]
+  quizAttempts          TeacherQuizAttempt[]
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -172,19 +175,48 @@ model QuizResult {
   completedAt    DateTime @default(now())
 }
 
+// Sertifikatni FAQAT admin beradi va hamma ma'lumotni admin panelda kiritadi.
+// Avval sahifada foydalanuvchining o'zi ism va ball yozib PDF yasay olardi —
+// u bazaga umuman yozilmasdi, ya'ni sertifikat hech narsani tasdiqlamasdi.
 model Certificate {
-  id         String   @id @default(cuid())
-  certId     String   @unique
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  examName   String
-  grade      String
-  score      Int
-  percentage Float
-  percentile Float
-  issuedAt   DateTime @default(now())
-  expiresAt  DateTime
-  status     String   @default("valid")
+  id     String @id @default(cuid())
+  certId String @unique
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // ─── Sertifikatda chop etiladigan ma'lumot ───
+  // Ism-familya sertifikatning o'zida saqlanadi, User.fullName'dan olinmaydi:
+  // profilda taxallus yozilgan bo'lishi mumkin, sertifikatda esa rasmiy ism
+  // turishi shart. Profil keyin o'zgarsa ham berilgan sertifikat o'zgarmaydi.
+  fullName    String
+  fan         String // qaysi fan uchun berilgan (hozircha matn, keyin Fan modeliga bog'lanadi)
+  reason      String // nima uchun berilgan
+  description String? @db.Text
+  seals       Json? // pechatlar: [{url, label}]
+
+  // ─── Kim berdi ───
+  // Reaksiya tasdig'idagi naqsh: admin o'chirilsa bog'lanish uziladi,
+  // lekin sertifikatning o'zi va berilgan sanasi joyida qoladi.
+  issuedById String?
+  issuedBy   User?   @relation("CertificateIssuer", fields: [issuedById], references: [id], onDelete: SetNull)
+
+  // ─── Baho — ixtiyoriy ───
+  // Quiz asosida beriladigan sertifikat uchun. Admin qo'lda bergan
+  // sertifikatda (masalan olimpiada g'olibi) ball umuman bo'lmasligi mumkin.
+  examName   String?
+  grade      String?
+  score      Int?
+  percentage Float?
+  percentile Float?
+
+  issuedAt  DateTime  @default(now())
+  expiresAt DateTime? // muddatsiz sertifikat uchun bo'sh qoldiriladi
+  status    String    @default("valid")
+
+  @@index([userId])
+  @@index([fan])
+  @@index([issuedById])
+  @@index([status])
 }
 
 model QuizQuestion {
@@ -310,16 +342,16 @@ model MissionCompletion {
 }
 
 model DailyActivity {
-  id           String   @id @default(cuid())
-  userId       String
-  date         DateTime @db.Date
-  quizCount    Int      @default(0)
-  videoCount   Int      @default(0)
-  compoundCount Int     @default(0)
-  missionCount Int      @default(0)
-  totalXP      Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(cuid())
+  userId        String
+  date          DateTime @db.Date
+  quizCount     Int      @default(0)
+  videoCount    Int      @default(0)
+  compoundCount Int      @default(0)
+  missionCount  Int      @default(0)
+  totalXP       Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -349,27 +381,27 @@ model Compound {
 }
 
 model Molecule3D {
-  id                  String   @id @default(cuid())
-  name                String
-  formula             String
-  smiles              String?
-  molData             String   @db.Text
-  pdbData             String?  @db.Text
-  category            String
-  centralAtom         String
-  ligands             String
-  coordinationNumber  Int
-  geometry            String
-  description         String?  @db.Text
-  color               String   @default("blue")
-  isFeatured          Boolean  @default(false)
-  isActive            Boolean  @default(true)
+  id                 String  @id @default(cuid())
+  name               String
+  formula            String
+  smiles             String?
+  molData            String  @db.Text
+  pdbData            String? @db.Text
+  category           String
+  centralAtom        String
+  ligands            String
+  coordinationNumber Int
+  geometry           String
+  description        String? @db.Text
+  color              String  @default("blue")
+  isFeatured         Boolean @default(false)
+  isActive           Boolean @default(true)
 
-  compoundId          String?  @unique
-  compound            Compound? @relation(fields: [compoundId], references: [id])
+  compoundId String?   @unique
+  compound   Compound? @relation(fields: [compoundId], references: [id])
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([category])
   @@index([centralAtom])
@@ -440,53 +472,53 @@ model ForumLike {
 // ═══════════════════════════════════════════════════════════════
 
 model Reaction {
-  id            String   @id @default(cuid())
+  id String @id @default(cuid())
 
   // ─── Asosiy ───
-  equation      String   @db.Text // "H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O"
-  name          String? // "Sulfat kislotaning neytrallanishi"
-  description   String?  @db.Text
-  category      String // Asid-baza, Redoks, Sintez, Parchalanish...
-  reactionType  String? // neytrallanish, almashinish, qo'shilish...
+  equation     String  @db.Text // "H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O"
+  name         String? // "Sulfat kislotaning neytrallanishi"
+  description  String? @db.Text
+  category     String // Asid-baza, Redoks, Sintez, Parchalanish...
+  reactionType String? // neytrallanish, almashinish, qo'shilish...
 
   // ─── Qidiruv indeksi ───
   // lib/chem-search.js to'ldiradi. Formuladagi pastki indekslar oddiy
   // raqamga aylantiriladi, shunda "H2SO4" deb qidirilsa ham "H₂SO₄" topiladi.
-  searchText    String   @db.Text
-  searchCompact String   @db.Text
+  searchText    String @db.Text
+  searchCompact String @db.Text
 
   // ─── Borish sharoiti ───
-  temperature   String? // "25°C", "400-500°C"
-  pressure      String? // "1 atm", "150-300 atm"
-  catalyst      String? // "V₂O₅", "Fe", "Yo'q"
-  environment   String? // "kislotali muhit", "inert atmosfera"
+  temperature String? // "25°C", "400-500°C"
+  pressure    String? // "1 atm", "150-300 atm"
+  catalyst    String? // "V₂O₅", "Fe", "Yo'q"
+  environment String? // "kislotali muhit", "inert atmosfera"
 
   // ─── Mexanizm va oraliq moddalar ───
-  mechanism     String?  @db.Text
+  mechanism     String? @db.Text
   intermediates Json? // [{formula, name, note}]
 
   // ─── Erituvchi ───
   solvents      Json? // [{name, efficiency, note}] — samaradorlik solishtiruvi
   bestSolvent   String? // eng samarali erituvchi
-  solventEffect String?  @db.Text // erituvchi reaksiyaga qanday ta'sir qiladi
+  solventEffect String? @db.Text // erituvchi reaksiyaga qanday ta'sir qiladi
 
   // ─── Qo'llanilish ko'lami ───
-  scale         String? // laboratoriya | sanoat | ikkalasi | nazariy
-  scaleNote     String?  @db.Text
+  scale     String? // laboratoriya | sanoat | ikkalasi | nazariy
+  scaleNote String? @db.Text
 
   // ─── Tezlikni oshirish omillari ───
-  rateFactors   Json? // [{factor, effect}]
+  rateFactors Json? // [{factor, effect}]
 
   // ─── Amaliy tomoni ───
-  techniques    Json? // ["Qaytar sovutgich", "Distillash", "Filtrlash"]
-  equipment     Json? // kerakli asbob-uskunalar
-  hazards       Json? // xavfsizlik ogohlantirishlari
-  observations  String?  @db.Text // rang o'zgarishi, gaz ajralishi, cho'kma
-  yieldInfo     String? // unum haqida
+  techniques   Json? // ["Qaytar sovutgich", "Distillash", "Filtrlash"]
+  equipment    Json? // kerakli asbob-uskunalar
+  hazards      Json? // xavfsizlik ogohlantirishlari
+  observations String? @db.Text // rang o'zgarishi, gaz ajralishi, cho'kma
+  yieldInfo    String? // unum haqida
 
   // ─── Manba va ishonchlilik ───
-  source        String? // ma'lumot manbasi (atribut uchun)
-  sourceUrl     String?
+  source    String? // ma'lumot manbasi (atribut uchun)
+  sourceUrl String?
 
   // ─── Tasdiqlash ───
   // Kimyogar ko'rib chiqib tasdiqlaganmi. Import qilingan ma'lumot
@@ -494,15 +526,15 @@ model Reaction {
   //
   // "Kim tasdiqladi" saqlanishi shart: tasdiq javobgarlik bilan keladi.
   // Foydalanuvchi o'chirilsa bog'lanish uziladi, lekin tasdiq sanasi qoladi.
-  isVerified    Boolean  @default(false)
-  verifiedAt    DateTime?
-  verifiedById  String?
-  verifiedBy    User?    @relation("ReactionVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  isVerified   Boolean   @default(false)
+  verifiedAt   DateTime?
+  verifiedById String?
+  verifiedBy   User?     @relation("ReactionVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
 
-  isActive      Boolean  @default(true)
+  isActive Boolean @default(true)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([category])
   @@index([scale])
@@ -539,22 +571,22 @@ model AnalysisMethod {
 // ═══════════════════════════════════════════════════════════════
 
 model Report {
-  id          String   @id @default(cuid())
-  reporterId  String
-  targetId    String
-  targetType  String
-  reason      String   @db.Text
-  category    String   @default("spam")
-  status      String   @default("pending")
-  priority    String   @default("medium")
-  reviewedBy  String?
-  reviewedAt  DateTime?
-  resolution  String?  @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String    @id @default(cuid())
+  reporterId String
+  targetId   String
+  targetType String
+  reason     String    @db.Text
+  category   String    @default("spam")
+  status     String    @default("pending")
+  priority   String    @default("medium")
+  reviewedBy String?
+  reviewedAt DateTime?
+  resolution String?   @db.Text
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-  reporter    User     @relation("Reporter", fields: [reporterId], references: [id])
-  target      User     @relation("ReportTarget", fields: [targetId], references: [id])
+  reporter User @relation("Reporter", fields: [reporterId], references: [id])
+  target   User @relation("ReportTarget", fields: [targetId], references: [id])
 
   @@index([status])
   @@index([priority])
@@ -562,17 +594,17 @@ model Report {
 }
 
 model AuditLog {
-  id          String   @id @default(cuid())
-  adminId     String
-  action      String
-  targetType  String
-  targetId    String?
-  details     String?  @db.Text
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  adminId    String
+  action     String
+  targetType String
+  targetId   String?
+  details    String?  @db.Text
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
 
-  admin       User     @relation(fields: [adminId], references: [id])
+  admin User @relation(fields: [adminId], references: [id])
 
   @@index([adminId])
   @@index([action])
@@ -580,25 +612,25 @@ model AuditLog {
 }
 
 model SiteSettings {
-  id                   String   @id @default("main")
-  siteName             String   @default("JDA KIMYO")
-  siteDescription      String   @default("Koordinatsion kimyo platformasi")
-  logo                 String?
-  favicon              String?
-  maintenanceMode      Boolean  @default(false)
-  maintenanceMessage   String?  @db.Text
-  footerText           String?  @db.Text
-  contactEmail         String?
-  contactPhone         String?
-  telegramGroup        String?
-  instagramLink        String?
-  defaultXpCommon      Int      @default(10)
-  defaultXpRare        Int      @default(50)
-  defaultXpEpic        Int      @default(100)
-  defaultXpLegendary   Int      @default(500)
-  questionsPerQuiz     Int      @default(20)
-  quizTimeLimit        Int?
-  updatedAt            DateTime @updatedAt
+  id                 String   @id @default("main")
+  siteName           String   @default("JDA KIMYO")
+  siteDescription    String   @default("Koordinatsion kimyo platformasi")
+  logo               String?
+  favicon            String?
+  maintenanceMode    Boolean  @default(false)
+  maintenanceMessage String?  @db.Text
+  footerText         String?  @db.Text
+  contactEmail       String?
+  contactPhone       String?
+  telegramGroup      String?
+  instagramLink      String?
+  defaultXpCommon    Int      @default(10)
+  defaultXpRare      Int      @default(50)
+  defaultXpEpic      Int      @default(100)
+  defaultXpLegendary Int      @default(500)
+  questionsPerQuiz   Int      @default(20)
+  quizTimeLimit      Int?
+  updatedAt          DateTime @updatedAt
 
   @@map("site_settings")
 }
@@ -633,34 +665,34 @@ model DailyQuote {
 // ═══════════════════════════════════════════════════════════════
 
 model Plant {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  name            String   @default("Kimyogar Ko'chat")
-  stage           Int      @default(1)
-  growth          Float    @default(0)
-  totalWaterings  Int      @default(0)
-  lastWatered     DateTime?
-  currentStreak   Int      @default(0)
-  longestStreak   Int      @default(0)
-  activeBoosts    Json?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  name           String    @default("Kimyogar Ko'chat")
+  stage          Int       @default(1)
+  growth         Float     @default(0)
+  totalWaterings Int       @default(0)
+  lastWatered    DateTime?
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  activeBoosts   Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  waterings       PlantWatering[]
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  waterings PlantWatering[]
 
   @@index([userId])
   @@index([stage])
 }
 
 model PlantWatering {
-  id          String   @id @default(cuid())
-  plantId     String
-  growth      Float
-  boostUsed   String?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  plantId   String
+  growth    Float
+  boostUsed String?
+  createdAt DateTime @default(now())
 
-  plant       Plant    @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  plant Plant @relation(fields: [plantId], references: [id], onDelete: Cascade)
 
   @@index([plantId])
   @@index([createdAt])
@@ -671,28 +703,28 @@ model PlantWatering {
 // ═══════════════════════════════════════════════════════════════
 
 model TeacherStudent {
-  id          String   @id @default(cuid())
-  teacherId   String
-  studentId   String
-  groupId     String?
-  joinedAt    DateTime @default(now())
+  id        String   @id @default(cuid())
+  teacherId String
+  studentId String
+  groupId   String?
+  joinedAt  DateTime @default(now())
 
-  teacher     User          @relation("TeacherStudents", fields: [teacherId], references: [id])
-  student     User          @relation("StudentTeachers", fields: [studentId], references: [id])
-  group       TeacherGroup? @relation(fields: [groupId], references: [id])
+  teacher User          @relation("TeacherStudents", fields: [teacherId], references: [id])
+  student User          @relation("StudentTeachers", fields: [studentId], references: [id])
+  group   TeacherGroup? @relation(fields: [groupId], references: [id])
 
   @@unique([teacherId, studentId, groupId])
 }
 
 model TeacherGroup {
-  id            String   @id @default(cuid())
-  teacherId     String
-  name          String
-  description   String?
-  color         String   @default("blue")
-  createdAt     DateTime @default(now())
+  id          String   @id @default(cuid())
+  teacherId   String
+  name        String
+  description String?
+  color       String   @default("blue")
+  createdAt   DateTime @default(now())
 
-  teacher       User                @relation(fields: [teacherId], references: [id])
+  teacher       User             @relation(fields: [teacherId], references: [id])
   students      TeacherStudent[]
   assignments   Assignment[]
   announcements Announcement[]
@@ -701,35 +733,35 @@ model TeacherGroup {
 }
 
 model Assignment {
-  id          String   @id @default(cuid())
-  teacherId   String
-  groupId     String
-  title       String
-  description String   @db.Text
-  type        String
-  deadline    DateTime
-  timeLimit   Int?
-  startDate   DateTime?
-  maxScore      Int      @default(100)
-  passingScore  Int?
-  gradingCriteria Json?
-  maxAttempts         Int      @default(1)
-  allowLateSubmission Boolean  @default(false)
-  latePenalty         Float    @default(10)
-  instructions String?  @db.Text
-  attachments  Json?
-  hints        Json?
-  resources    Json?
-  isDraft          Boolean  @default(false)
-  visibility       String   @default("group")
-  requireFile      Boolean  @default(false)
-  allowedFileTypes String?
-  maxFileSize      Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                  String    @id @default(cuid())
+  teacherId           String
+  groupId             String
+  title               String
+  description         String    @db.Text
+  type                String
+  deadline            DateTime
+  timeLimit           Int?
+  startDate           DateTime?
+  maxScore            Int       @default(100)
+  passingScore        Int?
+  gradingCriteria     Json?
+  maxAttempts         Int       @default(1)
+  allowLateSubmission Boolean   @default(false)
+  latePenalty         Float     @default(10)
+  instructions        String?   @db.Text
+  attachments         Json?
+  hints               Json?
+  resources           Json?
+  isDraft             Boolean   @default(false)
+  visibility          String    @default("group")
+  requireFile         Boolean   @default(false)
+  allowedFileTypes    String?
+  maxFileSize         Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  teacher     User     @relation(fields: [teacherId], references: [id])
-  group       TeacherGroup @relation(fields: [groupId], references: [id])
+  teacher     User                   @relation(fields: [teacherId], references: [id])
+  group       TeacherGroup           @relation(fields: [groupId], references: [id])
   submissions AssignmentSubmission[]
 
   @@index([teacherId])
@@ -755,8 +787,8 @@ model AssignmentSubmission {
   gradedAt      DateTime?
   gradedBy      String?
 
-  assignment    Assignment @relation(fields: [assignmentId], references: [id])
-  student       User       @relation(fields: [studentId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+  student    User       @relation(fields: [studentId], references: [id])
 
   @@index([assignmentId])
   @@index([studentId])
@@ -764,15 +796,15 @@ model AssignmentSubmission {
 }
 
 model Announcement {
-  id          String   @id @default(cuid())
-  teacherId   String
-  groupId     String
-  title       String
-  content     String   @db.Text
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  teacherId String
+  groupId   String
+  title     String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
 
-  teacher     User         @relation(fields: [teacherId], references: [id])
-  group       TeacherGroup @relation(fields: [groupId], references: [id])
+  teacher User         @relation(fields: [teacherId], references: [id])
+  group   TeacherGroup @relation(fields: [groupId], references: [id])
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -780,16 +812,16 @@ model Announcement {
 // ═══════════════════════════════════════════════════════════════
 
 model TeacherQuiz {
-  id            String   @id @default(cuid())
-  teacherId     String
-  groupId       String?
-  title         String
-  description   String?  @db.Text
-  timeLimit     Int?
-  isPublic      Boolean  @default(false)
-  accessCode    String?
+  id               String  @id @default(cuid())
+  teacherId        String
+  groupId          String?
+  title            String
+  description      String? @db.Text
+  timeLimit        Int?
+  isPublic         Boolean @default(false)
+  accessCode       String?
   shuffleQuestions Boolean @default(true)
-  showResults   Boolean  @default(true)
+  showResults      Boolean @default(true)
 
   // Bu maydonlar ustoz interfeysida allaqachon bor edi, lekin sxemada yo'q edi.
   // Natijada:
@@ -797,20 +829,20 @@ model TeacherQuiz {
   //   • maxAttempts undefined bo'lgani uchun urinishlar cheklovi ishlamasdi
   //   • qiymatlar `description` ichiga JSON matn sifatida tiqilardi
   // ClosedQuiz'da bular allaqachon to'g'ri ta'riflangan — shu bilan moslashtirildi.
-  isDraft       Boolean  @default(false)
-  maxAttempts   Int      @default(1) // 99 = cheksiz
-  passingScore  Int      @default(60)
-  deadline      DateTime?
+  isDraft      Boolean   @default(false)
+  maxAttempts  Int       @default(1) // 99 = cheksiz
+  passingScore Int       @default(60)
+  deadline     DateTime?
 
   totalAttempts Int      @default(0)
   avgScore      Float    @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  teacher       User     @relation(fields: [teacherId], references: [id])
-  group         TeacherGroup? @relation(fields: [groupId], references: [id])
-  questions     TeacherQuizQuestion[]
-  attempts      TeacherQuizAttempt[]
+  teacher   User                  @relation(fields: [teacherId], references: [id])
+  group     TeacherGroup?         @relation(fields: [groupId], references: [id])
+  questions TeacherQuizQuestion[]
+  attempts  TeacherQuizAttempt[]
 
   @@index([teacherId])
   @@index([groupId])
@@ -818,33 +850,33 @@ model TeacherQuiz {
 }
 
 model TeacherQuizQuestion {
-  id            String   @id @default(cuid())
+  id            String  @id @default(cuid())
   quizId        String
-  questionText  String   @db.Text
+  questionText  String  @db.Text
   options       Json
   correctAnswer Int
-  explanation   String?  @db.Text
-  points        Int      @default(1)
-  order         Int      @default(0)
+  explanation   String? @db.Text
+  points        Int     @default(1)
+  order         Int     @default(0)
 
-  quiz          TeacherQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quiz TeacherQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   @@index([quizId])
 }
 
 model TeacherQuizAttempt {
-  id            String   @id @default(cuid())
-  quizId        String
-  studentId     String
-  answers       Json
-  score         Int
-  maxScore      Int
-  percentage    Float
-  timeSpent     Int
-  completedAt   DateTime @default(now())
+  id          String   @id @default(cuid())
+  quizId      String
+  studentId   String
+  answers     Json
+  score       Int
+  maxScore    Int
+  percentage  Float
+  timeSpent   Int
+  completedAt DateTime @default(now())
 
-  quiz          TeacherQuiz @relation(fields: [quizId], references: [id])
-  student       User     @relation(fields: [studentId], references: [id])
+  quiz    TeacherQuiz @relation(fields: [quizId], references: [id])
+  student User        @relation(fields: [studentId], references: [id])
 
   @@index([quizId])
   @@index([studentId])
@@ -855,67 +887,67 @@ model TeacherQuizAttempt {
 // ═══════════════════════════════════════════════════════════════
 
 model ClosedQuiz {
-  id            String   @id @default(cuid())
-  teacherId     String
-  groupId       String?
-  
-  title         String
-  description   String?  @db.Text
-  instructions  String?  @db.Text // Talaba uchun ko'rsatmalar
-  
-  timeLimit     Int?     // daqiqalarda
-  maxAttempts   Int      @default(1)
-  maxScore      Int      @default(100)
-  
-  isDraft       Boolean  @default(false)
-  deadline      DateTime?
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  teacher       User     @relation(fields: [teacherId], references: [id])
-  group         TeacherGroup? @relation(fields: [groupId], references: [id])
-  questions     ClosedQuizQuestion[]
-  submissions   ClosedQuizSubmission[]
-  
+  id        String  @id @default(cuid())
+  teacherId String
+  groupId   String?
+
+  title        String
+  description  String? @db.Text
+  instructions String? @db.Text // Talaba uchun ko'rsatmalar
+
+  timeLimit   Int? // daqiqalarda
+  maxAttempts Int  @default(1)
+  maxScore    Int  @default(100)
+
+  isDraft  Boolean   @default(false)
+  deadline DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teacher     User                   @relation(fields: [teacherId], references: [id])
+  group       TeacherGroup?          @relation(fields: [groupId], references: [id])
+  questions   ClosedQuizQuestion[]
+  submissions ClosedQuizSubmission[]
+
   @@index([teacherId])
   @@index([groupId])
 }
 
 model ClosedQuizQuestion {
-  id            String   @id @default(cuid())
-  quizId        String
-  
-  questionText  String   @db.Text
-  maxPoints     Int      @default(10)
-  order         Int      @default(0)
-  hint          String?  @db.Text
-  
-  quiz          ClosedQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(cuid())
+  quizId String
+
+  questionText String  @db.Text
+  maxPoints    Int     @default(10)
+  order        Int     @default(0)
+  hint         String? @db.Text
+
+  quiz ClosedQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
   @@index([quizId])
 }
 
 model ClosedQuizSubmission {
-  id            String   @id @default(cuid())
-  quizId        String
-  studentId     String
-  
-  answers       Json     // [{questionId, answer}]
-  timeSpent     Int      @default(0) // soniyalarda
-  
-  status        String   @default("pending") // pending, graded, returned
-  score         Int?
-  maxScore      Int
-  feedback      String?  @db.Text // Umumiy izoh
-  gradedBy      String?
-  gradedAt      DateTime?
-  
-  submittedAt   DateTime @default(now())
-  
-  quiz          ClosedQuiz @relation(fields: [quizId], references: [id])
-  student       User     @relation(fields: [studentId], references: [id])
-  
+  id        String @id @default(cuid())
+  quizId    String
+  studentId String
+
+  answers   Json // [{questionId, answer}]
+  timeSpent Int  @default(0) // soniyalarda
+
+  status   String    @default("pending") // pending, graded, returned
+  score    Int?
+  maxScore Int
+  feedback String?   @db.Text // Umumiy izoh
+  gradedBy String?
+  gradedAt DateTime?
+
+  submittedAt DateTime @default(now())
+
+  quiz    ClosedQuiz @relation(fields: [quizId], references: [id])
+  student User       @relation(fields: [studentId], references: [id])
+
   @@index([quizId])
   @@index([studentId])
   @@index([status])
@@ -926,61 +958,61 @@ model ClosedQuizSubmission {
 // ═══════════════════════════════════════════════════════════════
 
 model TeacherPublicProfile {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  
+  id     String @id @default(cuid())
+  userId String @unique
+
   // ═══ ASOSIY AKADEMIK MA'LUMOTLAR ═══
-  displayName String?  // Ko'rsatiladigan ism (masalan: "Prof. A. Karimov")
-  title       String?  // Ilmiy unvon: "Kimyo fanlari doktori", "dotsent"
-  bio         String?  @db.Text // O'zi haqida qisqacha
-  university  String?  // Universitet nomi
-  department  String?  // Kafedra: "Organik kimyo kafedrasi"
-  position    String?  // Lavozim: "Kafedra mudiri", "Katta o'qituvchi"
-  
+  displayName String? // Ko'rsatiladigan ism (masalan: "Prof. A. Karimov")
+  title       String? // Ilmiy unvon: "Kimyo fanlari doktori", "dotsent"
+  bio         String? @db.Text // O'zi haqida qisqacha
+  university  String? // Universitet nomi
+  department  String? // Kafedra: "Organik kimyo kafedrasi"
+  position    String? // Lavozim: "Kafedra mudiri", "Katta o'qituvchi"
+
   // ═══ ILMIY FAOLIYAT ═══
-  experienceYears Int?   // Yillik tajriba
-  specialties Json?      // ["Koordinatsion kimyo", "Spektroskopiya", "Kristallografiya"]
-  education   Json?      // [{degree: "PhD", university: "SamDU", year: 2015}, ...]
-  publications Int?      // Ilmiy maqolalar soni
-  citations   Int?       // Iqtiboslar soni
-  hIndex      Int?       // h-index
-  awards      Json?      // [{title: "Beruniy mukofoti", year: 2020}, ...]
-  
+  experienceYears Int? // Yillik tajriba
+  specialties     Json? // ["Koordinatsion kimyo", "Spektroskopiya", "Kristallografiya"]
+  education       Json? // [{degree: "PhD", university: "SamDU", year: 2015}, ...]
+  publications    Int? // Ilmiy maqolalar soni
+  citations       Int? // Iqtiboslar soni
+  hIndex          Int? // h-index
+  awards          Json? // [{title: "Beruniy mukofoti", year: 2020}, ...]
+
   // ═══ TADQIQOT YO'NALISHLARI ═══
-  researchAreas Json?    // [{name: "Kompleks birikmalar", description: "..."}]
-  currentProjects Json?  // Hozirgi loyihalar
-  
+  researchAreas   Json? // [{name: "Kompleks birikmalar", description: "..."}]
+  currentProjects Json? // Hozirgi loyihalar
+
   // ═══ DARS BERADIGAN KURSLAR ═══
-  courses     Json?      // [{name: "Organik kimyo", semester: "3", credits: 6}]
-  
+  courses Json? // [{name: "Organik kimyo", semester: "3", credits: 6}]
+
   // ═══ AKADEMIK TARMOQLAR ═══
   website       String?
   googleScholar String?
   researchGate  String?
   orcid         String?
   scopus        String?
-  
+
   // ═══ ALOQA (sozlanadigan) ═══
-  showEmail     Boolean  @default(false)
-  showPhone     Boolean  @default(false)
-  showStats     Boolean  @default(true)
-  showCourses   Boolean  @default(true)
+  showEmail        Boolean @default(false)
+  showPhone        Boolean @default(false)
+  showStats        Boolean @default(true)
+  showCourses      Boolean @default(true)
   showPublications Boolean @default(true)
-  
+
   // ═══ VIZUAL ═══
-  themeColor    String   @default("purple") // purple, blue, green, indigo, amber
-  coverImage    String?  // Qopqoq rasmi URL
-  bannerQuote   String?  // Iqtibos (banner'da ko'rinadi)
-  
+  themeColor  String  @default("purple") // purple, blue, green, indigo, amber
+  coverImage  String? // Qopqoq rasmi URL
+  bannerQuote String? // Iqtibos (banner'da ko'rinadi)
+
   // ═══ META ═══
-  isActive      Boolean  @default(true)
-  isVerified    Boolean  @default(false) // Admin tomonidan tasdiqlangan
-  views         Int      @default(0)     // Profil ko'rishlar soni
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  isActive   Boolean  @default(true)
+  isVerified Boolean  @default(false) // Admin tomonidan tasdiqlangan
+  views      Int      @default(0) // Profil ko'rishlar soni
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([university])
   @@index([isActive])

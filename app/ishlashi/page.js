@@ -60,15 +60,15 @@ const SECTIONS = [
     id: "sertifikat",
     icon: "🏅",
     title: "Sertifikat tizimi",
-    desc: "Bilimingizni tasdiqlang — 4 daraja",
+    desc: "Administratsiya beradigan rasmiy sertifikat",
     features: [
-      "C daraja (boshlang'ich) — asosiy tushunchalar",
-      "B daraja (o'rta) — nazariyalar va masalalar",
-      "A daraja (yuqori) — tahlil usullari",
-      "A+ daraja (professional) — ilmiy tadqiqotlar",
-      "LinkedIn va CV uchun rasmiy sertifikat"
+      "Sertifikatni faqat JDA KIMYO administratsiyasi beradi",
+      "Har biri bazada saqlanadi va noyob raqamga ega",
+      "QR kod orqali istalgan vaqtda tekshiriladi",
+      "Fan, sabab va pechatlar bilan rasmiylashtiriladi",
+      "LinkedIn va CV uchun PDF shaklida yuklab olinadi"
     ],
-    path: "/sertifikat",
+    path: "/profil/sertifikatlar",
     color: "green",
     audience: "Barcha foydalanuvchilar"
   }
@@ -644,8 +644,8 @@ export default function IshlashiPage() {
             <Link href="/ilmiy" className="px-6 py-3 bg-blue-600/60 hover:bg-blue-500/80 border border-blue-500/50 rounded-xl text-white font-semibold">
               🔬 Ilmiy
             </Link>
-            <Link href="/sertifikat" className="px-6 py-3 bg-yellow-600/80 hover:bg-yellow-500 rounded-xl text-black font-bold">
-              🏅 Sertifikat olish →
+            <Link href="/profil/sertifikatlar" className="px-6 py-3 bg-yellow-600/80 hover:bg-yellow-500 rounded-xl text-black font-bold">
+              🏅 Sertifikatlarim →
             </Link>
           </div>
         </div>
