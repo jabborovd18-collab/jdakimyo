@@ -602,6 +602,54 @@ model Report {
   @@index([createdAt])
 }
 
+// ═══════════════════════════════════════════════════════════════
+// LABORATORIYA
+// ═══════════════════════════════════════════════════════════════
+
+// Laboratoriya katalogi: reagentlar, jihozlar va texnikalar.
+//
+// Manbasi — data/laboratoriya/ dagi fayllar, ular seed skript bilan shu
+// yerga ko'chiriladi (data/reactions → Reaction bilan bir xil naqsh).
+//
+// Reagentlar reaksiyalar bazasidan generatsiya qilinadi: nodirlik va narx
+// modda nechta reaksiyada uchrashidan chiqadi. Ya'ni o'yin iqtisodiyoti
+// o'ylab topilmagan, kimyoning o'zidan kelib chiqqan.
+model LabItemDef {
+  id     String  @id @default(cuid())
+  kalit  String  @unique // "H₂O", "probirka", "titrlash"
+  nom    String
+  turi   String // "reagent" | "jihoz" | "texnika"
+  guruh  String? // jihoz uchun: shisha, isitish, olchov, himoya, sanoat...
+  icon   String?
+  tavsif String? @db.Text
+
+  // ─── Nodirlik va narx ───
+  nodirlik    String @default("oddiy") // oddiy | kam | nodir | noyob
+  uchraydi    Int    @default(0) // nechta reaksiyada kerak — nodirlik shundan
+  narx        Int    @default(0) // coins; 0 — tanga bilan sotilmaydi
+  sotishNarxi Int    @default(0) // coins; xarid narxidan past
+  gemsNarxi   Int? // to'g'ridan-to'g'ri olmos xaridi (sandiqqa muqobil yo'l)
+
+  // ─── Xossalar ───
+  sarflanadi Boolean @default(false) // ishlatilganda yo'qoladi (filtr qog'ozi)
+  sanoat     Boolean @default(false) // talaba laboratoriyasida bo'lmaydi
+  daraja     Int     @default(1) // ochilishi uchun kerakli laboratoriya darajasi
+
+  // Reaksiyalarni katalogga bog'lash uchun: bazadagi xom equipment/techniques
+  // qiymatlari (bir jihozning bir necha nomi bo'lishi mumkin).
+  xom     Json?
+  oilalar Json? // reagent qaysi reaksiya oilalarida uchraydi
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([turi])
+  @@index([nodirlik])
+  @@index([guruh])
+  @@index([isActive])
+}
+
 model AuditLog {
   id         String   @id @default(cuid())
   adminId    String
