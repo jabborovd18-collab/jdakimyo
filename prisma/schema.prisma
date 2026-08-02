@@ -111,6 +111,9 @@ model User {
   // KIMYOGAR KO'CHAT
   plant Plant?
 
+  // LABORATORIYA
+  lab Lab?
+
   // MUHOKAMA (FORUM)
   forumPosts     ForumPost[] @relation("ForumAuthor")
   forumModerated ForumPost[] @relation("ForumModerator")
@@ -644,10 +647,76 @@ model LabItemDef {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  inventarda LabItem[]
+
   @@index([turi])
   @@index([nodirlik])
   @@index([guruh])
   @@index([isActive])
+}
+
+// Foydalanuvchining laboratoriyasi. Bo'sh boshlanadi — jihozlar sotib
+// olinadi, reagentlar sandiqdan yoki do'kondan keladi.
+model Lab {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  nom     String @default("Mening laboratoriyam")
+  daraja  Int    @default(1)
+  tajriba Int    @default(0) // laboratoriya XP — tajriba o'tkazgan sari o'sadi
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items        LabItem[]
+  transactions LabTransaction[]
+}
+
+// Inventar: kim nimaga ega va nechta.
+//
+// `kalit` LabItemDef ga bog'langan. Katalogdan chiqarilgan yozuv
+// o'chirilmaydi (isActive=false bo'ladi), shuning uchun inventar hech
+// qachon "yo'q narsaga" ishora qilib qolmaydi.
+model LabItem {
+  id    String @id @default(cuid())
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  kalit String
+  def   LabItemDef @relation(fields: [kalit], references: [kalit], onDelete: Restrict)
+
+  soni Int @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([labId, kalit])
+  @@index([labId])
+  @@index([kalit])
+}
+
+// Tanga va olmos harakati.
+//
+// Balansning o'zi yetarli emas: nimadir noto'g'ri ketsa yoki kimdir
+// aldashga urinsa, "qayerdan keldi va qayerga ketdi" degan savolga
+// javob shu jadvaldan chiqadi.
+model LabTransaction {
+  id    String @id @default(cuid())
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  turi      String // "xarid" | "sotish" | "sandiq" | "mukofot"
+  valyuta   String // "coins" | "gems"
+  miqdor    Int // musbat — kelgan, manfiy — ketgan
+  kalit     String? // qaysi buyum bilan bog'liq
+  soni      Int? // nechta dona
+  izoh      String?
+  createdAt DateTime @default(now())
+
+  @@index([labId])
+  @@index([turi])
+  @@index([createdAt])
 }
 
 model AuditLog {
