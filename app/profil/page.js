@@ -9,6 +9,7 @@ import StarsDisplay from '@/components/StarsDisplay'
 import DailyQuoteCard from '@/components/DailyQuoteCard'
 import PlantWidget from '@/components/PlantWidget'
 import ActivityHeatmap from '@/components/ActivityHeatmap'
+import LabWidget from '@/components/LabWidget'
 import { sana } from '@/lib/sana'
 
 // Serverdan javob juda uzoq (yoki umuman) kelmasa, spinner abadiy osilib qolmasligi uchun chegara
@@ -231,6 +232,8 @@ export default function ProfilDashboard() {
       </div>
 
       <ActivityHeatmap />
+
+      <LabWidget />
 
       {/* ═══════════════════════════════════════════ */}
       {/* QUICK ACTIONS */}

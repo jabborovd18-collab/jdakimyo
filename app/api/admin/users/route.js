@@ -4,7 +4,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
-import { ASSIGNABLE_ROLES } from '@/lib/roles'
+import { ASSIGNABLE_ROLES, roleInfo } from '@/lib/roles'
+import { xabarYubor } from '@/lib/bildirishnoma'
 
 /**
  * Vaqtinchalik parol yaratadi.
@@ -219,6 +220,10 @@ export async function PUT(request) {
 
     let updateData = {}
     let message = ''
+    // Foydalanuvchiga yuboriladigan xabar. Har bir amal uni o'zi to'ldiradi:
+    // admin hisobga tegsa, egasi buni bilishi kerak. Avval hech qanday
+    // xabar bo'lmasdi — odam roli o'zgarganini tasodifan sezardi.
+    let xabar = null
     // Faqat parol tiklanganda to'ladi va javobda BIR MARTA qaytariladi —
     // bazada xesh saqlanadi, ya'ni keyin uni hech qayerdan ko'rib bo'lmaydi.
     let vaqtinchalikParol = null
@@ -240,6 +245,12 @@ export async function PUT(request) {
         }
         updateData = { role: data.role }
         message = `Rol ${data.role} ga o'zgartirildi`
+        xabar = {
+          turi: 'rol',
+          sarlavha: `🎖️ Rolingiz o'zgardi: ${roleInfo(data.role).label}`,
+          matn: 'Yangi huquqlar keyingi kirishda kuchga kiradi.',
+          havola: '/profil',
+        }
         break
 
       case 'ban':
@@ -249,6 +260,11 @@ export async function PUT(request) {
           bannedReason: data?.reason || 'Qoidabuzarlik'
         }
         message = 'Foydalanuvchi bloklandi'
+        xabar = {
+          turi: 'blok',
+          sarlavha: '⛔ Hisobingiz bloklandi',
+          matn: `Sabab: ${data?.reason || 'Qoidabuzarlik'}`,
+        }
         break
 
       case 'unban':
@@ -258,6 +274,12 @@ export async function PUT(request) {
           bannedReason: null
         }
         message = 'Foydalanuvchi ochildi'
+        xabar = {
+          turi: 'blok-olindi',
+          sarlavha: '🔓 Hisobingiz blokdan chiqarildi',
+          matn: 'Saytdan yana to\'liq foydalanishingiz mumkin.',
+          havola: '/profil',
+        }
         break
 
       case 'resetPassword': {
@@ -278,6 +300,15 @@ export async function PUT(request) {
         vaqtinchalikParol = parolYarat()
         updateData = { password: await bcrypt.hash(vaqtinchalikParol, 12) }
         message = 'Yangi vaqtinchalik parol yaratildi'
+        // Parolning o'zi xabarga YOZILMAYDI: bildirishnoma bazada ochiq
+        // matnda turadi va uni ko'rgan har kim hisobga kira olardi. Admin
+        // parolni foydalanuvchiga boshqa yo'l bilan yetkazadi.
+        xabar = {
+          turi: 'parol',
+          sarlavha: '🔑 Parolingiz administrator tomonidan tiklandi',
+          matn: 'Yangi vaqtinchalik parolni administratordan oling va kirgach uni o\'zgartiring.',
+          havola: '/profil/sozlama',
+        }
 
         // Kim, kimga va qachon — javobgarlik uchun qaydnomaga yoziladi
         await prisma.auditLog.create({
@@ -315,6 +346,10 @@ export async function PUT(request) {
         bannedReason: true
       }
     })
+
+    if (xabar) {
+      await xabarYubor(userId, { ...xabar, adminId: session.user.id })
+    }
 
     return NextResponse.json({
       success: true,

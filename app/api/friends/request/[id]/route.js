@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { xabarYubor } from '@/lib/bildirishnoma'
 
 export async function PUT(request, { params }) {
   try {
@@ -60,8 +61,15 @@ export async function PUT(request, { params }) {
         })
       })
 
-      return NextResponse.json({ 
-        success: true, 
+      // Taklif yuborgan odam javobni ko'rsin — u kutib turgan tomon
+      await xabarYubor(friendRequest.senderId, {
+        turi: 'dost',
+        sarlavha: `👥 ${session.user.fullName || session.user.username} do'stlik taklifingizni qabul qildi`,
+        havola: '/profil/dostlar',
+      })
+
+      return NextResponse.json({
+        success: true,
         message: `✓ ${friendRequest.sender.fullName || friendRequest.sender.username} bilan do'st bo'ldingiz!`
       })
 

@@ -46,6 +46,7 @@ export default async function AdminLayout({ children }) {
         { name: 'Missiyalar', href: '/admin/missions', icon: '🎯' },
         { name: 'Yutuqlar', href: '/admin/achievements', icon: '🏆' },
         { name: 'Leaderboard', href: '/admin/leaderboard', icon: '⭐' },
+        { name: 'Pul nazorati', href: '/admin/pul', icon: '🪙' },
       ]
     },
     {

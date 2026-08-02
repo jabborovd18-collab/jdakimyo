@@ -6,14 +6,19 @@ import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { isAdminRole, isTeacherRole, roleInfo } from '@/lib/roles'
+import { useBildirishnomaSanoq } from '@/lib/use-bildirishnoma'
 
 // Menyu guruhlarga bo'lingan. Avval 15+ havola bitta uzun ro'yxatda edi —
 // guruhlar kodda mavjud bo'lsa-da, render qilishdan oldin flat qilinardi.
+//
+// `belgi` — qaysi sondan qizil nishon chiqishi. Kalit /api/bildirishnomalar
+// qaytaradigan `sanoq` obyektidan olinadi.
 const MENU_GROUPS = [
   {
     title: 'Asosiy',
     items: [
       { href: '/profil', label: 'Dashboard', icon: '📊', exact: true },
+      { href: '/profil/bildirishnomalar', label: 'Bildirishnomalar', icon: '🔔', belgi: 'oqilmagan' },
       { href: '/profil/faoliyat', label: 'Faoliyat', icon: '📈' },
     ],
   },
@@ -38,7 +43,7 @@ const MENU_GROUPS = [
   {
     title: 'Ijtimoiy',
     items: [
-      { href: '/profil/dostlar', label: "Do'stlar", icon: '👥' },
+      { href: '/profil/dostlar', label: "Do'stlar", icon: '👥', belgi: 'dostTaklifi' },
       { href: '/profil/obunachilar', label: 'Obunachilar', icon: '👤' },
       { href: '/profil/obunalar', label: 'Obunalar', icon: '👁️' },
     ],
@@ -52,10 +57,34 @@ const MENU_GROUPS = [
   },
 ]
 
+// Tailwind sinflari to'liq yozilishi shart — `bg-${rang}-600/20` kabi
+// yig'ilgan nom build paytida topilmaydi va uslub umuman chiqmaydi.
+const PANEL_RANGI = {
+  orange: 'bg-orange-600/20 hover:bg-orange-600/30 border-orange-600/40 text-orange-300',
+  green: 'bg-green-600/20 hover:bg-green-600/30 border-green-600/40 text-green-300',
+  cyan: 'bg-cyan-600/20 hover:bg-cyan-600/30 border-cyan-600/40 text-cyan-300',
+}
+
+/**
+ * Qizil nishon.
+ *
+ * 99 dan oshsa "99+" bo'ladi: uch xonali son yonidagi matnni surib
+ * yuborardi va menyu qatori buzilardi.
+ */
+function Nishon({ soni }) {
+  if (!soni) return null
+  return (
+    <span className="ml-auto min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[11px] font-bold leading-none">
+      {soni > 99 ? '99+' : soni}
+    </span>
+  )
+}
+
 export default function ProfilLayout({ children }) {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { sanoq } = useBildirishnomaSanoq()
 
   // Sahifa almashganda mobil menyu ochiq qolib ketmasin
   useEffect(() => {
@@ -100,6 +129,9 @@ export default function ProfilLayout({ children }) {
   if (isTeacherRole(role)) {
     panels.push({ href: '/ustoz', label: 'Ustoz paneli', icon: '👨‍🏫', accent: 'green' })
   }
+  // Laboratoriya hammada bor. U ham tashqi bo'lim: o'z sarlavhasi va
+  // to'liq ekrani bilan ochiladi, profil menyusi ichida qolmaydi.
+  panels.push({ href: '/laboratoriya', label: 'Laboratoriyam', icon: '🔬', accent: 'cyan' })
 
   const isActive = (item) => {
     if (item.exact) return pathname === item.href
@@ -146,6 +178,21 @@ export default function ProfilLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Qo'ng'iroq — mobilda ham ko'rinadi, chunki u yerda yon menyu
+                yopiq turadi va nishonlar ko'rinmaydi */}
+            <Link
+              href="/profil/bildirishnomalar"
+              className="relative p-2 rounded-xl hover:bg-purple-900/60 transition-colors"
+              aria-label="Bildirishnomalar"
+            >
+              <span className="text-xl">🔔</span>
+              {sanoq.oqilmagan > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none border-2 border-purple-950">
+                  {sanoq.oqilmagan > 99 ? '99+' : sanoq.oqilmagan}
+                </span>
+              )}
+            </Link>
+
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-semibold">{user.fullName || user.username}</div>
@@ -222,9 +269,7 @@ export default function ProfilLayout({ children }) {
                     href={panel.href}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all border
-                      ${panel.accent === 'orange'
-                        ? 'bg-orange-600/20 hover:bg-orange-600/30 border-orange-600/40 text-orange-300'
-                        : 'bg-green-600/20 hover:bg-green-600/30 border-green-600/40 text-green-300'}
+                      ${PANEL_RANGI[panel.accent] || PANEL_RANGI.green}
                     `}
                   >
                     <span className="text-lg w-6">{panel.icon}</span>
@@ -259,6 +304,7 @@ export default function ProfilLayout({ children }) {
                         >
                           <span className="text-base w-5">{item.icon}</span>
                           <span>{item.label}</span>
+                          {item.belgi && <Nishon soni={sanoq[item.belgi]} />}
                         </Link>
                       )
                     })}

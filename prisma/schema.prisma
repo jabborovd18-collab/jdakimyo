@@ -53,6 +53,16 @@ model User {
   // gems  — ruda namunasi va nodir reagent, kam topiladi (keyinchalik xarid)
   coins                Int   @default(0)
   gems                 Int   @default(0)
+
+  // ─── Sarflash taqiqi ───
+  // Superadmin qo'yadi: hisob to'xtatilmaydi (o'qish, quiz, missiya
+  // ishlayveradi), faqat XARID qilish yopiladi. Muddat majburiy — taqiq
+  // o'zi ochilsin, kimdir uni olib tashlashni unutib qo'ymasin.
+  //
+  // Tanga ham, olmos ham to'siladi: faqat tangani to'ssak, olmos bilan
+  // aylanib o'tish mumkin bo'lardi va taqiqning ma'nosi qolmasdi.
+  spendBlockedUntil  DateTime?
+  spendBlockedReason String?
   privacySettings      Json  @default("{\"profilePublic\": true, \"showFriends\": true, \"showQuizResults\": true, \"showAchievements\": true, \"showFollowers\": true}")
   notificationSettings Json?
   interfaceSettings    Json?
@@ -107,6 +117,10 @@ model User {
 
   // Kimyogar tasdiqlagan reaksiyalar
   verifiedReactions Reaction[] @relation("ReactionVerifier")
+
+  // BILDIRISHNOMALAR
+  notifications     Notification[] @relation("NotificationUser")
+  sentNotifications Notification[] @relation("NotificationAdmin")
 
   // KIMYOGAR KO'CHAT
   plant Plant?
@@ -757,6 +771,41 @@ model LabTransaction {
   @@index([labId])
   @@index([turi])
   @@index([createdAt])
+}
+
+// Foydalanuvchiga yuboriladigan bildirishnoma.
+//
+// Nega kerak: admin hisobga tegsa (tanga berdi, xarid taqiqini qo'ydi,
+// rolni o'zgartirdi) foydalanuvchi buni hech qayerdan bilmasdi — balansi
+// o'zgarganini keyingi kirganida ko'rardi va sababini tushunmasdi.
+// AuditLog bor, lekin u ADMIN uchun: javobgarlik qaydnomasi. Bu esa
+// foydalanuvchi uchun.
+//
+// `adminId` — kim qilgani. Admin hisobi o'chirilsa bog'lanish uziladi,
+// lekin xabarning o'zi qoladi: foydalanuvchi nima bo'lganini bilishi
+// kerak, kim qilgani keyin ma'lum bo'lmasa ham.
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("NotificationUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  turi     String // tanga | olmos | taqiq | taqiq-olindi | rol | blok | sertifikat | dost | tizim
+  sarlavha String
+  matn     String? @db.Text
+  havola   String? // bosilganda qayerga o'tadi
+  icon     String?
+
+  oqilgan     Boolean   @default(false)
+  oqilganVaqt DateTime?
+
+  adminId String?
+  admin   User?   @relation("NotificationAdmin", fields: [adminId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, oqilgan])
+  @@index([userId, createdAt])
+  @@index([adminId])
 }
 
 model AuditLog {

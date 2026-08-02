@@ -7,6 +7,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAdminAuth } from '@/lib/admin-auth'
+import { xabarYubor } from '@/lib/bildirishnoma'
 
 /**
  * Sertifikat raqamini yaratadi: JDA-2026-K7M2QP
@@ -190,6 +191,14 @@ export async function POST(request) {
         { status: 500 }
       )
     }
+
+    await xabarYubor(user.id, {
+      turi: 'sertifikat',
+      sarlavha: `📜 Sizga "${fan}" bo'yicha sertifikat berildi`,
+      matn: `${reason}. Sertifikat raqami: ${certificate.certId}`,
+      havola: '/profil/sertifikatlar',
+      adminId: admin.id,
+    })
 
     return NextResponse.json({
       success: true,

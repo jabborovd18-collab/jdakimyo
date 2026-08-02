@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { completeMission } from '@/lib/missions' // 🆕 Import
+import { xabarYubor } from '@/lib/bildirishnoma'
 
 // ─── GET: menga kelgan, javob kutayotgan do'stlik takliflari ───
 //
@@ -135,6 +136,15 @@ export async function POST(request) {
           }
         }
       }
+    })
+
+    // Qabul qiluvchi taklif kelganini bilsin: kabinetdagi qizil belgi
+    // aynan shu yozuvdan chiqadi
+    await xabarYubor(receiverId, {
+      turi: 'dost',
+      sarlavha: `👥 ${friendRequest.sender.fullName || friendRequest.sender.username} do'stlik taklifi yubordi`,
+      matn: message || null,
+      havola: '/profil/dostlar',
     })
 
     // 🆕 MISSIYANI AVTOMATIK BAJARISH

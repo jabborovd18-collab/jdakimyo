@@ -59,6 +59,7 @@ export default function Home() {
     { href: "/ilmiy", label: "Ilmiy" },
     { href: "/birikmalar", label: "Birikmalar" },
     { href: "/oquv/video-darsliklar", label: "Video & Quiz" },
+    { href: "/laboratoriya", label: "Laboratoriya" },
   ]
 
   // Rolga qarab bosh sahifadagi shaxsiy panel plitkasi (kabinet / ustoz / admin)
@@ -372,6 +373,21 @@ export default function Home() {
                           </div>
                           <span className="text-purple-500 group-hover:text-yellow-400 group-hover:translate-x-1 transition-all">→</span>
                         </Link>
+
+                        <Link
+                          href="/laboratoriya"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-purple-800/50 transition-all group"
+                        >
+                          <span className="text-xl">🔬</span>
+                          <div className="flex-1">
+                            <div className="text-sm font-semibold text-white group-hover:text-yellow-400 transition-colors">
+                              Laboratoriyam
+                            </div>
+                            <div className="text-xs text-purple-400">Inventar, tajriba, do'kon</div>
+                          </div>
+                          <span className="text-purple-500 group-hover:text-yellow-400 group-hover:translate-x-1 transition-all">→</span>
+                        </Link>
                       </div>
 
                       {/* Divider */}
@@ -676,6 +692,24 @@ export default function Home() {
             desc={roleTile.desc}
             tags={[]}
             delay={320}
+          />
+
+          {/* 06 LABORATORIYA — butun kenglikda: bu boshqalardan farqli o'laroq
+              o'qish emas, ishlash joyi. Uchinchi qatorni to'liq egallaydi,
+              shunda tarmoq bo'sh katakcha bilan qolmaydi. */}
+          <SpotlightCard
+            href="/laboratoriya"
+            className="lg:col-span-3 from-cyan-600/20 to-teal-900/40"
+            glow="bg-cyan-500"
+            index="06"
+            indexClass="bg-cyan-600/30 text-cyan-300"
+            icon="🔬"
+            iconSize="text-5xl md:text-6xl"
+            title="Virtual laboratoriya"
+            desc="Reagent yig'ing, jihoz oling va tajriba o'tkazing — reaksiya nima berishini o'zingiz ko'rasiz"
+            tags={["200 dan ortiq reaksiya", "Inventar va do'kon", "Kashfiyot daftari"]}
+            featuredTag={{ icon: "🧪", label: "Yangi" }}
+            delay={400}
           />
 
         </div>
