@@ -666,6 +666,11 @@ model Lab {
   daraja  Int    @default(1)
   tajriba Int    @default(0) // laboratoriya XP — tajriba o'tkazgan sari o'sadi
 
+  // Kunlik sandiq oxirgi marta qachon olingani. Kun chegarasi UTC yarim
+  // tuni — kunlik missiyalar bilan bir xil, aks holda "bugun" ikki xil
+  // ma'noda ishlatilardi.
+  oxirgiKunlikSandiq DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

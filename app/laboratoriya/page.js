@@ -36,6 +36,9 @@ export default function LaboratoriyaPage() {
   const [xato, setXato] = useState('')
 
   const [tab, setTab] = useState('inventar')
+  const [sandiqlar, setSandiqlar] = useState([])
+  const [ochilmoqda, setOchilmoqda] = useState(null)
+  const [natija, setNatija] = useState(null)
   const [turFiltr, setTurFiltr] = useState('all')
   const [guruhFiltr, setGuruhFiltr] = useState('all')
   const [qidiruv, setQidiruv] = useState('')
@@ -74,6 +77,42 @@ export default function LaboratoriyaPage() {
     }, 300)
     return () => clearTimeout(kutish)
   }, [tab, turFiltr, guruhFiltr, qidiruv, kirmagan])
+
+  const sandiqlarniYukla = useCallback(async () => {
+    try {
+      const res = await fetch('/api/laboratoriya/sandiq')
+      const data = await res.json()
+      if (res.ok) setSandiqlar(data.sandiqlar)
+    } catch {
+      // jim — sahifaning qolgan qismi ishlayveradi
+    }
+  }, [])
+
+  useEffect(() => {
+    if (tab === 'sandiq' && !kirmagan) sandiqlarniYukla()
+  }, [tab, kirmagan, sandiqlarniYukla])
+
+  const sandiqOch = async (kalit) => {
+    setOchilmoqda(kalit)
+    setNatija(null)
+    try {
+      const res = await fetch('/api/laboratoriya/sandiq', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kalit }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setNatija(data)
+      setHolat((h) => (h ? { ...h, balans: { ...h.balans, ...data.balans } } : h))
+      holatniYukla()
+      sandiqlarniYukla()
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setOchilmoqda(null)
+    }
+  }
 
   const savdo = async (amal, kalit, soni = 1, valyuta = 'coins') => {
     setIshlamoqda(kalit + amal)
@@ -179,6 +218,7 @@ export default function LaboratoriyaPage() {
         <div className="flex gap-2">
           {[
             { id: 'inventar', nom: `🎒 Inventar (${inventar.length})` },
+            { id: 'sandiq', nom: '🎁 Sandiqlar' },
             { id: 'dokon', nom: '🏪 Do\'kon' },
           ].map((t) => (
             <button
@@ -248,6 +288,108 @@ export default function LaboratoriyaPage() {
               ))}
             </div>
           )
+        )}
+
+        {/* ─── SANDIQLAR ─── */}
+        {tab === 'sandiq' && (
+          <div className="space-y-4">
+            {/* Ochilgan sandiq natijasi */}
+            {natija && (
+              <div className="rounded-2xl border border-yellow-600/50 bg-gradient-to-br from-yellow-950/50 to-orange-950/40 p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">{natija.sandiq.icon}</span>
+                  <h3 className="font-bold text-yellow-300">{natija.sandiq.nom} ochildi</h3>
+                  <button
+                    onClick={() => setNatija(null)}
+                    className="ml-auto text-purple-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {natija.tushgan.map((t) => {
+                    const n = NODIRLIK[t.nodirlik] || NODIRLIK.oddiy
+                    return (
+                      <div key={t.kalit} className={`rounded-xl border p-3 text-center ${n.rang}`}>
+                        <div className="text-2xl">{t.icon || '⚗️'}</div>
+                        <div className="font-semibold text-white text-sm mt-1">{t.nom}</div>
+                        <div className={`text-[10px] ${n.matn}`}>{n.nom}</div>
+                        <div className="text-xs text-white/80 mt-1">×{t.soni}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {sandiqlar.map((s) => {
+                const bepul = !s.narx
+                const narxMatn = bepul
+                  ? 'Bepul'
+                  : s.narx.gems
+                    ? `${s.narx.gems} 💎`
+                    : `${s.narx.coins} 🪙`
+                return (
+                  <div
+                    key={s.kalit}
+                    className="rounded-2xl border border-purple-800/50 bg-slate-900/60 p-5 flex flex-col"
+                  >
+                    <div className="text-4xl text-center">{s.icon}</div>
+                    <h3 className="font-bold text-white text-center mt-2">{s.nom}</h3>
+                    <p className="text-[11px] text-purple-300/80 leading-relaxed mt-2 flex-1">
+                      {s.tavsif}
+                    </p>
+
+                    {/* Ehtimollar oshkora ko'rsatiladi */}
+                    <div className="mt-3 pt-3 border-t border-purple-800/40">
+                      <div className="text-[10px] text-purple-400 uppercase tracking-wider mb-1.5">
+                        Tushish ehtimoli · {s.buyumSoni} ta buyum
+                      </div>
+                      <div className="space-y-1">
+                        {Object.entries(s.ehtimollar)
+                          .filter(([, v]) => v > 0)
+                          .map(([nodirlik, foiz]) => {
+                            const n = NODIRLIK[nodirlik] || NODIRLIK.oddiy
+                            return (
+                              <div key={nodirlik} className="flex items-center justify-between text-[11px]">
+                                <span className={n.matn}>{n.nom}</span>
+                                <span className="text-white/70">{foiz}%</span>
+                              </div>
+                            )
+                          })}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => sandiqOch(s.kalit)}
+                      disabled={ochilmoqda === s.kalit || s.ochilgan}
+                      className={`mt-4 w-full py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50 ${
+                        s.ochilgan
+                          ? 'bg-slate-800 text-purple-400 border border-purple-800/50'
+                          : bepul
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-black'
+                            : s.narx.gems
+                              ? 'bg-cyan-700/80 hover:bg-cyan-600 text-white'
+                              : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
+                      }`}
+                    >
+                      {ochilmoqda === s.kalit
+                        ? '⏳ Ochilmoqda...'
+                        : s.ochilgan
+                          ? '✓ Bugun olingan'
+                          : `Ochish · ${narxMatn}`}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+
+            <p className="text-center text-[11px] text-purple-500">
+              Nima tushishi server tomonda hal qilinadi. Ehtimollar yuqorida ko'rsatilgan
+              va o'zgartirilmaydi.
+            </p>
+          </div>
         )}
 
         {/* ─── DO'KON ─── */}
