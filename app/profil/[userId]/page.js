@@ -5,6 +5,63 @@ import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { sana } from '@/lib/sana'
+
+// Ochiq profilda ko'rsatiladigan havolalar. `to'liq` — qiymat allaqachon
+// to'liq manzil bo'lsa (website, orcid), aks holda oldiga sayt qo'shiladi.
+const HAVOLALAR = [
+  { kalit: 'telegram', nom: 'Telegram', icon: '✈️', oldi: 'https://t.me/' },
+  { kalit: 'instagram', nom: 'Instagram', icon: '📷', oldi: 'https://instagram.com/' },
+  { kalit: 'twitter', nom: 'X', icon: '𝕏', oldi: 'https://x.com/' },
+  { kalit: 'github', nom: 'GitHub', icon: '💻', oldi: 'https://github.com/' },
+  { kalit: 'linkedin', nom: 'LinkedIn', icon: '💼', oldi: 'https://linkedin.com/in/' },
+  { kalit: 'googleScholar', nom: 'Scholar', icon: '🎓', toliq: true },
+  { kalit: 'orcid', nom: 'ORCID', icon: '🆔', oldi: 'https://orcid.org/' },
+  { kalit: 'website', nom: 'Sayt', icon: '🌐', toliq: true },
+]
+
+function IjtimoiyHavolalar({ user }) {
+  const bor = HAVOLALAR.filter((h) => user[h.kalit])
+  if (bor.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap gap-2 mt-4">
+      {bor.map((h) => {
+        const qiymat = String(user[h.kalit]).trim()
+        // Foydalanuvchi ba'zan to'liq manzil, ba'zan faqat nikni yozadi —
+        // ikkalasi ham ishlashi kerak
+        const manzil = /^https?:\/\//i.test(qiymat)
+          ? qiymat
+          : h.toliq
+            ? `https://${qiymat}`
+            : h.oldi + qiymat.replace(/^@/, '')
+
+        return (
+          <a
+            key={h.kalit}
+            href={manzil}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-800/40 hover:bg-purple-700/60 border border-purple-600/40 rounded-lg text-xs text-purple-200 hover:text-white transition-all"
+          >
+            <span>{h.icon}</span>
+            <span>{h.nom}</span>
+          </a>
+        )
+      })}
+    </div>
+  )
+}
+
+function Stat({ icon, qiymat, nom, rang }) {
+  return (
+    <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-4 backdrop-blur-sm text-center">
+      <div className="text-2xl mb-1">{icon}</div>
+      <div className={`text-xl font-bold mb-0.5 ${rang}`}>{qiymat}</div>
+      <div className="text-[11px] text-purple-300">{nom}</div>
+    </div>
+  )
+}
 
 export default function PublicProfilePage() {
   const { data: session } = useSession()
@@ -171,20 +228,35 @@ export default function PublicProfilePage() {
       <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
         <div className="bg-red-900/20 border border-red-700/50 rounded-2xl p-8 max-w-md text-center">
           <div className="text-6xl mb-4">😕</div>
-          <h2 className="text-2xl font-bold text-red-400 mb-2">Profil topilmadi</h2>
-          <p className="text-purple-300 mb-6">{error || "Noma'lum xatolik"}</p>
-          <Link
-            href="/profil"
-            className="inline-block px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
-          >
-            ← Profilga qaytish
-          </Link>
+          <h2 className="text-2xl font-bold text-red-400 mb-2">Profil ochilmadi</h2>
+          <p className="text-purple-300 text-sm mb-6 break-words">{error || "Noma'lum xatolik"}</p>
+
+          {/* Qayta urinish tugmasi shart: xato ko'pincha profil yo'qligidan
+              emas, baza javob bermaganidan bo'ladi. Avval yagona yo'l orqaga
+              qaytish edi — foydalanuvchi profil o'chirilgan deb o'ylardi. */}
+          <div className="flex gap-2 justify-center flex-wrap">
+            <button
+              onClick={fetchProfile}
+              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
+            >
+              🔄 Qayta urinish
+            </button>
+            <Link
+              href="/profil"
+              className="px-6 py-3 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl font-semibold"
+            >
+              ← Profilga qaytish
+            </Link>
+          </div>
         </div>
       </main>
     )
   }
 
-  const { user, friends, achievements, quizResults, followersCount, followingCount } = profile
+  const {
+    user, friends, achievements, quizResults, certificates,
+    followersCount, followingCount,
+  } = profile
   const roleLabels = {
     bakalavr: '🎓 Bakalavr',
     magistr: '📚 Magistr',
@@ -253,11 +325,21 @@ export default function PublicProfilePage() {
                   {user.faculty && <span className="text-purple-400">• {user.faculty}</span>}
                 </div>
               )}
+              {user.location && (
+                <div className="text-purple-300 text-sm mb-2 flex items-center gap-2">
+                  <span>📍</span>
+                  <span>{user.location}</span>
+                </div>
+              )}
               {user.bio && (
                 <p className="text-purple-200 mt-3 leading-relaxed max-w-2xl italic">
                   &ldquo;{user.bio}&rdquo;
                 </p>
               )}
+
+              {/* Havolalar sozlamalarda to'ldirilardi-yu, hech qayerda
+                  ko'rinmasdi — kiritishning ma'nosi yo'q edi */}
+              <IjtimoiyHavolalar user={user} />
             </div>
 
             {/* Action Buttons */}
@@ -348,34 +430,24 @@ export default function PublicProfilePage() {
           </div>
         </div>
 
-        {/* Stats - 🆕 FOLLOWERS/FOLLOWING QO'SHILDI */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm">
-            <div className="text-3xl mb-2">🎯</div>
-            <div className="text-3xl font-bold text-yellow-400 mb-1">Lvl {user.level_points}</div>
-            <div className="text-xs text-purple-300">Daraja</div>
-          </div>
-          <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm">
-            <div className="text-3xl mb-2">⭐</div>
-            <div className="text-3xl font-bold text-yellow-400 mb-1">{user.totalPoints}</div>
-            <div className="text-xs text-purple-300">Umumiy ball</div>
-          </div>
-          <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 backdrop-blur-sm">
-            <div className="text-3xl mb-2">👥</div>
-            <div className="text-3xl font-bold text-yellow-400 mb-1">{friends.length}</div>
-            <div className="text-xs text-purple-300">Do'stlar</div>
-          </div>
-          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-5 backdrop-blur-sm">
-            <div className="text-3xl mb-2">👤</div>
-            <div className="text-3xl font-bold text-cyan-400 mb-1">{followersCount}</div>
-            <div className="text-xs text-purple-300">Obunachilar</div>
-          </div>
-          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-5 backdrop-blur-sm">
-            <div className="text-3xl mb-2">👁️</div>
-            <div className="text-3xl font-bold text-cyan-400 mb-1">{followingCount}</div>
-            <div className="text-xs text-purple-300">Obuna bo'lgan</div>
-          </div>
+        {/* Statistika */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
+          <Stat icon="🎯" qiymat={`Lvl ${user.level_points}`} nom="Daraja" rang="text-yellow-400" />
+          <Stat icon="⭐" qiymat={user.totalPoints} nom="Umumiy ball" rang="text-yellow-400" />
+          <Stat icon="🌟" qiymat={user.stars ?? 0} nom="Yulduz" rang="text-yellow-300" />
+          <Stat icon="🔥" qiymat={user.currentStreak ?? 0} nom="Kunlik seriya" rang="text-orange-400" />
+          <Stat icon="👥" qiymat={friends.length} nom="Do'stlar" rang="text-yellow-400" />
+          <Stat icon="👤" qiymat={followersCount} nom="Obunachilar" rang="text-cyan-400" />
+          <Stat icon="👁️" qiymat={followingCount} nom="Obuna bo'lgan" rang="text-cyan-400" />
         </div>
+
+        {/* A'zolik sanasi */}
+        {user.createdAt && (
+          <div className="text-center text-xs text-purple-500 mb-6">
+            JDA KIMYO a'zosi · {sana(user.createdAt)} dan beri
+            {user.longestStreak > 0 && ` · eng uzun seriyasi ${user.longestStreak} kun`}
+          </div>
+        )}
 
         {/* Achievements */}
         {achievements.length > 0 && (
@@ -390,6 +462,71 @@ export default function PublicProfilePage() {
                   <div className="text-4xl mb-2">{achievement.icon}</div>
                   <div className="font-semibold text-sm text-white mb-1">{achievement.name}</div>
                   <div className="text-xs text-purple-400">{achievement.description}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Sertifikatlar — admin bergan, QR bilan tekshiriladigan hujjatlar */}
+        {certificates?.length > 0 && (
+          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <span>📜</span>
+              Sertifikatlar ({certificates.length})
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {certificates.slice(0, 6).map(sert => (
+                <Link
+                  key={sert.id}
+                  href={`/sertifikat/verify/${sert.certId}`}
+                  className="bg-purple-950/50 rounded-xl p-4 border border-purple-700/30 hover:border-yellow-500/50 transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">🏅</span>
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm text-white">{sert.fan}</div>
+                      <div className="text-xs text-purple-400 mt-0.5">{sert.reason}</div>
+                      <div className="text-[10px] text-purple-500 mt-1 font-mono">
+                        {sert.certId} · {sana(sert.issuedAt)}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quiz natijalari — maxfiylik sozlamasi ruxsat bergan bo'lsa keladi.
+            Avval ular API dan olinardi-yu, sahifada umuman chizilmasdi. */}
+        {quizResults?.length > 0 && (
+          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <span>📝</span>
+              Oxirgi quiz natijalari
+            </h2>
+            <div className="space-y-2">
+              {quizResults.slice(0, 5).map(natija => (
+                <div
+                  key={natija.id}
+                  className="bg-purple-950/50 rounded-xl px-4 py-3 flex items-center justify-between gap-3 border border-purple-700/30"
+                >
+                  <div className="min-w-0">
+                    <div className="font-semibold text-sm text-white truncate">{natija.quizName}</div>
+                    <div className="text-[11px] text-purple-400">{sana(natija.completedAt)}</div>
+                  </div>
+                  <div
+                    className={`text-xl font-bold flex-shrink-0 ${
+                      natija.percentage >= 80
+                        ? 'text-green-400'
+                        : natija.percentage >= 60
+                          ? 'text-yellow-400'
+                          : 'text-red-400'
+                    }`}
+                  >
+                    {natija.percentage}%
+                  </div>
                 </div>
               ))}
             </div>

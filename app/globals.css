@@ -5,6 +5,8 @@
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
+  /* Urg'u rangi — lib/interfeys.js foydalanuvchi tanloviga qarab almashtiradi */
+  --jda-urgu: #facc15;
 }
 
 body {
@@ -16,6 +18,59 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-syne), Arial, sans-serif;
   letter-spacing: -0.02em;
+}
+
+/* ═══ Interfeys sozlamalari ═══════════════════════════════════════
+   Qiymatlar <html> ustidagi data-* atributlaridan keladi
+   (components/InterfeysQollovchi.jsx qo'yadi). Ranglar 585 faylda
+   to'g'ridan-to'g'ri yozilgani uchun mavzu almashtirib bo'lmaydi —
+   quyidagilar esa butun saytga BIR QOIDA bilan ta'sir qiladi. */
+
+::selection {
+  background: var(--jda-urgu);
+  color: #0a0a0a;
+}
+
+:focus-visible {
+  outline: 2px solid var(--jda-urgu);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--jda-urgu) 55%, #4c1d95);
+  border-radius: 8px;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #1e1b4b;
+}
+
+/* Animatsiyalarni butunlay o'chirish. Sekin qurilmada 3D sahifalar va
+   uzun o'tishlar sezilarli yuk beradi; bu tanlov ularni bir joyda
+   to'xtatadi. `!important` shart, chunki qoidalar Tailwind sinflari
+   ichida yozilgan. */
+html[data-animatsiya='ochiq'] *,
+html[data-animatsiya='ochiq'] *::before,
+html[data-animatsiya='ochiq'] *::after {
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001s !important;
+  scroll-behavior: auto !important;
+}
+
+/* Yuqori kontrast: xira ko'k-siyohrang matn sinflari yorug'roq bo'ladi.
+   Saytda ular eng ko'p ishlatiladigan ikkinchi darajali matn ranglari. */
+html[data-kontrast='yuqori'] .text-purple-500,
+html[data-kontrast='yuqori'] .text-purple-400,
+html[data-kontrast='yuqori'] .text-purple-300 {
+  color: #ede9fe !important;
+}
+html[data-kontrast='yuqori'] .text-slate-400,
+html[data-kontrast='yuqori'] .text-slate-500 {
+  color: #e2e8f0 !important;
 }
 
 /* ─── Ilmiy bo'lim: d-orbital ajralishi (app/ilmiy/page.js) ───────────

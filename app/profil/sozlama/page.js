@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
+import {
+  SHRIFTLAR, URGU_RANGLARI, ODDIY_INTERFEYS, keshlaVaQoll, tozala,
+} from '@/lib/interfeys'
 
 const SECTIONS = [
   { id: 'personal', label: 'Shaxsiy', icon: '👤', color: 'purple' },
@@ -80,13 +83,9 @@ export default function SozlamaPage() {
       weekly_report: true
     },
     
-    // Interfeys
-    interfaceSettings: {
-      language: 'uz',
-      timezone: 'Asia/Tashkent',
-      dateFormat: 'DD.MM.YYYY',
-      theme: 'dark'
-    },
+    // Interfeys — oddiy qiymatlar lib/interfeys.js da, chunki ularni
+    // qo'llaydigan komponent ham o'sha ro'yxatga qaraydi
+    interfaceSettings: { ...ODDIY_INTERFEYS },
     
     // O'rganish
     learningPreferences: {
@@ -141,7 +140,7 @@ export default function SozlamaPage() {
           orcid: u.orcid || '',
           
           notificationSettings: u.notificationSettings || prev.notificationSettings,
-          interfaceSettings: u.interfaceSettings || prev.interfaceSettings,
+          interfaceSettings: tozala(u.interfaceSettings),
           learningPreferences: u.learningPreferences || prev.learningPreferences
         }))
       }
@@ -158,10 +157,16 @@ export default function SozlamaPage() {
   }
 
   const updateNested = (section, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: { ...prev[section], [field]: value }
-    }))
+    setFormData(prev => {
+      const yangi = { ...prev, [section]: { ...prev[section], [field]: value } }
+
+      // Interfeys sozlamasi DARHOL qo'llanadi — saqlashni kutmaydi.
+      // Nega: shrift yoki rang tanlaganda natijani ko'rmasdan qaror qabul
+      // qilib bo'lmaydi. "Saqlash" tugmasi faqat serverga yozadi.
+      if (section === 'interfaceSettings') keshlaVaQoll(yangi.interfaceSettings)
+
+      return yangi
+    })
     setHasChanges(true)
   }
 
@@ -656,10 +661,89 @@ export default function SozlamaPage() {
                   </div>
                 </div>
 
-                <div className="bg-purple-950/30 border border-purple-800/50 rounded-xl p-4">
-                  <div className="flex items-center gap-2 text-sm text-purple-300">
-                    <span>💡</span>
-                    <span>Mavzu tanlash va boshqa kengaytirilgan sozlamalar tez orada qo'shiladi.</span>
+                {/* ─── Ko'rinish: o'zgarish darhol qo'llanadi ─── */}
+                <div className="pt-4 border-t border-purple-800/50">
+                  <h4 className="text-sm font-bold text-yellow-300 mb-1">🖌️ Ko'rinish</h4>
+                  <p className="text-[11px] text-purple-400 mb-3">
+                    Quyidagilar butun saytga darhol qo'llanadi — natijani shu yerda
+                    ko'rasiz, "Saqlash" esa tanlovingizni hisobingizga yozadi.
+                  </p>
+
+                  <label className="text-sm text-purple-300 mb-2 block font-semibold">
+                    🔠 Shrift o'lchami
+                  </label>
+                  <div className="grid grid-cols-4 gap-2 mb-4">
+                    {SHRIFTLAR.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => updateNested('interfaceSettings', 'shrift', s.id)}
+                        className={`py-3 rounded-xl border-2 transition-all ${
+                          formData.interfaceSettings.shrift === s.id
+                            ? 'bg-green-600/20 border-green-500 text-green-300'
+                            : 'bg-purple-950/30 border-purple-800/50 text-purple-300 hover:border-purple-600'
+                        }`}
+                      >
+                        <div style={{ fontSize: s.px }} className="font-bold leading-none">Aa</div>
+                        <div className="text-[10px] mt-1.5">{s.nom}</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  <label className="text-sm text-purple-300 mb-2 block font-semibold">
+                    🎨 Urg'u rangi
+                  </label>
+                  <div className="flex gap-2 mb-2 flex-wrap">
+                    {URGU_RANGLARI.map(u => (
+                      <button
+                        key={u.id}
+                        onClick={() => updateNested('interfaceSettings', 'urgu', u.id)}
+                        title={u.nom}
+                        className={`w-11 h-11 rounded-xl border-2 transition-all ${
+                          formData.interfaceSettings.urgu === u.id
+                            ? 'border-white scale-110'
+                            : 'border-purple-800/50 hover:border-purple-500'
+                        }`}
+                        style={{ background: u.rang }}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-purple-500 mb-4">
+                    Matn ajratish, fokus halqasi va aylantirish chizig'i shu rangda
+                    bo'ladi. Sahifalarning asosiy ranglari o'zgarmaydi — ular har bir
+                    bo'limning o'z bezagi.
+                  </p>
+
+                  <ToggleItem
+                    label="Animatsiyalar"
+                    desc="O'chirilsa o'tishlar va harakatlar to'xtaydi — sekin qurilmada sayt yengillashadi"
+                    checked={formData.interfaceSettings.animatsiya}
+                    onChange={(v) => updateNested('interfaceSettings', 'animatsiya', v)}
+                  />
+                  <ToggleItem
+                    label="Yuqori kontrast"
+                    desc="Xira ko'k matnlar yorug'roq bo'ladi — kichik ekranda va yorug' xonada o'qish osonlashadi"
+                    checked={formData.interfaceSettings.kontrast}
+                    onChange={(v) => updateNested('interfaceSettings', 'kontrast', v)}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-purple-300 mb-2 block font-semibold">
+                    🌙 Mavzu
+                  </label>
+                  <div className="bg-purple-950/30 border border-purple-800/50 rounded-xl p-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🌙</span>
+                      <div>
+                        <div className="text-sm font-semibold text-white">Qorong'i — yagona mavzu</div>
+                        <div className="text-[11px] text-purple-400 mt-0.5">
+                          Sayt ranglari sahifalar ichida to'g'ridan-to'g'ri yozilgan,
+                          shuning uchun yorug' mavzu hozircha yo'q. Uni qo'shish
+                          alohida katta ish — va'da qilib qo'yilmasligi uchun shunday
+                          yozib qo'yildi.
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

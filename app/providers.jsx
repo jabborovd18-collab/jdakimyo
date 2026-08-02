@@ -4,12 +4,15 @@
 import { SessionProvider } from 'next-auth/react'
 import { Toaster } from 'react-hot-toast'
 import ActivityPing from '@/components/ActivityPing'
+import InterfeysQollovchi from '@/components/InterfeysQollovchi'
 
 export function Providers({ children }) {
   return (
     <SessionProvider>
       {/* Kunlik seriyani hisoblash uchun — SessionProvider ichida bo'lishi shart */}
       <ActivityPing />
+      {/* Shrift, urg'u rangi, animatsiya va kontrastni <html> ga qo'yadi */}
+      <InterfeysQollovchi />
       {children}
       <Toaster 
         position="top-right"

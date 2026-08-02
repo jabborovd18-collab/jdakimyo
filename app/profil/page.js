@@ -176,6 +176,29 @@ export default function ProfilDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Tez havolalar. "Ochiq profilim" ataylab bor: o'z profili
+                boshqalarga qanday ko'rinishini tekshirishning yo'li yo'q edi. */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              <Link
+                href={`/profil/${user.userId}`}
+                className="px-3 py-1.5 rounded-lg bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 text-xs font-semibold"
+              >
+                👁️ Ochiq profilim
+              </Link>
+              <Link
+                href="/profil/sozlama"
+                className="px-3 py-1.5 rounded-lg bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 text-xs font-semibold"
+              >
+                ⚙️ Profilni tahrirlash
+              </Link>
+              <Link
+                href="/laboratoriya"
+                className="px-3 py-1.5 rounded-lg bg-cyan-800/40 hover:bg-cyan-700/60 border border-cyan-600/50 text-xs font-semibold"
+              >
+                🔬 Laboratoriya
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -183,11 +206,13 @@ export default function ProfilDashboard() {
       {/* ═══════════════════════════════════════════ */}
       {/* STATS GRID */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <StatCard icon="⭐" label="Umumiy ball" value={totalPoints} color="yellow" />
+        <StatCard icon="🌟" label="Yulduz" value={user.stars ?? 0} color="yellow" />
         <StatCard icon="🔥" label="Streak" value={`${currentStreak} kun`} color="orange" />
         <StatCard icon="📝" label="Quizlar" value={counts.quizzes || 0} color="blue" />
         <StatCard icon="🏆" label="Sertifikatlar" value={counts.certificates || 0} color="pink" />
+        <StatCard icon="👥" label="Do'stlar" value={counts.friends || 0} color="purple" />
         <StatCard icon="👤" label="Obunachilar" value={counts.followers || 0} color="cyan" />
         <StatCard icon="👁️" label="Obunalar" value={counts.following || 0} color="purple" />
       </div>

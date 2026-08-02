@@ -220,6 +220,23 @@ export async function GET(request, { params }) {
         level_points: user.level_points,
         totalPoints: user.totalPoints,
         createdAt: user.createdAt,
+
+        // Ochiq profilda ko'rsatiladigan qo'shimchalar. Ular bazada
+        // allaqachon bor edi — sozlamalarda to'ldirilardi-yu, hech qayerda
+        // ko'rinmasdi, ya'ni kiritishning ma'nosi yo'q edi.
+        location: user.location,
+        academicDegree: user.academicDegree,
+        stars: user.stars,
+        currentStreak: user.currentStreak,
+        longestStreak: user.longestStreak,
+        telegram: user.telegram,
+        instagram: user.instagram,
+        linkedin: user.linkedin,
+        github: user.github,
+        twitter: user.twitter,
+        website: user.website,
+        googleScholar: user.googleScholar,
+        orcid: user.orcid,
       },
       friends,
       friendsCount: friends.length,

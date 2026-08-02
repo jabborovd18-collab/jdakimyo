@@ -26,6 +26,10 @@ const USER_FIELDS = {
   totalPoints: true,
   currentStreak: true,
   longestStreak: true,
+  // Yulduz akkaunt darajasini belgilaydi, lekin kabinetda ko'rinmasdi —
+  // foydalanuvchi nechta yulduzi borligini faqat reyting sahifasidan
+  // bilardi
+  stars: true,
   lastActive: true,
   createdAt: true,
   birthDate: true,
