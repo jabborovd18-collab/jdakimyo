@@ -46,6 +46,11 @@ module.exports = {
         'Reaksiya birinchi mahsulotda to\'xtamaydi — shuning uchun sof CH₃Cl olish ' +
         'uchun xlor miqdorini cheklash kerak.',
       reactionType: 'radikal o\'rin olish',
+      observations:
+        'Xlorning sarg\'ish-yashil rangi asta so\'nadi — u sarflanmoqda. Idish ' +
+        'devorida tomchilar paydo bo\'ladi: diklormetan xona haroratida suyuq. ' +
+        'Nam indikator qog\'ozi qizaradi — HCl ajralgan. Reaksiya shu bosqichda ' +
+        'to\'xtamaydi, aralashma doim bir necha mahsulotdan iborat bo\'ladi.',
       catalyst: 'yorug\'lik',
       environment: 'gaz fazasi',
     },
@@ -56,6 +61,11 @@ module.exports = {
         'Qo\'shbog\'ga vodorod birikadi. Yog\'larni margarinaga aylantirish shu ' +
         'reaksiyaga asoslangan.',
       reactionType: 'birikish',
+      observations:
+        'Ikkala gaz ham rangsiz — ko\'zga o\'zgarish ko\'rinmaydi. Reaksiya ' +
+        'borayotganini bosimning pasayishidan bilish mumkin: ikki hajm gazdan ' +
+        'bir hajm hosil bo\'ladi. Etilenning bromli suvni rangsizlantirishi ham ' +
+        'yo\'qoladi — qo\'shbog\' qolmagan.',
       catalyst: 'Ni, Pt yoki Pd',
       temperature: '150–200 °C (Ni bilan)',
       pressure: '1–5 atm',
@@ -91,6 +101,10 @@ module.exports = {
         'Nosimmetrik alkenlarda Markovnikov qoidasi ishlaydi: vodorod ko\'proq ' +
         'vodorodli uglerodga birikadi. Etilende ikkala uglerod bir xil.',
       reactionType: 'elektrofil birikish',
+      observations:
+        'Ikki rangsiz gazdan xona haroratida suyuqlik hosil bo\'ladi — idish ' +
+        'devorida tomchilar yig\'iladi va gaz hajmi kamayadi. Mahsulot suvda ' +
+        'erimaydi, alohida og\'ir qatlam beradi.',
       temperature: 'xona harorati',
       mechanism: 'Avval H⁺ birikib karbokation hosil qiladi, keyin Br⁻ unga qo\'shiladi.',
       intermediates: [
@@ -126,6 +140,11 @@ module.exports = {
         'Katalizatorni "zaharlab" reaksiyani etilen bosqichida to\'xtatish mumkin — ' +
         'aks holda etangacha borib qoladi.',
       reactionType: 'birikish',
+      observations:
+        'Rangsiz gazlar — tashqi belgi yo\'q. Reaksiya qayerda to\'xtaganini ' +
+        'sifat sinovi ko\'rsatadi: mahsulot bromli suvni hali ham rangsizlantiradi ' +
+        '(qo\'shbog\' bor), lekin ammiakli kumush eritmasi bilan cho\'kma bermaydi ' +
+        '(uchbog\' yo\'qolgan). Ikki sinov birgalikda bosqichni aniqlaydi.',
       catalyst: 'Lindlar katalizatori (Pd/CaCO₃, qo\'rg\'oshin bilan zaharlangan)',
       temperature: '20–50 °C',
       scaleNote: 'Tanlab gidrogenlash — organik sintezning muhim usuli.',
@@ -147,6 +166,11 @@ module.exports = {
         'Asetilendan sirka aldegidi. Kutilgan vinil spirt beqaror va darhol ' +
         'aldegidga aylanadi (tautomer qayta guruhlanish).',
       reactionType: 'birikish',
+      observations:
+        'Asetilen o\'tkazilgan sari o\'ziga xos o\'tkir hid paydo bo\'ladi — ' +
+        'sirka aldegidi hosil bo\'lmoqda. Eritma isiydi. Mahsulotni tasdiqlash ' +
+        'oson: ammiakli kumush eritmasi bilan probirka devorida kumush ko\'zgu ' +
+        'hosil bo\'ladi.',
       catalyst: 'HgSO₄ (kislotali muhitda)',
       temperature: '70–100 °C',
       environment: 'kislotali suvli muhit',
@@ -192,6 +216,10 @@ module.exports = {
         'Uchta asetilen molekulasi halqaga birikadi. Aromatik birikmalarni ' +
         'ochiq zanjirli moddadan olishning klassik yo\'li.',
       reactionType: 'trimerlanish',
+      observations:
+        'Qizigan naychadan o\'tgan gaz sovutgichda suyuqlikka aylanadi — ' +
+        'o\'ziga xos hidli, suvda erimaydigan benzol yig\'iladi. Gaz hajmi keskin ' +
+        'kamayadi: uch molekuladan bittasi hosil bo\'ladi.',
       catalyst: 'faollashtirilgan ko\'mir',
       temperature: '400–600 °C',
       yieldInfo: 'Taxminan 20–30%',
@@ -297,6 +325,11 @@ module.exports = {
       description:
         'Aromatik halqaga uglevodorod radikali biriktiriladi. Toluol olinadi.',
       reactionType: 'elektrofil o\'rin olish',
+      observations:
+        'Katalizator qo\'shilishi bilan aralashma qizib, qo\'ng\'ir tusga kiradi. ' +
+        'Ajralayotgan HCl nam indikator qog\'ozini qizartiradi — reaksiya ' +
+        'borayotganining eng ishonchli belgisi. Muhit suvsiz bo\'lishi shart: ' +
+        'namlik AlCl₃ ni parchalab, reaksiyani to\'xtatadi.',
       catalyst: 'AlCl₃ (suvsiz)',
       temperature: '25–60 °C',
       environment: 'suvsiz muhit',
@@ -326,6 +359,10 @@ module.exports = {
         'Laboratoriyada metan olishning klassik usuli. Natriy asetat ishqor bilan ' +
         'qizdiriladi va karboksil guruh CO₂ ko\'rinishida ajraladi.',
       reactionType: 'dekarboksillanish',
+      observations:
+        'Quruq aralashma qizdirilganda rangsiz, hidsiz gaz ajraladi va uni suv ' +
+        'ustida to\'plash mumkin. Yondirilsa och ko\'k alanga bilan yonadi — ' +
+        'metanning belgisi. Probirkada oq qattiq qoldiq (natriy karbonat) qoladi.',
       temperature: 'qizdirilganda (300 °C)',
       environment: 'quruq holda, natron ohak bilan',
       scale: 'laboratoriya',

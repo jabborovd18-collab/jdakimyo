@@ -319,6 +319,10 @@ module.exports = {
       reactionType: 'disproporsiyalanish',
       temperature: 'issiq (70–100 °C)',
       environment: 'ishqoriy muhit',
+      observations:
+        'Sarg\'ish-yashil xlor gazi ishqorga yutiladi va rangsizlanadi. Eritma ' +
+        'sovitilganda kaliy xlorat kristallari tushadi — u KCl dan kam eriydi. ' +
+        'Sovuq ishqordagi variantidan farqi shunda: bu yerda oqartiruvchi hid qolmaydi.',
       rateFactors: [
         { factor: 'Harorat', effect: 'Mahsulotni butunlay o\'zgartiradi — sovuqda ClO⁻, issiqda ClO₃⁻' },
       ],

@@ -48,6 +48,10 @@ module.exports = {
         'Fotosintezning teskarisi. Glukozadagi energiya bosqichma-bosqich ' +
         'ajratib olinadi — bir yo\'la yonib ketmasligi uchun.',
       reactionType: 'oksidlanish (dissimilyatsiya)',
+      observations:
+        'Hujayra ichida boradi, shuning uchun bevosita ko\'rinmaydi. Bilvosita ' +
+        'kuzatiladi: nafas chiqarilgan havo ohakli suvni loyqalantiradi (CO₂), ' +
+        'sovuq shishada bug\' o\'tiradi (H₂O) va organizm harorati saqlanadi.',
       catalyst: 'fermentlar zanjiri',
       temperature: '37 °C (odam tanasida)',
       environment: 'hujayra mitoxondriyasida',
@@ -113,6 +117,10 @@ module.exports = {
         'Oziq-ovqatning kaloriyasi shu reaksiyaning issiqlik effekti bilan ' +
         'o\'lchanadi (kalorimetrik bomba).',
       reactionType: 'yonish',
+      observations:
+        'Toza shakar alangada qiyin yonadi — avval suyuqlanadi, qorayadi va ' +
+        'karamel hidi keladi. Kislorod muhitida esa yorqin alanga bilan to\'liq ' +
+        'yonadi. Ohakli suv loyqalanishi CO₂ ajralganini tasdiqlaydi.',
       temperature: 'alangalanish 160 °C dan',
       environment: 'kislorod muhiti',
       scale: 'laboratoriya',

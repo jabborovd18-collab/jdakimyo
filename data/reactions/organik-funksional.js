@@ -19,6 +19,11 @@ module.exports = {
         'Gidroksil guruhi bromga almashadi. Kislota katalizatori OH ni suvga ' +
         'aylantirib, uni yaxshi ketuvchi guruhga o\'tkazadi.',
       reactionType: 'nukleofil o\'rin olish',
+      observations:
+        'Aralashma qizdirilganda tiniqligini yo\'qotadi: hosil bo\'lgan brometan ' +
+        'suvda erimaydi va idish tubida alohida og\'ir qatlam bo\'lib yig\'iladi. ' +
+        'O\'ziga xos shirinroq hid paydo bo\'ladi. Konsentrlangan kislota tufayli ' +
+        'aralashma qorayib ketishi mumkin.',
       catalyst: 'konsentrlangan H₂SO₄',
       temperature: 'qaynatib (~100 °C)',
       mechanism:
@@ -141,6 +146,11 @@ module.exports = {
       name: 'Aldegidning qaytarilishi',
       description: 'Teskari yo\'nalish: aldegiddan birlamchi spirt olinadi.',
       reactionType: 'qaytarilish',
+      observations:
+        'Ikkala modda ham rangsiz, shuning uchun ko\'zga o\'zgarish ko\'rinmaydi. ' +
+        'Yagona sezilarli belgi — hidning almashishi: aldegidning o\'tkir hidi ' +
+        'o\'rniga spirt hidi keladi. Borishini nazorat qilish uchun aldegidga ' +
+        'xos sifat reaksiyasi (kumush ko\'zgu) ishlatiladi — u endi bermaydi.',
       catalyst: 'Ni',
       temperature: '100–150 °C',
       pressure: '5–20 atm',
@@ -195,6 +205,10 @@ module.exports = {
       name: 'Ammoniy asetat olinishi',
       description: 'Kislota va ammiakdan tuz — neytrallanishning organik varianti.',
       reactionType: 'neytrallanish',
+      observations:
+        'Ikki o\'tkir hid — sirkanikiyu ammiakniki — bir-birini yo\'qotadi va ' +
+        'aralashma deyarli hidsiz bo\'lib qoladi. Eritma rangsiz va tiniq qoladi, ' +
+        'sal isiydi. Suv bug\'latilsa oq kristall tuz ajraladi.',
       environment: 'suvli eritma',
     },
     {
@@ -311,6 +325,10 @@ module.exports = {
         'Suvli eritmada OH⁻ nukleofil sifatida ishlaydi va spirt hosil bo\'ladi. ' +
         'Erituvchi mahsulotni belgilaydigan klassik misol.',
       reactionType: 'nukleofil o\'rin olish',
+      observations:
+        'Boshida ikki qatlam ko\'rinadi — brometan suvda erimaydi va tubda yotadi. ' +
+        'Qaynatilgan sari pastki qatlam yo\'qoladi: mahsulot spirt suvda to\'liq ' +
+        'eriydi. Aynan shu qatlamning yo\'qolishi reaksiya tugaganini bildiradi.',
       temperature: 'qaynatib',
       environment: 'suvli eritma',
       solvents: [
@@ -342,6 +360,11 @@ module.exports = {
         'Sianid ioni nukleofil sifatida kirib, uglerod zanjirini bir atomga ' +
         'uzaytiradi. Organik sintezda muhim usul.',
       reactionType: 'nukleofil o\'rin olish',
+      observations:
+        'Tashqi ko\'rinishda o\'zgarish kam: eritma tiniq qoladi, faqat kaliy ' +
+        'bromid kristallari asta cho\'kadi. Reaksiya borganini shundan bilish ' +
+        'mumkin. Ish faqat mo\'rili shkafda bajariladi — sianiddan zaharli HCN ' +
+        'ajralishi mumkin.',
       temperature: 'qaynatib',
       environment: 'spirtli eritma',
       equipment: ['Mo\'rili shkaf', 'Qaytar sovutgich'],

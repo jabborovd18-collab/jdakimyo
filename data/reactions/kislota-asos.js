@@ -119,6 +119,10 @@ module.exports = {
       name: 'Fosfat kislota va kaliy gidroksid',
       description:
         'Kaliy fosfat hosil bo\'ladi — kaliyli o\'g\'itlarning tarkibiy qismi.',
+      observations:
+        'Ikkala eritma ham rangsiz, cho\'kma tushmaydi — tashqaridan hech narsa ' +
+        'ko\'rinmaydi. Idish sal isiydi. Uch bosqichli neytrallanish bo\'lgani uchun ' +
+        'indikator rangi bir emas, uch marta o\'zgaradi.',
       scaleNote: 'Sanoatda murakkab o\'g\'it ishlab chiqarishda.',
     },
     {
@@ -144,6 +148,10 @@ module.exports = {
       equation: 'HCl + KOH → KCl + H₂O',
       name: 'Kaliy gidroksidning neytrallanishi',
       description: 'Kuchli kislota va kuchli asos, mahsulot — oshxona tuziga o\'xshash kaliy xlorid.',
+      observations:
+        'Ko\'zga hech qanday o\'zgarish ko\'rinmaydi: rangsiz eritma rangsiz bo\'lib ' +
+        'qoladi, gaz ham, cho\'kma ham chiqmaydi. Yagona belgi — issiqlik. ' +
+        'Reaksiya bo\'lgan-bo\'lmaganini faqat indikator yoki termometr aytadi.',
     },
     {
       equation: 'H₂SO₄ + Ca(OH)₂ → CaSO₄↓ + 2H₂O',
@@ -164,6 +172,10 @@ module.exports = {
       equation: '2HNO₃ + Ba(OH)₂ → Ba(NO₃)₂ + 2H₂O',
       name: 'Bariy gidroksidning neytrallanishi',
       description: 'Ikki kislotali asos ikki mol kislota talab qiladi.',
+      observations:
+        'Bariy gidroksid eritmasi boshida biroz loyqa bo\'lishi mumkin (havodagi ' +
+        'CO₂ dan hosil bo\'lgan BaCO₃), kislota qo\'shilgach u eriydi va eritma ' +
+        'tiniqlashadi. Bariy nitrat suvda yaxshi eriydi, shuning uchun cho\'kma qolmaydi.',
     },
     {
       equation: 'CH₃COOH + NaOH → CH₃COONa + H₂O',
@@ -293,6 +305,10 @@ module.exports = {
         'CO₂ ortiqcha bo\'lganda o\'rta tuz emas, nordon tuz hosil bo\'ladi. ' +
         'Reagent nisbati mahsulotni belgilaydigan yaxshi misol.',
       reactionType: 'birikish',
+      observations:
+        'Gaz o\'tkazilgan sari ishqor eritmasi asta-sekin o\'z ishqoriyligini ' +
+        'yo\'qotadi — fenolftalein pushti rangi so\'nadi. Eritma tiniq qoladi. ' +
+        'Ohakli suvdan farqli o\'laroq loyqalanish bo\'lmaydi, chunki NaHCO₃ eriydi.',
     },
     {
       equation: 'SO₂ + 2NaOH → Na₂SO₃ + H₂O',

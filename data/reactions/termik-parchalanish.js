@@ -36,6 +36,10 @@ module.exports = {
       equation: 'Mg(OH)₂ → MgO + H₂O',
       name: 'Magniy gidroksidning parchalanishi',
       description: 'Hosil bo\'lgan magniy oksidi o\'tga chidamli material sifatida ishlatiladi.',
+      observations:
+        'Oq kukun oq kukunligicha qoladi — rangi o\'zgarmaydi. Probirkaning sovuq ' +
+        'devorida suv tomchilari paydo bo\'ladi, bu parchalanish borayotganining ' +
+        'yagona ko\'rinadigan belgisi. Massa yengillashadi.',
       temperature: '350–400 °C',
       scale: 'ikkalasi',
       scaleNote: 'Sanoatda o\'tga chidamli g\'isht ishlab chiqarishda.',

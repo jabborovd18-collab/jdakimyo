@@ -235,6 +235,11 @@ module.exports = {
       description: 'Alyuminiy sulfat olinishi — suv tozalashda koagulyant sifatida ishlatiladi.',
       reactionType: 'o\'rin olish',
       environment: 'suyultirilgan kislota',
+      observations:
+        'Boshida hech narsa bo\'lmaydi — alyuminiyni oksid pardasi himoya qiladi. ' +
+        'Parda yemirilgach gaz pufakchalari jadal chiqa boshlaydi va tezlik ortadi ' +
+        '(reaksiya o\'zi ajratgan issiqlikdan tezlashadi). Metall asta-sekin yo\'qoladi, ' +
+        'eritma rangsiz qoladi.',
       scale: 'ikkalasi',
       scaleNote: 'Sanoatda suv tozalash uchun alyuminiy sulfat ishlab chiqariladi.',
     },

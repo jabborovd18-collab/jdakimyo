@@ -100,6 +100,10 @@ module.exports = {
       description: 'Oliy oksid o\'ziga mos oliy kislotani beradi.',
       reactionType: 'birikish',
       environment: 'suvli muhit',
+      observations:
+        'Oq kristall oksid suvda shiddat bilan eriydi, ko\'p issiqlik ajraladi — ' +
+        'aralashma qizib ketadi. Eritma rangsiz, lekin indikator qog\'ozi darhol ' +
+        'qizaradi: kuchli kislota hosil bo\'lgan.',
     },
     {
       equation: 'P₂O₅ + 3H₂O → 2H₃PO₄',
@@ -151,6 +155,10 @@ module.exports = {
       name: 'Alyuminiy oksidining kislotada erishi',
       description: 'Amfoter oksidning asosli tomoni — kislota bilan tuz beradi.',
       reactionType: 'amfoterlik',
+      observations:
+        'Oq kukun sovuq kislotada deyarli erimaydi — qizdirish shart. Qizdirilgan ' +
+        'sari kukun kamayadi va eritma tiniqlashadi, oxirida rangsiz eritma qoladi. ' +
+        'Gaz chiqmaydi: bu neytrallanish, siqib chiqarish emas.',
       temperature: 'qizdirilganda',
     },
     {
@@ -160,6 +168,11 @@ module.exports = {
         'Xuddi shu oksid ishqorda ham eriydi — alyuminat hosil qilib. ' +
         'Amfoterlikning to\'liq isboti.',
       reactionType: 'amfoterlik',
+      observations:
+        'Suvli ishqorda deyarli hech narsa bo\'lmaydi — reaksiya faqat ' +
+        'suyuqlantirilganda boradi. Eritmada oq kukun yo\'qoladi va sovutilgach ' +
+        'shishasimon massa qoladi. Aynan shu tajriba amfoterlikni isbotlaydi: ' +
+        'bir xil oksid ham kislotada, ham ishqorda eriydi.',
       temperature: 'suyuqlantirib (900 °C)',
       scaleNote: 'Bayer usulida boksitni tozalash shu reaksiyaga asoslangan.',
     },
@@ -168,6 +181,10 @@ module.exports = {
       name: 'Rux oksidining ishqorda erishi',
       description: 'Amfoter oksid ishqorda gidroksokompleks beradi.',
       reactionType: 'amfoterlik',
+      observations:
+        'Oq kukun konsentrlangan ishqorda asta eriydi va eritma butunlay ' +
+        'tiniqlashadi. Rangsiz gidroksokompleks hosil bo\'ladi — rang ham, ' +
+        'cho\'kma ham qolmaydi. Kukunning yo\'qolishi yagona belgi.',
       environment: 'konsentrlangan ishqor eritmasi',
     },
     {
