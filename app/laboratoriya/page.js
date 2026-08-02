@@ -44,6 +44,15 @@ export default function LaboratoriyaPage() {
   const [qidiruv, setQidiruv] = useState('')
   const [ishlamoqda, setIshlamoqda] = useState(null)
 
+  // ─── Tajriba ───
+  const [tanlangan, setTanlangan] = useState([])
+  const [tajriba, setTajriba] = useState(null) // {mumkin, jurnal}
+  const [tajribaNatija, setTajribaNatija] = useState(null)
+  // Bitta reagent to'plamidan bir nechta reaksiya chiqqanda: sharoit
+  // bo'yicha tanlash ro'yxati
+  const [tanlov, setTanlov] = useState(null)
+  const [otkazilmoqda, setOtkazilmoqda] = useState(false)
+
   const holatniYukla = useCallback(async () => {
     try {
       const res = await fetch('/api/laboratoriya')
@@ -111,6 +120,62 @@ export default function LaboratoriyaPage() {
       toast.error(error.message)
     } finally {
       setOchilmoqda(null)
+    }
+  }
+
+  const tajribaniYukla = useCallback(async () => {
+    try {
+      const res = await fetch('/api/laboratoriya/tajriba')
+      const data = await res.json()
+      if (res.ok) setTajriba(data)
+    } catch {
+      // jim — sahifaning qolgan qismi ishlayveradi
+    }
+  }, [])
+
+  useEffect(() => {
+    if (tab === 'tajriba' && !kirmagan) tajribaniYukla()
+  }, [tab, kirmagan, tajribaniYukla])
+
+  const reagentniBelgila = (kalit) => {
+    setTanlov(null)
+    setTanlangan((oldin) =>
+      oldin.includes(kalit) ? oldin.filter((k) => k !== kalit) : [...oldin, kalit],
+    )
+  }
+
+  const tajribaOtkaz = async (reactionId = null) => {
+    setOtkazilmoqda(true)
+    try {
+      const res = await fetch('/api/laboratoriya/tajriba', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kalitlar: tanlangan, reactionId }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+
+      // Bir xil reagentlardan sharoitga qarab har xil mahsulot chiqadi —
+      // qaysi biri kerakligini foydalanuvchi tanlaydi
+      if (data.tanlov) {
+        setTanlov(data.tanlov)
+        setTajribaNatija(null)
+        return
+      }
+
+      setTanlov(null)
+      setTajribaNatija(data)
+      setTanlangan([])
+      if (data.darajaOshdi) {
+        toast.success(`🎉 Laboratoriya ${data.yangiDaraja}-darajaga chiqdi!`)
+      }
+      holatniYukla()
+      tajribaniYukla()
+    } catch (error) {
+      setTajribaNatija(null)
+      toast.error(error.message)
+    } finally {
+      setOtkazilmoqda(false)
     }
   }
 
@@ -201,6 +266,21 @@ export default function LaboratoriyaPage() {
             <p className="text-purple-300 text-sm mt-0.5">
               {holat?.lab?.daraja}-daraja laboratoriya
             </p>
+            {/* Daraja tajribadan o'sadi — qancha qolganini ko'rsatamiz */}
+            {holat?.lab?.darajaHolati && (
+              <div className="mt-2 w-56">
+                <div className="h-1.5 rounded-full bg-purple-950 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-yellow-500 to-orange-500"
+                    style={{ width: `${holat.lab.darajaHolati.foiz}%` }}
+                  />
+                </div>
+                <div className="text-[10px] text-purple-400 mt-1">
+                  {holat.lab.darajaHolati.joriy} / {holat.lab.darajaHolati.kerak} tajriba →{' '}
+                  {holat.lab.darajaHolati.daraja + 1}-daraja
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex gap-3">
             <div className="px-4 py-2.5 rounded-xl bg-amber-950/40 border border-amber-700/40 text-center">
@@ -218,6 +298,7 @@ export default function LaboratoriyaPage() {
         <div className="flex gap-2">
           {[
             { id: 'inventar', nom: `🎒 Inventar (${inventar.length})` },
+            { id: 'tajriba', nom: '🧪 Tajriba' },
             { id: 'sandiq', nom: '🎁 Sandiqlar' },
             { id: 'dokon', nom: '🏪 Do\'kon' },
           ].map((t) => (
@@ -288,6 +369,281 @@ export default function LaboratoriyaPage() {
               ))}
             </div>
           )
+        )}
+
+        {/* ─── TAJRIBA ─── */}
+        {tab === 'tajriba' && (
+          <div className="space-y-4">
+            {/* Ish stoli — tanlangan reagentlar tenglama ko'rinishida */}
+            <div className="rounded-2xl border border-purple-800/50 bg-slate-900/60 p-5">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <h2 className="font-bold text-white">🧫 Ish stoli</h2>
+                {tajriba?.mumkin && (
+                  <span className="text-[11px] text-purple-400">
+                    {tajriba.mumkin.kashfEtilgan} / {tajriba.mumkin.jamiReaksiya} reaksiya kashf etilgan
+                  </span>
+                )}
+              </div>
+
+              <div className="min-h-[52px] flex items-center flex-wrap gap-2 rounded-xl bg-purple-950/40 border border-purple-800/40 px-4 py-3">
+                {tanlangan.length === 0 ? (
+                  <span className="text-sm text-purple-500">
+                    Pastdan reagent tanlang — kamida bittasini
+                  </span>
+                ) : (
+                  tanlangan.map((k, i) => (
+                    <span key={k} className="flex items-center gap-2">
+                      {i > 0 && <span className="text-purple-500">+</span>}
+                      <button
+                        onClick={() => reagentniBelgila(k)}
+                        className="px-3 py-1.5 rounded-lg bg-purple-800/60 border border-purple-600/50 text-sm font-semibold hover:bg-purple-700/60"
+                        title="Olib tashlash"
+                      >
+                        {k} ✕
+                      </button>
+                    </span>
+                  ))
+                )}
+              </div>
+
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => tajribaOtkaz()}
+                  disabled={otkazilmoqda || tanlangan.length === 0}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold text-sm disabled:opacity-40"
+                >
+                  {otkazilmoqda ? '⏳ Reaksiya ketmoqda...' : '🔥 Tajriba o\'tkazish'}
+                </button>
+                {tanlangan.length > 0 && (
+                  <button
+                    onClick={() => { setTanlangan([]); setTanlov(null) }}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800/70 border border-purple-800/50 text-sm font-semibold"
+                  >
+                    Tozalash
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Bir xil reagentlardan bir nechta reaksiya chiqdi */}
+            {tanlov && (
+              <div className="rounded-2xl border border-cyan-700/50 bg-cyan-950/30 p-5">
+                <h3 className="font-bold text-cyan-300 mb-1">Sharoitni tanlang</h3>
+                <p className="text-[11px] text-cyan-200/70 mb-3">
+                  Bu reagentlardan bir nechta reaksiya chiqadi — qaysi biri bo'lishi
+                  harorat va katalizatorga bog'liq.
+                </p>
+                <div className="space-y-2">
+                  {tanlov.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => tajribaOtkaz(t.id)}
+                      disabled={otkazilmoqda}
+                      className="w-full text-left px-4 py-3 rounded-xl bg-slate-900/70 border border-cyan-800/50 hover:border-cyan-500/70 disabled:opacity-50"
+                    >
+                      <div className="text-sm font-semibold text-white">
+                        {t.name || 'Nomsiz reaksiya'}
+                      </div>
+                      <div className="text-[11px] text-cyan-300/80 mt-0.5">
+                        {[t.temperature, t.catalyst && `katalizator: ${t.catalyst}`, t.environment]
+                          .filter(Boolean)
+                          .join(' · ') || 'Odatdagi sharoit'}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Natija */}
+            {tajribaNatija && (
+              <div className="rounded-2xl border border-green-700/50 bg-gradient-to-br from-green-950/40 to-slate-900/60 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-lg font-bold text-white break-words">
+                      {tajribaNatija.reaksiya.equation}
+                    </div>
+                    {tajribaNatija.reaksiya.name && (
+                      <div className="text-sm text-green-300 mt-0.5">
+                        {tajribaNatija.reaksiya.name}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setTajribaNatija(null)}
+                    className="text-purple-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Kuzatuv — foydalanuvchi reaksiyani aynan shu orqali ko'radi */}
+                <div className="mt-4 rounded-xl bg-slate-950/60 border border-green-800/40 p-4">
+                  <div className="text-[10px] uppercase tracking-wider text-green-500 mb-1">
+                    Nima ko'rindi
+                  </div>
+                  <p className="text-sm text-green-100/90 leading-relaxed">
+                    {tajribaNatija.reaksiya.observations}
+                  </p>
+                </div>
+
+                {tajribaNatija.reaksiya.hazards?.length > 0 && (
+                  <div className="mt-3 rounded-xl bg-red-950/40 border border-red-800/50 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-red-400 mb-1">
+                      ⚠️ Xavfsizlik
+                    </div>
+                    <ul className="text-[12px] text-red-200/90 space-y-0.5 list-disc list-inside">
+                      {tajribaNatija.reaksiya.hazards.map((x, i) => <li key={i}>{x}</li>)}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                  <div className="rounded-xl bg-slate-900/60 border border-purple-800/40 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-purple-400 mb-1.5">
+                      Sarflandi
+                    </div>
+                    {tajribaNatija.sarflandi.map((s) => (
+                      <div key={s.kalit} className="text-sm text-purple-200">
+                        −{s.soni} × {s.nom}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-xl bg-slate-900/60 border border-green-800/40 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-green-400 mb-1.5">
+                      Inventarga tushdi
+                    </div>
+                    {tajribaNatija.olindi.length === 0 ? (
+                      <div className="text-sm text-purple-400">—</div>
+                    ) : (
+                      tajribaNatija.olindi.map((m) => (
+                        <div key={m.kalit} className="text-sm text-green-200">
+                          +{m.soni} × {m.nom}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 flex-wrap mt-3 text-xs">
+                  <span className="px-3 py-1.5 rounded-lg bg-yellow-950/50 border border-yellow-700/40 text-yellow-300 font-semibold">
+                    +{tajribaNatija.olinganXP} tajriba
+                  </span>
+                  {tajribaNatija.birinchi && (
+                    <span className="px-3 py-1.5 rounded-lg bg-purple-900/60 border border-purple-600/50 text-purple-200 font-semibold">
+                      🎉 Birinchi kashfiyot
+                    </span>
+                  )}
+                  {tajribaNatija.darajaOshdi && (
+                    <span className="px-3 py-1.5 rounded-lg bg-green-900/60 border border-green-600/50 text-green-200 font-semibold">
+                      {tajribaNatija.yangiDaraja}-daraja
+                    </span>
+                  )}
+                  {!tajribaNatija.reaksiya.isVerified && (
+                    <span className="text-purple-500">
+                      Bu reaksiya kimyogar tomonidan hali tasdiqlanmagan
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Inventardagi reagentlar */}
+            <div>
+              <h2 className="text-sm font-bold text-purple-300 mb-2">
+                ⚗️ Inventardagi reagentlar
+              </h2>
+              {reagentlar.length === 0 ? (
+                <div className="text-center py-10 bg-slate-900/50 border border-purple-800/50 rounded-xl">
+                  <p className="text-purple-300 text-sm max-w-md mx-auto">
+                    Reagent yo'q. Kunlik yetkazib berish bepul — sandiqlar bo'limidan
+                    oling yoki do'kondan sotib oling.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {reagentlar.map((r) => {
+                    const belgilangan = tanlangan.includes(r.kalit)
+                    return (
+                      <button
+                        key={r.kalit}
+                        onClick={() => reagentniBelgila(r.kalit)}
+                        className={`px-3 py-2 rounded-xl border text-sm font-semibold transition-all ${
+                          belgilangan
+                            ? 'bg-yellow-500 text-black border-yellow-400'
+                            : 'bg-slate-900/60 border-purple-800/50 text-purple-100 hover:border-purple-500/70'
+                        }`}
+                      >
+                        {r.nom} <span className="opacity-70">×{r.soni}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Hozirgi inventar bilan nima qilish mumkin */}
+            <div>
+              <h2 className="text-sm font-bold text-purple-300 mb-2">
+                📋 Hozir mumkin bo'lgan tajribalar
+                {tajriba?.mumkin ? ` (${tajriba.mumkin.jami})` : ''}
+              </h2>
+              {!tajriba?.mumkin?.royxat?.length ? (
+                <div className="text-center py-8 bg-slate-900/50 border border-purple-800/50 rounded-xl text-sm text-purple-300">
+                  Hozircha bironta reaksiyani to'liq yig'a olmaysiz — reagent yoki
+                  jihoz yetishmayapti.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {tajriba.mumkin.royxat.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => { setTanlangan(m.reagentlar.map((r) => r.kalit)); setTanlov(null) }}
+                      className="text-left rounded-xl border border-purple-800/50 bg-slate-900/60 hover:border-yellow-500/60 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        {/* Kashf etilmagan reaksiyaning mahsuloti berilmaydi —
+                            uni tajribaning o'zi ko'rsatishi kerak */}
+                        <span className="text-sm font-semibold text-white break-words">
+                          {m.kashfEtilgan && m.equation ? (
+                            m.equation
+                          ) : (
+                            <>
+                              {m.reagentlar.map((r) => `${r.koef > 1 ? r.koef : ''}${r.nom}`).join(' + ')}
+                              <span className="text-purple-500"> → ?</span>
+                            </>
+                          )}
+                        </span>
+                        {m.kashfEtilgan && (
+                          <span className="text-[10px] text-green-400 flex-shrink-0">✓ kashf etilgan</span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-purple-400 mt-1.5">
+                        {m.jihozlar.map((j) => `${j.icon || '🔧'} ${j.nom}`).join(' · ')}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Laboratoriya daftari */}
+            {tajriba?.jurnal?.length > 0 && (
+              <div>
+                <h2 className="text-sm font-bold text-purple-300 mb-2">📓 Laboratoriya daftari</h2>
+                <div className="rounded-xl border border-purple-800/50 bg-slate-900/50 divide-y divide-purple-900/50">
+                  {tajriba.jurnal.map((y) => (
+                    <div key={y.id} className="px-4 py-2.5 flex items-center justify-between gap-3">
+                      <span className="text-[13px] text-purple-100 break-words">{y.equation}</span>
+                      <span className="text-[11px] text-purple-400 flex-shrink-0">
+                        {y.birinchi ? '🎉 ' : ''}+{y.tajriba}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {/* ─── SANDIQLAR ─── */}

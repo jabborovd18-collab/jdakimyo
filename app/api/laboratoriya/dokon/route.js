@@ -23,7 +23,14 @@ export async function GET(request) {
     const guruh = searchParams.get('guruh') || 'all'
     const qidiruv = searchParams.get('qidiruv') || ''
 
-    const where = { isActive: true, turi: { not: 'texnika' } }
+    // Texnika sotilmaydi (daraja bilan ochiladi), faqat tajribada hosil
+    // bo'ladigan moddalar ham sotilmaydi — narxi yo'q. Ular do'konda
+    // tugmasiz kartochka bo'lib turishi chalkash bo'lardi.
+    const where = {
+      isActive: true,
+      turi: { not: 'texnika' },
+      OR: [{ narx: { gt: 0 } }, { gemsNarxi: { gt: 0 } }],
+    }
     if (turi !== 'all') where.turi = turi
     if (guruh !== 'all') where.guruh = guruh
     if (qidiruv) where.nom = { contains: qidiruv, mode: 'insensitive' }

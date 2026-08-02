@@ -628,8 +628,9 @@ model LabItemDef {
 
   // ─── Nodirlik va narx ───
   nodirlik    String @default("oddiy") // oddiy | kam | nodir | noyob
-  uchraydi    Int    @default(0) // nechta reaksiyada kerak — nodirlik shundan
-  narx        Int    @default(0) // coins; 0 — tanga bilan sotilmaydi
+  uchraydi    Int    @default(0) // nechta reaksiyada reagent — nodirlik shundan
+  chiqadi     Int    @default(0) // nechta reaksiyada mahsulot (tajribada olinadi)
+  narx        Int    @default(0) // coins; 0 — sotilmaydi, faqat tajribada yasaladi
   sotishNarxi Int    @default(0) // coins; xarid narxidan past
   gemsNarxi   Int? // to'g'ridan-to'g'ri olmos xaridi (sandiqqa muqobil yo'l)
 
@@ -662,9 +663,14 @@ model Lab {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  nom     String @default("Mening laboratoriyam")
-  daraja  Int    @default(1)
-  tajriba Int    @default(0) // laboratoriya XP — tajriba o'tkazgan sari o'sadi
+  nom String @default("Mening laboratoriyam")
+
+  // `tajriba` — asosiy son, `daraja` esa undan hisoblanadi (lib/tajriba.js).
+  // Daraja shu yerda ham saqlanadi, chunki u xarid va texnika darvozasida
+  // tekshiriladi: har safar qayta hisoblash o'rniga bir joyda — tajriba
+  // o'tkazilganda — yangilanadi.
+  daraja  Int @default(1)
+  tajriba Int @default(0) // laboratoriya XP — tajriba o'tkazgan sari o'sadi
 
   // Kunlik sandiq oxirgi marta qachon olingani. Kun chegarasi UTC yarim
   // tuni — kunlik missiyalar bilan bir xil, aks holda "bugun" ikki xil
@@ -676,6 +682,35 @@ model Lab {
 
   items        LabItem[]
   transactions LabTransaction[]
+  experiments  LabExperiment[]
+}
+
+// O'tkazilgan tajribalar jurnali.
+//
+// Nega saqlanadi: "shu reaksiyani birinchi marta qilyapsanmi" degan savolga
+// javob shu yerdan chiqadi — kashfiyot mukofoti aynan shunga bog'liq. Undan
+// tashqari bu foydalanuvchining laboratoriya daftari: nimani qachon olgani
+// ko'rinib turadi.
+//
+// `reactionId` ataylab oddiy matn, bog'lanish emas: reaksiya bazadan
+// o'chirilsa ham daftardagi yozuv qolishi kerak. Shu sababli tenglama ham
+// nusxa qilib saqlanadi — o'sha kungi ko'rinishi bilan.
+model LabExperiment {
+  id    String @id @default(cuid())
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  reactionId String
+  equation   String @db.Text
+
+  tajriba  Int     @default(0) // shu tajriba uchun berilgan XP
+  birinchi Boolean @default(false) // shu reaksiya ilk marta o'tkazildimi
+
+  createdAt DateTime @default(now())
+
+  @@index([labId])
+  @@index([labId, reactionId])
+  @@index([createdAt])
 }
 
 // Inventar: kim nimaga ega va nechta.

@@ -9,6 +9,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { buildSearchIndex, normalizeQuery } from '@/lib/chem-search'
 import { isAdminRole } from '@/lib/roles'
+import { keshniTozala } from '@/lib/tajriba'
 
 // Mijozdan qabul qilinadigan maydonlar (whitelist)
 const TEXT_FIELDS = [
@@ -151,6 +152,12 @@ export async function POST(request) {
       data: withSearchIndex(tasdiqniBelgila(data, admin, false)),
       include: TASDIQLOVCHI,
     })
+
+    // Laboratoriya reaksiyalar ro'yxatini xotirada saqlaydi. Tozalash —
+    // shu jarayon uchun; boshqa nusxalarda ro'yxat baribir bir necha
+    // daqiqada yangilanadi.
+    keshniTozala()
+
     return NextResponse.json({ success: true, reaction })
   } catch (error) {
     console.error('[Admin reactions POST]', error)
@@ -181,6 +188,8 @@ export async function PUT(request) {
       include: TASDIQLOVCHI,
     })
 
+    keshniTozala()
+
     return NextResponse.json({ success: true, reaction })
   } catch (error) {
     console.error('[Admin reactions PUT]', error)
@@ -199,6 +208,7 @@ export async function DELETE(request) {
     if (!id) return NextResponse.json({ error: 'id majburiy' }, { status: 400 })
 
     await prisma.reaction.delete({ where: { id } })
+    keshniTozala()
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[Admin reactions DELETE]', error)

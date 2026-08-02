@@ -37,6 +37,7 @@ function yozuvlarniTayyorla() {
       tavsif: null,
       nodirlik: r.nodirlik,
       uchraydi: r.uchraydi,
+      chiqadi: r.chiqadi ?? 0,
       narx: r.narx,
       sotishNarxi: r.sotishNarxi,
       gemsNarxi: r.gemsNarxi ?? null,
@@ -62,6 +63,7 @@ function yozuvlarniTayyorla() {
       tavsif: j.tavsif ?? null,
       nodirlik: n,
       uchraydi: j.uchraydi ?? 0,
+      chiqadi: 0, // jihoz reaksiyada hosil bo'lmaydi
       narx: j.narx ?? 0,
       // Jihoz sotilmaydi: sotib olingan asbob laboratoriyada qoladi.
       sotishNarxi: 0,
@@ -84,6 +86,7 @@ function yozuvlarniTayyorla() {
       tavsif: t.tavsif ?? null,
       nodirlik: 'oddiy',
       uchraydi: t.uchraydi ?? 0,
+      chiqadi: 0,
       // Texnika sotib olinmaydi — laboratoriya darajasi bilan ochiladi.
       narx: 0,
       sotishNarxi: 0,
