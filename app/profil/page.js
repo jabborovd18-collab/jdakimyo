@@ -10,6 +10,7 @@ import DailyQuoteCard from '@/components/DailyQuoteCard'
 import PlantWidget from '@/components/PlantWidget'
 import ActivityHeatmap from '@/components/ActivityHeatmap'
 import LabWidget from '@/components/LabWidget'
+import ProfilPostlar from '@/components/ProfilPostlar'
 import { sana } from '@/lib/sana'
 
 // Serverdan javob juda uzoq (yoki umuman) kelmasa, spinner abadiy osilib qolmasligi uchun chegara
@@ -255,6 +256,8 @@ export default function ProfilDashboard() {
         <PlantWidget />
         <DailyQuoteCard />
       </div>
+
+      <ProfilPostlar />
 
       <ActivityHeatmap />
 

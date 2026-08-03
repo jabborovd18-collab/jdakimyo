@@ -7,6 +7,7 @@
 import Link from 'next/link'
 import { sertifikatniTekshir } from '@/lib/sertifikat'
 import { sana } from '@/lib/sana'
+import SertifikatYuklab from '@/components/SertifikatYuklab'
 
 export const dynamic = 'force-dynamic'
 
@@ -148,6 +149,12 @@ export default async function SertifikatVerify({ params }) {
           <p className="text-purple-300 text-sm mt-2">
             Bu yozuv JDA KIMYO bazasida saqlanadi
           </p>
+
+          {/* Yuklab olish havolani ochgan har kimga ochiq — sertifikat
+              ko'rsatish uchun beriladi, uni qo'lda saqlab qo'yish tabiiy */}
+          <div className="mt-5">
+            <SertifikatYuklab sertifikat={s} />
+          </div>
         </div>
 
         {/* Sertifikat ma'lumotlari */}

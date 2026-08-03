@@ -254,8 +254,8 @@ export default function PublicProfilePage() {
   }
 
   const {
-    user, friends, achievements, quizResults, certificates,
-    followersCount, followingCount,
+    user, friends, achievements, quizResults, certificates, postlar,
+    followersCount, followingCount, korinadi = {},
   } = profile
   const roleLabels = {
     bakalavr: '🎓 Bakalavr',
@@ -436,9 +436,24 @@ export default function PublicProfilePage() {
           <Stat icon="⭐" qiymat={user.totalPoints} nom="Umumiy ball" rang="text-yellow-400" />
           <Stat icon="🌟" qiymat={user.stars ?? 0} nom="Yulduz" rang="text-yellow-300" />
           <Stat icon="🔥" qiymat={user.currentStreak ?? 0} nom="Kunlik seriya" rang="text-orange-400" />
-          <Stat icon="👥" qiymat={friends.length} nom="Do'stlar" rang="text-yellow-400" />
-          <Stat icon="👤" qiymat={followersCount} nom="Obunachilar" rang="text-cyan-400" />
-          <Stat icon="👁️" qiymat={followingCount} nom="Obuna bo'lgan" rang="text-cyan-400" />
+          <Stat
+            icon="👥"
+            qiymat={korinadi.dostlar === false ? '—' : friends.length}
+            nom="Do'stlar"
+            rang="text-yellow-400"
+          />
+          <Stat
+            icon="👤"
+            qiymat={followersCount ?? '—'}
+            nom="Obunachilar"
+            rang="text-cyan-400"
+          />
+          <Stat
+            icon="👁️"
+            qiymat={followingCount ?? '—'}
+            nom="Obuna bo'lgan"
+            rang="text-cyan-400"
+          />
         </div>
 
         {/* A'zolik sanasi */}
@@ -467,6 +482,50 @@ export default function PublicProfilePage() {
             </div>
           </div>
         )}
+
+        {/* Profil postlari — obuna bo'lganlar aynan shuni ko'radi */}
+        {postlar?.length > 0 && (
+          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <span>✍️</span>
+              Postlar
+            </h2>
+            <div className="space-y-3">
+              {postlar.map(post => (
+                <div key={post.id} className="bg-purple-950/50 rounded-xl p-4 border border-purple-700/30">
+                  <p className="text-sm text-purple-100 whitespace-pre-line leading-relaxed">
+                    {post.matn}
+                  </p>
+                  <div className="text-[11px] text-purple-500 mt-2">{sana(post.createdAt)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Maxfiylik tufayli yopilgan bo'limlar. Ularni jimgina yashirish
+            chalg'ituvchi bo'lardi: profil bo'sh ko'rinardi, holbuki egasi
+            shunday tanlagan. */}
+        {(() => {
+          const yopiq = [
+            korinadi.postlar === false && 'postlar',
+            korinadi.dostlar === false && "do'stlar ro'yxati",
+            korinadi.quiz === false && 'quiz natijalari',
+            korinadi.yutuqlar === false && 'yutuqlar',
+            korinadi.sertifikatlar === false && 'sertifikatlar',
+            korinadi.obunachilar === false && 'obunachilar',
+          ].filter(Boolean)
+
+          if (yopiq.length === 0) return null
+
+          return (
+            <div className="bg-slate-900/40 border border-purple-800/50 rounded-2xl p-4 mb-6 text-center">
+              <span className="text-sm text-purple-400">
+                🔒 Bu foydalanuvchi {yopiq.join(', ')} bo'limini yopgan
+              </span>
+            </div>
+          )
+        })()}
 
         {/* Sertifikatlar — admin bergan, QR bilan tekshiriladigan hujjatlar */}
         {certificates?.length > 0 && (

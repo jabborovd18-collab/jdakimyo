@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
+import AvatarUpload from '@/components/AvatarUpload'
 import {
   SHRIFTLAR, URGU_RANGLARI, ODDIY_INTERFEYS, keshlaVaQoll, tozala,
 } from '@/lib/interfeys'
@@ -40,11 +41,14 @@ const LEARNING_STYLES = [
 ]
 
 export default function SozlamaPage() {
-  const { data: session } = useSession()
+  const { data: session, update } = useSession()
   const [activeSection, setActiveSection] = useState('personal')
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  // Avatar alohida: u shaklga kirmaydi, chunki darhol yuklanadi va
+  // "Saqlash" tugmasini kutmaydi
+  const [avatar, setAvatar] = useState(null)
 
   const [formData, setFormData] = useState({
     // Shaxsiy
@@ -115,6 +119,7 @@ export default function SozlamaPage() {
       
       if (res.ok && data.user) {
         const u = data.user
+        setAvatar(u.avatar || null)
         setFormData(prev => ({
           ...prev,
           fullName: u.fullName || '',
@@ -334,6 +339,22 @@ export default function SozlamaPage() {
           {activeSection === 'personal' && (
             <SectionCard icon="👤" title="Shaxsiy Ma'lumotlar" color="purple">
               <div className="space-y-4">
+                {/* Avatar yuklash. Komponent ham, API ham bor edi, lekin
+                    hech qayerga qo'yilmagan edi — ya'ni rasm almashtirish
+                    yo'li umuman yo'q edi. */}
+                <div className="flex justify-center pb-2">
+                  <AvatarUpload
+                    currentAvatar={avatar}
+                    userName={formData.fullName || session?.user?.username}
+                    onUploadSuccess={(url) => {
+                      setAvatar(url)
+                      // Sessiyadagi rasm ham yangilansin, aks holda
+                      // sarlavhadagi eski avatar chiqib turadi
+                      update?.({ avatar: url })
+                    }}
+                  />
+                </div>
+
                 <InputField
                   label="Ism-familiya"
                   value={formData.fullName}
