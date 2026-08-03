@@ -55,6 +55,7 @@ export default async function AdminLayout({ children }) {
       title: 'Tizim',
       items: [
         { name: 'Muhokama', href: '/admin/forum', icon: '💬', kerak: 'moderatsiya' },
+        { name: 'Chat nazorati', href: '/admin/chat', icon: '💌', kerak: 'moderatsiya' },
         { name: 'Moderatsiya', href: '/admin/moderation', icon: '🛡️', kerak: 'moderatsiya' },
         { name: 'Oxirgi amallar', href: '/admin/logs', icon: '📋', kerak: 'qaydnoma' },
         { name: 'Sozlamalar', href: '/admin/settings', icon: '⚙️', kerak: 'sozlamalar' },

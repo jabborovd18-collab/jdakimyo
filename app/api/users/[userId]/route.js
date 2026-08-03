@@ -56,6 +56,23 @@ export async function GET(request, { params }) {
       )
     }
 
+    // ─── BLOKLASH ───
+    //
+    // Bloklangan odam uchun profil egasi umuman yo'q bo'lib qoladi.
+    // "Sizni bloklashgan" deb aytilmaydi: bu bloklovchini fosh qiladi va
+    // ko'pincha janjalning davomiga aylanadi.
+    if (session?.user?.id && session.user.id !== user.id) {
+      const bloklagan = await prisma.userBlock.findUnique({
+        where: {
+          blockerId_blockedId: { blockerId: user.id, blockedId: session.user.id },
+        },
+        select: { id: true },
+      })
+      if (bloklagan) {
+        return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 })
+      }
+    }
+
     // ─── MAXFIYLIK ───
     //
     // Uch daraja: hamma | dostlar | hech-kim (lib/maxfiylik.js). Eski

@@ -73,6 +73,29 @@ export default function PublicProfilePage() {
   const [friendshipStatus, setFriendshipStatus] = useState('none')
   const [followStatus, setFollowStatus] = useState('none')
   const [isFollowLoading, setIsFollowLoading] = useState(false)
+  const [chatOchilmoqda, setChatOchilmoqda] = useState(false)
+
+  // Suhbatni ochish: server do'stlikni tekshiradi va suhbatni "faol"
+  // yoki "sorov" holatida yaratadi
+  const chatniOch = async () => {
+    setChatOchilmoqda(true)
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: params.userId }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      if (data.holat === 'sorov') {
+        toast('Do\'st emassiz — xabaringiz so\'rov bo\'lib tushadi', { icon: '📨' })
+      }
+      router.push(`/profil/chat?suhbat=${data.suhbatId}`)
+    } catch (e) {
+      toast.error(e.message)
+      setChatOchilmoqda(false)
+    }
+  }
 
   useEffect(() => {
     if (params?.userId) {
@@ -344,6 +367,19 @@ export default function PublicProfilePage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-2">
+              {/* Do'stlar to'g'ridan-to'g'ri yozadi, boshqalarniki so'rov
+                  bo'lib tushadi — buni bosishdan oldin aytib qo'yamiz */}
+              {session && (
+                <button
+                  onClick={chatniOch}
+                  disabled={chatOchilmoqda}
+                  className="px-6 py-3 bg-purple-700/60 hover:bg-purple-600/70 border border-purple-500/50 text-white font-bold rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                  <span>💬</span>
+                  <span>{chatOchilmoqda ? 'Ochilmoqda...' : 'Xabar yozish'}</span>
+                </button>
+              )}
+
               {/* 🆕 FOLLOW TUGMASI */}
               {session && (
                 <>

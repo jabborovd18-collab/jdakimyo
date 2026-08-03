@@ -129,6 +129,21 @@ model User {
   // PROFIL POSTLARI
   profilePosts ProfilePost[]
 
+  // ─── Shaxsiy chat ───
+  // Ogohlantirish soni va yozish taqiqi — laboratoriya xarid taqiqi bilan
+  // bir xil naqsh: muddat bilan qo'yiladi va o'zi ochiladi.
+  chatWarnings       Int       @default(0)
+  chatBlockedUntil   DateTime?
+  chatBlockedReason  String?
+
+  suhbat1        Conversation[]  @relation("Suhbat1")
+  suhbat2        Conversation[]  @relation("Suhbat2")
+  yuborganXabar  Message[]       @relation("XabarYuboruvchi")
+  bloklaganlarim UserBlock[]     @relation("Bloklovchi")
+  meniBloklagan  UserBlock[]     @relation("Bloklangan")
+  chatShikoyat   ChatReport[]    @relation("ShikoyatYuboruvchi")
+  chatShikoyati  ChatReport[]    @relation("ShikoyatQilingan")
+
   // KIMYOGAR KO'CHAT
   plant Plant?
 
@@ -813,6 +828,116 @@ model Notification {
   @@index([userId, oqilgan])
   @@index([userId, createdAt])
   @@index([adminId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SHAXSIY CHAT
+// ═══════════════════════════════════════════════════════════════
+
+// Ikki kishi orasidagi suhbat.
+//
+// `holat` Instagram naqshi bo'yicha:
+//   faol   — yozishmoqda (do'stlar orasida darhol shunday bo'ladi)
+//   sorov  — do'st bo'lmagan odam yozdi, qabul qiluvchi hali javob
+//            bermagan. Xabarlar yoziladi, lekin "so'rovlar" bo'limida
+//            turadi va bildirishnoma yuborilmaydi.
+//   rad    — so'rov rad etilgan; yangi xabar qabul qilinmaydi
+//
+// `user1Id`/`user2Id` HAR DOIM saralangan tartibda saqlanadi. Shunda
+// bitta juftlik uchun ikkita suhbat paydo bo'lishi mumkin emas — bu
+// xatoni keyin tuzatib bo'lmaydi, chunki yozishma ikkiga bo'linib
+// ketadi.
+model Conversation {
+  id      String @id @default(cuid())
+  user1Id String
+  user2Id String
+  user1   User   @relation("Suhbat1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2   User   @relation("Suhbat2", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  holat        String @default("faol") // faol | sorov | rad
+  boshlovchiId String // so'rovni kim boshlagani
+
+  oxirgiXabar DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  xabarlar Message[]
+
+  @@unique([user1Id, user2Id])
+  @@index([user1Id, oxirgiXabar])
+  @@index([user2Id, oxirgiXabar])
+}
+
+// Xabar.
+//
+// O'chirish YUMSHOQ: matn bazada qoladi, foydalanuvchiga "o'chirildi" deb
+// ko'rsatiladi. Nega: o'chirilgan xabar ustidan shikoyat kelishi mumkin va
+// o'sha paytda admin nima yozilganini ko'ra olishi kerak. Aks holda
+// haqorat yozib, darhol o'chirib qo'yish jazosiz qolardi.
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation("XabarYuboruvchi", fields: [senderId], references: [id], onDelete: Cascade)
+
+  matn String @db.Text
+
+  oqilgan    Boolean @default(false)
+  ochirilgan Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+// Bloklash.
+//
+// Bloklangan odam yoza olmaydi VA bloklovchining profilini ko'ra olmaydi
+// (u uchun foydalanuvchi "topilmadi" bo'lib qoladi). Bloklashni faqat
+// bloklovchining o'zi olib tashlaydi.
+model UserBlock {
+  id        String @id @default(cuid())
+  blockerId String
+  blockedId String
+  blocker   User   @relation("Bloklovchi", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User   @relation("Bloklangan", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  sabab     String?
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+}
+
+// Chat shikoyati.
+//
+// Alohida jadval, chunki adminga XABARLAR kerak: shikoyat qilingan
+// odamning o'sha suhbatdagi yozganlari. Umumiy Report modeli faqat
+// foydalanuvchiga ishora qiladi va suhbatni topib bo'lmasdi.
+model ChatReport {
+  id             String @id @default(cuid())
+  reporterId     String
+  reportedId     String
+  conversationId String
+
+  reporter User @relation("ShikoyatYuboruvchi", fields: [reporterId], references: [id], onDelete: Cascade)
+  reported User @relation("ShikoyatQilingan", fields: [reportedId], references: [id], onDelete: Cascade)
+
+  sabab String @db.Text
+  holat String @default("yangi") // yangi | korildi | chora | rad
+
+  korganAdminId String?
+  korilganVaqt  DateTime?
+  adminIzohi    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([holat, createdAt])
+  @@index([reportedId])
 }
 
 // Profil posti — foydalanuvchi o'z sahifasiga qoldiradigan qisqa yozuv.
