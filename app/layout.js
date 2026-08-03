@@ -59,6 +59,13 @@ export const metadata = {
     index: true,
     follow: true,
   },
+  // Google Search Console egalikni shu teg orqali tasdiqlaydi.
+  // Faqat tokenning o'zi turadi: Google bergan qatorda
+  // "google-site-verification=" prefiksi ham bor, lekin u teg NOMI —
+  // content ichiga tushsa tasdiqlash o'tmaydi.
+  verification: {
+    google: "QYVjxdNqH21Af-rF2UdeFJDHEGkn-QDtkYBzqJOOT6Y",
+  },
 };
 
 export default function RootLayout({ children }) {
