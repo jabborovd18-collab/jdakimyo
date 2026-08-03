@@ -34,11 +34,16 @@ export const metadata = {
   ],
   authors: [{ name: "Diyorbek Jabborov Arslonivich" }],
   creator: "Diyorbek Jabborov Arslonivich",
-  metadataBase: new URL("https://jdakimyo.uz"),
+  // www BILAN: kontentni 200 bilan qaytaradigan yagona host shu,
+  // jdakimyo.uz esa 307 bilan unga yo'naltiradi. metadataBase butun
+  // saytdagi canonical manzillarning asosi — u yo'naltiriladigan hostni
+  // ko'rsatsa, Google'ga "asosiy nusxa mana bu yerda" deb turib, o'sha
+  // manzil boshqa joyga jo'natadi. Ikkala ishora bir xil bo'lishi kerak.
+  metadataBase: new URL("https://www.jdakimyo.uz"),
   openGraph: {
     type: "website",
     locale: "uz_UZ",
-    url: "https://jdakimyo.uz",
+    url: "https://www.jdakimyo.uz",
     siteName: "JDA KIMYO",
     title: "JDA KIMYO — Kompleks birikmalar kimyosi",
     description:

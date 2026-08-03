@@ -25,7 +25,10 @@ export default function robots() {
         ],
       },
     ],
-    sitemap: 'https://jdakimyo.uz/sitemap.xml',
-    host: 'https://jdakimyo.uz',
+    // www BILAN: jdakimyo.uz 307 bilan www ga yo'naltiradi, ya'ni
+    // kontentni rostdan qaytaradigan yagona host shu. Yo'naltiriladigan
+    // manzilni ko'rsatish har bir so'rovga ortiqcha qadam qo'shadi.
+    sitemap: 'https://www.jdakimyo.uz/sitemap.xml',
+    host: 'https://www.jdakimyo.uz',
   }
 }

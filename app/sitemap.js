@@ -22,7 +22,10 @@
 import { prisma } from '@/lib/prisma'
 import mavzular from '@/lib/sitemap-royxat.json'
 
-const SAYT = 'https://jdakimyo.uz'
+// www BILAN: jdakimyo.uz 307 bilan www ga yo'naltiradi. Sitemapda
+// yo'naltiriladigan manzil turishi kraul byudjetini behuda sarflaydi —
+// robot har bir manzil uchun ikki so'rov qiladi.
+const SAYT = 'https://www.jdakimyo.uz'
 
 /** Qo'lda kiritiladigan asosiy bo'limlar */
 const ASOSIY = [
