@@ -7,10 +7,20 @@
 // havola bo'yicha yursa, chuqurdagi sahifalarni oylab topmasligi
 // mumkin. Sitemap ularning hammasini bir joyda ko'rsatadi.
 //
-// Ro'yxat FAYL TIZIMIDAN emas, qo'lda tuzilgan bo'limlardan chiqadi:
-// shaxsiy kabinet, admin panel va API sahifalari indekslanmasligi kerak,
-// fayllarni sanab chiqsak esa ular ham tushib qolardi.
+// Ro'yxat ikki manbadan yig'iladi:
+//
+//   1. ASOSIY — qo'lda yozilgan kirish nuqtalari (bosh sahifa, katalog
+//      sahifalari). Ularning sarlavhasi ildiz layout'dan keladi, shuning
+//      uchun avtomatik yig'ilishga tushmaydi.
+//   2. sitemap-royxat.json — o'z metadata'siga ega mavzu sahifalari,
+//      scripts/gen-sitemap-royxat.js yig'adi.
+//
+// Nega hamma sahifa emas: sarlavhasi yo'q sahifa Google'ga saytdagi
+// o'sha bitta umumiy nom bilan boradi. Bunday sahifani sitemapga
+// qo'shish takroriy hujjatlar sonini oshiradi, foyda bermaydi.
+// Sarlavha yozilgan kuni sahifa ro'yxatga o'zi qo'shiladi.
 import { prisma } from '@/lib/prisma'
+import mavzular from '@/lib/sitemap-royxat.json'
 
 const SAYT = 'https://jdakimyo.uz'
 
@@ -42,6 +52,23 @@ export default async function sitemap() {
     changeFrequency: s.yangilanish,
     priority: s.muhimlik,
   }))
+
+  // Mavzu sahifalari. ASOSIY da allaqachon bori qayta qo'shilmasin —
+  // bir manzil ikki marta turgan sitemap xato hisoblanadi.
+  const bor = new Set(royxat.map((s) => s.url))
+  for (const yol of mavzular) {
+    const url = `${SAYT}${yol}`
+    if (bor.has(url)) continue
+    bor.add(url)
+    royxat.push({
+      url,
+      lastModified: hozir,
+      // Mavzu matni kamdan-kam o'zgaradi, lekin butunlay qotib
+      // qolgan ham emas — oyiga bir marta so'rash haqiqatga yaqin.
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    })
+  }
 
   // Ochiq kanallar — ular tez-tez yangilanadi va indekslanishi foydali.
   // Baza javob bermasa sitemap baribir qaytadi: qidiruv tizimi bo'sh
