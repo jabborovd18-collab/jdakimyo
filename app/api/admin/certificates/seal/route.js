@@ -11,7 +11,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 
 export async function POST(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('sertifikatlar')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const formData = await request.formData()

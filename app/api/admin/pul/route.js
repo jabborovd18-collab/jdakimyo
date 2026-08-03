@@ -16,7 +16,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-import { isAdminRole } from '@/lib/roles'
+import { huquqiBormi } from '@/lib/roles'
 import { labniOl, taqiqKuchdami } from '@/lib/laboratoriya'
 import { xabarYubor } from '@/lib/bildirishnoma'
 import { sanaVaqt } from '@/lib/sana'
@@ -47,7 +47,7 @@ export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (!isAdminRole(session.user.role)) {
+    if (!huquqiBormi(session.user.role, 'pul')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

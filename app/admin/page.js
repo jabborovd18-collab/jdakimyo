@@ -1,8 +1,20 @@
 // app/admin/page.js
+import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { huquqiBormi } from '@/lib/roles'
 import Link from 'next/link'
 
 export default async function AdminDashboard() {
+  // Dashboard — foydalanuvchilar soni, ro'yxatdan o'tishlar, reyting: bular
+  // nazorat ma'lumoti. Moderatorga yopiq, shuning uchun u panelga kirganda
+  // to'g'ridan-to'g'ri o'z ishiga tushadi.
+  const session = await getServerSession(authOptions)
+  if (!huquqiBormi(session?.user?.role, 'statistika')) {
+    redirect('/admin/quizzes')
+  }
+
   // Parallel ravishda barcha statistikalarni olish
   const [
     totalUsers,

@@ -6,7 +6,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 // POST - Foydalanuvchiga yutuq berish
 export async function POST(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('gamifikatsiya')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { userId, achievementKey } = await request.json()

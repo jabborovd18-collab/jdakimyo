@@ -122,6 +122,10 @@ model User {
   notifications     Notification[] @relation("NotificationUser")
   sentNotifications Notification[] @relation("NotificationAdmin")
 
+  // KANALLAR
+  channels          Channel[]             @relation("ChannelOwner")
+  channelSubs       ChannelSubscription[]
+
   // KIMYOGAR KO'CHAT
   plant Plant?
 
@@ -806,6 +810,105 @@ model Notification {
   @@index([userId, oqilgan])
   @@index([userId, createdAt])
   @@index([adminId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// KANALLAR (hamkorlar dashboardi)
+// ═══════════════════════════════════════════════════════════════
+
+// Hamkor kanali — Telegram kanalining sayt ichidagi o'rnini bosadi.
+//
+// Farqi: obunachi bu yerda quiz yechadi, video darslikni ko'radi va
+// kimyo muhitida tanilib boradi. Telegram'da kanal ochgan odam uni
+// reklama qilishi kerak, bu yerda esa ochiq kanal katalogda va
+// tavsiyalarda o'zi chiqadi.
+//
+// Kanalni FAQAT superadmin ochadi va egasini tayinlaydi. Hamkor uni
+// to'ldiradi va yuritadi — shu bilan "hamkor" unvoni haqiqiy ma'noga
+// ega bo'ladi va kanal nazorati saytda qoladi.
+model Channel {
+  id     String  @id @default(cuid())
+  slug   String  @unique // manzilda ko'rinadi: /kanallar/tushunarli-kimyo
+  nom    String
+  tavsif String? @db.Text
+  avatar String?
+  banner String?
+  turi   String  @default("talim") // talim | ilmiy | amaliy
+
+  // `ochiq` — katalogda va tavsiyalarda ko'rinadimi. Yopiq kanal
+  // ishlayveradi, faqat uni havola orqali topish mumkin.
+  ochiq     Boolean @default(true)
+  tavsiyada Boolean @default(false)
+  faol      Boolean @default(true)
+
+  egaId String
+  ega   User   @relation("ChannelOwner", fields: [egaId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  postlar  ChannelPost[]
+  videolar ChannelVideo[]
+  obunalar ChannelSubscription[]
+
+  @@index([ochiq, faol])
+  @@index([egaId])
+  @@index([tavsiyada])
+}
+
+// Kanal lentasi — matn va rasm bilan e'lon.
+model ChannelPost {
+  id        String  @id @default(cuid())
+  channelId String
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  sarlavha String
+  matn     String  @db.Text
+  rasm     String?
+
+  nashr     Boolean @default(true) // qoralama bo'lsa false
+  korishlar Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId, createdAt])
+}
+
+// Kanal video darsligi. Fayl saqlanmaydi — tashqi havola (YouTube va
+// hokazo) yoziladi: video hosting alohida katta ish va uni sayt o'z
+// zimmasiga olishi shart emas.
+model ChannelVideo {
+  id        String  @id @default(cuid())
+  channelId String
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  sarlavha  String
+  tavsif    String? @db.Text
+  videoUrl  String
+  thumbnail String?
+
+  tartib    Int     @default(0)
+  nashr     Boolean @default(true)
+  korishlar Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId, tartib])
+}
+
+model ChannelSubscription {
+  id        String  @id @default(cuid())
+  channelId String
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([channelId, userId])
+  @@index([userId])
 }
 
 model AuditLog {

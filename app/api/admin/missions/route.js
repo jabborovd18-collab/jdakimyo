@@ -6,7 +6,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 // GET - Barcha missiyalarni olish
 export async function GET(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('gamifikatsiya')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { searchParams } = new URL(request.url)
@@ -69,7 +69,7 @@ export async function GET(request) {
 // POST - Yangi missiya qo'shish
 export async function POST(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('gamifikatsiya')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const data = await request.json()
@@ -108,7 +108,7 @@ export async function POST(request) {
 // PUT - Missiyani tahrirlash
 export async function PUT(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('gamifikatsiya')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const data = await request.json()
@@ -144,7 +144,7 @@ export async function PUT(request) {
 // DELETE - Missiyani o'chirish
 export async function DELETE(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('gamifikatsiya')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { searchParams } = new URL(request.url)

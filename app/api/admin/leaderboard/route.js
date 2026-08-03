@@ -6,7 +6,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 // GET - Leaderboard ma'lumotlari
 export async function GET(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('gamifikatsiya')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { searchParams } = new URL(request.url)

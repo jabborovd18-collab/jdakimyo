@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import Link from 'next/link'
+import { adminHuquqlari, isAdminRole } from '@/lib/roles'
 
 export default async function AdminLayout({ children }) {
   const session = await getServerSession(authOptions)
@@ -12,53 +13,58 @@ export default async function AdminLayout({ children }) {
     redirect('/login?callbackUrl=/admin')
   }
 
-  // Admin roli tekshiruv
-  const isAdmin = session.user.role === 'admin' || 
-                  session.user.role === 'superadmin' || 
-                  session.user.role === 'moderator'
-
-  if (!isAdmin) {
+  if (!isAdminRole(session.user.role)) {
     redirect('/')
   }
+
+  // Kim nimani ko'radi — lib/roles.js dagi yagona jadvaldan.
+  // Menyudan yashirish yetarli emas: har bir API o'z tekshiruvini
+  // qiladi, bu yerdagisi faqat ko'rinishni tozalaydi.
+  const huquq = adminHuquqlari(session.user.role)
 
   const navigation = [
     {
       title: 'Asosiy',
       items: [
-        { name: 'Dashboard', href: '/admin', icon: '📊' },
-        { name: 'Foydalanuvchilar', href: '/admin/users', icon: '👥' },
-        { name: 'Sertifikatlar', href: '/admin/certificates', icon: '🎓' },
+        { name: 'Dashboard', href: '/admin', icon: '📊', kerak: 'statistika' },
+        { name: 'Foydalanuvchilar', href: '/admin/users', icon: '👥', kerak: 'foydalanuvchilar' },
+        { name: 'Sertifikatlar', href: '/admin/certificates', icon: '🎓', kerak: 'sertifikatlar' },
+        { name: 'Kanallar', href: '/admin/kanallar', icon: '📢', kerak: 'kanallar' },
       ]
     },
     {
       title: 'Kontent',
       items: [
-        { name: 'Birikmalar', href: '/admin/compounds', icon: '🧪' },
-        { name: 'Reaksiyalar', href: '/admin/reactions', icon: '⚗️' },
-        { name: 'Quiz savollari', href: '/admin/quizzes', icon: '📝' },
-        { name: 'Tahlil usullari', href: '/admin/analysis', icon: '🔬' },
-        { name: '3D Molekulalar', href: '/admin/molecules', icon: '🔷' },
+        { name: 'Birikmalar', href: '/admin/compounds', icon: '🧪', kerak: 'kontent' },
+        { name: 'Reaksiyalar', href: '/admin/reactions', icon: '⚗️', kerak: 'kontent' },
+        { name: 'Quiz savollari', href: '/admin/quizzes', icon: '📝', kerak: 'kontent' },
+        { name: 'Tahlil usullari', href: '/admin/analysis', icon: '🔬', kerak: 'kontent' },
+        { name: '3D Molekulalar', href: '/admin/molecules', icon: '🔷', kerak: 'kontent' },
       ]
     },
     {
       title: 'Gamification',
       items: [
-        { name: 'Missiyalar', href: '/admin/missions', icon: '🎯' },
-        { name: 'Yutuqlar', href: '/admin/achievements', icon: '🏆' },
-        { name: 'Leaderboard', href: '/admin/leaderboard', icon: '⭐' },
-        { name: 'Pul nazorati', href: '/admin/pul', icon: '🪙' },
+        { name: 'Missiyalar', href: '/admin/missions', icon: '🎯', kerak: 'gamifikatsiya' },
+        { name: 'Yutuqlar', href: '/admin/achievements', icon: '🏆', kerak: 'gamifikatsiya' },
+        { name: 'Leaderboard', href: '/admin/leaderboard', icon: '⭐', kerak: 'gamifikatsiya' },
+        { name: 'Pul nazorati', href: '/admin/pul', icon: '🪙', kerak: 'pul' },
       ]
     },
     {
       title: 'Tizim',
       items: [
-        { name: 'Muhokama', href: '/admin/forum', icon: '💬' },
-        { name: 'Moderatsiya', href: '/admin/moderation', icon: '🛡️' },
-        { name: 'Loglar', href: '/admin/logs', icon: '📋' },
-        { name: 'Sozlamalar', href: '/admin/settings', icon: '⚙️' },
+        { name: 'Muhokama', href: '/admin/forum', icon: '💬', kerak: 'moderatsiya' },
+        { name: 'Moderatsiya', href: '/admin/moderation', icon: '🛡️', kerak: 'moderatsiya' },
+        { name: 'Oxirgi amallar', href: '/admin/logs', icon: '📋', kerak: 'qaydnoma' },
+        { name: 'Sozlamalar', href: '/admin/settings', icon: '⚙️', kerak: 'sozlamalar' },
       ]
     }
   ]
+    // Huquqi yo'q bandlar butunlay olib tashlanadi — bosilmaydigan
+    // havolani ko'rsatib turish foydalanuvchini chalg'itadi
+    .map(guruh => ({ ...guruh, items: guruh.items.filter(i => huquq[i.kerak]) }))
+    .filter(guruh => guruh.items.length > 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950/20 to-slate-950">

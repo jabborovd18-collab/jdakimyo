@@ -4,11 +4,12 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-import { isAdminRole } from '@/lib/roles'
+import { huquqiBormi } from '@/lib/roles'
+import { qaydEt } from '@/lib/qaydnoma'
 
 async function adminTekshir() {
   const session = await getServerSession(authOptions)
-  if (!session?.user || !isAdminRole(session.user.role)) return null
+  if (!session?.user || !huquqiBormi(session.user.role, 'moderatsiya')) return null
   return session.user
 }
 
@@ -114,6 +115,16 @@ export async function PUT(request) {
     }
 
     const updated = await prisma.forumPost.update({ where: { id }, data })
+
+    await qaydEt({
+      adminId: admin.id,
+      action: `forum:${action}`,
+      targetType: 'ForumPost',
+      targetId: id,
+      details: body.reason || null,
+      request,
+    })
+
     return NextResponse.json({ success: true, post: updated, message: xabar })
   } catch (error) {
     console.error('[Admin forum PUT]', error)
@@ -131,7 +142,25 @@ export async function DELETE(request) {
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'id majburiy' }, { status: 400 })
 
+    // Nima o'chirilgani qaydnomada qolishi kerak: izohni o'chirish
+    // qaytarib bo'lmaydigan amal va "nega o'chirilgan" degan savol
+    // keyinroq berilishi mumkin
+    const oldingi = await prisma.forumPost.findUnique({
+      where: { id },
+      select: { content: true, authorId: true },
+    })
+
     await prisma.forumPost.delete({ where: { id } })
+
+    await qaydEt({
+      adminId: admin.id,
+      action: 'deleteForumPost',
+      targetType: 'ForumPost',
+      targetId: id,
+      details: oldingi ? String(oldingi.content).slice(0, 200) : null,
+      request,
+    })
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[Admin forum DELETE]', error)

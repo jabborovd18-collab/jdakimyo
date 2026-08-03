@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
-import { ASSIGNABLE_ROLES, roleInfo } from '@/lib/roles'
+import { ASSIGNABLE_ROLES, huquqiBormi, roleInfo } from '@/lib/roles'
 import { xabarYubor } from '@/lib/bildirishnoma'
 
 /**
@@ -38,9 +38,10 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin tekshiruv
-    const isAdmin = ['admin', 'superadmin', 'moderator'].includes(session.user.role)
-    if (!isAdmin) {
+    // Foydalanuvchilar ro'yxati moderatorga YOPIQ: bu nazorat ma'lumoti
+    // (email, oxirgi faollik, ballar), moderatorning ishi esa kontent va
+    // izohlarni tozalash.
+    if (!huquqiBormi(session.user.role, 'foydalanuvchilar')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

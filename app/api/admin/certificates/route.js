@@ -55,7 +55,7 @@ function sorovManbasi(request) {
 // GET - Berilgan sertifikatlar ro'yxati
 export async function GET(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('sertifikatlar')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { searchParams } = new URL(request.url)
@@ -107,7 +107,7 @@ export async function GET(request) {
 // POST - Yangi sertifikat berish
 export async function POST(request) {
   try {
-    const { isAdmin, user: admin } = await checkAdminAuth()
+    const { isAdmin, user: admin } = await checkAdminAuth('sertifikatlar')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const data = await request.json()
@@ -214,7 +214,7 @@ export async function POST(request) {
 // PUT - Sertifikatni tahrirlash yoki bekor qilish (status)
 export async function PUT(request) {
   try {
-    const { isAdmin, user: admin } = await checkAdminAuth()
+    const { isAdmin, user: admin } = await checkAdminAuth('sertifikatlar')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const data = await request.json()
@@ -288,7 +288,7 @@ export async function PUT(request) {
 // DELETE - Sertifikatni o'chirish
 export async function DELETE(request) {
   try {
-    const { isAdmin, user: admin } = await checkAdminAuth()
+    const { isAdmin, user: admin } = await checkAdminAuth('sertifikatlar')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { searchParams } = new URL(request.url)

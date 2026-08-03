@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { huquqiBormi } from '@/lib/roles'
+import { qaydEt } from '@/lib/qaydnoma'
 
 // GET - Barcha savollarni olish (filter, search, pagination bilan)
 export async function GET(request) {
@@ -12,8 +14,7 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isAdmin = ['admin', 'superadmin', 'moderator'].includes(session.user.role)
-    if (!isAdmin) {
+    if (!huquqiBormi(session.user.role, 'kontent')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -76,8 +77,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isAdmin = ['admin', 'superadmin'].includes(session.user.role)
-    if (!isAdmin) {
+    // Moderator ham quiz qo'sha oladi va tahrirlaydi — bu uning asosiy
+    // ishi. Avval bu yerda faqat admin/superadmin turardi va moderator
+    // savollar ro'yxatini ko'rardi-yu, hech narsa qila olmasdi.
+    if (!huquqiBormi(session.user.role, 'kontent')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -111,6 +114,15 @@ export async function POST(request) {
       }
     })
 
+    await qaydEt({
+      adminId: session.user.id,
+      action: 'createQuiz',
+      targetType: 'QuizQuestion',
+      targetId: question.id,
+      details: `${data.category}: ${String(data.question).slice(0, 120)}`,
+      request,
+    })
+
     return NextResponse.json({
       success: true,
       question,
@@ -130,8 +142,10 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isAdmin = ['admin', 'superadmin'].includes(session.user.role)
-    if (!isAdmin) {
+    // Moderator ham quiz qo'sha oladi va tahrirlaydi — bu uning asosiy
+    // ishi. Avval bu yerda faqat admin/superadmin turardi va moderator
+    // savollar ro'yxatini ko'rardi-yu, hech narsa qila olmasdi.
+    if (!huquqiBormi(session.user.role, 'kontent')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -155,6 +169,15 @@ export async function PUT(request) {
       }
     })
 
+    await qaydEt({
+      adminId: session.user.id,
+      action: 'updateQuiz',
+      targetType: 'QuizQuestion',
+      targetId: question.id,
+      details: String(data.question || '').slice(0, 120),
+      request,
+    })
+
     return NextResponse.json({
       success: true,
       question,
@@ -174,8 +197,10 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isAdmin = ['admin', 'superadmin'].includes(session.user.role)
-    if (!isAdmin) {
+    // Moderator ham quiz qo'sha oladi va tahrirlaydi — bu uning asosiy
+    // ishi. Avval bu yerda faqat admin/superadmin turardi va moderator
+    // savollar ro'yxatini ko'rardi-yu, hech narsa qila olmasdi.
+    if (!huquqiBormi(session.user.role, 'kontent')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -186,7 +211,19 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'ID kerak' }, { status: 400 })
     }
 
+    // O'chirishdan oldin o'qib olamiz: qaydnomada "qaysi savol" degan
+    // savolga javob qolishi kerak, aks holda faqat id qoladi
+    const oldingi = await prisma.quizQuestion.findUnique({ where: { id } })
     await prisma.quizQuestion.delete({ where: { id } })
+
+    await qaydEt({
+      adminId: session.user.id,
+      action: 'deleteQuiz',
+      targetType: 'QuizQuestion',
+      targetId: id,
+      details: oldingi ? String(oldingi.question).slice(0, 120) : null,
+      request,
+    })
 
     return NextResponse.json({
       success: true,

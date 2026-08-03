@@ -6,7 +6,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 // GET - Sozlamalarni olish
 export async function GET() {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('sozlamalar')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     let settings = await prisma.siteSettings.findUnique({

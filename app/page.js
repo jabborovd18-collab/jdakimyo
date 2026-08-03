@@ -60,6 +60,7 @@ export default function Home() {
     { href: "/birikmalar", label: "Birikmalar" },
     { href: "/oquv/video-darsliklar", label: "Video & Quiz" },
     { href: "/laboratoriya", label: "Laboratoriya" },
+    { href: "/kanallar", label: "Kanallar" },
   ]
 
   // Rolga qarab bosh sahifadagi shaxsiy panel plitkasi (kabinet / ustoz / admin)

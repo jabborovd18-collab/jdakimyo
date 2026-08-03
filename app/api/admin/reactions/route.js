@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma'
 import { buildSearchIndex, normalizeQuery } from '@/lib/chem-search'
 import { isAdminRole } from '@/lib/roles'
 import { keshniTozala } from '@/lib/tajriba'
+import { qaydEt } from '@/lib/qaydnoma'
 
 // Mijozdan qabul qilinadigan maydonlar (whitelist)
 const TEXT_FIELDS = [
@@ -158,6 +159,15 @@ export async function POST(request) {
     // daqiqada yangilanadi.
     keshniTozala()
 
+    await qaydEt({
+      adminId: admin.id,
+      action: 'createReaction',
+      targetType: 'Reaction',
+      targetId: reaction.id,
+      details: reaction.equation,
+      request,
+    })
+
     return NextResponse.json({ success: true, reaction })
   } catch (error) {
     console.error('[Admin reactions POST]', error)
@@ -190,6 +200,15 @@ export async function PUT(request) {
 
     keshniTozala()
 
+    await qaydEt({
+      adminId: admin.id,
+      action: reaction.isVerified && !current.isVerified ? 'verifyReaction' : 'updateReaction',
+      targetType: 'Reaction',
+      targetId: reaction.id,
+      details: reaction.equation,
+      request,
+    })
+
     return NextResponse.json({ success: true, reaction })
   } catch (error) {
     console.error('[Admin reactions PUT]', error)
@@ -207,8 +226,23 @@ export async function DELETE(request) {
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'id majburiy' }, { status: 400 })
 
+    const oldingi = await prisma.reaction.findUnique({
+      where: { id },
+      select: { equation: true },
+    })
+
     await prisma.reaction.delete({ where: { id } })
     keshniTozala()
+
+    await qaydEt({
+      adminId: admin.id,
+      action: 'deleteReaction',
+      targetType: 'Reaction',
+      targetId: id,
+      details: oldingi?.equation || null,
+      request,
+    })
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[Admin reactions DELETE]', error)
