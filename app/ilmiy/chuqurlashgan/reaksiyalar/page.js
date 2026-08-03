@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Komplekslar reaksiyalari",
+  description:
+    "Ligand almashinish, redoks reaksiyalari, kataliz, fotokimyoviy jarayonlar va templat sintez — kompleks birikmalar kimyosining reaksiya turlari.",
+}
+
 export default function Reaksiyalar() {
   const qismlar = [
     {

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "ICP-OES va ICP-MS",
+  description:
+    "Induktiv bog'langan plazma: ko'p elementli tahlil, ppb–ppt sezgirlik va izotop nisbatlarini o'lchash.",
+}
+
 export default function ICP() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

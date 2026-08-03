@@ -1,5 +1,12 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "[Fe(CO)₅] — qisqacha ma'lumot",
+  description:
+    "Pentakarboniltemir(0) haqida qisqa ma'lumotnoma: trigonal-bipiramidal tuzilish va asosiy fizik xossalari.",
+  alternates: { canonical: "/ilmiy/birikmalar/fe-co-5" },
+}
+
 export default function FeCO5() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

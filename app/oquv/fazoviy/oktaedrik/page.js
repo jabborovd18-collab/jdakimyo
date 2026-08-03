@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Oktaedrik geometriya (KS = 6)",
+  description:
+    "Kompleks birikmalarda eng ko'p tarqalgan geometriya: d²sp³ yoki sp³d² gibridlanish, 90° burchak, Oh simmetriya. 3D modeli bilan.",
+}
+
 export default function Oktaedrik() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

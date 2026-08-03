@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Trigonal bipiramida (KS = 5)",
+  description:
+    "sp³d gibridlanish, 90° va 120° valent burchaklar, D₃h simmetriya — aksial va ekvatorial holatlar, 3D modeli bilan.",
+}
+
 export default function TrigonalBipiramida() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

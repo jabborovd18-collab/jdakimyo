@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "[CoCl₄]²⁻ — tetraxlorokobaltat(II)",
+  description:
+    "Tetraedrik d⁷ kompleks: ko'k rangining sababi, [Co(H₂O)₆]²⁺ bilan muvozanati va kristall maydon ajralishi.",
+}
+
 export default function CoCl4() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

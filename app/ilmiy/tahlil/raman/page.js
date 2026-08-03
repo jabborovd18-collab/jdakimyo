@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Raman spektroskopiya",
+  description:
+    "Noelastik yorug'lik sochilishiga asoslangan tebranish spektroskopiyasi: metall-ligand dinamikasi va IQ bilan o'zaro to'ldiruvchanlik.",
+}
+
 export default function RamanSpektroskopiya() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

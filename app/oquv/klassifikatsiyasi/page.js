@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Kompleks birikmalar klassifikatsiyasi",
+  description:
+    "Kompleks birikmalarni tasniflashning uchta usuli: kompleks zaryadiga ko'ra, ligandlar tabiatiga ko'ra va birikmalar sinfiga ko'ra.",
+}
+
 export default function Klassifikatsiyasi() {
   const bolimlar = [
     {

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Anion komplekslar markazi",
+  description:
+    "Anion kompleksda markaziy metall lotincha nomi bilan ataladi: ferrat, kuprat, aurat, plumbat. To'liq jadval va nomlash misollari.",
+}
+
 export default function AnionKomplekslar() {
   const asosiyMetallar = [
     { belgi: "Pb", element: "Qo'rg'oshin", lotincha: "Plumbum", anion: "plyumbat" },

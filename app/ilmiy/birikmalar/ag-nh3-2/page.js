@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "[Ag(NH₃)₂]⁺ — diamminkumush(I)",
+  description:
+    "Tollens reaktivining faol zarrasi: chiziqli d¹⁰ kompleks, sp gibridlanish, kumush ko'zgu reaksiyasidagi roli va barqarorligi.",
+}
+
 export default function AgNH32() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

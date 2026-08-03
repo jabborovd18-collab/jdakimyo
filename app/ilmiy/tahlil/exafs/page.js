@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "EXAFS va XANES",
+  description:
+    "Rentgen yutilish spektroskopiyasi: mahalliy strukturani, koordinatsion sonni va bog' uzunliklarini kristallsiz namunada ham aniqlash.",
+}
+
 export default function EXAFSXANES() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

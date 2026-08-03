@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Komplekslar izomeriyasi — chuqurlashgan",
+  description:
+    "Geometrik, optik, ionlanish, bog'lanish, koordinatsion, gidrat va konformatsion izomeriya — barcha turlar bir joyda, OTM darajasida.",
+}
+
 export default function Izomeriya() {
   const qismlar = [
     {

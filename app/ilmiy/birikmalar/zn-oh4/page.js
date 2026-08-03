@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "[Zn(OH)₄]²⁻ — tetragidroksosinkat(II)",
+  description:
+    "Ruxning amfoter xossasi: Zn(OH)₂ ning ishqorda erishi, tetraedrik d¹⁰ kompleks va rangsizligining sababi.",
+}
+
 export default function ZnOH4() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

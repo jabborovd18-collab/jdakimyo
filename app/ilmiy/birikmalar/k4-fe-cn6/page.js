@@ -1,5 +1,12 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "K₄[Fe(CN)₆] — qisqacha ma'lumot",
+  description:
+    "Kaliy geksasiyanoferrat(II), sariq qon tuzi haqida qisqa ma'lumotnoma: tuzilishi va asosiy xossalari.",
+  alternates: { canonical: "/ilmiy/birikmalar/k4-fe-cn-6" },
+}
+
 export default function K4FeCN6() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

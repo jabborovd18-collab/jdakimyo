@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Valent bog'lanishlar nazariyasi (VB)",
+  description:
+    "Gibridlanish va donor-akseptor bog': sp, sp³, dsp² va d²sp³ turlari kompleksning geometriyasini qanday belgilaydi.",
+}
+
 export default function VBNazariyasi() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Kvadrat antiprizma (KS = 8)",
+  description:
+    "sp³d⁴ gibridlanish, D₄d simmetriya — 45° ga burilgan ikkita parallel kvadratdan iborat shakl, 3D modeli bilan.",
+}
+
 export default function KvadratAntiprizma() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

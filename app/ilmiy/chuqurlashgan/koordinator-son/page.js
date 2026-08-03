@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Koordinatsion son va geometriya",
+  description:
+    "Koordinatsion son 2 dan 12 gacha: poliedr modellari, VSEPR va Kepert yondashuvlari — yetti qismdan iborat chuqurlashgan mavzu.",
+}
+
 export default function KoordinatorSon() {
   const qismlar = [
     {

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Kvadrat piramida geometriya (KS = 5)",
+  description:
+    "sp³d gibridlanish, ~90° valent burchak, C₄v simmetriya — beshkoordinatali komplekslarning ikkinchi asosiy shakli, 3D modeli bilan.",
+}
+
 export default function KvadratPiramida() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

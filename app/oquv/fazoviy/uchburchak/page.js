@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Uchburchak geometriya (KS = 3)",
+  description:
+    "sp² gibridlanish, 120° valent burchak, D₃h simmetriya — koordinatsion soni 3 bo'lgan kam uchraydigan komplekslar, 3D modeli bilan.",
+}
+
 export default function Uchburchak() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Rentgen difraksiyasi (XRD)",
+  description:
+    "Kristall tuzilishini aniqlashning asosiy usuli: Bragg qonuni, panjara parametrlari va bog' uzunliklarini o'lchash.",
+}
+
 export default function RentgenDifraksiyasi() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

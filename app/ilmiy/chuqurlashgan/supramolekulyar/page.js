@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Supramolekulyar komplekslar",
+  description:
+    "Host-guest kimyosi, metall-organik karkaslar (MOF), metallosupramolekulyar tuzilmalar va molekulyar mashinalar.",
+}
+
 export default function Supramolekulyar() {
   const qismlar = [
     {

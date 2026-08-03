@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "IUPAC nomlanish qoidalari",
+  description:
+    "IUPAC Red Book asosidagi 11 ta asosiy qoida: kation va anion tartibi, ligandlar ketma-ketligi, oksidlanish darajasi. Har bir qoida misol bilan.",
+}
+
 export default function IUPACQoidalari() {
   const qoidalar = [
     {

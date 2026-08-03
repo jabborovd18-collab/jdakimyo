@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Monoyopiq trigonal prizma (KS = 7)",
+  description:
+    "sp³d³ gibridlanish, C₂v simmetriya — bir yuzi yopilgan trigonal prizma, yettikoordinatali komplekslar uchun, 3D modeli bilan.",
+}
+
 export default function MonoyopiqPrizma() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

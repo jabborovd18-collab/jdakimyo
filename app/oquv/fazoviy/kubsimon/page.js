@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Kubsimon geometriya (KS = 8)",
+  description:
+    "sp³d³f gibridlanish, Oh simmetriya — aktinoidlar uchun xarakterli sakkizkoordinatali shakl, 3D modeli bilan.",
+}
+
 export default function Kubsimon() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

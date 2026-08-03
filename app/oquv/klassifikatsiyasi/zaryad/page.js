@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Kompleks zaryadiga ko'ra tasnifi",
+  description:
+    "Kation, anion va neytral komplekslar: kompleks zaryadi qanday hisoblanadi va har bir turga xos misollar.",
+}
+
 export default function ZaryadBoyicha() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

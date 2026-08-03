@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Ko'p yadroli komplekslar",
+  description:
+    "Metall-metall bog'lar, karbonil klasterlar, bir molekulali magnitlar (SMM), aralash valentli va bioilhomlantirilgan tizimlar.",
+}
+
 export default function KopYadroli() {
   const qismlar = [
     {

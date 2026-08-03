@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Trigonal prizma geometriya (KS = 6)",
+  description:
+    "sd⁵ gibridlanish, D₃h simmetriya — oktaedrga kam uchraydigan muqobil oltikoordinatali shakl, 3D modeli bilan.",
+}
+
 export default function TrigonalPrizma() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

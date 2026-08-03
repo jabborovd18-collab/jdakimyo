@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Tetraedrik geometriya (KS = 4)",
+  description:
+    "sp³ gibridlanish, 109.5° valent burchak, Td simmetriya. Koordinatsion soni 4 bo'lgan eng keng tarqalgan shakllardan biri, 3D modeli bilan.",
+}
+
 export default function Tetraedrik() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

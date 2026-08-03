@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Ikki yoqli kvadrat antiprizma (KS = 10)",
+  description:
+    "Ikkala kvadrat yuzi ham yopilgan antiprizma — juda kam uchraydigan o'nkoordinatali geometriya, 3D modeli bilan.",
+}
+
 export default function IkkiYoqliAntiprizma() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Metall dori vositalari",
+  description:
+    "Pt, Ru, Au, Fe, Ga, Bi, V va Cu komplekslari tibbiyotda: saratonga qarshi preparatlar, diagnostika vositalari va ta'sir mexanizmlari.",
+}
+
 export default function MetallDorilar() {
   const qismlar = [
     {

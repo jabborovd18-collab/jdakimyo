@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Fotokimyo va fotofizika",
+  description:
+    "Jablonski diagrammasi, MLCT qo'zg'algan holat, lantanoidlar lyuminestsensiyasi, OLED va fotokataliz qo'llanilishi.",
+}
+
 export default function Fotokimyo() {
   const qismlar = [
     {

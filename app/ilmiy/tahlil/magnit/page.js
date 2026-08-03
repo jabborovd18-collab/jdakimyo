@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Magnit o'lchashlar",
+  description:
+    "Magnit qabul qiluvchanlikni o'lchash va μeff ni hisoblash orqali kompleksning spin holatini va toq elektronlar sonini aniqlash.",
+}
+
 export default function MagnitOlchashlar() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

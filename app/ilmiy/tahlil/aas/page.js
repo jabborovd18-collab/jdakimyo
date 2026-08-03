@@ -1,6 +1,12 @@
 // app/ilmiy/tahlil/aas/page.jsx
 import Link from "next/link"
 
+export const metadata = {
+  title: "AAS — atom-absorbsion spektroskopiya",
+  description:
+    "Metallning miqdoriy tahlili: alanga va grafit pechi usullari, ppb–ppm diapazoni hamda gidrid generatsiyasi.",
+}
+
 export default function AAS() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

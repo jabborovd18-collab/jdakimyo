@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Pentagonal bipiramida (KS = 7)",
+  description:
+    "sp³d³ gibridlanish, 72° va 90° valent burchaklar, D₅h simmetriya — yettikoordinatali komplekslarning asosiy shakli, 3D modeli bilan.",
+}
+
 export default function PentagonalBipiramida() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

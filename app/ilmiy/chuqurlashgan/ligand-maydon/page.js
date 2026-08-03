@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Ligand maydon nazariyasi — chuqurlashgan",
+  description:
+    "Kristall maydon va molekulyar orbital nazariyalarining birlashmasi: σ va π bog'lanishning ajralish kattaligiga ta'siri, besh bo'limda.",
+}
+
 export default function LigandMaydon() {
   const bolimlar = [
     {

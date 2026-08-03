@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "[Cr(H₂O)₆]³⁺ — geksaakvaxrom(III)",
+  description:
+    "d³ inert kompleks: binafsha rangi, ligand almashinishning sekinligi va kristall maydon barqarorlik energiyasi.",
+}
+
 export default function CrH2O6() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

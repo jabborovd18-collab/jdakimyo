@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Birikmalar sinfiga ko'ra tasnifi",
+  description:
+    "Kompleks kislotalar, kompleks asoslar va kompleks tuzlar — uchta sinfning tuzilishi, nomlanishi va o'zaro farqi.",
+}
+
 export default function SinfBoyicha() {
   const sinflar = [
     {

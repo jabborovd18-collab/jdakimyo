@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Komplekslarning magnit xossalari",
+  description:
+    "Effektiv magnit moment μeff formulasi, magnit sezgirlikni o'lchash, spin-orbit bog'lanish va ko'p yadroli komplekslardagi almashinish.",
+}
+
 export default function Magnit() {
   const bolimlar = [
     {

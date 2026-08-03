@@ -19,10 +19,12 @@ import { maqolalar } from "@/lib/maqolalar"
  * sifatida izohlanadi — shunda rang bezak emas, ma'lumot bo'ladi.
  */
 
+// Sarlavha "Ilmiy bo'lim" emas: uni hech kim qidiruvga yozmaydi.
+// Odam "kompleks birikmalar" deb qidiradi, sarlavha ham shundan boshlanadi.
 export const metadata = {
-  title: "Ilmiy bo'lim",
+  title: "Kompleks birikmalar kutubxonasi",
   description:
-    "Koordinatsion kimyo: kompleks birikmalar, tahlil usullari, chuqurlashgan mavzular va ilmiy maqolalar.",
+    "To'rt yo'nalish: chuqurlashgan mavzular, 20 ta tahlil usuli, birikmalar bazasi va ilmiy maqolalar. Kristall maydon nazariyasidan Mössbauer spektroskopiyasigacha.",
 }
 
 // Tailwind klasslari to'liq matn ko'rinishida turishi shart — aks holda

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "[Ni(CN)₄]²⁻ — tetrasianonikkolat(II)",
+  description:
+    "Kvadrat-planar d⁸ kompleks: kuchli maydon ligandi CN⁻ ta'sirida spin juftlashishi va diamagnitlik.",
+}
+
 export default function NiCN4() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Sendvich tuzilish — ferrosen (KS = 10)",
+  description:
+    "Metallosenlar: metall atomi ikkita siklopentadienil halqasi orasida. [Fe(C₅H₅)₂] va 1973-yil Nobel mukofoti, 3D modeli bilan.",
+}
+
 export default function Sendvich() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

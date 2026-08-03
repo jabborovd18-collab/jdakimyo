@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Elektron spektrlari va rang",
+  description:
+    "Term belgilar, tanlash qoidalari, Orgel va Tanabe-Sugano diagrammalari — kompleks birikmalar nega rangli ekanining nazariy izohi.",
+}
+
 export default function ElektronSpektr() {
   const bolimlar = [
     {

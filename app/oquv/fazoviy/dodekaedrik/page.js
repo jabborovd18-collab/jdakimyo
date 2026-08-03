@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Dodekaedrik geometriya (KS = 8)",
+  description:
+    "sp³d⁴ gibridlanish, D₂d simmetriya — koordinatsion soni 8 bo'lgan komplekslar uchun eng barqaror shakl, 3D modeli bilan.",
+}
+
 export default function Dodekaedrik() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

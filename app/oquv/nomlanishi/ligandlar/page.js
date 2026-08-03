@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Ligandlar nomlanishi",
+  description:
+    "Eng keng tarqalgan ligandlar jadvali — akva, ammin, karbonil, siano, xloro va boshqalar. Har biri formulasi va koordinatsiyadagi nomi bilan.",
+}
+
 export default function LigandlarNomi() {
   const anionLigandlar = [
     { formula: "Br⁻", nomi: "bromo", asli: "Bromid" },

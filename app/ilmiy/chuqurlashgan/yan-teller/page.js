@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Yan-Teller effekti — chuqurlashgan",
+  description:
+    "Oktaedrik komplekslarda simmetriya buzilishining nazariy asosi: d⁴ va d⁹ konfiguratsiyalarda cho'zilish va siqilish.",
+}
+
 export default function YanTeller() {
   const bolimlar = [
     {

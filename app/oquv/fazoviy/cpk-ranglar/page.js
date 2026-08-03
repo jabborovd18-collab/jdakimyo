@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "CPK ranglar jadvali",
+  description:
+    "Corey-Pauling-Koltun xalqaro rang standarti: molekulyar modellarda har bir element qaysi rang bilan ko'rsatiladi va nima uchun.",
+}
+
 export default function CPKRanglar() {
   const ranglar = [
     { atom: "Vodorod", belgi: "H", rang: "Oq", hex: "#FFFFFF", cpk: "Oq" },

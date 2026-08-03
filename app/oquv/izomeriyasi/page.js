@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Kompleks birikmalar izomeriyasi",
+  description:
+    "Koordinatsion kimyoda tuzilish va stereoizomeriya turlari: geometrik, optik, ionlanish, bog'lanish va gidrat izomeriyasi — misollar bilan.",
+}
+
 export default function Izomeriyasi() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950 to-slate-950 text-white">

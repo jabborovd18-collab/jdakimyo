@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Stereoizomeriya: geometrik va optik",
+  description:
+    "Formulasi bir xil, fazoviy tuzilishi har xil izomerlar: sis-trans va fas-mer joylashuvi, xirallik, Δ/Λ enantiomerlar va optik faollik.",
+}
+
 export default function StereoIzomeriya() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-blue-950 to-indigo-950 text-white">

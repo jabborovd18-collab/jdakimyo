@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Ligand maydon nazariyasi (LMN)",
+  description:
+    "Molekulyar orbitallar asosida metall-ligand bog'lanishi: σ-donor va π-akseptor ta'sir hamda KMN dan LMN ga o'tish sababi.",
+}
+
 export default function LigandMaydon() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

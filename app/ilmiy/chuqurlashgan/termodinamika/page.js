@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Termodinamika va barqarorlik",
+  description:
+    "Barqarorlik konstantasi K, ΔG, ΔH va ΔS, Irving-Uilyams qatori, xelat effekti hamda HSAB (qattiq va yumshoq kislota-asos) nazariyasi.",
+}
+
 export default function Termodinamika() {
   const bolimlar = [
     {

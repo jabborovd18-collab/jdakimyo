@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Tekis kvadrat geometriya (KS = 4)",
+  description:
+    "dsp² gibridlanish, 90° valent burchak, D₄h simmetriya — d⁸ metallar uchun xarakterli geometriya, 3D modeli bilan.",
+}
+
 export default function TekisKvadrat() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Kinetika va ligand almashinish",
+  description:
+    "Inert va labil komplekslar, almashinish mexanizmlari, trans-ta'sir, elektron ko'chishi va Eyring tenglamasi — 3D illyustratsiyalar bilan.",
+}
+
 export default function Kinetika() {
   const bolimlar = [
     {

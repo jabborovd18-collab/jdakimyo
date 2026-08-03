@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "[Cu(H₂O)₆]²⁺ — geksaakvamis(II)",
+  description:
+    "Yan-Teller effektining klassik namunasi: d⁹ konfiguratsiyada oktaedrning cho'zilishi, ko'k rang va bog' uzunliklaridagi farq.",
+}
+
 export default function CuH2O6() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

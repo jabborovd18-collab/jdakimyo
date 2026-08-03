@@ -1,5 +1,12 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Sisplatin — qisqacha ma'lumot",
+  description:
+    "sis-diammindixloroplatina(II): saratonga qarshi dorining tuzilishi va asosiy xossalari haqida qisqa ma'lumotnoma.",
+  alternates: { canonical: "/ilmiy/birikmalar/cis-pt-nh3-2-cl2" },
+}
+
 export default function Sisplatin() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">

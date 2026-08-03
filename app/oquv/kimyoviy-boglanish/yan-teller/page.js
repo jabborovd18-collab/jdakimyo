@@ -1,5 +1,11 @@
 import Link from "next/link"
 
+export const metadata = {
+  title: "Yan-Teller effekti",
+  description:
+    "Oktaedrik komplekslarda simmetriyaning buzilishi: nega d⁴ va d⁹ konfiguratsiyalar cho'ziladi, statik va dinamik effekt, Cu²⁺ misoli.",
+}
+
 export default function YanTeller() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
