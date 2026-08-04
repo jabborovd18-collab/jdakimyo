@@ -70,7 +70,41 @@ function LearningCard({ card, view }) {
   )
   if (view === 'assignments') {
     const submission = card.submissions[0]
-    return <article className="rounded-2xl border border-purple-700/40 bg-slate-900/50 p-5"><h2 className="font-semibold text-white">{card.title}</h2><p className="mt-1 text-sm text-purple-300">{card.group.name} · {card.teacher.fullName || card.teacher.username}</p><p className="mt-3 text-sm text-yellow-300">Muddat: {formatDate(card.deadline)}</p><p className="mt-2 text-xs text-purple-300">{submission ? `Holat: ${submission.status}` : 'Hali topshirilmagan'}</p></article>
+    // Ustoz biriktirgan fayllar. Avval ular bazada saqlanardi-yu,
+    // talabaga umuman ko'rsatilmasdi — vazifa sharti ilova bo'lsa,
+    // uni ochishning yo'li yo'q edi.
+    const fayllar = Array.isArray(card.attachments) ? card.attachments : []
+
+    return (
+      <article className="rounded-2xl border border-purple-700/40 bg-slate-900/50 p-5">
+        <h2 className="font-semibold text-white">{card.title}</h2>
+        <p className="mt-1 text-sm text-purple-300">
+          {card.group.name} · {card.teacher.fullName || card.teacher.username}
+        </p>
+        <p className="mt-3 text-sm text-yellow-300">Muddat: {formatDate(card.deadline)}</p>
+        <p className="mt-2 text-xs text-purple-300">
+          {submission ? `Holat: ${submission.status}` : 'Hali topshirilmagan'}
+        </p>
+
+        {fayllar.length > 0 && (
+          <div className="mt-3 space-y-1.5">
+            {fayllar.map((f, i) => (
+              <a
+                key={i}
+                href={f.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border border-purple-800/40 bg-purple-950/30 px-3 py-2 text-xs text-purple-200 transition hover:border-yellow-500/50 hover:text-white"
+              >
+                <span>📎</span>
+                <span className="truncate flex-1">{f.name}</span>
+                {f.size ? <span className="text-purple-500 flex-shrink-0">{f.size} KB</span> : null}
+              </a>
+            ))}
+          </div>
+        )}
+      </article>
+    )
   }
   if (view === 'announcements') return <article className="rounded-2xl border border-purple-700/40 bg-slate-900/50 p-5"><h2 className="font-semibold text-white">{card.title}</h2><p className="mt-2 text-sm text-purple-300 line-clamp-3">{card.content}</p><p className="mt-3 text-xs text-yellow-300">{card.group.name} · {formatDate(card.createdAt)}</p></article>
   return <Link href={`/oquv/video-darsliklar/ustoz-quiz/${card.id}`} className="rounded-2xl border border-purple-700/40 bg-slate-900/50 p-5 transition hover:border-yellow-500/60"><h2 className="font-semibold text-white">{card.title}</h2><p className="mt-1 text-sm text-purple-300">{card.teacher.fullName || card.teacher.username} · {card._count.questions} savol</p><p className="mt-3 text-sm text-yellow-300">{card.attempts[0] ? `${card.attempts[0].percentage}% natija` : 'Quizni boshlash →'}</p></Link>

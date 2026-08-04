@@ -113,6 +113,28 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* ELEKTRON DOSKA.
+              Ma'ruza zalida parol terib bo'lmaydi — 100 talaba ekranni
+              ko'rib turadi. Bu yo'l aynan login sahifasida turishi kerak:
+              odam kirmoqchi bo'lganda shu yerga keladi. */}
+          <div className="mt-6 pt-5 border-t border-purple-800/50">
+            <Link
+              href="/doska"
+              className="flex items-center gap-3 p-3 bg-cyan-900/25 hover:bg-cyan-900/40 border border-cyan-700/50 rounded-xl transition-all group"
+            >
+              <span className="text-2xl">📺</span>
+              <span className="flex-1 min-w-0">
+                <span className="block text-sm font-semibold text-cyan-200">
+                  Elektron doska — QR bilan kirish
+                </span>
+                <span className="block text-xs text-cyan-400/80">
+                  Parol terilmaydi. Telefondan skanerlab tasdiqlaysiz.
+                </span>
+              </span>
+              <span className="text-cyan-400 group-hover:translate-x-0.5 transition-transform">→</span>
+            </Link>
+          </div>
+
           <div className="mt-6 text-center text-sm text-purple-300">
             Hisobingiz yo'qmi?{' '}
             <Link href="/register" className="text-yellow-400 hover:text-yellow-300 font-semibold">

@@ -81,6 +81,9 @@ export default function NewVazifaPage() {
   const [groups, setGroups] = useState([])
   const [isLoadingGroups, setIsLoadingGroups] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  // Fayl yuklanayotganda saqlash tugmasi ham to'siladi: yuklanmagan
+  // fayl bilan vazifani saqlash yarim natija berardi
+  const [yuklanmoqda, setYuklanmoqda] = useState(false)
   const [isLoadingEdit, setIsLoadingEdit] = useState(!!editId)
   const [activeSection, setActiveSection] = useState('basic') // qaysi bo'lim ochiq
 
@@ -280,35 +283,71 @@ export default function NewVazifaPage() {
   }
 
   /**
-   * Fayl biriktirish — HALI ISHLAMAYDI.
+   * Fayl biriktirish — Vercel Blob'ga HAQIQIY yuklash.
    *
    * Avval bu yerda `URL.createObjectURL(file)` chaqirilib, natija
-   * `attachments` ga yozilardi va bazaga tushardi. Bunday `blob:` manzil
-   * FAQAT o'sha brauzer oynasida yashaydi: sahifa yangilangach ustozning
-   * o'zida ham, talabalarda esa hech qachon ochilmaydi. Ustoz esa
-   * "fayl qo'shildi" degan yashil xabarni ko'rardi va biriktirdim deb
-   * o'ylardi — aslida hech narsa yuklanmagan edi.
+   * bazaga yozilardi. Bunday `blob:` manzil faqat o'sha brauzer
+   * oynasida yashaydi — talabalarda hech qachon ochilmasdi, ustoz esa
+   * "fayl qo'shildi" degan yashil xabarni ko'rardi.
    *
-   * Yolg'on muvaffaqiyat xabarini berishdan ko'ra, imkoniyat hali
-   * yo'qligini ochiq aytish to'g'ri. Fayl saqlash (Vercel Blob) ulangach
-   * shu funksiya haqiqiy yuklashga almashtiriladi.
+   * Fayllar birma-bir yuklanadi: bittasi yiqilsa qolganlari saqlanib
+   * qolsin va qaysi biri o'tmaganini aytish mumkin bo'lsin.
    */
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files)
     e.target.value = ''
     if (files.length === 0) return
 
-    toast.error(
-      'Fayl biriktirish hali ulanmagan. Hozircha havolani "Manbalar" bo\'limiga qo\'shing.',
-      { duration: 5000 }
-    )
+    setYuklanmoqda(true)
+    let muvaffaq = 0
+
+    for (const file of files) {
+      try {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await fetch('/api/ustoz/fayl', { method: 'POST', body: fd })
+        const d = await res.json()
+        if (!res.ok) throw new Error(d.error)
+
+        setFormData((oldin) => ({
+          ...oldin,
+          attachments: [...oldin.attachments, d.fayl],
+        }))
+        muvaffaq++
+      } catch (err) {
+        toast.error(`"${file.name}": ${err.message}`)
+      }
+    }
+
+    setYuklanmoqda(false)
+    if (muvaffaq > 0) toast.success(`${muvaffaq} ta fayl yuklandi`)
   }
 
-  const removeAttachment = (index) => {
+  /**
+   * Biriktirilgan faylni olib tashlash.
+   *
+   * Ro'yxatdan chiqarish bilan birga Blob'dan ham o'chiramiz — aks
+   * holda yuklangan, lekin hech qayerda ko'rinmaydigan fayllar
+   * to'planib, joyni bekorga egallab yotardi.
+   *
+   * O'chirish yiqilsa ham ro'yxatdan chiqaramiz: ustoz uchun muhimi
+   * fayl vazifada turmasligi, Blob'dagi qoldiq esa uning muammosi emas.
+   */
+  const removeAttachment = async (index) => {
+    const fayl = formData.attachments[index]
+
     setFormData(prev => ({
       ...prev,
       attachments: prev.attachments.filter((_, i) => i !== index)
     }))
+
+    if (fayl?.url?.startsWith('http')) {
+      fetch('/api/ustoz/fayl', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: fayl.url }),
+      }).catch(() => {})
+    }
   }
 
   // ═══════════════════════════════════════════
@@ -434,14 +473,14 @@ export default function NewVazifaPage() {
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={() => handleSubmit(true)}
-                disabled={isSaving}
+                disabled={isSaving || yuklanmoqda}
                 className="hidden sm:block px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-sm text-purple-200 transition-all disabled:opacity-50"
               >
                 💾 Qoralama
               </button>
               <button
                 onClick={() => handleSubmit(false)}
-                disabled={isSaving}
+                disabled={isSaving || yuklanmoqda}
                 className="px-4 sm:px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-lg shadow-lg shadow-yellow-500/20 transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving ? (
@@ -1088,17 +1127,21 @@ export default function NewVazifaPage() {
                     <input
                       type="file"
                       multiple
+                      disabled={yuklanmoqda}
                       onChange={handleFileUpload}
                       className="hidden"
                       id="file-upload"
+                      // Serverdagi oq ro'yxat bilan bir xil: tanlash
+                      // oynasida ham keraksiz fayllar ko'rinmasin
+                      accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
                     />
-                    <label htmlFor="file-upload" className="cursor-pointer">
-                      <div className="text-5xl mb-2">📁</div>
+                    <label htmlFor="file-upload" className={yuklanmoqda ? 'cursor-wait' : 'cursor-pointer'}>
+                      <div className="text-5xl mb-2">{yuklanmoqda ? '⏳' : '📁'}</div>
                       <div className="text-sm text-purple-300 mb-1">
-                        Fayllarni yuklash uchun bosing
+                        {yuklanmoqda ? 'Yuklanmoqda...' : 'Fayllarni yuklash uchun bosing'}
                       </div>
                       <div className="text-xs text-purple-400">
-                        PDF, DOCX, JPG, PNG (max 10MB)
+                        PDF, Word, Excel, PowerPoint, rasm yoki ZIP (max 8 MB)
                       </div>
                     </label>
                   </div>
@@ -1108,12 +1151,21 @@ export default function NewVazifaPage() {
                       {formData.attachments.map((file, idx) => (
                         <div key={idx} className="flex items-center gap-3 bg-purple-950/30 border border-purple-800/30 rounded-lg p-3">
                           <div className="text-2xl">
-                            {file.type.includes('pdf') ? '📄' : 
-                             file.type.includes('image') ? '🖼️' : 
-                             file.type.includes('word') ? '📝' : '📁'}
+                            {file.type?.includes('pdf') ? '📄' :
+                             file.type?.includes('image') ? '🖼️' :
+                             file.type?.includes('word') ? '📝' : '📁'}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm text-white truncate">{file.name}</div>
+                            {/* Havola: ustoz yuklagan faylini shu yerdan
+                                ochib, to'g'ri fayl ekanini tekshira olsin */}
+                            <a
+                              href={file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-white truncate hover:text-yellow-400 block"
+                            >
+                              {file.name}
+                            </a>
                             <div className="text-xs text-purple-400">{file.size} KB</div>
                           </div>
                           <button
@@ -1496,14 +1548,14 @@ export default function NewVazifaPage() {
                   </button>
                   <button
                     onClick={() => handleSubmit(true)}
-                    disabled={isSaving}
+                    disabled={isSaving || yuklanmoqda}
                     className="flex-1 py-3 bg-purple-900/60 hover:bg-purple-800/70 rounded-xl text-purple-200 font-semibold transition-all border border-purple-700/50 disabled:opacity-50"
                   >
                     💾 Qoralama saqlash
                   </button>
                   <button
                     onClick={() => handleSubmit(false)}
-                    disabled={isSaving}
+                    disabled={isSaving || yuklanmoqda}
                     className="flex-[2] py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl shadow-lg shadow-yellow-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isSaving ? (

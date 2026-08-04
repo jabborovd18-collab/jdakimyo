@@ -28,8 +28,14 @@ export async function POST(request) {
     const { token, amalQiladi } = await sessiyaYarat(manba(request))
     return NextResponse.json({ success: true, token, amalQiladi })
   } catch (error) {
+    // XATO MATNI CHIQARILMAYDI. Bu javob AUDITORIYADAGI EKRANGA
+    // boradi: baza manzili yoki ichki yo'llar proyektorda ko'rinib
+    // qolmasligi kerak. Batafsil xato faqat jurnalga yoziladi.
     console.error('[Doska POST]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Hozircha ulanib bo\'lmadi. Bir necha soniyadan keyin qayta urinib ko\'ring.' },
+      { status: 503 }
+    )
   }
 }
 
@@ -71,8 +77,12 @@ export async function GET(request) {
 
     return NextResponse.json({ success: true, sessiyalar: royxat })
   } catch (error) {
+    // POST bilan bir xil sabab: javob doska ekranida ko'rinishi mumkin
     console.error('[Doska GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Hozircha ulanib bo\'lmadi. Qayta urinib ko\'ring.' },
+      { status: 503 }
+    )
   }
 }
 

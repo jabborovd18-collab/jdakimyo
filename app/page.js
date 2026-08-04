@@ -419,6 +419,18 @@ export default function Home() {
             ) : (
               // NOT LOGGED IN - Login/Register Buttons
               <div className="flex items-center gap-2">
+                {/* ELEKTRON DOSKA.
+                    O'qituvchi auditoriyada `jdakimyo.uz` deb kiradi va
+                    shu yerga tushadi. Doskaga yo'l aynan shu yerdan
+                    ko'rinmasa, QR tizimini umuman topib bo'lmaydi. */}
+                <Link
+                  href="/doska"
+                  title="Elektron doska — QR bilan kirish"
+                  className="px-3 py-2 bg-cyan-900/40 hover:bg-cyan-800/50 border border-cyan-600/50 rounded-xl text-sm font-semibold text-cyan-200 transition-all flex items-center gap-2"
+                >
+                  <span>📺</span>
+                  <span className="hidden md:inline">Doska</span>
+                </Link>
                 <Link
                   href="/login"
                   className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-sm font-semibold transition-all flex items-center gap-2"
