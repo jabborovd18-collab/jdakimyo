@@ -32,7 +32,9 @@ const ASOSIY = [
   { yol: '', muhimlik: 1.0, yangilanish: 'daily' },
   { yol: '/oquv', muhimlik: 0.9, yangilanish: 'weekly' },
   { yol: '/ilmiy', muhimlik: 0.9, yangilanish: 'weekly' },
-  { yol: '/birikmalar', muhimlik: 0.9, yangilanish: 'weekly' },
+  // `/birikmalar` olib tashlandi: u endi /ilmiy/birikmalar ga 301
+  // bilan yo'naltiriladi. Katalogning o'zi sitemap-royxat.json orqali
+  // ro'yxatga tushadi, shuning uchun bu yerda takrorlash shart emas.
   { yol: '/oquv/video-darsliklar', muhimlik: 0.8, yangilanish: 'weekly' },
   { yol: '/laboratoriya', muhimlik: 0.7, yangilanish: 'weekly' },
   { yol: '/kanallar', muhimlik: 0.7, yangilanish: 'daily' },

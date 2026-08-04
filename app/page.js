@@ -60,7 +60,7 @@ export default function Home() {
   const navLinks = [
     { href: "/oquv", label: "O'quv" },
     { href: "/ilmiy", label: "Ilmiy" },
-    { href: "/birikmalar", label: "Birikmalar" },
+    { href: "/ilmiy/birikmalar", label: "Birikmalar" },
     { href: "/oquv/video-darsliklar", label: "Video & Quiz" },
     { href: "/laboratoriya", label: "Laboratoriya" },
     { href: "/kanallar", label: "Kanallar" },

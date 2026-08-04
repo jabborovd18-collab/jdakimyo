@@ -298,10 +298,14 @@ export default function ProfilDashboard() {
           <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">Video darslar</h3>
           <p className="text-sm text-purple-300">Yangi mavzularni o'rganing</p>
         </Link>
-        <Link href="/birikmalar" className="group bg-gradient-to-br from-pink-600/20 to-rose-900/40 border border-pink-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-1">
+        <Link href="/ilmiy/birikmalar" className="group bg-gradient-to-br from-pink-600/20 to-rose-900/40 border border-pink-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-1">
           <div className="text-4xl mb-3">🧪</div>
           <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">Birikmalar</h3>
-          <p className="text-sm text-purple-300">120+ kompleks birikma</p>
+          {/* Avval "120+" deb yozilgan edi — bunday son hech qachon
+              bo'lmagan. Aniq son ataylab yozilmadi: katalogdagi soni
+              korinish.js dagi ro'yxatdan chiqadi va o'sib boradi,
+              bu yerda qo'lda yozilsa birinchi qo'shishdayoq eskirardi. */}
+          <p className="text-sm text-purple-300">Koordinatsion kimyo katalogi</p>
         </Link>
       </div>
 
