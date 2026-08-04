@@ -167,8 +167,19 @@ html[data-kontrast='yuqori'] .text-slate-500 {
   100%    { transform: translateX(100%); }
 }
 
-/* Avatar atrofidagi aylanadigan gradient halqa */
+/* Avatar atrofidagi aylanadigan gradient halqa.
+   Aylanadigan qatlam ALOHIDA: u ota-elementdan katta kvadrat bo'lib,
+   ichkarida aylanadi va ramka uni qirqib turadi. Ramkaning o'ziga
+   `rotate` berilsa, kvadrat avatarning burchaklari chiqib ketardi. */
 .jda-premium-halqa {
+  position: absolute;
+  /* Diagonal bo'ylab burchak ochilib qolmasligi uchun kvadrat
+     tomonidan kattaroq: 150% ~ sqrt(2) dan ortiq */
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  aspect-ratio: 1;
+  transform-origin: center;
   background: conic-gradient(
     from 0deg,
     #22d3ee, #a78bfa, #f472b6, #fbbf24, #22d3ee
@@ -176,15 +187,8 @@ html[data-kontrast='yuqori'] .text-slate-500 {
   animation: jda-halqa 6s linear infinite;
 }
 @keyframes jda-halqa {
-  to { transform: rotate(360deg); }
-}
-/* Halqa aylanganda ichidagi rasm ham aylanmasligi kerak —
-   teskari burchak bilan qaytaramiz. */
-.jda-premium-halqa > * {
-  animation: jda-halqa-teskari 6s linear infinite;
-}
-@keyframes jda-halqa-teskari {
-  to { transform: rotate(-360deg); }
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 /* "Tasdiqlangan" yorlig'i */
@@ -198,10 +202,11 @@ html[data-kontrast='yuqori'] .text-slate-500 {
 @media (prefers-reduced-motion: reduce) {
   .jda-premium-dog,
   .jda-premium-shine,
-  .jda-premium-halqa,
-  .jda-premium-halqa > * {
+  .jda-premium-halqa {
     animation: none;
   }
+  /* Aylanish to'xtaganda halqa markazda qolsin */
+  .jda-premium-halqa { transform: translate(-50%, -50%); }
   /* Yaltiroq to'xtaganda ekran o'rtasida qotib qolmasin */
   .jda-premium-shine { opacity: 0; }
 }

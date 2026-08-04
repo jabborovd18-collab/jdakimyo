@@ -47,9 +47,16 @@ export function PremiumHalqa({ korinsinmi, children, dumaloq = false }) {
 
   const shakl = dumaloq ? 'rounded-full' : 'rounded-[1.4rem]'
 
+  // Aylanish ELEMENTGA emas, ichkaridagi gradient qatlamiga beriladi.
+  // Avval butun ramka `rotate` bilan aylanardi: dumaloq avatarda bu
+  // sezilmasdi, kvadratda esa burchaklar chiqib ketardi. Endi tashqi
+  // ramka qimirlamaydi, u faqat aylanayotgan gradientni qirqib turadi.
   return (
-    <div className={`relative ${shakl} p-[3px] jda-premium-halqa shadow-2xl shadow-cyan-500/25`}>
-      <div className={`${shakl} overflow-hidden bg-slate-950`}>{children}</div>
+    <div
+      className={`relative ${shakl} p-[3px] overflow-hidden bg-slate-950 shadow-2xl shadow-cyan-500/25`}
+    >
+      <span aria-hidden="true" className="jda-premium-halqa" />
+      <div className={`relative ${shakl} overflow-hidden bg-slate-950`}>{children}</div>
     </div>
   )
 }
