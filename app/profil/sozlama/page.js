@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
 import AvatarUpload from '@/components/AvatarUpload'
 import PremiumTanlash from '@/components/PremiumTanlash'
+import TelegramUlash from '@/components/TelegramUlash'
 import {
   SHRIFTLAR, URGU_RANGLARI, ODDIY_INTERFEYS, keshlaVaQoll, tozala,
 } from '@/lib/interfeys'
@@ -595,6 +596,11 @@ export default function SozlamaPage() {
                   checked={formData.notificationSettings.email_announcement}
                   onChange={(v) => updateNested('notificationSettings', 'email_announcement', v)}
                 />
+
+                {/* Telegram — o'z holati bilan ishlaydi va "Saqlash"
+                    tugmasini kutmaydi, shuning uchun formData ga
+                    qo'shilmagan */}
+                <TelegramUlash />
 
                 <div className="pt-4 border-t border-purple-800/50">
                   <h4 className="text-sm font-bold text-yellow-300 mb-2">🔔 Brauzer bildirishnomalar</h4>

@@ -174,6 +174,12 @@ model User {
   // ELEKTRON DOSKA SESSIYALARI
   doskaSessiyalar DoskaSessiya[] @relation("DoskaFoydalanuvchi")
 
+  // TELEGRAM BOT
+  // Nomi `telegram` emas: yuqorida `telegram String?` bor va u
+  // butunlay boshqa narsa — profildagi ijtimoiy havola.
+  telegramUlanish TelegramUlanish?
+  telegramKod     TelegramKod?
+
   // ─── Shaxsiy chat ───
   // Ogohlantirish soni va yozish taqiqi — laboratoriya xarid taqiqi bilan
   // bir xil naqsh: muddat bilan qo'yiladi va o'zi ochiladi.
@@ -1258,6 +1264,45 @@ model SorovLimit {
 
   // Eski yozuvlarni tozalash shu indeks orqali ketadi
   @@index([yangilandi])
+}
+
+// Telegram hisobi bilan bog'lanish.
+//
+// NEGA `chatId` HAM UNIQUE. Bitta Telegram hisobi bitta saytdagi
+// hisobga bog'lanadi. Aks holda bir odam o'nta sayt hisobini bitta
+// Telegramga ulab, hammasining bildirishnomasini bir joyda kuzatib,
+// ko'p akkaunt bilan ishlashni qulaylashtirib olardi.
+//
+// NEGA `xabarlar` BAYROG'I. Telegram — shaxsiy makon. Odam ulanishni
+// saqlab qolib, lekin xabar oqimini o'chirib qo'ya olishi kerak;
+// buning uchun butun bog'lanishni uzishga majburlash qo'pol.
+model TelegramUlanish {
+  id       String   @id @default(cuid())
+  userId   String   @unique
+  chatId   String   @unique
+  // Telegramdagi @nomi — faqat ko'rsatish uchun, o'zgarishi mumkin
+  username String?
+  xabarlar Boolean  @default(true)
+  bogladi  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Bog'lash kodi — saytda yaratiladi, botga yuboriladi.
+//
+// NEGA KOD KERAK. Telegram botga faqat `chatId` keladi; bot o'zi bu
+// odam saytdagi kim ekanini bila olmaydi. Kod — ikkalasini bog'laydigan
+// yagona ip. Qisqa muddatli, chunki u aslida bir martalik parol:
+// birov kodni ko'rib qolsa, o'z Telegramini begona hisobga ulardi.
+model TelegramKod {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  kod        String   @unique
+  amalQiladi DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([amalQiladi])
 }
 
 // Elektron doskaga QR orqali kirish.
