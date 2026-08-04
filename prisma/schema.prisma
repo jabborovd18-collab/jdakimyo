@@ -71,6 +71,13 @@ model User {
   // olmaydi — ya'ni ko'p akkaunt ochishning ma'nosi qolmaydi.
   emailVerified DateTime?
   emailTasdiq   EmailTasdiq?
+
+  // ─── Kirishga urinishlar ───
+  // Login'da hech qanday cheklov yo'q edi: parolni cheksiz marta
+  // taxmin qilish mumkin edi va tezlik ham pasaymasdi. Ketma-ket
+  // xatolardan keyin shu hisobga kirish qisqa muddatga to'siladi.
+  kirishXatolari  Int       @default(0)
+  kirishTaqiqUntil DateTime?
   // Yulduz — akkaunt darajasi va reyting uchun. U SARFLANMAYDI:
   // sarflansa, xarid qilgan odam leaderboard'da pastga tushib, o'ynagani
   // uchun jazolangan bo'lardi. Laboratoriya uchun alohida valyuta bor.
