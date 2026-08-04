@@ -37,6 +37,16 @@ export async function POST(request) {
 
   try {
     const yangilik = await request.json()
+
+    // BOT BLOKLANGANI. Odam botni bloklaganda Telegram xabar emas,
+    // `my_chat_member` yuboradi. Buni ushlamasak, yozuv bazada tirik
+    // bo'lib qolaverar va har e'londa o'sha o'lik manzilga urinib
+    // ko'rilardi.
+    if (yangilik?.my_chat_member) {
+      await azolikOzgardi(yangilik.my_chat_member)
+      return NextResponse.json({ ok: true })
+    }
+
     const xabar = yangilik?.message
     const chatId = xabar?.chat?.id
 
@@ -57,6 +67,27 @@ export async function POST(request) {
   }
 
   return NextResponse.json({ ok: true })
+}
+
+/**
+ * Bot bilan a'zolik holati o'zgardi (bloklandi yoki qayta ochildi).
+ *
+ * Bloklanganda ulanish O'CHIRILMAYDI, faqat xabar oqimi to'xtaydi.
+ * Sabab: odam botni qayta ochsa, hisobini boshqatdan ulashga
+ * majburlash ortiqcha — saytdagi bog'lanish saqlanib qolgani yaxshi.
+ * O'lik yozuvni e'lon yuborish paytida ham tozalaymiz.
+ */
+async function azolikOzgardi(hodisa) {
+  const chatId = String(hodisa?.chat?.id || '')
+  const holat = hodisa?.new_chat_member?.status
+  if (!chatId || !holat) return
+
+  // `kicked` — bloklangan, `member` — qayta ochilgan
+  if (holat !== 'kicked' && holat !== 'member') return
+
+  await prisma.telegramUlanish
+    .updateMany({ where: { chatId }, data: { xabarlar: holat === 'member' } })
+    .catch(() => {})
 }
 
 async function buyruqniBajar({ chatId, matn, username, ism }) {
