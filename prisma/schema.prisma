@@ -62,6 +62,15 @@ model User {
   isBanned      Boolean   @default(false)
   bannedAt      DateTime?
   bannedReason  String?
+
+  // ─── Email tasdig'i ───
+  // Avval email umuman tekshirilmasdi: format ham, mavjudligi ham.
+  // Mavjud bo'lmagan manzil bilan istalgancha akkaunt ochish mumkin edi
+  // va ko'p akkaunt ochib tanga yig'ishga hech qanday to'siq yo'q edi.
+  // Tasdiqlanmagan hisob saytdan foydalanaveradi, lekin TANGA topa
+  // olmaydi — ya'ni ko'p akkaunt ochishning ma'nosi qolmaydi.
+  emailVerified DateTime?
+  emailTasdiq   EmailTasdiq?
   // Yulduz — akkaunt darajasi va reyting uchun. U SARFLANMAYDI:
   // sarflansa, xarid qilgan odam leaderboard'da pastga tushib, o'ynagani
   // uchun jazolangan bo'lardi. Laboratoriya uchun alohida valyuta bor.
@@ -154,6 +163,9 @@ model User {
   // KUNLIK SOVG'ALAR
   yuborganSovgalar Gift[] @relation("GiftSender")
   kelganSovgalar   Gift[] @relation("GiftReceiver")
+
+  // ELEKTRON DOSKA SESSIYALARI
+  doskaSessiyalar DoskaSessiya[] @relation("DoskaFoydalanuvchi")
 
   // ─── Shaxsiy chat ───
   // Ogohlantirish soni va yozish taqiqi — laboratoriya xarid taqiqi bilan
@@ -1195,6 +1207,59 @@ model PlantWatering {
 // ═══════════════════════════════════════════════════════════════
 // O'QITUVCHI PANELI
 // ═══════════════════════════════════════════════════════════════
+
+// Email tasdiqlash kodi.
+//
+// Kod HAVOLA emas, olti xonali raqam: pochta mijozlari havolani ba'zan
+// buzadi yoki oldindan bosib qo'yadi, raqamni esa odam telefondan
+// ko'chirib yozaveradi.
+//
+// `urinish` — noto'g'ri kiritishlar soni. Chegarasiz bo'lsa, olti
+// xonali kodni yuz mingta so'rov bilan topib olish mumkin edi.
+model EmailTasdiq {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  kod        String
+  urinish    Int      @default(0)
+  amalQiladi DateTime
+  yuborilgan DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([amalQiladi])
+}
+
+// Elektron doskaga QR orqali kirish.
+//
+// NEGA KERAK. Ma'ruza zalida o'qituvchi 100 talaba oldida parol tera
+// olmaydi. Doskada QR chiqadi, o'qituvchi uni telefonidan skanerlaydi
+// va telefonda tasdiqlaydi — parol umuman terilmaydi.
+//
+// NEGA TELEFONDA TASDIQLASH SHART. QR ni zaldagi har kim skanerlashi
+// mumkin. Tasdiqlash bo'lmasa, birinchi skanerlagan odam o'qituvchi
+// hisobiga kirib olardi.
+//
+// Qiymatlar: kutilmoqda | tasdiqlangan | ishlatilgan | bekor
+model DoskaSessiya {
+  id         String   @id @default(cuid())
+  // QR ichidagi maxfiy qiymat
+  token      String   @unique
+  holat      String   @default("kutilmoqda")
+  // Tasdiqlagandan keyin to'ladi
+  userId     String?
+  // Doska sessiyasi qachon tugaydi (o'qituvchi tanlaydi)
+  tugaydi    DateTime?
+  // QR ning o'zi tez eskiradi — skanerlashga berilgan vaqt
+  amalQiladi DateTime
+  // Kim so'rayotgani telefonda ko'rsatiladi
+  qurilma    String?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation("DoskaFoydalanuvchi", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([holat, amalQiladi])
+}
 
 // Do'stlar orasidagi kunlik sovg'a.
 //

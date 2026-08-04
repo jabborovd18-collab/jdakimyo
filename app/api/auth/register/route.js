@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { SELF_REGISTER_ROLES, DEFAULT_ROLE } from '@/lib/roles'
+import { emailniTekshir, kodYuboroq } from '@/lib/email-tasdiq'
 
 // Username uchun ruxsat etilgan ko'rinish. "@" ataylab taqiqlangan:
 // login username YOKI email bo'yicha ishlagani uchun, "@" li username
@@ -31,6 +32,13 @@ export async function POST(request) {
         { error: 'Barcha majburiy maydonlarni to\'ldiring' },
         { status: 400 }
       )
+    }
+
+    // Email FORMATI avval umuman tekshirilmasdi — "asdasd" ham
+    // qabul qilinardi va bir odam istalgancha akkaunt ocha olardi.
+    const emailHolati = emailniTekshir(email)
+    if (!emailHolati.ok) {
+      return NextResponse.json({ error: emailHolati.xato }, { status: 400 })
     }
 
     if (username.length < 3) {
@@ -112,8 +120,19 @@ export async function POST(request) {
       }
     })
 
+    // Tasdiqlash kodini yuboramiz. Xat ketmasa ham RO'YXATDAN O'TISH
+    // BEKOR BO'LMAYDI: hisob yaratilgan, odam keyin kodni qayta
+    // so'rashi mumkin. Aks holda pochta xizmati bir daqiqaga
+    // to'xtaganda ro'yxatdan o'tish butunlay ishlamay qolardi.
+    const pochta = await kodYuboroq(user)
+
     return NextResponse.json({
       success: true,
+      // Sahifa shu bo'yicha "kodni kiriting" oynasiga o'tadi
+      tasdiqKerak: true,
+      xatYuborildi: pochta.yuborildi,
+      // Yuborilmasa sababini yashirmaymiz — odam nima qilishini bilsin
+      xatXatosi: pochta.yuborildi ? null : pochta.sabab,
       user: {
         userId: user.userId,
         username: user.username,

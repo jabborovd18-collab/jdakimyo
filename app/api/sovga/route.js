@@ -84,7 +84,10 @@ export async function POST(request) {
     // Daraja tekshiruvi uchun bazadan o'qiymiz: sessiyada `level_points` yo'q
     const men = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { id: true, username: true, fullName: true, level_points: true },
+      select: {
+        id: true, username: true, fullName: true,
+        level_points: true, emailVerified: true,
+      },
     })
 
     const { qabulQiluvchi } = await sovgaYubor(men, dostId)

@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/prisma'
 import { verifyCredentials } from '@/lib/credentials'
+import { tokenniAlmashtir } from '@/lib/doska'
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -17,6 +18,24 @@ export const authOptions = {
       async authorize(credentials) {
         // Mantiq lib/credentials.js da — mobil login endpoint'i ham shuni ishlatadi
         return await verifyCredentials(credentials?.login, credentials?.password)
+      }
+    }),
+    // ─── ELEKTRON DOSKA (QR) ───
+    //
+    // Parol o'rniga bir martalik token qabul qiladi. Ma'ruza zalida
+    // o'qituvchi 100 talaba oldida parol tera olmaydi; token esa
+    // telefonda TASDIQLANGANDAN keyingina kuchga kiradi.
+    CredentialsProvider({
+      id: 'doska',
+      name: 'Elektron doska',
+      credentials: {
+        token: { label: 'QR token', type: 'text' },
+      },
+      async authorize(credentials) {
+        const natija = await tokenniAlmashtir(credentials?.token)
+        if (!natija) return null
+        // `doskaTugaydi` tokenga tushadi va jwt callback uni tekshiradi
+        return { ...natija.user, doskaTugaydi: natija.tugaydi?.getTime() || null }
       }
     })
   ],
@@ -36,8 +55,20 @@ export const authOptions = {
         token.fullName = user.fullName
         token.isTeacher = user.isTeacher
         token.isVerified = user.isVerified
+        // Doska sessiyasi bo'lsa — muddati. Oddiy kirishda `undefined`.
+        token.doskaTugaydi = user.doskaTugaydi || null
         token.yangilangan = Date.now()
         return token
+      }
+
+      // DOSKA SESSIYASI MUDDATI.
+      //
+      // Dars tugagach ekran ochiq qolmasligi kerak: auditoriyadagi
+      // doskani keyingi guruh ham, tozalovchi ham ko'radi. Muddat
+      // o'tgach tokenni bo'shatamiz — NextAuth buni "kirilmagan" deb
+      // qabul qiladi va sahifa login'ga qaytadi.
+      if (token.doskaTugaydi && Date.now() > token.doskaTugaydi) {
+        return {}
       }
 
       // TOKEN ESKIRADI. JWT strategiyasida token faqat kirish paytida
@@ -86,6 +117,9 @@ export const authOptions = {
         session.user.id = token.sub
         session.user.isTeacher = Boolean(token.isTeacher)
         session.user.isVerified = Boolean(token.isVerified)
+        // Sahifa "doska rejimi" ni bilishi kerak: qolgan vaqtni
+        // ko'rsatadi va xavfli sozlamalarni yashiradi
+        session.user.doskaTugaydi = token.doskaTugaydi || null
       }
       return session
     }

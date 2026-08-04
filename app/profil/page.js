@@ -12,6 +12,7 @@ import ActivityHeatmap from '@/components/ActivityHeatmap'
 import LabWidget from '@/components/LabWidget'
 import ProfilPostlar from '@/components/ProfilPostlar'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
+import EmailTasdiqlash from '@/components/EmailTasdiqlash'
 import { PremiumAurora, PremiumHalqa, PremiumYorliq } from '@/components/PremiumProfil'
 import { sana } from '@/lib/sana'
 
@@ -117,6 +118,10 @@ export default function ProfilDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Tasdiqlanmagan email — eng tepada, chunki u tanga topishni
+          to'sib turadi va odam sababini bilishi kerak */}
+      <EmailTasdiqlash />
+
       {/* ═══════════════════════════════════════════ */}
       {/* HERO SECTION */}
       {/* ═══════════════════════════════════════════ */}
