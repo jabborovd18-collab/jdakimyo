@@ -11,6 +11,7 @@ import PlantWidget from '@/components/PlantWidget'
 import ActivityHeatmap from '@/components/ActivityHeatmap'
 import LabWidget from '@/components/LabWidget'
 import ProfilPostlar from '@/components/ProfilPostlar'
+import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 import { sana } from '@/lib/sana'
 
 // Serverdan javob juda uzoq (yoki umuman) kelmasa, spinner abadiy osilib qolmasligi uchun chegara
@@ -137,8 +138,9 @@ export default function ProfilDashboard() {
 
           {/* Info */}
           <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-extrabold mb-2">
+            <h1 className="text-2xl md:text-3xl font-extrabold mb-2 flex items-center gap-2">
               {user.fullName || user.username}
+              <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" />
             </h1>
             <div className="flex flex-wrap gap-2 mb-3">
               <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm">

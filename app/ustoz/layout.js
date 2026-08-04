@@ -3,6 +3,14 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import Link from 'next/link'
+import { ustozPaneliOchiqmi } from '@/lib/roles'
+
+export const metadata = {
+  title: "O'qituvchi paneli",
+  // Shaxsiy panel — qidiruvda chiqmasin. robots.txt da `/ustoz/`
+  // yopilgan, lekin u `/ustoz` ning o'zini qamramaydi.
+  robots: { index: false, follow: false },
+}
 
 export default async function UstozLayout({ children }) {
   const session = await getServerSession(authOptions)
@@ -12,13 +20,15 @@ export default async function UstozLayout({ children }) {
     redirect('/login?callbackUrl=/ustoz')
   }
 
-  // O'qituvchi roli tekshiruv (hozircha admin/moderator ham kira oladi)
-  const isTeacher = session.user.role === 'teacher' || 
-                    session.user.role === 'admin' || 
-                    session.user.role === 'superadmin' ||
-                    session.user.role === 'moderator'
-
-  if (!isTeacher) {
+  // Tekshiruv endi lib/roles.js da — API'lardagi 29 ta nusxa bilan bitta
+  // manbadan oziqlansin. Avval bu yerda va API'larda alohida-alohida
+  // yozilgani uchun ular bir-biridan farq qilib ketgandi.
+  //
+  // MODERATOR ENDI KIRMAYDI: `adminHuquqlari` bo'yicha unda
+  // `foydalanuvchilar: false`, ya'ni u foydalanuvchi ma'lumotini
+  // ko'rmasligi kerak. Ustoz paneli esa aynan shuni ochadi — talabalar
+  // ro'yxati va natijalar. Ustozlik kerak bo'lsa, unga alohida beriladi.
+  if (!ustozPaneliOchiqmi(session.user)) {
     redirect('/')
   }
 

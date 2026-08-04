@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { ustozPaneliOchiqmi } from '@/lib/roles'
 
 // GET - O'qituvchining barcha natijalari
 export async function GET(request) {
@@ -12,22 +13,29 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)
     const groupId = searchParams.get('groupId') || 'all'
-    const type = searchParams.get('type') || 'all' // all | quiz | assignment
+    // `type` (quiz/vazifa) ataylab yo'q: uni sahifaning o'zi ro'yxatni
+    // chizishda qo'llaydi. Bu yerda o'qilardi-yu, hech qayerda
+    // ishlatilmasdi — kim o'qisa, filtr serverda ishlaydi deb o'ylardi.
 
     // Quiz natijalari
+    // DIQQAT: shart `quiz` obyektining ICHIDA turishi shart.
+    // Avval u tashqarida edi va `...(shart && { quiz: { groupId } })`
+    // bir xil kalitni ikkinchi marta yozib, `teacherId` cheklovini
+    // butunlay o'chirib yuborardi. Natijada guruh bo'yicha filtrlanganda
+    // ustoz boshqa ustozning natijalarini ko'rar edi.
     const quizAttempts = await prisma.teacherQuizAttempt.findMany({
       where: {
-        quiz: { teacherId: session.user.id },
-        ...(groupId !== 'all' && {
-          quiz: { groupId }
-        })
+        quiz: {
+          teacherId: session.user.id,
+          ...(groupId !== 'all' && { groupId }),
+        },
       },
       include: {
         student: {
@@ -58,11 +66,13 @@ export async function GET(request) {
 
     // Vazifa natijalari (topshiriqlar)
     const assignmentSubmissions = await prisma.assignmentSubmission.findMany({
+      // Yuqoridagi bilan bir xil sabab: shart `assignment` ichida turadi,
+      // aks holda egalik cheklovi ustiga yozilib yo'qoladi.
       where: {
-        assignment: { teacherId: session.user.id },
-        ...(groupId !== 'all' && {
-          assignment: { groupId }
-        })
+        assignment: {
+          teacherId: session.user.id,
+          ...(groupId !== 'all' && { groupId }),
+        },
       },
       include: {
         student: {

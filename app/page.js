@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
 import { useSession, signOut } from "next-auth/react"
+import { ustozPaneliOchiqmi } from "@/lib/roles"
 
 // Hero'dagi aylanuvchi kompleks uchun ligandlar (oktaedrik: 3 halqa × 2 ligand)
 const ORBIT_RINGS = [
@@ -25,7 +26,9 @@ export default function Home() {
 
   const role = session?.user?.role
   const isAdmin = ['admin', 'superadmin', 'moderator'].includes(role)
-  const isTeacher = ['teacher', 'ustoz', 'superadmin'].includes(role)
+  // Ustozlik endi alohida bayroq: rol satriga qarash adminlarni
+  // panelidan mahrum qilardi (rol bitta bo'lgani uchun).
+  const isTeacher = ustozPaneliOchiqmi(session?.user)
 
   useReveal()
 

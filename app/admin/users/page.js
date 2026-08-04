@@ -79,6 +79,32 @@ export default function AdminUsersPage() {
     }
   }
 
+  /**
+   * Yoqib-o'chiriladigan amallar (ustozlik, tasdiq belgisi).
+   *
+   * Bular rol ALMASHTIRMAYDI — asosiy rol o'z joyida qoladi. Shuning
+   * uchun ular rol oynasida emas, alohida tugmada: rol tanlash ro'yxatiga
+   * qo'shilsa, ustozlik yana adminlik bilan bir-birini siqib chiqarardi.
+   */
+  const handleToggle = async (user, action) => {
+    setIsActionLoading(true)
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, action }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
+      toast.success(data.message)
+      fetchUsers()
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsActionLoading(false)
+    }
+  }
+
   // Amallar
   const handleRoleChange = async () => {
     if (!selectedUser) return
@@ -513,6 +539,38 @@ export default function AdminUsersPage() {
                             className="px-3 py-1 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-600/50 rounded-lg text-xs text-orange-400 transition-all"
                           >
                             🚫
+                          </button>
+                        )}
+                        {/* Ustoz paneli — ikkilamchi, asosiy rolga
+                            qo'shimcha beriladi. Shuning uchun admin ham
+                            ustoz bo'la oladi. */}
+                        <button
+                          onClick={() => handleToggle(user, 'toggleTeacher')}
+                          disabled={isActionLoading}
+                          title={user.isTeacher ? 'Ustoz panelini yopish' : 'Ustoz panelini ochish'}
+                          className={`px-3 py-1 border rounded-lg text-xs transition-all disabled:opacity-50 ${
+                            user.isTeacher
+                              ? 'bg-green-600/30 hover:bg-green-600/40 border-green-500/60 text-green-300'
+                              : 'bg-slate-700/30 hover:bg-slate-600/40 border-slate-600/50 text-slate-400'
+                          }`}
+                        >
+                          👨‍🏫
+                        </button>
+                        {/* Tasdiq belgisi — faqat superadmin. Belgi ko'p
+                            tarqalsa, soxta hisobni ajratish uchun
+                            ishlamay qoladi. */}
+                        {isSuperAdmin && (
+                          <button
+                            onClick={() => handleToggle(user, 'toggleVerified')}
+                            disabled={isActionLoading}
+                            title={user.isVerified ? 'Tasdiqni olib tashlash' : 'Hisobni tasdiqlash'}
+                            className={`px-3 py-1 border rounded-lg text-xs transition-all disabled:opacity-50 ${
+                              user.isVerified
+                                ? 'bg-blue-600/30 hover:bg-blue-600/40 border-blue-500/60 text-blue-300'
+                                : 'bg-slate-700/30 hover:bg-slate-600/40 border-slate-600/50 text-slate-400'
+                            }`}
+                          >
+                            ✔️
                           </button>
                         )}
                         {/* Parolni tiklash — faqat superadmin.

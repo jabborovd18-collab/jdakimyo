@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { ustozPaneliOchiqmi } from '@/lib/roles'
 
 // GET - O'qituvchi dashboard ma'lumotlari
 export async function GET() {
@@ -14,7 +15,7 @@ export async function GET() {
     }
 
     // O'qituvchi yoki admin roli tekshiruv
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden - O\'qituvchi huquqi kerak' }, { status: 403 })
     }
@@ -98,29 +99,40 @@ export async function GET() {
       })
     ])
 
-    // Recent activity formatlash
+    // Oxirgi faoliyat: uch manbani birlashtirib, vaqt bo'yicha saralaymiz.
+    //
+    // Avval bu yerda ikkita xato bor edi. Birinchisi — saralashdan OLDIN
+    // `.slice(0, 5)` chaqirilardi, ya'ni ro'yxat qirqilib, eng yangi
+    // yozuvlar tushib qolishi mumkin edi. Ikkinchisi — saralash
+    // `new Date(a.time)` bo'yicha ketardi, `time` esa allaqachon
+    // "3 daqiqa oldin" degan MATN edi: `new Date(...)` dan NaN chiqib,
+    // taqqoslash hech narsa qilmasdi.
+    //
+    // Shuning uchun xom sanani (`vaqt`) alohida saqlaymiz: saralash
+    // shu bo'yicha ketadi, ko'rsatiladigan matn esa oxirida yasaladi.
     const recentActivity = [
       ...recentSubmissions.map(s => ({
         icon: '📝',
         title: `${s.student.fullName || s.student.username} "${s.assignment.title}" ni topshirdi`,
-        time: formatTimeAgo(s.submittedAt),
+        vaqt: s.submittedAt,
         count: s.status === 'pending' ? '⏳ Kutilmoqda' : '✓'
       })),
       ...recentAssignments.map(a => ({
         icon: '➕',
         title: `Yangi vazifa: "${a.title}"`,
-        time: formatTimeAgo(a.createdAt),
+        vaqt: a.createdAt,
         count: `${a._count.submissions} topshiriq`
       })),
       ...recentAnnouncements.map(an => ({
         icon: '📢',
         title: `E'lon: "${an.title}"`,
-        time: formatTimeAgo(an.createdAt),
+        vaqt: an.createdAt,
         count: an.group?.name || 'Barcha'
       }))
     ]
-      .slice(0, 5) // Faqat eng oxirgi 5 tasi
-      .sort((a, b) => new Date(b.time) - new Date(a.time))
+      .sort((a, b) => new Date(b.vaqt) - new Date(a.vaqt))
+      .slice(0, 5)
+      .map(({ vaqt, ...qolgani }) => ({ ...qolgani, time: formatTimeAgo(vaqt) }))
 
     return NextResponse.json({
       success: true,

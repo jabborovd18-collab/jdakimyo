@@ -181,7 +181,7 @@ export default function UstozTalabalarPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Talaba nomi, username yoki email bo'yicha qidirish..."
+          placeholder="🔍 Talaba nomi yoki username bo'yicha qidirish..."
           className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
         />
         <div className="flex flex-wrap gap-2">
@@ -349,7 +349,7 @@ export default function UstozTalabalarPage() {
               {/* Qidiruv */}
               <div>
                 <label className="text-sm text-purple-300 mb-2 block">
-                  🔍 Talabani qidirish (username, ism yoki email)
+                  🔍 Talabani qidirish (username yoki ism)
                 </label>
                 <input
                   type="text"
@@ -405,12 +405,15 @@ export default function UstozTalabalarPage() {
                           <div className="font-semibold text-white text-sm truncate">
                             {user.fullName || user.username}
                           </div>
+                          {/* Email ataylab ko'rsatilmaydi: u profilning
+                              ochiq qismi emas. Talabani ajratish uchun
+                              username va fakultet yetarli. */}
                           <div className="text-xs text-purple-400 truncate">
-                            @{user.username} • {user.email}
+                            @{user.username}
                           </div>
-                          {user.university && (
+                          {(user.university || user.faculty) && (
                             <div className="text-xs text-purple-500 truncate">
-                              🏛️ {user.university}
+                              🏛️ {[user.university, user.faculty].filter(Boolean).join(' • ')}
                             </div>
                           )}
                         </div>

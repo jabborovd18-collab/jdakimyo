@@ -23,16 +23,18 @@ export default function NatijalarPage() {
   const [filterType, setFilterType] = useState('all') // all | quiz | assignment
   const [searchQuery, setSearchQuery] = useState('')
 
+  // Tur bo'yicha filtr pastda, ro'yxatni chizishda qo'llanadi — server
+  // uni baribir hisobga olmasdi. Shuning uchun u o'zgarganda qayta
+  // so'rov yubormaymiz: ma'lumot allaqachon qo'lda.
   useEffect(() => {
     fetchNatijalar()
-  }, [filterGroup, filterType])
+  }, [filterGroup])
 
   const fetchNatijalar = async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams({
-        groupId: filterGroup,
-        type: filterType
+        groupId: filterGroup
       })
       const res = await fetch(`/api/ustoz/natijalar?${params}`)
       const data = await res.json()

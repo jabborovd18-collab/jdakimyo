@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { isAdminRole, isTeacherRole, roleInfo } from '@/lib/roles'
+import { isAdminRole, ustozPaneliOchiqmi, roleInfo } from '@/lib/roles'
 import { useBildirishnomaSanoq } from '@/lib/use-bildirishnoma'
 
 // Menyu guruhlarga bo'lingan. Avval 15+ havola bitta uzun ro'yxatda edi —
@@ -127,7 +127,9 @@ export default function ProfilLayout({ children }) {
   if (isAdminRole(role)) {
     panels.push({ href: '/admin', label: 'Admin panel', icon: '🛡️', accent: 'orange' })
   }
-  if (isTeacherRole(role)) {
+  // Rol satriga emas, foydalanuvchiga qaraymiz: ustozlik ikkilamchi
+  // bayroq bo'lgani uchun admin ham bir vaqtda ustoz bo'la oladi.
+  if (ustozPaneliOchiqmi(user)) {
     panels.push({ href: '/ustoz', label: 'Ustoz paneli', icon: '👨‍🏫', accent: 'green' })
   }
   // Laboratoriya hammada bor. U ham tashqi bo'lim: o'z sarlavhasi va

@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { ustozPaneliOchiqmi } from '@/lib/roles'
+import { xabarYubor } from '@/lib/bildirishnoma'
 
 // GET - O'qituvchining barcha talabalari
 export async function GET(request) {
@@ -13,7 +15,7 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -33,17 +35,20 @@ export async function GET(request) {
       where,
       include: {
         student: {
+          // Email yo'q: u profilning ochiq qismi emas va ustozga
+          // talabani tanish uchun kerak emas. Qidiruv ham username va
+          // ism bo'yicha ketadi.
           select: {
             id: true,
             userId: true,
             username: true,
             fullName: true,
-            email: true,
             avatar: true,
             university: true,
             faculty: true,
             level_points: true,
-            totalPoints: true
+            totalPoints: true,
+            isVerified: true
           }
         },
         group: {
@@ -61,10 +66,9 @@ export async function GET(request) {
     let filteredStudents = teacherStudents
     if (search) {
       const q = search.toLowerCase()
-      filteredStudents = teacherStudents.filter(ts => 
+      filteredStudents = teacherStudents.filter(ts =>
         ts.student.fullName?.toLowerCase().includes(q) ||
-        ts.student.username.toLowerCase().includes(q) ||
-        ts.student.email.toLowerCase().includes(q)
+        ts.student.username.toLowerCase().includes(q)
       )
     }
 
@@ -129,7 +133,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -195,6 +199,20 @@ export async function POST(request) {
       }
     })
 
+    // Talabaga xabar beramiz. Avval qo'shilish butunlay jimgina
+    // bo'lardi: odam o'zining kimningdir guruhida turganini, vazifa
+    // olishini va natijalari ustozga ko'rinishini bilmasdi ham.
+    // To'liq rozilik oqimi (taklif — qabul qilish) alohida ish, lekin
+    // hech bo'lmasa xabardor bo'lsin.
+    await xabarYubor(studentId, {
+      turi: 'tizim',
+      sarlavha: `Siz "${group.name}" guruhiga qo'shildingiz`,
+      matn: `${session.user.fullName || session.user.username} sizni o'z guruhiga qo'shdi. Endi guruh vazifalari va quizlari sizga ko'rinadi.`,
+      havola: '/profil',
+      icon: '👨‍🏫',
+      adminId: session.user.id,
+    })
+
     return NextResponse.json({
       success: true,
       message: `✓ "${student.fullName || student.username}" "${group.name}" guruhiga qo'shildi`
@@ -217,7 +235,7 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }

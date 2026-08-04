@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { ustozPaneliOchiqmi } from '@/lib/roles'
 
 // GET - O'qituvchi o'z talabalarini topishi uchun foydalanuvchilarni qidirish
 export async function GET(request) {
@@ -13,7 +14,7 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -39,19 +40,29 @@ export async function GET(request) {
 
     const existingIds = existingStudents.map(s => s.studentId)
 
-    // Foydalanuvchilarni qidirish (o'qituvchining o'zi va allaqachon qo'shilganlar chiqariladi)
+    // EMAIL BO'YICHA QIDIRILMAYDI VA QAYTARILMAYDI.
+    //
+    // Avval ikkalasi ham bor edi: ustoz huquqiga ega har qanday odam
+    // butun bazani email bo'yicha varaqlab chiqishi va har bir
+    // foydalanuvchining pochtasini ko'rishi mumkin edi. Email profilning
+    // ochiq qismi emas va `lib/maxfiylik.js` sozlamalari ham bu yerda
+    // hisobga olinmasdi.
+    //
+    // Talabani topish uchun username va ism yetarli; noaniqlik qolsa
+    // universitet va fakultet ajratib beradi.
     const users = await prisma.user.findMany({
       where: {
         AND: [
           {
             OR: [
               { username: { contains: search, mode: 'insensitive' } },
-              { email: { contains: search, mode: 'insensitive' } },
               { fullName: { contains: search, mode: 'insensitive' } }
             ]
           },
           { id: { not: session.user.id } },
-          { id: { notIn: existingIds } }
+          { id: { notIn: existingIds } },
+          // Bloklangan hisoblar guruhga qo'shilmasin
+          { isBanned: false }
         ]
       },
       select: {
@@ -59,11 +70,11 @@ export async function GET(request) {
         userId: true,
         username: true,
         fullName: true,
-        email: true,
         avatar: true,
         university: true,
         faculty: true,
-        role: true
+        role: true,
+        isVerified: true
       },
       take: 10,
       orderBy: { fullName: 'asc' }

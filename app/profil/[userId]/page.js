@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { sana } from '@/lib/sana'
+import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 
 // Ochiq profilda ko'rsatiladigan havolalar. `to'liq` — qiymat allaqachon
 // to'liq manzil bo'lsa (website, orcid), aks holda oldiga sayt qo'shiladi.
@@ -329,7 +330,10 @@ export default function PublicProfilePage() {
 
             {/* Info */}
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-extrabold mb-2">{user.fullName || user.username}</h1>
+              <h1 className="text-3xl md:text-4xl font-extrabold mb-2 flex items-center gap-2">
+                {user.fullName || user.username}
+                <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" />
+              </h1>
               <div className="flex flex-wrap gap-2 mb-3">
                 <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm text-purple-200">
                   @{user.username}

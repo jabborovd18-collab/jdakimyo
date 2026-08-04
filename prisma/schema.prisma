@@ -19,6 +19,24 @@ model User {
   password      String
   fullName      String?
   role          String    @default("bakalavr")
+
+  // ─── Ustozlik — IKKILAMCHI rol ───
+  // `role` bitta maydon bo'lgani uchun odam bir vaqtda ham admin, ham
+  // ustoz bo'la olmasdi: admin berilsa ustoz paneli yo'qolardi. Ustozlik
+  // aslida rol emas, VAZIFA — u asosiy rolga qo'shimcha qilib beriladi.
+  // Eski `role='teacher'` yozuvlari migratsiyada shu bayroqqa ko'chirildi.
+  isTeacher     Boolean   @default(false)
+
+  // ─── Tasdiqlangan hisob (galochka) ───
+  // Faqat superadmin qo'yadi. Maqsad — soxta hisobdan ajratish, shuning
+  // uchun uni tarqatish huquqi eng tor doirada qoladi. Kim va qachon
+  // berganini yozib boramiz: keyin "buni kim tasdiqlagan?" degan savolga
+  // javob topilsin.
+  isVerified    Boolean   @default(false)
+  verifiedAt    DateTime?
+  verifiedById  String?
+  verifiedBy    User?     @relation("UserVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  verifiedUsers User[]    @relation("UserVerifier")
   university    String?
   faculty       String?
   specialty     String?

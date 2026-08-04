@@ -44,13 +44,18 @@ export default function UstozDashboard() {
     )
   }
 
+  // Sinflar TO'LIQ yozilgan, `from-${color}-900/30` kabi yig'ilmaydi.
+  // Tailwind manba matnini o'qib sinf yasaydi — qismlarga bo'lingan nomni
+  // u ko'rmaydi. Avval shunday yozilgani uchun `to-...-800/30` olti
+  // rangning hech biri uchun yaratilmagan va gradient ikkinchi rangga
+  // emas, shaffofga tugardi.
   const quickActions = [
-    { href: '/ustoz/guruh', icon: '👥', label: 'Guruh yaratish', color: 'blue' },
-    { href: '/ustoz/new-vazifa', icon: '📝', label: 'Vazifa yaratish', color: 'green' },
-    { href: '/ustoz/open-quiz', icon: '❓', label: 'Variantli quiz', color: 'purple' },
-    { href: '/ustoz/yopiq-quiz', icon: '✍️', label: 'Variantsiz quiz', color: 'orange' },
-    { href: '/ustoz/elonlar', icon: '📢', label: 'E\'lon qilish', color: 'pink' },
-    { href: '/ustoz/natijalar', icon: '📊', label: 'Natijalar', color: 'cyan' }
+    { href: '/ustoz/guruh', icon: '👥', label: 'Guruh yaratish', style: 'from-blue-900/30 to-blue-800/30 border-blue-700/50 hover:border-blue-500/50' },
+    { href: '/ustoz/new-vazifa', icon: '📝', label: 'Vazifa yaratish', style: 'from-green-900/30 to-green-800/30 border-green-700/50 hover:border-green-500/50' },
+    { href: '/ustoz/open-quiz', icon: '❓', label: 'Variantli quiz', style: 'from-purple-900/30 to-purple-800/30 border-purple-700/50 hover:border-purple-500/50' },
+    { href: '/ustoz/yopiq-quiz', icon: '✍️', label: 'Variantsiz quiz', style: 'from-orange-900/30 to-orange-800/30 border-orange-700/50 hover:border-orange-500/50' },
+    { href: '/ustoz/elonlar', icon: '📢', label: 'E\'lon qilish', style: 'from-pink-900/30 to-pink-800/30 border-pink-700/50 hover:border-pink-500/50' },
+    { href: '/ustoz/natijalar', icon: '📊', label: 'Natijalar', style: 'from-cyan-900/30 to-cyan-800/30 border-cyan-700/50 hover:border-cyan-500/50' }
   ]
 
   return (
@@ -119,7 +124,7 @@ export default function UstozDashboard() {
               <Link
                 key={idx}
                 href={action.href}
-                className={`bg-gradient-to-br from-${action.color}-900/30 to-${action.color}-800/30 border border-${action.color}-700/50 rounded-2xl p-6 hover:border-${action.color}-500/50 transition-all transform hover:-translate-y-1 text-center group`}
+                className={`bg-gradient-to-br ${action.style} border rounded-2xl p-6 transition-all transform hover:-translate-y-1 text-center group`}
               >
                 <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{action.icon}</div>
                 <div className="text-sm font-semibold text-white">{action.label}</div>

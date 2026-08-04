@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { ustozPaneliOchiqmi } from '@/lib/roles'
 
 // GET - Barcha vazifalar ro'yxati
 export async function GET(request) {
@@ -12,7 +13,7 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -77,7 +78,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -157,7 +158,7 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -181,6 +182,22 @@ export async function PUT(request) {
         { error: 'Vazifa topilmadi yoki sizga tegishli emas' },
         { status: 404 }
       )
+    }
+
+    // Yangi guruh ham SHU ustozniki bo'lishi kerak. Avval `groupId`
+    // tekshirilmasdan qabul qilinardi: ustoz o'z vazifasini begona
+    // guruhga ko'chirib yuborishi va u yerda ko'rinib qolishi mumkin edi.
+    if (data.groupId && data.groupId !== existing.groupId) {
+      const guruh = await prisma.teacherGroup.findFirst({
+        where: { id: data.groupId, teacherId: session.user.id },
+        select: { id: true },
+      })
+      if (!guruh) {
+        return NextResponse.json(
+          { error: 'Guruh topilmadi yoki sizga tegishli emas' },
+          { status: 404 }
+        )
+      }
     }
 
     const assignment = await prisma.assignment.update({
@@ -214,7 +231,7 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const isTeacher = ['teacher', 'admin', 'superadmin', 'moderator'].includes(session.user.role)
+    const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }

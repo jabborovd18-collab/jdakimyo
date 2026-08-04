@@ -11,6 +11,8 @@ const USER_FIELDS = {
   email: true,
   fullName: true,
   role: true,
+  isTeacher: true,
+  isVerified: true,
   avatar: true,
   bio: true,
   university: true,

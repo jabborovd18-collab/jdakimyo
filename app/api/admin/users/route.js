@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
-import { ASSIGNABLE_ROLES, huquqiBormi, roleInfo } from '@/lib/roles'
+import { ASSIGNABLE_ROLES, huquqiBormi, roleInfo, tasdiqlashHuquqiBormi } from '@/lib/roles'
 import { xabarYubor } from '@/lib/bildirishnoma'
 
 /**
@@ -94,6 +94,8 @@ export async function GET(request) {
         email: true,
         fullName: true,
         role: true,
+        isTeacher: true,
+        isVerified: true,
         avatar: true,
         university: true,
         level_points: true,
@@ -283,6 +285,88 @@ export async function PUT(request) {
         }
         break
 
+      case 'toggleTeacher': {
+        // USTOZLIK — IKKILAMCHI. U asosiy rolni almashtirmaydi, yoniga
+        // qo'shiladi. Avval ustozlik `role` ning qiymati edi va shuning
+        // uchun adminlik bilan birga tura olmasdi: odamga admin berilishi
+        // bilan ustoz paneli yo'qolardi.
+        const yoqilsinmi = !targetUser.isTeacher
+        updateData = { isTeacher: yoqilsinmi }
+        message = yoqilsinmi ? 'Ustoz paneli ochildi' : 'Ustoz paneli yopildi'
+        xabar = yoqilsinmi
+          ? {
+              turi: 'rol',
+              sarlavha: '👨‍🏫 Sizga ustoz paneli ochildi',
+              matn: 'Endi guruh yaratish, vazifa berish va quiz o\'tkazish mumkin.',
+              havola: '/ustoz',
+            }
+          : {
+              turi: 'rol',
+              sarlavha: 'Ustoz paneli yopildi',
+              matn: 'Guruhlaringiz va vazifalaringiz o\'chirilmadi.',
+              havola: '/profil',
+            }
+        break
+      }
+
+      case 'toggleVerified': {
+        // TASDIQ BELGISI — FAQAT SUPERADMIN. Belgining butun ma'nosi
+        // "bu haqiqiy odam, tekshirilgan" degani; uni ko'p odam tarqata
+        // olsa, belgi soxta hisobni ajratish uchun ishlamay qoladi.
+        if (!tasdiqlashHuquqiBormi(session.user.role)) {
+          return NextResponse.json(
+            { error: 'Hisobni faqat superadmin tasdiqlaydi' },
+            { status: 403 }
+          )
+        }
+
+        const tasdiqlansinmi = !targetUser.isVerified
+        updateData = tasdiqlansinmi
+          ? {
+              isVerified: true,
+              verifiedAt: new Date(),
+              verifiedById: session.user.id,
+            }
+          : {
+              isVerified: false,
+              verifiedAt: null,
+              verifiedById: null,
+            }
+        message = tasdiqlansinmi ? 'Hisob tasdiqlandi' : 'Tasdiq olib tashlandi'
+        xabar = tasdiqlansinmi
+          ? {
+              turi: 'tizim',
+              sarlavha: '✅ Hisobingiz tasdiqlandi',
+              matn: 'Endi ismingiz yonida tasdiq belgisi ko\'rinadi.',
+              havola: '/profil',
+              icon: '✅',
+            }
+          : {
+              turi: 'tizim',
+              sarlavha: 'Hisobingiz tasdig\'i olib tashlandi',
+              havola: '/profil',
+            }
+
+        // Kim kimni tasdiqlagani keyin so'raladigan savol — qaydnomaga
+        // yozamiz, `verifiedById` ning o'zi tasdiq olib tashlanganda
+        // tozalanadi va tarix yo'qoladi.
+        await prisma.auditLog.create({
+          data: {
+            adminId: session.user.id,
+            action: tasdiqlansinmi ? 'verifyUser' : 'unverifyUser',
+            targetType: 'User',
+            targetId: userId,
+            details: `${targetUser.username} ${tasdiqlansinmi ? 'tasdiqlandi' : 'tasdig\'i olindi'}`,
+            ipAddress:
+              request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+              request.headers.get('x-real-ip') ||
+              null,
+            userAgent: request.headers.get('user-agent') || null,
+          },
+        })
+        break
+      }
+
       case 'resetPassword': {
         // Avval bu amal hech narsa qilmasdan "email yuborildi" deb
         // qaytarardi — admin muvaffaqiyat xabarini ko'rardi-yu, parol
@@ -342,6 +426,8 @@ export async function PUT(request) {
         username: true,
         email: true,
         role: true,
+        isTeacher: true,
+        isVerified: true,
         isBanned: true,
         bannedAt: true,
         bannedReason: true
