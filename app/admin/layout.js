@@ -59,6 +59,9 @@ export default async function AdminLayout({ children }) {
         { name: 'Moderatsiya', href: '/admin/moderation', icon: '🛡️', kerak: 'moderatsiya' },
         { name: 'Oxirgi amallar', href: '/admin/logs', icon: '📋', kerak: 'qaydnoma' },
         { name: 'Sozlamalar', href: '/admin/settings', icon: '⚙️', kerak: 'sozlamalar' },
+        // Bot butun sayt uchun bitta, shuning uchun 'sozlamalar'
+        // huquqi ostida. Sahifaning o'zi superadminni ham tekshiradi.
+        { name: 'Telegram bot', href: '/admin/telegram', icon: '✈️', kerak: 'sozlamalar' },
       ]
     }
   ]
