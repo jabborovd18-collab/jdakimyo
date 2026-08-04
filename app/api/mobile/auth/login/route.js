@@ -4,6 +4,7 @@
 import { NextResponse } from 'next/server'
 import { verifyCredentials } from '@/lib/credentials'
 import { issueMobileToken, MOBILE_TOKEN_MAX_AGE } from '@/lib/mobile-auth'
+import { soravchiIp } from '@/lib/ip-cheklov'
 
 // CORS preflight (sarlavhalar next.config.mjs da)
 export { OPTIONS } from '@/lib/cors'
@@ -16,7 +17,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Noto\'g\'ri so\'rov' }, { status: 400 })
     }
 
-    const user = await verifyCredentials(body.login, body.password)
+    // Mobil ilova ham veb bilan bir xil IP cheklovini oladi: aks holda
+    // to'siqni aylanib o'tish uchun shu endpoint yetarli bo'lardi.
+    const user = await verifyCredentials(body.login, body.password, soravchiIp(request))
     const token = await issueMobileToken(user)
 
     return NextResponse.json({

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { SELF_REGISTER_ROLES, DEFAULT_ROLE } from '@/lib/roles'
 import { emailniTekshir, kodYuboroq } from '@/lib/email-tasdiq'
+import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from '@/lib/ip-cheklov'
 
 // Username uchun ruxsat etilgan ko'rinish. "@" ataylab taqiqlangan:
 // login username YOKI email bo'yicha ishlagani uchun, "@" li username
@@ -16,6 +17,21 @@ function generateUserId() {
 
 export async function POST(request) {
   try {
+    // IP CHEKLOVI eng boshida: bitta kompyuterdan istalgancha hisob
+    // ochish mumkin edi va har biri tasdiqlash xatini yuborardi.
+    // Tekshiruv bazaga tegishdan oldin turadi — to'silgan skript
+    // ortiqcha so'rov qildirmasin.
+    const ip = soravchiIp(request)
+    const cheklov = await chekloqniTekshir('royxat', ip)
+    if (!cheklov.ok) {
+      return NextResponse.json(
+        {
+          error: `Bu tarmoqdan juda ko'p hisob ochildi. ${kutishMatni(cheklov.kutish)}dan keyin urinib ko'ring.`,
+        },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
     const { password, role } = body
 
@@ -119,6 +135,12 @@ export async function POST(request) {
         university: university || null,
       }
     })
+
+    // Sanoq AYNAN shu yerda — hisob yaratilgandan keyin. Forma
+    // xatolari (band username, qisqa parol) sanalmaydi: aks holda
+    // bir-ikki marta adashgan odam o'z kvotasini yeb qo'yardi,
+    // holbuki xat ham, hisob ham yaratilmagan edi.
+    await urinishniQayd('royxat', ip)
 
     // Tasdiqlash kodini yuboramiz. Xat ketmasa ham RO'YXATDAN O'TISH
     // BEKOR BO'LMAYDI: hisob yaratilgan, odam keyin kodni qayta

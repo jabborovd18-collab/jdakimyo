@@ -5,6 +5,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/prisma'
 import { verifyCredentials } from '@/lib/credentials'
 import { tokenniAlmashtir } from '@/lib/doska'
+import { soravchiIp } from '@/lib/ip-cheklov'
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -15,9 +16,17 @@ export const authOptions = {
         login: { label: "Username yoki email", type: "text" },
         password: { label: "Parol", type: "password" }
       },
-      async authorize(credentials) {
+      // Ikkinchi argument — NextAuth ning ichki so'rov obyekti. Undan
+      // faqat sarlavhalar kerak: IP cheklovi shu yerda hisoblanadi.
+      // Diqqat: bu `Request` emas, `headers` oddiy obyekt — shuning
+      // uchun `soravchiIp` ikkala shaklni ham tushunadi.
+      async authorize(credentials, req) {
         // Mantiq lib/credentials.js da — mobil login endpoint'i ham shuni ishlatadi
-        return await verifyCredentials(credentials?.login, credentials?.password)
+        return await verifyCredentials(
+          credentials?.login,
+          credentials?.password,
+          soravchiIp(req)
+        )
       }
     }),
     // ─── ELEKTRON DOSKA (QR) ───

@@ -1236,6 +1236,30 @@ model EmailTasdiq {
   @@index([amalQiladi])
 }
 
+// IP bo'yicha tezlik cheklovi (lib/ip-cheklov.js).
+//
+// NEGA BAZADA, XOTIRADA EMAS. Vercel funksiyalari serverless: ketma-ket
+// kelgan ikki so'rov boshqa-boshqa nusxada bajarilishi mumkin va nusxalar
+// xotirani bo'lishmaydi. Xotiradagi Map birinchi nusxada 5 ni sanaydi,
+// ikkinchisida yana noldan boshlaydi — ya'ni cheklov faqat qog'ozda
+// qolardi.
+//
+// `kalit` — "amal:oyna:ip" ko'rinishida (masalan `royxat:soat:1.2.3.4`).
+// Bitta jadval hamma amalni saqlaydi: qoidalar bir xil, faqat raqamlar
+// farq qiladi.
+model SorovLimit {
+  id        String   @id @default(cuid())
+  kalit     String   @unique
+  soni      Int      @default(0)
+  // Joriy oyna qachon boshlangan. Oyna muddati o'tsa sanoq noldan
+  // boshlanadi — shuning uchun alohida "tozalash" mantiqi kerak emas.
+  oynaBoshi DateTime @default(now())
+  yangilandi DateTime @updatedAt
+
+  // Eski yozuvlarni tozalash shu indeks orqali ketadi
+  @@index([yangilandi])
+}
+
 // Elektron doskaga QR orqali kirish.
 //
 // NEGA KERAK. Ma'ruza zalida o'qituvchi 100 talaba oldida parol tera

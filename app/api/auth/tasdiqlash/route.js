@@ -12,6 +12,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { kodniTekshir, kodYuboroq } from '@/lib/email-tasdiq'
 import { pochtaSozlanganmi } from '@/lib/pochta'
+import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from '@/lib/ip-cheklov'
 
 // GET — holat: tasdiqlanganmi, qaysi manzilga yuborilgan
 export async function GET() {
@@ -66,11 +67,24 @@ export async function POST(request) {
 }
 
 // PUT — kodni qayta yuborish
-export async function PUT() {
+export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Hisob bo'yicha 60 soniyalik kutish `kodYuboroq` da bor, lekin u
+    // BITTA hisobni cheklaydi. Bir necha hisob ochib, har biridan
+    // navbat bilan kod so'rash yo'li ochiq qolgan edi — har so'rov
+    // haqiqiy xat, ya'ni Resend kvotasi.
+    const ip = soravchiIp(request)
+    const cheklov = await chekloqniTekshir('kod', ip)
+    if (!cheklov.ok) {
+      return NextResponse.json(
+        { error: `Bu tarmoqdan juda ko'p xat so'raldi. ${kutishMatni(cheklov.kutish)}dan keyin urinib ko'ring.` },
+        { status: 429 }
+      )
     }
 
     const user = await prisma.user.findUnique({
@@ -97,6 +111,9 @@ export async function PUT() {
         { status: 502 }
       )
     }
+
+    // Sanoq faqat xat HAQIQATAN ketganda oshadi
+    await urinishniQayd('kod', ip)
 
     return NextResponse.json({ success: true, message: '✓ Yangi kod yuborildi' })
   } catch (error) {
