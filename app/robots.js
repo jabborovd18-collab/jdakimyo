@@ -22,6 +22,8 @@ export default function robots() {
           '/hamkorlar',
           '/login',
           '/register',
+          // Elektron doska — kirish ekrani, indekslanishi kerak emas
+          '/doska',
         ],
       },
     ],
