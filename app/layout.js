@@ -73,10 +73,58 @@ export const metadata = {
   },
 };
 
+// Qidiruv tizimlari uchun tuzilgan ma'lumot (JSON-LD).
+//
+// NEGA KERAK. Meta teglar sahifa NIMA HAQIDA ekanini aytadi, JSON-LD
+// esa sayt KIM ekanini: nomi, egasi, logotipi. Busiz Google natijada
+// sayt nomi o'rniga domenni ko'rsatadi va bilim panelini qurmaydi.
+//
+// NEGA `SearchAction` YO'Q. U saytdagi qidiruvni to'g'ridan-to'g'ri
+// Google natijasiga chiqaradi, lekin `/qidiruv` manzil parametrini
+// (`?q=`) o'qimaydi — so'rovni holatda saqlaydi. Ishlamaydigan
+// harakatni e'lon qilish yo'q deyishdan yomonroq: Google uni sinab
+// ko'radi va bo'sh sahifa oladi. Qidiruv `?q=` ni qo'llagan kuni
+// qo'shiladi.
+const TUZILGAN_MALUMOT = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'EducationalOrganization',
+      '@id': 'https://www.jdakimyo.uz/#tashkilot',
+      name: 'JDA KIMYO',
+      url: 'https://www.jdakimyo.uz',
+      logo: 'https://www.jdakimyo.uz/opengraph-image',
+      description:
+        "O'zbek tilida kompleks birikmalar kimyosini o'rganish platformasi.",
+      inLanguage: 'uz',
+      founder: {
+        '@type': 'Person',
+        name: 'Diyorbek Jabborov Arslonivich',
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://www.jdakimyo.uz/#sayt',
+      url: 'https://www.jdakimyo.uz',
+      name: 'JDA KIMYO',
+      inLanguage: 'uz',
+      publisher: { '@id': 'https://www.jdakimyo.uz/#tashkilot' },
+    },
+  ],
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="uz" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body className="min-h-screen flex flex-col antialiased">
+        {/* `dangerouslySetInnerHTML` shart: JSON-LD matn bo'lib turishi
+            kerak, React uni matn tuguni sifatida qochirib yuborsa
+            qidiruv tizimi o'qiy olmaydi. Ichidagi qiymat bu yerda
+            qattiq yozilgan, ya'ni tashqaridan hech narsa tushmaydi. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(TUZILGAN_MALUMOT) }}
+        />
         <Providers>
           {children}
         </Providers>

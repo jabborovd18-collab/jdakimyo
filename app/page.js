@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
 import { useSession, signOut } from "next-auth/react"
 import { ustozPaneliOchiqmi } from "@/lib/roles"
+import HAJM from "@/lib/ilmiy-hajm.json"
 
 // Hero'dagi aylanuvchi kompleks uchun ligandlar (oktaedrik: 3 halqa × 2 ligand)
 const ORBIT_RINGS = [
@@ -561,9 +562,20 @@ export default function Home() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto lg:mx-0">
               {[
-                { value: "120+", label: "Birikmalar", icon: "🧪" },
-                { value: "20", label: "Tahlil usuli", icon: "📊" },
-                { value: "500+", label: "Quiz savollari", icon: "📝" },
+                // SONLAR HAQIQIY BO'LISHI SHART. Bu yerda "120+ birikma"
+                // va "500+ quiz savoli" yozilgan edi — ikkalasi ham
+                // yolg'on: bazada 445 ta savol bor, birikma sahifasi esa
+                // 34 ta. Bosh sahifada tekshirib bo'ladigan yolg'on son
+                // turishi — ishonchni yo'qotishning eng oson yo'li.
+                //
+                // Kimyo sonlari `lib/ilmiy-hajm.json` dan olinadi, ya'ni
+                // sahifa qo'shilganda o'zi yangilanadi.
+                { value: String(HAJM.birikmalar), label: "Birikmalar", icon: "🧪" },
+                { value: String(HAJM.usullar), label: "Tahlil usuli", icon: "📊" },
+                // Quiz savollari bazada, ya'ni bu yerdan o'qib bo'lmaydi
+                // (sahifa "use client"). Shuning uchun PASTGA yaxlitlangan
+                // son: o'sib borsa ham to'g'ri bo'lib qolaveradi.
+                { value: "400+", label: "Quiz savollari", icon: "📝" },
                 { value: "∞", label: "Interaktiv", icon: "⚡" },
               ].map((stat, i) => (
                 <div key={i} className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-3.5 backdrop-blur-sm hover:bg-purple-800/50 hover:border-yellow-500/40 transition-all">
