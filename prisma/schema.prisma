@@ -33,6 +33,10 @@ model User {
   // berganini yozib boramiz: keyin "buni kim tasdiqlagan?" degan savolga
   // javob topilsin.
   isVerified    Boolean   @default(false)
+  // Tasdiqlangan hisob tanlagan premium bezak (lib/premium.js dagi kalit).
+  // Faqat ko'rinish — hech qanday huquq bermaydi, shuning uchun uni
+  // foydalanuvchining o'zi almashtiradi.
+  premiumUslub  String    @default("kosmik")
   verifiedAt    DateTime?
   verifiedById  String?
   verifiedBy    User?     @relation("UserVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
@@ -146,6 +150,10 @@ model User {
 
   // PROFIL POSTLARI
   profilePosts ProfilePost[]
+
+  // KUNLIK SOVG'ALAR
+  yuborganSovgalar Gift[] @relation("GiftSender")
+  kelganSovgalar   Gift[] @relation("GiftReceiver")
 
   // ─── Shaxsiy chat ───
   // Ogohlantirish soni va yozish taqiqi — laboratoriya xarid taqiqi bilan
@@ -1187,6 +1195,39 @@ model PlantWatering {
 // ═══════════════════════════════════════════════════════════════
 // O'QITUVCHI PANELI
 // ═══════════════════════════════════════════════════════════════
+
+// Do'stlar orasidagi kunlik sovg'a.
+//
+// Yozuvning o'zi JURNAL: sovg'a qilish qo'shilishidan oldin kelishilgan
+// shart shu edi — kim kimga, qachon yuborgani ko'rinib tursin, aks holda
+// ko'p akkaunt bilan tanga yig'ishni aniqlab bo'lmasdi.
+//
+// `kun` — TOSHKENT kuni (UTC+5). Sovg'a shu kun tugashi bilan kuyadi,
+// shuning uchun chegara foydalanuvchi yashaydigan vaqt mintaqasida
+// bo'lishi kerak: UTC bo'lsa, kechqurun yuborilgan sovg'a odam uxlab
+// turgan payt emas, kunduzi kuyib ketardi.
+//
+// `@@unique([senderId, kun])` — bitta akkaunt kuniga bitta sovg'a
+// yuboradi. Cheklovni bazaning o'zi ushlaydi: kodda tekshirsak, ikkita
+// so'rov bir vaqtda kelganda ikkalasi ham o'tib ketishi mumkin edi.
+// Qabul qiluvchida bunday cheklov yo'q — unga bir necha sovg'a kelaveradi.
+model Gift {
+  id         String    @id @default(cuid())
+  senderId   String
+  receiverId String
+  // kutilmoqda | qabul | kuygan
+  holat      String    @default("kutilmoqda")
+  kun        DateTime  @db.Date
+  createdAt  DateTime  @default(now())
+  javobVaqt  DateTime?
+
+  sender   User @relation("GiftSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("GiftReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, kun])
+  @@index([receiverId, holat])
+  @@index([kun, holat])
+}
 
 model TeacherStudent {
   id        String   @id @default(cuid())

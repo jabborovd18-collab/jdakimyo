@@ -20,11 +20,14 @@
  * Profil sarlavhasi ortidagi jonli fon.
  * Ota-element `relative overflow-hidden` bo'lishi kerak.
  */
-export function PremiumAurora({ korinsinmi }) {
+export function PremiumAurora({ korinsinmi, uslub }) {
   if (!korinsinmi) return null
 
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div
+      aria-hidden="true"
+      className={`pointer-events-none absolute inset-0 overflow-hidden ${uslubSinfi(uslub)}`}
+    >
       {/* Uchta dog' har xil tezlikda suzadi — takrorlanish sezilmasin */}
       <div className="jda-premium-dog jda-premium-dog-1" />
       <div className="jda-premium-dog jda-premium-dog-2" />
@@ -42,7 +45,7 @@ export function PremiumAurora({ korinsinmi }) {
  * Avatarni gradient halqa ichiga oladi.
  * Tasdiqlanmagan hisobda bolani o'zgarishsiz qaytaradi.
  */
-export function PremiumHalqa({ korinsinmi, children, dumaloq = false }) {
+export function PremiumHalqa({ korinsinmi, children, dumaloq = false, uslub }) {
   if (!korinsinmi) return children
 
   const shakl = dumaloq ? 'rounded-full' : 'rounded-[1.4rem]'
@@ -53,7 +56,7 @@ export function PremiumHalqa({ korinsinmi, children, dumaloq = false }) {
   // ramka qimirlamaydi, u faqat aylanayotgan gradientni qirqib turadi.
   return (
     <div
-      className={`relative ${shakl} p-[3px] overflow-hidden bg-slate-950 shadow-2xl shadow-cyan-500/25`}
+      className={`relative ${shakl} p-[3px] overflow-hidden bg-slate-950 shadow-2xl shadow-black/40 ${uslubSinfi(uslub)}`}
     >
       <span aria-hidden="true" className="jda-premium-halqa" />
       <div className={`relative ${shakl} overflow-hidden bg-slate-950`}>{children}</div>
@@ -62,13 +65,34 @@ export function PremiumHalqa({ korinsinmi, children, dumaloq = false }) {
 }
 
 /** "Tasdiqlangan" yorlig'i — belgi yonida matn bilan tushuntiradi. */
-export function PremiumYorliq({ korinsinmi, matn = 'Tasdiqlangan' }) {
+export function PremiumYorliq({ korinsinmi, matn = 'Tasdiqlangan', uslub }) {
   if (!korinsinmi) return null
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold jda-premium-yorliq">
+    <span
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold jda-premium-yorliq ${uslubSinfi(uslub)}`}
+    >
       <span className="text-xs">✦</span>
       {matn}
     </span>
   )
+}
+
+/**
+ * Uslub kalitini CSS sinfiga aylantiradi.
+ *
+ * Sinf nomi TO'LIQ yoziladi (`jda-uslub-guluzor`), `jda-uslub-${kalit}`
+ * kabi yig'ilmaydi — bu oddiy CSS bo'lgani uchun Tailwind muammosi yo'q,
+ * lekin noma'lum kalit kelganda mavjud bo'lmagan sinf qo'yilishidan
+ * saqlaydi.
+ */
+function uslubSinfi(uslub) {
+  const sinflar = {
+    kosmik: 'jda-uslub-kosmik',
+    guluzor: 'jda-uslub-guluzor',
+    oltin: 'jda-uslub-oltin',
+    zumrad: 'jda-uslub-zumrad',
+    tungi: 'jda-uslub-tungi',
+  }
+  return sinflar[uslub] || sinflar.kosmik
 }

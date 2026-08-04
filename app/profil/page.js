@@ -128,14 +128,14 @@ export default function ProfilDashboard() {
         }`}
       >
         {user.isVerified ? (
-          <PremiumAurora korinsinmi />
+          <PremiumAurora korinsinmi uslub={user.premiumUslub} />
         ) : (
           <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl"></div>
         )}
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
           {/* Avatar */}
           <div className="relative">
-            <PremiumHalqa korinsinmi={user.isVerified} dumaloq>
+            <PremiumHalqa korinsinmi={user.isVerified} dumaloq uslub={user.premiumUslub}>
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-3xl font-bold text-black overflow-hidden">
                 {user.avatar ? (
                   <img src={user.avatar} alt="" className="w-full h-full object-cover" />
@@ -156,7 +156,7 @@ export default function ProfilDashboard() {
               <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" jonli />
             </h1>
             <div className="flex flex-wrap gap-2 mb-3">
-              <PremiumYorliq korinsinmi={user.isVerified} />
+              <PremiumYorliq korinsinmi={user.isVerified} uslub={user.premiumUslub} />
               <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm">
                 @{user.username}
               </span>

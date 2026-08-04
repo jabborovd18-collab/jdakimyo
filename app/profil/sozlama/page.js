@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
 import AvatarUpload from '@/components/AvatarUpload'
+import PremiumTanlash from '@/components/PremiumTanlash'
 import {
   SHRIFTLAR, URGU_RANGLARI, ODDIY_INTERFEYS, keshlaVaQoll, tozala,
 } from '@/lib/interfeys'
@@ -279,6 +280,8 @@ export default function SozlamaPage() {
             Profilingizni shaxsiylashtiring va boshqaring
           </p>
         </div>
+        {/* Premium bezak sarlavha ostida emas, alohida blokda —
+            pastda ko'rsatiladi */}
         
         {hasChanges && (
           <div className="flex items-center gap-3">
@@ -332,7 +335,11 @@ export default function SozlamaPage() {
 
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
-          
+
+          {/* Premium bezak — "Shaxsiy" bo'limida, avatar bilan yonma-yon:
+              ikkalasi ham profil tashqi ko'rinishiga tegishli. */}
+          {activeSection === 'personal' && <PremiumTanlash />}
+
           {/* ═══════════════════════════════════ */}
           {/* SHAXSIY MA'LUMOTLAR */}
           {/* ═══════════════════════════════════ */}

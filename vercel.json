@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/chat-tozalash",
       "schedule": "30 3 * * 0"
+    },
+    {
+      "path": "/api/cron/sovga-kuydir",
+      "schedule": "0 19 * * *"
     }
   ]
 }

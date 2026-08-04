@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-import { MISSIYA_SHABLONLARI, missiyaKuni } from '@/lib/missions'
+import {
+  kunlikMissiyalar, missiyaYozuvi, missiyaKuni, shablonniTop, bajarildimi,
+} from '@/lib/missions'
 
 export async function GET() {
   try {
@@ -25,21 +27,14 @@ export async function GET() {
       }
     })
 
-    // Agar mavjud bo'lmasa, yaratish
+    // Agar mavjud bo'lmasa, yaratish. Cron ishlamay qolsa ham sahifa
+    // bo'sh qolmasin; uchlik sanadan chiqqani uchun ikkalasi bir xil
+    // natija beradi.
     if (missions.length === 0) {
-      for (const template of MISSIYA_SHABLONLARI) {
-        await prisma.mission.create({
-          data: {
-            date: today,
-            type: template.type,
-            title: template.title,
-            description: template.description,
-            xpReward: template.xpReward,
-            icon: template.icon,
-            difficulty: template.difficulty
-          }
-        })
-      }
+      await prisma.mission.createMany({
+        data: kunlikMissiyalar(today).map((shablon) => missiyaYozuvi(shablon, today)),
+        skipDuplicates: true,
+      })
 
       // Qayta olish
       missions = await prisma.mission.findMany({
@@ -66,18 +61,32 @@ export async function GET() {
       }
     })
 
-    // Missiyalarni formatlash
-    const formattedMissions = missions.map(mission => ({
-      id: mission.id,
-      type: mission.type,
-      title: mission.title,
-      description: mission.description,
-      xpReward: mission.xpReward,
-      icon: mission.icon,
-      difficulty: mission.difficulty,
-      completed: mission.completions.length > 0,
-      completedAt: mission.completions[0]?.completedAt || null
-    }))
+    // Missiyalarni formatlash.
+    //
+    // `tayyor` — amal HAQIQATAN bajarilganmi. Buni oldindan aytmasak,
+    // odam tugmani bosib "avval bajaring" degan xatoni olardi va nima
+    // qilish kerakligini o'zi topib olishi kerak bo'lardi. `havola` esa
+    // uni to'g'ridan-to'g'ri kerakli sahifaga olib boradi.
+    const formattedMissions = await Promise.all(
+      missions.map(async (mission) => {
+        const bajarilgan = mission.completions.length > 0
+        const shablon = shablonniTop(mission.type)
+        return {
+          id: mission.id,
+          type: mission.type,
+          title: mission.title,
+          description: mission.description,
+          xpReward: mission.xpReward,
+          icon: mission.icon,
+          difficulty: mission.difficulty,
+          havola: shablon?.havola || null,
+          completed: bajarilgan,
+          // Mukofot olingan bo'lsa qayta tekshirish shart emas
+          tayyor: bajarilgan || (await bajarildimi(session.user.id, mission.type, today)),
+          completedAt: mission.completions[0]?.completedAt || null
+        }
+      })
+    )
 
     // Bajarilgan missiyalar soni
     const completedCount = formattedMissions.filter(m => m.completed).length

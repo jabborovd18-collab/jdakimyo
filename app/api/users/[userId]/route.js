@@ -109,6 +109,7 @@ export async function GET(request, { params }) {
           // Tasdiq belgisi maxfiy profilda ham ko'rinadi: u shaxsiy
           // ma'lumot emas, hisobning haqiqiyligi haqidagi belgi.
           isVerified: user.isVerified,
+          premiumUslub: user.premiumUslub,
           avatar: user.avatar,
           university: user.university,
         },
@@ -228,6 +229,7 @@ export async function GET(request, { params }) {
         fullName: user.fullName,
         role: user.role,
         isVerified: user.isVerified,
+        premiumUslub: user.premiumUslub,
         isTeacher: user.isTeacher,
         avatar: user.avatar,
         bio: user.bio,

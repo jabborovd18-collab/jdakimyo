@@ -13,6 +13,7 @@ const USER_FIELDS = {
   role: true,
   isTeacher: true,
   isVerified: true,
+  premiumUslub: true,
   avatar: true,
   bio: true,
   university: true,

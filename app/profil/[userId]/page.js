@@ -326,13 +326,13 @@ export default function PublicProfilePage() {
         >
           {/* Tasdiqlangan hisobda oddiy sariq dog' o'rniga jonli aurora */}
           {user.isVerified ? (
-            <PremiumAurora korinsinmi />
+            <PremiumAurora korinsinmi uslub={user.premiumUslub} />
           ) : (
             <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
           )}
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
             {/* Avatar */}
-            <PremiumHalqa korinsinmi={user.isVerified}>
+            <PremiumHalqa korinsinmi={user.isVerified} uslub={user.premiumUslub}>
               <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500 flex items-center justify-center text-5xl md:text-6xl font-bold text-black shadow-2xl shadow-yellow-500/30">
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover rounded-2xl" />
@@ -349,7 +349,7 @@ export default function PublicProfilePage() {
                 <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" jonli />
               </h1>
               <div className="flex flex-wrap gap-2 mb-3">
-                <PremiumYorliq korinsinmi={user.isVerified} />
+                <PremiumYorliq korinsinmi={user.isVerified} uslub={user.premiumUslub} />
                 <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm text-purple-200">
                   @{user.username}
                 </span>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { MISSIYA_SHABLONLARI, missiyaKuni } from '@/lib/missions'
+import { kunlikMissiyalar, missiyaYozuvi, missiyaKuni } from '@/lib/missions'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,8 +12,10 @@ export async function GET(request) {
   try {
     const today = missiyaKuni()
 
+    // Uchlik sanadan kelib chiqadi — cron va sahifa mustaqil chaqirilsa
+    // ham bir xil missiyalarni beradi.
     const result = await prisma.mission.createMany({
-      data: MISSIYA_SHABLONLARI.map((mission) => ({ ...mission, date: today })),
+      data: kunlikMissiyalar(today).map((shablon) => missiyaYozuvi(shablon, today)),
       skipDuplicates: true
     })
 

@@ -44,6 +44,7 @@ const MENU_GROUPS = [
     title: 'Ijtimoiy',
     items: [
       { href: '/profil/chat', label: 'Xabarlar', icon: '💬', belgi: 'chat' },
+      { href: '/profil/sovgalar', label: "Sovg'alar", icon: '🎁' },
       { href: '/profil/dostlar', label: "Do'stlar", icon: '👥', belgi: 'dostTaklifi' },
       { href: '/profil/obunachilar', label: 'Obunachilar', icon: '👤' },
       { href: '/profil/obunalar', label: 'Obunalar', icon: '👁️' },

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-import { missiyaniBelgila, missiyaKuni } from '@/lib/missions'
+import { missiyaniBelgila, missiyaKuni, bajarildimi } from '@/lib/missions'
 
 export async function POST(request) {
   try {
@@ -67,8 +67,21 @@ export async function POST(request) {
       )
     }
 
-    // Action type'ni tekshirish (ixtiyoriy - keyinroq qo'shish mumkin)
-    // Masalan: actionType === 'quiz' bo'lsa, haqiqatan ham quiz yechilganini tekshirish
+    // AMAL HAQIQATAN BAJARILGANMI.
+    //
+    // Avval bu tekshiruv yo'q edi va shu yerda "keyinroq qo'shish mumkin"
+    // degan izoh turardi: endpoint faqat missiya id sini olib mukofot
+    // berardi. Ya'ni hech narsa qilmasdan tugmani bosgan odam ham XP,
+    // tanga va (uchalasini bosgach) yulduz olardi. Tanga laboratoriya
+    // iqtisodiyotining asosi, shuning uchun bu shunchaki aldash emas —
+    // butun muvozanatni buzadi.
+    const haqiqatanBajarilgan = await bajarildimi(session.user.id, mission.type, today)
+    if (!haqiqatanBajarilgan) {
+      return NextResponse.json(
+        { error: `Avval amalni bajaring: ${mission.description}` },
+        { status: 400 }
+      )
+    }
 
     // Mukofot mantig'i lib/missions.js da — u yerda ham, quiz yechilganda
     // avtomatik chaqiriladigan yo'lda ham bir xil bo'lishi uchun.

@@ -44,25 +44,29 @@ export default function DailyMissions({ onStatsUpdate }) {
     }
   }
 
-  const handleCompleteMission = async (missionId, missionType) => {
-    setCompletingMission(missionId)
-    
-    try {
-      // Missiya turiga qarab amalni bajarish
-      if (missionType === 'quiz') {
-        // Quiz sahifasiga yo'naltirish
-        window.location.href = '/oquv/video-darsliklar/quiz'
-        return
-      } else if (missionType === 'video') {
-        // Video darslar sahifasiga yo'naltirish
-        window.location.href = '/oquv/video-darsliklar'
-        return
-      } else if (missionType === 'friend') {
-        // Do'st qo'shish - profilga yo'naltirish
-        window.location.href = '/profil?tab=friends'
-        return
+  /**
+   * Missiya kartasidagi tugma.
+   *
+   * Amal hali bajarilmagan bo'lsa (`tayyor: false`) — kerakli sahifaga
+   * olib boradi. Bajarilgan bo'lsa — mukofotni oladi.
+   *
+   * Avval yo'naltirish missiya TURI bo'yicha qattiq yozilgan edi va
+   * ro'yxatga yangi missiya qo'shilsa, uning tugmasi hech qayerga olib
+   * bormasdi. Endi manzil serverdan keladi (`havola`).
+   */
+  const handleCompleteMission = async (missionId, missionType, mission) => {
+    if (mission && !mission.tayyor) {
+      if (mission.havola) {
+        window.location.href = mission.havola
+      } else {
+        toast('Avval amalni bajaring', { icon: 'ℹ️' })
       }
+      return
+    }
 
+    setCompletingMission(missionId)
+
+    try {
       // Missiyani bajarilgan deb belgilash
       const response = await fetch('/api/missions/complete', {
         method: 'POST',
@@ -208,17 +212,27 @@ export default function DailyMissions({ onStatsUpdate }) {
                 </div>
               </div>
 
-              {/* Action Button */}
+              {/* Amal tugmasi.
+                  Ikki holat: amal hali bajarilmagan bo'lsa "Boshlash"
+                  (kerakli sahifaga olib boradi), bajarilgan bo'lsa
+                  "Mukofotni olish". Avval tugma har doim "Bajarish"
+                  deyardi va nima qilish kerakligi noaniq qolardi. */}
               {!mission.completed && (
                 <button
-                  onClick={() => handleCompleteMission(mission.id, mission.type)}
+                  onClick={() => handleCompleteMission(mission.id, mission.type, mission)}
                   disabled={completingMission === mission.id}
-                  className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2 text-sm flex-shrink-0"
+                  className={`px-4 py-2 font-bold rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2 text-sm flex-shrink-0 ${
+                    mission.tayyor
+                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black'
+                      : 'bg-purple-800/60 hover:bg-purple-700/70 border border-purple-600/50 text-purple-100'
+                  }`}
                 >
                   {completingMission === mission.id ? (
                     <span className="animate-spin">⏳</span>
+                  ) : mission.tayyor ? (
+                    <span>🪙 Mukofot</span>
                   ) : (
-                    <span>Bajarish</span>
+                    <span>Boshlash →</span>
                   )}
                 </button>
               )}
