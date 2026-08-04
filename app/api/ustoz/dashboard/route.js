@@ -33,9 +33,10 @@ export async function GET() {
       recentSubmissions,
       recentAnnouncements
     ] = await Promise.all([
-      // Jami talabalar
+      // Jami talabalar — faqat taklifni qabul qilganlar. Kutilayotgan
+      // taklifni sanash raqamni haqiqatdan uzoqlashtirardi.
       prisma.teacherStudent.count({
-        where: { teacherId }
+        where: { teacherId, holat: 'faol' }
       }),
 
       // Jami guruhlar

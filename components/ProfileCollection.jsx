@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import SertifikatKarta from './SertifikatKarta'
+import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 
 const CONFIG = {
   achievements: { title: 'Yutuqlar', subtitle: 'Qo‘lga kiritgan yutuqlaringiz', icon: '🏆' },
@@ -161,7 +162,10 @@ export default function ProfileCollection({ type, actions = null, refreshKey = 0
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-semibold text-white">{nameOf(item)}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate font-semibold text-white">{nameOf(item)}</span>
+                      <TasdiqBelgisi tasdiqlangan={item.isVerified} olcham="kichik" />
+                    </div>
                     {item.username && (
                       <div className="truncate text-xs text-purple-400">@{item.username}</div>
                     )}

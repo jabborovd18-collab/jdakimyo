@@ -12,6 +12,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { qachon } from '@/lib/sana'
+import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 
 const SOROV_ORALIGI = 4000
 
@@ -227,8 +228,9 @@ function Chat() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-white text-sm truncate">
-                      {s.odam.fullName || s.odam.username}
+                    <span className="font-semibold text-white text-sm truncate flex items-center gap-1">
+                      <span className="truncate">{s.odam.fullName || s.odam.username}</span>
+                      <TasdiqBelgisi tasdiqlangan={s.odam.isVerified} olcham="kichik" />
                     </span>
                     {s.oqilmagan > 0 && (
                       <span className="min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[11px] font-bold">
@@ -260,9 +262,12 @@ function Chat() {
               <div className="px-4 py-3 border-b border-purple-800/50 flex items-center justify-between gap-3">
                 <Link
                   href={`/profil/${suhbat.suhbat.odam.userId}`}
-                  className="font-semibold text-white hover:text-yellow-400 truncate"
+                  className="font-semibold text-white hover:text-yellow-400 truncate flex items-center gap-1.5"
                 >
-                  {suhbat.suhbat.odam.fullName || suhbat.suhbat.odam.username}
+                  <span className="truncate">
+                    {suhbat.suhbat.odam.fullName || suhbat.suhbat.odam.username}
+                  </span>
+                  <TasdiqBelgisi tasdiqlangan={suhbat.suhbat.odam.isVerified} olcham="orta" />
                 </Link>
                 <div className="flex gap-1.5 flex-shrink-0">
                   <button onClick={shikoyat} className="px-3 py-1.5 rounded-lg bg-orange-600/20 border border-orange-600/40 text-orange-300 text-[11px] font-semibold">

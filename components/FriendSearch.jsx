@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 
 /**
  * Foydalanuvchi qidirish va do'stlik taklifini yuborish.
@@ -156,7 +157,10 @@ export default function FriendSearch({ onChange }) {
                     {user.fullName?.charAt(0)?.toUpperCase() || user.username.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-white truncate">{user.fullName || user.username}</div>
+                    <div className="font-semibold text-white truncate flex items-center gap-1.5">
+                      <span className="truncate">{user.fullName || user.username}</span>
+                      <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="kichik" />
+                    </div>
                     <div className="text-xs text-purple-400">
                       @{user.username} • ID: {user.userId}
                     </div>

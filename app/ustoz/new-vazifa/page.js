@@ -14,6 +14,7 @@ const TASK_TYPES = [
     id: 'lab', 
     name: '🧪 Laboratoriya ishi', 
     color: 'green',
+    tanlangan: 'border-green-500 bg-green-600/20',
     desc: 'Amaliy laboratoriya topshirig\'i',
     defaultScore: 100,
     icon: '🧪'
@@ -22,6 +23,7 @@ const TASK_TYPES = [
     id: 'essay', 
     name: '📝 Esse / Referat', 
     color: 'blue',
+    tanlangan: 'border-blue-500 bg-blue-600/20',
     desc: 'Yozma ish, referat, ma\'ruza',
     defaultScore: 100,
     icon: '📝'
@@ -30,6 +32,7 @@ const TASK_TYPES = [
     id: 'quiz_open', 
     name: '❓ Variantli quiz', 
     color: 'purple',
+    tanlangan: 'border-purple-500 bg-purple-600/20',
     desc: 'Variantli test (avtomatik tekshiriladi)',
     defaultScore: 100,
     icon: '❓'
@@ -38,6 +41,7 @@ const TASK_TYPES = [
     id: 'quiz_closed', 
     name: '✍️ Variantsiz quiz', 
     color: 'orange',
+    tanlangan: 'border-orange-500 bg-orange-600/20',
     desc: 'Yozma javobli test (qo\'lda tekshiriladi)',
     defaultScore: 100,
     icon: '✍️'
@@ -46,6 +50,7 @@ const TASK_TYPES = [
     id: 'homework', 
     name: '📚 Uy vazifasi', 
     color: 'yellow',
+    tanlangan: 'border-yellow-500 bg-yellow-600/20',
     desc: 'Mavzu bo\'yicha uy vazifasi',
     defaultScore: 50,
     icon: '📚'
@@ -54,6 +59,7 @@ const TASK_TYPES = [
     id: 'project', 
     name: '🔬 Loyiha', 
     color: 'pink',
+    tanlangan: 'border-pink-500 bg-pink-600/20',
     desc: 'Uzoq muddatli tadqiqot loyihasi',
     defaultScore: 200,
     icon: '🔬'
@@ -273,25 +279,29 @@ export default function NewVazifaPage() {
     }))
   }
 
+  /**
+   * Fayl biriktirish — HALI ISHLAMAYDI.
+   *
+   * Avval bu yerda `URL.createObjectURL(file)` chaqirilib, natija
+   * `attachments` ga yozilardi va bazaga tushardi. Bunday `blob:` manzil
+   * FAQAT o'sha brauzer oynasida yashaydi: sahifa yangilangach ustozning
+   * o'zida ham, talabalarda esa hech qachon ochilmaydi. Ustoz esa
+   * "fayl qo'shildi" degan yashil xabarni ko'rardi va biriktirdim deb
+   * o'ylardi — aslida hech narsa yuklanmagan edi.
+   *
+   * Yolg'on muvaffaqiyat xabarini berishdan ko'ra, imkoniyat hali
+   * yo'qligini ochiq aytish to'g'ri. Fayl saqlash (Vercel Blob) ulangach
+   * shu funksiya haqiqiy yuklashga almashtiriladi.
+   */
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files)
+    e.target.value = ''
     if (files.length === 0) return
-    
-    // Hozircha placeholder - kelajakda Vercel Blob
-    const newAttachments = files.map(file => ({
-      name: file.name,
-      size: Math.round(file.size / 1024),
-      type: file.type,
-      url: URL.createObjectURL(file),
-      uploadedAt: new Date().toISOString()
-    }))
-    
-    setFormData(prev => ({
-      ...prev,
-      attachments: [...prev.attachments, ...newAttachments]
-    }))
-    
-    toast.success(`${files.length} ta fayl qo'shildi`)
+
+    toast.error(
+      'Fayl biriktirish hali ulanmagan. Hozircha havolani "Manbalar" bo\'limiga qo\'shing.',
+      { duration: 5000 }
+    )
   }
 
   const removeAttachment = (index) => {
@@ -627,7 +637,7 @@ export default function NewVazifaPage() {
                       onClick={() => handleTypeChange(taskType.id)}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${
                         formData.type === taskType.id
-                          ? `border-${taskType.color}-500 bg-${taskType.color}-600/20 shadow-lg`
+                          ? `${taskType.tanlangan} shadow-lg`
                           : 'bg-purple-950/30 border-purple-800/30 hover:border-purple-600/50'
                       }`}
                     >

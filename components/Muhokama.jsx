@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useSession } from "next-auth/react"
 import toast from "react-hot-toast"
 import { qachon } from "@/lib/sana"
+import TasdiqBelgisi from "@/components/TasdiqBelgisi"
 
 /**
  * Muhokama — ikki rejimda ishlaydi:
@@ -304,8 +305,9 @@ export default function Muhokama({ articleId = null, compact = false }) {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-white text-sm truncate">
-                        {p.author.fullName || p.author.username}
+                      <span className="font-semibold text-white text-sm truncate flex items-center gap-1">
+                        <span className="truncate">{p.author.fullName || p.author.username}</span>
+                        <TasdiqBelgisi tasdiqlangan={p.author.isVerified} olcham="kichik" />
                       </span>
                       {p.isPinned && (
                         <span className="text-[10px] px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 rounded">

@@ -27,9 +27,11 @@ async function loadQuizForStudent(quizId, studentId) {
 
   if (!quiz) return { quiz: null, allowed: false }
 
+  // `holat: 'faol'` shart: qabul qilinmagan taklif a'zolik emas.
   const membership = await prisma.teacherStudent.findFirst({
     where: {
       studentId,
+      holat: 'faol',
       OR: [
         ...(quiz.groupId ? [{ groupId: quiz.groupId }] : []),
         { teacherId: quiz.teacherId },

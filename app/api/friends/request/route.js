@@ -31,6 +31,7 @@ export async function GET() {
             userId: true,
             username: true,
             fullName: true,
+            isVerified: true,
             avatar: true,
             university: true,
           },
@@ -132,6 +133,7 @@ export async function POST(request) {
             userId: true,
             username: true,
             fullName: true,
+            isVerified: true,
             avatar: true
           }
         }

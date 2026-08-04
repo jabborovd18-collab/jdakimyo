@@ -10,8 +10,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Kirish talab qilinadi' }, { status: 401 })
     }
 
+    // Faqat qabul qilingan a'zoliklar — kutilayotgan taklif
+    // "mening ustozim" degani emas.
     const memberships = await prisma.teacherStudent.findMany({
-      where: { studentId: session.user.id },
+      where: { studentId: session.user.id, holat: 'faol' },
       include: {
         teacher: { select: { id: true, fullName: true, username: true, avatar: true, university: true } },
         group: { select: { id: true, name: true, color: true } }

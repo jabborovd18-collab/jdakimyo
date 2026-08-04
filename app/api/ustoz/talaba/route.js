@@ -24,8 +24,10 @@ export async function GET(request) {
     const groupId = searchParams.get('groupId') || ''
     const search = searchParams.get('search') || ''
 
-    const where = { teacherId: session.user.id }
-    
+    // Rad etilganlar ro'yxatga kirmaydi — ustoz uchun ular yopilgan
+    // savol, ko'rinib turishi faqat chalkashtiradi.
+    const where = { teacherId: session.user.id, holat: { in: ['faol', 'sorov'] } }
+
     if (groupId && groupId !== 'all') {
       where.groupId = groupId
     }
@@ -109,11 +111,15 @@ export async function GET(request) {
       orderBy: { name: 'asc' }
     })
 
+    // Holat bo'yicha ajratamiz: kutilayotgan taklif hali talaba emas,
+    // lekin ustoz kimga yuborganini ko'rib turishi kerak — aks holda
+    // javob kelmasa, u taklif yuborganini ham unutib qo'yardi.
     return NextResponse.json({
       success: true,
-      students: studentsWithStats,
+      students: studentsWithStats.filter((s) => s.holat === 'faol'),
+      kutilayotgan: studentsWithStats.filter((s) => s.holat === 'sorov'),
       groups,
-      total: studentsWithStats.length
+      total: studentsWithStats.filter((s) => s.holat === 'faol').length
     })
   } catch (error) {
     console.error('[Talabalar GET]', error)
@@ -174,7 +180,7 @@ export async function POST(request) {
       )
     }
 
-    // Allaqqachon qo'shilganmi?
+    // Allaqqachon taklif qilinganmi yoki a'zomi?
     const existing = await prisma.teacherStudent.findFirst({
       where: {
         teacherId: session.user.id,
@@ -184,38 +190,46 @@ export async function POST(request) {
     })
 
     if (existing) {
+      const nom = student.fullName || student.username
+      // Rad etilganini QAYTA taklif qilishga ruxsat bermaymiz: aks holda
+      // ustoz taklifni cheksiz yuboraverib, rad etishning ma'nosi
+      // qolmasdi. Ustoz avval yozuvni o'chirib, keyin qaytadan
+      // taklif qilishi mumkin — bu ongli harakat bo'ladi.
+      const sabab = {
+        faol: `"${nom}" allaqachon "${group.name}" guruhida`,
+        sorov: `"${nom}" ga taklif yuborilgan, javob kutilmoqda`,
+        rad: `"${nom}" taklifni rad etgan`,
+      }
       return NextResponse.json(
-        { error: `"${student.fullName || student.username}" allaqachon "${group.name}" guruhida` },
+        { error: sabab[existing.holat] || sabab.faol },
         { status: 400 }
       )
     }
 
-    // Qo'shish
+    // TAKLIF sifatida yaratiladi — talaba qabul qilmaguncha guruh a'zosi
+    // hisoblanmaydi. Avval u darhol a'zo bo'lib qolardi va o'zining
+    // kimningdir ro'yxatida turganini bilmasdi ham.
     await prisma.teacherStudent.create({
       data: {
         teacherId: session.user.id,
         studentId,
-        groupId
+        groupId,
+        holat: 'sorov',
       }
     })
 
-    // Talabaga xabar beramiz. Avval qo'shilish butunlay jimgina
-    // bo'lardi: odam o'zining kimningdir guruhida turganini, vazifa
-    // olishini va natijalari ustozga ko'rinishini bilmasdi ham.
-    // To'liq rozilik oqimi (taklif — qabul qilish) alohida ish, lekin
-    // hech bo'lmasa xabardor bo'lsin.
     await xabarYubor(studentId, {
       turi: 'tizim',
-      sarlavha: `Siz "${group.name}" guruhiga qo'shildingiz`,
-      matn: `${session.user.fullName || session.user.username} sizni o'z guruhiga qo'shdi. Endi guruh vazifalari va quizlari sizga ko'rinadi.`,
-      havola: '/profil',
+      sarlavha: `👨‍🏫 "${group.name}" guruhiga taklif`,
+      matn: `${session.user.fullName || session.user.username} sizni o'z guruhiga taklif qilmoqda. Qabul qilsangiz, guruh vazifalari sizga ko'rinadi va natijalaringiz ustozga ochiladi.`,
+      havola: '/profil/ustozim',
       icon: '👨‍🏫',
       adminId: session.user.id,
     })
 
     return NextResponse.json({
       success: true,
-      message: `✓ "${student.fullName || student.username}" "${group.name}" guruhiga qo'shildi`
+      message: `✓ "${student.fullName || student.username}" ga taklif yuborildi`
     })
   } catch (error) {
     console.error('[Talaba POST]', error)

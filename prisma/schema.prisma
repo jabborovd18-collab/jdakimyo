@@ -1195,11 +1195,26 @@ model TeacherStudent {
   groupId   String?
   joinedAt  DateTime @default(now())
 
+  // ─── Rozilik ───
+  // Avval ustoz istalgan odamni jimgina o'z guruhiga qo'sha olardi:
+  // talaba o'zining kimningdir ro'yxatida turganini, unga vazifa
+  // berilishini va natijalari ko'rinishini bilmasdi ham.
+  //
+  // Endi qo'shish TAKLIF: 'sorov' holatida boshlanadi va talaba qabul
+  // qilmaguncha guruh a'zosi hisoblanmaydi. Rad etilgani o'chirilmaydi —
+  // aks holda ustoz taklifni cheksiz qayta yuboraverardi.
+  //
+  // Qiymatlar: 'sorov' | 'faol' | 'rad'
+  holat     String   @default("sorov")
+  javobVaqt DateTime?
+
   teacher User          @relation("TeacherStudents", fields: [teacherId], references: [id])
   student User          @relation("StudentTeachers", fields: [studentId], references: [id])
   group   TeacherGroup? @relation(fields: [groupId], references: [id])
 
   @@unique([teacherId, studentId, groupId])
+  @@index([studentId, holat])
+  @@index([teacherId, holat])
 }
 
 model TeacherGroup {

@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 
 export default function FriendRequests({ requests, onUpdate }) {
   const [loading, setLoading] = useState({})
@@ -60,6 +61,7 @@ export default function FriendRequests({ requests, onUpdate }) {
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-white truncate">
                   {request.sender.fullName || request.sender.username}
+                  <TasdiqBelgisi tasdiqlangan={request.sender.isVerified} olcham="kichik" className="ml-1" />
                 </div>
                 <div className="text-xs text-purple-400">
                   @{request.sender.username} • ID: {request.sender.userId}

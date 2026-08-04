@@ -39,6 +39,7 @@ export async function GET(request) {
         userId: true,
         username: true,
         fullName: true,
+        isVerified: true,
         avatar: true,
         university: true,
         role: true,

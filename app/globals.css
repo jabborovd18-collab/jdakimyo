@@ -97,3 +97,111 @@ html[data-kontrast='yuqori'] .text-slate-500 {
 @media (prefers-reduced-motion: reduce) {
   .ilmiy-eg, .ilmiy-t2g, .ilmiy-delta { animation: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   TASDIQLANGAN (PREMIUM) HISOB
+
+   Nega CSS'da, Tailwind'da emas: bu yerda keyframe animatsiyalari va
+   konusli gradient kerak — ikkalasini ham Tailwind sinflari bilan
+   ifodalab bo'lmaydi.
+
+   Ranglar sayt palitrasidan (binafsha-ko'k) olingan, lekin to'yingroq:
+   premium ajralib tursin, begona ko'rinmasin.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Fonda suzadigan rangli dog'lar */
+.jda-premium-dog {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.55;
+}
+.jda-premium-dog-1 {
+  width: 22rem; height: 22rem;
+  background: #22d3ee;
+  top: -8rem; left: -6rem;
+  animation: jda-suz-1 18s ease-in-out infinite;
+}
+.jda-premium-dog-2 {
+  width: 18rem; height: 18rem;
+  background: #a78bfa;
+  top: -4rem; right: -4rem;
+  animation: jda-suz-2 23s ease-in-out infinite;
+}
+.jda-premium-dog-3 {
+  width: 16rem; height: 16rem;
+  background: #f472b6;
+  bottom: -8rem; left: 40%;
+  opacity: 0.35;
+  animation: jda-suz-3 29s ease-in-out infinite;
+}
+
+@keyframes jda-suz-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(5rem, 3rem) scale(1.15); }
+}
+@keyframes jda-suz-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-4rem, 4rem) scale(1.2); }
+}
+@keyframes jda-suz-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-6rem, -3rem) scale(0.9); }
+}
+
+/* Ustidan sekin o'tadigan yaltiroq chiziq */
+.jda-premium-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.13) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  animation: jda-shine 7s ease-in-out infinite;
+}
+@keyframes jda-shine {
+  0%, 65% { transform: translateX(-100%); }
+  100%    { transform: translateX(100%); }
+}
+
+/* Avatar atrofidagi aylanadigan gradient halqa */
+.jda-premium-halqa {
+  background: conic-gradient(
+    from 0deg,
+    #22d3ee, #a78bfa, #f472b6, #fbbf24, #22d3ee
+  );
+  animation: jda-halqa 6s linear infinite;
+}
+@keyframes jda-halqa {
+  to { transform: rotate(360deg); }
+}
+/* Halqa aylanganda ichidagi rasm ham aylanmasligi kerak —
+   teskari burchak bilan qaytaramiz. */
+.jda-premium-halqa > * {
+  animation: jda-halqa-teskari 6s linear infinite;
+}
+@keyframes jda-halqa-teskari {
+  to { transform: rotate(-360deg); }
+}
+
+/* "Tasdiqlangan" yorlig'i */
+.jda-premium-yorliq {
+  background: linear-gradient(100deg, rgba(34, 211, 238, 0.22), rgba(167, 139, 250, 0.22));
+  border: 1px solid rgba(34, 211, 238, 0.45);
+  color: #a5f3fc;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jda-premium-dog,
+  .jda-premium-shine,
+  .jda-premium-halqa,
+  .jda-premium-halqa > * {
+    animation: none;
+  }
+  /* Yaltiroq to'xtaganda ekran o'rtasida qotib qolmasin */
+  .jda-premium-shine { opacity: 0; }
+}

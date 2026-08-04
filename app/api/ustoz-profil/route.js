@@ -22,28 +22,53 @@ export async function GET() {
       where: { userId: session.user.id }
     })
 
-    // Agar profil yo'q bo'lsa — default bilan yaratish
+    // PROFIL BU YERDA YARATILMAYDI.
+    //
+    // Avval GET so'rovining o'zi yozuv yaratardi va `isActive` sukut
+    // bo'yicha `true` bo'lgani uchun sozlash sahifasini bir marta ochgan
+    // odam — masalan atrofni ko'rib chiqayotgan admin — bilmagan holda
+    // OMMAVIY ustoz profiliga ega bo'lib qolardi. O'qish so'rovi hech
+    // narsa nashr qilmasligi kerak.
+    //
+    // Endi shakl bo'sh qiymatlar bilan to'ldiriladi, yozuv esa odam
+    // "Saqlash" ni bosganda (PUT) yaratiladi.
     if (!profile) {
-      profile = await prisma.teacherPublicProfile.create({
-        data: {
-          userId: session.user.id,
-          displayName: session.user.fullName || session.user.username,
-          university: session.user.university || null,
-          department: session.user.faculty || null,
-          bio: session.user.bio || null,
-          specialties: [],
-          education: [],
-          awards: [],
-          researchAreas: [],
-          currentProjects: [],
-          courses: []
-        }
+      // Bazadan o'qiymiz: sessiyada `university`/`faculty`/`bio` yo'q va
+      // avval ular har doim `undefined` bo'lib, hech narsa to'ldirmasdi.
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { fullName: true, username: true, university: true, faculty: true, bio: true },
       })
+
+      profile = {
+        userId: session.user.id,
+        displayName: user?.fullName || user?.username || '',
+        university: user?.university || null,
+        department: user?.faculty || null,
+        bio: user?.bio || null,
+        specialties: [],
+        education: [],
+        awards: [],
+        researchAreas: [],
+        currentProjects: [],
+        courses: [],
+        themeColor: 'purple',
+        showEmail: false,
+        showPhone: false,
+        showStats: true,
+        showCourses: true,
+        showPublications: true,
+        // Yangi profil sukut bo'yicha YOPIQ: nashr qilish ongli qaror
+        // bo'lsin, tasodifan yoqilib qolmasin.
+        isActive: false,
+        views: 0,
+        saqlanmagan: true,
+      }
     }
 
     // Qo'shimcha statistika (dashboard uchun)
     const [studentsCount, groupsCount, quizzesCount, assignmentsCount] = await Promise.all([
-      prisma.teacherStudent.count({ where: { teacherId: session.user.id } }),
+      prisma.teacherStudent.count({ where: { teacherId: session.user.id, holat: 'faol' } }),
       prisma.teacherGroup.count({ where: { teacherId: session.user.id } }),
       prisma.teacherQuiz.count({ where: { teacherId: session.user.id } }),
       prisma.assignment.count({ where: { teacherId: session.user.id } })
@@ -63,6 +88,20 @@ export async function GET() {
     console.error('[Teacher Profile GET]', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+}
+
+/**
+ * Butun songa aylantiradi, aylanmasa null qaytaradi.
+ *
+ * Avval hamma joyda to'g'ridan-to'g'ri `parseInt(...)` yozilgan edi:
+ * bo'sh bo'lmagan, lekin son bo'lmagan qiymat (masalan "ikki") NaN
+ * berardi va Prisma uni qabul qilmay 500 bilan yiqilardi. Foydalanuvchi
+ * "Xatolik" dan boshqa hech narsa ko'rmasdi.
+ */
+function son(qiymat) {
+  if (qiymat === null || qiymat === undefined || qiymat === '') return null
+  const n = parseInt(qiymat, 10)
+  return Number.isNaN(n) ? null : n
 }
 
 // PUT - O'qituvchi o'z ommaviy profilini yangilashi
@@ -104,12 +143,12 @@ export async function PUT(request) {
           university: data.university?.trim() || null,
           department: data.department?.trim() || null,
           position: data.position?.trim() || null,
-          experienceYears: data.experienceYears ? parseInt(data.experienceYears) : null,
+          experienceYears: son(data.experienceYears),
           specialties: data.specialties || [],
           education: data.education || [],
-          publications: data.publications ? parseInt(data.publications) : null,
-          citations: data.citations ? parseInt(data.citations) : null,
-          hIndex: data.hIndex ? parseInt(data.hIndex) : null,
+          publications: son(data.publications),
+          citations: son(data.citations),
+          hIndex: son(data.hIndex),
           awards: data.awards || [],
           researchAreas: data.researchAreas || [],
           currentProjects: data.currentProjects || [],
@@ -140,12 +179,12 @@ export async function PUT(request) {
           university: data.university?.trim() || null,
           department: data.department?.trim() || null,
           position: data.position?.trim() || null,
-          experienceYears: data.experienceYears ? parseInt(data.experienceYears) : null,
+          experienceYears: son(data.experienceYears),
           specialties: data.specialties || [],
           education: data.education || [],
-          publications: data.publications ? parseInt(data.publications) : null,
-          citations: data.citations ? parseInt(data.citations) : null,
-          hIndex: data.hIndex ? parseInt(data.hIndex) : null,
+          publications: son(data.publications),
+          citations: son(data.citations),
+          hIndex: son(data.hIndex),
           awards: data.awards || [],
           researchAreas: data.researchAreas || [],
           currentProjects: data.currentProjects || [],

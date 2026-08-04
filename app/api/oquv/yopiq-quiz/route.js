@@ -20,8 +20,9 @@ export async function GET(request) {
     const studentId = session.user.id
 
     // Talaba qaysi guruh va ustozlarga biriktirilgan
+    // `holat: 'faol'` shart: qabul qilinmagan taklif a'zolik emas.
     const memberships = await prisma.teacherStudent.findMany({
-      where: { studentId },
+      where: { studentId, holat: 'faol' },
       select: { groupId: true, teacherId: true },
     })
 

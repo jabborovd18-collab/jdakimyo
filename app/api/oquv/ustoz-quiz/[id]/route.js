@@ -62,10 +62,12 @@ export async function GET(request, { params }) {
 
     // 2. Talabaning guruhi orqali
     if (!hasAccess && quiz.groupId) {
+      // Qabul qilinmagan taklif a'zolik emas — `holat: 'faol'` shart.
       const membership = await prisma.teacherStudent.findFirst({
         where: {
           studentId,
-          groupId: quiz.groupId
+          groupId: quiz.groupId,
+          holat: 'faol'
         }
       })
       if (membership) {
@@ -79,7 +81,8 @@ export async function GET(request, { params }) {
       const teacherStudent = await prisma.teacherStudent.findFirst({
         where: {
           studentId,
-          teacherId: quiz.teacherId
+          teacherId: quiz.teacherId,
+          holat: 'faol'
         }
       })
       if (teacherStudent) {

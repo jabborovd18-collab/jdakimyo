@@ -84,7 +84,11 @@ export default function UstozSozlamaPage() {
     try {
       const res = await fetch('/api/ustoz-profil')
       const data = await res.json()
-      if (res.ok) {
+      // `data.profile` yo'qligini alohida tekshiramiz: aks holda
+      // pastdagi `data.profile.displayName` TypeError berib, xato
+      // "Profilni yuklashda xatolik" bo'lib ko'rinardi va asl sabab
+      // yo'qolardi.
+      if (res.ok && data.profile) {
         setFormData({
           displayName: data.profile.displayName || '',
           title: data.profile.title || '',
@@ -152,10 +156,19 @@ export default function UstozSozlamaPage() {
 
   // ═══ HELPER FUNKSIYALAR ═══
   const addSpecialty = () => {
-    const specialty = prompt('Mutaxassislikni kiriting (masalan: Koordinatsion kimyo):')
-    if (specialty && !formData.specialties.includes(specialty)) {
-      setFormData({ ...formData, specialties: [...formData.specialties, specialty] })
+    const kiritma = prompt('Mutaxassislikni kiriting (masalan: Koordinatsion kimyo):')
+    const specialty = kiritma?.trim()
+    if (!specialty) return
+    // Takrorni registrga qaramay tekshiramiz: avval "Kimyo" va "kimyo"
+    // ikkita alohida yozuv bo'lib qo'shilib ketardi.
+    const bormi = formData.specialties.some(
+      (s) => s.toLowerCase() === specialty.toLowerCase()
+    )
+    if (bormi) {
+      toast.error('Bu mutaxassislik allaqachon qo\'shilgan')
+      return
     }
+    setFormData((oldin) => ({ ...oldin, specialties: [...oldin.specialties, specialty] }))
   }
 
   const removeSpecialty = (idx) => {
@@ -169,10 +182,17 @@ export default function UstozSozlamaPage() {
     })
   }
 
+  // DIQQAT: `[...massiv]` — YUZAKI nusxa, ichidagi obyektlar o'sha
+  // obyektlarning o'zi. Avval `updated[idx][field] = value` deb
+  // yozilgani uchun React holatidagi obyekt to'g'ridan-to'g'ri
+  // o'zgartirilardi. Ko'rinishda ishlagandek tuyulardi (tashqi obyekt
+  // yangi bo'lgani uchun qayta chiziladi), lekin holat tarixini buzadi.
+  // To'g'ri yo'l — o'zgaradigan elementni ham nusxalash.
   const updateEducation = (idx, field, value) => {
-    const updated = [...formData.education]
-    updated[idx][field] = value
-    setFormData({ ...formData, education: updated })
+    setFormData((oldin) => ({
+      ...oldin,
+      education: oldin.education.map((el, i) => (i === idx ? { ...el, [field]: value } : el)),
+    }))
   }
 
   const removeEducation = (idx) => {
@@ -187,9 +207,10 @@ export default function UstozSozlamaPage() {
   }
 
   const updateAward = (idx, field, value) => {
-    const updated = [...formData.awards]
-    updated[idx][field] = value
-    setFormData({ ...formData, awards: updated })
+    setFormData((oldin) => ({
+      ...oldin,
+      awards: oldin.awards.map((el, i) => (i === idx ? { ...el, [field]: value } : el)),
+    }))
   }
 
   const removeAward = (idx) => {
@@ -204,9 +225,10 @@ export default function UstozSozlamaPage() {
   }
 
   const updateResearchArea = (idx, field, value) => {
-    const updated = [...formData.researchAreas]
-    updated[idx][field] = value
-    setFormData({ ...formData, researchAreas: updated })
+    setFormData((oldin) => ({
+      ...oldin,
+      researchAreas: oldin.researchAreas.map((el, i) => (i === idx ? { ...el, [field]: value } : el)),
+    }))
   }
 
   const removeResearchArea = (idx) => {
@@ -221,9 +243,10 @@ export default function UstozSozlamaPage() {
   }
 
   const updateCourse = (idx, field, value) => {
-    const updated = [...formData.courses]
-    updated[idx][field] = value
-    setFormData({ ...formData, courses: updated })
+    setFormData((oldin) => ({
+      ...oldin,
+      courses: oldin.courses.map((el, i) => (i === idx ? { ...el, [field]: value } : el)),
+    }))
   }
 
   const removeCourse = (idx) => {

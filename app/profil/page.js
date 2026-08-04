@@ -12,6 +12,7 @@ import ActivityHeatmap from '@/components/ActivityHeatmap'
 import LabWidget from '@/components/LabWidget'
 import ProfilPostlar from '@/components/ProfilPostlar'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
+import { PremiumAurora, PremiumHalqa, PremiumYorliq } from '@/components/PremiumProfil'
 import { sana } from '@/lib/sana'
 
 // Serverdan javob juda uzoq (yoki umuman) kelmasa, spinner abadiy osilib qolmasligi uchun chegara
@@ -119,19 +120,31 @@ export default function ProfilDashboard() {
       {/* ═══════════════════════════════════════════ */}
       {/* HERO SECTION */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="bg-gradient-to-br from-purple-900/60 to-blue-900/60 border border-purple-700/50 rounded-2xl p-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl"></div>
+      <div
+        className={`rounded-2xl p-6 relative overflow-hidden border ${
+          user.isVerified
+            ? 'border-cyan-400/40 bg-slate-950'
+            : 'border-purple-700/50 bg-gradient-to-br from-purple-900/60 to-blue-900/60'
+        }`}
+      >
+        {user.isVerified ? (
+          <PremiumAurora korinsinmi />
+        ) : (
+          <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl"></div>
+        )}
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
           {/* Avatar */}
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-3xl font-bold text-black overflow-hidden border-4 border-purple-700/50">
-              {user.avatar ? (
-                <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-              ) : (
-                (user.fullName?.charAt(0) || user.username?.charAt(0) || '?').toUpperCase()
-              )}
-            </div>
-            <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-sm font-bold shadow-lg border-4 border-purple-900">
+            <PremiumHalqa korinsinmi={user.isVerified} dumaloq>
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-3xl font-bold text-black overflow-hidden">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  (user.fullName?.charAt(0) || user.username?.charAt(0) || '?').toUpperCase()
+                )}
+              </div>
+            </PremiumHalqa>
+            <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-sm font-bold shadow-lg border-4 border-purple-900 z-20">
               {levelPoints}
             </div>
           </div>
@@ -140,9 +153,10 @@ export default function ProfilDashboard() {
           <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-extrabold mb-2 flex items-center gap-2">
               {user.fullName || user.username}
-              <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" />
+              <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" jonli />
             </h1>
             <div className="flex flex-wrap gap-2 mb-3">
+              <PremiumYorliq korinsinmi={user.isVerified} />
               <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm">
                 @{user.username}
               </span>

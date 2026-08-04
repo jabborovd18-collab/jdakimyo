@@ -128,6 +128,12 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // POST'da bor edi, bu yerda esa yo'q edi. Ustozligi olib tashlangan
+    // odam eski vazifalarini o'qib turaverardi.
+    if (!ustozPaneliOchiqmi(session.user)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 
@@ -162,6 +168,11 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // GET bilan bir xil sabab: bu yerda ham tekshiruv yo'q edi.
+    if (!ustozPaneliOchiqmi(session.user)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const data = await request.json()
 
     if (!data.id) {
@@ -176,9 +187,29 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Vazifa topilmadi' }, { status: 404 })
     }
 
+    // GURUHNI O'ZGARTIRISH. Avval `groupId` umuman yangilanmasdi:
+    // shakl guruhni tanlashga ruxsat berardi, saqlangach esa vazifa
+    // eski guruhida qolaverardi va hech qanday xato ham chiqmasdi.
+    // Yangi guruh shu ustozniki ekani ham tekshiriladi.
+    let groupId = existing.groupId
+    if (data.groupId && data.groupId !== existing.groupId) {
+      const guruh = await prisma.teacherGroup.findFirst({
+        where: { id: data.groupId, teacherId: session.user.id },
+        select: { id: true },
+      })
+      if (!guruh) {
+        return NextResponse.json(
+          { error: 'Guruh topilmadi yoki sizga tegishli emas' },
+          { status: 404 }
+        )
+      }
+      groupId = data.groupId
+    }
+
     const assignment = await prisma.assignment.update({
       where: { id: data.id },
       data: {
+        groupId,
         title: data.title?.trim() || existing.title,
         description: data.description?.trim() ?? existing.description,
         type: data.type || existing.type,

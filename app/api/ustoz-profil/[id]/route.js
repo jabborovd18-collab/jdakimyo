@@ -76,7 +76,7 @@ export async function GET(request, { params }) {
     let stats = null
     if (profile.showStats) {
       const [studentsCount, groupsCount, activeQuizzes, activeAssignments] = await Promise.all([
-        prisma.teacherStudent.count({ where: { teacherId: userId } }),
+        prisma.teacherStudent.count({ where: { teacherId: userId, holat: 'faol' } }),
         prisma.teacherGroup.count({ where: { teacherId: userId } }),
         prisma.teacherQuiz.count({ 
           where: { teacherId: userId, isDraft: false } 

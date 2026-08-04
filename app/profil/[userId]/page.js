@@ -7,6 +7,7 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { sana } from '@/lib/sana'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
+import { PremiumAurora, PremiumHalqa, PremiumYorliq } from '@/components/PremiumProfil'
 
 // Ochiq profilda ko'rsatiladigan havolalar. `to'liq` — qiymat allaqachon
 // to'liq manzil bo'lsa (website, orcid), aks holda oldiga sayt qo'shiladi.
@@ -316,25 +317,39 @@ export default function PublicProfilePage() {
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Profile Header */}
-        <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 mb-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+        <div
+          className={`rounded-3xl p-8 mb-6 relative overflow-hidden border ${
+            user.isVerified
+              ? 'border-cyan-400/40 bg-slate-950'
+              : 'border-purple-700/50 bg-gradient-to-br from-purple-900/40 to-blue-900/40'
+          }`}
+        >
+          {/* Tasdiqlangan hisobda oddiy sariq dog' o'rniga jonli aurora */}
+          {user.isVerified ? (
+            <PremiumAurora korinsinmi />
+          ) : (
+            <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+          )}
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
             {/* Avatar */}
-            <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500 flex items-center justify-center text-5xl md:text-6xl font-bold text-black shadow-2xl shadow-yellow-500/30">
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover rounded-2xl" />
-              ) : (
-                user.fullName?.charAt(0)?.toUpperCase() || user.username.charAt(0).toUpperCase()
-              )}
-            </div>
+            <PremiumHalqa korinsinmi={user.isVerified}>
+              <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500 flex items-center justify-center text-5xl md:text-6xl font-bold text-black shadow-2xl shadow-yellow-500/30">
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover rounded-2xl" />
+                ) : (
+                  user.fullName?.charAt(0)?.toUpperCase() || user.username.charAt(0).toUpperCase()
+                )}
+              </div>
+            </PremiumHalqa>
 
             {/* Info */}
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-extrabold mb-2 flex items-center gap-2">
                 {user.fullName || user.username}
-                <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" />
+                <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" jonli />
               </h1>
               <div className="flex flex-wrap gap-2 mb-3">
+                <PremiumYorliq korinsinmi={user.isVerified} />
                 <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm text-purple-200">
                   @{user.username}
                 </span>
