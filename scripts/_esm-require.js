@@ -14,7 +14,10 @@ const path = require('path')
 module.exports = function esmRequire(relativePath, exportNames) {
   const source = fs
     .readFileSync(path.join(__dirname, '..', relativePath), 'utf8')
-    .replace(/export\s+(function|const|class|let)\s+/g, '$1 ')
+    // `async` ham qamrab olinadi: `export async function` shaklini
+    // hisobga olmasa, u o'zgarishsiz qolib "Unexpected token 'export'"
+    // beradi va sabab moduldan izlanadi, holbuki ayb shu yerda.
+    .replace(/export\s+(async\s+)?(function|const|class|let)\s+/g, '$1$2 ')
     .replace(/export\s+default\s+[^\n;]+;?/g, '')
     // `export { A, B }` — qayta eksport shakli (module.exports quyida qo'shiladi)
     .replace(/^\s*export\s*\{[^}]*\}\s*;?\s*$/gm, '')
