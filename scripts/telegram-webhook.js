@@ -28,13 +28,28 @@ if (fs.existsSync(envYol)) {
   }
 }
 
-const { webhookQoy, webhookHolati, telegramSozlanganmi } = esmRequire('lib/telegram.js', [
+const {
+  webhookQoy, webhookHolati, telegramSozlanganmi,
+  menyuTugmasiQoy, buyruqlarniQoy, tavsifQoy,
+} = esmRequire('lib/telegram.js', [
   'webhookQoy',
   'webhookHolati',
   'telegramSozlanganmi',
+  'menyuTugmasiQoy',
+  'buyruqlarniQoy',
+  'tavsifQoy',
 ])
 
 const SAYT = process.env.SAYT_MANZIL || 'https://www.jdakimyo.uz'
+
+/** "/" bosilganda chiqadigan ro'yxat */
+const BUYRUQLAR = [
+  { command: 'xabarlar', description: 'Oxirgi bildirishnomalar' },
+  { command: 'holat', description: "Hisob ma'lumotlari" },
+  { command: 'sozlama', description: "Xabar oqimini yoqish/o'chirish" },
+  { command: 'uzish', description: 'Hisobni uzish' },
+  { command: 'yordam', description: 'Yordam' },
+]
 
 async function main() {
   const amal = process.argv[2] || 'holat'
@@ -74,6 +89,23 @@ async function main() {
       process.exit(1)
     }
     console.log('Webhook o\'rnatildi:', url)
+
+    // MENYU TUGMASI — yozuv maydoni yonida turadi va saytni Telegram
+    // ichida ochadi. Sukut bo'yicha u yerda "/" bo'ladi; nomlangan
+    // tugma botni saytga kirish nuqtasiga aylantiradi.
+    const menyu = await menyuTugmasiQoy('Platforma', SAYT)
+    console.log(menyu.ok ? 'Menyu tugmasi: Platforma' : `Menyu tugmasi XATO: ${menyu.sabab}`)
+
+    const buyruqlar = await buyruqlarniQoy(BUYRUQLAR)
+    console.log(buyruqlar.ok ? `Buyruqlar: ${BUYRUQLAR.length} ta` : `Buyruqlar XATO: ${buyruqlar.sabab}`)
+
+    await tavsifQoy({
+      tavsif:
+        "JDA KIMYO — o'zbek tilida kompleks birikmalar kimyosi platformasi. " +
+        'Bot saytdagi bildirishnomalarni yetkazadi va platformani ochadi.',
+      qisqa: 'JDA KIMYO bildirishnomalari',
+    })
+    console.log('Tavsif yozildi')
     return
   }
 
