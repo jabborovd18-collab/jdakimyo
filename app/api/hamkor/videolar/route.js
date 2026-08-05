@@ -10,9 +10,13 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { isPartnerRole } from '@/lib/roles'
-import { KanalXatosi, kanalimniOl } from '@/lib/kanal'
+import { KanalXatosi, kanalimniOl, sorovdanKanalId } from '@/lib/kanal'
 
-async function kanalTekshir() {
+/**
+ * @param {Request} [request] Tanlangan kanalni aniqlash uchun
+ * @param {object} [body] POST/PUT tanasi (unda `kanalId` bo'lishi mumkin)
+ */
+async function kanalTekshir(request = null, body = null) {
   const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { xato: NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 }) }
@@ -21,15 +25,16 @@ async function kanalTekshir() {
     return { xato: NextResponse.json({ error: 'Hamkor huquqi kerak' }, { status: 403 }) }
   }
   try {
-    return { kanal: await kanalimniOl(session.user.id) }
+    const kanalId = request ? sorovdanKanalId(request, body) : null
+    return { kanal: await kanalimniOl(session.user.id, kanalId) }
   } catch (e) {
     const status = e instanceof KanalXatosi ? e.status : 500
     return { xato: NextResponse.json({ error: e.message }, { status }) }
   }
 }
 
-export async function GET() {
-  const { kanal, xato } = await kanalTekshir()
+export async function GET(request) {
+  const { kanal, xato } = await kanalTekshir(request)
   if (xato) return xato
 
   const videolar = await prisma.channelVideo.findMany({
@@ -41,11 +46,12 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const { kanal, xato } = await kanalTekshir()
+  const tana = await request.json().catch(() => ({}))
+  const { kanal, xato } = await kanalTekshir(request, tana)
   if (xato) return xato
 
   try {
-    const { sarlavha, tavsif, videoUrl, thumbnail, tartib, nashr } = await request.json()
+    const { sarlavha, tavsif, videoUrl, thumbnail, tartib, nashr } = tana
 
     if (!sarlavha?.trim() || !videoUrl?.trim()) {
       return NextResponse.json({ error: 'Sarlavha va video havolasi majburiy' }, { status: 400 })
@@ -74,11 +80,12 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  const { kanal, xato } = await kanalTekshir()
+  const tana = await request.json().catch(() => ({}))
+  const { kanal, xato } = await kanalTekshir(request, tana)
   if (xato) return xato
 
   try {
-    const { id, sarlavha, tavsif, videoUrl, thumbnail, tartib, nashr } = await request.json()
+    const { id, sarlavha, tavsif, videoUrl, thumbnail, tartib, nashr } = tana
     if (!id) return NextResponse.json({ error: 'id majburiy' }, { status: 400 })
 
     const mavjud = await prisma.channelVideo.findFirst({ where: { id, channelId: kanal.id } })
@@ -104,7 +111,7 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  const { kanal, xato } = await kanalTekshir()
+  const { kanal, xato } = await kanalTekshir(request)
   if (xato) return xato
 
   try {

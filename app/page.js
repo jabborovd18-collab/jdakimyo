@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
 
 import { useSession, signOut } from "next-auth/react"
-import { ustozPaneliOchiqmi } from "@/lib/roles"
+import { ustozPaneliOchiqmi, isPartnerRole } from "@/lib/roles"
 import HAJM from "@/lib/ilmiy-hajm.json"
 import TasdiqBelgisi from "@/components/TasdiqBelgisi"
 
@@ -83,6 +83,11 @@ export default function Home() {
   // Ustozlik endi alohida bayroq: rol satriga qarash adminlarni
   // panelidan mahrum qilardi (rol bitta bo'lgani uchun).
   const isTeacher = ustozPaneliOchiqmi(session?.user)
+  // KANAL EGASI PANELINI TOPA OLMASDI. Admin va ustoz uchun sarlavhada
+  // tugma bor edi, hamkor uchun esa yo'q — kanal ochilgach uning egasi
+  // `/hamkorlar` manzilini faqat bildirishnomadagi havoladan bilardi
+  // va uni yo'qotsa, boshqa kirish yo'li qolmasdi.
+  const isHamkor = isPartnerRole(role)
 
   useReveal()
 
@@ -267,6 +272,14 @@ export default function Home() {
                 <span>👨‍🏫</span> Ustoz paneli
               </Link>
             )}
+            {isHamkor && (
+              <Link
+                href="/hamkorlar"
+                className="ml-2 flex items-center gap-1.5 px-3 py-1.5 bg-sky-600/20 hover:bg-sky-600/30 border border-sky-600/40 rounded-full text-sky-300 hover:text-sky-200 transition-all text-xs font-semibold"
+              >
+                <span>🤝</span> Hamkor paneli
+              </Link>
+            )}
           </nav>
 
           <div className="flex gap-2 items-center">
@@ -369,6 +382,23 @@ export default function Home() {
                               <div className="text-xs text-purple-400">Guruhlar va talabalar</div>
                             </div>
                             <span className="text-purple-500 group-hover:text-green-300 group-hover:translate-x-1 transition-all">→</span>
+                          </Link>
+                        )}
+
+                        {isHamkor && (
+                          <Link
+                            href="/hamkorlar"
+                            onClick={() => setShowUserMenu(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-sky-900/30 transition-all group"
+                          >
+                            <span className="text-xl">🤝</span>
+                            <div className="flex-1">
+                              <div className="text-sm font-semibold text-sky-300 group-hover:text-sky-200 transition-colors">
+                                Hamkor paneli
+                              </div>
+                              <div className="text-xs text-purple-400">Kanal, lenta va videolar</div>
+                            </div>
+                            <span className="text-purple-500 group-hover:text-sky-300 group-hover:translate-x-1 transition-all">→</span>
                           </Link>
                         )}
 
@@ -543,6 +573,15 @@ export default function Home() {
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-green-600/20 border border-green-600/40 text-green-300 text-sm font-semibold mt-1"
               >
                 <span>👨‍🏫</span> Ustoz paneli
+              </Link>
+            )}
+            {isHamkor && (
+              <Link
+                href="/hamkorlar"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-sky-600/20 border border-sky-600/40 text-sky-300 text-sm font-semibold mt-1"
+              >
+                <span>🤝</span> Hamkor paneli
               </Link>
             )}
           </nav>

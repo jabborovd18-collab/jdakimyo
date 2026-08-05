@@ -10,7 +10,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { isPartnerRole } from '@/lib/roles'
-import { KANAL_TURLARI, KanalXatosi, kanalimniOl } from '@/lib/kanal'
+import {
+  KANAL_TURLARI, KanalXatosi, kanalimniOl, kanallarim, sorovdanKanalId,
+} from '@/lib/kanal'
 
 async function hamkorTekshir() {
   const session = await getServerSession(authOptions)
@@ -26,12 +28,14 @@ async function hamkorTekshir() {
   return { user: session.user }
 }
 
-export async function GET() {
+export async function GET(request) {
   const { user, xato } = await hamkorTekshir()
   if (xato) return xato
 
   try {
-    const kanal = await kanalimniOl(user.id)
+    const kanal = await kanalimniOl(user.id, sorovdanKanalId(request))
+    // Almashtirgich uchun — faqat nomi va manzili yetarli
+    const barchasi = await kanallarim(user.id)
 
     const [obunachilar, postlar, videolar, oxirgiObunachilar, korishlar] = await Promise.all([
       prisma.channelSubscription.count({ where: { channelId: kanal.id } }),
@@ -61,6 +65,13 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       kanal,
+      kanallar: barchasi.map((k) => ({
+        id: k.id,
+        nom: k.nom,
+        slug: k.slug,
+        avatar: k.avatar,
+        faol: k.faol,
+      })),
       turlar: KANAL_TURLARI,
       statistika: {
         obunachilar,
@@ -88,8 +99,8 @@ export async function PUT(request) {
   if (xato) return xato
 
   try {
-    const kanal = await kanalimniOl(user.id)
     const body = await request.json()
+    const kanal = await kanalimniOl(user.id, sorovdanKanalId(request, body))
 
     const data = {}
     if (typeof body.nom === 'string' && body.nom.trim()) data.nom = body.nom.trim().slice(0, 80)

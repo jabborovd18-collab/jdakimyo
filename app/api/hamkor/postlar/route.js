@@ -9,10 +9,16 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { isPartnerRole } from '@/lib/roles'
-import { KanalXatosi, kanalimniOl } from '@/lib/kanal'
+import { KanalXatosi, kanalimniOl, sorovdanKanalId } from '@/lib/kanal'
 import { xabarYuborKopga } from '@/lib/bildirishnoma'
 
-async function kanalTekshir() {
+/**
+ * @param {Request} [request] Tanlangan kanalni aniqlash uchun. Berilmasa
+ *   egasining birinchi kanali olinadi — bir nechta kanali bo'lganda
+ *   post noto'g'ri kanalga tushib qolardi.
+ * @param {object} [body] POST/PUT tanasi (unda `kanalId` bo'lishi mumkin)
+ */
+async function kanalTekshir(request = null, body = null) {
   const session = await getServerSession(authOptions)
   if (!session?.user) {
     return { xato: NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 }) }
@@ -21,7 +27,8 @@ async function kanalTekshir() {
     return { xato: NextResponse.json({ error: 'Hamkor huquqi kerak' }, { status: 403 }) }
   }
   try {
-    return { kanal: await kanalimniOl(session.user.id), user: session.user }
+    const kanalId = request ? sorovdanKanalId(request, body) : null
+    return { kanal: await kanalimniOl(session.user.id, kanalId), user: session.user }
   } catch (e) {
     const status = e instanceof KanalXatosi ? e.status : 500
     return { xato: NextResponse.json({ error: e.message }, { status }) }
@@ -47,8 +54,8 @@ async function obunachilarniOgohlantir(kanal, post) {
   )
 }
 
-export async function GET() {
-  const { kanal, xato } = await kanalTekshir()
+export async function GET(request) {
+  const { kanal, xato } = await kanalTekshir(request)
   if (xato) return xato
 
   const postlar = await prisma.channelPost.findMany({
@@ -60,11 +67,14 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const { kanal, xato } = await kanalTekshir()
+  // Tana AVVAL o'qiladi: unda `kanalId` bo'lishi mumkin va qaysi
+  // kanalga yozilayotganini shundan bilamiz
+  const tana = await request.json().catch(() => ({}))
+  const { kanal, xato } = await kanalTekshir(request, tana)
   if (xato) return xato
 
   try {
-    const { sarlavha, matn, rasm, nashr } = await request.json()
+    const { sarlavha, matn, rasm, nashr } = tana
 
     if (!sarlavha?.trim() || !matn?.trim()) {
       return NextResponse.json({ error: 'Sarlavha va matn majburiy' }, { status: 400 })
@@ -94,11 +104,12 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  const { kanal, xato } = await kanalTekshir()
+  const tana = await request.json().catch(() => ({}))
+  const { kanal, xato } = await kanalTekshir(request, tana)
   if (xato) return xato
 
   try {
-    const { id, sarlavha, matn, rasm, nashr } = await request.json()
+    const { id, sarlavha, matn, rasm, nashr } = tana
     if (!id) return NextResponse.json({ error: 'id majburiy' }, { status: 400 })
 
     // `channelId` sharti muhim: id ni bilgan odam boshqa kanalning
@@ -127,7 +138,7 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  const { kanal, xato } = await kanalTekshir()
+  const { kanal, xato } = await kanalTekshir(request)
   if (xato) return xato
 
   try {

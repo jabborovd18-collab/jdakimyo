@@ -26,10 +26,12 @@ export default function HamkorDashboard() {
   const [holat, setHolat] = useState(null)
   const [xato, setXato] = useState('')
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
+  // Tanlangan kanal. `null` — birinchisi (server o'zi tanlaydi).
+  const [kanalId, setKanalId] = useState(null)
 
   const yukla = useCallback(async () => {
     try {
-      const res = await fetch('/api/hamkor/kanal')
+      const res = await fetch(`/api/hamkor/kanal${kanalId ? `?kanal=${kanalId}` : ''}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setHolat(data)
@@ -39,7 +41,7 @@ export default function HamkorDashboard() {
     } finally {
       setYuklanmoqda(false)
     }
-  }, [])
+  }, [kanalId])
 
   useEffect(() => {
     if (status === 'authenticated') yukla()
@@ -106,13 +108,41 @@ export default function HamkorDashboard() {
               kanal.nom.charAt(0).toUpperCase()
             )}
           </div>
-          <div>
+          <div className="min-w-0">
             <h1 className="text-2xl font-bold">{kanal.nom}</h1>
             <div className="text-xs text-purple-400">
               /kanallar/{kanal.slug} · {kanal.ochiq ? 'ochiq' : '🔒 yopiq'} ·{' '}
               {sana(kanal.createdAt)} dan beri
             </div>
           </div>
+
+          {/* KANAL ALMASHTIRGICH — faqat bittadan ko'p kanal bo'lganda.
+              Ilgari dashboard doim eng eski kanalni ochardi va
+              ikkinchisiga umuman kirib bo'lmasdi. */}
+          {holat.kanallar?.length > 1 && (
+            <div className="ml-auto">
+              <label className="block text-[11px] text-purple-400 mb-1">
+                Kanal ({holat.kanallar.length} ta)
+              </label>
+              <select
+                value={kanal.id}
+                onChange={(e) => {
+                  setKanalId(e.target.value)
+                  setYuklanmoqda(true)
+                  // Bo'lim boshiga qaytamiz: ochilgan lenta boshqa
+                  // kanalniki bo'lib qolmasin
+                  setBolim('umumiy')
+                }}
+                className="bg-purple-950/60 border border-purple-700/50 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-yellow-500"
+              >
+                {holat.kanallar.map((k) => (
+                  <option key={k.id} value={k.id}>
+                    {k.nom}{k.faol ? '' : ' (to\'xtatilgan)'}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {/* Bo'limlar */}
@@ -132,11 +162,15 @@ export default function HamkorDashboard() {
           ))}
         </div>
 
+        {/* `key` — kanal almashganda komponent qaytadan yaratilsin:
+            aks holda eski kanalning postlari ekranda qolib ketardi */}
         {bolim === 'umumiy' && <Umumiy holat={holat} onOtish={setBolim} />}
-        {bolim === 'lenta' && <Lenta />}
-        {bolim === 'videolar' && <Videolar />}
+        {bolim === 'lenta' && <Lenta key={kanal.id} kanalId={kanal.id} />}
+        {bolim === 'videolar' && <Videolar key={kanal.id} kanalId={kanal.id} />}
         {bolim === 'obunachilar' && <Obunachilar holat={holat} />}
-        {bolim === 'sozlama' && <Sozlama kanal={kanal} turlar={holat.turlar} onSaqlandi={yukla} />}
+        {bolim === 'sozlama' && (
+          <Sozlama key={kanal.id} kanal={kanal} turlar={holat.turlar} onSaqlandi={yukla} />
+        )}
       </div>
     </main>
   )
@@ -202,7 +236,10 @@ function Umumiy({ holat, onOtish }) {
   )
 }
 
-function Lenta() {
+// `kanalId` HAR SO'ROVDA yuboriladi: hamkorda bir nechta kanal
+// bo'lishi mumkin va server aks holda birinchisini oladi — post
+// noto'g'ri kanalga tushib qolardi.
+function Lenta({ kanalId }) {
   const [postlar, setPostlar] = useState([])
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
   const [tahrir, setTahrir] = useState(null)
@@ -210,13 +247,13 @@ function Lenta() {
 
   const yukla = useCallback(async () => {
     try {
-      const res = await fetch('/api/hamkor/postlar')
+      const res = await fetch(`/api/hamkor/postlar?kanal=${kanalId}`)
       const data = await res.json()
       if (res.ok) setPostlar(data.postlar || [])
     } finally {
       setYuklanmoqda(false)
     }
-  }, [])
+  }, [kanalId])
 
   useEffect(() => { yukla() }, [yukla])
 
@@ -226,7 +263,7 @@ function Lenta() {
       const res = await fetch('/api/hamkor/postlar', {
         method: tahrir.id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tahrir),
+        body: JSON.stringify({ ...tahrir, kanalId }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -243,7 +280,7 @@ function Lenta() {
   const ochir = async (id) => {
     if (!confirm("Post o'chirilsinmi? Buni qaytarib bo'lmaydi.")) return
     try {
-      const res = await fetch(`/api/hamkor/postlar?id=${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/hamkor/postlar?id=${id}&kanal=${kanalId}`, { method: 'DELETE' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       toast.success(data.message)
@@ -360,7 +397,7 @@ function Lenta() {
   )
 }
 
-function Videolar() {
+function Videolar({ kanalId }) {
   const [videolar, setVideolar] = useState([])
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
   const [tahrir, setTahrir] = useState(null)
@@ -368,13 +405,13 @@ function Videolar() {
 
   const yukla = useCallback(async () => {
     try {
-      const res = await fetch('/api/hamkor/videolar')
+      const res = await fetch(`/api/hamkor/videolar?kanal=${kanalId}`)
       const data = await res.json()
       if (res.ok) setVideolar(data.videolar || [])
     } finally {
       setYuklanmoqda(false)
     }
-  }, [])
+  }, [kanalId])
 
   useEffect(() => { yukla() }, [yukla])
 
@@ -384,7 +421,7 @@ function Videolar() {
       const res = await fetch('/api/hamkor/videolar', {
         method: tahrir.id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tahrir),
+        body: JSON.stringify({ ...tahrir, kanalId }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -401,7 +438,7 @@ function Videolar() {
   const ochir = async (id) => {
     if (!confirm("Video o'chirilsinmi?")) return
     try {
-      const res = await fetch(`/api/hamkor/videolar?id=${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/hamkor/videolar?id=${id}&kanal=${kanalId}`, { method: 'DELETE' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       toast.success(data.message)
@@ -564,7 +601,7 @@ function Sozlama({ kanal, turlar, onSaqlandi }) {
       const res = await fetch('/api/hamkor/kanal', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(shakl),
+        body: JSON.stringify({ ...shakl, kanalId: kanal.id }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -618,25 +655,30 @@ function Sozlama({ kanal, turlar, onSaqlandi }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <label className="text-sm text-purple-300 font-semibold block mb-1">Avatar havolasi</label>
-          <input
-            value={shakl.avatar}
-            onChange={(e) => setShakl({ ...shakl, avatar: e.target.value })}
-            placeholder="https://..."
-            className="w-full px-4 py-2.5 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-purple-300 font-semibold block mb-1">Banner havolasi</label>
-          <input
-            value={shakl.banner}
-            onChange={(e) => setShakl({ ...shakl, banner: e.target.value })}
-            placeholder="https://..."
-            className="w-full px-4 py-2.5 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
-          />
-        </div>
+      {/* RASMLAR YUKLANADI, MANZIL YOZILMAYDI. Ilgari bu yerda faqat
+          "Avatar havolasi" matn maydoni turardi — ya'ni rasmni avval
+          boshqa joyga yuklab, keyin manzilini ko'chirib kelish kerak
+          edi. Amalda buni hech kim qilmadi va kanallar avatarsiz
+          qoldi. Manzilni qo'lda yozish ham qoldirilgan: tayyor rasm
+          boshqa joyda bo'lsa, yuklashning hojati yo'q. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <RasmMaydoni
+          nom="Avatar"
+          izoh="Kvadrat rasm, kanal nomi yonida chiqadi"
+          qiymat={shakl.avatar}
+          maqsad="avatar"
+          kanalId={kanal.id}
+          dumaloq
+          onOzgardi={(url) => setShakl({ ...shakl, avatar: url })}
+        />
+        <RasmMaydoni
+          nom="Banner"
+          izoh="Keng rasm, kanal sahifasining tepasida"
+          qiymat={shakl.banner}
+          maqsad="banner"
+          kanalId={kanal.id}
+          onOzgardi={(url) => setShakl({ ...shakl, banner: url })}
+        />
       </div>
 
       <div className="rounded-xl bg-purple-950/40 border border-purple-800/50 p-4 text-[12px] text-purple-300 leading-relaxed">
@@ -652,6 +694,80 @@ function Sozlama({ kanal, turlar, onSaqlandi }) {
       >
         {ishlamoqda ? '⏳ Saqlanmoqda...' : '💾 Saqlash'}
       </button>
+    </div>
+  )
+}
+
+/**
+ * Rasm maydoni: yuklash, ko'rish va olib tashlash.
+ *
+ * Yuklangan rasm DARHOL saqlanmaydi — u faqat shakl holatiga
+ * yoziladi va "Saqlash" bosilganda kanalga o'tadi. Shunday qilinmasa,
+ * tasodifan yuklangan rasm darhol jonli kanalda paydo bo'lardi.
+ */
+function RasmMaydoni({ nom, izoh, qiymat, maqsad, kanalId, dumaloq, onOzgardi }) {
+  const [band, setBand] = useState(false)
+
+  const yukla = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBand(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('maqsad', maqsad)
+      fd.append('kanalId', kanalId)
+      const res = await fetch('/api/hamkor/rasm', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      onOzgardi(data.url)
+      toast.success(`${nom} yuklandi — saqlashni unutmang`)
+    } catch (err) {
+      toast.error(err.message)
+    } finally {
+      setBand(false)
+      e.target.value = ''
+    }
+  }
+
+  return (
+    <div>
+      <label className="text-sm text-purple-300 font-semibold block mb-1">{nom}</label>
+      <div className="text-[11px] text-purple-500 mb-2">{izoh}</div>
+
+      <div className="flex items-center gap-3">
+        <div
+          className={`${dumaloq ? 'rounded-full' : 'rounded-xl'} w-16 h-16 shrink-0 overflow-hidden bg-purple-950/60 border border-purple-800/50 flex items-center justify-center`}
+        >
+          {qiymat ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={qiymat} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-purple-600 text-xl">🖼️</span>
+          )}
+        </div>
+
+        <div className="min-w-0">
+          <label className="inline-block px-3 py-1.5 rounded-lg bg-purple-800/50 border border-purple-600/50 text-xs text-purple-200 cursor-pointer hover:bg-purple-700/50 transition-all">
+            {band ? 'Yuklanmoqda...' : qiymat ? 'Almashtirish' : 'Rasm yuklash'}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={yukla}
+              disabled={band}
+              className="hidden"
+            />
+          </label>
+          {qiymat ? (
+            <button
+              onClick={() => onOzgardi('')}
+              className="block text-[11px] text-red-300 underline mt-1.5 hover:text-red-200"
+            >
+              Olib tashlash
+            </button>
+          ) : null}
+        </div>
+      </div>
     </div>
   )
 }
