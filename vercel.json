@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/sovga-kuydir",
       "schedule": "0 19 * * *"
+    },
+    {
+      "path": "/api/cron/iqtibos",
+      "schedule": "0 3 * * *"
     }
   ]
 }

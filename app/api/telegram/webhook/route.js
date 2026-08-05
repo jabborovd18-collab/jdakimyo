@@ -17,6 +17,7 @@ import { prisma } from '@/lib/prisma'
 import {
   telegramYubor, tgHimoyala, telegramSozlanganmi, TUGMALAR, sarlavhaBelgisi,
 } from '@/lib/telegram'
+import { bugungiIqtibos, iqtibosMatni } from '@/lib/iqtibos'
 
 const SAYT = 'https://www.jdakimyo.uz'
 
@@ -50,9 +51,21 @@ export async function POST(request) {
     const xabar = yangilik?.message
     const chatId = xabar?.chat?.id
 
-    // Bizni faqat shaxsiy chatdagi matn qiziqtiradi. Guruhga qo'shilgan
-    // bot uchun mantiq boshqacha bo'lishi kerak, hozir u yo'q.
-    if (!chatId || xabar.chat?.type !== 'private' || !xabar.text) {
+    if (!chatId || !xabar.text) {
+      return NextResponse.json({ ok: true })
+    }
+
+    // GURUHDA bot suhbatga aralashmaydi — faqat bitta buyruqqa javob
+    // beradi. Har xabarga javob yozadigan bot guruhdan darrov
+    // chiqarib yuboriladi.
+    if (xabar.chat?.type === 'group' || xabar.chat?.type === 'supergroup') {
+      if (/^\/iqtibos(@\w+)?$/.test(xabar.text.trim())) {
+        await guruhgaIqtibos(String(chatId))
+      }
+      return NextResponse.json({ ok: true })
+    }
+
+    if (xabar.chat?.type !== 'private') {
       return NextResponse.json({ ok: true })
     }
 
@@ -67,6 +80,14 @@ export async function POST(request) {
   }
 
   return NextResponse.json({ ok: true })
+}
+
+/** Guruhga bugungi iqtibosni yuboradi (/iqtibos buyrug'i) */
+async function guruhgaIqtibos(chatId) {
+  const iqtibos = await bugungiIqtibos()
+  return telegramYubor(chatId, iqtibosMatni(iqtibos, tgHimoyala), {
+    havola: { matn: 'JDA KIMYO', url: SAYT },
+  })
 }
 
 /** Kod necha daqiqa yashaydi. Chat tarixida qolib ketadi — qisqa bo'lsin. */
@@ -138,9 +159,15 @@ async function kodBer({ chatId, username }) {
  * O'lik yozuvni e'lon yuborish paytida ham tozalaymiz.
  */
 async function azolikOzgardi(hodisa) {
-  const chatId = String(hodisa?.chat?.id || '')
+  const chat = hodisa?.chat
+  const chatId = String(chat?.id || '')
   const holat = hodisa?.new_chat_member?.status
   if (!chatId || !holat) return
+
+  // GURUH — botni qo'shishgan yoki chiqarishgan
+  if (chat.type === 'group' || chat.type === 'supergroup') {
+    return guruhOzgardi({ chatId, chat, holat, kim: hodisa?.from })
+  }
 
   // `kicked` — bloklangan, `member` — qayta ochilgan
   if (holat !== 'kicked' && holat !== 'member') return
@@ -148,6 +175,38 @@ async function azolikOzgardi(hodisa) {
   await prisma.telegramUlanish
     .updateMany({ where: { chatId }, data: { xabarlar: holat === 'member' } })
     .catch(() => {})
+}
+
+/**
+ * Bot guruhga qo'shildi yoki chiqarildi.
+ *
+ * Yozuv O'CHIRILMAYDI, faqat `faol` almashadi: bot qayta qo'shilsa,
+ * "iqtibos yuborilmasin" degan sozlama saqlanib qolgani yaxshi —
+ * aks holda uni har safar qaytadan o'chirishga to'g'ri kelardi.
+ */
+async function guruhOzgardi({ chatId, chat, holat, kim }) {
+  const ichkarida = holat === 'member' || holat === 'administrator'
+  const nom = chat.title || null
+  const qoshgan = kim?.username ? `@${kim.username}` : kim?.first_name || null
+
+  await prisma.telegramGuruh
+    .upsert({
+      where: { chatId },
+      create: { chatId, nom, qoshgan, faol: ichkarida },
+      // Nom o'zgarishi mumkin — har hodisada yangilanadi
+      update: { nom, faol: ichkarida },
+    })
+    .catch(() => {})
+
+  if (ichkarida) {
+    await telegramYubor(
+      chatId,
+      '👋 Salom! Men <b>JDA KIMYO</b> botiman.\n\n' +
+        'Har kuni shu guruhga bitta kimyoviy iqtibos yuboraman.\n\n' +
+        'Shaxsiy bildirishnomalar uchun menga alohida yozing.',
+      { havola: { matn: 'Saytni ochish', url: SAYT } }
+    ).catch(() => {})
+  }
 }
 
 async function buyruqniBajar({ chatId, matn, username, ism }) {

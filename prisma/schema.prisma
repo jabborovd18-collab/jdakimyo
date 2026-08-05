@@ -1320,6 +1320,30 @@ model TelegramKod {
 // NEGA IKKI DAQIQA. Kod chat tarixida qolib ketadi. Uzoq yashasa,
 // birovning telefonini bir lahzaga olgan odam keyin ham ishlatib
 // qolardi.
+// Bot qo'shilgan Telegram GURUHLARI.
+//
+// NEGA KERAK. Bot shaxsiy suhbatda ishlaydi, lekin kunlik iqtibos
+// guruhda ma'noliroq: bitta gap butun sinfga ko'rinadi. Guruh
+// chatId sini eslab qolmasak, unga hech narsa yubora olmaymiz —
+// Telegram bizga guruhlar ro'yxatini bermaydi.
+//
+// Yozuv bot guruhga QO'SHILGANDA o'zi paydo bo'ladi (`my_chat_member`)
+// va bot chiqarilganda `faol: false` bo'ladi. O'chirilmaydi: bot
+// qayta qo'shilsa, sozlama saqlanib qolgani yaxshi.
+model TelegramGuruh {
+  id        String   @id @default(cuid())
+  chatId    String   @unique
+  nom       String?
+  // Kim qo'shgani — admin panelda ko'rinadi
+  qoshgan   String?
+  // Bu guruhga kunlik iqtibos yuborilsinmi
+  iqtiboslar Boolean @default(true)
+  faol      Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([faol, iqtiboslar])
+}
+
 model TelegramBotKod {
   id         String   @id @default(cuid())
   chatId     String   @unique

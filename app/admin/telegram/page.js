@@ -122,6 +122,148 @@ export default function AdminTelegramPage() {
       )}
 
       <Elon ishlaydi={Boolean(h?.tokenBor)} />
+      <Iqtibos ishlaydi={Boolean(h?.tokenBor)} />
+    </div>
+  )
+}
+
+/**
+ * Kunlik iqtibos nazorati.
+ *
+ * Admin panelda gaplar ro'yxati allaqachon bor edi (/admin/quotes),
+ * lekin BUGUN qaysi gap chiqishini oldindan ko'rish yo'li yo'q edi —
+ * uni bilish uchun saytni ochib ko'rish kerak bo'lardi.
+ */
+function Iqtibos({ ishlaydi }) {
+  const [d, setD] = useState(null)
+  const [band, setBand] = useState(false)
+
+  useEffect(() => { if (ishlaydi) ol() }, [ishlaydi])
+
+  async function ol() {
+    try {
+      const res = await fetch('/api/admin/telegram/iqtibos')
+      const data = await res.json()
+      if (res.ok) setD(data)
+    } catch { /* bo'lim ishlashda davom etadi */ }
+  }
+
+  async function yubor() {
+    if (!confirm('Bugungi iqtibos hamma guruhga yuborilsinmi?')) return
+    setBand(true)
+    try {
+      const res = await fetch('/api/admin/telegram/iqtibos', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) return toast.error(data.error || 'Yuborilmadi')
+      toast.success(`${data.yetdi}/${data.jami} guruhga yuborildi`)
+      await ol()
+    } catch (e) {
+      toast.error('Xatolik: ' + e.message)
+    } finally {
+      setBand(false)
+    }
+  }
+
+  async function almashtir(g) {
+    try {
+      const res = await fetch('/api/admin/telegram/iqtibos', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: g.id, iqtiboslar: !g.iqtiboslar }),
+      })
+      const data = await res.json()
+      if (!res.ok) return toast.error(data.error)
+      toast.success(data.message)
+      await ol()
+    } catch (e) {
+      toast.error('Xatolik: ' + e.message)
+    }
+  }
+
+  if (!ishlaydi || !d) return null
+
+  const MANBA = {
+    sana: 'shu sanaga belgilangan',
+    aylanma: 'faol gaplar orasidan (sana bo\'yicha)',
+    zaxira: 'bazada gap yo\'q — zaxira ro\'yxatidan',
+  }
+
+  return (
+    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mt-6">
+      <h2 className="text-sm font-bold text-yellow-300 mb-1">Kunlik iqtibos</h2>
+      <p className="text-xs text-purple-400 mb-4">
+        Har kuni ertalab (Toshkent 08:00) guruhlarga yuboriladi.
+        Bazada {d.gaplar.jami} ta gap, {d.gaplar.faol} tasi faol.
+      </p>
+
+      <div className="bg-purple-950/50 border border-purple-800/50 rounded-xl p-4 mb-4">
+        <div className="text-[11px] text-purple-400 mb-2">
+          Bugun ketadi — {MANBA[d.iqtibos.manba] || d.iqtibos.manba}
+        </div>
+        <div className="text-sm text-white italic leading-relaxed">
+          {d.iqtibos.icon} {d.iqtibos.textUz}
+        </div>
+        <div className="text-xs text-purple-300 mt-2">— {d.iqtibos.author}</div>
+        {d.iqtibos.manba === 'zaxira' && (
+          <div className="text-[11px] text-amber-300/80 mt-3">
+            Bazaga gap qo'shilsa, zaxira ro'yxati ishlatilmaydi.{' '}
+            <a href="/admin/quotes" className="underline">Gaplar bo'limi</a>
+          </div>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <div className="text-xs font-semibold text-purple-200 mb-2">
+          Guruhlar ({d.guruhlar.length} ta)
+        </div>
+        {d.guruhlar.length === 0 ? (
+          <div className="text-xs text-purple-400 bg-purple-950/40 rounded-xl p-3">
+            Bot hali hech qaysi guruhga qo'shilmagan. Botni guruhga qo'shsangiz,
+            u o'zi ro'yxatga tushadi va har kuni iqtibos yuboradi.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {d.guruhlar.map((g) => (
+              <div
+                key={g.id}
+                className="flex items-center justify-between gap-3 bg-purple-950/40 border border-purple-800/40 rounded-xl px-3 py-2"
+              >
+                <div className="min-w-0">
+                  <div className="text-sm text-white truncate">
+                    {g.nom || `Guruh ${g.chatId}`}
+                  </div>
+                  <div className="text-[11px] text-purple-400">
+                    {g.qoshgan ? `${g.qoshgan} qo'shgan · ` : ''}
+                    {g.faol ? 'bot ichida' : 'bot chiqarilgan'}
+                  </div>
+                </div>
+                <button
+                  onClick={() => almashtir(g)}
+                  disabled={!g.faol}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 disabled:opacity-40 transition-all ${
+                    g.iqtiboslar
+                      ? 'bg-green-600/20 border border-green-600/40 text-green-300'
+                      : 'bg-slate-700/30 border border-slate-600/50 text-slate-400'
+                  }`}
+                >
+                  {g.iqtiboslar ? 'Yoqilgan' : "O'chirilgan"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button
+        onClick={yubor}
+        disabled={band || d.guruhlar.length === 0}
+        className="px-5 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-semibold text-sm disabled:opacity-40 transition-all"
+      >
+        {band ? 'Yuborilmoqda...' : 'Bugungi iqtibosni hozir yuborish'}
+      </button>
+      <div className="text-[11px] text-purple-500 mt-2">
+        Qayta yuborish xavfsiz — iqtibos sanadan hisoblanadi, ya'ni o'sha gap ketadi.
+      </div>
     </div>
   )
 }
