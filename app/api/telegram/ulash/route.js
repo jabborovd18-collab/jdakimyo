@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { telegramSozlanganmi, telegramYubor } from '@/lib/telegram'
+import { xabarYubor } from '@/lib/bildirishnoma'
 import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from '@/lib/ip-cheklov'
 
 /** Kod necha daqiqa amal qiladi */
@@ -159,12 +160,27 @@ export async function PUT(request) {
 
     const yozuv = await prisma.telegramBotKod.findUnique({ where: { kod: tozaKod } })
 
-    // NOTO'G'RI VA MUDDATI O'TGAN KOD BIR XIL XABAR BERADI. Farqlansa,
-    // taxmin qilayotgan odam "bunday kod bor, lekin eskirgan" degan
-    // ma'lumotni olardi.
-    if (!yozuv || yozuv.amalQiladi < new Date()) {
+    // XATO SABABI AJRATILDI. Avval "noto'g'ri yoki muddati tugagan"
+    // degan yagona xabar chiqardi — enumeratsiyadan qo'rqib. Amalda
+    // bu foydalanuvchini boshi berk ko'chaga olib borardi: kod
+    // kuyganini bilmay, o'sha kodni qayta-qayta kiritaverardi.
+    //
+    // Bu yerda enumeratsiya xavfi yo'q: kodni tekshirish uchun uni
+    // BILISH kerak, ya'ni "bunday kod bor" degan ma'lumot faqat
+    // kodning egasiga qaytadi.
+    if (!yozuv) {
       return NextResponse.json(
-        { error: 'Kod noto\'g\'ri yoki muddati tugagan. Botdan yangisini oling.' },
+        { error: 'Bunday kod yo\'q. Botdagi kodni tekshirib qayta kiriting.' },
+        { status: 400 }
+      )
+    }
+
+    if (yozuv.amalQiladi < new Date()) {
+      return NextResponse.json(
+        {
+          error: 'Kod muddati tugagan. Botga /kod yozib yangisini oling.',
+          muddatiTugagan: true,
+        },
         { status: 400 }
       )
     }
@@ -219,10 +235,37 @@ export async function DELETE() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Chat id si kerak: o'sha chatning kutib turgan bot kodi ham
+    // keraksiz bo'lib qoladi
+    const ulangan = await prisma.telegramUlanish.findUnique({
+      where: { userId: session.user.id },
+      select: { chatId: true },
+    })
+
     // `deleteMany` — yozuv bo'lmasa ham xato bermaydi, ya'ni ikki marta
     // bosilgan tugma 500 qaytarmaydi
-    await prisma.telegramUlanish.deleteMany({ where: { userId: session.user.id } })
+    const ochirildi = await prisma.telegramUlanish.deleteMany({
+      where: { userId: session.user.id },
+    })
     await prisma.telegramKod.deleteMany({ where: { userId: session.user.id } })
+    if (ulangan) {
+      // FAQAT SHU CHATNIKI. `deleteMany({})` yozilsa butun saytdagi
+      // kutib turgan kodlar o'chib ketardi.
+      await prisma.telegramBotKod
+        .deleteMany({ where: { chatId: ulangan.chatId } })
+        .catch(() => {})
+    }
+
+    // Uzilish izsiz qolmasin — botdagi /uzish bilan bir xil sabab
+    if (ochirildi.count > 0) {
+      xabarYubor(session.user.id, {
+        turi: 'tizim',
+        icon: '✈️',
+        sarlavha: 'Telegram ulanishi uzildi',
+        matn: 'Bu saytdagi Sozlamalar orqali bajarildi.',
+        havola: '/profil/telegram',
+      }).catch(() => {})
+    }
 
     return NextResponse.json({ success: true, message: 'Telegram uzildi' })
   } catch (error) {

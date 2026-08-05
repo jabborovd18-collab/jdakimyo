@@ -18,6 +18,7 @@ import {
   telegramYubor, tgHimoyala, telegramSozlanganmi, TUGMALAR, sarlavhaBelgisi,
 } from '@/lib/telegram'
 import { bugungiIqtibos, iqtibosMatni } from '@/lib/iqtibos'
+import { xabarYubor } from '@/lib/bildirishnoma'
 
 const SAYT = 'https://www.jdakimyo.uz'
 
@@ -90,8 +91,21 @@ async function guruhgaIqtibos(chatId) {
   })
 }
 
-/** Kod necha daqiqa yashaydi. Chat tarixida qolib ketadi — qisqa bo'lsin. */
-const BOT_KOD_DAQIQA = 2
+/**
+ * Kod necha daqiqa yashaydi.
+ *
+ * AVVAL IKKI DAQIQA EDI VA BU XATO EDI. Odam kodni telefonda o'qiydi,
+ * kompyuterga o'tadi, sozlamalarni topadi va teradi — birinchi safar
+ * bu ikki daqiqadan uzoq davom etadi. Natijada kod ishlatilishidan
+ * oldin kuyar va foydalanuvchi "bot kod berdi, sayt noto'g'ri deydi"
+ * degan holatga tushardi.
+ *
+ * O'n daqiqa xavfsizlikni deyarli pasaytirmaydi: kod bir martalik,
+ * olti belgili (31 belgidan — 887 million variant) va uni ishlatish
+ * uchun saytdagi tayyor sessiya kerak. Saytdan botga yuboriladigan
+ * kod ham o'n daqiqa yashaydi.
+ */
+const BOT_KOD_DAQIQA = 10
 
 /**
  * Chalkashadigan belgilarsiz alifbo (0/O, 1/I/L yo'q) — kodni odam
@@ -121,9 +135,13 @@ async function kodBer({ chatId, username }) {
     select: { id: true },
   })
   if (ulangan) {
+    // UZISHGA UNDAMAYMIZ. Bu yerda avval "uzish uchun /uzish yozing"
+    // deb turardi va odam kod olish uchun shu yo'ldan yurib,
+    // ishlab turgan ulanishini yo'qotardi.
     return telegramYubor(
       chatId,
-      'Hisobingiz allaqachon ulangan. Uzish uchun /uzish yozing.',
+      '✅ Hisobingiz allaqachon ulangan — yangi kod kerak emas.\n\n' +
+        'Pastdagi tugmalardan foydalaning.',
       { klaviatura: true }
     )
   }
@@ -239,7 +257,7 @@ async function buyruqniBajar({ chatId, matn, username, ism }) {
     case '/sozlama':
       return xabarlarniAlmashtir({ chatId })
     case '/uzish':
-      return uzish({ chatId })
+      return uzish({ chatId, matn })
     case '/yordam':
     case '/help':
       return yordam({ chatId })
@@ -436,15 +454,55 @@ async function xabarlarniAlmashtir({ chatId }) {
   )
 }
 
-async function uzish({ chatId }) {
+/**
+ * Ulanishni uzish — TASDIQ TALAB QILADI.
+ *
+ * Avval bitta so'z yetardi va uzish darhol bajarilardi. Bu haqiqiy
+ * muammoga aylandi: bot ulangan holatda /kod so'ralganda "uzish
+ * uchun /uzish yozing" deb maslahat berardi va odam shuni bajarib,
+ * ulanishini yo'qotardi — keyin "profil o'zidan o'zi chiqib ketdi"
+ * bo'lib ko'rinardi.
+ *
+ * Tasdiq matni ATAYLAB uzunroq (`/uzish tasdiq`): tasodifan yozib
+ * yuborib bo'lmaydi.
+ */
+async function uzish({ chatId, matn }) {
   const ulangan = await prisma.telegramUlanish.findUnique({ where: { chatId } })
   if (!ulangan) return ulanmagan(chatId)
 
+  const tasdiqlandi = /^\/uzish(@\w+)?\s+tasdiq$/i.test(String(matn || '').trim())
+  if (!tasdiqlandi) {
+    return telegramYubor(
+      chatId,
+      '⚠️ <b>Ulanishni uzasizmi?</b>\n\n' +
+        'Bildirishnomalar bu yerga kelmay qoladi va hisobni qaytadan ' +
+        'ulash kerak bo\'ladi.\n\n' +
+        'Rostdan uzmoqchi bo\'lsangiz, <code>/uzish tasdiq</code> deb yozing.\n\n' +
+        'Faqat xabarlar bezovta qilayotgan bo\'lsa, ulanishni uzish shart emas — ' +
+        '/sozlama yozing, oqim to\'xtaydi va ulanish saqlanadi.',
+      { klaviatura: true }
+    )
+  }
+
   await prisma.telegramUlanish.delete({ where: { chatId } })
+
+  // UZILISH IZSIZ QOLMASIN. Ulanish yo'qolganda odam buni faqat
+  // keyinroq, xabar kelmay qo'yganda sezardi va sababi noma'lum
+  // bo'lardi ("o'zidan o'zi chiqib ketdi"). Endi kabinetda yozuv
+  // qoladi. Bildirishnoma ulanish O'CHIRILGANDAN keyin yuboriladi —
+  // aks holda ko'prik uni yana shu chatga jo'natardi.
+  xabarYubor(ulangan.userId, {
+    turi: 'tizim',
+    icon: '✈️',
+    sarlavha: 'Telegram ulanishi uzildi',
+    matn: 'Bu botdagi /uzish buyrug\'i orqali bajarildi. Siz qilmagan bo\'lsangiz, hisobingiz xavfsizligini tekshiring.',
+    havola: '/profil/telegram',
+  }).catch(() => {})
+
   return telegramYubor(
     chatId,
     'Ulanish uzildi. Bildirishnomalar endi bu yerga kelmaydi.\n\n' +
-      'Qaytadan ulash uchun saytdan yangi kod oling.',
+      'Qaytadan ulash uchun /kod yozing yoki saytdan kod oling.',
     // Tugmalar ham olib tashlanadi: ulanmagan odamga ular ishlamaydi
     { klaviaturaniOchir: true }
   )
