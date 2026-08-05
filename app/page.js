@@ -2,9 +2,62 @@
 
 import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
+
 import { useSession, signOut } from "next-auth/react"
 import { ustozPaneliOchiqmi } from "@/lib/roles"
 import HAJM from "@/lib/ilmiy-hajm.json"
+import TasdiqBelgisi from "@/components/TasdiqBelgisi"
+
+/**
+ * Yaratuvchining rasmi.
+ *
+ * NEGA XATO USHLAGICHI BOR. Rasm `public/yaratuvchi.jpg` da turadi va
+ * u repozitoriyga qo'lda qo'yiladi. Fayl bo'lmasa brauzer singan rasm
+ * belgisini chizardi — bosh sahifada eng ko'zga tashlanadigan nuqson.
+ * Endi fayl yo'q bo'lsa eski emoji avatariga qaytadi va hech kim
+ * buzilganini sezmaydi.
+ *
+ * Halqa `PremiumHalqa` bilan bir xil ruhda, lekin bu yerda oddiy
+ * gradient yetarli: bo'lim bitta va animatsiya ortiqcha e'tibor
+ * tortardi.
+ */
+function YaratuvchiRasmi() {
+  const [xato, setXato] = useState(false)
+  const rasmRef = useRef(null)
+
+  // `onError` YETARLI EMAS. Sahifa serverda chizilgani uchun brauzer
+  // rasmni React gidratlanishidan OLDIN yuklashni boshlaydi. Fayl
+  // yo'q bo'lsa, xato hodisasi ushlagich ulanmasidan oldin sodir
+  // bo'ladi va React uni umuman ko'rmaydi — natijada singan rasm
+  // ekranda qolib ketardi.
+  //
+  // `naturalWidth === 0` yuklanib bo'lgan rasmda "yiqildi" degani.
+  useEffect(() => {
+    const el = rasmRef.current
+    if (el && el.complete && el.naturalWidth === 0) setXato(true)
+  }, [])
+
+  return (
+    <div className="relative shrink-0">
+      <div className="w-24 h-24 rounded-full p-[3px] bg-gradient-to-br from-yellow-400 via-orange-500 to-purple-500">
+        <div className="w-full h-full rounded-full overflow-hidden bg-purple-950 flex items-center justify-center">
+          {xato ? (
+            <span className="text-4xl">👨‍🔬</span>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              ref={rasmRef}
+              src="/yaratuvchi.jpg"
+              alt="Diyorbek Jabborov"
+              className="w-full h-full object-cover"
+              onError={() => setXato(true)}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // Hero'dagi aylanuvchi kompleks uchun ligandlar (oktaedrik: 3 halqa × 2 ligand)
 const ORBIT_RINGS = [
@@ -749,25 +802,40 @@ export default function Home() {
           <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 md:p-10 backdrop-blur-sm text-center md:text-left">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
 
-              <div className="flex-1">
-                <div className="flex items-center gap-3 justify-center md:justify-start mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl">
-                    👨‍🔬
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-white text-lg">Yaratuvchi</h4>
-                    <p className="text-purple-300 text-sm">Diyorbek Jabborov Arslonivich</p>
+              <div className="flex-1 w-full">
+                <div className="flex flex-col sm:flex-row items-center gap-5 mb-5">
+                  <YaratuvchiRasmi />
+
+                  <div className="text-center sm:text-left min-w-0">
+                    <div className="text-[11px] uppercase tracking-[0.2em] text-purple-400 mb-1">
+                      Yaratuvchi
+                    </div>
+                    <div className="flex items-center gap-2 justify-center sm:justify-start">
+                      <h4 className="font-bold text-white text-xl truncate">
+                        Diyorbek Jabborov
+                      </h4>
+                      {/* Tasdiq belgisi — platforma egasining hisobi */}
+                      <TasdiqBelgisi tasdiqlangan olcham="katta" jonli />
+                    </div>
+                    <p className="text-purple-300 text-sm mt-0.5">
+                      Kimyo o'qituvchisi · platforma asoschisi
+                    </p>
+
+                    {/* PLATFORMADAGI HISOB. Telegram havolasi allaqachon
+                        bor edi, lekin saytdagi hisobga yo'l yo'q edi —
+                        odam muallifni saytning o'zida topa olmasdi. */}
+                    <Link
+                      href="/profil/343229943"
+                      className="inline-flex items-center gap-2 mt-3 px-3.5 py-1.5 bg-purple-800/40 hover:bg-purple-700/60 border border-purple-600/40 hover:border-yellow-500/40 rounded-full text-sm text-purple-200 hover:text-white transition-all"
+                    >
+                      <span className="text-yellow-400">@</span>
+                      <span>diyorbek_jabborov</span>
+                      <span className="text-purple-400 text-xs">— profilni ochish</span>
+                    </Link>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                  <a
-                    href="mailto:jabborovd18@gmail.com"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-yellow-400 hover:text-yellow-300 transition-all text-sm"
-                  >
-                    <span>📧</span>
-                    <span>jabborovd18@gmail.com</span>
-                  </a>
+                <div className="flex flex-wrap gap-2.5 justify-center sm:justify-start">
                   <a
                     href="https://t.me/diyorbek_jabborov"
                     target="_blank"
@@ -775,16 +843,23 @@ export default function Home() {
                     className="inline-flex items-center gap-2 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-yellow-400 hover:text-yellow-300 transition-all text-sm"
                   >
                     <span>✈️</span>
-                    <span>@diyorbek_jabborov</span>
+                    <span>Telegram</span>
                   </a>
                   <a
-                    href="https://jdakimyo.uz"
+                    href="mailto:jabborovd18@gmail.com"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-yellow-400 hover:text-yellow-300 transition-all text-sm"
+                  >
+                    <span>📧</span>
+                    <span>Email</span>
+                  </a>
+                  <a
+                    href="https://t.me/jdakimyouzbot"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-yellow-400 hover:text-yellow-300 transition-all text-sm"
                   >
-                    <span>🌐</span>
-                    <span>jdakimyo.uz</span>
+                    <span>🤖</span>
+                    <span>Bot</span>
                   </a>
                 </div>
               </div>

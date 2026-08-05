@@ -1305,6 +1305,36 @@ model TelegramKod {
   @@index([amalQiladi])
 }
 
+// TESKARI YO'NALISHDAGI kod — botda yaratiladi, saytga kiritiladi.
+//
+// NEGA IKKINCHI USUL KERAK. Birinchi usulda odam avval saytga kirib,
+// sozlamalarni topib, kod olishi kerak edi. Amalda odam botni oldin
+// topadi (Telegram doim ochiq turadi) va o'sha yerdan boshlashni
+// xohlaydi. Endi bot kod beradi, odam uni sozlamalarga kiritadi —
+// yoki bot bergan havolani bosadi va hech narsa terilmaydi.
+//
+// NEGA `TelegramKod` DAN ALOHIDA. U yerda kalit `userId`: kod
+// yaratilganda saytdagi odam kimligi ma'lum. Bu yerda esa aksincha —
+// faqat `chatId` ma'lum, foydalanuvchi hali noma'lum.
+//
+// NEGA IKKI DAQIQA. Kod chat tarixida qolib ketadi. Uzoq yashasa,
+// birovning telefonini bir lahzaga olgan odam keyin ham ishlatib
+// qolardi.
+model TelegramBotKod {
+  id         String   @id @default(cuid())
+  chatId     String   @unique
+  kod        String   @unique
+  // Telegramdagi @nomi — ulanish yaratilganda ko'chiriladi
+  username   String?
+  // Noto'g'ri urinishlar. Kod qisqa, ya'ni taxmin qilishga urinish
+  // mumkin — beshtadan keyin kod kuyadi.
+  urinish    Int      @default(0)
+  amalQiladi DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([amalQiladi])
+}
+
 // Elektron doskaga QR orqali kirish.
 //
 // NEGA KERAK. Ma'ruza zalida o'qituvchi 100 talaba oldida parol tera

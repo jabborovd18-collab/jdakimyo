@@ -6,7 +6,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-import { telegramSozlanganmi } from '@/lib/telegram'
+import { telegramSozlanganmi, telegramYubor } from '@/lib/telegram'
+import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from '@/lib/ip-cheklov'
 
 /** Kod necha daqiqa amal qiladi */
 const AMAL_DAQIQA = 10
@@ -106,6 +107,106 @@ export async function POST() {
     })
   } catch (error) {
     console.error('[Telegram ulash POST]', error)
+    return NextResponse.json({ error: 'Xatolik' }, { status: 500 })
+  }
+}
+
+/**
+ * PUT — BOTDAN olingan kodni qabul qilish (ikkinchi usul).
+ *
+ * Birinchi usul: sayt kod beradi → botga yuboriladi.
+ * Ikkinchi usul: bot kod beradi → shu yerga kiritiladi.
+ *
+ * Ikkalasi ham kerak, chunki odam ishni qayerdan boshlagani oldindan
+ * ma'lum emas: kimdir saytda o'tiradi, kimdir Telegramda.
+ */
+export async function PUT(request) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { kod } = await request.json().catch(() => ({}))
+    const tozaKod = String(kod || '').trim().toUpperCase()
+
+    if (!tozaKod) {
+      return NextResponse.json({ error: 'Kodni kiriting' }, { status: 400 })
+    }
+
+    // Taxmin qilishdan himoya IP darajasida: noto'g'ri kod bo'yicha
+    // hech qanday yozuv topilmaydi, ya'ni urinishni kodning o'zida
+    // sanab bo'lmaydi.
+    const ip = soravchiIp(request)
+    const cheklov = await chekloqniTekshir('tgkod', ip)
+    if (!cheklov.ok) {
+      return NextResponse.json(
+        { error: `Juda ko'p urinish. ${kutishMatni(cheklov.kutish)} dan keyin qayta urining.` },
+        { status: 429 }
+      )
+    }
+    await urinishniQayd('tgkod', ip)
+
+    const mavjud = await prisma.telegramUlanish.findUnique({
+      where: { userId: session.user.id },
+    })
+    if (mavjud) {
+      return NextResponse.json(
+        { error: 'Hisobingiz allaqachon Telegramga ulangan' },
+        { status: 400 }
+      )
+    }
+
+    const yozuv = await prisma.telegramBotKod.findUnique({ where: { kod: tozaKod } })
+
+    // NOTO'G'RI VA MUDDATI O'TGAN KOD BIR XIL XABAR BERADI. Farqlansa,
+    // taxmin qilayotgan odam "bunday kod bor, lekin eskirgan" degan
+    // ma'lumotni olardi.
+    if (!yozuv || yozuv.amalQiladi < new Date()) {
+      return NextResponse.json(
+        { error: 'Kod noto\'g\'ri yoki muddati tugagan. Botdan yangisini oling.' },
+        { status: 400 }
+      )
+    }
+
+    // O'sha Telegram hisobi boshqa foydalanuvchiga ulangan bo'lishi
+    // mumkin — `chatId` yagona bo'lishi shart
+    const bandmi = await prisma.telegramUlanish.findUnique({
+      where: { chatId: yozuv.chatId },
+    })
+    if (bandmi) {
+      return NextResponse.json(
+        { error: 'Bu Telegram hisobi boshqa foydalanuvchiga ulangan' },
+        { status: 400 }
+      )
+    }
+
+    // Kod ISHLATILDI — darhol o'chiriladi. Bir martalik bo'lmasa,
+    // kodni ko'rib qolgan odam keyin ham ishlatib qolardi.
+    await prisma.$transaction([
+      prisma.telegramUlanish.create({
+        data: {
+          userId: session.user.id,
+          chatId: yozuv.chatId,
+          username: yozuv.username,
+        },
+      }),
+      prisma.telegramBotKod.delete({ where: { id: yozuv.id } }),
+      // Boshqa yo'nalishdagi kod ham keraksiz bo'lib qoldi
+      prisma.telegramKod.deleteMany({ where: { userId: session.user.id } }),
+    ])
+
+    // Ulanganini botda ham tasdiqlaymiz: odam saytda tugma bosdi,
+    // natijani Telegramda ko'rishi kerak
+    telegramYubor(
+      yozuv.chatId,
+      '✅ Ulandi.\n\nEndi saytdagi bildirishnomalar shu yerga ham keladi.',
+      { klaviatura: true }
+    ).catch(() => {})
+
+    return NextResponse.json({ success: true, message: '✓ Telegram ulandi' })
+  } catch (error) {
+    console.error('[Telegram ulash PUT]', error)
     return NextResponse.json({ error: 'Xatolik' }, { status: 500 })
   }
 }

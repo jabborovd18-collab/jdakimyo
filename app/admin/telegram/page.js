@@ -218,6 +218,26 @@ function Elon({ ishlaydi }) {
           : 'Yuklanmoqda...'}
       </p>
 
+      {/* OLUVCHI YO'QLIGI SABABINI AYTAMIZ. Avval tugma shunchaki
+          o'chiq turardi va nega bosilmasligi ko'rinmasdi — "e'lon
+          yuborib bo'lmayapti" degan holat aynan shundan kelib
+          chiqqan edi. */}
+      {sanoq && sanoq.faol === 0 && (
+        <div className="mb-4 bg-amber-950/30 border border-amber-700/40 rounded-xl p-4">
+          <div className="text-sm text-amber-200 font-semibold mb-1">
+            Hali hech kim botga ulanmagan
+          </div>
+          <div className="text-xs text-amber-300/80 leading-relaxed">
+            E'lon yuborish uchun kamida bitta odam hisobini ulashi kerak.
+            Botga <span className="font-mono">/kod</span> yozing va kodni{' '}
+            <a href="/profil/telegram" className="underline hover:text-amber-200">
+              Sozlamalar → Telegram
+            </a>{' '}
+            bo'limiga kiriting — birinchi ulanish sizniki bo'ladi.
+          </div>
+        </div>
+      )}
+
       <textarea
         value={matn}
         onChange={(e) => setMatn(e.target.value)}

@@ -197,8 +197,20 @@ export async function PUT(request) {
       )
     }
 
-    // O'zini o'zi boshqara olmaydi
-    if (userId === session.user.id) {
+    // O'ZIGA QO'LLASA BO'LADIGAN AMALLAR.
+    //
+    // To'siq umumiy edi va HAR QANDAY amalni o'ziga qo'llashni
+    // taqiqlardi. Sababi to'g'ri: o'zini bloklagan yoki rolini
+    // tushirgan admin o'z saytidan chiqib qolardi va uni qaytaradigan
+    // odam qolmasligi mumkin edi.
+    //
+    // Lekin tasdiq belgisi HECH QANDAY huquq bermaydi — u faqat
+    // ko'rinish. Uni o'ziga qo'ya olmaslik esa amalda platforma
+    // egasini o'z saytida tasdiqlanmagan qoldirardi: belgini beradigan
+    // yagona odam ham o'zi edi. Amal qaydnomaga yozilaveradi.
+    const OZIGA_MUMKIN = ['toggleVerified']
+
+    if (userId === session.user.id && !OZIGA_MUMKIN.includes(action)) {
       return NextResponse.json(
         { error: 'O\'zingizni boshqara olmaysiz' },
         { status: 400 }

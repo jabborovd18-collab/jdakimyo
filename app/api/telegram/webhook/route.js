@@ -69,6 +69,66 @@ export async function POST(request) {
   return NextResponse.json({ ok: true })
 }
 
+/** Kod necha daqiqa yashaydi. Chat tarixida qolib ketadi — qisqa bo'lsin. */
+const BOT_KOD_DAQIQA = 2
+
+/**
+ * Chalkashadigan belgilarsiz alifbo (0/O, 1/I/L yo'q) — kodni odam
+ * telefondan o'qib kompyuterga ko'chiradi.
+ */
+const ALIFBO = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+
+function kodYarat() {
+  let kod = ''
+  for (let i = 0; i < 6; i++) kod += ALIFBO[Math.floor(Math.random() * ALIFBO.length)]
+  return kod
+}
+
+/**
+ * IKKINCHI ULANISH USULI — botdan kod olish.
+ *
+ * Birinchi usulda odam avval saytga kirib, sozlamalarni topib, kod
+ * olishi kerak edi. Amalda odam botni oldin topadi (Telegram doim
+ * ochiq) va o'sha yerdan boshlashni xohlaydi.
+ *
+ * Xabarda kod HAM, havola HAM beriladi: havolani bosgan odam hech
+ * narsa termaydi, kod esa boshqa qurilmada ochgan odam uchun.
+ */
+async function kodBer({ chatId, username }) {
+  const ulangan = await prisma.telegramUlanish.findUnique({
+    where: { chatId },
+    select: { id: true },
+  })
+  if (ulangan) {
+    return telegramYubor(
+      chatId,
+      'Hisobingiz allaqachon ulangan. Uzish uchun /uzish yozing.',
+      { klaviatura: true }
+    )
+  }
+
+  const kod = kodYarat()
+  const amalQiladi = new Date(Date.now() + BOT_KOD_DAQIQA * 60 * 1000)
+
+  // Har so'rovda eski kod almashtiriladi: bir vaqtda ikkita amal
+  // qiluvchi kod qolsa, birinchisini ko'rib qolgan odam keyin ham
+  // ishlatib qolardi.
+  await prisma.telegramBotKod.upsert({
+    where: { chatId },
+    create: { chatId, kod, username, amalQiladi },
+    update: { kod, username, amalQiladi, urinish: 0 },
+  })
+
+  return telegramYubor(
+    chatId,
+    `<b>Ulanish kodi</b>\n\n<code>${kod}</code>\n\n` +
+      `Kodni saytdagi <b>Sozlamalar → Telegram</b> bo'limiga kiriting.\n` +
+      `Kod ${BOT_KOD_DAQIQA} daqiqa amal qiladi.\n\n` +
+      'Yoki pastdagi tugmani bosing — kod o\'zi kiritiladi.',
+    { havola: { matn: 'Ulash', url: `${SAYT}/profil/telegram?kod=${kod}` } }
+  )
+}
+
 /**
  * Bot bilan a'zolik holati o'zgardi (bloklandi yoki qayta ochildi).
  *
@@ -111,6 +171,8 @@ async function buyruqniBajar({ chatId, matn, username, ism }) {
   switch (buyruq) {
     case '/start':
       return salomlash({ chatId, ism })
+    case '/kod':
+      return kodBer({ chatId, username })
     case '/xabarlar':
       return xabarlarMarkazi({ chatId })
     case '/holat':
@@ -194,8 +256,11 @@ async function salomlash({ chatId, ism }) {
     chatId,
     `Salom${ism ? `, <b>${tgHimoyala(ism)}</b>` : ''}!\n\n` +
       'Bu — <b>JDA KIMYO</b> boti. Saytdagi bildirishnomalarni shu yerda olasiz.\n\n' +
-      'Ulash uchun saytga kiring → Sozlamalar → Telegram → kodni oling va shu yerga yuboring.',
-    { havola: { matn: 'Saytni ochish', url: `${SAYT}/profil/sozlama` } }
+      '<b>Hisobni ulashning ikki yo\'li:</b>\n' +
+      '1. Shu yerda /kod yozing va kodni saytga kiriting\n' +
+      '2. Yoki saytdan kod olib, shu yerga yuboring\n\n' +
+      'Birinchisi qulayroq — saytda faqat kodni kiritasiz.',
+    { havola: { matn: 'Kod olish', url: `${SAYT}/profil/telegram` } }
   )
 }
 
@@ -344,7 +409,7 @@ function yordam(p) {
 function ulanmagan(chatId) {
   return telegramYubor(
     chatId,
-    'Hisobingiz ulanmagan. Saytdan kod olib, shu yerga yuboring.',
-    { havola: { matn: 'Sozlamalarni ochish', url: `${SAYT}/profil/sozlama` } }
+    'Hisobingiz ulanmagan.\n\n/kod yozing — men sizga kod beraman, uni saytga kiritasiz.',
+    { havola: { matn: 'Saytni ochish', url: `${SAYT}/profil/telegram` } }
   )
 }
