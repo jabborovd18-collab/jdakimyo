@@ -2,25 +2,22 @@
 //
 // Kunlik iqtibosni Telegram guruhlariga yuboradi.
 //
-// NEGA ERTALAB. Iqtibos — kunning boshlanishi uchun; kechqurun
-// yuborilgani o'qilmay qoladi. Toshkent ertalab soati 08:00 = UTC
-// 03:00, shuning uchun jadval `0 3 * * *`.
+// DIQQAT: bu marshrut endi cron jadvalida YO'Q. Uni har kuni
+// `/api/cron/ertalab` chaqiradi (Hobby tarifida ikkitadan ortiq cron
+// bo'lmagani uchun ishlar dispetcherlarga yig'ilgan).
 //
-// QAYTA CHAQIRILSA XAVFSIZ: iqtibos SANADAN hisoblanadi (lib/iqtibos.js),
-// ya'ni cron ikki marta ishga tushsa ham o'sha kuni o'sha gap ketadi.
-// Ikki xil gap yuborilib qolmaydi.
+// QAYTA CHAQIRILSA XAVFSIZ: iqtibos SANADAN hisoblanadi
+// (lib/iqtibos.js), ya'ni bir kunda necha marta chaqirilsa ham
+// o'sha gap ketadi.
 import { NextResponse } from 'next/server'
+import { cronRuxsati } from '@/lib/cron-ishlar'
 import { iqtibosniTarqat } from '@/lib/iqtibos-yubor'
 
 export const dynamic = 'force-dynamic'
-// Ko'p guruhga yuborish sekin — sukutdagi chegara buni yarmida uzardi
 export const maxDuration = 60
 
 export async function GET(request) {
-  if (
-    !process.env.CRON_SECRET ||
-    request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`
-  ) {
+  if (!cronRuxsati(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -33,7 +30,6 @@ export async function GET(request) {
         ? `${natija.yetdi}/${natija.jami} guruhga yuborildi`
         : 'Guruh yo\'q',
       ...natija,
-      // Iqtibosning to'liq matni javobda kerak emas — faqat manbasi
       iqtibos: { manba: natija.iqtibos.manba, author: natija.iqtibos.author },
     })
   } catch (error) {

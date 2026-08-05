@@ -1,31 +1,32 @@
+// app/api/cron/create-missions/route.js
+//
+// DIQQAT: bu marshrut endi cron jadvalida YO'Q. Uni
+// `/api/cron/yangi-kun` chaqiradi (Hobby tarifida ikkitadan ortiq
+// cron bo'lmagani uchun ishlar dispetcherlarga yig'ilgan).
+//
+// Marshrut qoldirildi, chunki uni qo'lda chaqirib sinash qulay.
+// Mantiq `lib/cron-ishlar.js` da — ikki joyda takrorlanmasligi uchun.
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { kunlikMissiyalar, missiyaYozuvi, missiyaKuni } from '@/lib/missions'
+import { cronRuxsati, missiyalarniYarat } from '@/lib/cron-ishlar'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
-  if (!process.env.CRON_SECRET || request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!cronRuxsati(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
-    const today = missiyaKuni()
-
-    // Uchlik sanadan kelib chiqadi — cron va sahifa mustaqil chaqirilsa
-    // ham bir xil missiyalarni beradi.
-    const result = await prisma.mission.createMany({
-      data: kunlikMissiyalar(today).map((shablon) => missiyaYozuvi(shablon, today)),
-      skipDuplicates: true
-    })
-
+    const { yaratildi } = await missiyalarniYarat()
     return NextResponse.json({
       success: true,
-      message: result.count ? `${result.count} ta missiya yaratildi` : 'Bugungi missiyalar allaqachon mavjud',
-      count: result.count
+      message: yaratildi
+        ? `${yaratildi} ta missiya yaratildi`
+        : 'Bugungi missiyalar allaqachon mavjud',
+      count: yaratildi,
     })
   } catch (error) {
-    console.error('[Cron Create Missions Error]:', error)
+    console.error('[Cron create-missions]', error)
     return NextResponse.json({ error: 'Missiyalar yaratishda xatolik' }, { status: 500 })
   }
 }

@@ -1,23 +1,12 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "/api/cron/create-missions",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/reset-weekly",
-      "schedule": "0 0 * * 1"
-    },
-    {
-      "path": "/api/cron/chat-tozalash",
-      "schedule": "30 3 * * 0"
-    },
-    {
-      "path": "/api/cron/sovga-kuydir",
+      "path": "/api/cron/yangi-kun",
       "schedule": "0 19 * * *"
     },
     {
-      "path": "/api/cron/iqtibos",
+      "path": "/api/cron/ertalab",
       "schedule": "0 3 * * *"
     }
   ]
