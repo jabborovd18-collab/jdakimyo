@@ -282,7 +282,16 @@ export default function LaboratoriyaPage() {
               </div>
             )}
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/laboratoriya/3d"
+              className="flex items-center gap-2 rounded-xl border border-purple-500/50 bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-900/40 transition hover:scale-[1.03] hover:shadow-purple-800/60"
+            >
+              <span>🔬 3D Rejim</span>
+              <span className="rounded bg-yellow-400 px-1.5 py-0.5 text-[10px] font-extrabold text-black uppercase tracking-wider">
+                Yangi
+              </span>
+            </Link>
             <div className="px-4 py-2.5 rounded-xl bg-amber-950/40 border border-amber-700/40 text-center">
               <div className="text-xl font-bold text-amber-400">🪙 {holat?.balans?.coins ?? 0}</div>
               <div className="text-[10px] text-amber-300/70">Tanga</div>
@@ -294,26 +303,35 @@ export default function LaboratoriyaPage() {
           </div>
         </div>
 
-        {/* Tablar */}
-        <div className="flex gap-2">
-          {[
-            { id: 'inventar', nom: `🎒 Inventar (${inventar.length})` },
-            { id: 'tajriba', nom: '🧪 Tajriba' },
-            { id: 'sandiq', nom: '🎁 Sandiqlar' },
-            { id: 'dokon', nom: '🏪 Do\'kon' },
-          ].map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-                tab === t.id
-                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
-                  : 'bg-slate-900/60 border border-purple-800/50 text-purple-200 hover:bg-slate-800/60'
-              }`}
-            >
-              {t.nom}
-            </button>
-          ))}
+        {/* Tablar va 3D o'tish tugmasi */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'inventar', nom: `🎒 Inventar (${inventar.length})` },
+              { id: 'tajriba', nom: '🧪 Tajriba' },
+              { id: 'sandiq', nom: '🎁 Sandiqlar' },
+              { id: 'dokon', nom: '🏪 Do\'kon' },
+            ].map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                  tab === t.id
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
+                    : 'bg-slate-900/60 border border-purple-800/50 text-purple-200 hover:bg-slate-800/60'
+                }`}
+              >
+                {t.nom}
+              </button>
+            ))}
+          </div>
+
+          <Link
+            href="/laboratoriya/3d"
+            className="flex items-center gap-2 rounded-xl border border-purple-700/60 bg-purple-950/40 px-4 py-2.5 text-xs font-bold text-purple-200 hover:bg-purple-900/50 hover:text-white transition"
+          >
+            <span>✨ 3D Laboratoriyaga o'tish →</span>
+          </Link>
         </div>
 
         {/* ─── INVENTAR ─── */}
