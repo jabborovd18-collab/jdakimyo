@@ -49,7 +49,7 @@ export default function Korinish() {
     jihozOlib,
     hammaJihozlar,
     kuchsizQurilma,
-  } = useSahna(konteynerRef);
+  } = useSahna(konteynerRef, yuklanmoqda);
 
   // 2. Sudrash va tanlash
   const { tanlanganIdish, setTanlanganIdish } = useSudrash({
@@ -223,7 +223,7 @@ export default function Korinish() {
   const daraja = lab.darajaHolati || { daraja: 1, joriy: 0, kerak: 100, foiz: 0 };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white selection:bg-purple-600">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white selection:bg-purple-600">
       <MobilOgohlantirish />
 
       {/* --- YUQUORI SARLAVHA PANELI --- */}
@@ -338,8 +338,8 @@ export default function Korinish() {
         )}
 
         {/* --- 3D CANVAS HUDUDI --- */}
-        <main className="relative flex-1 bg-gradient-to-b from-slate-950 via-purple-950/20 to-slate-950">
-          <div ref={konteynerRef} className="h-full min-h-[50vh] w-full" />
+        <main className="relative flex-1 w-full h-full min-h-[350px] overflow-hidden bg-gradient-to-b from-slate-950 via-purple-950/20 to-slate-950">
+          <div ref={konteynerRef} className="absolute inset-0 h-full w-full" />
 
           {/* 3D interaktiv yordam matni */}
           <div className="pointer-events-none absolute left-4 top-4 rounded-xl bg-slate-900/70 px-3 py-1.5 text-xs text-purple-300 backdrop-blur-sm">

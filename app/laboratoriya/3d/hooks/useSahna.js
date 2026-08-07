@@ -20,7 +20,7 @@ function kuchsizQurilmaniAniqla() {
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
 // Nega useSahna hook ichida yozildi: barcha imperativ Three.js kodlari bitta joyda yig'iladi
 // va React render siklidan ajralgan holatda 60 FPS ishlashni ta'minlaydi.
-export function useSahna(konteynerRef) {
+export function useSahna(konteynerRef, yuklanmoqda = false) {
   const [tayyor, setTayyor] = useState(false);
   const [hammaJihozlar, setHammaJihozlar] = useState([]);
   const [kuchsizQurilma, setKuchsizQurilma] = useState(false);
@@ -94,6 +94,7 @@ export function useSahna(konteynerRef) {
   }, []);
 
   useEffect(() => {
+    if (yuklanmoqda) return;
     if (!konteynerRef || !konteynerRef.current) return;
 
     const arzonRejim = kuchsizQurilmaniAniqla();
@@ -261,7 +262,7 @@ export function useSahna(konteynerRef) {
       }
       jihozlarMapRef.current.clear();
     };
-  }, [konteynerRef]);
+  }, [konteynerRef, yuklanmoqda]);
 
   // kameraRef va rendererRef ham qaytariladi: useSudrash Raycaster uchun kamerani,
   // hodisalarni ulash uchun esa renderer.domElement ni talab qiladi. Ular
