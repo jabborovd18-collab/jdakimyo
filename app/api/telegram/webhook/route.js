@@ -27,6 +27,9 @@ const SAYT = 'https://www.jdakimyo.uz'
 /** Ilova kanali — APK va yangilanishlar shu yerda e'lon qilinadi */
 const ILOVA_KANALI = process.env.ILOVA_KANALI || 'https://t.me/jdakimyo_ilova'
 
+/** Platformaning rasmiy kanali — darslar va yangiliklar */
+const RASMIY_KANAL = process.env.RASMIY_KANAL || 'https://t.me/jdakimyouz'
+
 export async function POST(request) {
   // Sozlanmagan bo'lsa jimgina qaytamiz: bu holat faqat kalit
   // qo'yilmagan muhitda bo'ladi va xato yozib navbatni to'ldirish
@@ -482,26 +485,77 @@ async function bogla({ chatId, kod, username }) {
   )
 }
 
+/**
+ * Salomlashuv — botning birinchi taassuroti.
+ *
+ * IKKI XABAR YUBORILADI. Telegram bitta xabarga bittagina
+ * `reply_markup` qo'yishga ruxsat beradi: yo inline havolalar, yo
+ * doimiy klaviatura. Yangi kelgan odamga ikkalasi ham kerak —
+ * havolalar (sayt va kanal) va tugmalar. Shuning uchun avval
+ * tanishtiruv havolalar bilan, keyin qisqa xabar klaviatura bilan
+ * yuboriladi.
+ *
+ * Xabar nima uchun uzun: bu bot endi faqat bildirishnoma emas —
+ * quiz, PDF va prezentatsiya xizmatlari bor va ularning barchasi
+ * SAYT HISOBIGA bog'langan. Odam nima uchun ro'yxatdan o'tishi
+ * kerakligini bilmasa, birinchi qadamdayoq to'xtaydi.
+ */
 async function salomlash({ chatId, ism }) {
   const ulangan = await prisma.telegramUlanish.findUnique({ where: { chatId } })
+  const salom = `Assalomu alaykum${ism ? `, <b>${tgHimoyala(ism)}</b>` : ''}!`
 
   if (ulangan) {
-    return telegramYubor(
+    await telegramYubor(
       chatId,
-      'Hisobingiz allaqachon ulangan. Pastdagi tugmalardan foydalaning.',
+      `${salom}\n\n` +
+        'Hisobingiz allaqachon ulangan — hamma xizmat ochiq.\n\n' +
+        '🧩 <b>Quiz yaratish</b> — test faylingizdan Telegram testlari\n' +
+        '📑 <b>PDF yaratish</b> — rasmlardan bitta hujjat (bepul)\n' +
+        '🎓 <b>Prezentatsiya</b> — AI yordamida kimyoviy slaydlar\n' +
+        '🔔 <b>Xabarlar</b> — saytdagi bildirishnomalar\n\n' +
+        'Pastdagi tugmalardan boshlang.',
       { klaviatura: true }
     )
+    return
   }
 
+  await telegramYubor(
+    chatId,
+    `${salom}\n\n` +
+      'Bu — <b>jdakimyo.uz</b> platformasining rasmiy boti.\n' +
+      'O\'zbek tilidagi oliy kimyo platformasi.\n\n' +
+      '<b>Bot nima qila oladi:</b>\n' +
+      '🧩 Test faylingizni (.txt, .docx, .xlsx) Telegram quizlariga aylantiradi\n' +
+      '📑 Rasmlaringizni bitta PDF hujjatga yig\'adi — bepul\n' +
+      '🎓 Kimyoviy mavzuda prezentatsiya tayyorlaydi (PPTX va PDF)\n' +
+      '🔔 Saytdagi bildirishnomalarni shu yerga yetkazadi\n\n' +
+      '<b>Foydalanish tartibi — uch qadam:</b>\n\n' +
+      '<b>1.</b> jdakimyo.uz saytida hisob oching\n' +
+      '<b>2.</b> Shu yerga <code>/kod</code> deb yozing — men sizga bir martalik ' +
+      'kod beraman, uni saytdagi <b>Sozlamalar → Telegram</b> bo\'limiga kiritasiz\n' +
+      '<b>3.</b> Tayyor — pastdagi tugmalar ishlay boshlaydi\n\n' +
+      '<b>Nega hisob kerak?</b>\n' +
+      'Quiz va prezentatsiya <b>tanga</b> bilan ishlaydi, tanga esa saytda ' +
+      'topiladi: kunlik missiyalar, bepul sandiq va testlar orqali. ' +
+      'PDF bepul, lekin u ham ulangan hisobni talab qiladi — xizmatlardan ' +
+      'foydalanish tarixi kabinetingizda saqlanadi.\n\n' +
+      'Yangiliklar va darslar rasmiy kanalimizda.',
+    {
+      havolalar: [
+        { matn: '🌐 Saytda ro\'yxatdan o\'tish', url: `${SAYT}/register` },
+        { matn: '📢 Rasmiy kanal', url: RASMIY_KANAL },
+        { matn: '📱 Mobil ilova', url: ILOVA_KANALI },
+      ],
+    }
+  )
+
+  // Klaviatura ALOHIDA xabarda — yuqoridagi havolalar bilan bir
+  // xabarda bo'la olmaydi. Qisqa qilingan: uzun matn ikki marta
+  // takrorlansa, xabar oqimi bosib ketardi.
   return telegramYubor(
     chatId,
-    `Salom${ism ? `, <b>${tgHimoyala(ism)}</b>` : ''}!\n\n` +
-      'Bu — <b>JDA KIMYO</b> boti. Saytdagi bildirishnomalarni shu yerda olasiz.\n\n' +
-      '<b>Hisobni ulashning ikki yo\'li:</b>\n' +
-      '1. Shu yerda /kod yozing va kodni saytga kiriting\n' +
-      '2. Yoki saytdan kod olib, shu yerga yuboring\n\n' +
-      'Birinchisi qulayroq — saytda faqat kodni kiritasiz.',
-    { havola: { matn: 'Kod olish', url: `${SAYT}/profil/telegram` } }
+    'Boshlash uchun <code>/kod</code> deb yozing.',
+    { klaviatura: true }
   )
 }
 
@@ -684,20 +738,28 @@ async function uzish({ chatId, matn }) {
 function yordam(p) {
   return telegramYubor(
     p.chatId,
-    '<b>JDA KIMYO boti</b>\n\n' +
-      'Saytdagi bildirishnomalarni shu yerda olasiz, test to\'plamingizdan ' +
-      'Telegram quiz yasayman va rasmlardan PDF yig\'aman.\n\n' +
+    '<b>JDA KIMYO boti</b> — jdakimyo.uz ning rasmiy boti\n\n' +
+      'Xizmatlar ulangan hisob orqali ishlaydi. Hisobingiz bo\'lmasa, ' +
+      'jdakimyo.uz da ro\'yxatdan o\'ting va <code>/kod</code> yozing.\n\n' +
       '<b>Buyruqlar</b>\n' +
+      '/kod — hisobni ulash uchun kod olish\n' +
       '/xabarlar — oxirgi bildirishnomalar\n' +
-      '/holat — hisob ma\'lumotlari\n' +
+      '/holat — tanga, ball va sozlamalar\n' +
       '/ilova — mobil ilovani yuklab olish\n' +
       '/sozlama — xabar oqimini yoqish yoki o\'chirish\n' +
       '/uzish — hisobni uzish\n\n' +
-      '<b>Quiz va PDF</b>\n' +
-      'Pastdagi <b>🧩 Quiz yaratish</b> tugmasini bosing va test faylini ' +
-      '(.txt, .docx yoki .xlsx) yuboring. To\'g\'ri javob <code>+</code> ' +
-      'belgisi bilan belgilanadi.\n\n' +
+      '<b>🧩 Quiz yaratish</b> (tanga bilan)\n' +
+      'Test faylini yuboring (.txt, .docx, .xlsx). To\'g\'ri javob ' +
+      '<code>+</code>, noto\'g\'rilari <code>-</code> bilan belgilanadi.\n\n' +
+      '<b>📑 PDF yaratish</b> (bepul)\n' +
+      'Rasmlarni ketma-ket yuboring, keyin tugmani bosing.\n\n' +
+      '<b>🎓 Prezentatsiya</b> (tanga bilan)\n' +
+      'Mavzu yozing, slayd sonini tanlang — PPTX yoki PDF olasiz.\n\n' +
+      `Yangiliklar va darslar: <a href="${RASMIY_KANAL}">rasmiy kanal</a>\n` +
       'Saytni yozuv maydoni yonidagi <b>Platforma</b> tugmasi orqali oching.',
+    // Havola MATN ichida, tugmada emas: /yordam ning ikkinchi vazifasi —
+    // yo'qolgan klaviaturani qaytarish, u esa inline tugma bilan bir
+    // xabarda bo'la olmaydi.
     { klaviatura: true }
   )
 }
@@ -705,7 +767,16 @@ function yordam(p) {
 function ulanmagan(chatId) {
   return telegramYubor(
     chatId,
-    'Hisobingiz ulanmagan.\n\n/kod yozing — men sizga kod beraman, uni saytga kiritasiz.',
-    { havola: { matn: 'Saytni ochish', url: `${SAYT}/profil/telegram` } }
+    '🔒 <b>Hisobingiz ulanmagan</b>\n\n' +
+      'Bot xizmatlari jdakimyo.uz hisobiga bog\'langan holda ishlaydi.\n\n' +
+      '<b>1.</b> Saytda ro\'yxatdan o\'ting (agar hisobingiz bo\'lmasa)\n' +
+      '<b>2.</b> Shu yerga <code>/kod</code> deb yozing\n' +
+      '<b>3.</b> Kodni saytdagi <b>Sozlamalar → Telegram</b> ga kiriting',
+    {
+      havolalar: [
+        { matn: '🌐 Ro\'yxatdan o\'tish', url: `${SAYT}/register` },
+        { matn: '🔗 Telegramni ulash', url: `${SAYT}/profil/telegram` },
+      ],
+    }
   )
 }
