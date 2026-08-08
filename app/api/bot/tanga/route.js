@@ -12,7 +12,29 @@
 // orqali biladi. Bog'lanish `TelegramUlanish` jadvalida.
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { quizNarxi, TANGA_SAVOLGA, TANGA_TOPISH } from '@/lib/bot-tanga'
+import {
+  quizNarxi,
+  taqdimotNarxi,
+  TANGA_SAVOLGA,
+  TANGA_SLAYDGA,
+  TANGA_TOPISH,
+} from '@/lib/bot-tanga'
+
+/**
+ * Narxni xizmat turiga qarab hisoblaydi.
+ *
+ * Bot faqat "nechta va qanday" deb aytadi, summani hisoblash esa shu
+ * yerda — iqtisodiy qoida bir joyda tursin.
+ */
+function narxHisobla(tana) {
+  if (tana.xizmat === 'taqdimot') {
+    return {
+      narx: taqdimotNarxi(tana.slaydlar, Boolean(tana.ikkiFormat)),
+      birlikNarxi: TANGA_SLAYDGA,
+    }
+  }
+  return { narx: quizNarxi(tana.savollar), birlikNarxi: TANGA_SAVOLGA }
+}
 
 /** Ko'prik kaliti — webhook uzatishida ishlatiladigan kalitning o'zi */
 function kalitTogrimi(request) {
@@ -55,8 +77,7 @@ export async function POST(request) {
     return NextResponse.json({ ok: false, sabab: 'email-tasdiqlanmagan' })
   }
 
-  const savollar = Number(tana.savollar) || 0
-  const narx = quizNarxi(savollar)
+  const { narx, birlikNarxi } = narxHisobla(tana)
 
   // ── Holat: narx va balansni bilish (hech narsa o'zgarmaydi) ──
   if (tana.amal === 'holat') {
@@ -64,7 +85,7 @@ export async function POST(request) {
       ok: true,
       coins: ulangan.user.coins,
       narx,
-      savolNarxi: TANGA_SAVOLGA,
+      savolNarxi: birlikNarxi,
       yetadi: ulangan.user.coins >= narx,
       topishYollari: TANGA_TOPISH,
     })
@@ -73,7 +94,7 @@ export async function POST(request) {
   // ── Yechish ──
   if (tana.amal === 'yech') {
     if (narx <= 0) {
-      return NextResponse.json({ ok: false, sabab: 'savol yo\'q' }, { status: 400 })
+      return NextResponse.json({ ok: false, sabab: 'miqdor yo\'q' }, { status: 400 })
     }
 
     // ATOMAR YECHISH. Avval o'qib, keyin yozish xavfli: odam ikkita
