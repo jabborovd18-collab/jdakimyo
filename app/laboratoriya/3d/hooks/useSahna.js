@@ -3,9 +3,14 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { KAMERA, BOSHQARUV, STOL, SLOTLAR, RANGLAR } from "../lib/sozlama.js";
-import { materiallarniYarat, materiallarniTozala } from "../lib/materiallar.js";
+import { KAMERA, BOSHQARUV, STOL, SLOTLAR } from "../lib/sozlama.js";
+import {
+  materiallarniYarat,
+  materiallarniTozala,
+  materiallarniFongaMoslash,
+} from "../lib/materiallar.js";
 import { jihozYasa } from "../lib/jihoz-modellari.js";
+import { fonOl, SUKUT_FON } from "../lib/fonlar.js";
 
 // Kuchsiz qurilmani aniqlash funksiyasi: mobil va past xotirali qurilmalarni aniqlab,
 // shishaArzon materialiga va soyasiz rejimga o'tamiz.
@@ -20,7 +25,7 @@ function kuchsizQurilmaniAniqla() {
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
 // Nega useSahna hook ichida yozildi: barcha imperativ Three.js kodlari bitta joyda yig'iladi
 // va React render siklidan ajralgan holatda 60 FPS ishlashni ta'minlaydi.
-export function useSahna(konteynerRef, yuklanmoqda = false) {
+export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FON) {
   const [tayyor, setTayyor] = useState(false);
   const [hammaJihozlar, setHammaJihozlar] = useState([]);
   const [kuchsizQurilma, setKuchsizQurilma] = useState(false);
@@ -32,6 +37,15 @@ export function useSahna(konteynerRef, yuklanmoqda = false) {
   const materiallarRef = useRef(null);
   const kadrIdRef = useRef(null);
   const jihozlarMapRef = useRef(new Map()); // slotIndex -> THREE.Group
+
+  // Fon almashganda yangilanadigan obyektlar. Ular ref da saqlanadi, chunki
+  // sahna bir marta quriladi va keyin faqat rangi o'zgaradi.
+  const fonQismlariRef = useRef(null);
+
+  // Sahna qurilayotgan paytda joriy fonni bilish uchun. State to'g'ridan
+  // ishlatilsa, u useEffect bog'liqligiga aylanib sahnani qayta qurdirardi.
+  const fonKalitiRef = useRef(fonKaliti);
+  fonKalitiRef.current = fonKaliti;
 
   // Jihozni stoldagi bo'sh slotga qo'shish.
   // Nega bo'sh slot tanlanadi: jihozlar bir-birining ustiga chiqib qolmasligi uchun
@@ -100,11 +114,13 @@ export function useSahna(konteynerRef, yuklanmoqda = false) {
     const arzonRejim = kuchsizQurilmaniAniqla();
     setKuchsizQurilma(arzonRejim);
 
+    const fon = fonOl(fonKalitiRef.current);
+
     // 1. Sahna
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(RANGLAR.fon);
-    // Chekka joylar qorayib e'tibor stolga tushishi uchun FogExp2 ishlatiladi
-    scene.fog = new THREE.FogExp2(RANGLAR.fon, 0.085);
+    scene.background = new THREE.Color(fon.fon);
+    // Chekka joylar fonga singib e'tibor stolga tushishi uchun FogExp2 ishlatiladi
+    scene.fog = new THREE.FogExp2(fon.fon, fon.tumanZichligi);
     sahnaRef.current = scene;
 
     // 2. Kamera
@@ -148,10 +164,16 @@ export function useSahna(konteynerRef, yuklanmoqda = false) {
     controlsRef.current = controls;
 
     // 5. Yorug'lik (AmbientLight + maksimal 2 ta DirectionalLight, faqat bittasi castShadow)
-    const ambientLight = new THREE.AmbientLight(0x404060, 0.9);
+    const ambientLight = new THREE.AmbientLight(
+      fon.yorugliklar.muhit.rang,
+      fon.yorugliklar.muhit.kuch,
+    );
     scene.add(ambientLight);
 
-    const mainLight = new THREE.DirectionalLight(0xfffbeb, 1.4);
+    const mainLight = new THREE.DirectionalLight(
+      fon.yorugliklar.asosiy.rang,
+      fon.yorugliklar.asosiy.kuch,
+    );
     mainLight.position.set(2.5, 4.0, 2.0);
     mainLight.castShadow = !arzonRejim;
     if (mainLight.castShadow) {
@@ -162,13 +184,16 @@ export function useSahna(konteynerRef, yuklanmoqda = false) {
     }
     scene.add(mainLight);
 
-    const fillLight = new THREE.DirectionalLight(0xa78bfa, 0.6);
+    const fillLight = new THREE.DirectionalLight(
+      fon.yorugliklar.toldiruvchi.rang,
+      fon.yorugliklar.toldiruvchi.kuch,
+    );
     fillLight.position.set(-2.5, 2.0, -2.0);
     fillLight.castShadow = false;
     scene.add(fillLight);
 
     // 6. Materiallar
-    const materiallar = materiallarniYarat();
+    const materiallar = materiallarniYarat(fonKalitiRef.current);
     materiallarRef.current = materiallar;
 
     // 7. Stol va Orqa devor yaratish
@@ -179,10 +204,13 @@ export function useSahna(konteynerRef, yuklanmoqda = false) {
     scene.add(stol);
 
     const devorGeo = new THREE.PlaneGeometry(10, 6);
-    const devorMat = new THREE.MeshStandardMaterial({ color: 0x181324, roughness: 0.9 });
+    const devorMat = new THREE.MeshStandardMaterial({ color: fon.devor, roughness: 0.9 });
     const devor = new THREE.Mesh(devorGeo, devorMat);
     devor.position.set(0, 3, -1.8);
     scene.add(devor);
+
+    // Fon almashganda shu obyektlarning rangi yangilanadi
+    fonQismlariRef.current = { devorMat, ambientLight, mainLight, fillLight };
 
     // Boshlang'ich holatda 1 ta probirkani stolga qo'yamiz
     const defProbirka = jihozYasa("probirka", materiallar);
@@ -261,8 +289,36 @@ export function useSahna(konteynerRef, yuklanmoqda = false) {
         konteynerRef.current.innerHTML = "";
       }
       jihozlarMapRef.current.clear();
+      fonQismlariRef.current = null;
     };
   }, [konteynerRef, yuklanmoqda]);
+
+  // Fon almashganda: sahna saqlanadi, faqat ranglar va yorug'lik yangilanadi.
+  // `tayyor` bog'liqlikda turadi — birinchi renderda bu effekt sahnadan
+  // oldin ishga tushib, hech nimani topolmasdi.
+  useEffect(() => {
+    const scene = sahnaRef.current;
+    const qismlar = fonQismlariRef.current;
+    if (!scene || !qismlar) return;
+
+    const fon = fonOl(fonKaliti);
+
+    scene.background = new THREE.Color(fon.fon);
+    if (scene.fog) {
+      scene.fog.color.setHex(fon.fon);
+      scene.fog.density = fon.tumanZichligi;
+    }
+
+    qismlar.devorMat.color.setHex(fon.devor);
+    qismlar.ambientLight.color.setHex(fon.yorugliklar.muhit.rang);
+    qismlar.ambientLight.intensity = fon.yorugliklar.muhit.kuch;
+    qismlar.mainLight.color.setHex(fon.yorugliklar.asosiy.rang);
+    qismlar.mainLight.intensity = fon.yorugliklar.asosiy.kuch;
+    qismlar.fillLight.color.setHex(fon.yorugliklar.toldiruvchi.rang);
+    qismlar.fillLight.intensity = fon.yorugliklar.toldiruvchi.kuch;
+
+    materiallarniFongaMoslash(materiallarRef.current, fonKaliti);
+  }, [fonKaliti, tayyor]);
 
   // kameraRef va rendererRef ham qaytariladi: useSudrash Raycaster uchun kamerani,
   // hodisalarni ulash uchun esa renderer.domElement ni talab qiladi. Ular

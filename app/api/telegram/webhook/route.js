@@ -19,8 +19,12 @@ import {
 } from '@/lib/telegram'
 import { bugungiIqtibos, iqtibosMatni } from '@/lib/iqtibos'
 import { xabarYubor } from '@/lib/bildirishnoma'
+import { koprukkaUzat, kopruSozlanganmi, saytniki } from '@/lib/telegram-kopruk'
 
 const SAYT = 'https://www.jdakimyo.uz'
+
+/** Ilova kanali — APK va yangilanishlar shu yerda e'lon qilinadi */
+const ILOVA_KANALI = process.env.ILOVA_KANALI || 'https://t.me/jdakimyo_ilova'
 
 export async function POST(request) {
   // Sozlanmagan bo'lsa jimgina qaytamiz: bu holat faqat kalit
@@ -49,10 +53,19 @@ export async function POST(request) {
       return NextResponse.json({ ok: true })
     }
 
+    // INLINE TUGMALAR butunlay Python botniki: saytning birorta
+    // xabarida inline tugma yo'q (faqat havolalar bor, ular bosilganda
+    // Telegram hech narsa yubormaydi). Demak callback kelgan bo'lsa, u
+    // aniq quiz yoki PDF oqimidan.
+    if (yangilik?.callback_query) {
+      await koprukka(yangilik, yangilik.callback_query.message?.chat?.id)
+      return NextResponse.json({ ok: true })
+    }
+
     const xabar = yangilik?.message
     const chatId = xabar?.chat?.id
 
-    if (!chatId || !xabar.text) {
+    if (!chatId) {
       return NextResponse.json({ ok: true })
     }
 
@@ -70,9 +83,28 @@ export async function POST(request) {
       return NextResponse.json({ ok: true })
     }
 
+    // MATNSIZ XABAR — hujjat, rasm, ovoz. Sayt ularning birortasini
+    // ishlatmaydi; test fayli va PDF uchun rasmlar aynan shu yo'l bilan
+    // keladi. Ilgari bu yerda `return` turardi va fayllar jimgina
+    // tashlab yuborilardi.
+    if (!xabar.text) {
+      await koprukka(yangilik, chatId)
+      return NextResponse.json({ ok: true })
+    }
+
+    const matn = xabar.text.trim()
+
+    // Sayt o'ziniki bo'lmagan HAMMA narsani Python botga uzatadi —
+    // quiz oqimidagi erkin matn (fayl nomi va h.k.) ham shu yo'ldan
+    // o'tadi.
+    if (!saytniki(matn, Object.values(TUGMALAR))) {
+      await koprukka(yangilik, chatId)
+      return NextResponse.json({ ok: true })
+    }
+
     await buyruqniBajar({
       chatId: String(chatId),
-      matn: xabar.text.trim(),
+      matn,
       username: xabar.from?.username || null,
       ism: xabar.from?.first_name || null,
     })
@@ -81,6 +113,45 @@ export async function POST(request) {
   }
 
   return NextResponse.json({ ok: true })
+}
+
+/**
+ * Yangilikni Python botga (quiz va PDF xizmati) uzatadi.
+ *
+ * Muvaffaqiyatli bo'lsa BU YERDA hech narsa yozilmaydi — javobni
+ * Python bot o'zi yozadi. Faqat uzatib bo'lmagan holatda foydalanuvchi
+ * sababini biladi: aks holda bot butunlay jim qolib, odam "buzilibdi"
+ * deb o'ylardi.
+ */
+async function koprukka(yangilik, chatId) {
+  const id = String(chatId || '')
+  if (!id) return
+
+  if (!kopruSozlanganmi()) {
+    return telegramYubor(
+      id,
+      'Bunday buyruq yo\'q. Pastdagi tugmalardan foydalaning yoki /yordam yozing.',
+      { klaviatura: true }
+    )
+  }
+
+  const natija = await koprukkaUzat(yangilik)
+  if (natija.ok) return
+
+  if (natija.sabab === 'uxlayapti') {
+    return telegramYubor(
+      id,
+      '⏳ Xizmat uyg\'onmoqda — bir daqiqadan keyin qayta yuboring.\n\n' +
+        'Bu uzoq vaqt foydalanilmaganda bir marta sodir bo\'ladi.',
+      { klaviatura: true }
+    )
+  }
+
+  return telegramYubor(
+    id,
+    '⚠️ Quiz va PDF xizmati hozir ishlamayapti. Birozdan keyin urinib ko\'ring.',
+    { klaviatura: true }
+  )
 }
 
 /** Guruhga bugungi iqtibosni yuboradi (/iqtibos buyrug'i) */
@@ -258,16 +329,37 @@ async function buyruqniBajar({ chatId, matn, username, ism }) {
       return xabarlarniAlmashtir({ chatId })
     case '/uzish':
       return uzish({ chatId, matn })
+    case '/ilova':
+      return ilova({ chatId })
     case '/yordam':
     case '/help':
       return yordam({ chatId })
     default:
-      return telegramYubor(
-        chatId,
-        'Bunday buyruq yo\'q. Pastdagi tugmalardan foydalaning yoki /yordam yozing.',
-        { klaviatura: true }
-      )
+      // Bu yerga faqat SAYT_BUYRUQLARI dagi, lekin yuqorida
+      // ushlanmagan buyruq tushishi mumkin — ya'ni amalda hech qachon.
+      return yordam({ chatId })
   }
+}
+
+/**
+ * Mobil ilova — kanal havolasi.
+ *
+ * APK botning O'ZI orqali yuborilmaydi: Bot API fayl chegarasi 50 MB
+ * va Expo bilan yasalgan ilova undan katta. Kanalga fayl egasi oddiy
+ * foydalanuvchi sifatida yuklaydi (u yerda chegara 2 GB), bot esa
+ * faqat havolani beradi. Yon foyda: kanal obunachilari har
+ * yangilanishdan avtomatik xabardor bo'ladi.
+ */
+function ilova({ chatId }) {
+  return telegramYubor(
+    chatId,
+    '📱 <b>JDA KIMYO mobil ilovasi</b>\n\n' +
+      'Ilovaning oxirgi versiyasi, o\'rnatish yo\'riqnomasi va yangiliklar ' +
+      'rasmiy kanalda joylanadi.\n\n' +
+      'Android uchun APK faylni o\'sha yerdan yuklab olasiz. ' +
+      'App Store va Play Market havolalari chiqishi bilan shu kanalda e\'lon qilinadi.',
+    { havola: { matn: '📥 Kanalga o\'tish', url: ILOVA_KANALI } }
+  )
 }
 
 /** Kod bo'yicha sayt hisobiga bog'lash */
@@ -512,12 +604,18 @@ function yordam(p) {
   return telegramYubor(
     p.chatId,
     '<b>JDA KIMYO boti</b>\n\n' +
-      'Saytdagi bildirishnomalarni shu yerda olasiz.\n\n' +
+      'Saytdagi bildirishnomalarni shu yerda olasiz, test to\'plamingizdan ' +
+      'Telegram quiz yasayman va rasmlardan PDF yig\'aman.\n\n' +
       '<b>Buyruqlar</b>\n' +
       '/xabarlar — oxirgi bildirishnomalar\n' +
       '/holat — hisob ma\'lumotlari\n' +
+      '/ilova — mobil ilovani yuklab olish\n' +
       '/sozlama — xabar oqimini yoqish yoki o\'chirish\n' +
       '/uzish — hisobni uzish\n\n' +
+      '<b>Quiz va PDF</b>\n' +
+      'Pastdagi <b>🧩 Quiz yaratish</b> tugmasini bosing va test faylini ' +
+      '(.txt, .docx yoki .xlsx) yuboring. To\'g\'ri javob <code>+</code> ' +
+      'belgisi bilan belgilanadi.\n\n' +
       'Saytni yozuv maydoni yonidagi <b>Platforma</b> tugmasi orqali oching.',
     { klaviatura: true }
   )

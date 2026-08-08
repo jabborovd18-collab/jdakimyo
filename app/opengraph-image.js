@@ -6,7 +6,7 @@
 import { ImageResponse } from 'next/og'
 import { OgMaket, OG_OLCHAM } from '@/lib/og-maket'
 
-export const alt = 'JDA KIMYO — Kompleks birikmalar kimyosi'
+export const alt = 'JDA KIMYO — Oliy kimyo'
 export const size = OG_OLCHAM
 export const contentType = 'image/png'
 
@@ -14,7 +14,7 @@ export default function Image() {
   return new ImageResponse(
     (
       <OgMaket
-        sarlavha="Kompleks birikmalar kimyosi"
+        sarlavha="Oliy kimyo"
         tavsif="O'zbek tilida: nazariya, tahlil usullari, 3D modellar va quizlar"
       />
     ),

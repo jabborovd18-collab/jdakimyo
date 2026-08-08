@@ -55,7 +55,7 @@ export default function Yangiliklar() {
       badge: "Boshlanish",
       badgeColor: "bg-blue-600/20 text-blue-400 border-blue-600/30",
       title: "JDA KIMYO platformasi ishga tushdi!",
-      desc: "Kompleks birikmalar kimyosi bo'yicha O'zbekistondagi eng yirik onlayn platforma o'z ishini boshladi. 68 ta sahifa, 19 ta 3D model, 5 ta quiz test — barchasi bir joyda!",
+      desc: "Oliy kimyo bo'yicha O'zbekistondagi eng yirik onlayn platforma o'z ishini boshladi. 68 ta sahifa, 19 ta 3D model, 5 ta quiz test — barchasi bir joyda!",
       icon: "🚀"
     }
   ]

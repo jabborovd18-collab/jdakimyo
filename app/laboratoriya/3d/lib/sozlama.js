@@ -35,11 +35,12 @@ export const SLOTLAR = [
 ];
 
 // 16-lik rang kodlari RGB o'rniga hex formatda beriladi: Three.js materiallari hex format bilan eng tez ishlaydi.
+//
+// Fon, stol va shisha ranglari bu yerda EMAS — ular tanlangan fon mavzusiga
+// bog'liq va lib/fonlar.js da turadi. Bu yerda faqat mavzudan qat'i nazar
+// o'zgarmaydigan ranglar qoladi.
 export const RANGLAR = {
-  stol: 0x2a2438,
-  shisha: 0xcfe8ff,
   metall: 0x9aa4b2,
-  fon: 0x0b0714,
 };
 
 // Standart konsentratsiya 0.5 M qilib olindi: bazada aniq molyar massalar va konsentratsiyalar yo'qligi

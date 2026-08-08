@@ -496,7 +496,7 @@ export default function AdminCertificatesPage() {
                     type="text"
                     value={formData.fan}
                     onChange={(e) => setFormData({ ...formData, fan: e.target.value })}
-                    placeholder="Kompleks birikmalar kimyosi"
+                    placeholder="Oliy kimyo"
                     list="fanlar-royxati"
                     className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
                   />

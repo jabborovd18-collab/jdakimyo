@@ -18,12 +18,16 @@ const inter = Inter({
 
 export const metadata = {
   title: {
-    default: "JDA KIMYO — Kompleks birikmalar kimyosi",
+    default: "JDA KIMYO — Oliy kimyo",
     template: "%s | JDA KIMYO",
   },
   description:
-    "O'zbek tilida kompleks birikmalarni o'rganish platformasi. IUPAC nomlanishi, izomeriya, fazoviy tuzilish, video darsliklar va testlar.",
+    "O'zbek tilida oliy kimyoni o'rganish platformasi. Kompleks birikmalar, IUPAC nomlanishi, izomeriya, fazoviy tuzilish, video darsliklar va testlar.",
+  // "kompleks birikmalar" kalit so'z sifatida QOLDIRILDI: sayt endi butun
+  // oliy kimyoni qamraydi, lekin mavjud sahifalarning katta qismi hamon shu
+  // mavzuda va qidiruvdagi o'rin aynan shu so'z orqali kelgan.
   keywords: [
+    "oliy kimyo",
     "kompleks birikmalar",
     "kimyo",
     "IUPAC",
@@ -45,15 +49,13 @@ export const metadata = {
     locale: "uz_UZ",
     url: "https://www.jdakimyo.uz",
     siteName: "JDA KIMYO",
-    title: "JDA KIMYO — Kompleks birikmalar kimyosi",
-    description:
-      "O'zbek tilida kompleks birikmalarni o'rganish platformasi.",
+    title: "JDA KIMYO — Oliy kimyo",
+    description: "O'zbek tilida oliy kimyoni o'rganish platformasi.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "JDA KIMYO — Kompleks birikmalar kimyosi",
-    description:
-      "O'zbek tilida kompleks birikmalarni o'rganish platformasi.",
+    title: "JDA KIMYO — Oliy kimyo",
+    description: "O'zbek tilida oliy kimyoni o'rganish platformasi.",
     creator: "@diyorbek_jabborov",
   },
   icons: {
@@ -95,7 +97,7 @@ const TUZILGAN_MALUMOT = {
       url: 'https://www.jdakimyo.uz',
       logo: 'https://www.jdakimyo.uz/opengraph-image',
       description:
-        "O'zbek tilida kompleks birikmalar kimyosini o'rganish platformasi.",
+        "O'zbek tilida oliy kimyoni o'rganish platformasi.",
       inLanguage: 'uz',
       founder: {
         '@type': 'Person',

@@ -25,6 +25,7 @@ const SAYT = 'https://www.jdakimyo.uz'
 const BUYRUQLAR = [
   { command: 'xabarlar', description: 'Oxirgi bildirishnomalar' },
   { command: 'holat', description: "Hisob ma'lumotlari" },
+  { command: 'ilova', description: 'Mobil ilovani yuklab olish' },
   { command: 'sozlama', description: "Xabar oqimini yoqish/o'chirish" },
   { command: 'uzish', description: 'Hisobni uzish' },
   { command: 'yordam', description: 'Yordam' },
@@ -107,9 +108,10 @@ export async function POST() {
 
   await tavsifQoy({
     tavsif:
-      "JDA KIMYO — o'zbek tilida kompleks birikmalar kimyosi platformasi. " +
-      'Bot saytdagi bildirishnomalarni yetkazadi va platformani ochadi.',
-    qisqa: 'JDA KIMYO bildirishnomalari',
+      "JDA KIMYO — o'zbek tilida oliy kimyo platformasi. " +
+      'Bot bildirishnomalarni yetkazadi, test faylingizdan Telegram quiz ' +
+      'yasaydi va rasmlardan PDF yig\'adi.',
+    qisqa: 'JDA KIMYO — quiz, PDF va bildirishnomalar',
   })
   qadamlar.push({ nom: 'tavsif', ok: true, sabab: null })
 

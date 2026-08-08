@@ -28,7 +28,7 @@ export default function VideoDarsliklar() {
                PREMIUM TA'LIM KONTENTLARI
              </div>
              <h2 className="text-4xl font-bold text-white mb-4">
-               Kompleks birikmalar kimyosini
+               Oliy kimyoni
                <br />
                <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
                  professional darajada o'rganing

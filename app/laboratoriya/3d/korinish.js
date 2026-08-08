@@ -9,10 +9,16 @@ import ReagentJavoni from "./components/ReagentJavoni.jsx";
 import JihozJavoni from "./components/JihozJavoni.jsx";
 import NatijaPaneli from "./components/NatijaPaneli.jsx";
 import MobilOgohlantirish from "./components/MobilOgohlantirish.jsx";
+import FonTanlagich from "./components/FonTanlagich.jsx";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
 import { moddaKorinishi } from "./lib/modda-korinishi.js";
+import {
+  SUKUT_FON,
+  fonKalitiOqi,
+  fonKalitiniSaqla,
+} from "./lib/fonlar.js";
 
 // Hex rangni '#RRGGBB' css satriga aylantirish.
 function hexDanCss(hex) {
@@ -34,6 +40,20 @@ export default function Korinish() {
   const [aralashmaOzgarish, setAralashmaOzgarish] = useState(0); // Rerender triggeri
   const [mobilJavon, setMobilJavon] = useState(null); // "reagentlar" | "jihozlar" | null
 
+  // Sahna foni. Boshlang'ich qiymat ataylab SUKUT_FON: localStorage'ni
+  // useState ichida o'qisak, server chizgan HTML bilan brauzer chizgani
+  // farq qilib hidratsiya xatosi chiqardi. Saqlangan tanlov effektda olinadi.
+  const [fonKaliti, setFonKaliti] = useState(SUKUT_FON);
+
+  useEffect(() => {
+    setFonKaliti(fonKalitiOqi());
+  }, []);
+
+  const fonniOzgartir = useCallback((kalit) => {
+    setFonKaliti(kalit);
+    fonKalitiniSaqla(kalit);
+  }, []);
+
   // Idish holati va Jurnal ref lari (60 FPS kadr renderi bilan ajratilgan)
   const holatRef = useRef(idishYarat("probirka", 0));
   const jurnalRef = useRef(jurnalYarat());
@@ -49,7 +69,7 @@ export default function Korinish() {
     jihozOlib,
     hammaJihozlar,
     kuchsizQurilma,
-  } = useSahna(konteynerRef, yuklanmoqda);
+  } = useSahna(konteynerRef, yuklanmoqda, fonKaliti);
 
   // 2. Sudrash va tanlash
   const { tanlanganIdish, setTanlanganIdish } = useSudrash({
@@ -246,7 +266,9 @@ export default function Korinish() {
         </div>
 
         {/* Daraja chizig'i va balanc */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <FonTanlagich qiymat={fonKaliti} onOzgartir={fonniOzgartir} />
+
           <div className="hidden flex-col items-end sm:flex">
             <div className="flex items-center gap-2 text-xs font-bold">
               <span className="text-yellow-400">{daraja.daraja}-daraja</span>

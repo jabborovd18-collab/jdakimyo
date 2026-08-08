@@ -622,7 +622,7 @@ export default function Home() {
             ) : (
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-purple-800/40 border border-purple-600/50 rounded-full text-xs font-semibold text-purple-200 mb-6 backdrop-blur-sm">
                 <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                O'zbek tilidagi kompleks birikmalar platformasi
+                O'zbek tilidagi oliy kimyo platformasi
               </div>
             )}
 
@@ -912,7 +912,7 @@ export default function Home() {
                   © 2026 JDA KIMYO
                 </p>
                 <p className="text-purple-500 text-[10px] text-center md:text-right">
-                  Kompleks birikmalar platformasi
+                  Oliy kimyo platformasi
                 </p>
               </div>
             </div>

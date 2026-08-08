@@ -9,7 +9,7 @@ export default function FAQ() {
   const faqData = [
     {
       savol: "JDA KIMYO nima?",
-      javob: "JDA KIMYO — kompleks birikmalar kimyosi bo'yicha O'zbekistondagi eng yirik onlayn platforma. Bu yerda siz nazariy ma'lumotlar, 3D modellar, quiz testlar, ilmiy maqolalar va boshqa ko'plab resurslarni topasiz.",
+      javob: "JDA KIMYO — oliy kimyo bo'yicha O'zbekistondagi eng yirik onlayn platforma. Bu yerda siz nazariy ma'lumotlar, 3D modellar, quiz testlar, ilmiy maqolalar va boshqa ko'plab resurslarni topasiz.",
       kategoriya: "Umumiy"
     },
     {
