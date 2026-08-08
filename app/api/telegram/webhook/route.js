@@ -135,6 +135,14 @@ async function koprukka(yangilik, chatId) {
     )
   }
 
+  // KIRISH TALABI. Quiz va PDF — hisobga bog'langan xizmatlar: ular
+  // tanga sarflaydi va foydalanish tarixi kabinetda ko'rinadi. Tekshiruv
+  // ATAYLAB shu yerda, Python botda emas — u holda har handler o'zi
+  // tekshirishi kerak bo'lardi va yangi imkoniyat qo'shilganda tekshiruv
+  // qo'shish esdan chiqib, xizmat ulanmagan odamga ochilib qolardi.
+  const ruxsat = await botRuxsati(id)
+  if (!ruxsat.ok) return ruxsat.javob
+
   const natija = await koprukkaUzat(yangilik)
   if (natija.ok) return
 
@@ -152,6 +160,69 @@ async function koprukka(yangilik, chatId) {
     '⚠️ Quiz va PDF xizmati hozir ishlamayapti. Birozdan keyin urinib ko\'ring.',
     { klaviatura: true }
   )
+}
+
+/**
+ * Bu Telegram quiz va PDF xizmatidan foydalana oladimi?
+ *
+ * Uch shart: hisob ulangan bo'lsin, bloklanmagan bo'lsin va emaili
+ * tasdiqlangan bo'lsin. Oxirgisi saytdagi qoida bilan bir xil —
+ * tasdiqlanmagan hisob tanga ham topa olmaydi, ya'ni botda tanga
+ * sarflay olishi mantiqsiz bo'lardi.
+ *
+ * @returns {Promise<{ok: true} | {ok: false, javob: Promise<any>}>}
+ */
+async function botRuxsati(chatId) {
+  const ulangan = await prisma.telegramUlanish.findUnique({
+    where: { chatId },
+    select: {
+      user: { select: { isBanned: true, emailVerified: true } },
+    },
+  })
+
+  if (!ulangan) {
+    return {
+      ok: false,
+      javob: telegramYubor(
+        chatId,
+        '🔒 <b>Bu xizmat uchun hisob kerak</b>\n\n' +
+          'Quiz yaratish va PDF xizmatidan jdakimyo.uz saytida ro\'yxatdan ' +
+          'o\'tgan va shu botga ulangan hisob foydalana oladi.\n\n' +
+          '<b>Ulash juda oson:</b>\n' +
+          '/kod yozing — men sizga kod beraman, uni saytga kiritasiz.\n\n' +
+          'Hisobingiz bo\'lmasa, avval saytda ro\'yxatdan o\'ting.',
+        { havola: { matn: 'Ro\'yxatdan o\'tish', url: `${SAYT}/register` } }
+      ),
+    }
+  }
+
+  if (ulangan.user.isBanned) {
+    return {
+      ok: false,
+      javob: telegramYubor(
+        chatId,
+        '🚫 Hisobingiz bloklangan. Xizmatlardan foydalana olmaysiz.\n\n' +
+          'Sabab va murojaat uchun kabinetdagi bildirishnomalarni ko\'ring.',
+        { havola: { matn: 'Kabinetni ochish', url: `${SAYT}/profil` } }
+      ),
+    }
+  }
+
+  if (!ulangan.user.emailVerified) {
+    return {
+      ok: false,
+      javob: telegramYubor(
+        chatId,
+        '📧 <b>Emailingiz tasdiqlanmagan</b>\n\n' +
+          'Tasdiqlanmagan hisob tanga topa olmaydi, shuning uchun pullik ' +
+          'xizmatlar ham ochilmaydi.\n\n' +
+          'Kabinetdagi sozlamalardan tasdiqlash xatini qayta yuboring.',
+        { havola: { matn: 'Sozlamalarni ochish', url: `${SAYT}/profil/sozlama` } }
+      ),
+    }
+  }
+
+  return { ok: true }
 }
 
 /** Guruhga bugungi iqtibosni yuboradi (/iqtibos buyrug'i) */
