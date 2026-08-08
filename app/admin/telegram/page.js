@@ -359,6 +359,27 @@ function AiSinov() {
           {n.hisob ? (
             <Satr nom="Tokenlar" qiymat={JSON.stringify(n.hisob)} />
           ) : null}
+
+          {/* Model yopilganda to'g'ri nomni taxmin qilishga hojat
+              qolmasin: API o'zi aytgan ro'yxat ko'rsatiladi */}
+          {n.ochiqModellar?.length ? (
+            <div className="mt-3 pt-3 border-t border-red-800/50">
+              <div className="opacity-70 mb-1">
+                Shu kalit uchun ochiq modellar — kerakligini Render&apos;dagi{' '}
+                <code className="font-mono">GEMINI_MODEL</code> ga yozing:
+              </div>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {n.ochiqModellar.map((m) => (
+                  <span
+                    key={m}
+                    className="font-mono text-[11px] bg-slate-900/70 rounded px-2 py-1"
+                  >
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
     </div>
