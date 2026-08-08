@@ -60,6 +60,7 @@ export default function AdminTelegramPage() {
 
   const w = holat?.webhook
   const h = holat?.holat
+  const k = holat?.kopruk
 
   return (
     <div className="p-6 max-w-3xl">
@@ -102,6 +103,36 @@ export default function AdminTelegramPage() {
             ) : (
               <div className="mt-3 text-sm text-green-400">Xato yo'q</div>
             )}
+          </>
+        )}
+      </div>
+
+      {/* Quiz va PDF xizmati — Render'dagi Python bot bilan bog'lanish.
+          Foydalanuvchiga ko'rinadigan xabar ataylab umumiy, sabab esa
+          bir nechta bo'lishi mumkin. Shu yerda aniq aytiladi. */}
+      <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mb-5">
+        <h2 className="text-sm font-bold text-yellow-300 mb-3">
+          Quiz va PDF xizmati (ko&apos;prik)
+        </h2>
+        {!k ? (
+          <div className="text-sm text-purple-400">Holat olinmadi.</div>
+        ) : (
+          <>
+            <Qator
+              nom="Manzil"
+              matn={k.manzil || 'qo\'yilmagan'}
+              holat={Boolean(k.manzil)}
+            />
+            <Qator nom="Holat" matn={k.holat} holat={k.holat === 'ishlayapti'} />
+            <div
+              className={`mt-3 rounded-xl p-3 text-xs ${
+                k.holat === 'ishlayapti'
+                  ? 'bg-green-950/40 border border-green-800/50 text-green-200'
+                  : 'bg-red-950/40 border border-red-800/50 text-red-200'
+              }`}
+            >
+              {k.izoh}
+            </div>
           </>
         )}
       </div>

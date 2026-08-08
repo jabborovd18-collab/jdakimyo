@@ -15,6 +15,7 @@
 // bir-biriga mos kelmasligi mumkin emas.
 import { NextResponse } from 'next/server'
 import { checkAdminAuth } from '@/lib/admin-auth'
+import { kopruTekshir, kopruIzohi } from '@/lib/telegram-kopruk'
 import {
   telegramSozlanganmi, webhookQoy, webhookHolati,
   menyuTugmasiQoy, buyruqlarniQoy, tavsifQoy,
@@ -50,8 +51,14 @@ export async function GET() {
     kutilganManzil: `${SAYT}/api/telegram/webhook`,
   }
 
+  // Quiz va PDF xizmatining holati. Foydalanuvchiga ko'rinadigan xabar
+  // ataylab umumiy, sabab esa bir nechta bo'lishi mumkin — shu yerda
+  // aniq aytiladi.
+  const koprukNatija = await kopruTekshir()
+  const kopruk = { ...koprukNatija, izoh: kopruIzohi(koprukNatija) }
+
   if (!holat.tokenBor) {
-    return NextResponse.json({ success: true, holat, webhook: null })
+    return NextResponse.json({ success: true, holat, kopruk, webhook: null })
   }
 
   const javob = await webhookHolati()
@@ -60,6 +67,7 @@ export async function GET() {
   return NextResponse.json({
     success: true,
     holat,
+    kopruk,
     webhook: w
       ? {
           manzil: w.url || null,
