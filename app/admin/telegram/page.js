@@ -76,6 +76,7 @@ export default function AdminTelegramPage() {
       <div className="flex flex-wrap gap-2 mb-6">
         {[
           ['sozlama', '⚙️ Sozlamalar'],
+          ['statistika', '📈 Statistika'],
           ['odamlar', '👥 Foydalanuvchilar'],
           ['guruhlar', '💬 Guruhlar'],
           ['elon', '📣 E\'lon'],
@@ -94,6 +95,7 @@ export default function AdminTelegramPage() {
         ))}
       </div>
 
+      {bolim === 'statistika' && <Statistika />}
       {bolim === 'odamlar' && <Foydalanuvchilar />}
       {bolim === 'guruhlar' && <Iqtibos ishlaydi={Boolean(h?.tokenBor)} />}
       {bolim === 'elon' && <Elon ishlaydi={Boolean(h?.tokenBor)} />}
@@ -184,6 +186,105 @@ export default function AdminTelegramPage() {
       )}
       </>
       )}
+    </div>
+  )
+}
+
+/**
+ * Quiz va prezentatsiya statistikasi.
+ *
+ * Ma'lumot Python botdan HTTP orqali keladi — u alohida bazada
+ * yashaydi. Shu sababli bu bo'lim servis uxlab qolganda bo'sh
+ * qolishi mumkin va buni ochiq aytadi: "yuklanmadi" deb jim
+ * turgan panel adminni chalg'itadi.
+ */
+function Statistika() {
+  const [d, setD] = useState(null)
+  const [yuklanmoqda, setYuklanmoqda] = useState(true)
+
+  useEffect(() => {
+    let bekor = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/admin/telegram/hisobot')
+        const data = await res.json()
+        if (!bekor) setD(data)
+      } catch {
+        if (!bekor) setD({ success: false, sabab: 'ulanmadi' })
+      } finally {
+        if (!bekor) setYuklanmoqda(false)
+      }
+    })()
+    return () => {
+      bekor = true
+    }
+  }, [])
+
+  if (yuklanmoqda) {
+    return <div className="text-sm text-purple-400">Yuklanmoqda...</div>
+  }
+
+  if (d?.sozlanmagan) {
+    return (
+      <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 text-sm text-purple-300">
+        Ko&apos;prik sozlanmagan — statistika Python botdan olinadi.
+        Sozlamalar bo&apos;limiga qarang.
+      </div>
+    )
+  }
+
+  if (!d?.success) {
+    const izoh = {
+      'kalit-mos-emas': 'Kalitlar mos emas — Sozlamalar bo\'limiga qarang.',
+      uxlayapti: 'Servis uyg\'onmadi. Bir daqiqadan keyin sahifani yangilang.',
+      ulanmadi: 'Botga ulanib bo\'lmadi.',
+    }[d?.sabab] || 'Statistika olinmadi.'
+    return (
+      <div className="bg-red-950/40 border border-red-800/50 rounded-2xl p-5 text-sm text-red-200">
+        {izoh}
+      </div>
+    )
+  }
+
+  const h = d.hisobot || {}
+  const q = h.quiz || {}
+  const t = h.taqdimot || {}
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Karta nom="Botdan foydalanganlar" qiymat={h.foydalanuvchilar} belgi="👥" />
+        <Karta nom="Bloklangan" qiymat={h.bloklangan} belgi="🚫" />
+        <Karta nom="Quiz yasalgan" qiymat={q.jami} izoh={`${q.hafta || 0} ta shu hafta`} belgi="🧩" />
+        <Karta
+          nom="Prezentatsiya"
+          qiymat={t.jami}
+          izoh={`${t.hafta || 0} ta shu hafta`}
+          belgi="🎓"
+        />
+      </div>
+
+      <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5">
+        <h2 className="text-sm font-bold text-yellow-300 mb-3">Umumiy hajm</h2>
+        <Qator nom="Yasalgan savollar" matn={`${q.savollar || 0} ta`} holat />
+        <Qator nom="Yasalgan slaydlar" matn={`${t.slaydlar || 0} ta`} holat />
+        <p className="text-[11px] text-purple-400 mt-3">
+          Bu raqamlar botning o&apos;z bazasidan. Tanga hisobi esa saytda —
+          ikkalasi ataylab alohida: biri mahsulot statistikasi, ikkinchisi
+          moliyaviy hisob.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function Karta({ nom, qiymat, izoh, belgi }) {
+  return (
+    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4">
+      <div className="text-2xl mb-1">{belgi}</div>
+      <div className="text-2xl font-bold text-white">{qiymat ?? 0}</div>
+      <div className="text-[11px] text-purple-300">{nom}</div>
+      {izoh ? <div className="text-[10px] text-purple-500 mt-1">{izoh}</div> : null}
     </div>
   )
 }
