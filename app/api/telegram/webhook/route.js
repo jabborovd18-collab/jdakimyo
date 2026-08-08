@@ -20,6 +20,7 @@ import {
 import { bugungiIqtibos, iqtibosMatni } from '@/lib/iqtibos'
 import { xabarYubor } from '@/lib/bildirishnoma'
 import { koprukkaUzat, kopruSozlanganmi, saytniki } from '@/lib/telegram-kopruk'
+import { TANGA_TOPISH, TANGA_SAVOLGA } from '@/lib/bot-tanga'
 
 const SAYT = 'https://www.jdakimyo.uz'
 
@@ -588,12 +589,21 @@ async function holat({ chatId }) {
   if (!ulangan) return ulanmagan(chatId)
 
   const u = ulangan.user
+
+  // Tanga qanday topilishi SHU YERDA aytiladi. Quiz — botdagi yagona
+  // pullik xizmat va odam narxni ko'rgan zahoti "buni qayerdan
+  // olaman?" deb so'raydi. Javobni faqat saytdan qidirishga majburlash
+  // xizmatdan voz kechishning eng qisqa yo'li.
+  const topish = TANGA_TOPISH.map((y) => `• ${y}`).join('\n')
+
   return telegramYubor(
     chatId,
     `<b>${tgHimoyala(u.fullName || u.username)}</b>\n` +
-      `Tanga: ${u.coins ?? 0}\n` +
-      `Ball: ${u.level_points ?? 0}\n\n` +
-      `Xabarlar: ${ulangan.xabarlar ? 'yoqilgan' : 'o\'chirilgan'}`,
+      `👛 Tanga: ${u.coins ?? 0}\n` +
+      `⭐ Ball: ${u.level_points ?? 0}\n\n` +
+      `Xabarlar: ${ulangan.xabarlar ? 'yoqilgan' : 'o\'chirilgan'}\n\n` +
+      `<b>Tanga qanday topiladi:</b>\n${topish}\n\n` +
+      `Quiz yaratish ${TANGA_SAVOLGA} tanga/savol turadi.`,
     { havola: { matn: 'Kabinetni ochish', url: `${SAYT}/profil` } }
   )
 }
