@@ -18,6 +18,7 @@ export default function AdminTelegramPage() {
   const [holat, setHolat] = useState(null)
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
   const [band, setBand] = useState(false)
+  const [bolim, setBolim] = useState('sozlama')
 
   useEffect(() => { olish() }, [])
 
@@ -65,10 +66,40 @@ export default function AdminTelegramPage() {
   return (
     <div className="p-6 max-w-3xl">
       <h1 className="text-2xl font-bold text-white mb-1">Telegram bot</h1>
-      <p className="text-sm text-purple-300 mb-6">
-        Webhook, menyu tugmasi va buyruqlar ro'yxatini o'rnatadi.
+      <p className="text-sm text-purple-300 mb-5">
+        Bot sozlamalari, ulangan foydalanuvchilar va guruhlar.
       </p>
 
+      {/* Bo'limlar. Ilgari hammasi bitta uzun ustunda edi va
+          foydalanuvchilar ro'yxati qo'shilganda sahifa o'qib
+          bo'lmaydigan darajada cho'zilib ketardi. */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {[
+          ['sozlama', '⚙️ Sozlamalar'],
+          ['odamlar', '👥 Foydalanuvchilar'],
+          ['guruhlar', '💬 Guruhlar'],
+          ['elon', '📣 E\'lon'],
+        ].map(([kalit, nom]) => (
+          <button
+            key={kalit}
+            onClick={() => setBolim(kalit)}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${
+              bolim === kalit
+                ? 'bg-yellow-500 text-black'
+                : 'bg-purple-900/40 text-purple-200 hover:bg-purple-900/70'
+            }`}
+          >
+            {nom}
+          </button>
+        ))}
+      </div>
+
+      {bolim === 'odamlar' && <Foydalanuvchilar />}
+      {bolim === 'guruhlar' && <Iqtibos ishlaydi={Boolean(h?.tokenBor)} />}
+      {bolim === 'elon' && <Elon ishlaydi={Boolean(h?.tokenBor)} />}
+
+      {bolim !== 'sozlama' ? null : (
+      <>
       <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mb-5">
         <h2 className="text-sm font-bold text-yellow-300 mb-3">Muhit</h2>
         <Qator nom="Bot tokeni" holat={h?.tokenBor} />
@@ -151,9 +182,135 @@ export default function AdminTelegramPage() {
           qo'shib, qayta deploy qiling.
         </p>
       )}
+      </>
+      )}
+    </div>
+  )
+}
 
-      <Elon ishlaydi={Boolean(h?.tokenBor)} />
-      <Iqtibos ishlaydi={Boolean(h?.tokenBor)} />
+/**
+ * Botga ulangan foydalanuvchilar.
+ *
+ * NEGA QUIZ VA PREZENTATSIYA HISOBI YO'Q. Ular Python botning o'z
+ * bazasida (Render'dagi alohida Neon bazasi) yoziladi va bu sahifa
+ * saytning bazasiga qaraydi. Shu sababli bu yerda faqat sayt
+ * biladigan narsa ko'rsatiladi: kim ulangan, tangasi, holati.
+ */
+function Foydalanuvchilar() {
+  const [d, setD] = useState(null)
+  const [qidiruv, setQidiruv] = useState('')
+  const [sahifa, setSahifa] = useState(1)
+  const [yuklanmoqda, setYuklanmoqda] = useState(true)
+
+  useEffect(() => {
+    let bekor = false
+    // Har harfda so'rov yubormaslik uchun kichik kechikish
+    const soat = setTimeout(async () => {
+      setYuklanmoqda(true)
+      try {
+        const q = new URLSearchParams({ sahifa: String(sahifa) })
+        if (qidiruv.trim()) q.set('q', qidiruv.trim())
+        const res = await fetch(`/api/admin/telegram/foydalanuvchilar?${q}`)
+        const data = await res.json()
+        if (!bekor && res.ok) setD(data)
+      } catch {
+        /* ro'yxat bo'sh qoladi, sahifa ishlashda davom etadi */
+      } finally {
+        if (!bekor) setYuklanmoqda(false)
+      }
+    }, 300)
+    return () => {
+      bekor = true
+      clearTimeout(soat)
+    }
+  }, [qidiruv, sahifa])
+
+  return (
+    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5">
+      <div className="flex items-baseline justify-between gap-3 mb-4 flex-wrap">
+        <h2 className="text-sm font-bold text-yellow-300">
+          Ulangan foydalanuvchilar {d ? `(${d.jami} ta)` : ''}
+        </h2>
+        {d ? (
+          <span className="text-xs text-purple-400">
+            {d.xabarlarYoqilgan} tasi xabar oladi
+          </span>
+        ) : null}
+      </div>
+
+      <input
+        value={qidiruv}
+        onChange={(e) => {
+          setQidiruv(e.target.value)
+          setSahifa(1)
+        }}
+        placeholder="Ism, username yoki chatId bo'yicha qidirish"
+        className="w-full mb-4 px-4 py-2 rounded-xl bg-slate-900/70 border border-purple-700/50 text-sm text-white placeholder-purple-500 focus:outline-none focus:border-yellow-500"
+      />
+
+      {yuklanmoqda && !d ? (
+        <div className="text-sm text-purple-400">Yuklanmoqda...</div>
+      ) : !d?.foydalanuvchilar?.length ? (
+        <div className="text-sm text-purple-400">
+          {qidiruv ? 'Hech kim topilmadi.' : 'Hali hech kim botga ulanmagan.'}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {d.foydalanuvchilar.map((f) => (
+            <div
+              key={f.id}
+              className="flex items-center justify-between gap-3 rounded-xl bg-slate-900/50 px-3 py-2.5"
+            >
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-white truncate">
+                  {f.fullName || f.username}
+                  {f.bloklangan && (
+                    <span className="ml-2 text-[10px] text-red-300">bloklangan</span>
+                  )}
+                  {!f.emailTasdiqlangan && (
+                    <span className="ml-2 text-[10px] text-orange-300">
+                      email tasdiqlanmagan
+                    </span>
+                  )}
+                </div>
+                <div className="text-[11px] text-purple-400 truncate">
+                  @{f.username} · {f.tgUsername ? `TG @${f.tgUsername}` : `chatId ${f.chatId}`}
+                  {' · '}
+                  {new Date(f.bogladi).toLocaleDateString('uz-UZ')}
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0 text-xs">
+                <span className="text-amber-300 font-bold">🪙 {f.coins}</span>
+                <span className={f.xabarlar ? 'text-green-400' : 'text-purple-500'}>
+                  {f.xabarlar ? '🔔' : '🔕'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {d && d.sahifalar > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-4">
+          <button
+            onClick={() => setSahifa((s) => Math.max(1, s - 1))}
+            disabled={sahifa <= 1}
+            className="px-3 py-1.5 rounded-lg bg-slate-800 text-purple-200 text-xs disabled:opacity-40"
+          >
+            ← Oldingi
+          </button>
+          <span className="text-xs text-purple-400">
+            {d.sahifa} / {d.sahifalar}
+          </span>
+          <button
+            onClick={() => setSahifa((s) => Math.min(d.sahifalar, s + 1))}
+            disabled={sahifa >= d.sahifalar}
+            className="px-3 py-1.5 rounded-lg bg-slate-800 text-purple-200 text-xs disabled:opacity-40"
+          >
+            Keyingi →
+          </button>
+        </div>
+      )}
     </div>
   )
 }

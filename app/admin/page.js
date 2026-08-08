@@ -200,6 +200,21 @@ export default async function AdminDashboard() {
     { name: 'Tahlil usuli', href: '/admin/analysis', icon: '🔬', color: 'from-teal-600/20 to-cyan-600/20', border: 'border-teal-700/50' }
   ]
 
+  // Telegram bot butun sayt uchun BITTA: uning sozlamalari, ulangan
+  // foydalanuvchilari va guruhlari faqat superadminga ochiladi.
+  // Havolani ham faqat o'shanga ko'rsatamiz — bosilganda 403 beradigan
+  // tugma foydalanuvchini chalg'itadi.
+  const superadminmi = session?.user?.role === 'superadmin'
+  if (superadminmi) {
+    quickActions.push({
+      name: 'Telegram bot',
+      href: '/admin/telegram',
+      icon: '🤖',
+      color: 'from-sky-600/20 to-blue-600/20',
+      border: 'border-sky-700/50',
+    })
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
