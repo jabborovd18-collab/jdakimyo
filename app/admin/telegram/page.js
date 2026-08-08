@@ -95,7 +95,12 @@ export default function AdminTelegramPage() {
         ))}
       </div>
 
-      {bolim === 'statistika' && <Statistika />}
+      {bolim === 'statistika' && (
+        <>
+          <Statistika />
+          <AiSinov />
+        </>
+      )}
       {bolim === 'odamlar' && <Foydalanuvchilar />}
       {bolim === 'guruhlar' && <Iqtibos ishlaydi={Boolean(h?.tokenBor)} />}
       {bolim === 'elon' && <Elon ishlaydi={Boolean(h?.tokenBor)} />}
@@ -274,6 +279,97 @@ function Statistika() {
           moliyaviy hisob.
         </p>
       </div>
+    </div>
+  )
+}
+
+/**
+ * AI (Gemini) ulanishini bir bosishda tekshirish.
+ *
+ * Prezentatsiya ishlamaganda sabab bir nechta bo'lishi mumkin: kalit
+ * yo'q, model nomi noto'g'ri, kunlik kvota tugagan, yoki javob bo'sh
+ * qaytgan. Ular Render qaydnomasida qolardi va tuzatish taxmin bilan
+ * olib borilardi. Bu tugma o'sha xom ma'lumotni bevosita ko'rsatadi.
+ */
+function AiSinov() {
+  const [natija, setNatija] = useState(null)
+  const [band, setBand] = useState(false)
+
+  async function sina() {
+    setBand(true)
+    setNatija(null)
+    try {
+      const res = await fetch('/api/admin/telegram/ai-sinov', { method: 'POST' })
+      setNatija(await res.json())
+    } catch (e) {
+      setNatija({ success: false, sabab: 'ulanmadi', xato: e.message })
+    } finally {
+      setBand(false)
+    }
+  }
+
+  const n = natija?.natija
+  const yaxshi = n?.ok
+
+  return (
+    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mt-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <h2 className="text-sm font-bold text-yellow-300">AI ulanishi (Gemini)</h2>
+        <button
+          onClick={sina}
+          disabled={band}
+          className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold disabled:opacity-40"
+        >
+          {band ? 'Tekshirilmoqda...' : 'Sinab ko\'rish'}
+        </button>
+      </div>
+
+      {!natija ? (
+        <p className="text-xs text-purple-400">
+          Prezentatsiya ishlamasa shu tugmani bosing — sabab shu yerda
+          ko&apos;rinadi.
+        </p>
+      ) : !natija.success ? (
+        <div className="text-xs text-red-200 bg-red-950/40 border border-red-800/50 rounded-xl p-3">
+          {{
+            'kopruk-sozlanmagan': 'Ko\'prik sozlanmagan (BOT_ISHCHI_URL / BOT_KOPRUK_SIR).',
+            'kalit-mos-emas': 'Ko\'prik kaliti mos emas — Sozlamalar bo\'limiga qarang.',
+            'eski-kod': 'Render eski kod bilan ishlayapti — Manual Deploy qiling.',
+            uxlayapti: 'Servis javob bermadi. Bir daqiqadan keyin qayta bosing.',
+          }[natija.sabab] || 'Tekshirib bo\'lmadi.'}
+        </div>
+      ) : (
+        <div
+          className={`rounded-xl p-3 text-xs border ${
+            yaxshi
+              ? 'bg-green-950/40 border-green-800/50 text-green-200'
+              : 'bg-red-950/40 border-red-800/50 text-red-200'
+          }`}
+        >
+          <div className="font-bold mb-2">
+            {yaxshi ? '✅ AI ishlayapti' : '❌ AI javob bermadi'}
+          </div>
+          <Satr nom="Model" qiymat={n.model} />
+          <Satr nom="Kalit uzunligi" qiymat={n.kalitUzunligi} />
+          <Satr nom="HTTP kodi" qiymat={n.kod} />
+          {n.finishReason ? <Satr nom="finishReason" qiymat={n.finishReason} /> : null}
+          {n.javob ? <Satr nom="Javob" qiymat={n.javob} /> : null}
+          {n.xato ? <Satr nom="Xato" qiymat={n.xato} /> : null}
+          {n.sabab ? <Satr nom="Sabab" qiymat={n.sabab} /> : null}
+          {n.hisob ? (
+            <Satr nom="Tokenlar" qiymat={JSON.stringify(n.hisob)} />
+          ) : null}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Satr({ nom, qiymat }) {
+  return (
+    <div className="flex gap-2 py-0.5">
+      <span className="opacity-60 shrink-0">{nom}:</span>
+      <span className="font-mono break-all">{String(qiymat)}</span>
     </div>
   )
 }
