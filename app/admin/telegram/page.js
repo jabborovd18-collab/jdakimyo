@@ -351,11 +351,35 @@ function AiSinov() {
           </div>
           <Satr nom="Model" qiymat={n.model} />
           <Satr nom="Kalit uzunligi" qiymat={n.kalitUzunligi} />
-          <Satr nom="HTTP kodi" qiymat={n.kod} />
-          {n.finishReason ? <Satr nom="finishReason" qiymat={n.finishReason} /> : null}
+          {n.ishlagan ? <Satr nom="Ishlagan sozlama" qiymat={n.ishlagan} /> : null}
           {n.javob ? <Satr nom="Javob" qiymat={n.javob} /> : null}
-          {n.xato ? <Satr nom="Xato" qiymat={n.xato} /> : null}
+          {!yaxshi && n.kod ? <Satr nom="HTTP kodi" qiymat={n.kod} /> : null}
+          {!yaxshi && n.xato ? <Satr nom="Xato" qiymat={n.xato} /> : null}
           {n.sabab ? <Satr nom="Sabab" qiymat={n.sabab} /> : null}
+
+          {/* Bosqichlar: so'rov sodda tomonga qarab qisqartiriladi va
+              birinchi ishlagani qaysi maydon aybdor ekanini ko'rsatadi */}
+          {n.urinishlar?.length > 1 ? (
+            <details className="mt-3 pt-3 border-t border-white/10">
+              <summary className="cursor-pointer opacity-70">
+                Bosqichlar ({n.urinishlar.length} ta sinov)
+              </summary>
+              <div className="mt-2 space-y-2">
+                {n.urinishlar.map((u, i) => (
+                  <div key={i} className="font-mono text-[11px] opacity-90">
+                    <span className={u.kod === 200 ? 'text-green-400' : 'text-red-400'}>
+                      [{u.kod}]
+                    </span>{' '}
+                    {u.bosqich}
+                    {u.xato ? <div className="pl-6 opacity-70">{u.xato}</div> : null}
+                    {u.tafsilot && u.tafsilot !== '[]' ? (
+                      <div className="pl-6 opacity-60 break-all">{u.tafsilot}</div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </details>
+          ) : null}
           {n.hisob ? (
             <Satr nom="Tokenlar" qiymat={JSON.stringify(n.hisob)} />
           ) : null}
