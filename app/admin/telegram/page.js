@@ -225,13 +225,13 @@ function Guruhlar() {
     yukla()
   }, [yukla])
 
-  async function almashtir(g) {
+  async function almashtir(g, maydon) {
     setBand(true)
     try {
       await fetch('/api/admin/telegram/guruhlar', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: g.id, iqtiboslar: !g.iqtiboslar }),
+        body: JSON.stringify({ id: g.id, [maydon]: !g[maydon] }),
       })
       await yukla()
     } finally {
@@ -272,7 +272,7 @@ function Guruhlar() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <Karta nom="Bot ichida" qiymat={j.faol} belgi="💬" />
         <Karta nom="Chiqarilgan" qiymat={(j.hammasi || 0) - (j.faol || 0)} belgi="🚪" />
-        <Karta nom="Iqtibos yoqilgan" qiymat={j.iqtibosli} belgi="📜" />
+        <Karta nom="Yangilik yoqilgan" qiymat={j.yangilikli} belgi="📰" />
         <Karta
           nom="Umumiy qamrov"
           qiymat={j.qamrov}
@@ -303,9 +303,9 @@ function Guruhlar() {
                   {g.faol ? 'bot ichida' : 'bot chiqarilgan'}
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                 <button
-                  onClick={() => almashtir(g)}
+                  onClick={() => almashtir(g, 'iqtiboslar')}
                   disabled={!g.faol || band}
                   title="Kunlik iqtibos"
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-40 transition-all ${
@@ -315,6 +315,18 @@ function Guruhlar() {
                   }`}
                 >
                   📜 {g.iqtiboslar ? 'Yoqilgan' : "O'chirilgan"}
+                </button>
+                <button
+                  onClick={() => almashtir(g, 'yangiliklar')}
+                  disabled={!g.faol || band}
+                  title="JDA KIMYO NEWS yangiliklari"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-40 transition-all ${
+                    g.yangiliklar
+                      ? 'bg-sky-600/20 border border-sky-600/40 text-sky-300'
+                      : 'bg-slate-700/30 border border-slate-600/50 text-slate-400'
+                  }`}
+                >
+                  📰 {g.yangiliklar ? 'Yoqilgan' : "O'chirilgan"}
                 </button>
                 {!g.faol && (
                   <button

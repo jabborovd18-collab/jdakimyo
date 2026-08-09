@@ -16,7 +16,16 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import {
   telegramYubor, tgHimoyala, telegramSozlanganmi, TUGMALAR, sarlavhaBelgisi,
+  tugmaJavobi,
 } from '@/lib/telegram'
+import {
+  TUGMA,
+  guruhSozlamaAlmashtir,
+  guruhSozlamasi,
+  yangilikNatijasi,
+  yangilikTaklifi,
+  yangilikniTarqat,
+} from '@/lib/telegram-yangilik'
 import { bugungiIqtibos, iqtibosMatni } from '@/lib/iqtibos'
 import { xabarYubor } from '@/lib/bildirishnoma'
 import { koprukkaUzat, kopruSozlanganmi, saytniki } from '@/lib/telegram-kopruk'
@@ -61,8 +70,39 @@ export async function POST(request) {
     // xabarida inline tugma yo'q (faqat havolalar bor, ular bosilganda
     // Telegram hech narsa yubormaydi). Demak callback kelgan bo'lsa, u
     // aniq quiz yoki PDF oqimidan.
+    // KANALGA YANGI POST — JDA KIMYO NEWS. Bot admin bo'lgan har
+    // qanday kanaldan kelishi mumkin; xavfsizlik tugma bosilganda
+    // tekshiriladi (faqat superadmin tarqata oladi).
+    if (yangilik?.channel_post) {
+      const post = yangilik.channel_post
+      // Botning O'Z xabari (tasdiq tugmasi) qayta ishlanmasin —
+      // aks holda cheksiz halqa hosil bo'lardi.
+      if (!post.from?.is_bot && post.chat?.id) {
+        await yangilikTaklifi({
+          kanalId: String(post.chat.id),
+          xabarId: post.message_id,
+        }).catch((e) => console.error('[Yangilik taklifi]', e.message))
+      }
+      return NextResponse.json({ ok: true })
+    }
+
     if (yangilik?.callback_query) {
-      await koprukka(yangilik, yangilik.callback_query.message?.chat?.id)
+      const cb = yangilik.callback_query
+      const cbChat = cb.message?.chat
+
+      // SAYT O'ZI ISHLAYDIGAN TUGMALAR. `sayt:` old qo'shimchasi
+      // bo'lgani ko'prikka uzatilmaydi: yangilik tarqatish va guruh
+      // sozlamalari saytning bazasida yashaydi.
+      if (String(cb.data || '').startsWith('sayt:')) {
+        await saytTugmasi(cb).catch((e) => console.error('[Sayt tugmasi]', e.message))
+        return NextResponse.json({ ok: true })
+      }
+
+      // Guruh va kanaldagi tugmalar uchun hisob tekshirilmaydi —
+      // u yerda "ulangan hisob" tushunchasi yo'q.
+      await koprukka(yangilik, cbChat?.id, {
+        hisobTekshir: cbChat?.type === 'private',
+      })
       return NextResponse.json({ ok: true })
     }
 
@@ -91,6 +131,14 @@ export async function POST(request) {
 
       if (/^\/iqtibos(@\w+)?$/.test(guruhMatn)) {
         await guruhgaIqtibos(String(chatId))
+        return NextResponse.json({ ok: true })
+      }
+
+      // GURUH SOZLAMALARI saytniki — iqtibos va yangilik bayroqlari
+      // `TelegramGuruh` jadvalida. Shuning uchun bu buyruq ko'prikka
+      // uzatilmaydi.
+      if (/^\/(sozlama|settings|setings)(@\w+)?$/i.test(guruhMatn)) {
+        await guruhSozlamasi(String(chatId))
         return NextResponse.json({ ok: true })
       }
 
@@ -261,6 +309,52 @@ async function botRuxsati(chatId) {
   }
 
   return { ok: true }
+}
+
+/**
+ * Sayt o'zi ishlaydigan inline tugmalar (`sayt:` bilan boshlanadi).
+ *
+ * Telegram tugma bosilganini TASDIQLASHNI kutadi — `answerCallbackQuery`
+ * yuborilmasa foydalanuvchi ekranida soat aylanaverib, tugma buzuq
+ * bo'lib ko'rinadi. Shuning uchun har yo'lda javob beriladi.
+ */
+async function saytTugmasi(cb) {
+  const qiymat = String(cb.data || '')
+  const chat = cb.message?.chat
+
+  // ── Yangilikni guruhlarga tarqatish ──
+  if (qiymat.startsWith('sayt:yangilik:')) {
+    const xabarId = Number(qiymat.split(':')[2])
+    if (!chat?.id || !Number.isFinite(xabarId)) {
+      return tugmaJavobi(cb.id, 'Xato so\'rov', true)
+    }
+
+    await tugmaJavobi(cb.id, 'Yuborilmoqda...')
+    const natija = await yangilikniTarqat({
+      kanalId: String(chat.id),
+      xabarId,
+      bosganTgId: cb.from?.id,
+    })
+    // Tugma o'sha xabarda emas, TASDIQ xabarida turadi
+    return yangilikNatijasi({
+      kanalId: String(chat.id),
+      xabarId: cb.message.message_id,
+      natija,
+    })
+  }
+
+  // ── Guruh sozlamalari ──
+  if (qiymat === TUGMA.guruhIqtibos || qiymat === TUGMA.guruhYangilik) {
+    const maydon = qiymat === TUGMA.guruhIqtibos ? 'iqtibos' : 'yangilik'
+    const natija = await guruhSozlamaAlmashtir(String(chat?.id || ''), maydon)
+    if (!natija.ok) return tugmaJavobi(cb.id, 'Guruh topilmadi', true)
+
+    await tugmaJavobi(cb.id, natija.yoqildi ? 'Yoqildi' : 'O\'chirildi')
+    // Xabar yangilanadi — holat darhol ko'rinsin
+    return guruhSozlamasi(String(chat.id))
+  }
+
+  return tugmaJavobi(cb.id, '')
 }
 
 /** Guruhga bugungi iqtibosni yuboradi (/iqtibos buyrug'i) */

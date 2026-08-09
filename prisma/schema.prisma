@@ -1338,10 +1338,13 @@ model TelegramGuruh {
   qoshgan   String?
   // Bu guruhga kunlik iqtibos yuborilsinmi
   iqtiboslar Boolean @default(true)
+  // JDA KIMYO NEWS kanalidagi xabarlar shu guruhga uzatilsinmi
+  yangiliklar Boolean @default(true)
   faol      Boolean  @default(true)
   createdAt DateTime @default(now())
 
   @@index([faol, iqtiboslar])
+  @@index([faol, yangiliklar])
 }
 
 model TelegramBotKod {

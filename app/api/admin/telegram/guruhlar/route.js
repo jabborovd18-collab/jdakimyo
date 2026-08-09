@@ -65,6 +65,7 @@ export async function GET() {
       hammasi: royxat.length,
       faol: royxat.filter((g) => g.faol).length,
       iqtibosli: royxat.filter((g) => g.faol && g.iqtiboslar).length,
+      yangilikli: royxat.filter((g) => g.faol && g.yangiliklar).length,
       qamrov,
     },
   })
@@ -83,6 +84,7 @@ export async function PATCH(request) {
 
   const yangi = {}
   if (typeof tana.iqtiboslar === 'boolean') yangi.iqtiboslar = tana.iqtiboslar
+  if (typeof tana.yangiliklar === 'boolean') yangi.yangiliklar = tana.yangiliklar
   if (!Object.keys(yangi).length) {
     return NextResponse.json({ error: 'O\'zgartirish yo\'q' }, { status: 400 })
   }
