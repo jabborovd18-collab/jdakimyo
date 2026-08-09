@@ -5,15 +5,26 @@
  * qiladi), loyihaning package.json'ida esa "type": "module" yo'q. Shuning uchun
  * skriptlarda ularni to'g'ridan-to'g'ri require qilib bo'lmaydi.
  *
- * Faqat sof modullar uchun (import'siz, yon ta'sirsiz).
+ * Faqat sof modullar uchun: yon ta'sirsiz va yagona ruxsat etilgan import —
+ * qo'shni JSON fayl (`import X from './y.json'`).
  */
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
 module.exports = function esmRequire(relativePath, exportNames) {
+  const toliqYol = path.join(__dirname, '..', relativePath)
+  const papka = path.dirname(toliqYol)
+
   const source = fs
-    .readFileSync(path.join(__dirname, '..', relativePath), 'utf8')
+    .readFileSync(toliqYol, 'utf8')
+    // JSON importi mutlaq yo'lga aylantiriladi. Nisbiy qoldirilsa
+    // ishlamaydi: kod vaqtinchalik faylda, tizimning temp papkasida
+    // bajariladi va `./y.json` u yerdan izlanardi.
+    .replace(
+      /import\s+(\w+)\s+from\s+['"](\.[^'"]+\.json)['"];?/g,
+      (_, nom, yol) => `const ${nom} = require(${JSON.stringify(path.join(papka, yol))});`,
+    )
     // `async` ham qamrab olinadi: `export async function` shaklini
     // hisobga olmasa, u o'zgarishsiz qolib "Unexpected token 'export'"
     // beradi va sabab moduldan izlanadi, holbuki ayb shu yerda.

@@ -19,6 +19,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const esmRequire = require('./_esm-require')
 
 const ROOT = path.join(__dirname, '..')
 const APP = path.join(ROOT, 'app')
@@ -94,6 +95,25 @@ function yur(joriy, bolaklar) {
 }
 
 yur(APP, [])
+
+/**
+ * Dinamik marshrutlar.
+ *
+ * `manzil()` `[slug]` uchraydigan yo'lni tashlab yuboradi — to'g'ri qaror,
+ * chunki qiymatlar fayl tizimida yo'q. Lekin `/fan/[slug]` ning qiymatlari
+ * MA'LUM: ular `lib/fanlar.js` dagi ro'yxatdan keladi va sahifa
+ * `generateMetadata` bilan o'z sarlavhasini beradi. Ya'ni bu sahifalar
+ * ro'yxatga tushishi kerak, aks holda platformaning yangi kirish nuqtasi
+ * sitemapda umuman ko'rinmay qolardi.
+ *
+ * Faqat OCHIQ fanlar: yopig'ining marshruti yo'q (`dynamicParams = false`)
+ * va u 404 qaytaradi.
+ */
+const { FANLAR } = esmRequire('lib/fanlar.js', ['FANLAR'])
+for (const fan of FANLAR) {
+  if (fan.holat === 'ochiq') royxat.push(`/fan/${fan.slug}`)
+}
+
 royxat.sort()
 
 fs.writeFileSync(CHIQISH, JSON.stringify(royxat, null, 2) + '\n', 'utf8')
