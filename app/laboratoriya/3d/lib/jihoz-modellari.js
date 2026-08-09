@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { suyuqlikYasa } from "./materiallar.js";
+import { EFFEKT_RANGLARI } from "./rang-jadvali.js";
 
 // Matn yorlig'i (label) uchun CanvasTexture yordamchisi.
 // Nega: 3D sahnada HTML elementlar o'rniga CanvasTexture dan yasalgan Sprite ishlatish
@@ -31,13 +32,31 @@ function yorliqYasa(matn = "") {
   const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
   const sprite = new THREE.Sprite(spriteMaterial);
   sprite.scale.set(0.3, 0.075, 1);
+  // Yorliq idishning oldida turadi va raycaster uni birinchi bo'lib topadi.
+  // Bo'sh raycast qo'yilmasa, idishni bosmoqchi bo'lgan foydalanuvchi
+  // aslida yozuvni bosgan bo'lardi.
+  sprite.raycast = () => {};
   return sprite;
+}
+
+// Yorliqni idishning tepasiga qo'yish.
+//
+// Nega -0.06 EMAS: guruh stol sirtida (y = 0.9) turadi, ya'ni -0.06 yorliqni
+// 0.84 ga tushirardi — stol taxtasi esa 0.82 dan 0.9 gacha. Barcha 14 ta
+// jihozning yorlig'i tom ma'noda stol ichida ko'milgan va hech qachon
+// ko'rinmagan. Endi idish og'zidan sal yuqorida turadi.
+function yorliqQosh(group, matn) {
+  const yorliq = yorliqYasa(matn);
+  const ogizY = group.userData?.ogizBalandligi ?? 0.28;
+  yorliq.position.set(0, ogizY + 0.07, 0);
+  group.add(yorliq);
+  return yorliq;
 }
 
 // Suyuqlik va cho'kma sathini balandlik bo'yicha ko'tarish funksiyasi.
 // Nega scale.y va position.y birga o'zgaradi: silindr markazi geometriya markazida joylashadi,
 // scale oshganda position.y yuqoriga ko'tarilmasa, suyuqlik idish tubidan pastga ochilib ketadi.
-export function suyuqlikSathiniYangila(group, ml = 0, rangObyekti = null, chokmaMl = 0, chokmaRang = 0x88bbee, arzonMaterial = false) {
+export function suyuqlikSathiniYangila(group, ml = 0, rangObyekti = null, chokmaMl = 0, chokmaRang = EFFEKT_RANGLARI.chokmaSukut, arzonMaterial = false) {
   if (!group || !group.userData) return;
 
   const suyuqlikMesh = group.userData.suyuqlikMesh;
@@ -104,13 +123,13 @@ function probirkaYasa(materiallar) {
 
   // Suyuqlik va cho'kma mesh
   const suyuqlikGeo = new THREE.CylinderGeometry(0.041, 0.041, 0.22, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
 
   const chokmaGeo = new THREE.CylinderGeometry(0.042, 0.042, 0.22, 32);
-  const chokmaMat = new THREE.MeshStandardMaterial({ color: 0x88bbee, roughness: 0.8 });
+  const chokmaMat = new THREE.MeshStandardMaterial({ color: EFFEKT_RANGLARI.chokmaSukut, roughness: 0.8 });
   const chokmaMesh = new THREE.Mesh(chokmaGeo, chokmaMat);
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
@@ -126,9 +145,7 @@ function probirkaYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Probirka");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Probirka");
 
   return group;
 }
@@ -149,13 +166,13 @@ function stakanYasa(materiallar) {
   group.add(tub);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.076, 0.076, 0.18, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
 
   const chokmaGeo = new THREE.CylinderGeometry(0.077, 0.077, 0.18, 32);
-  const chokmaMat = new THREE.MeshStandardMaterial({ color: 0x88bbee, roughness: 0.8 });
+  const chokmaMat = new THREE.MeshStandardMaterial({ color: EFFEKT_RANGLARI.chokmaSukut, roughness: 0.8 });
   const chokmaMesh = new THREE.Mesh(chokmaGeo, chokmaMat);
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
@@ -171,9 +188,7 @@ function stakanYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Stakan");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Stakan");
 
   return group;
 }
@@ -197,13 +212,13 @@ function konussimonKolbaYasa(materiallar) {
   group.add(kolba);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.05, 0.085, 0.13, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
 
   const chokmaGeo = new THREE.CylinderGeometry(0.051, 0.086, 0.13, 32);
-  const chokmaMat = new THREE.MeshStandardMaterial({ color: 0x88bbee, roughness: 0.8 });
+  const chokmaMat = new THREE.MeshStandardMaterial({ color: EFFEKT_RANGLARI.chokmaSukut, roughness: 0.8 });
   const chokmaMesh = new THREE.Mesh(chokmaGeo, chokmaMat);
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
@@ -219,9 +234,7 @@ function konussimonKolbaYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Konussimon kolba");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Konussimon kolba");
 
   return group;
 }
@@ -242,14 +255,14 @@ function dumaloqTubliKolbaYasa(materiallar) {
   group.add(boyin);
 
   const suyuqlikGeo = new THREE.SphereGeometry(0.08, 32, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.position.y = 0.095;
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
 
   const chokmaGeo = new THREE.SphereGeometry(0.081, 32, 32);
-  const chokmaMat = new THREE.MeshStandardMaterial({ color: 0x88bbee, roughness: 0.8 });
+  const chokmaMat = new THREE.MeshStandardMaterial({ color: EFFEKT_RANGLARI.chokmaSukut, roughness: 0.8 });
   const chokmaMesh = new THREE.Mesh(chokmaGeo, chokmaMat);
   chokmaMesh.position.y = 0.095;
   chokmaMesh.visible = false;
@@ -266,9 +279,7 @@ function dumaloqTubliKolbaYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Dumaloq tubli kolba");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Dumaloq tubli kolba");
 
   return group;
 }
@@ -291,13 +302,13 @@ function kolbaYasa(materiallar) {
   group.add(mesh);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.055, 0.08, 0.12, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
 
   const chokmaGeo = new THREE.CylinderGeometry(0.056, 0.081, 0.12, 32);
-  const chokmaMat = new THREE.MeshStandardMaterial({ color: 0x88bbee, roughness: 0.8 });
+  const chokmaMat = new THREE.MeshStandardMaterial({ color: EFFEKT_RANGLARI.chokmaSukut, roughness: 0.8 });
   const chokmaMesh = new THREE.Mesh(chokmaGeo, chokmaMat);
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
@@ -313,9 +324,7 @@ function kolbaYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Kolba");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Kolba");
 
   return group;
 }
@@ -336,13 +345,13 @@ function kristallizatorYasa(materiallar) {
   group.add(tub);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.116, 0.116, 0.06, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
 
   const chokmaGeo = new THREE.CylinderGeometry(0.117, 0.117, 0.06, 32);
-  const chokmaMat = new THREE.MeshStandardMaterial({ color: 0x88bbee, roughness: 0.8 });
+  const chokmaMat = new THREE.MeshStandardMaterial({ color: EFFEKT_RANGLARI.chokmaSukut, roughness: 0.8 });
   const chokmaMesh = new THREE.Mesh(chokmaGeo, chokmaMat);
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
@@ -358,9 +367,7 @@ function kristallizatorYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Kristallizator");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Kristallizator");
 
   return group;
 }
@@ -391,7 +398,7 @@ function byuretkaYasa(materiallar) {
   group.add(tutqich);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.45, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -408,9 +415,7 @@ function byuretkaYasa(materiallar) {
     jomrakBurchagi: 0, // 0 - yopiq, Math.PI/2 - ochiq
   };
 
-  const yorliq = yorliqYasa("Byuretka");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Byuretka");
 
   return group;
 }
@@ -440,9 +445,7 @@ function tomizgichYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Tomizgich");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Tomizgich");
 
   return group;
 }
@@ -487,9 +490,7 @@ function spirtovkaYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Spirtovka");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Spirtovka");
 
   return group;
 }
@@ -518,9 +519,7 @@ function shtativYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Shtativ");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Shtativ");
 
   return group;
 }
@@ -558,9 +557,7 @@ function probirkaShtativiYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Probirka shtativi");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Probirka shtativi");
 
   return group;
 }
@@ -590,9 +587,7 @@ function termometrYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Termometr");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Termometr");
 
   return group;
 }
@@ -622,9 +617,7 @@ function voronkaYasa(materiallar) {
     tanlanadi: true,
   };
 
-  const yorliq = yorliqYasa("Voronka");
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, "Voronka");
 
   return group;
 }
@@ -646,7 +639,7 @@ function zaxiraModel(kalit, materiallar) {
   group.add(quvur);
 
   const suyuqlikGeo = new THREE.BoxGeometry(0.14, 0.1, 0.12);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -665,17 +658,41 @@ function zaxiraModel(kalit, materiallar) {
   const tozaNom = String(kalit || "Apparat")
     .replace(/-/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
-  const yorliq = yorliqYasa(tozaNom);
-  yorliq.position.set(0, -0.06, 0);
-  group.add(yorliq);
+  yorliqQosh(group, tozaNom);
 
   return group;
+}
+
+// Jihozning tanasiga soya tashlashni yoqish.
+//
+// Nega alohida qadam: renderer'da shadowMap yoqilgan, yorug'lik castShadow
+// qiladi va stol receiveShadow oladi — lekin BIRORTA jihoz meshiga
+// castShadow qo'yilmagan edi. Ya'ni GPU har kadrda soya xaritasini
+// hisoblardi, ekranga esa hech nima tushmasdi va idishlar stol ustida
+// turgandek emas, havoda suzayotgandek ko'rinardi.
+//
+// Suyuqlik va cho'kma chetda qoladi: ular shaffof, lekin soya xaritasi
+// shaffoflikni bilmaydi va ular to'ldirilgan qora dog' tashlardi.
+function soyalarniYoq(group) {
+  group.traverse((child) => {
+    if (!child.isMesh) return;
+    if (child === group.userData.suyuqlikMesh) return;
+    if (child === group.userData.chokmaMesh) return;
+    child.castShadow = true;
+    child.receiveShadow = true;
+  });
 }
 
 // Jihoz turiga qarab mos protsedural 3D model yaratish dispetcher funksiyasi.
 // Nega: tashqi .glb / .gltf yuklamasdan, barcha geometriya Three.js ichida yasalishi
 // tarmoq trafigini va yuklanish vaqtini 10 barobargacha tejaydi.
 export function jihozYasa(kalit, materiallar) {
+  const group = modelYasa(kalit, materiallar);
+  soyalarniYoq(group);
+  return group;
+}
+
+function modelYasa(kalit, materiallar) {
   switch (kalit) {
     case "probirka":
       return probirkaYasa(materiallar);

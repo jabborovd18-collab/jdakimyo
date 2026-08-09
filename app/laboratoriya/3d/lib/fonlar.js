@@ -6,7 +6,11 @@
 // yo'qoladi. Bitta "to'g'ri" fon yo'q, shuning uchun tanlov beriladi.
 //
 // Har bir mavzu SAHNANING hamma rang manbasini belgilaydi: fon, tuman,
-// orqa devor, stol, shisha va uchala yorug'lik. Ular useSahna da bitta
+// pol, orqa devor, stol, shisha va uchala yorug'lik.
+//
+// `muhitKuchi` — muhit xaritasining (envMap) kuchi. Shisha aks ettirgan
+// yorug'liksiz shisha bo'lib ko'rinmaydi, lekin qorong'u mavzuda to'liq
+// kuch bersak idishlar fondan ajralib, sun'iy yaltiraydi. Ular useSahna da bitta
 // joyda qo'llanadi — yangi mavzu qo'shish uchun shu faylga yozish kifoya.
 
 export const FONLAR = {
@@ -18,6 +22,8 @@ export const FONLAR = {
     tumanZichligi: 0.085,
     devor: 0x181324,
     stol: 0x2a2438,
+    pol: 0x0d0a17,
+    muhitKuchi: 0.35,
     shisha: 0xcfe8ff,
     // Sahna ustidagi yordam yozuvlari fonga qarab o'qilishi kerak
     matnQorongi: false,
@@ -37,6 +43,8 @@ export const FONLAR = {
     tumanZichligi: 0.04,
     devor: 0xdbe3ee,
     stol: 0xb9c3d1,
+    pol: 0xdfe5ec,
+    muhitKuchi: 1.0,
     // Oq fonda och-havorang shisha ko'rinmaydi, shuning uchun ko'kroq
     shisha: 0x9dbede,
     matnQorongi: true,
@@ -55,6 +63,8 @@ export const FONLAR = {
     tumanZichligi: 0.05,
     devor: 0x6b7280,
     stol: 0x4b5563,
+    pol: 0x5b626d,
+    muhitKuchi: 0.8,
     shisha: 0xd8e6f2,
     matnQorongi: false,
     yorugliklar: {
@@ -72,6 +82,8 @@ export const FONLAR = {
     tumanZichligi: 0.07,
     devor: 0x123754,
     stol: 0x1e3a5f,
+    pol: 0x0c2338,
+    muhitKuchi: 0.5,
     shisha: 0xd6ecff,
     matnQorongi: false,
     yorugliklar: {

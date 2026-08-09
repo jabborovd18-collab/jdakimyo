@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { KAMERA, BOSHQARUV, STOL, SLOTLAR } from "../lib/sozlama.js";
 import {
   materiallarniYarat,
@@ -142,12 +143,31 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.shadowMap.enabled = !arzonRejim;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Tonemapping'siz sahna yassi va "kompyuterda chizilgan" bo'lib ko'rinardi:
+    // yorug' joylar oq bo'lib kuyib ketardi, oraliq soyalar esa siqilib turardi.
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
     renderer.domElement.style.display = "block";
     konteynerRef.current.innerHTML = "";
     konteynerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // 3.5. Muhit xaritasi (envMap)
+    //
+    // Bu sahnadagi eng katta o'zgarish. Shishani shisha qiladigan narsa —
+    // uning sirtida aks etgan atrof. Aks etadigan narsa bo'lmasa, qanchalik
+    // to'g'ri `transmission` va `ior` bersak ham, idish rangsiz silindr
+    // bo'lib qolaveradi — probirka bo'sh stolda aynan shuning uchun zo'rg'a
+    // bilinardi.
+    //
+    // RoomEnvironment protsedural: rasm yuklanmaydi, tarmoqqa chiqilmaydi.
+    // PMREM undan bir marta xarita yasaydi, keyin generator kerak emas.
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const muhitXaritasi = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = muhitXaritasi;
+    pmrem.dispose();
 
     // 4. OrbitControls
     const controls = new OrbitControls(kamera, renderer.domElement);
@@ -181,6 +201,17 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       mainLight.shadow.mapSize.height = 1024;
       mainLight.shadow.camera.near = 0.5;
       mainLight.shadow.camera.far = 15;
+      // Soya kamerasi sukut bo'yicha ±5 ni qamraydi, stol esa atigi 3.2 keng.
+      // Ya'ni 1024px xaritaning yarmidan ko'pi bo'sh joyga sarflanardi va
+      // probirkaning soyasi bir necha pikselga tushib, xarrak bo'lib chiqardi.
+      mainLight.shadow.camera.left = -2.6;
+      mainLight.shadow.camera.right = 2.6;
+      mainLight.shadow.camera.top = 2.6;
+      mainLight.shadow.camera.bottom = -2.6;
+      // Bias'siz yupqa shisha devor o'z-o'ziga soya tashlab, sirtida
+      // chiziqli dog'lar (shadow acne) paydo bo'ladi.
+      mainLight.shadow.bias = -0.0005;
+      mainLight.shadow.normalBias = 0.02;
     }
     scene.add(mainLight);
 
@@ -193,20 +224,49 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     scene.add(fillLight);
 
     // 6. Materiallar
-    const materiallar = materiallarniYarat(fonKalitiRef.current);
+    const materiallar = materiallarniYarat(fonKalitiRef.current, arzonRejim);
     materiallarRef.current = materiallar;
 
-    // 7. Stol va Orqa devor yaratish
+    // 7. Xona: pol, stol va orqa devor
+    //
+    // Ilgari sahnada faqat bitta yassi taxta va kadrdan tashqarida qolgan
+    // devor bor edi — stol havoda osilib turardi va soyaning tushadigan
+    // joyi yo'q edi. Pol va oyoqlar qo'shilishi bilan idishlarning qayerda
+    // turgani ko'zga ko'rinadigan bo'ladi.
+    const polGeo = new THREE.PlaneGeometry(14, 14);
+    const pol = new THREE.Mesh(polGeo, materiallar.pol);
+    pol.rotation.x = -Math.PI / 2;
+    pol.receiveShadow = !arzonRejim;
+    scene.add(pol);
+
     const stolGeo = new THREE.BoxGeometry(STOL.eni, STOL.qalinligi, STOL.boyi);
     const stol = new THREE.Mesh(stolGeo, materiallar.yogoch);
     stol.position.set(0, STOL.balandligi - STOL.qalinligi / 2, 0);
     stol.receiveShadow = !arzonRejim;
+    stol.castShadow = !arzonRejim;
     scene.add(stol);
 
-    const devorGeo = new THREE.PlaneGeometry(10, 6);
-    const devorMat = new THREE.MeshStandardMaterial({ color: fon.devor, roughness: 0.9 });
+    // To'rtta oyoq. Bitta geometriya to'rt marta ishlatiladi — alohida
+    // yasalsa GPU'da to'rt nusxa yotardi.
+    const oyoqBalandligi = STOL.balandligi - STOL.qalinligi;
+    const oyoqGeo = new THREE.BoxGeometry(0.07, oyoqBalandligi, 0.07);
+    const oyoqX = STOL.eni / 2 - 0.1;
+    const oyoqZ = STOL.boyi / 2 - 0.1;
+    for (const [x, z] of [[-oyoqX, oyoqZ], [oyoqX, oyoqZ], [-oyoqX, -oyoqZ], [oyoqX, -oyoqZ]]) {
+      const oyoq = new THREE.Mesh(oyoqGeo, materiallar.yogoch);
+      oyoq.position.set(x, oyoqBalandligi / 2, z);
+      oyoq.castShadow = !arzonRejim;
+      scene.add(oyoq);
+    }
+
+    const devorGeo = new THREE.PlaneGeometry(14, 8);
+    const devorMat = new THREE.MeshStandardMaterial({
+      color: fon.devor,
+      roughness: 0.9,
+      envMapIntensity: (fon.muhitKuchi ?? 0.5) * 0.4,
+    });
     const devor = new THREE.Mesh(devorGeo, devorMat);
-    devor.position.set(0, 3, -1.8);
+    devor.position.set(0, 4, -2.4);
     scene.add(devor);
 
     // Fon almashganda shu obyektlarning rangi yangilanadi
@@ -277,8 +337,14 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       });
 
       stolGeo.dispose();
+      oyoqGeo.dispose();
+      polGeo.dispose();
       devorGeo.dispose();
       devorMat.dispose();
+      // PMREM generatori darrov tozalangan, lekin u yasagan xarita sahna
+      // yashaguncha kerak — u shu yerda bo'shatiladi.
+      muhitXaritasi.dispose();
+      scene.environment = null;
       materiallarniTozala(materiallar);
 
       if (rendererRef.current) {
@@ -310,6 +376,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     }
 
     qismlar.devorMat.color.setHex(fon.devor);
+    qismlar.devorMat.envMapIntensity = (fon.muhitKuchi ?? 0.5) * 0.4;
     qismlar.ambientLight.color.setHex(fon.yorugliklar.muhit.rang);
     qismlar.ambientLight.intensity = fon.yorugliklar.muhit.kuch;
     qismlar.mainLight.color.setHex(fon.yorugliklar.asosiy.rang);

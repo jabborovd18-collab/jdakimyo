@@ -9,64 +9,96 @@ import { fonOl } from "./fonlar.js";
 // `fonKaliti` — tanlangan fon mavzusi (fonlar.js). Shisha va stol rangi
 // fonga bog'liq: oq fonda och-havorang shisha ham, to'q binafsha stol ham
 // o'rinsiz ko'rinadi.
-export function materiallarniYarat(fonKaliti) {
+//
+// `arzonRejim` — kuchsiz qurilma aniqlanganda true. Ilgari bu yerda
+// `shishaArzon` degan ikkinchi material yaratilardi, lekin uni HECH KIM
+// chaqirmasdi: jihoz-modellari.js har doim `materiallar.shisha` ni olardi.
+// Ya'ni arzon rejim shishaga umuman ta'sir qilmagan. Endi qaysi material
+// yaratilishi shu yerda hal bo'ladi va chaqiruvchi tomon o'zgarmaydi.
+export function materiallarniYarat(fonKaliti, arzonRejim = false) {
   const fon = fonOl(fonKaliti);
+  const muhitKuchi = fon.muhitKuchi ?? 0.5;
 
-  const shisha = new THREE.MeshPhysicalMaterial({
-    color: fon.shisha,
-    transparent: true,
-    opacity: 0.25,
-    roughness: 0.05,
-    metalness: 0,
-    transmission: 0.9,
-    thickness: 0.4,
-    ior: 1.5,
-    side: THREE.DoubleSide,
-  });
-
-  // Kuchsiz qurilmalar va mobil telefonlar uchun arzon shisha materiali.
-  // Nega: MeshPhysicalMaterial dagi transmission va ior hisob-kitobi mobil GPU da
-  // juda qimmatga tushadi va FPS ni tushirib yuboradi.
-  const shishaArzon = new THREE.MeshStandardMaterial({
-    color: fon.shisha,
-    transparent: true,
-    opacity: 0.3,
-    roughness: 0.1,
-    metalness: 0,
-    side: THREE.DoubleSide,
-  });
+  // Shisha. Nega `opacity` 1 va shaffoflik `transmission` orqali beriladi:
+  // ikkalasi birga ishlatilganda ular bir-birini yeydi — transmission nurni
+  // o'tkazadi, opacity esa o'sha o'tgan nurni yana susaytiradi va idish
+  // butunlay ko'rinmay qoladi. Aynan shuning uchun probirka bo'sh sahnada
+  // zo'rg'a bilinardi.
+  //
+  // `thickness` ham kamaytirildi: 0.4 probirkaning radiusidan (0.045) o'n
+  // barobar katta edi, ya'ni ingichka naycha qalin shisha g'o'la kabi
+  // hisoblanib, ichidagi hamma narsani qoraytirardi.
+  const shisha = arzonRejim
+    ? new THREE.MeshStandardMaterial({
+        color: fon.shisha,
+        transparent: true,
+        opacity: 0.34,
+        roughness: 0.1,
+        metalness: 0,
+        envMapIntensity: muhitKuchi,
+        side: THREE.DoubleSide,
+      })
+    : new THREE.MeshPhysicalMaterial({
+        color: fon.shisha,
+        transparent: true,
+        opacity: 1,
+        roughness: 0.06,
+        metalness: 0,
+        transmission: 0.92,
+        thickness: 0.03,
+        ior: 1.5,
+        envMapIntensity: muhitKuchi,
+        side: THREE.DoubleSide,
+      });
 
   const metall = new THREE.MeshStandardMaterial({
     color: RANGLAR.metall,
     roughness: 0.3,
     metalness: 0.85,
+    envMapIntensity: muhitKuchi,
   });
 
   const chinni = new THREE.MeshStandardMaterial({
     color: 0xfafafa,
     roughness: 0.6,
     metalness: 0.05,
+    envMapIntensity: muhitKuchi,
   });
 
   const yogoch = new THREE.MeshStandardMaterial({
     color: fon.stol,
     roughness: 0.8,
     metalness: 0.1,
+    envMapIntensity: muhitKuchi * 0.6,
   });
 
   const rezina = new THREE.MeshStandardMaterial({
     color: 0x1e293b,
     roughness: 0.9,
     metalness: 0,
+    envMapIntensity: muhitKuchi * 0.4,
+  });
+
+  // Pol. Stol ostida hech nima bo'lmagani uchun sahna "havoda osilgan taxta"
+  // bo'lib ko'rinardi — soyaning tushadigan joyi ham yo'q edi.
+  const pol = new THREE.MeshStandardMaterial({
+    color: fon.pol ?? fon.fon,
+    roughness: 0.95,
+    metalness: 0,
+    envMapIntensity: muhitKuchi * 0.35,
   });
 
   return {
     shisha,
-    shishaArzon,
     metall,
     chinni,
     yogoch,
     rezina,
+    pol,
+    // Jihoz modellari suyuqlik materialini o'zi yasaydi — arzon rejimni
+    // shu bayroq orqali biladi, aks holda unga alohida argument uzatish
+    // uchun `jihozYasa` imzosini butun kod bo'ylab o'zgartirish kerak edi.
+    arzon: arzonRejim,
   };
 }
 
@@ -77,10 +109,20 @@ export function materiallarniYarat(fonKaliti) {
 export function materiallarniFongaMoslash(materiallar, fonKaliti) {
   if (!materiallar) return;
   const fon = fonOl(fonKaliti);
+  const muhitKuchi = fon.muhitKuchi ?? 0.5;
 
   materiallar.shisha?.color.setHex(fon.shisha);
-  materiallar.shishaArzon?.color.setHex(fon.shisha);
   materiallar.yogoch?.color.setHex(fon.stol);
+  materiallar.pol?.color.setHex(fon.pol ?? fon.fon);
+
+  // Muhit xaritasining kuchi ham mavzu bilan birga o'zgaradi: qorong'u
+  // sahnada to'liq kuch bersak, idishlar fonda sun'iy yaltirab turadi.
+  if (materiallar.shisha) materiallar.shisha.envMapIntensity = muhitKuchi;
+  if (materiallar.metall) materiallar.metall.envMapIntensity = muhitKuchi;
+  if (materiallar.chinni) materiallar.chinni.envMapIntensity = muhitKuchi;
+  if (materiallar.yogoch) materiallar.yogoch.envMapIntensity = muhitKuchi * 0.6;
+  if (materiallar.rezina) materiallar.rezina.envMapIntensity = muhitKuchi * 0.4;
+  if (materiallar.pol) materiallar.pol.envMapIntensity = muhitKuchi * 0.35;
 }
 
 // Har bir yangi aralashma (eritma) uchun dinamik material yaratish funksiyasi.
