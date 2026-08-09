@@ -185,6 +185,8 @@ export async function POST(request) {
       matn,
       username: xabar.from?.username || null,
       ism: xabar.from?.first_name || null,
+      // Quiz havolasi ko'prikka o'zgarishsiz uzatilishi kerak
+      yangilik,
     })
   } catch (e) {
     console.error('[Telegram webhook]', e.message)
@@ -501,10 +503,20 @@ async function guruhOzgardi({ chatId, chat, holat, kim }) {
   }
 }
 
-async function buyruqniBajar({ chatId, matn, username, ism }) {
+async function buyruqniBajar({ chatId, matn, username, ism, yangilik }) {
   // `/start ABC123` — deep link orqali kelgan kod
   const start = matn.match(/^\/start(?:@\w+)?\s+(\S+)$/)
-  if (start) return bogla({ chatId, kod: start[1], username })
+  if (start) {
+    // `q_` — QUIZ havolasi, hisob ulash kodi emas. Bu farq muhim:
+    // ulashilgan quiz havolasini bosgan odamning kodi hisob ulash
+    // kodi deb o'qilsa, "kod noto'g'ri" xatosi chiqib, quiz esa
+    // ochilmasdi.
+    if (/^q_/i.test(start[1])) {
+      await koprukka(yangilik, chatId)
+      return
+    }
+    return bogla({ chatId, kod: start[1], username })
+  }
 
   // Doimiy klaviaturadagi tugmalar oddiy MATN bo'lib keladi, buyruq
   // emas — shuning uchun ular buyruqlar bilan bir qatorda tekshiriladi.
