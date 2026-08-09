@@ -292,7 +292,10 @@ export default function Home() {
     { href: "/#fanlar", label: "Fanlar" },
     { href: "/ilmiy/maqolalar/muhokama", label: "Dolzarb mavzular" },
     { href: "/laboratoriya", label: "Laboratoriya" },
-    { href: "/oquv/video-darsliklar", label: "Video va testlar" },
+    // Bo'lim nomi "video-darsliklar" bo'lsa ham, videolar hali TAYYOR EMAS
+    // (o'sha sahifada "tez kunda" deb turibdi). Menyuda "Video" deyish —
+    // bosilgach yo'q narsani va'da qilish demak.
+    { href: "/oquv/video-darsliklar", label: "Testlar" },
     { href: "/kanallar", label: "Kanallar" },
   ]
 
@@ -668,9 +671,9 @@ export default function Home() {
           />
           <BolimKarta
             href="/oquv/video-darsliklar"
-            ikon="video"
-            nom="Video darsliklar va testlar"
-            tavsif="Darslarni ko'ring, bilimingizni sinang, natijani PDF qilib oling"
+            ikon="quiz"
+            nom="Testlar"
+            tavsif="440+ savol, ustozlar tuzgan testlar, natijalar PDF shaklida. Video darsliklar tayyorlanmoqda"
           />
           <BolimKarta
             href="/ilmiy/maqolalar/muhokama"

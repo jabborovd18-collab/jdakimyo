@@ -924,6 +924,84 @@ html[data-fon] body {
 }
 .v3-yonalish:hover .v3-yonalish-oyoq { color: var(--v3-urgu); }
 
+/* ═══ QO'LLANMA SAHIFASI ═══ */
+.v3-blok {
+  display: flex; flex-direction: column;
+  padding: 22px; border-radius: 16px;
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+}
+
+/* Belgili ro'yxat. `is-yoq` — hali tayyor bo'lmagan qator: xiralashadi
+   va yonida qulf turadi. Bu bo'yoq emas, ma'lumot — sahifaning butun
+   mazmuni "nima bor, nima yo'q" ni ajratishga qurilgan. */
+.v3-royxat { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px; }
+.v3-royxat li {
+  display: flex; align-items: flex-start; gap: 9px;
+  font-size: 13px; line-height: 1.5;
+  color: var(--v3-matn);
+}
+.v3-royxat li > svg { color: var(--v3-urgu); flex-shrink: 0; margin-top: 2px; }
+.v3-royxat li.is-yoq { color: var(--v3-xira); }
+.v3-royxat li.is-yoq > svg { color: var(--v3-xira); opacity: .7; }
+
+.v3-blok-havola {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: auto; padding-top: 14px;
+  border-top: 1px solid var(--v3-chiziq);
+  font-size: 13px; font-weight: 600;
+  color: var(--v3-urgu);
+  transition: gap .2s;
+}
+.v3-blok:hover .v3-blok-havola { gap: 11px; }
+
+.v3-qadamlar { display: flex; flex-direction: column; gap: 11px; margin-top: 16px; }
+.v3-qadamlar li { display: flex; align-items: flex-start; gap: 11px; font-size: 13px; line-height: 1.5; }
+.v3-qadamlar a { color: var(--v3-xira); transition: color .18s; }
+.v3-qadamlar a:hover { color: var(--v3-urgu); }
+.v3-qadam-raqam {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 21px; height: 21px; border-radius: 50%; flex-shrink: 0;
+  font-size: 11px; font-weight: 700; font-family: ui-monospace, monospace;
+  color: var(--v3-urgu);
+  border: 1px solid color-mix(in srgb, var(--v3-urgu) 35%, transparent);
+  background: color-mix(in srgb, var(--v3-urgu) 10%, transparent);
+}
+
+.v3-ogoh {
+  padding: 20px; border-radius: 14px;
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-fon-2);
+}
+.v3-ogoh-ikon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+  color: var(--v3-xira);
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+}
+
+.v3-savol {
+  border-radius: 13px;
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+  transition: border-color .2s;
+}
+.v3-savol.is-ochiq { border-color: color-mix(in srgb, var(--v3-urgu) 40%, transparent); }
+.v3-savol-tugma {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; width: 100%; padding: 15px 18px;
+  font-size: 14.5px; font-weight: 600; text-align: left;
+  color: var(--v3-matn);
+}
+.v3-savol-tugma > svg { color: var(--v3-xira); flex-shrink: 0; }
+.v3-savol.is-ochiq .v3-savol-tugma > svg { color: var(--v3-urgu); }
+.v3-javob {
+  padding: 0 18px 17px;
+  font-size: 13.5px; line-height: 1.65;
+  color: var(--v3-xira);
+}
+
 /* ═══ ANIMATSIYALAR ═══ */
 @keyframes v3-nafas { 0%,100% { opacity: .55; transform: scale(1) } 50% { opacity: 1; transform: scale(1.08) } }
 @keyframes v3-pulse { 0%,100% { opacity: .4 } 50% { opacity: .8 } }

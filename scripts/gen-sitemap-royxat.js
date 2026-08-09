@@ -44,13 +44,31 @@ function metadataBormi(kod) {
 }
 
 /**
- * Sahifa canonical bilan boshqa manzilga yo'naltirganmi.
+ * Sahifa canonical bilan BOSHQA manzilga yo'naltirganmi.
+ *
  * Takroriy birikma sahifalari shunday: o'zi turadi, lekin qidiruv
  * tizimiga "asosiy nusxa u yerda" deydi. Bunday manzilni sitemapga
  * qo'yish qarama-qarshi ishora bo'lardi.
+ *
+ * MUHIM FARQ: canonical o'ziga qaratilgan bo'lsa — bu takrorlanish
+ * belgisi emas, aksincha to'g'ri yozilgan sahifa. Ilgari bu funksiya
+ * canonical borligining O'ZIGA qarab tashlab yuborardi va o'ziga
+ * canonical qo'ygan sahifa sitemapga umuman tushmasdi. Endi qiymat
+ * o'qiladi va sahifaning o'z manzili bilan solishtiriladi.
+ *
+ * @param {string} kod   sahifa fayli
+ * @param {string} ozYol sahifaning manzili ('/ishlashi')
  */
-function canonicalBoshqami(kod) {
-  return /alternates:\s*\{\s*canonical:/.test(kod)
+function canonicalBoshqami(kod, ozYol) {
+  const m = /canonical:\s*['"`]([^'"`]+)['"`]/.exec(kod)
+  if (!m) {
+    // Canonical bor, lekin qiymati satr emas (o'zgaruvchi yoki shablon).
+    // Bunda aniqlay olmaymiz — ehtiyot yuzasidan chetda qoldiramiz.
+    return /alternates:\s*\{\s*canonical:/.test(kod)
+  }
+
+  const qiymat = m[1].replace(/^https?:\/\/[^/]+/, '').replace(/\/$/, '') || '/'
+  return qiymat !== (ozYol || '/')
 }
 
 /**
@@ -84,13 +102,15 @@ function yur(joriy, bolaklar) {
 
     const kod = fs.readFileSync(toliq, 'utf8')
     if (!metadataBormi(kod)) continue
-    if (canonicalBoshqami(kod)) continue
 
     const m = manzil(bolaklar)
     if (m === null) continue
     if (YOPIQ_BOLIMLAR.has(bolaklar.find((b) => !b.startsWith('(')))) continue
 
-    royxat.push(m === '' ? '/' : m)
+    const yol = m === '' ? '/' : m
+    if (canonicalBoshqami(kod, yol)) continue
+
+    royxat.push(yol)
   }
 }
 
