@@ -66,6 +66,16 @@ export async function POST(request) {
       return NextResponse.json({ ok: true })
     }
 
+    // QUIZ JAVOBI. Guruhda so'rovnomani bosgan odamning javobi —
+    // chat'i yo'q, faqat `poll_id` va `user` bor. Hisob TEKSHIRILMAYDI:
+    // guruhdagi o'quvchi quizni yechish uchun avval ro'yxatdan
+    // o'tishga majbur bo'lsa, quizning ma'nosi qolmaydi. Aynan
+    // shu — botning guruhdagi asosiy jozibasi.
+    if (yangilik?.poll_answer) {
+      await koprukka(yangilik, null, { hisobTekshir: false })
+      return NextResponse.json({ ok: true })
+    }
+
     const xabar = yangilik?.message
     const chatId = xabar?.chat?.id
 
@@ -77,8 +87,24 @@ export async function POST(request) {
     // beradi. Har xabarga javob yozadigan bot guruhdan darrov
     // chiqarib yuboriladi.
     if (xabar.chat?.type === 'group' || xabar.chat?.type === 'supergroup') {
-      if (/^\/iqtibos(@\w+)?$/.test(xabar.text.trim())) {
+      const guruhMatn = (xabar.text || '').trim()
+
+      if (/^\/iqtibos(@\w+)?$/.test(guruhMatn)) {
         await guruhgaIqtibos(String(chatId))
+        return NextResponse.json({ ok: true })
+      }
+
+      // GURUHDA BOT SUHBATGA ARALASHMAYDI — faqat buyruqlar uzatiladi.
+      // Har xabarni Python botga jo'natsak, ikki zarar bo'lardi:
+      // bepul Render kvotasi behuda yeyilardi va bot suhbatga
+      // aralashib qolish xavfi tug'ilardi. Buyruq bo'lmagan xabar
+      // shu yerda to'xtaydi.
+      //
+      // Hisob tekshirilmaydi: guruhning o'zi hech qachon "ulangan"
+      // bo'lmaydi. Buyruqni kim yuborgani va unga ruxsat bor-yo'qligini
+      // Python bot o'zi hal qiladi.
+      if (guruhMatn.startsWith('/')) {
+        await koprukka(yangilik, chatId, { hisobTekshir: false })
       }
       return NextResponse.json({ ok: true })
     }
@@ -127,40 +153,48 @@ export async function POST(request) {
  * sababini biladi: aks holda bot butunlay jim qolib, odam "buzilibdi"
  * deb o'ylardi.
  */
-async function koprukka(yangilik, chatId) {
-  const id = String(chatId || '')
-  if (!id) return
+async function koprukka(yangilik, chatId, { hisobTekshir = true } = {}) {
+  const id = chatId ? String(chatId) : ''
+
+  // Javob yozib bo'lmaydigan yangiliklar ham bor (`poll_answer` da
+  // chat yo'q). Ular jimgina uzatiladi.
+  const javobBer = (matn, qoshimcha) =>
+    id ? telegramYubor(id, matn, qoshimcha) : undefined
 
   if (!kopruSozlanganmi()) {
-    return telegramYubor(
-      id,
+    return javobBer(
       'Bunday buyruq yo\'q. Pastdagi tugmalardan foydalaning yoki /yordam yozing.',
       { klaviatura: true }
     )
   }
 
-  // KIRISH TALABI. Quiz va PDF — hisobga bog'langan xizmatlar: ular
-  // tanga sarflaydi va foydalanish tarixi kabinetda ko'rinadi. Tekshiruv
-  // ATAYLAB shu yerda, Python botda emas — u holda har handler o'zi
-  // tekshirishi kerak bo'lardi va yangi imkoniyat qo'shilganda tekshiruv
-  // qo'shish esdan chiqib, xizmat ulanmagan odamga ochilib qolardi.
-  const ruxsat = await botRuxsati(id)
-  if (!ruxsat.ok) return ruxsat.javob
+  // KIRISH TALABI — faqat SHAXSIY chatda. Quiz va PDF hisobga
+  // bog'langan xizmatlar: tanga sarflaydi va tarix kabinetda ko'rinadi.
+  // Guruh va quiz javoblarida esa bu tekshiruv o'rinsiz: guruhning
+  // o'zi hech qachon "ulangan" bo'lmaydi, o'quvchini esa javob
+  // berishdan oldin ro'yxatdan o'tishga majburlash quizning ma'nosini
+  // yo'qotadi.
+  //
+  // Tekshiruv ATAYLAB shu yerda, Python botda emas — u holda har
+  // handler o'zi tekshirishi kerak bo'lardi va yangi imkoniyat
+  // qo'shilganda esdan chiqib, xizmat ochilib qolardi.
+  if (hisobTekshir) {
+    const ruxsat = await botRuxsati(id)
+    if (!ruxsat.ok) return ruxsat.javob
+  }
 
   const natija = await koprukkaUzat(yangilik)
   if (natija.ok) return
 
   if (natija.sabab === 'uxlayapti') {
-    return telegramYubor(
-      id,
+    return javobBer(
       '⏳ Xizmat uyg\'onmoqda — bir daqiqadan keyin qayta yuboring.\n\n' +
         'Bu uzoq vaqt foydalanilmaganda bir marta sodir bo\'ladi.',
       { klaviatura: true }
     )
   }
 
-  return telegramYubor(
-    id,
+  return javobBer(
     '⚠️ Quiz va PDF xizmati hozir ishlamayapti. Birozdan keyin urinib ko\'ring.',
     { klaviatura: true }
   )
@@ -750,7 +784,13 @@ function yordam(p) {
       '/uzish — hisobni uzish\n\n' +
       '<b>🧩 Quiz yaratish</b> (tanga bilan)\n' +
       'Test faylini yuboring (.txt, .docx, .xlsx). To\'g\'ri javob ' +
-      '<code>+</code>, noto\'g\'rilari <code>-</code> bilan belgilanadi.\n\n' +
+      '<code>+</code>, noto\'g\'rilari <code>-</code> bilan belgilanadi.\n' +
+      '/newquiz — yangi quiz · /myquiz — saqlanganlari\n\n' +
+      '<b>👥 Guruhda o\'tkazish</b>\n' +
+      'Botni guruhga qo\'shing va u yerda <code>/quiz KOD</code> deb yozing. ' +
+      'Kodni /myquiz dan olasiz. Savollar birma-bir chiqadi, oxirida ' +
+      'reyting e\'lon qilinadi.\n' +
+      'Guruhda: /quizstats — statistika, /natija — oxirgi reyting\n\n' +
       '<b>📑 PDF yaratish</b> (bepul)\n' +
       'Rasmlarni ketma-ket yuboring, keyin tugmani bosing.\n\n' +
       '<b>🎓 Prezentatsiya</b> (tanga bilan)\n' +

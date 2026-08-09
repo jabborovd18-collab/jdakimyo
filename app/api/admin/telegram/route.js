@@ -24,6 +24,9 @@ import {
 const SAYT = 'https://www.jdakimyo.uz'
 
 const BUYRUQLAR = [
+  { command: 'newquiz', description: 'Yangi quiz yaratish' },
+  { command: 'myquiz', description: 'Mening quizlarim' },
+  { command: 'quizstats', description: 'Quiz natijalari' },
   { command: 'xabarlar', description: 'Oxirgi bildirishnomalar' },
   { command: 'holat', description: "Hisob ma'lumotlari" },
   { command: 'ilova', description: 'Mobil ilovani yuklab olish' },
