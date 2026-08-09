@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { EFFEKT_DAVOMIYLIGI, ZARRA_SONI } from "./sozlama.js";
+import { EFFEKT_RANGLARI } from "./rang-jadvali.js";
 import { suyuqlikSathiniYangila } from "./jihoz-modellari.js";
 
 // 1. PUFAK EFFEKTI — suyuqlik tubidan gaz pufakchalari ko'tarilishi.
@@ -27,7 +28,7 @@ export function pufakEffekti(sahna, idish, sozlama = {}) {
   geo.setAttribute("position", new THREE.BufferAttribute(pozitsiyalar, 3));
 
   const mat = new THREE.PointsMaterial({
-    color: 0xffffff,
+    color: EFFEKT_RANGLARI.pufak,
     size: 0.008,
     transparent: true,
     opacity: 0.8,
@@ -73,7 +74,7 @@ export function chokmaEffekti(sahna, idish, sozlama = {}) {
   const zarraSoni = sozlama.zarraSoni || ZARRA_SONI.chokma || 120;
   const davomiylik = sozlama.davomiylik || EFFEKT_DAVOMIYLIGI.chokma || 4.0;
   const kuch = sozlama.kuch ?? 1.0;
-  const rang = sozlama.rang || 0x88bbee;
+  const rang = sozlama.rang || EFFEKT_RANGLARI.chokmaSukut;
 
   const pozitsiyalar = new Float32Array(zarraSoni * 3);
   const ogizY = idish?.userData?.suyuqlikMaxBalandlik || 0.2;
@@ -170,7 +171,7 @@ export function bugEffekti(sahna, idish, sozlama = {}) {
   geo.setAttribute("position", new THREE.BufferAttribute(pozitsiyalar, 3));
 
   const mat = new THREE.PointsMaterial({
-    color: 0xe2e8f0,
+    color: EFFEKT_RANGLARI.bug,
     size: 0.015,
     transparent: true,
     opacity: 0.5,
@@ -234,7 +235,7 @@ export function alangaEffekti(sahna, idish, sozlama = {}) {
 // 6. QIZISH EFFEKTI — qizil-to'q sariq PointLight vaqtincha yonishi.
 export function qizishEffekti(sahna, idish, sozlama = {}) {
   const davomiylik = 2.5;
-  const light = new THREE.PointLight(0xf97316, 1.5, 1.8);
+  const light = new THREE.PointLight(EFFEKT_RANGLARI.qizish, 1.5, 1.8);
   if (idish) {
     light.position.set(0, 0.1, 0);
     idish.add(light);
@@ -281,7 +282,7 @@ export function hidEffekti(sahna, idish, sozlama = {}) {
   const ogizY = idish?.userData?.ogizBalandligi || 0.28;
 
   const geo = new THREE.TorusGeometry(0.04, 0.004, 12, 32);
-  const mat = new THREE.MeshBasicMaterial({ color: 0xc4b5fd, transparent: true, opacity: 0.7 });
+  const mat = new THREE.MeshBasicMaterial({ color: EFFEKT_RANGLARI.hid, transparent: true, opacity: 0.7 });
   const halqa = new THREE.Mesh(geo, mat);
   halqa.rotation.x = Math.PI / 2;
   halqa.position.y = ogizY;

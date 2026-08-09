@@ -25,6 +25,44 @@ function hexDanCss(hexSon) {
   return `#${son.toString(16).padStart(6, "0")}`;
 }
 
+// Modda nishonini holatiga qarab boshqacha shaklda chizish.
+//
+// Nega faqat rang yetmaydi: 242 moddaning ko'pchiligi — kislotalar, natriy va
+// kaliy tuzlari — haqiqatan ham rangsiz. Ularga o'ylab topilgan rang berish
+// noto'g'ri bo'lardi (talaba HCl ni yashil deb eslab qolardi), lekin bir xil
+// oqish nuqta ham javonni o'qib bo'lmas qiladi. Shakl kimyoviy ma'lumot
+// qo'shadi: to'ldirilgan doira — suyuqlik yoki eritma, kvadrat — qattiq
+// modda, ichi bo'sh halqa — gaz.
+function NishonShakli({ korinish, rang }) {
+  if (korinish.holat === "gaz") {
+    return (
+      <span
+        className="h-4 w-4 shrink-0 rounded-full border-2 shadow-sm"
+        style={{ borderColor: rang, backgroundColor: "transparent" }}
+        title="Gaz"
+      />
+    );
+  }
+
+  if (korinish.holat === "qattiq") {
+    return (
+      <span
+        className="h-4 w-4 shrink-0 rounded-[3px] border border-white/20 shadow-sm"
+        style={{ backgroundColor: rang }}
+        title="Qattiq modda"
+      />
+    );
+  }
+
+  return (
+    <span
+      className="h-4 w-4 shrink-0 rounded-full border border-white/20 shadow-sm"
+      style={{ backgroundColor: rang }}
+      title="Suyuqlik yoki eritma"
+    />
+  );
+}
+
 // Reagentlar javoni paneli: foydalanuvchi inventaridagi 242 ta modda ichidan qidirib,
 // reaksiyaga qo'shmoqchi bo'lgan moddasini tanlaydigan interfeys.
 // Nega 6 ta reagent chegarasi qo'yilgan: server bir tajribada ko'pi bilan 6 xil moddani
@@ -114,10 +152,7 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
                   }`}
                 >
                   <div className="flex items-center gap-2.5 overflow-hidden">
-                    <span
-                      className="h-4 w-4 shrink-0 rounded-full border border-white/20 shadow-sm"
-                      style={{ backgroundColor: cssRang }}
-                    />
+                    <NishonShakli korinish={korinish} rang={cssRang} />
                     <div className="min-w-0">
                       <div className="truncate text-xs font-bold text-white">
                         {kalit}

@@ -1,21 +1,13 @@
 // Kuzatuv matnini (observations) vizual 3D effektlar massiviga aylantirish funksiyalari.
 // Nega: server faqat o'zbek tilidagi matn ("och ko'k cho'kma tushadi") qaytaradi,
 // biz uni tahlil qilib, 3D sahnada qanday zarra va ranglar o'ynashini belgilaymiz.
+//
+// Rang lug'ati bu yerda emas, `rang-jadvali.js` da: ilgari bu faylda o'z
+// ro'yxati bor edi va u modda jadvalidan mustaqil edi — matndan chiqqan
+// "sariq" bilan K₂CrO₄ ning sarig'i har xil qiymat olardi.
 
-const RANGLAR_LUGATI = [
-  { kalit: "qizil-jigarrang", rang: 0x9a3412 },
-  { kalit: "yashil-ko'k", rang: 0x0d9488 },
-  { kalit: "oq", rang: 0xffffff },
-  { kalit: "qora", rang: 0x1e293b },
-  { kalit: "qizil", rang: 0xdc2626 },
-  { kalit: "sariq", rang: 0xeab308 },
-  { kalit: "yashil", rang: 0x16a34a },
-  { kalit: "ko'k", rang: 0x2563eb },
-  { kalit: "pushti", rang: 0xec4899 },
-  { kalit: "jigarrang", rang: 0x92400e },
-  { kalit: "binafsha", rang: 0x7e22ce },
-  { kalit: "rangsiz", rang: 0xffffff },
-];
+import { KUZATUV_RANGLARI, PALITRA, EFFEKT_RANGLARI } from "./rang-jadvali.js";
+import { chokmaRangi } from "./modda-korinishi.js";
 
 // O'zbek tilidagi apostroflar har xil yozilishi mumkin (' ‘ ’ `). Barchasini bitta ' ga
 // keltirib, kichik harfga o'tkazish orqali qidiruv barqarorligini ta'minlaymiz.
@@ -44,19 +36,30 @@ function hisoblaKuch(nisbatBahosi) {
 }
 
 // Matn ichidan rang so'zini aniqlash: eng birinchi topilgan mos rangni qaytaradi.
-function rangniTop(matn, standartRang = 0xffffff) {
-  for (let i = 0; i < RANGLAR_LUGATI.length; i++) {
-    if (matn.includes(RANGLAR_LUGATI[i].kalit)) {
-      return RANGLAR_LUGATI[i].rang;
-    }
+// KUZATUV_RANGLARI aniqroq iboradan umumiyga qarab tartiblangan, shuning uchun
+// "to'q sariq" "sariq" dan oldin topiladi.
+function rangniTop(matn, standartRang = PALITRA.oq) {
+  for (const [sozi, rang] of KUZATUV_RANGLARI) {
+    if (matn.includes(sozi)) return rang;
   }
   return standartRang;
 }
 
-export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
+// Matnda umuman rang so'zi bor-yo'qligi. Cho'kma rangini tanlashda kerak:
+// matn rang aytmasa, mahsulotning haqiqiy rangi ishonchliroq.
+function matndaRangBormi(matn) {
+  return KUZATUV_RANGLARI.some(([sozi]) => matn.includes(sozi));
+}
+
+/**
+ * @param {string} observations — serverdan kelgan kuzatuv matni
+ * @param {object|null} nisbatBahosi — stexiometriya bahosi (effekt kuchi)
+ * @param {Array<{kalit: string}>} mahsulotlar — serverdan kelgan `olindi`
+ */
+export function effektlarniAniqla(observations = "", nisbatBahosi = null, mahsulotlar = []) {
   const matn = matnniTozala(observations);
   const kuch = hisoblaKuch(nisbatBahosi);
-  const topilganRang = rangniTop(matn, 0xffffff);
+  const topilganRang = rangniTop(matn, PALITRA.oq);
   const effektlar = [];
 
   // Cho'kma effekti
@@ -65,9 +68,16 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
     matn.includes("cho'kadi") ||
     matn.includes("jelesimon")
   ) {
+    // Matnda rang aytilgan bo'lsa o'shanisi ustun: kuzatuv aynan shu
+    // reaksiyaniki. Aytilmagan bo'lsa ("cho'kma hosil bo'ladi") mahsulotning
+    // o'z rangi olinadi — aks holda Cu(OH)₂ ham, Fe(OH)₃ ham oppoq tushardi.
+    const chokmaRang = matndaRangBormi(matn)
+      ? topilganRang
+      : chokmaRangi(mahsulotlar) ?? PALITRA.oq;
+
     effektlar.push({
       turi: "chokma",
-      rang: topilganRang,
+      rang: chokmaRang,
       kuch,
       kechikish: 0.4,
     });
@@ -82,7 +92,7 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
   ) {
     effektlar.push({
       turi: "pufak",
-      rang: 0xffffff,
+      rang: EFFEKT_RANGLARI.pufak,
       kuch,
       kechikish: 0.1,
     });
@@ -92,7 +102,7 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
   if (matn.includes("bug'") || matn.includes("hovur")) {
     effektlar.push({
       turi: "bug",
-      rang: 0xe2e8f0,
+      rang: EFFEKT_RANGLARI.bug,
       kuch,
       kechikish: 0.2,
     });
@@ -102,7 +112,7 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
   if (matn.includes("hid")) {
     effektlar.push({
       turi: "hid",
-      rang: 0xc4b5fd,
+      rang: EFFEKT_RANGLARI.hid,
       kuch: Math.min(1, kuch * 0.8),
       kechikish: 0.5,
     });
@@ -116,7 +126,7 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
   ) {
     effektlar.push({
       turi: "qizish",
-      rang: 0xf97316,
+      rang: EFFEKT_RANGLARI.qizish,
       kuch,
       kechikish: 0.3,
     });
@@ -130,7 +140,7 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
   ) {
     effektlar.push({
       turi: "alanga",
-      rang: 0xfb923c,
+      rang: EFFEKT_RANGLARI.alanga,
       kuch,
       kechikish: 0.0,
     });
@@ -150,7 +160,7 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
   if (matn.includes("tiniqlashadi") || matn.includes("rangsizlanadi")) {
     effektlar.push({
       turi: "tiniq",
-      rang: 0xffffff,
+      rang: EFFEKT_RANGLARI.tiniq,
       kuch,
       kechikish: 0.3,
     });
@@ -180,20 +190,14 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
     });
   }
 
-  // Agar matnda rang o'zgarishi aytilgan bo'lsa
-  for (let i = 0; i < RANGLAR_LUGATI.length; i++) {
-    if (matn.includes(RANGLAR_LUGATI[i].kalit)) {
-      const bor = effektlar.some((e) => e.turi === "rang");
-      if (!bor) {
-        effektlar.push({
-          turi: "rang",
-          rang: RANGLAR_LUGATI[i].rang,
-          kuch,
-          kechikish: 0.0,
-        });
-      }
-      break;
-    }
+  // Agar matnda rang o'zgarishi aytilgan bo'lsa — eritmaning o'zi shu rangga o'tadi
+  if (matndaRangBormi(matn) && !effektlar.some((e) => e.turi === "rang")) {
+    effektlar.push({
+      turi: "rang",
+      rang: topilganRang,
+      kuch,
+      kechikish: 0.0,
+    });
   }
 
   // Hech narsa topilmasa bo'sh massiv EMAS: foydalanuvchi tugma bosilganda
@@ -202,7 +206,7 @@ export function effektlarniAniqla(observations = "", nisbatBahosi = null) {
     return [
       {
         turi: "aralashish",
-        rang: 0xffffff,
+        rang: PALITRA.oq,
         kuch: 1.0,
         kechikish: 0.0,
       },

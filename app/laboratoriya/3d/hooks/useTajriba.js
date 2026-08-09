@@ -5,6 +5,7 @@ import { nisbatniBaho } from "../lib/stexiometriya.js";
 import { effektlarniAniqla } from "../lib/kuzatuv-tahlil.js";
 import { effektlarniIshgaTushir, aralashishEffekti } from "../lib/effektlar.js";
 import { hisobot, yoz } from "../lib/jurnal.js";
+import { PALITRA } from "../lib/rang-jadvali.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
 import { jamiHajm } from "../lib/idish-holati.js";
 
@@ -103,7 +104,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
           // 400 va boshqalar: idishdagi suyuqlikni xira kulrang qilamiz
           const hajm = jamiHajm(holatRef?.current);
           suyuqlikSathiniYangila(tanlanganIdishGroup, hajm, {
-            rang: 0x64748b,
+            rang: PALITRA.kulrang,
             shaffoflik: 0.25,
             loyqalik: 0.8,
           });
@@ -135,8 +136,14 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
         const baho = nisbatniBaho(holatRef?.current, koeflar);
         setNisbatBahosi(baho);
 
-        // Kuzatuv matnidan effektlar massivini chiqarib, ishga tushiramiz
-        const tavsiflar = effektlarniAniqla(ma_lumot.reaksiya.observations, baho);
+        // Kuzatuv matnidan effektlar massivini chiqarib, ishga tushiramiz.
+        // `olindi` ham uzatiladi: kuzatuv matnida cho'kmaning rangi
+        // aytilmagan bo'lsa, mahsulotning o'z rangi ishlatiladi.
+        const tavsiflar = effektlarniAniqla(
+          ma_lumot.reaksiya.observations,
+          baho,
+          ma_lumot.olindi || [],
+        );
         const boshqaruvchi = effektlarniIshgaTushir(
           sahnaRef?.current,
           tanlanganIdishGroup,
