@@ -684,21 +684,36 @@ function RasmSinov() {
               />
             ) : null}
 
-            {bezak?.ochiqRasmModellari?.length ? (
+            {/* Zaxira modellar SINALGAN holda ko'rsatiladi. Ochiq
+                modellar ro'yxatining o'zi yetarli emas edi: bepul
+                tarifda model ochiq bo'lsa ham kunlik chegarasi nolga
+                teng bo'lishi va birinchi so'rovdayoq 429 berishi
+                mumkin. */}
+            {bezak?.zaxiraModellar?.length ? (
               <div className="mt-3 pt-3 border-t border-red-800/50">
-                <div className="opacity-70 mb-1">
-                  Shu kalit uchun ochiq rasm modellari — kerakligini
-                  Render&apos;dagi{' '}
-                  <code className="font-mono">GEMINI_RASM_MODEL</code> ga yozing:
-                </div>
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {bezak.ochiqRasmModellari.map((m) => (
-                    <span
-                      key={m}
-                      className="font-mono text-[11px] bg-slate-900/70 rounded px-2 py-1"
-                    >
-                      {m}
-                    </span>
+                {bezak.ishlaydiganModel ? (
+                  <div className="text-green-300 mb-2">
+                    ✅ <b>{bezak.ishlaydiganModel}</b> ishladi — shu nomni
+                    Render&apos;dagi{' '}
+                    <code className="font-mono">GEMINI_RASM_MODEL</code> ga
+                    yozing.
+                  </div>
+                ) : (
+                  <div className="opacity-70 mb-2">
+                    Zaxira modellar ham ishlamadi. 429 — kunlik kvota;
+                    ertaga qayta urinib ko&apos;ring yoki bezakni
+                    &laquo;Rasmsiz&raquo; qoldiring (tuzilma formulalari
+                    baribir chiqadi).
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  {bezak.zaxiraModellar.map((z) => (
+                    <div key={z.model} className="font-mono text-[11px]">
+                      <span className={z.ok ? 'text-green-400' : 'text-red-400'}>
+                        [{z.kod}]
+                      </span>{' '}
+                      {z.model}
+                    </div>
                   ))}
                 </div>
               </div>
