@@ -12,20 +12,20 @@ datasource db {
 // ═══════════════════════════════════════════════════════════════
 
 model User {
-  id            String    @id @default(cuid())
-  userId        String    @unique
-  username      String    @unique
-  email         String    @unique
-  password      String
-  fullName      String?
-  role          String    @default("bakalavr")
+  id       String  @id @default(cuid())
+  userId   String  @unique
+  username String  @unique
+  email    String  @unique
+  password String
+  fullName String?
+  role     String  @default("bakalavr")
 
   // ─── Ustozlik — IKKILAMCHI rol ───
   // `role` bitta maydon bo'lgani uchun odam bir vaqtda ham admin, ham
   // ustoz bo'la olmasdi: admin berilsa ustoz paneli yo'qolardi. Ustozlik
   // aslida rol emas, VAZIFA — u asosiy rolga qo'shimcha qilib beriladi.
   // Eski `role='teacher'` yozuvlari migratsiyada shu bayroqqa ko'chirildi.
-  isTeacher     Boolean   @default(false)
+  isTeacher Boolean @default(false)
 
   // ─── Tasdiqlangan hisob (galochka) ───
   // Faqat superadmin qo'yadi. Maqsad — soxta hisobdan ajratish, shuning
@@ -76,21 +76,21 @@ model User {
   // Login'da hech qanday cheklov yo'q edi: parolni cheksiz marta
   // taxmin qilish mumkin edi va tezlik ham pasaymasdi. Ketma-ket
   // xatolardan keyin shu hisobga kirish qisqa muddatga to'siladi.
-  kirishXatolari  Int       @default(0)
+  kirishXatolari   Int       @default(0)
   kirishTaqiqUntil DateTime?
   // Yulduz — akkaunt darajasi va reyting uchun. U SARFLANMAYDI:
   // sarflansa, xarid qilgan odam leaderboard'da pastga tushib, o'ynagani
   // uchun jazolangan bo'lardi. Laboratoriya uchun alohida valyuta bor.
-  stars         Int       @default(0)
-  weeklyStars   Int       @default(0)
-  monthlyStars  Int       @default(0)
-  totalMissions Int       @default(0)
+  stars            Int       @default(0)
+  weeklyStars      Int       @default(0)
+  monthlyStars     Int       @default(0)
+  totalMissions    Int       @default(0)
 
   // ─── Laboratoriya valyutalari ───
   // coins — arzon posilka va oddiy jihoz, missiyadan topiladi
   // gems  — ruda namunasi va nodir reagent, kam topiladi (keyinchalik xarid)
-  coins                Int   @default(0)
-  gems                 Int   @default(0)
+  coins Int @default(0)
+  gems  Int @default(0)
 
   // ─── Sarflash taqiqi ───
   // Superadmin qo'yadi: hisob to'xtatilmaydi (o'qish, quiz, missiya
@@ -99,9 +99,9 @@ model User {
   //
   // Tanga ham, olmos ham to'siladi: faqat tangani to'ssak, olmos bilan
   // aylanib o'tish mumkin bo'lardi va taqiqning ma'nosi qolmasdi.
-  spendBlockedUntil  DateTime?
-  spendBlockedReason String?
-  privacySettings      Json  @default("{\"profilePublic\": true, \"showFriends\": true, \"showQuizResults\": true, \"showAchievements\": true, \"showFollowers\": true}")
+  spendBlockedUntil    DateTime?
+  spendBlockedReason   String?
+  privacySettings      Json      @default("{\"profilePublic\": true, \"showFriends\": true, \"showQuizResults\": true, \"showAchievements\": true, \"showFollowers\": true}")
   notificationSettings Json?
   interfaceSettings    Json?
   learningPreferences  Json?
@@ -161,8 +161,8 @@ model User {
   sentNotifications Notification[] @relation("NotificationAdmin")
 
   // KANALLAR
-  channels          Channel[]             @relation("ChannelOwner")
-  channelSubs       ChannelSubscription[]
+  channels    Channel[]             @relation("ChannelOwner")
+  channelSubs ChannelSubscription[]
 
   // PROFIL POSTLARI
   profilePosts ProfilePost[]
@@ -183,17 +183,17 @@ model User {
   // ─── Shaxsiy chat ───
   // Ogohlantirish soni va yozish taqiqi — laboratoriya xarid taqiqi bilan
   // bir xil naqsh: muddat bilan qo'yiladi va o'zi ochiladi.
-  chatWarnings       Int       @default(0)
-  chatBlockedUntil   DateTime?
-  chatBlockedReason  String?
+  chatWarnings      Int       @default(0)
+  chatBlockedUntil  DateTime?
+  chatBlockedReason String?
 
-  suhbat1        Conversation[]  @relation("Suhbat1")
-  suhbat2        Conversation[]  @relation("Suhbat2")
-  yuborganXabar  Message[]       @relation("XabarYuboruvchi")
-  bloklaganlarim UserBlock[]     @relation("Bloklovchi")
-  meniBloklagan  UserBlock[]     @relation("Bloklangan")
-  chatShikoyat   ChatReport[]    @relation("ShikoyatYuboruvchi")
-  chatShikoyati  ChatReport[]    @relation("ShikoyatQilingan")
+  suhbat1        Conversation[] @relation("Suhbat1")
+  suhbat2        Conversation[] @relation("Suhbat2")
+  yuborganXabar  Message[]      @relation("XabarYuboruvchi")
+  bloklaganlarim UserBlock[]    @relation("Bloklovchi")
+  meniBloklagan  UserBlock[]    @relation("Bloklangan")
+  chatShikoyat   ChatReport[]   @relation("ShikoyatYuboruvchi")
+  chatShikoyati  ChatReport[]   @relation("ShikoyatQilingan")
 
   // KIMYOGAR KO'CHAT
   plant Plant?
@@ -721,6 +721,18 @@ model LabItemDef {
   sotishNarxi Int    @default(0) // coins; xarid narxidan past
   gemsNarxi   Int? // to'g'ridan-to'g'ri olmos xaridi (sandiqqa muqobil yo'l)
 
+  // ─── O'lchov ───
+  //
+  // "ml" | "gr" | "dona". Qiymat o'ylab topilmaydi — `lib/lab-birlik.js`
+  // uni moddaning agregat holatidan (lib/lab-modda.js) chiqaradi va
+  // generator shu yerga yozadi. Jihoz va texnika har doim "dona".
+  //
+  // Nega bazada saqlanadi, har safar hisoblanmaydi: tajriba dvigateli
+  // katalogni allaqachon keshlab o'qiydi, birlik esa har bir sarflashda
+  // kerak. 242 moddalik jadvalni server ish vaqtida qayta-qayta
+  // titkilashning ma'nosi yo'q.
+  birlik String @default("dona")
+
   // ─── Xossalar ───
   sarflanadi Boolean @default(false) // ishlatilganda yo'qoladi (filtr qog'ozi)
   sanoat     Boolean @default(false) // talaba laboratoriyasida bo'lmaydi
@@ -813,7 +825,16 @@ model LabItem {
   kalit String
   def   LabItemDef @relation(fields: [kalit], references: [kalit], onDelete: Restrict)
 
-  soni Int @default(1)
+  // `soni` — DONA hisobidagi eski maydon. `miqdor` — haqiqiy o'lchov
+  // (ml yoki gramm), birligi LabItemDef.birlik da.
+  //
+  // Ikkalasi ATAYLAB birga turadi. Miqdorga o'tish bir necha bosqichda
+  // boradi (sxema → server mantig'i → interfeys) va oraliq holatda eski
+  // kod ishlab turishi kerak: `soni` ni darrov o'chirsak, migratsiya
+  // qo'llangan zahoti do'kon ham, tajriba ham yiqilardi. `soni` faqat
+  // hamma joy `miqdor` ga o'tgach olib tashlanadi.
+  soni   Int   @default(1)
+  miqdor Float @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1254,12 +1275,12 @@ model EmailTasdiq {
 // Bitta jadval hamma amalni saqlaydi: qoidalar bir xil, faqat raqamlar
 // farq qiladi.
 model SorovLimit {
-  id        String   @id @default(cuid())
-  kalit     String   @unique
-  soni      Int      @default(0)
+  id         String   @id @default(cuid())
+  kalit      String   @unique
+  soni       Int      @default(0)
   // Joriy oyna qachon boshlangan. Oyna muddati o'tsa sanoq noldan
   // boshlanadi — shuning uchun alohida "tozalash" mantiqi kerak emas.
-  oynaBoshi DateTime @default(now())
+  oynaBoshi  DateTime @default(now())
   yangilandi DateTime @updatedAt
 
   // Eski yozuvlarni tozalash shu indeks orqali ketadi
@@ -1331,17 +1352,17 @@ model TelegramKod {
 // va bot chiqarilganda `faol: false` bo'ladi. O'chirilmaydi: bot
 // qayta qo'shilsa, sozlama saqlanib qolgani yaxshi.
 model TelegramGuruh {
-  id        String   @id @default(cuid())
-  chatId    String   @unique
-  nom       String?
+  id          String   @id @default(cuid())
+  chatId      String   @unique
+  nom         String?
   // Kim qo'shgani — admin panelda ko'rinadi
-  qoshgan   String?
+  qoshgan     String?
   // Bu guruhga kunlik iqtibos yuborilsinmi
-  iqtiboslar Boolean @default(true)
+  iqtiboslar  Boolean  @default(true)
   // JDA KIMYO NEWS kanalidagi xabarlar shu guruhga uzatilsinmi
-  yangiliklar Boolean @default(true)
-  faol      Boolean  @default(true)
-  createdAt DateTime @default(now())
+  yangiliklar Boolean  @default(true)
+  faol        Boolean  @default(true)
+  createdAt   DateTime @default(now())
 
   @@index([faol, iqtiboslar])
   @@index([faol, yangiliklar])
@@ -1374,10 +1395,10 @@ model TelegramBotKod {
 //
 // Qiymatlar: kutilmoqda | tasdiqlangan | ishlatilgan | bekor
 model DoskaSessiya {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   // QR ichidagi maxfiy qiymat
-  token      String   @unique
-  holat      String   @default("kutilmoqda")
+  token      String    @unique
+  holat      String    @default("kutilmoqda")
   // Tasdiqlagandan keyin to'ladi
   userId     String?
   // Doska sessiyasi qachon tugaydi (o'qituvchi tanlaydi)
@@ -1387,7 +1408,7 @@ model DoskaSessiya {
   // Kim so'rayotgani telefonda ko'rsatiladi
   qurilma    String?
   ip         String?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   user User? @relation("DoskaFoydalanuvchi", fields: [userId], references: [id], onDelete: Cascade)
 
@@ -1444,7 +1465,7 @@ model TeacherStudent {
   // aks holda ustoz taklifni cheksiz qayta yuboraverardi.
   //
   // Qiymatlar: 'sorov' | 'faol' | 'rad'
-  holat     String   @default("sorov")
+  holat     String    @default("sorov")
   javobVaqt DateTime?
 
   teacher User          @relation("TeacherStudents", fields: [teacherId], references: [id])

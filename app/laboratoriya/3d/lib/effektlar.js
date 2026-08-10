@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { EFFEKT_DAVOMIYLIGI, ZARRA_SONI } from "./sozlama.js";
-import { EFFEKT_RANGLARI } from "./rang-jadvali.js";
+import { EFFEKT_RANGLARI } from "@/lib/lab-modda.js";
 import { suyuqlikSathiniYangila } from "./jihoz-modellari.js";
 
 // 1. PUFAK EFFEKTI — suyuqlik tubidan gaz pufakchalari ko'tarilishi.

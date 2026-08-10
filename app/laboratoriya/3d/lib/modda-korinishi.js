@@ -1,7 +1,7 @@
 // Reagent kalitidan uning ko'rinishini — rangi, agregat holati va
 // shaffofligini — aniqlaydi.
 //
-// Ranglarning o'zi bu yerda EMAS, `rang-jadvali.js` da: o'sha fayl kuzatuv
+// Ranglarning o'zi bu yerda EMAS, `lib/lab-modda.js` da: o'sha fayl kuzatuv
 // matnidagi rang so'zlari bilan ham bo'lishiladigan yagona manba. Bu yerda
 // faqat "kalitni qanday o'qish" mantig'i qoladi.
 //
@@ -11,7 +11,7 @@
 // uchun — masalan bazaga yangi reaksiya qo'shilib, `reagentlar.js` hali
 // qayta yasalmagan bo'lsa.
 
-import { PALITRA, jadvaldanOl } from "./rang-jadvali.js";
+import { PALITRA, jadvaldanOl } from "@/lib/lab-modda.js";
 
 // Formulada metall belgisi bo'lsa shu rang olinadi. Tartib muhim: ikki
 // harfli belgilar ("Cu") bir harfli ("C") dan oldin tekshiriladi, aks holda

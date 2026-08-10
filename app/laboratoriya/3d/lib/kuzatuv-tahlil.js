@@ -2,11 +2,11 @@
 // Nega: server faqat o'zbek tilidagi matn ("och ko'k cho'kma tushadi") qaytaradi,
 // biz uni tahlil qilib, 3D sahnada qanday zarra va ranglar o'ynashini belgilaymiz.
 //
-// Rang lug'ati bu yerda emas, `rang-jadvali.js` da: ilgari bu faylda o'z
+// Rang lug'ati bu yerda emas, `lib/lab-modda.js` da: ilgari bu faylda o'z
 // ro'yxati bor edi va u modda jadvalidan mustaqil edi — matndan chiqqan
 // "sariq" bilan K₂CrO₄ ning sarig'i har xil qiymat olardi.
 
-import { KUZATUV_RANGLARI, PALITRA, EFFEKT_RANGLARI } from "./rang-jadvali.js";
+import { KUZATUV_RANGLARI, PALITRA, EFFEKT_RANGLARI } from "@/lib/lab-modda.js";
 import { chokmaRangi } from "./modda-korinishi.js";
 
 // O'zbek tilidagi apostroflar har xil yozilishi mumkin (' ‘ ’ `). Barchasini bitta ' ga

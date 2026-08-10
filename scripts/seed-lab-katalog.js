@@ -15,6 +15,13 @@
  */
 const path = require('path')
 const { PrismaClient } = require('@prisma/client')
+const esmRequire = require('./_esm-require')
+
+// Birlik shu yerda o'ylab topilmaydi: `lib/lab-birlik.js` uni moddaning
+// agregat holatidan (lib/lab-modda.js) chiqaradi. Naqsh `lab-tenglama.js`
+// bilan bir xil — bitta qoida, uchta iste'molchi (generator, seeder,
+// tajriba dvigateli), shuning uchun ular hech qachon bir-biridan uzilmaydi.
+const { buyumBirligi } = esmRequire('lib/lab-birlik.js', ['buyumBirligi'])
 
 const prisma = new PrismaClient()
 
@@ -32,6 +39,7 @@ function yozuvlarniTayyorla() {
       kalit: r.kalit,
       nom: r.nom,
       turi: 'reagent',
+      birlik: buyumBirligi({ kalit: r.kalit, turi: 'reagent' }),
       guruh: null,
       icon: '⚗️',
       tavsif: null,
@@ -58,6 +66,7 @@ function yozuvlarniTayyorla() {
       kalit: j.kalit,
       nom: j.nom,
       turi: 'jihoz',
+      birlik: buyumBirligi({ kalit: j.kalit, turi: 'jihoz' }),
       guruh: j.guruh ?? null,
       icon: j.icon ?? null,
       tavsif: j.tavsif ?? null,
@@ -81,6 +90,7 @@ function yozuvlarniTayyorla() {
       kalit: t.kalit,
       nom: t.nom,
       turi: 'texnika',
+      birlik: buyumBirligi({ kalit: t.kalit, turi: 'texnika' }),
       guruh: t.sanoat ? 'sanoat' : 'usul',
       icon: t.icon ?? null,
       tavsif: t.tavsif ?? null,

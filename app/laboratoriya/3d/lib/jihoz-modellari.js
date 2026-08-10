@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { suyuqlikYasa } from "./materiallar.js";
-import { EFFEKT_RANGLARI } from "./rang-jadvali.js";
+import { EFFEKT_RANGLARI } from "@/lib/lab-modda.js";
 
 // Matn yorlig'i (label) uchun CanvasTexture yordamchisi.
 // Nega: 3D sahnada HTML elementlar o'rniga CanvasTexture dan yasalgan Sprite ishlatish
