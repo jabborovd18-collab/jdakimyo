@@ -39,6 +39,14 @@ const ILOVA_KANALI = process.env.ILOVA_KANALI || 'https://t.me/jdakimyo_ilova'
 /** Platformaning rasmiy kanali — darslar va yangiliklar */
 const RASMIY_KANAL = process.env.RASMIY_KANAL || 'https://t.me/jdakimyouz'
 
+/**
+ * Botning @nomi — guruhdan shaxsiy chatga havola qo'yish uchun.
+ *
+ * Guruhda "menga shaxsiy yozing" deb aytish yetarli emas: odam botni
+ * qidirib topishi kerak bo'ladi va ko'pchilik shu joyda to'xtaydi.
+ */
+const BOT_NOMI = process.env.TELEGRAM_BOT_USERNAME || 'jdakimyouzbot'
+
 export async function POST(request) {
   // Sozlanmagan bo'lsa jimgina qaytamiz: bu holat faqat kalit
   // qo'yilmagan muhitda bo'ladi va xato yozib navbatni to'ldirish
@@ -460,7 +468,15 @@ async function azolikOzgardi(hodisa) {
 
   // GURUH — botni qo'shishgan yoki chiqarishgan
   if (chat.type === 'group' || chat.type === 'supergroup') {
-    return guruhOzgardi({ chatId, chat, holat, kim: hodisa?.from })
+    return guruhOzgardi({
+      chatId,
+      chat,
+      holat,
+      // Eski holat kerak: usiz oddiy a'zodan adminga ko'tarilish ham
+      // "yangi qo'shildi" deb qabul qilinardi
+      eskiHolat: hodisa?.old_chat_member?.status,
+      kim: hodisa?.from,
+    })
   }
 
   // `kicked` — bloklangan, `member` — qayta ochilgan
@@ -478,7 +494,7 @@ async function azolikOzgardi(hodisa) {
  * "iqtibos yuborilmasin" degan sozlama saqlanib qolgani yaxshi —
  * aks holda uni har safar qaytadan o'chirishga to'g'ri kelardi.
  */
-async function guruhOzgardi({ chatId, chat, holat, kim }) {
+async function guruhOzgardi({ chatId, chat, holat, eskiHolat, kim }) {
   const ichkarida = holat === 'member' || holat === 'administrator'
   const nom = chat.title || null
   const qoshgan = kim?.username ? `@${kim.username}` : kim?.first_name || null
@@ -492,15 +508,40 @@ async function guruhOzgardi({ chatId, chat, holat, kim }) {
     })
     .catch(() => {})
 
-  if (ichkarida) {
-    await telegramYubor(
-      chatId,
-      '👋 Salom! Men <b>JDA KIMYO</b> botiman.\n\n' +
-        'Har kuni shu guruhga bitta kimyoviy iqtibos yuboraman.\n\n' +
-        'Shaxsiy bildirishnomalar uchun menga alohida yozing.',
-      { havola: { matn: 'Saytni ochish', url: SAYT } }
-    ).catch(() => {})
-  }
+  if (!ichkarida) return
+
+  // SALOM FAQAT HAQIQIY QO'SHILISHDA.
+  //
+  // `my_chat_member` bot rolining HAR o'zgarishida keladi — jumladan
+  // oddiy a'zodan administratorga ko'tarilganda ham. Ilgari bu yerda
+  // faqat yangi holat tekshirilardi va botni adminlikka ko'targan
+  // odam salomni ikkinchi marta ko'rardi. Eski holat "chiqarilgan"
+  // yoki "yo'q" bo'lsagina bu haqiqiy kirish.
+  const yangiKirdi = !eskiHolat || eskiHolat === 'left' || eskiHolat === 'kicked'
+  if (!yangiKirdi) return
+
+  await telegramYubor(
+    chatId,
+    '👋 Salom! Men — <b>JDA KIMYO</b> boti.\n' +
+      'jdakimyo.uz — o\'zbek tilidagi oliy kimyo platformasi.\n\n' +
+      '<b>Shu guruhda nima qila olaman:</b>\n' +
+      '🧩 <code>/quiz KOD</code> — test o\'tkazaman, oxirida reyting chiqaraman\n' +
+      '📊 <code>/natija</code> — oxirgi testning reytingi\n' +
+      '📜 Har kuni bitta kimyoviy iqtibos yuboraman\n' +
+      '📰 Platforma yangiliklarini yetkazaman\n\n' +
+      '⚙️ <code>/sozlama</code> — iqtibos va yangiliklarni yoqib-o\'chirish\n\n' +
+      '<b>Test qanday yasaladi:</b>\n' +
+      'Menga <b>shaxsiy</b> yozib test faylini yuborasiz, men undan quiz ' +
+      'yasab kod beraman. Keyin shu yerda <code>/quiz KOD</code> deb ' +
+      'ishga tushirasiz.\n\n' +
+      'Suhbatga aralashmayman — faqat buyruqlarga javob beraman.',
+    {
+      havolalar: [
+        { matn: '🤖 Menga shaxsiy yozish', url: `https://t.me/${BOT_NOMI}` },
+        { matn: '🌐 jdakimyo.uz', url: SAYT },
+      ],
+    }
+  ).catch(() => {})
 }
 
 async function buyruqniBajar({ chatId, matn, username, ism, yangilik }) {
