@@ -656,6 +656,41 @@ function RasmSinov() {
             </p>
           </div>
 
+          {/* ── Muqova fotosi (Wikimedia Commons) ──
+              ASOSIY manba: kalitsiz, Gemini holatidan mustaqil. */}
+          {n.foto ? (
+            <div
+              className={`rounded-xl p-3 text-xs border ${
+                n.foto.ok
+                  ? 'bg-green-950/40 border-green-800/50 text-green-200'
+                  : 'bg-red-950/40 border-red-800/50 text-red-200'
+              }`}
+            >
+              <div className="font-bold mb-2">
+                {n.foto.ok
+                  ? '✅ Muqova fotosi topilyapti (Wikimedia Commons)'
+                  : '❌ Commons javob bermadi'}
+              </div>
+              {n.foto.sorovlar?.map((s, i) => (
+                <div key={i} className="font-mono text-[11px] py-0.5">
+                  <span className={s.topildi ? 'text-green-400' : 'text-red-400'}>
+                    {s.topildi ? `${s.topildi} ta` : '0'}
+                  </span>{' '}
+                  {s.sorov}
+                  {s.misol ? (
+                    <span className="opacity-50"> — {s.misol}</span>
+                  ) : null}
+                </div>
+              ))}
+              {n.foto.xato ? <Satr nom="Xato" qiymat={n.foto.xato} /> : null}
+              <p className="opacity-60 mt-2 text-[11px]">
+                Faqat CC0, Public domain va CC BY olinadi. CC BY-SA rad
+                etiladi: u foydalangan asarni ham shu litsenziyaga
+                bog&apos;lab qo&apos;yadi.
+              </p>
+            </div>
+          ) : null}
+
           {/* ── Muqova bezagi ── */}
           <div
             className={`rounded-xl p-3 text-xs border ${
@@ -665,7 +700,9 @@ function RasmSinov() {
             }`}
           >
             <div className="font-bold mb-2">
-              {bezak?.ok ? '✅ Bezak rasm ishlayapti' : '❌ Bezak rasm chiqmadi'}
+              {bezak?.ok
+                ? '✅ AI bezak rasmi ishlayapti'
+                : '❌ AI bezak rasmi chiqmadi (foto zaxirada)'}
             </div>
             {bezak?.model ? <Satr nom="Rasm modeli" qiymat={bezak.model} /> : null}
             {bezak?.kod ? <Satr nom="HTTP kodi" qiymat={bezak.kod} /> : null}
@@ -700,10 +737,12 @@ function RasmSinov() {
                   </div>
                 ) : (
                   <div className="opacity-70 mb-2">
-                    Zaxira modellar ham ishlamadi. 429 — kunlik kvota;
-                    ertaga qayta urinib ko&apos;ring yoki bezakni
-                    &laquo;Rasmsiz&raquo; qoldiring (tuzilma formulalari
-                    baribir chiqadi).
+                    Hamma modelda 429 bo&apos;lsa bu kunlik kvota emas:
+                    Gemini bepul tarifida rasm generatsiyasi chegarasi
+                    2025-dekabrdan beri NOLGA teng. Kutish yordam
+                    bermaydi — Google Cloud loyihasida to&apos;lovni
+                    yoqish kerak (Tier 1, eng kam sarfsiz). Shu holatda
+                    bot muqovaga Wikimedia Commons fotosini qo&apos;yadi.
                   </div>
                 )}
                 <div className="space-y-0.5">
