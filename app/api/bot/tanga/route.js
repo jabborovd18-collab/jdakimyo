@@ -13,6 +13,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import {
+  ilmiyNarxOraligi,
   quizNarxi,
   taqdimotNarxi,
   TANGA_SAVOLGA,
@@ -28,12 +29,16 @@ import {
  */
 function narxHisobla(tana) {
   if (tana.xizmat === 'taqdimot') {
+    const ilmiy = Boolean(tana.ilmiy)
     return {
-      narx: taqdimotNarxi(tana.slaydlar, Boolean(tana.ikkiFormat)),
+      narx: taqdimotNarxi(tana.slaydlar, Boolean(tana.ikkiFormat), ilmiy),
       birlikNarxi: TANGA_SLAYDGA,
+      // Slayd soni oldindan noma'lum bo'lgan rejimda bot foydalanuvchiga
+      // oraliq ko'rsatadi; aniq summa mazmun tayyor bo'lgach yechiladi.
+      oraliq: ilmiy ? ilmiyNarxOraligi(Boolean(tana.ikkiFormat)) : null,
     }
   }
-  return { narx: quizNarxi(tana.savollar), birlikNarxi: TANGA_SAVOLGA }
+  return { narx: quizNarxi(tana.savollar), birlikNarxi: TANGA_SAVOLGA, oraliq: null }
 }
 
 /** Ko'prik kaliti — webhook uzatishida ishlatiladigan kalitning o'zi */
@@ -77,7 +82,7 @@ export async function POST(request) {
     return NextResponse.json({ ok: false, sabab: 'email-tasdiqlanmagan' })
   }
 
-  const { narx, birlikNarxi } = narxHisobla(tana)
+  const { narx, birlikNarxi, oraliq } = narxHisobla(tana)
 
   // ── Holat: narx va balansni bilish (hech narsa o'zgarmaydi) ──
   if (tana.amal === 'holat') {
@@ -86,6 +91,7 @@ export async function POST(request) {
       coins: ulangan.user.coins,
       narx,
       savolNarxi: birlikNarxi,
+      oraliq,
       yetadi: ulangan.user.coins >= narx,
       topishYollari: TANGA_TOPISH,
     })
