@@ -1,32 +1,40 @@
-// 3D laboratoriya foni (mavzu) ta'riflari.
+// 3D sahnaning fon (mavzu) ta'riflari.
 //
-// Nega kerak: sahna faqat qop-qorong'i edi va to'q rangli reagentlar —
-// CuO (0x111827), C (0x0f172a), I₂ (0x4c1d95) — qora fonda umuman
-// ajralmasdi. Aksincha oq cho'kmalar (AgCl, BaSO₄) yorug' fonda
-// yo'qoladi. Bitta "to'g'ri" fon yo'q, shuning uchun tanlov beriladi.
+// Nega kerak: sahna faqat qop-qorong'i bo'lsa, to'q rangli reagentlar —
+// CuO (0x111827), C (0x0f172a), I₂ (0x4c1d95) — umuman ajralmaydi.
+// Aksincha oq cho'kmalar (AgCl, BaSO₄) yorug' fonda yo'qoladi. Bitta
+// "to'g'ri" fon yo'q, shuning uchun to'rttasi bor.
 //
-// Har bir mavzu SAHNANING hamma rang manbasini belgilaydi: fon, tuman,
-// pol, orqa devor, stol, shisha va uchala yorug'lik.
+// KALITLAR SAYT FONI BILAN BIR XIL. Ilgari bu yerda o'z nomlari
+// (qorongi, oq, kulrang, kok), o'z tanlagichi va o'z localStorage kaliti
+// bor edi — ya'ni saytda ikkita mustaqil fon tizimi yashardi. Natijada
+// laboratoriyada "Oq" tanlansa, oq sahna to'q binafsha interfeys ichida
+// qolardi: xususiyat canvas'gacha yetgan, sahifagacha yetmagan.
 //
-// `muhitKuchi` — muhit xaritasining (envMap) kuchi. Shisha aks ettirgan
-// yorug'liksiz shisha bo'lib ko'rinmaydi, lekin qorong'u mavzuda to'liq
-// kuch bersak idishlar fondan ajralib, sun'iy yaltiraydi. Ular useSahna da bitta
-// joyda qo'llanadi — yangi mavzu qo'shish uchun shu faylga yozish kifoya.
+// Endi kalit `lib/sahifa-fon.js` dagi identifikator bilan bir xil va
+// tanlagich bitta — `components/FonTanlagich.jsx`. Bu fayl faqat "shu
+// mavzuda SAHNA qanday ko'rinadi" degan savolga javob beradi.
+//
+// Sahna rangi sahifa rangining aynan nusxasi EMAS, balki uning oilasidan:
+// canvas — xonaga qaralgan deraza, interfeysning davomi emas. Yorug'lik
+// darajasi esa ataylab har xil, chunki maqsad kimyoviy — to'rtta mavzu
+// to'rt xil o'qilishni beradi:
+//   tun     — eng to'q, yorqin eritmalar uchun
+//   siyoh   — to'q binafsha, saytning eski ohangi
+//   grafit  — neytral va ochroq, to'q moddalar shu yerda ko'rinadi
+//   kunduz  — yorug', oq cho'kmalar uchun
 
 export const FONLAR = {
-  qorongi: {
-    nom: "Qorong'u",
-    belgi: "🌙",
-    izoh: "Yorqin va och rangli eritmalar uchun",
-    fon: 0x0b0714,
+  tun: {
+    nom: "Tun",
+    izoh: "Eng to'q — yorqin va och rangli eritmalar uchun",
+    fon: 0x070a12,
     tumanZichligi: 0.085,
-    devor: 0x181324,
-    stol: 0x2a2438,
-    pol: 0x0d0a17,
-    muhitKuchi: 0.35,
+    devor: 0x0e1424,
+    stol: 0x1c2334,
+    pol: 0x090c15,
     shisha: 0xcfe8ff,
-    // Sahna ustidagi yordam yozuvlari fonga qarab o'qilishi kerak
-    matnQorongi: false,
+    muhitKuchi: 0.35,
     yorugliklar: {
       muhit: { rang: 0x404060, kuch: 0.9 },
       asosiy: { rang: 0xfffbeb, kuch: 1.4 },
@@ -34,99 +42,71 @@ export const FONLAR = {
     },
   },
 
-  oq: {
-    nom: "Oq",
-    belgi: "☀️",
-    izoh: "To'q rangli moddalar va cho'kmalar uchun",
-    fon: 0xeef2f7,
+  siyoh: {
+    nom: "Siyohrang",
+    izoh: "To'q binafsha — sariq va to'q sariq eritmalar uchun",
+    fon: 0x140b28,
+    tumanZichligi: 0.075,
+    devor: 0x1d1138,
+    stol: 0x2a1c4a,
+    pol: 0x170d2c,
+    shisha: 0xd6ecff,
+    muhitKuchi: 0.42,
+    yorugliklar: {
+      muhit: { rang: 0x5b4a86, kuch: 1.0 },
+      asosiy: { rang: 0xfff8e7, kuch: 1.45 },
+      toldiruvchi: { rang: 0x67e8f9, kuch: 0.55 },
+    },
+  },
+
+  grafit: {
+    nom: "Grafit",
+    izoh: "Neytral va ochroq — CuO, uglerod, yod shu yerda ko'rinadi",
+    // Ataylab sahifadan (#101114) ancha ochroq: to'q moddalar to'q fonda
+    // yo'qoladi va aynan shu mavzu ular uchun mavjud.
+    fon: 0x3a3e45,
+    tumanZichligi: 0.055,
+    devor: 0x33373d,
+    stol: 0x4b5058,
+    pol: 0x2c3036,
+    shisha: 0xd8e6f2,
+    muhitKuchi: 0.8,
+    yorugliklar: {
+      muhit: { rang: 0xf1f5f9, kuch: 1.15 },
+      asosiy: { rang: 0xffffff, kuch: 1.5 },
+      toldiruvchi: { rang: 0xcbd5e1, kuch: 0.55 },
+    },
+  },
+
+  kunduz: {
+    nom: "Kunduz",
+    izoh: "Yorug' — oq cho'kmalar (AgCl, BaSO₄) uchun",
+    fon: 0xeef1f7,
     // Oq fonda quyuq tuman sahnani oqartirib yuboradi — zichlik pasaytirilgan
     tumanZichligi: 0.04,
     devor: 0xdbe3ee,
     stol: 0xb9c3d1,
     pol: 0xdfe5ec,
-    muhitKuchi: 1.0,
     // Oq fonda och-havorang shisha ko'rinmaydi, shuning uchun ko'kroq
     shisha: 0x9dbede,
-    matnQorongi: true,
+    muhitKuchi: 1.0,
     yorugliklar: {
       muhit: { rang: 0xffffff, kuch: 1.5 },
       asosiy: { rang: 0xffffff, kuch: 1.6 },
       toldiruvchi: { rang: 0xdbeafe, kuch: 0.5 },
     },
   },
-
-  kulrang: {
-    nom: "Kulrang",
-    belgi: "⬜",
-    izoh: "Neytral studiya foni — hamma rang bir xil ko'rinadi",
-    fon: 0x7a8290,
-    tumanZichligi: 0.05,
-    devor: 0x6b7280,
-    stol: 0x4b5563,
-    pol: 0x5b626d,
-    muhitKuchi: 0.8,
-    shisha: 0xd8e6f2,
-    matnQorongi: false,
-    yorugliklar: {
-      muhit: { rang: 0xf1f5f9, kuch: 1.2 },
-      asosiy: { rang: 0xffffff, kuch: 1.5 },
-      toldiruvchi: { rang: 0xcbd5e1, kuch: 0.55 },
-    },
-  },
-
-  kok: {
-    nom: "Ko'k",
-    belgi: "🌊",
-    izoh: "Sariq, to'q sariq va qizil eritmalar uchun",
-    fon: 0x0f2b45,
-    tumanZichligi: 0.07,
-    devor: 0x123754,
-    stol: 0x1e3a5f,
-    pol: 0x0c2338,
-    muhitKuchi: 0.5,
-    shisha: 0xd6ecff,
-    matnQorongi: false,
-    yorugliklar: {
-      muhit: { rang: 0x5f7f9f, kuch: 1.0 },
-      asosiy: { rang: 0xfff8e7, kuch: 1.45 },
-      toldiruvchi: { rang: 0x7dd3fc, kuch: 0.55 },
-    },
-  },
 };
 
-export const SUKUT_FON = "qorongi";
-
-// Tanlov brauzerda saqlanadi: fon shaxsiy did masalasi va uni har safar
-// qayta tanlash kerak bo'lsa, tanlovning ma'nosi qolmaydi. Serverga
-// yozilmaydi — bu sozlama hisobga emas, qurilma ekraniga bog'liq.
-export const FON_SAQLASH_KALITI = "jda-lab3d-fon";
+// `lib/sahifa-fon.js` dagi ODDIY_FON bilan bir xil bo'lishi shart.
+export const SUKUT_FON = "tun";
 
 /** Noma'lum kalit kelsa ham har doim ishlaydigan mavzu qaytariladi. */
 export function fonOl(kalit) {
   return FONLAR[kalit] || FONLAR[SUKUT_FON];
 }
 
-export function fonKalitiOqi() {
-  if (typeof window === "undefined") return SUKUT_FON;
-  try {
-    const saqlangan = window.localStorage.getItem(FON_SAQLASH_KALITI);
-    return saqlangan && FONLAR[saqlangan] ? saqlangan : SUKUT_FON;
-  } catch {
-    // Maxfiylik rejimida localStorage o'qish ham xato tashlashi mumkin
-    return SUKUT_FON;
-  }
-}
-
-export function fonKalitiniSaqla(kalit) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(FON_SAQLASH_KALITI, kalit);
-  } catch {
-    // Saqlanmasa ham sahna ishlayveradi
-  }
-}
-
-/** CSS uchun: 0x0b0714 → "#0b0714" */
+/** CSS uchun: 0x070a12 → "#070a12" */
 export function hexCss(hex) {
   return `#${Number(hex || 0).toString(16).padStart(6, "0")}`;
 }

@@ -3,9 +3,10 @@
 import { useState, useMemo } from "react";
 import { moddaKorinishi } from "../lib/modda-korinishi.js";
 
-// Nodirlik bo'yicha cheklovchi rangli chegara (border) sinflari.
-// Nega: talaba qaysi reagent oddiy, qaysisi nodir yoki noyob ekanini bir qarashda
-// vizual ajratib olishi uchun 7.3-bo'limdagi dizayn tili asosida belgilandi.
+// Nodirlik chegarasi. Bu ranglar ataylab v3 o'zgaruvchilaridan olinmaydi:
+// ular mavzuga emas, MA'NOGA bog'liq (yashil — kam, ko'k — nodir, binafsha —
+// noyob) va 2D laboratoriyada ham xuddi shunday. To'yingan 600-darajali
+// ohanglar yorug' fonda ham, qorong'uda ham o'qiladi.
 function nodirlikChegarasi(nodirlik) {
   switch (nodirlik) {
     case "kam":
@@ -15,11 +16,11 @@ function nodirlikChegarasi(nodirlik) {
     case "noyob":
       return "border-purple-600/70 hover:border-purple-500";
     default:
-      return "border-slate-700/70 hover:border-slate-500";
+      return "";
   }
 }
 
-// Hex sonini HTML va CSS uchung o'tadigan '#RRGGBB' satriga aylantirish.
+// Hex sonini HTML va CSS uchun '#RRGGBB' satriga aylantirish.
 function hexDanCss(hexSon) {
   const son = Number(hexSon) || 0xffffff;
   return `#${son.toString(16).padStart(6, "0")}`;
@@ -47,8 +48,8 @@ function NishonShakli({ korinish, rang }) {
   if (korinish.holat === "qattiq") {
     return (
       <span
-        className="h-4 w-4 shrink-0 rounded-[3px] border border-white/20 shadow-sm"
-        style={{ backgroundColor: rang }}
+        className="h-4 w-4 shrink-0 rounded-[3px] shadow-sm"
+        style={{ backgroundColor: rang, outline: "1px solid var(--v3-chiziq-2)" }}
         title="Qattiq modda"
       />
     );
@@ -56,8 +57,8 @@ function NishonShakli({ korinish, rang }) {
 
   return (
     <span
-      className="h-4 w-4 shrink-0 rounded-full border border-white/20 shadow-sm"
-      style={{ backgroundColor: rang }}
+      className="h-4 w-4 shrink-0 rounded-full shadow-sm"
+      style={{ backgroundColor: rang, outline: "1px solid var(--v3-chiziq-2)" }}
       title="Suyuqlik yoki eritma"
     />
   );
@@ -85,18 +86,33 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
   }, [reagentlar, qidiruv]);
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-purple-800/50 bg-slate-900/80 p-4 text-white shadow-xl backdrop-blur-md">
+    <div
+      className="flex h-full flex-col rounded-2xl border p-4 shadow-xl backdrop-blur-md"
+      style={{
+        background: "var(--v3-yuza)",
+        borderColor: "var(--v3-chiziq)",
+        color: "var(--v3-matn)",
+      }}
+    >
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-bold tracking-wide text-purple-300">
-          Reagentlar Javoni
-        </h3>
-        <span className="rounded-full bg-purple-950/80 px-2.5 py-0.5 text-xs font-semibold text-purple-300">
+        <h3 className="text-sm font-bold tracking-wide">Reagentlar javoni</h3>
+        <span
+          className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
+          style={{ background: "var(--v3-yuza-2)", color: "var(--v3-xira)" }}
+        >
           {quyilganKalitlar.length} / 6
         </span>
       </div>
 
       {chegaraToldimi && (
-        <div className="mb-3 rounded-xl border border-amber-500/50 bg-amber-950/50 p-2 text-xs text-amber-300">
+        <div
+          className="mb-3 rounded-xl border p-2 text-xs"
+          style={{
+            borderColor: "color-mix(in srgb, var(--v3-urgu) 45%, transparent)",
+            background: "color-mix(in srgb, var(--v3-urgu) 12%, transparent)",
+            color: "var(--v3-urgu)",
+          }}
+        >
           Bir tajribada ko&apos;pi bilan 6 xil reagent aralashtirish mumkin (server chegarasi).
         </div>
       )}
@@ -107,13 +123,18 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
           value={qidiruv}
           onChange={(e) => setQidiruv(e.target.value)}
           placeholder="Modda formulasi yoki nomini qidirish..."
-          className="w-full rounded-xl border border-purple-800/60 bg-slate-950/80 px-3.5 py-2 text-xs text-white placeholder-slate-500 outline-none transition focus:border-purple-500"
+          className="w-full rounded-xl border px-3.5 py-2 text-xs outline-none transition"
+          style={{
+            background: "var(--v3-fon)",
+            borderColor: "var(--v3-chiziq)",
+            color: "var(--v3-matn)",
+          }}
         />
         {qidiruv && (
           <button
             type="button"
             onClick={() => setQidiruv("")}
-            className="absolute right-3 top-2 text-xs text-slate-400 hover:text-white"
+            className="v3-xira absolute right-3 top-2 text-xs"
           >
             ✕
           </button>
@@ -122,11 +143,9 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
 
       <div className="flex-1 overflow-y-auto pr-1">
         {filtrlanganlar.length === 0 ? (
-          <div className="py-8 text-center text-xs text-purple-400/70">
-            Reagentlar topilmadi.
-          </div>
+          <div className="v3-xira py-8 text-center text-xs">Reagentlar topilmadi.</div>
         ) : (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-1 md:grid-cols-2">
+          <div className="flex flex-col gap-2">
             {filtrlanganlar.map((item) => {
               const kalit = item.kalit;
               const soni = item.soni ?? 0;
@@ -143,32 +162,42 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
                   type="button"
                   disabled={bloklangan || soni <= 0}
                   onClick={() => typeof onTanla === "function" && onTanla(kalit)}
-                  className={`group relative flex items-center justify-between rounded-xl border p-2.5 text-left transition ${
-                    tanlangan
-                      ? "border-yellow-400 bg-purple-900/60 shadow-lg shadow-purple-900/50"
-                      : "bg-slate-800/50 hover:bg-slate-800/90"
-                  } ${nodirlikChegarasi(item.nodirlik)} ${
-                    bloklangan || soni <= 0 ? "cursor-not-allowed opacity-40" : ""
-                  }`}
+                  className={`group relative flex items-center justify-between rounded-xl border p-2.5 text-left transition ${nodirlikChegarasi(
+                    item.nodirlik,
+                  )} ${bloklangan || soni <= 0 ? "cursor-not-allowed opacity-40" : ""}`}
+                  style={{
+                    background: tanlangan ? "var(--v3-yuza-2)" : "var(--v3-yuza)",
+                    color: "var(--v3-matn)",
+                    ...(tanlangan
+                      ? { borderColor: "var(--v3-urgu)", boxShadow: "0 0 0 1px var(--v3-urgu)" }
+                      : item.nodirlik && item.nodirlik !== "oddiy"
+                      ? {}
+                      : { borderColor: "var(--v3-chiziq)" }),
+                  }}
                 >
                   <div className="flex items-center gap-2.5 overflow-hidden">
                     <NishonShakli korinish={korinish} rang={cssRang} />
                     <div className="min-w-0">
-                      <div className="truncate text-xs font-bold text-white">
-                        {kalit}
-                      </div>
-                      <div className="text-[11px] text-purple-400">
-                        {item.nom || kalit}
-                      </div>
+                      <div className="truncate text-xs font-bold">{kalit}</div>
+                      <div className="v3-xira text-[11px]">{item.nom || kalit}</div>
                     </div>
                   </div>
 
                   <div className="flex shrink-0 flex-col items-end gap-0.5">
-                    <span className="rounded bg-slate-900/80 px-1.5 py-0.5 text-[11px] font-semibold text-purple-300">
+                    <span
+                      className="rounded px-1.5 py-0.5 text-[11px] font-semibold"
+                      style={{ background: "var(--v3-yuza-2)", color: "var(--v3-xira)" }}
+                    >
                       ×{soni}
                     </span>
                     {borQuyilgan > 0 && (
-                      <span className="rounded bg-yellow-500/20 px-1.5 py-0.5 text-[10px] font-bold text-yellow-300">
+                      <span
+                        className="rounded px-1.5 py-0.5 text-[10px] font-bold"
+                        style={{
+                          background: "color-mix(in srgb, var(--v3-urgu) 18%, transparent)",
+                          color: "var(--v3-urgu)",
+                        }}
+                      >
                         {borQuyilgan} ml
                       </span>
                     )}

@@ -60,27 +60,23 @@ export default function MobilOgohlantirish() {
   if (!korsat) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-purple-800/50 bg-slate-900/95 p-6 text-white shadow-2xl">
-        <h3 className="text-lg font-bold text-yellow-400">
+    <div className="v3-parda fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="v3-modal">
+        <h3 className="text-lg font-bold" style={{ color: "var(--v3-urgu)" }}>
           Diqqat: Kuchli qurilma talab etiladi
         </h3>
-        <p className="mt-3 text-sm leading-relaxed text-purple-200">
+        <p className="v3-xira mt-3 text-sm leading-relaxed">
           Bu sahifa kuchli qurilma talab qiladi. Oddiy laboratoriya har qanday telefonda ishlaydi.
         </p>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            onClick={handleBaribirOchish}
-            className="rounded-xl border border-purple-800/50 bg-slate-800/70 px-4 py-2.5 text-sm font-medium text-purple-300 transition hover:bg-slate-800"
-          >
+          <button type="button" onClick={handleBaribirOchish} className="v3-tugma justify-center">
             Baribir ochish
           </button>
           <button
             type="button"
             onClick={handleOddiygaOtish}
-            className="rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 px-5 py-2.5 text-sm font-bold text-black shadow-lg transition hover:opacity-90"
+            className="v3-tugma-asosiy justify-center"
           >
             Oddiy laboratoriyaga o&apos;tish
           </button>

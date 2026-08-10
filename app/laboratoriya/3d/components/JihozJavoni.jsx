@@ -53,35 +53,49 @@ export default function JihozJavoni({ jihozlar = [], stolda = [], onQosh, onOlib
   };
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-purple-800/50 bg-slate-900/80 p-4 text-white shadow-xl backdrop-blur-md">
+    <div
+      className="flex h-full flex-col rounded-2xl border p-4 shadow-xl backdrop-blur-md"
+      style={{
+        background: "var(--v3-yuza)",
+        borderColor: "var(--v3-chiziq)",
+        color: "var(--v3-matn)",
+      }}
+    >
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-bold tracking-wide text-purple-300">
-          Jihozlar Javoni
-        </h3>
-        <span className="rounded-full bg-purple-950/80 px-2.5 py-0.5 text-xs font-semibold text-purple-300">
+        <h3 className="text-sm font-bold tracking-wide">Jihozlar javoni</h3>
+        <span
+          className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
+          style={{ background: "var(--v3-yuza-2)", color: "var(--v3-xira)" }}
+        >
           Stolda: {stoldagiSon} / 6
         </span>
       </div>
 
       {slotlarToldimi && (
-        <div className="mb-3 rounded-xl border border-amber-500/50 bg-amber-950/50 p-2 text-xs text-amber-300">
+        <div
+          className="mb-3 rounded-xl border p-2 text-xs"
+          style={{
+            borderColor: "color-mix(in srgb, var(--v3-urgu) 45%, transparent)",
+            background: "color-mix(in srgb, var(--v3-urgu) 12%, transparent)",
+            color: "var(--v3-urgu)",
+          }}
+        >
           Stoldagi barcha 6 ta joy band. Yangi jihoz qo&apos;yish uchun avvalgisini olib tashlang.
         </div>
       )}
 
       <div className="flex-1 overflow-y-auto pr-1">
         {Object.keys(guruhlanganlar).length === 0 ? (
-          <div className="py-8 text-center text-xs text-purple-400/70">
-            Jihozlar topilmadi.
-          </div>
+          <div className="v3-xira py-8 text-center text-xs">Jihozlar topilmadi.</div>
         ) : (
           <div className="flex flex-col gap-4">
             {Object.entries(guruhlanganlar).map(([guruhKaliti, roxat]) => (
               <div key={guruhKaliti}>
-                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-purple-400">
-                  {GURUH_NOMLARI[guruhKaliti] || "Jihozlar"}
-                </h4>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-1 md:grid-cols-2">
+                <h4 className="v3-nishon mb-2">{GURUH_NOMLARI[guruhKaliti] || "Jihozlar"}</h4>
+                {/* Bitta ustun: 320px panelda ikki ustun bo'lganda kartaga ~140px
+                    tegib, ikonka va "+ Qo'yish" nishonidan keyin nomga ~40px
+                    qolardi va hamma jihoz "P...", "F..." bo'lib ko'rinardi. */}
+                <div className="flex flex-col gap-2">
                   {roxat.map((item) => {
                     const kalit = item.kalit;
                     const bormi = stoldaBormi(kalit);
@@ -94,29 +108,35 @@ export default function JihozJavoni({ jihozlar = [], stolda = [], onQosh, onOlib
                         disabled={bloklangan}
                         onClick={() => handleJihozBosildi(kalit)}
                         className={`flex items-center justify-between rounded-xl border p-2.5 text-left transition ${
-                          bormi
-                            ? "border-green-500 bg-green-950/40 shadow-md shadow-green-950/50"
-                            : "border-purple-800/50 bg-slate-800/50 hover:bg-slate-800/90"
-                        } ${bloklangan ? "cursor-not-allowed opacity-40" : ""}`}
+                          bloklangan ? "cursor-not-allowed opacity-40" : ""
+                        }`}
+                        style={{
+                          background: bormi ? "var(--v3-yuza-2)" : "var(--v3-yuza)",
+                          borderColor: bormi ? "var(--v3-urgu-2)" : "var(--v3-chiziq)",
+                          color: "var(--v3-matn)",
+                        }}
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
                           <span className="text-base">{item.icon || "🧪"}</span>
                           <div className="min-w-0">
-                            <div className="truncate text-xs font-bold text-white">
-                              {item.nom || kalit}
-                            </div>
-                            <div className="text-[11px] text-purple-400">
+                            <div className="truncate text-xs font-bold">{item.nom || kalit}</div>
+                            <div className="v3-xira text-[11px]">
                               {bormi ? "Stolda turibdi" : "Qo'yish"}
                             </div>
                           </div>
                         </div>
 
                         <span
-                          className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                          className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold"
+                          style={
                             bormi
-                              ? "bg-green-500/20 text-green-300"
-                              : "bg-purple-950/80 text-purple-300"
-                          }`}
+                              ? {
+                                  background:
+                                    "color-mix(in srgb, var(--v3-urgu-2) 20%, transparent)",
+                                  color: "var(--v3-urgu-2)",
+                                }
+                              : { background: "var(--v3-yuza-2)", color: "var(--v3-xira)" }
+                          }
                         >
                           {bormi ? "✓ Stolda" : "+ Qo'yish"}
                         </span>
