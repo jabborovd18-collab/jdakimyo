@@ -99,6 +99,7 @@ export default function AdminTelegramPage() {
         <>
           <Statistika />
           <AiSinov />
+          <RasmSinov />
         </>
       )}
       {bolim === 'odamlar' && <Foydalanuvchilar />}
@@ -561,6 +562,148 @@ function AiSinov() {
               </div>
             </div>
           ) : null}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Slaydlardagi rasm manbalarini tekshirish.
+ *
+ * NEGA AI SINOVIDAN ALOHIDA. "Slaydlarda rasm yo'q" shikoyatining uch
+ * xil sababi bor va uchalasi ham foydalanuvchiga bir xil ko'rinadi:
+ *   1. PubChem moddani topmagan (nom noto'g'ri shaklda so'ralgan),
+ *   2. Gemini'ning RASM modeli yopilgan (matn modeli ishlab tursa ham),
+ *   3. kalit umuman qo'yilmagan.
+ * Yuqoridagi "AI ulanishi" tugmasi faqat MATN modelini tekshiradi va
+ * u yashil bo'lsa ham rasm ishlamayotgan bo'lishi mumkin.
+ */
+function RasmSinov() {
+  const [natija, setNatija] = useState(null)
+  const [band, setBand] = useState(false)
+
+  async function sina() {
+    setBand(true)
+    setNatija(null)
+    try {
+      const res = await fetch('/api/admin/telegram/rasm-sinov', { method: 'POST' })
+      setNatija(await res.json())
+    } catch (e) {
+      setNatija({ success: false, sabab: 'ulanmadi', xato: e.message })
+    } finally {
+      setBand(false)
+    }
+  }
+
+  const n = natija?.natija
+  const bezak = n?.bezak
+
+  return (
+    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mt-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <h2 className="text-sm font-bold text-yellow-300">
+          Slayd rasmlari (PubChem + bezak)
+        </h2>
+        <button
+          onClick={sina}
+          disabled={band}
+          className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold disabled:opacity-40"
+        >
+          {band ? 'Tekshirilmoqda...' : 'Sinab ko\'rish'}
+        </button>
+      </div>
+
+      {!natija ? (
+        <p className="text-xs text-purple-400">
+          Slaydlarda tuzilma yoki muqova rasmi chiqmasa shu tugmani bosing.
+        </p>
+      ) : !natija.success ? (
+        <div className="text-xs text-red-200 bg-red-950/40 border border-red-800/50 rounded-xl p-3">
+          {{
+            'kopruk-sozlanmagan': 'Ko\'prik sozlanmagan (BOT_ISHCHI_URL / BOT_KOPRUK_SIR).',
+            'kalit-mos-emas': 'Ko\'prik kaliti mos emas — Sozlamalar bo\'limiga qarang.',
+            'eski-kod': 'Render eski kod bilan ishlayapti — Manual Deploy qiling.',
+            uxlayapti: 'Servis javob bermadi. Bir daqiqadan keyin qayta bosing.',
+          }[natija.sabab] || 'Tekshirib bo\'lmadi.'}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {/* ── PubChem: tuzilma formulalari ── */}
+          <div
+            className={`rounded-xl p-3 text-xs border ${
+              n.pubchemOk
+                ? 'bg-green-950/40 border-green-800/50 text-green-200'
+                : 'bg-red-950/40 border-red-800/50 text-red-200'
+            }`}
+          >
+            <div className="font-bold mb-2">
+              {n.pubchemOk ? '✅ PubChem javob beryapti' : '❌ PubChem javob bermadi'}
+            </div>
+            {n.pubchem?.map((p, i) => (
+              <div key={i} className="font-mono text-[11px] py-0.5">
+                <span className={p.topildi ? 'text-green-400' : 'text-red-400'}>
+                  {p.topildi ? '✓' : '✕'}
+                </span>{' '}
+                {p.soralgan}{' '}
+                <span className="opacity-50">— {p.izoh}</span>
+              </div>
+            ))}
+            <p className="opacity-60 mt-2 text-[11px]">
+              Kvadrat qavsli formula ([Cu(NH3)4]SO4) PubChem&apos;da yo&apos;q —
+              shuning uchun modelga inglizcha NOM yozish buyurilgan. Uning
+              qatorida ✕ turishi normal.
+            </p>
+          </div>
+
+          {/* ── Muqova bezagi ── */}
+          <div
+            className={`rounded-xl p-3 text-xs border ${
+              bezak?.ok
+                ? 'bg-green-950/40 border-green-800/50 text-green-200'
+                : 'bg-red-950/40 border-red-800/50 text-red-200'
+            }`}
+          >
+            <div className="font-bold mb-2">
+              {bezak?.ok ? '✅ Bezak rasm ishlayapti' : '❌ Bezak rasm chiqmadi'}
+            </div>
+            {bezak?.model ? <Satr nom="Rasm modeli" qiymat={bezak.model} /> : null}
+            {bezak?.kod ? <Satr nom="HTTP kodi" qiymat={bezak.kod} /> : null}
+            {bezak?.hajm ? <Satr nom="Rasm hajmi" qiymat={`${bezak.hajm} bayt`} /> : null}
+            {bezak?.xato ? <Satr nom="Xato" qiymat={bezak.xato} /> : null}
+            {bezak?.sabab ? (
+              <Satr
+                nom="Sabab"
+                qiymat={
+                  {
+                    'kalit-yoq': 'GEMINI_API_KEY qo\'yilmagan',
+                    'model-rasm-qaytarmadi':
+                      'Model javob berdi, lekin rasm emas — bu rasm modeli emas',
+                  }[bezak.sabab] || bezak.sabab
+                }
+              />
+            ) : null}
+
+            {bezak?.ochiqRasmModellari?.length ? (
+              <div className="mt-3 pt-3 border-t border-red-800/50">
+                <div className="opacity-70 mb-1">
+                  Shu kalit uchun ochiq rasm modellari — kerakligini
+                  Render&apos;dagi{' '}
+                  <code className="font-mono">GEMINI_RASM_MODEL</code> ga yozing:
+                </div>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {bezak.ochiqRasmModellari.map((m) => (
+                    <span
+                      key={m}
+                      className="font-mono text-[11px] bg-slate-900/70 rounded px-2 py-1"
+                    >
+                      {m}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       )}
     </div>
