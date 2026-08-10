@@ -51,14 +51,13 @@ export const QUYISH = {
   standartKonsentratsiya: 0.5, // mol/l (yoki mol/1000ml = 0.0005 mol/ml)
 };
 
-// Stexiometriyaning to'g'rilik foizi va chegaralari: o'quvchi xatosini bloklamasdan,
-// natijaga va xulosaga ta'sir qiladigan interfallar.
-export const NISBAT_CHEGARALARI = {
-  chala: 0.6,
-  togri: 0.2,
-  ortiqcha: 1.5,
-  keskin: 3.0,
-};
+// Stexiometriya chegaralari BU YERDA EMAS — `lib/lab-nisbat.js` da.
+//
+// Ular ilgari shu faylda turardi va client o'zi baho qo'yardi. Endi hakam
+// server: u nima sarflanishini va qancha mahsulot chiqishini ham o'sha
+// baho bilan hal qiladi, ya'ni chegaralarning ikkinchi nusxasi bo'lsa
+// ekrandagi baho bilan haqiqiy natija bir-biriga qarama-qarshi chiqishi
+// mumkin edi.
 
 // Mobil va oddiy qurilmalarda kadrlar soni (FPS) tushib ketmasligi uchun zarrachalar miqdori optimal cheklangan.
 export const EFFEKT_DAVOMIYLIGI = {

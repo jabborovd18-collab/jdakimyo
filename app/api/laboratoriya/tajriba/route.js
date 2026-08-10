@@ -39,12 +39,26 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 })
     }
 
-    const { kalitlar, reactionId } = await request.json()
+    const { kalitlar, reactionId, miqdorlar } = await request.json()
     if (!Array.isArray(kalitlar) || kalitlar.length === 0) {
       return NextResponse.json({ error: 'Reagent tanlanmagan' }, { status: 400 })
     }
 
-    const natija = await tajribaniOtkaz(session.user.id, kalitlar, reactionId || null)
+    // `miqdorlar` — 3D laboratoriya qo'lda quygan miqdor (kalit → ml/gr).
+    // 2D laboratoriya uni yubormaydi va ideal ulush oladi. Qiymatga
+    // ishonilmaydi: u faqat nima sarflanishini belgilaydi, inventarda
+    // borligini tranzaksiya ichidagi shartli update tekshiradi.
+    const tozaMiqdorlar =
+      miqdorlar && typeof miqdorlar === 'object' && !Array.isArray(miqdorlar)
+        ? miqdorlar
+        : null
+
+    const natija = await tajribaniOtkaz(
+      session.user.id,
+      kalitlar,
+      reactionId || null,
+      tozaMiqdorlar,
+    )
 
     // Bir to'plamdan bir nechta reaksiya chiqdi — foydalanuvchi tanlashi
     // kerak. Xato emas, shuning uchun 200.

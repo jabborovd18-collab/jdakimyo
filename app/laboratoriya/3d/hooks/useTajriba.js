@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { nisbatniBaho } from "../lib/stexiometriya.js";
+import { reagentBirligi, hajmniBirlikka } from "@/lib/lab-birlik.js";
 import { effektlarniAniqla } from "../lib/kuzatuv-tahlil.js";
 import { effektlarniIshgaTushir, aralashishEffekti } from "../lib/effektlar.js";
 import { hisobot, yoz } from "../lib/jurnal.js";
@@ -50,6 +50,18 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
     const moddalarObj = holatRef?.current?.moddalar || {};
     const kalitlar = Object.keys(moddalarObj);
 
+    // Haqiqatda quyilgan miqdor. Sahnada hamma narsa ml bilan quyiladi,
+    // qattiq modda esa grammda o'lchanadi — o'tkazish lib/lab-birlik.js da.
+    //
+    // Ilgari serverga faqat KALITLAR ketardi: 5 ml quysang ham, 50 ml
+    // quysang ham javob bir xil bo'lardi va stexiometriya bahosi ekranda
+    // qolib, natijaga ta'sir qilmasdi.
+    const miqdorlar = {};
+    for (const kalit of kalitlar) {
+      const ml = moddalarObj[kalit]?.ml || 0;
+      miqdorlar[kalit] = hajmniBirlikka(ml, reagentBirligi(kalit));
+    }
+
     if (kalitlar.length === 0) {
       setXato("Idishda reagent yo'q, avval tajriba uchun moddalardan quying.");
       setOtkazilmoqda(false);
@@ -79,6 +91,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
         body: JSON.stringify({
           kalitlar,
           reactionId,
+          miqdorlar,
         }),
       });
 
@@ -121,19 +134,14 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
 
       // 3(c). Muvaffaqiyatli reaksiya
       if (ma_lumot.success && ma_lumot.reaksiya) {
-        // Stexiometriya nisbatini hisoblaymiz.
+        // Stexiometrik baho SERVERDAN keladi.
         //
-        // Koeffitsientlar `sarflandi` dan olinadi, `reaksiya` dan emas: muvaffaqiyat
-        // javobidagi `reaksiya` obyektida reagentlar ro'yxati umuman yo'q, `sarflandi`
-        // dagi `soni` esa aynan tenglamaning chap tomonidagi koeffitsient
-        // (lib/tajriba.js: sarflandi = reaksiya.chap.map(a => ({ soni: a.koef }))).
-        // Avval `reaksiya.reagentlar` o'qilardi — u har doim undefined bo'lgani uchun
-        // nisbat har safar "to'g'ri" chiqib, stexiometriya jim ishlamay turardi.
-        const koeflar = (ma_lumot.sarflandi || []).map((s) => ({
-          kalit: s.kalit,
-          koef: s.soni || 1,
-        }));
-        const baho = nisbatniBaho(holatRef?.current, koeflar);
+        // Ilgari uni client o'zi hisoblardi (3d/lib/stexiometriya.js) va
+        // natijaga hech qanday ta'siri yo'q edi — ekranda "ortiqcha
+        // quyildingiz" deb yozilardi, lekin mahsulot ham, XP ham
+        // o'zgarmasdi. Endi hakam serverda: u nima sarflanishini va
+        // qancha mahsulot chiqishini ham shu baho bilan hal qiladi.
+        const baho = ma_lumot.nisbat || null;
         setNisbatBahosi(baho);
 
         // Kuzatuv matnidan effektlar massivini chiqarib, ishga tushiramiz.
