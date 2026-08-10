@@ -4,6 +4,11 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 
+// Do'kondagi bitta dona qancha modda berishini matn qilib beradi.
+// Jihoz uchun bo'sh — u allaqachon donalab sanaladi.
+const ULUSH_MATNI = (birlik) =>
+  birlik === 'ml' ? '25 ml' : birlik === 'gr' ? '5 g' : null
+
 const NODIRLIK = {
   oddiy: { nom: 'Oddiy', rang: 'border-slate-600/50 bg-slate-800/40', matn: 'text-slate-300' },
   kam: { nom: 'Kam', rang: 'border-green-700/50 bg-green-950/30', matn: 'text-green-400' },
@@ -366,7 +371,7 @@ export default function LaboratoriyaPage() {
                         <div key={i.kalit} className={`rounded-xl border p-3.5 ${n.rang}`}>
                           <div className="flex items-start justify-between gap-2">
                             <span className="text-2xl">{i.icon || '📦'}</span>
-                            <span className="text-sm font-bold text-white">×{i.soni}</span>
+                            <span className="text-sm font-bold text-white">{i.matn || `×${i.soni}`}</span>
                           </div>
                           <div className="mt-2 font-semibold text-white text-sm leading-tight">{i.nom}</div>
                           <div className={`text-[10px] mt-0.5 ${n.matn}`}>{n.nom}</div>
@@ -523,7 +528,7 @@ export default function LaboratoriyaPage() {
                     </div>
                     {tajribaNatija.sarflandi.map((s) => (
                       <div key={s.kalit} className="text-sm text-purple-200">
-                        −{s.soni} × {s.nom}
+                        −{s.matn || `${s.soni} ×`} {s.nom}
                       </div>
                     ))}
                   </div>
@@ -536,7 +541,7 @@ export default function LaboratoriyaPage() {
                     ) : (
                       tajribaNatija.olindi.map((m) => (
                         <div key={m.kalit} className="text-sm text-green-200">
-                          +{m.soni} × {m.nom}
+                          +{m.matn || `${m.soni} ×`} {m.nom}
                         </div>
                       ))
                     )}
@@ -592,7 +597,7 @@ export default function LaboratoriyaPage() {
                             : 'bg-slate-900/60 border-purple-800/50 text-purple-100 hover:border-purple-500/70'
                         }`}
                       >
-                        {r.nom} <span className="opacity-70">×{r.soni}</span>
+                        {r.nom} <span className="opacity-70">{r.matn || `×${r.soni}`}</span>
                       </button>
                     )
                   })}
@@ -812,7 +817,12 @@ export default function LaboratoriyaPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {buyumlar.map((b) => {
                   const n = NODIRLIK[b.nodirlik] || NODIRLIK.oddiy
-                  const bor = inventar.find((i) => i.kalit === b.kalit)?.soni || 0
+                  const inv = inventar.find((i) => i.kalit === b.kalit)
+                  const bor = inv?.miqdor ?? inv?.soni ?? 0
+                  // Do'kon DONALAB sotadi, inventar esa ml yoki grammda
+                  // yashaydi. Bitta dona nima berishini aytmasak,
+                  // "×1 sotib oldim, nega 25 ml chiqdi?" degan savol tug'iladi.
+                  const ulushMatni = ULUSH_MATNI(b.birlik)
                   return (
                     <div key={b.kalit} className={`rounded-xl border p-4 ${n.rang}`}>
                       <div className="flex items-start gap-3">
@@ -822,7 +832,14 @@ export default function LaboratoriyaPage() {
                           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                             <span className={`text-[10px] ${n.matn}`}>{n.nom}</span>
                             {b.sanoat && <span className="text-[10px] text-orange-400">🏭 Sanoat</span>}
-                            {bor > 0 && <span className="text-[10px] text-purple-400">bor: {bor}</span>}
+                            {ulushMatni && (
+                              <span className="text-[10px] text-purple-400">1 dona = {ulushMatni}</span>
+                            )}
+                            {bor > 0 && (
+                              <span className="text-[10px] text-purple-400">
+                                bor: {inv?.matn || bor}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>

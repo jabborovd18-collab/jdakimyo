@@ -42,6 +42,7 @@ export async function GET(request) {
         kalit: true, nom: true, turi: true, guruh: true, icon: true, tavsif: true,
         nodirlik: true, narx: true, sotishNarxi: true, gemsNarxi: true,
         sarflanadi: true, sanoat: true, daraja: true, uchraydi: true,
+        birlik: true,
       },
     })
 

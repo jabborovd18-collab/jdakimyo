@@ -14,6 +14,7 @@ import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
 import { moddaKorinishi } from "./lib/modda-korinishi.js";
+import { reagentBirligi, hajmniBirlikka, miqdorniFormatla } from "@/lib/lab-birlik.js";
 
 // Hex rangni '#RRGGBB' css satriga aylantirish.
 function hexDanCss(hex) {
@@ -456,6 +457,7 @@ export default function Korinish() {
           <div className="hidden flex-wrap gap-1 sm:flex">
             {quyilganKalitlar.map((kalit) => {
               const ml = quyilganModdalar[kalit]?.ml || 0;
+              const birlik = reagentBirligi(kalit);
               const rang = hexDanCss(moddaKorinishi(kalit).rang);
               return (
                 <span
@@ -465,7 +467,9 @@ export default function Korinish() {
                 >
                   <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: rang }} />
                   {kalit}{" "}
-                  <strong style={{ color: "var(--v3-urgu)" }}>{ml} ml</strong>
+                  <strong style={{ color: "var(--v3-urgu)" }}>
+                    {miqdorniFormatla(hajmniBirlikka(ml, birlik), birlik)}
+                  </strong>
                 </span>
               );
             })}

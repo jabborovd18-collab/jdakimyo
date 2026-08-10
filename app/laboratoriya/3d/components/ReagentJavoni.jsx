@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { moddaKorinishi } from "../lib/modda-korinishi.js";
+import { reagentBirligi, hajmniBirlikka, miqdorniFormatla } from "@/lib/lab-birlik.js";
 
 // Nodirlik chegarasi. Bu ranglar ataylab v3 o'zgaruvchilaridan olinmaydi:
 // ular mavzuga emas, MA'NOGA bog'liq (yashil — kam, ko'k — nodir, binafsha —
@@ -149,8 +150,21 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
             {filtrlanganlar.map((item) => {
               const kalit = item.kalit;
               const soni = item.soni ?? 0;
-              const borQuyilgan = quyilgan[kalit] || 0;
-              const bloklangan = chegaraToldimi && borQuyilgan <= 0;
+
+              // Mavjudlik MIQDOR bo'yicha tekshiriladi. `soni` pastga
+              // yaxlitlanadi, ya'ni 12.5 ml qolgan reagentda u 0 bo'ladi va
+              // shunga qarab bloklasak, foydalanuvchi o'zining bor moddasini
+              // ishlata olmay qolardi.
+              const bor = item.miqdor ?? soni;
+
+              // `quyilgan[kalit]` — obyekt (`{ml, mol}`), son emas. Ilgari u
+              // to'g'ridan `> 0` bilan solishtirilardi va shart hech qachon
+              // bajarilmasdi: quyilgan miqdor nishoni umuman ko'rinmagan,
+              // ko'ringanda ham "[object Object] ml" bo'lardi.
+              const quyilganMl = quyilgan[kalit]?.ml || 0;
+              const birlik = reagentBirligi(kalit);
+              const quyilganMiqdor = hajmniBirlikka(quyilganMl, birlik);
+              const bloklangan = chegaraToldimi && quyilganMl <= 0;
               const tanlangan = faol === kalit;
 
               const korinish = moddaKorinishi(kalit);
@@ -160,11 +174,11 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
                 <button
                   key={kalit}
                   type="button"
-                  disabled={bloklangan || soni <= 0}
+                  disabled={bloklangan || bor <= 0}
                   onClick={() => typeof onTanla === "function" && onTanla(kalit)}
                   className={`group relative flex items-center justify-between rounded-xl border p-2.5 text-left transition ${nodirlikChegarasi(
                     item.nodirlik,
-                  )} ${bloklangan || soni <= 0 ? "cursor-not-allowed opacity-40" : ""}`}
+                  )} ${bloklangan || bor <= 0 ? "cursor-not-allowed opacity-40" : ""}`}
                   style={{
                     background: tanlangan ? "var(--v3-yuza-2)" : "var(--v3-yuza)",
                     color: "var(--v3-matn)",
@@ -188,9 +202,9 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
                       className="rounded px-1.5 py-0.5 text-[11px] font-semibold"
                       style={{ background: "var(--v3-yuza-2)", color: "var(--v3-xira)" }}
                     >
-                      ×{soni}
+                      {item.matn || `×${soni}`}
                     </span>
-                    {borQuyilgan > 0 && (
+                    {quyilganMl > 0 && (
                       <span
                         className="rounded px-1.5 py-0.5 text-[10px] font-bold"
                         style={{
@@ -198,7 +212,7 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
                           color: "var(--v3-urgu)",
                         }}
                       >
-                        {borQuyilgan} ml
+                        {miqdorniFormatla(quyilganMiqdor, birlik)}
                       </span>
                     )}
                   </div>

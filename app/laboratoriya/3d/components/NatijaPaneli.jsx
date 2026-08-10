@@ -201,7 +201,7 @@ export default function NatijaPaneli({
                       className="rounded px-1.5 py-0.5 text-xs"
                       style={{ background: "var(--v3-yuza-2)" }}
                     >
-                      {s.kalit} ×{s.soni}
+                      {s.kalit} {s.matn || `×${s.soni}`}
                     </span>
                   ))}
                 </div>
@@ -219,7 +219,7 @@ export default function NatijaPaneli({
                         color: "var(--v3-urgu)",
                       }}
                     >
-                      {o.kalit} ×{o.soni}
+                      {o.kalit} {o.matn || `×${o.soni}`}
                     </span>
                   ))}
                 </div>
