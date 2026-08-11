@@ -15,6 +15,9 @@ import MolekulaZoomModal from "./components/MolekulaZoomModal.jsx";
 import PHMeterUI from "./components/PHMeterUI.jsx";
 import TaroziUI from "./components/TaroziUI.jsx";
 import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
+import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
+import KristallPanjaraModal from "./components/KristallPanjaraModal.jsx";
+import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi } from "./lib/ovoz.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
@@ -58,6 +61,8 @@ export default function Korinish() {
   const [phMeterOchilgan, setPhMeterOchilgan] = useState(false);
   const [taroziOchilgan, setTaroziOchilgan] = useState(false);
   const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
+  const [portlashMaLumot, setPortlashMaLumot] = useState(null);
+  const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
 
   // Spirtovkada isitish simulyatsiyasi
   useEffect(() => {
@@ -353,6 +358,16 @@ export default function Korinish() {
 
           <button
             type="button"
+            onClick={() => setKristallPanjaraOchilgan(!kristallPanjaraOchilgan)}
+            className={`v3-tugma text-xs font-bold transition ${
+              kristallPanjaraOchilgan ? "border-cyan-400 text-cyan-400" : ""
+            }`}
+          >
+            🧊 Kristall Panjara
+          </button>
+
+          <button
+            type="button"
             onClick={() => setSandiqOchilgan(!sandiqOchilgan)}
             className="v3-tugma text-xs font-bold transition hover:scale-105 border-amber-400 text-amber-400"
           >
@@ -620,7 +635,15 @@ export default function Korinish() {
           <button
             type="button"
             disabled={jamiMl <= 0 || otkazilmoqda}
-            onClick={() => otkaz(null, nishonIdishGroup)}
+            onClick={() => {
+              const res = portlashniAniqla(quyilganModdalar, harorat);
+              if (res.portladi) {
+                setPortlashMaLumot(res);
+                handleTozalash();
+              } else {
+                otkaz(null, nishonIdishGroup);
+              }
+            }}
             className={`v3-tugma-asosiy text-xs ${
               jamiMl <= 0 || otkazilmoqda ? "cursor-not-allowed opacity-40" : ""
             }`}
@@ -684,6 +707,21 @@ export default function Korinish() {
           onTopshiriqBoshla={(topshiriq) => {
             // Noma'lum X, Y, Z idishlarini stolga qo'shish
           }}
+        />
+      )}
+
+      {/* --- XAVFSIZLIK PORTLASH MODALI --- */}
+      {portlashMaLumot && (
+        <XavfsizlikModal
+          maLumot={portlashMaLumot}
+          onYop={() => setPortlashMaLumot(null)}
+        />
+      )}
+
+      {/* --- 3D KRISTALL PANJARALAR MODALI --- */}
+      {kristallPanjaraOchilgan && (
+        <KristallPanjaraModal
+          onYop={() => setKristallPanjaraOchilgan(false)}
         />
       )}
 
