@@ -23,6 +23,13 @@ const esmRequire = require('./_esm-require')
 // tajriba dvigateli), shuning uchun ular hech qachon bir-biridan uzilmaydi.
 const { buyumBirligi } = esmRequire('lib/lab-birlik.js', ['buyumBirligi'])
 
+// Erituvchi variantlari (jo'mrak suvi) katalogda SQL bilan emas, shu
+// moduldan yaratiladi — xossalari ham, nomi ham bitta joyda tursin.
+const { variantRoyxati, erituvchiOl } = esmRequire('lib/lab-erituvchi.js', [
+  'variantRoyxati',
+  'erituvchiOl',
+])
+
 const prisma = new PrismaClient()
 
 const DATA = path.join(__dirname, '..', 'data', 'laboratoriya')
@@ -37,7 +44,10 @@ function yozuvlarniTayyorla() {
   for (const r of reagentlar) {
     yozuvlar.push({
       kalit: r.kalit,
-      nom: r.nom,
+      // Erituvchining nomi `lib/lab-erituvchi.js` dan: generator uni
+      // formuladan oladi ("H₂O"), lekin javonda "Distillangan suv" deb
+      // turgani jo'mrak suvidan farqini ko'rsatadi.
+      nom: erituvchiOl(r.kalit)?.nom ?? r.nom,
       turi: 'reagent',
       birlik: buyumBirligi({ kalit: r.kalit, turi: 'reagent' }),
       guruh: null,
@@ -106,6 +116,38 @@ function yozuvlarniTayyorla() {
       daraja: t.daraja ?? 1,
       xom: t.xom ?? null,
       oilalar: t.jihoz ? { jihoz: t.jihoz } : null,
+    })
+  }
+
+  // ── Erituvchi variantlari ──
+  //
+  // Ular generatsiya qilinmaydi: `reagentlar.js` reaksiyalar bazasidan
+  // chiqadi va u yerda jo'mrak suvi yo'q — tenglamalarda faqat `H₂O`
+  // yoziladi. Variant esa o'yin tushunchasi, kimyo bazasiniki emas.
+  for (const v of variantRoyxati()) {
+    yozuvlar.push({
+      kalit: v.kalit,
+      nom: v.nom,
+      turi: 'reagent',
+      guruh: null,
+      icon: '🚰',
+      tavsif: v.izoh ?? null,
+      nodirlik: 'oddiy',
+      uchraydi: 0,
+      chiqadi: 0,
+      // Bepul: narxi ham, sotish narxi ham nol. Cheksiz manbani sotib
+      // olish yoki sotish ma'nosiz bo'lardi.
+      narx: 0,
+      sotishNarxi: 0,
+      gemsNarxi: null,
+      sarflanadi: true,
+      sanoat: false,
+      daraja: 1,
+      xom: null,
+      oilalar: null,
+      birlik: buyumBirligi({ kalit: v.asos, turi: 'reagent' }),
+      asos: v.asos,
+      cheksiz: Boolean(v.cheksiz),
     })
   }
 

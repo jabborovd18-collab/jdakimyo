@@ -733,6 +733,24 @@ model LabItemDef {
   // titkilashning ma'nosi yo'q.
   birlik String @default("dona")
 
+  // ─── Variant ───
+  //
+  // `asos` — shu yozuv boshqa moddaning turi bo'lsa, o'sha moddaning
+  // kaliti. Jo'mrak suvi ("H₂O-oddiy") inventarda alohida yozuv, lekin
+  // reaksiya qidirishda "H₂O" ga aylanadi.
+  //
+  // Nega kerak: reaksiya REAGENTLAR TO'PLAMI bo'yicha topiladi
+  // (lib/lab-tenglama.js). Variant o'z kaliti bilan qidirilsa, u bilan
+  // birorta ham reaksiya mos kelmasdi. Mexanizm suvga xos emas —
+  // suyultirilgan va konsentrlangan kislota ham shu yo'l bilan qo'shiladi.
+  asos String?
+
+  // Tugamaydigan manba (jo'mrak suvi). Bunday buyum inventarda yozuv
+  // ochmaydi: sarflansa kamaymaydi, "yetarlimi" tekshiruvi esa doim
+  // ijobiy. Aks holda foydalanuvchi bepul suvni ham "sotib olishi"
+  // kerak bo'lardi va bu bepul degani bo'lmasdi.
+  cheksiz Boolean @default(false)
+
   // ─── Xossalar ───
   sarflanadi Boolean @default(false) // ishlatilganda yo'qoladi (filtr qog'ozi)
   sanoat     Boolean @default(false) // talaba laboratoriyasida bo'lmaydi

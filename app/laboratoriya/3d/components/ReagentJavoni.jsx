@@ -155,7 +155,9 @@ export default function ReagentJavoni({ reagentlar = [], faol, onTanla, quyilgan
               // yaxlitlanadi, ya'ni 12.5 ml qolgan reagentda u 0 bo'ladi va
               // shunga qarab bloklasak, foydalanuvchi o'zining bor moddasini
               // ishlata olmay qolardi.
-              const bor = item.miqdor ?? soni;
+              // Cheksiz manba (jo'mrak suvi) har doim mavjud — uning
+              // miqdori `null` bo'lib keladi, chunki saqlanadigan qiymati yo'q.
+              const bor = item.cheksiz ? Infinity : (item.miqdor ?? soni);
 
               // `quyilgan[kalit]` — obyekt (`{ml, mol}`), son emas. Ilgari u
               // to'g'ridan `> 0` bilan solishtirilardi va shart hech qachon
