@@ -29,6 +29,8 @@ export default function NatijaPaneli({
   onYop,
   onTanlovTanla,
   onQaytaUrin,
+  onMolekulaZoom,
+  onPdfYukla,
 }) {
   const [faolTab, setFaolTab] = useState("natija"); // "natija" yoki "hisobot"
 
@@ -266,6 +268,20 @@ export default function NatijaPaneli({
                 </div>
               )}
             </div>
+
+            {/* 🔍 Molekulyar Nano-Zoom Tugmasi */}
+            <button
+              type="button"
+              onClick={() => typeof onMolekulaZoom === "function" && onMolekulaZoom("H₂O")}
+              className="w-full rounded-xl border py-2.5 text-xs font-bold transition hover:scale-[1.01]"
+              style={{
+                background: "color-mix(in srgb, var(--v3-urgu) 15%, transparent)",
+                borderColor: "var(--v3-urgu)",
+                color: "var(--v3-urgu)",
+              }}
+            >
+              🔍 Molekulyar Nano-Zoom (3D Atomlar)
+            </button>
           </div>
         )}
 
@@ -306,6 +322,19 @@ export default function NatijaPaneli({
                 </ul>
               </div>
             )}
+
+            {/* 📄 PDF Hisobot Yuklash Tugmasi */}
+            <button
+              type="button"
+              onClick={() => typeof onPdfYukla === "function" && onPdfYukla()}
+              className="w-full rounded-xl py-3 text-xs font-bold transition hover:scale-[1.01]"
+              style={{
+                background: "var(--v3-urgu)",
+                color: "var(--v3-urgu-matn)",
+              }}
+            >
+              📄 Laboratoriya Daftarini Yuklash (PDF)
+            </button>
           </div>
         )}
       </div>

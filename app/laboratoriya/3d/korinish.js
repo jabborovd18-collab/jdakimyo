@@ -11,6 +11,9 @@ import JihozJavoni from "./components/JihozJavoni.jsx";
 import NatijaPaneli from "./components/NatijaPaneli.jsx";
 import MobilOgohlantirish from "./components/MobilOgohlantirish.jsx";
 import SifatAnalizPaneli from "./components/SifatAnalizPaneli.jsx";
+import MolekulaZoomModal from "./components/MolekulaZoomModal.jsx";
+import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
+import { pufakchaChiqishi } from "./lib/ovoz.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
@@ -46,6 +49,31 @@ export default function Korinish() {
   const [aralashmaOzgarish, setAralashmaOzgarish] = useState(0); // Rerender triggeri
   const [mobilJavon, setMobilJavon] = useState(null); // "reagentlar" | "jihozlar" | null
   const [sifatAnalizOchilgan, setSifatAnalizOchilgan] = useState(false);
+  const [molekulaModalKalit, setMolekulaModalKalit] = useState(null);
+  const [isitimoda, setIsitimoda] = useState(false);
+  const [harorat, setHarorat] = useState(25);
+
+  // Spirtovkada isitish simulyatsiyasi
+  useEffect(() => {
+    let timer = null;
+    if (isitimoda) {
+      pufakchaChiqishi();
+      timer = setInterval(() => {
+        setHarorat((prev) => {
+          if (prev >= 100) {
+            pufakchaChiqishi();
+            return 100;
+          }
+          return prev + 5;
+        });
+      }, 800);
+    } else {
+      setHarorat(25);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isitimoda]);
 
   // Sahifa va sahna foni — bitta tanlov.
   //
@@ -449,6 +477,16 @@ export default function Korinish() {
             setXato(null);
             otkaz(null, nishonIdishGroup);
           }}
+          onMolekulaZoom={(kalit) => setMolekulaModalKalit(kalit || "H₂O")}
+          onPdfYukla={() =>
+            labDaftariPdfYukla({
+              foydalanuvchiNom: labMaLumot?.foydalanuvchi?.ism || "Talaba",
+              tenglama: natija?.reaksiya?.equation,
+              observations: natija?.reaksiya?.observations,
+              nisbat: nisbatBahosi,
+              jurnal: jurnalRef?.current?.yozuvlar,
+            })
+          }
         />
       </div>
 
@@ -533,6 +571,17 @@ export default function Korinish() {
             </span>
           </button>
 
+          {/* Spirtovka bilan isitish tugmasi */}
+          <button
+            type="button"
+            onClick={() => setIsitimoda(!isitimoda)}
+            className={`v3-tugma text-xs font-bold transition ${
+              isitimoda ? "border-amber-500 bg-amber-500/20 text-amber-400" : ""
+            }`}
+          >
+            🔥 {isitimoda ? `Isitilmoqda (${harorat}°C)` : "Isitish (Spirtovka)"}
+          </button>
+
           {/* Reaksiyani tekshirish tugmasi */}
           <button
             type="button"
@@ -542,7 +591,7 @@ export default function Korinish() {
               jamiMl <= 0 || otkazilmoqda ? "cursor-not-allowed opacity-40" : ""
             }`}
           >
-            <span>🔥</span>
+            <span>⚡</span>
             <span>{otkazilmoqda ? "O'tkazilmoqda..." : "Tajriba o'tkazish"}</span>
           </button>
 
@@ -557,6 +606,14 @@ export default function Korinish() {
           </button>
         </div>
       </footer>
+
+      {/* --- MOLEKULYAR NANO-ZOOM MODALI --- */}
+      {molekulaModalKalit && (
+        <MolekulaZoomModal
+          kalit={molekulaModalKalit}
+          onYop={() => setMolekulaModalKalit(null)}
+        />
+      )}
 
       {/* --- SIFAT ANALIZI DTM PANELI --- */}
       {sifatAnalizOchilgan && (
