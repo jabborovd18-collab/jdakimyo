@@ -140,6 +140,12 @@ bunday maydon yo'q. Natijada 50 ml kislota quyilganda ham pH 7.0
 
 - **Da'vo qilishdan oldin ishga tushiring.** "Tuzatdim" deyish uchun
   natijani ko'rish kerak.
+- **Prisma `select` ni o'zgartirsangiz, bazaga bitta so'rov yuboring.**
+  Noto'g'ri maydon nomi build'da TUTILMAYDI — u faqat ish vaqtida
+  "Unknown field ... for select statement" bo'lib chiqadi va butun
+  so'rovni yiqitadi. Maydon nomini sxemadan o'qing, taxmin qilmang:
+  loyihada nomlar o'zbekcha va inglizcha aralash (`User.fullName`,
+  `User.username` bor, `User.name` YO'Q).
 - `npx next build` — ishlab turgan dev serverni yiqitadi (Windows,
   `.next` to'qnashuvi). Build'dan keyin qayta ishga tushiring.
 - 3D laboratoriya sahifasi login talab qiladi. Uni brauzerda ko'rish
