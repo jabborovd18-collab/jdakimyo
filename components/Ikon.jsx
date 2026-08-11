@@ -28,6 +28,44 @@ const YOLLAR = {
   menyu: <path d="M4 7h16M4 12h16M4 17h16" />,
   yopish: <path d="M6 6l12 12M18 6L6 18" />,
   ong: <path d="M5 12h13m-5-6 6 6-6 6" />,
+  chap: <path d="M19 12H6m5-6-6 6 6 6" />,
+  // Uch nuqta — qo'shimcha amallar menyusi
+  kop: (
+    <>
+      <circle cx="5.5" cy="12" r="1.3" />
+      <circle cx="12" cy="12" r="1.3" />
+      <circle cx="18.5" cy="12" r="1.3" />
+    </>
+  ),
+  // Xabar yuborish. `telegram` ham qog'oz samolyot, lekin u BRENDNI
+  // bildiradi (bot, kanal havolalari) — bu esa amalni. Ikkisi bir xil
+  // ikonka bo'lsa, "yuborish" tugmasi Telegramga olib boradiganday
+  // ko'rinardi.
+  jonat: (
+    <>
+      <path d="M21 4 3 11.2l6.6 2.6L20.4 5.2z" />
+      <path d="m9.6 13.8 2.7 6.4L21 4" />
+    </>
+  ),
+  ochir: (
+    <>
+      <path d="M4.5 7h15" />
+      <path d="M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7" />
+      <path d="M6.5 7.5 7.4 19a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4L17.5 7.5" />
+    </>
+  ),
+  bayroq: (
+    <>
+      <path d="M6 21V4" />
+      <path d="M6 4.8c4-2 8 2 12 0v8c-4 2-8-2-12 0z" />
+    </>
+  ),
+  taqiq: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m6 6 12 12" />
+    </>
+  ),
   past: <path d="m6 9 6 6 6-6" />,
   tashqi: <path d="M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4" />,
 

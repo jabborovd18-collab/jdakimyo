@@ -4,7 +4,7 @@
 //
 // Yopiladigan joylar: shaxsiy kabinet, admin va ustoz panellari, API va
 // autentifikatsiya sahifalari. Bularning hech biri qidiruvda kerak emas
-// va ba'zilari (masalan /profil/chat) shaxsiy.
+// va ba'zilari (masalan /chat) shaxsiy.
 //
 // /sertifikat/verify/* ATAYLAB ochiq: sertifikat haqiqiyligini
 // tekshiradigan havola qidiruvdan ham topilishi mumkin bo'lsin.
@@ -19,6 +19,9 @@ export default function robots() {
           '/admin/',
           '/ustoz/',
           '/profil/',
+          // Shaxsiy yozishma. Sahifada `robots: { index: false }` ham bor —
+          // bu qator uni umuman so'ramaslikni aytadi.
+          '/chat',
           '/hamkorlar',
           '/login',
           '/register',

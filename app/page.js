@@ -407,7 +407,7 @@ export default function Home() {
                 chunki yangi xabar kelganini shu nishon bildiradi. */}
             {session && (
               <Link
-                href="/profil/chat"
+                href="/chat"
                 className="v3-ikon-tugma v3-sanoqli"
                 title="Xabarlar"
                 aria-label={
@@ -462,7 +462,7 @@ export default function Home() {
 
                         {[
                           { href: "/profil", ikon: "odam", label: "Shaxsiy kabinet" },
-                          { href: "/profil/chat", ikon: "xabar", label: "Xabarlarim", soni: oqilmaganChat },
+                          { href: "/chat", ikon: "xabar", label: "Xabarlarim", soni: oqilmaganChat },
                           { href: "/profil/quizlar", ikon: "quiz", label: "Test natijalarim" },
                           { href: "/profil/yutuqlar", ikon: "yulduz", label: "Yutuqlarim" },
                           { href: "/profil/dostlar", ikon: "odamlar", label: "Do'stlarim" },
@@ -526,7 +526,7 @@ export default function Home() {
             ))}
             {session && (
               <Link
-                href="/profil/chat"
+                href="/chat"
                 onClick={() => setMobilNav(false)}
                 className="v3-mobil-qator flex items-center gap-2"
               >

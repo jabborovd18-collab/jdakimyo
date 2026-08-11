@@ -27,6 +27,19 @@ const nextConfig = {
         destination: '/ilmiy/birikmalar',
         permanent: true,
       },
+      // Chat kabinetdan chiqib, o'z bo'limiga (/chat) o'tdi.
+      //
+      // Yo'naltirish MAJBURIY va DOIMIY qoladi: bildirishnomalar
+      // jadvalidagi `havola` ustunida `/profil/chat?suhbat=...` MATN
+      // sifatida saqlangan. Ular yozilgan paytdagi manzilni bilishadi
+      // va ularni qayta yozib bo'lmaydi — bazada yuzlab yozuv bor.
+      // So'rov parametrlari (`?suhbat=`) Next.js tomonidan o'zi
+      // saqlanadi.
+      {
+        source: '/profil/chat',
+        destination: '/chat',
+        permanent: true,
+      },
     ]
   },
   async headers() {

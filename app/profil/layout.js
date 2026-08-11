@@ -46,7 +46,11 @@ const MENU_GROUPS = [
       // "Xabarlar" emas, "Shaxsiy chat": bu menyuda "O'qish" guruhida ham
       // "Xabarlar" (ustoz e'lonlari) bor edi — bir xil nomdagi ikki qator
       // qaysi biri yozishma ekanini bosmasdan aytib bera olmasdi.
-      { href: '/profil/chat', label: 'Shaxsiy chat', icon: '💬', belgi: 'chat' },
+      //
+      // Manzil kabinetdan tashqarida (/chat): chat to'liq ekranli o'z
+      // bo'limiga chiqdi, lekin havola shu yerda qoladi — odam uni
+      // "ijtimoiy" bo'limlar orasidan qidiradi.
+      { href: '/chat', label: 'Shaxsiy chat', icon: '💬', belgi: 'chat', tashqi: true },
       { href: '/profil/sovgalar', label: "Sovg'alar", icon: '🎁' },
       { href: '/profil/dostlar', label: "Do'stlar", icon: '👥', belgi: 'dostTaklifi' },
       { href: '/profil/obunachilar', label: 'Obunachilar', icon: '👤' },
@@ -314,6 +318,14 @@ export default function ProfilLayout({ children }) {
                           <span className="text-base w-5">{item.icon}</span>
                           <span>{item.label}</span>
                           {item.belgi && <Nishon soni={sanoq[item.belgi]} />}
+                          {/* ↗ — havola kabinetdan chiqib ketishini bildiradi
+                              (chat o'z to'liq ekranli bo'limida). Nishon
+                              bo'lsa `ml-auto` allaqachon unda. */}
+                          {item.tashqi && (
+                            <span className={`text-xs opacity-60 ${item.belgi && sanoq[item.belgi] ? '' : 'ml-auto'}`}>
+                              ↗
+                            </span>
+                          )}
                         </Link>
                       )
                     })}

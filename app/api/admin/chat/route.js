@@ -162,7 +162,7 @@ export async function POST(request) {
         icon: '⚠️',
         sarlavha: '⚠️ Chat bo\'yicha ogohlantirish',
         matn: `${sabab}. Bu ${yangi.chatWarnings}-ogohlantirish — takrorlansa yozish vaqtincha to'xtatiladi.`,
-        havola: '/profil/chat',
+        havola: '/chat',
         adminId: admin.id,
       })
 
@@ -203,7 +203,7 @@ export async function POST(request) {
         icon: '🚫',
         sarlavha: '🚫 Yozish vaqtincha to\'xtatildi',
         matn: `${sanaVaqt(gacha)} gacha shaxsiy xabar yubora olmaysiz. Sabab: ${sabab}`,
-        havola: '/profil/chat',
+        havola: '/chat',
         adminId: admin.id,
       })
 
@@ -232,7 +232,7 @@ export async function POST(request) {
         turi: 'chat',
         icon: '✅',
         sarlavha: '✅ Yozish taqiqi olib tashlandi',
-        havola: '/profil/chat',
+        havola: '/chat',
         adminId: admin.id,
       })
 

@@ -34,6 +34,9 @@ const YOPIQ_BOLIMLAR = new Set([
   'ustoz',
   'ustoz-profil',
   'kochat',
+  // Shaxsiy yozishma: sarlavhasi bor (brauzer yorlig'i uchun), lekin
+  // qidiruvga chiqmaydi
+  'chat',
   'hamkorlar',
   'sertifikat',
 ])

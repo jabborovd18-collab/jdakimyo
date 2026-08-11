@@ -92,7 +92,7 @@ export default function PublicProfilePage() {
       if (data.holat === 'sorov') {
         toast('Do\'st emassiz — xabaringiz so\'rov bo\'lib tushadi', { icon: '📨' })
       }
-      router.push(`/profil/chat?suhbat=${data.suhbatId}`)
+      router.push(`/chat?suhbat=${data.suhbatId}`)
     } catch (e) {
       toast.error(e.message)
       setChatOchilmoqda(false)

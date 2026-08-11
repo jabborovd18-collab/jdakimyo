@@ -136,7 +136,7 @@ export async function POST(request, { params }) {
         icon: '💬',
         sarlavha: `${session.user.fullName || session.user.username}: yangi xabar`,
         matn: toza.slice(0, 120),
-        havola: `/profil/chat?suhbat=${id}`,
+        havola: `/chat?suhbat=${id}`,
       })
     }
 
