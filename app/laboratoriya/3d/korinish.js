@@ -12,6 +12,9 @@ import NatijaPaneli from "./components/NatijaPaneli.jsx";
 import MobilOgohlantirish from "./components/MobilOgohlantirish.jsx";
 import SifatAnalizPaneli from "./components/SifatAnalizPaneli.jsx";
 import MolekulaZoomModal from "./components/MolekulaZoomModal.jsx";
+import PHMeterUI from "./components/PHMeterUI.jsx";
+import TaroziUI from "./components/TaroziUI.jsx";
+import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi } from "./lib/ovoz.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
@@ -52,6 +55,9 @@ export default function Korinish() {
   const [molekulaModalKalit, setMolekulaModalKalit] = useState(null);
   const [isitimoda, setIsitimoda] = useState(false);
   const [harorat, setHarorat] = useState(25);
+  const [phMeterOchilgan, setPhMeterOchilgan] = useState(false);
+  const [taroziOchilgan, setTaroziOchilgan] = useState(false);
+  const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
 
   // Spirtovkada isitish simulyatsiyasi
   useEffect(() => {
@@ -324,7 +330,35 @@ export default function Korinish() {
         </div>
 
         {/* Daraja chizig'i va balans */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPhMeterOchilgan(!phMeterOchilgan)}
+            className={`v3-tugma text-xs font-bold transition ${
+              phMeterOchilgan ? "border-purple-400 text-purple-400" : ""
+            }`}
+          >
+            🧪 pH-Meter
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTaroziOchilgan(!taroziOchilgan)}
+            className={`v3-tugma text-xs font-bold transition ${
+              taroziOchilgan ? "border-emerald-400 text-emerald-400" : ""
+            }`}
+          >
+            ⚖️ Tarozi
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSandiqOchilgan(!sandiqOchilgan)}
+            className="v3-tugma text-xs font-bold transition hover:scale-105 border-amber-400 text-amber-400"
+          >
+            🎁 Sandiqlar
+          </button>
+
           <button
             type="button"
             onClick={() => setSifatAnalizOchilgan(!sifatAnalizOchilgan)}
@@ -612,6 +646,34 @@ export default function Korinish() {
         <MolekulaZoomModal
           kalit={molekulaModalKalit}
           onYop={() => setMolekulaModalKalit(null)}
+        />
+      )}
+
+      {/* --- RAQAMLI PH-METER WIDGETI --- */}
+      {phMeterOchilgan && (
+        <PHMeterUI
+          moddalar={quyilganModdalar}
+          onYop={() => setPhMeterOchilgan(false)}
+        />
+      )}
+
+      {/* --- RAQAMLI ANALITIK TAROZI WIDGETI --- */}
+      {taroziOchilgan && (
+        <TaroziUI
+          idishKaliti={nishonIdishGroup?.userData?.kalit || "probirka"}
+          moddalar={quyilganModdalar}
+          onYop={() => setTaroziOchilgan(false)}
+        />
+      )}
+
+      {/* --- REAGENTLAR SANDIG'I MODALI --- */}
+      {sandiqOchilgan && (
+        <SandiqOchishModal
+          balans={balans}
+          onYop={() => setSandiqOchilgan(false)}
+          onReagentKashf={(kalit) => {
+            // Reagent kashf qilinganda
+          }}
         />
       )}
 
