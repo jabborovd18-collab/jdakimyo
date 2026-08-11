@@ -13,11 +13,15 @@ export function pHHisobla(moddalar = {}) {
 
   kalitlar.forEach((kalit) => {
     const info = moddalar[kalit];
-    const ml = info?.hajm || 0;
-    const M = info?.konsentratsiya || 0.5;
-    totalVolumeMl += ml;
 
-    const moles = (ml / 1000) * M;
+    // DIQQAT: idish holati moddani `{ ml, mol }` ko'rinishida saqlaydi
+    // (lib/idish-holati.js). Ilgari bu yerda `.hajm` va `.konsentratsiya`
+    // o'qilardi — bunday maydonlar yo'q, ya'ni `ml` doim 0 chiqib,
+    // `moles` ham 0 bo'lardi va pH-metr nima quyilishidan qat'i nazar
+    // har doim 7.0 "Neytral" ko'rsatardi.
+    const ml = info?.ml || 0;
+    const moles = info?.mol || 0;
+    totalVolumeMl += ml;
 
     // Kislotalar
     if (["HCl", "HNO₃"].includes(kalit)) {

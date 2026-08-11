@@ -196,6 +196,21 @@ export default function Korinish() {
     holatniYangila: yuklaLab,
   });
 
+  // Portlash — SERVER JAVOBIGA qarab, undan oldin emas.
+  //
+  // Ilgari bu tekshiruv "Tajriba o'tkazish" tugmasining ichida edi va
+  // portlash aniqlansa `otkaz()` UMUMAN chaqirilmasdi: reagent
+  // sarflanmas, XP berilmas, daftarga yozilmasdi. Natijada bazadagi
+  // haqiqiy reaksiyalar (masalan 2Na + 2H₂O) o'yindan chiqib ketgandi.
+  //
+  // Endi reaksiyani har doim server hal qiladi, portlash esa uning
+  // natijasini bezaydi — kimyoning o'zi ham bazadagi `hazards` dan.
+  useEffect(() => {
+    if (!natija?.reaksiya) return;
+    const res = portlashniAniqla(natija.reaksiya, harorat);
+    if (res.portladi) setPortlashMaLumot(res);
+  }, [natija, harorat]);
+
   // Idishni tozalash amali
   const handleTozalash = () => {
     holatRef.current = tozala(holatRef.current);
@@ -527,15 +542,20 @@ export default function Korinish() {
             otkaz(null, nishonIdishGroup);
           }}
           onMolekulaZoom={(kalit) => setMolekulaModalKalit(kalit || "H₂O")}
-          onPdfYukla={() =>
-            labDaftariPdfYukla({
+          onPdfYukla={async () => {
+            const res = await labDaftariPdfYukla({
               foydalanuvchiNom: labMaLumot?.foydalanuvchi?.ism || "Talaba",
               tenglama: natija?.reaksiya?.equation,
               observations: natija?.reaksiya?.observations,
               nisbat: nisbatBahosi,
               jurnal: jurnalRef?.current?.yozuvlar,
-            })
-          }
+            });
+            // Popup to'silgan bo'lsa jim qolmaymiz — aks holda
+            // foydalanuvchi "tugma ishlamadi" deb o'ylaydi.
+            if (res && !res.ochildi && res.sabab !== "server") {
+              setXato(res.sabab);
+            }
+          }}
         />
       </div>
 
@@ -635,15 +655,7 @@ export default function Korinish() {
           <button
             type="button"
             disabled={jamiMl <= 0 || otkazilmoqda}
-            onClick={() => {
-              const res = portlashniAniqla(quyilganModdalar, harorat);
-              if (res.portladi) {
-                setPortlashMaLumot(res);
-                handleTozalash();
-              } else {
-                otkaz(null, nishonIdishGroup);
-              }
-            }}
+            onClick={() => otkaz(null, nishonIdishGroup)}
             className={`v3-tugma-asosiy text-xs ${
               jamiMl <= 0 || otkazilmoqda ? "cursor-not-allowed opacity-40" : ""
             }`}
@@ -692,11 +704,11 @@ export default function Korinish() {
       {/* --- REAGENTLAR SANDIG'I MODALI --- */}
       {sandiqOchilgan && (
         <SandiqOchishModal
-          balans={balans}
           onYop={() => setSandiqOchilgan(false)}
-          onReagentKashf={(kalit) => {
-            // Reagent kashf qilinganda
-          }}
+          // Sandiq ochilgach balans ham, inventar ham o'zgargan bo'ladi —
+          // sahifani serverdan qayta o'qiymiz. Client tomonda "o'zim
+          // qo'shib qo'yaman" degan yo'l yolg'on holat yaratardi.
+          onOchildi={() => yuklaLab()}
         />
       )}
 

@@ -14,7 +14,11 @@ export function massaHisobla(idishKaliti = "probirka", moddalar = {}, taraMassa 
   let suyuqlikMassa = 0;
 
   Object.values(moddalar).forEach((m) => {
-    const ml = m?.hajm || 0;
+    // `.hajm` EMAS, `.ml`: idish holati moddani `{ ml, mol }` bo'lib
+    // saqlaydi (lib/idish-holati.js). Noto'g'ri maydon o'qilgani uchun
+    // tarozi suyuqlik massasini har doim 0 ko'rsatardi — ekranda faqat
+    // bo'sh idishning og'irligi turardi.
+    const ml = m?.ml || 0;
     // O'rtacha suyuqlik zichligi ~1.0 g/ml
     suyuqlikMassa += ml * 1.0;
   });

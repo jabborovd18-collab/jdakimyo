@@ -48,10 +48,21 @@ export default function XavfsizlikModal({ maLumot, onYop }) {
           )}
 
           <div className="rounded-lg border border-yellow-500/30 p-3 bg-yellow-950/20 text-xs">
-            <span className="font-bold text-yellow-400">🥽 Laboratoriya Xavfsizlik Eslatmasi:</span>
-            <p className="mt-1 text-[11px] leading-relaxed text-slate-300">
-              {maLumot.xavfsizlik}
-            </p>
+            <span className="font-bold text-yellow-400">🥽 Laboratoriya xavfsizlik eslatmasi:</span>
+            {/* `xavfsizlik` endi BAZADAGI GHS kodlari ro'yxati, qo'lda
+                yozilgan bitta jumla emas. Shuning uchun ro'yxat bo'lib
+                chiqadi va rangi mavzuga ergashadi. */}
+            <ul
+              className="mt-1 list-disc space-y-0.5 pl-4 text-[11px] leading-relaxed"
+              style={{ color: "var(--v3-matn)" }}
+            >
+              {(Array.isArray(maLumot.xavfsizlik)
+                ? maLumot.xavfsizlik
+                : [maLumot.xavfsizlik].filter(Boolean)
+              ).map((x, i) => (
+                <li key={i}>{x}</li>
+              ))}
+            </ul>
           </div>
         </div>
 

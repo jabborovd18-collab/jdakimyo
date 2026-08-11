@@ -1,38 +1,77 @@
 "use client";
 
-import { useState } from "react";
-import { KATIONLAR, ANIONLAR, MISOLLAR, javobniTekshir } from "../lib/sifat-analiz.js";
+import { useState, useEffect, useCallback } from "react";
+// KATIONLAR va ANIONLAR — faqat tanlash ro'yxati uchun, ular javob emas.
+// Topshiriqlarning O'ZI serverdan keladi va javoblari olib tashlangan
+// bo'ladi: MISOLLAR client bo'lagiga tushsa, o'quvchi kation va anionni
+// manbadan o'qib olardi.
+import { KATIONLAR, ANIONLAR } from "@/lib/lab-sifat-analiz.js";
+
+const BOSH_JAVOB = {
+  X: { kation: "", anion: "" },
+  Y: { kation: "", anion: "" },
+  Z: { kation: "", anion: "" },
+};
 
 export default function SifatAnalizPaneli({ onTopshiriqBoshla, onTopshiriqYakunla, onYop }) {
-  const [tanlanganTopshiriqId, setTanlanganTopshiriqId] = useState("topshiriq-1");
+  const [topshiriqlar, setTopshiriqlar] = useState([]);
   const [faolTopshiriq, setFaolTopshiriq] = useState(null);
-  const [javoblar, setJavoblar] = useState({
-    X: { kation: "", anion: "" },
-    Y: { kation: "", anion: "" },
-    Z: { kation: "", anion: "" },
-  });
+  const [javoblar, setJavoblar] = useState(BOSH_JAVOB);
   const [natija, setNatija] = useState(null);
+  const [yuborilmoqda, setYuborilmoqda] = useState(false);
+  const [xato, setXato] = useState(null);
+
+  const royxatniYukla = useCallback(async () => {
+    try {
+      const res = await fetch("/api/laboratoriya/sifat-analiz");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Topshiriqlar yuklanmadi");
+      setTopshiriqlar(data.topshiriqlar || []);
+    } catch (e) {
+      setXato(e.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    royxatniYukla();
+  }, [royxatniYukla]);
 
   const handleBoshlash = (topshiriqId) => {
-    const t = MISOLLAR.find((m) => m.id === topshiriqId) || MISOLLAR[0];
+    const t = topshiriqlar.find((m) => m.id === topshiriqId) || topshiriqlar[0];
+    if (!t) return;
     setFaolTopshiriq(t);
     setNatija(null);
-    setJavoblar({
-      X: { kation: "", anion: "" },
-      Y: { kation: "", anion: "" },
-      Z: { kation: "", anion: "" },
-    });
+    setXato(null);
+    setJavoblar(BOSH_JAVOB);
     if (typeof onTopshiriqBoshla === "function") {
       onTopshiriqBoshla(t);
     }
   };
 
-  const handleTekshirish = () => {
-    if (!faolTopshiriq) return;
-    const res = javobniTekshir(faolTopshiriq, javoblar);
-    setNatija(res);
-    if (typeof onTopshiriqYakunla === "function") {
-      onTopshiriqYakunla(res);
+  // Javobni SERVER tekshiradi va mukofotni o'zi beradi. Ilgari ball
+  // client'da hisoblanib ekranga "+200 XP va +60 🪙" deb yozilardi,
+  // lekin hech qayerga yuborilmasdi — mukofot va'da qilinib berilmasdi.
+  const handleTekshirish = async () => {
+    if (!faolTopshiriq || yuborilmoqda) return;
+    setYuborilmoqda(true);
+    setXato(null);
+    try {
+      const res = await fetch("/api/laboratoriya/sifat-analiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topshiriqId: faolTopshiriq.id, javoblar }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Javob yuborilmadi");
+      setNatija(data);
+      royxatniYukla();
+      if (typeof onTopshiriqYakunla === "function") {
+        onTopshiriqYakunla(data);
+      }
+    } catch (e) {
+      setXato(e.message);
+    } finally {
+      setYuborilmoqda(false);
     }
   };
 
@@ -67,7 +106,7 @@ export default function SifatAnalizPaneli({ onTopshiriqBoshla, onTopshiriqYakunl
             DTM va Kimyo Olimpiadasi darajasidagi amaliy sifat analizi topshiriqlari. Noma&apos;lum idishlardagi kation va anionlarni reagentlar yordamida aniqlang.
           </p>
           <div className="flex flex-col gap-2.5">
-            {MISOLLAR.map((item) => (
+            {topshiriqlar.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -206,15 +245,29 @@ export default function SifatAnalizPaneli({ onTopshiriqBoshla, onTopshiriqYakunl
 
           <button
             type="button"
+            disabled={yuborilmoqda}
             onClick={handleTekshirish}
-            className="w-full rounded-xl py-3 text-xs font-bold transition hover:scale-[1.01]"
+            className="w-full rounded-xl py-3 text-xs font-bold transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-40"
             style={{
               background: "var(--v3-urgu)",
-              color: "var(--v3-fon)",
+              color: "var(--v3-urgu-matn)",
             }}
           >
-            ✓ Javobni Tekshirish
+            {yuborilmoqda ? "Tekshirilmoqda..." : "✓ Javobni tekshirish"}
           </button>
+
+          {xato && (
+            <div
+              className="rounded-xl border p-2.5 text-xs"
+              style={{
+                borderColor: "color-mix(in srgb, var(--v3-urgu) 45%, transparent)",
+                background: "color-mix(in srgb, var(--v3-urgu) 12%, transparent)",
+                color: "var(--v3-urgu)",
+              }}
+            >
+              {xato}
+            </div>
+          )}
 
           {/* Natija paneli */}
           {natija && (
@@ -228,7 +281,17 @@ export default function SifatAnalizPaneli({ onTopshiriqBoshla, onTopshiriqYakunl
               </div>
               <p className="mb-3 text-[11px]">
                 Siz {natija.jamiSavollar} ta savoldan {natija.togriCount} tasini to&apos;g&apos;ri topdingiz.
-                +{natija.olinganXP} XP {natija.olinganTanga > 0 ? `va +${natija.olinganTanga} 🪙` : ""}
+                {" "}
+                {/* Mukofot serverdan keladi va haqiqatan berilgan bo'ladi.
+                    Takrorlaganda tanga berilmaydi — bitta oson topshiriqni
+                    qayta-qayta yechish foydali strategiya bo'lib qolmasin. */}
+                <strong>+{natija.olinganXP} XP</strong>
+                {natija.olinganTanga > 0 ? ` va +${natija.olinganTanga} 🪙` : ""}
+                {natija.birinchi === false && (
+                  <span className="block mt-1 opacity-80">
+                    Bu topshiriq avval yechilgan — takror uchun tanga berilmaydi.
+                  </span>
+                )}
               </p>
               <div className="flex flex-col gap-1.5">
                 {Object.entries(natija.natijalar).map(([idish, r]) => (

@@ -4,9 +4,14 @@
 
 export function aiKontekstTayyorla(holat, jurnal, reaksiyaNatijasi) {
   const moddalar = holat?.moddalar || {};
-  const sarflanganReagentlar = Object.entries(moddalar).map(
-    ([kalit, m]) => `${kalit}: ${m.hajm} ml (${m.konsentratsiya} M)`
-  );
+  // Holat moddani `{ ml, mol }` bo'lib saqlaydi (lib/idish-holati.js).
+  // Konsentratsiya alohida saqlanmaydi — u moldan va hajmdan chiqadi.
+  const sarflanganReagentlar = Object.entries(moddalar).map(([kalit, m]) => {
+    const ml = m?.ml || 0;
+    const mol = m?.mol || 0;
+    const M = ml > 0 ? mol / (ml / 1000) : 0;
+    return `${kalit}: ${ml.toFixed(1)} ml (${M.toFixed(2)} M)`;
+  });
 
   return {
     tizimPrompt:
