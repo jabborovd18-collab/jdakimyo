@@ -10,6 +10,7 @@ import ReagentJavoni from "./components/ReagentJavoni.jsx";
 import JihozJavoni from "./components/JihozJavoni.jsx";
 import NatijaPaneli from "./components/NatijaPaneli.jsx";
 import MobilOgohlantirish from "./components/MobilOgohlantirish.jsx";
+import SifatAnalizPaneli from "./components/SifatAnalizPaneli.jsx";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
@@ -23,7 +24,7 @@ function hexDanCss(hex) {
 
 // Tez-tez takrorlanadigan yuza uslubi. Rang qiymati sinf ichida emas, CSS
 // o'zgaruvchisida — v3 qoidasi: `bg-slate-900` yozilgan zahoti sahifa
-// "kunduz" fonida buziladi va uni keyin tuzatib bo'lmaydi.
+// mavzusi buziladi va yorug' rejimda ham qorong'u bloklar qolib ketadi.
 const YUZA = {
   background: "var(--v3-yuza)",
   borderColor: "var(--v3-chiziq)",
@@ -44,6 +45,7 @@ export default function Korinish() {
   const [faolReagent, setFaolReagent] = useState(null);
   const [aralashmaOzgarish, setAralashmaOzgarish] = useState(0); // Rerender triggeri
   const [mobilJavon, setMobilJavon] = useState(null); // "reagentlar" | "jihozlar" | null
+  const [sifatAnalizOchilgan, setSifatAnalizOchilgan] = useState(false);
 
   // Sahifa va sahna foni — bitta tanlov.
   //
@@ -272,9 +274,15 @@ export default function Korinish() {
     >
       <MobilOgohlantirish />
 
-      {/* --- YUQORI SARLAVHA PANELI --- */}
+      {/* --- YUQORI SARLAVHA PANELI ---
+          `relative z-50` SHART, bezak emas: `backdrop-blur` stacking
+          context yaratadi, ya'ni ichkaridagi `z-50` faqat shu header
+          ichida ishlaydi. Header o'zi z-index'siz qolsa, DOM'da undan
+          keyin turgan ish maydoni (3D canvas) uning ustiga chiziladi va
+          fon tanlash ro'yxati canvas ortida yo'qoladi — ko'rinmaydi ham,
+          bosilmaydi ham. */}
       <header
-        className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2.5 backdrop-blur-md"
+        className="relative z-50 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2.5 backdrop-blur-md"
         style={{ background: "var(--v3-fon-2)", borderColor: "var(--v3-chiziq)" }}
       >
         <div className="flex items-center gap-3">
@@ -289,6 +297,16 @@ export default function Korinish() {
 
         {/* Daraja chizig'i va balans */}
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setSifatAnalizOchilgan(!sifatAnalizOchilgan)}
+            className={`v3-tugma text-xs font-bold transition hover:scale-105 ${
+              sifatAnalizOchilgan ? "border-amber-400 text-amber-400" : ""
+            }`}
+          >
+            🎯 Sifat Analizi (DTM)
+          </button>
+
           <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
 
           <div className="hidden flex-col items-end sm:flex">
@@ -539,6 +557,16 @@ export default function Korinish() {
           </button>
         </div>
       </footer>
+
+      {/* --- SIFAT ANALIZI DTM PANELI --- */}
+      {sifatAnalizOchilgan && (
+        <SifatAnalizPaneli
+          onYop={() => setSifatAnalizOchilgan(false)}
+          onTopshiriqBoshla={(topshiriq) => {
+            // Noma'lum X, Y, Z idishlarini stolga qo'shish
+          }}
+        />
+      )}
 
       {/* --- QO'SHIMCHA 2D HAVOLA --- */}
       <div

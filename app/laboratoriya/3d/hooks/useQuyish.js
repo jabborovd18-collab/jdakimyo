@@ -8,6 +8,7 @@ import { aralashmaRangi } from "../lib/rang-aralashtirish.js";
 import { moddaKorinishi } from "../lib/modda-korinishi.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
 import { yoz } from "../lib/jurnal.js";
+import { oqimBoshla, oqimToxtat } from "../lib/ovoz.js";
 
 // Reagent quyilganda shishaning oqim chizig'i (ingichka silindr) va
 // uning uchida sachraydigan tomchilar (Points) yaratuvchi yordamchi funksiya.
@@ -108,11 +109,13 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
       oqim: oqimGroup,
     };
 
+    oqimBoshla();
     setQuyilmoqda(true);
   }, [sahnaRef, holatRef]);
 
   // Quyishni to'xtatish: vaqtincha animatsiya shishasini o'chiradi va jurnalga yozadi
   const quyishToxtat = useCallback(() => {
+    oqimToxtat();
     if (!quyilmoqda) return;
 
     if (kadrIdRef.current) {

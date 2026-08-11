@@ -8,6 +8,7 @@ import { hisobot, yoz } from "../lib/jurnal.js";
 import { PALITRA } from "@/lib/lab-modda.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
 import { jamiHajm } from "../lib/idish-holati.js";
+import { pufakchaChiqishi, chokmaTushishi } from "../lib/ovoz.js";
 
 // Reaksiya o'tkazishni, API bilan bog'lanishni va 3D effektlar ketma-ketligini
 // boshqaruvchi asosiy hook.

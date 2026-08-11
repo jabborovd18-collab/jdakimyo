@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
+import { shishaUrilishi } from "../lib/ovoz.js";
 
 // Idish guruhini (THREE.Group) ildizgacha qidirib topuvchi yordamchi funksiya.
 // Nega: Raycaster idishning ichki meshlaridan birini (masalan, silindr yoki yorliqni)
@@ -115,6 +116,9 @@ export function useSudrash({ sahnaRef, kameraRef, rendererRef, onIdishTanlandi }
       }
 
       setTanlanganIdish(topilganGroup);
+      if (topilganGroup) {
+        shishaUrilishi(2400);
+      }
       if (topilganGroup && typeof onIdishTanlandi === "function") {
         onIdishTanlandi(topilganGroup);
       }
