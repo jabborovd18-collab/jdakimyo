@@ -178,6 +178,18 @@ export default function NatijaPaneli({
               </div>
             )}
 
+            {/* Erituvchi bahosi — qaysi suv ishlatilgani natijaga qanday
+                ta'sir qilgani. Faqat muammo bo'lganda ko'rsatiladi:
+                hammasi joyida bo'lsa bu qator shovqin bo'lardi. */}
+            {natija.erituvchi?.izoh && (
+              <div className="rounded-xl border p-3" style={OGOH}>
+                <span className="text-xs font-bold">
+                  💧 {natija.erituvchi.nom}
+                </span>
+                <p className="mt-1 text-xs leading-relaxed">{natija.erituvchi.izoh}</p>
+              </div>
+            )}
+
             {/* Xavfsizlik ogohlantirishlari */}
             {reaksiya?.hazards && reaksiya.hazards.length > 0 && (
               <div className="rounded-xl border p-3" style={OGOH}>
