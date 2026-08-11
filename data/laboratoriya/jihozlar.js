@@ -195,7 +195,7 @@ module.exports = [
   {
     kalit: 'haydash-apparati', nom: 'Haydash apparati', guruh: 'ajratish', uchraydi: 1,
     narx: 280, icon: '⚙️',
-    tavsif: 'Qaynash haroratiga qarab suyuqliklarni ajratadi.',
+    tavsif: "Qaynash haroratiga qarab suyuqliklarni ajratadi. O'rnatilgach distillangan suv cheksiz bo'ladi — uni boshqa sotib olmaysiz.",
     xom: ['Haydash apparati'],
   },
   {

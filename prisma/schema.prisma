@@ -751,6 +751,16 @@ model LabItemDef {
   // kerak bo'lardi va bu bepul degani bo'lmasdi.
   cheksiz Boolean @default(false)
 
+  // Shartli cheksizlik: shu KALITGA ega foydalanuvchi uchun bu buyum
+  // tugamaydigan manbaga aylanadi. Distillagich (haydash apparati)
+  // o'rnatgan odam distillangan suvni boshqa sotib olmaydi — u uni
+  // o'zi yasaydi.
+  //
+  // Nega alohida ustun, `cheksiz` ga bayroq emas: cheksizlik
+  // FOYDALANUVCHIGA bog'liq, katalogga emas. Bir xil yozuv bir odam
+  // uchun cheksiz, boshqasi uchun sotib olinadigan bo'lishi mumkin.
+  cheksizAgar String?
+
   // ─── Xossalar ───
   sarflanadi Boolean @default(false) // ishlatilganda yo'qoladi (filtr qog'ozi)
   sanoat     Boolean @default(false) // talaba laboratoriyasida bo'lmaydi

@@ -25,9 +25,9 @@ const { buyumBirligi } = esmRequire('lib/lab-birlik.js', ['buyumBirligi'])
 
 // Erituvchi variantlari (jo'mrak suvi) katalogda SQL bilan emas, shu
 // moduldan yaratiladi — xossalari ham, nomi ham bitta joyda tursin.
-const { variantRoyxati, erituvchiOl } = esmRequire('lib/lab-erituvchi.js', [
+const { variantRoyxati, erituvchiKatalogXossalari } = esmRequire('lib/lab-erituvchi.js', [
   'variantRoyxati',
-  'erituvchiOl',
+  'erituvchiKatalogXossalari',
 ])
 
 const prisma = new PrismaClient()
@@ -44,10 +44,7 @@ function yozuvlarniTayyorla() {
   for (const r of reagentlar) {
     yozuvlar.push({
       kalit: r.kalit,
-      // Erituvchining nomi `lib/lab-erituvchi.js` dan: generator uni
-      // formuladan oladi ("H₂O"), lekin javonda "Distillangan suv" deb
-      // turgani jo'mrak suvidan farqini ko'rsatadi.
-      nom: erituvchiOl(r.kalit)?.nom ?? r.nom,
+      nom: r.nom,
       turi: 'reagent',
       birlik: buyumBirligi({ kalit: r.kalit, turi: 'reagent' }),
       guruh: null,
@@ -64,6 +61,10 @@ function yozuvlarniTayyorla() {
       daraja: 1,
       xom: null,
       oilalar: r.oilalar ?? null,
+      // Erituvchi bo'lsa, uning xossalari `lib/lab-erituvchi.js` dan
+      // ustidan yoziladi: generator nomni formuladan oladi ("H₂O"),
+      // shartli cheksizlik va tavsif esa u yerda umuman yo'q.
+      ...(erituvchiKatalogXossalari(r.kalit) ?? {}),
     })
   }
 
@@ -148,6 +149,7 @@ function yozuvlarniTayyorla() {
       birlik: buyumBirligi({ kalit: v.asos, turi: 'reagent' }),
       asos: v.asos,
       cheksiz: Boolean(v.cheksiz),
+      cheksizAgar: v.cheksizAgar ?? null,
     })
   }
 
