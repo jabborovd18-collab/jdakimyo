@@ -93,6 +93,18 @@ const YOLLAR = {
     </>
   ),
 
+  // Shaxsiy chat. `muhokama` dan ATAYLAB farq qiladi: u ommaviy
+  // muhokamaning bitta katta pufagi, bu esa ikki kishilik yozishma —
+  // ikkita ustma-ust pufak. Bir xil ikonka ikki xil bo'limni bildirsa,
+  // menyuda qaysi biri qayerga olib borishini ikonkaga qarab ayta
+  // olmaysiz.
+  xabar: (
+    <>
+      <path d="M17 11.5a3 3 0 0 1-3 3H8l-4 3v-3a3 3 0 0 1-1-2.2V6a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3z" />
+      <path d="M17 7.5h1.5a3 3 0 0 1 3 3v3.8a3 3 0 0 1-1 2.2v2.5l-3-2.5h-4" />
+    </>
+  ),
+
   // ─── Rollar va shaxsiy bo'lim ───
   odam: (
     <>

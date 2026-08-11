@@ -408,6 +408,26 @@ html[data-fon] body {
 }
 .v3-ikon-tugma:hover { color: var(--v3-matn); border-color: var(--v3-chiziq-2); }
 
+/* O'qilmagan xabar sanog'i — ikonka tugmasining burchagida.
+   `position: relative` tugmaning o'zida emas, shu yerda beriladi:
+   sanoq faqat kerak bo'lganda qo'shiladi va boshqa ikonka tugmalarining
+   joylashuvini o'zgartirmaydi. */
+.v3-sanoqli { position: relative; }
+.v3-sanoq {
+  position: absolute; top: -5px; right: -5px;
+  min-width: 17px; height: 17px; padding: 0 4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9px;
+  font-size: 10px; font-weight: 700; line-height: 1;
+  color: #fff; background: #ef4444;
+  /* Fon rangidagi halqa: tugma chetiga tekkanda son o'qilmay qoladi.
+     `--v3-fon` sarlavha foni bilan bir xil, shuning uchun to'rt fonda
+     ham to'g'ri ko'rinadi. */
+  box-shadow: 0 0 0 2px var(--v3-fon);
+}
+/* Menyu qatori ichida — burchakka emas, qator oxiriga tushadi */
+.v3-sanoq.is-qatorda { position: static; box-shadow: none; }
+
 .v3-rol-tugma {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 10px; border-radius: 9px;

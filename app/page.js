@@ -10,6 +10,7 @@ import { FANLAR, fanHavolasi, ochiqFanlarSoni } from "@/lib/fanlar"
 import TasdiqBelgisi from "@/components/TasdiqBelgisi"
 import Ikon from "@/components/Ikon"
 import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import { useBildirishnomaSanoq } from "@/lib/use-bildirishnoma"
 
 /* ═══════════════════════════════════════════════════════════════════════
    BOSH SAHIFA — v3.0.0
@@ -267,6 +268,11 @@ export default function Home() {
   const isTeacher = ustozPaneliOchiqmi(session?.user)
   const isHamkor = isPartnerRole(role)
 
+  // O'qilmagan xabar sanog'i sarlavhadagi chat tugmasi uchun. Mehmonlar
+  // uchun o'chirilgan: ular uchun so'rov faqat 401 qaytaradi.
+  const { sanoq } = useBildirishnomaSanoq(Boolean(session))
+  const oqilmaganChat = sanoq.chat || 0
+
   useReveal()
 
   useEffect(() => {
@@ -395,6 +401,28 @@ export default function Home() {
               <kbd className="hidden lg:inline-block">⌘K</kbd>
             </Link>
 
+            {/* Shaxsiy chat. Sarlavhadagi umumiy menyuda emas, aynan shu
+                yerda: u bo'lim emas, hisobga bog'liq harakat — mehmonga
+                ko'rsatiladigan joyi yo'q. Mobilda ham qoladi (yashirilmaydi),
+                chunki yangi xabar kelganini shu nishon bildiradi. */}
+            {session && (
+              <Link
+                href="/profil/chat"
+                className="v3-ikon-tugma v3-sanoqli"
+                title="Xabarlar"
+                aria-label={
+                  oqilmaganChat > 0
+                    ? `Xabarlar — ${oqilmaganChat} ta o'qilmagan`
+                    : "Xabarlar"
+                }
+              >
+                <Ikon nom="xabar" olcham={17} />
+                {oqilmaganChat > 0 && (
+                  <span className="v3-sanoq">{oqilmaganChat > 99 ? "99+" : oqilmaganChat}</span>
+                )}
+              </Link>
+            )}
+
             {status === "loading" ? (
               <div className="v3-yuklanmoqda" />
             ) : session ? (
@@ -434,6 +462,7 @@ export default function Home() {
 
                         {[
                           { href: "/profil", ikon: "odam", label: "Shaxsiy kabinet" },
+                          { href: "/profil/chat", ikon: "xabar", label: "Xabarlarim", soni: oqilmaganChat },
                           { href: "/profil/quizlar", ikon: "quiz", label: "Test natijalarim" },
                           { href: "/profil/yutuqlar", ikon: "yulduz", label: "Yutuqlarim" },
                           { href: "/profil/dostlar", ikon: "odamlar", label: "Do'stlarim" },
@@ -442,7 +471,13 @@ export default function Home() {
                           <Link key={m.href} href={m.href} onClick={() => setMenyu(false)} className="v3-menyu-qator">
                             <Ikon nom={m.ikon} olcham={17} />
                             <span className="flex-1 text-[13px]">{m.label}</span>
-                            <Ikon nom="ong" olcham={15} className="v3-strelka" />
+                            {m.soni > 0 ? (
+                              <span className="v3-sanoq is-qatorda">
+                                {m.soni > 99 ? "99+" : m.soni}
+                              </span>
+                            ) : (
+                              <Ikon nom="ong" olcham={15} className="v3-strelka" />
+                            )}
                           </Link>
                         ))}
                       </div>
@@ -489,6 +524,20 @@ export default function Home() {
                 {h.label}
               </Link>
             ))}
+            {session && (
+              <Link
+                href="/profil/chat"
+                onClick={() => setMobilNav(false)}
+                className="v3-mobil-qator flex items-center gap-2"
+              >
+                <span className="flex-1">Xabarlar</span>
+                {oqilmaganChat > 0 && (
+                  <span className="v3-sanoq is-qatorda">
+                    {oqilmaganChat > 99 ? "99+" : oqilmaganChat}
+                  </span>
+                )}
+              </Link>
+            )}
             <Link href="/doska" onClick={() => setMobilNav(false)} className="v3-mobil-qator">
               Elektron doska
             </Link>

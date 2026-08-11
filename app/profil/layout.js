@@ -43,7 +43,10 @@ const MENU_GROUPS = [
   {
     title: 'Ijtimoiy',
     items: [
-      { href: '/profil/chat', label: 'Xabarlar', icon: '💬', belgi: 'chat' },
+      // "Xabarlar" emas, "Shaxsiy chat": bu menyuda "O'qish" guruhida ham
+      // "Xabarlar" (ustoz e'lonlari) bor edi — bir xil nomdagi ikki qator
+      // qaysi biri yozishma ekanini bosmasdan aytib bera olmasdi.
+      { href: '/profil/chat', label: 'Shaxsiy chat', icon: '💬', belgi: 'chat' },
       { href: '/profil/sovgalar', label: "Sovg'alar", icon: '🎁' },
       { href: '/profil/dostlar', label: "Do'stlar", icon: '👥', belgi: 'dostTaklifi' },
       { href: '/profil/obunachilar', label: 'Obunachilar', icon: '👤' },
@@ -86,7 +89,9 @@ export default function ProfilLayout({ children }) {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { sanoq } = useBildirishnomaSanoq()
+  // Seans yuklanmaguncha so'ralmaydi: kirmagan odam /profil/* ga tushganda
+  // ham so'rov ketardi va u faqat 401 qaytarardi.
+  const { sanoq } = useBildirishnomaSanoq(Boolean(session))
 
   // Sahifa almashganda mobil menyu ochiq qolib ketmasin
   useEffect(() => {
