@@ -92,6 +92,9 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
           kalitlar,
           reactionId,
           miqdorlar,
+          // Qaysi idishda ishlanayotgani. Server sig'imni tekshiradi va
+          // reaksiya idishni yaroqsiz qilgan-qilmaganini hal qiladi.
+          idish: holatRef?.current?.idish ?? null,
         }),
       });
 

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { suyuqlikYasa } from "./materiallar.js";
 import { EFFEKT_RANGLARI } from "@/lib/lab-modda.js";
+import { idishmi, idishSigimi } from "@/lib/lab-idish.js";
 
 // Matn yorlig'i (label) uchun CanvasTexture yordamchisi.
 // Nega: 3D sahnada HTML elementlar o'rniga CanvasTexture dan yasalgan Sprite ishlatish
@@ -136,7 +137,6 @@ function probirkaYasa(materiallar) {
 
   group.userData = {
     kalit: "probirka",
-    sigim: 25,
     suyuqlikMesh,
     chokmaMesh,
     ogizBalandligi: 0.29,
@@ -179,7 +179,6 @@ function stakanYasa(materiallar) {
 
   group.userData = {
     kalit: "stakan",
-    sigim: 100,
     suyuqlikMesh,
     chokmaMesh,
     ogizBalandligi: 0.22,
@@ -225,7 +224,6 @@ function konussimonKolbaYasa(materiallar) {
 
   group.userData = {
     kalit: "konussimon-kolba",
-    sigim: 120,
     suyuqlikMesh,
     chokmaMesh,
     ogizBalandligi: 0.26,
@@ -270,7 +268,6 @@ function dumaloqTubliKolbaYasa(materiallar) {
 
   group.userData = {
     kalit: "dumaloq-tubli-kolba",
-    sigim: 150,
     suyuqlikMesh,
     chokmaMesh,
     ogizBalandligi: 0.27,
@@ -315,7 +312,6 @@ function kolbaYasa(materiallar) {
 
   group.userData = {
     kalit: "kolba",
-    sigim: 120,
     suyuqlikMesh,
     chokmaMesh,
     ogizBalandligi: 0.25,
@@ -358,7 +354,6 @@ function kristallizatorYasa(materiallar) {
 
   group.userData = {
     kalit: "kristallizator",
-    sigim: 80,
     suyuqlikMesh,
     chokmaMesh,
     ogizBalandligi: 0.085,
@@ -405,7 +400,6 @@ function byuretkaYasa(materiallar) {
 
   group.userData = {
     kalit: "byuretka",
-    sigim: 50,
     suyuqlikMesh,
     chokmaMesh: null,
     ogizBalandligi: 0.6,
@@ -438,7 +432,6 @@ function tomizgichYasa(materiallar) {
 
   group.userData = {
     kalit: "tomizgich",
-    sigim: 5,
     suyuqlikMesh: null,
     chokmaMesh: null,
     ogizBalandligi: 0.22,
@@ -482,7 +475,6 @@ function spirtovkaYasa(materiallar) {
 
   group.userData = {
     kalit: "spirtovka",
-    sigim: 0,
     suyuqlikMesh: null,
     chokmaMesh: null,
     alanga: alangaMesh,
@@ -512,7 +504,6 @@ function shtativYasa(materiallar) {
 
   group.userData = {
     kalit: "shtativ",
-    sigim: 0,
     suyuqlikMesh: null,
     chokmaMesh: null,
     ogizBalandligi: 0.45,
@@ -550,7 +541,6 @@ function probirkaShtativiYasa(materiallar) {
 
   group.userData = {
     kalit: "probirka-shtativi",
-    sigim: 0,
     suyuqlikMesh: null,
     chokmaMesh: null,
     ogizBalandligi: 0.16,
@@ -580,7 +570,6 @@ function termometrYasa(materiallar) {
 
   group.userData = {
     kalit: "termometr",
-    sigim: 0,
     suyuqlikMesh: null,
     chokmaMesh: null,
     ogizBalandligi: 0.32,
@@ -610,7 +599,6 @@ function voronkaYasa(materiallar) {
 
   group.userData = {
     kalit: "voronka",
-    sigim: 30,
     suyuqlikMesh: null,
     chokmaMesh: null,
     ogizBalandligi: 0.16,
@@ -646,7 +634,6 @@ function zaxiraModel(kalit, materiallar) {
 
   group.userData = {
     kalit,
-    sigim: 100,
     suyuqlikMesh,
     chokmaMesh: null,
     ogizBalandligi: 0.22,
@@ -689,6 +676,20 @@ function soyalarniYoq(group) {
 export function jihozYasa(kalit, materiallar) {
   const group = modelYasa(kalit, materiallar);
   soyalarniYoq(group);
+
+  // Sig'im `lib/lab-idish.js` dan olinadi, model ichida yozilmaydi.
+  //
+  // Ilgari har bir modelda o'z soni bor edi va SERVER ularni umuman
+  // ko'rmasdi — Three.js ni import qiladigan fayldan o'qib bo'lmaydi.
+  // Natijada "idishga sig'maydi" degan tekshiruv yo'q edi: 25 ml
+  // probirkaga 500 ml quyish mumkin edi. Endi ikkala tomon bitta
+  // qiymatni o'qiydi.
+  //
+  // Idish bo'lmagani (shtativ, termometr, spirtovka) nol oladi:
+  // `idishSigimi` noma'lum kalitga zaxira qiymat qaytaradi, u esa bu
+  // yerda noto'g'ri bo'lardi.
+  group.userData.sigim = idishmi(kalit) ? idishSigimi(kalit) : 0;
+
   return group;
 }
 

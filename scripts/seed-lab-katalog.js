@@ -30,6 +30,10 @@ const { variantRoyxati, erituvchiKatalogXossalari } = esmRequire('lib/lab-erituv
   'erituvchiKatalogXossalari',
 ])
 
+// Idish sig'imi va materiali ham bitta joydan — `lib/lab-idish.js`.
+// Ilgari sig'im 3D modellarida edi va server uni ko'rmasdi.
+const { idishKatalogXossalari } = esmRequire('lib/lab-idish.js', ['idishKatalogXossalari'])
+
 const prisma = new PrismaClient()
 
 const DATA = path.join(__dirname, '..', 'data', 'laboratoriya')
@@ -93,6 +97,8 @@ function yozuvlarniTayyorla() {
       daraja: j.daraja ?? 1,
       xom: j.xom ?? null,
       oilalar: null,
+      // Idish bo'lsa sig'imi va materiali qo'shiladi
+      ...(idishKatalogXossalari(j.kalit) ?? {}),
     })
   }
 

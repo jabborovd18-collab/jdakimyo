@@ -39,7 +39,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 })
     }
 
-    const { kalitlar, reactionId, miqdorlar } = await request.json()
+    const { kalitlar, reactionId, miqdorlar, idish } = await request.json()
     if (!Array.isArray(kalitlar) || kalitlar.length === 0) {
       return NextResponse.json({ error: 'Reagent tanlanmagan' }, { status: 400 })
     }
@@ -58,6 +58,7 @@ export async function POST(request) {
       kalitlar,
       reactionId || null,
       tozaMiqdorlar,
+      typeof idish === 'string' && idish ? idish : null,
     )
 
     // Bir to'plamdan bir nechta reaksiya chiqdi — foydalanuvchi tanlashi

@@ -190,6 +190,16 @@ export default function NatijaPaneli({
               </div>
             )}
 
+            {/* Idish reaksiyadan omon chiqdimi */}
+            {natija.idish?.buzildi && (
+              <div className="rounded-xl border p-3" style={OGOH}>
+                <span className="text-xs font-bold">
+                  💔 {natija.idish.nom} yaroqsiz holga keldi
+                </span>
+                <p className="mt-1 text-xs leading-relaxed">{natija.idish.sabab}</p>
+              </div>
+            )}
+
             {/* Xavfsizlik ogohlantirishlari */}
             {reaksiya?.hazards && reaksiya.hazards.length > 0 && (
               <div className="rounded-xl border p-3" style={OGOH}>

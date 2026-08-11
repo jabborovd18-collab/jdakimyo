@@ -761,6 +761,22 @@ model LabItemDef {
   // uchun cheksiz, boshqasi uchun sotib olinadigan bo'lishi mumkin.
   cheksizAgar String?
 
+  // ─── Idish xossalari ───
+  //
+  // `sigim` — nechа ml sig'adi. Noldan katta bo'lsa bu IDISH, ya'ni unga
+  // quyish mumkin va sig'imidan ortiq quyib bo'lmaydi. Shtativ va
+  // termometr uchun nol.
+  //
+  // `material` — shisha | chinni | kvarts | metall | qogoz. Reaksiya
+  // idishni yaroqsiz qiladimi shu bilan hal bo'ladi: ftorid kislota
+  // shishani eritadi, 500 °C dan yuqori harorat uni yumshatadi.
+  //
+  // Qiymatlar `lib/lab-idish.js` dan keladi. Ilgari sig'im faqat 3D
+  // modellarida edi va serverdan o'qib bo'lmasdi — ya'ni "idishga
+  // sig'maydi" degan tekshiruv umuman yo'q edi.
+  sigim    Float   @default(0)
+  material String?
+
   // ─── Xossalar ───
   sarflanadi Boolean @default(false) // ishlatilganda yo'qoladi (filtr qog'ozi)
   sanoat     Boolean @default(false) // talaba laboratoriyasida bo'lmaydi
