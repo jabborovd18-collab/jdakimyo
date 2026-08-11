@@ -11,6 +11,7 @@ import {
   materiallarniFongaMoslash,
 } from "../lib/materiallar.js";
 import { jihozYasa } from "../lib/jihoz-modellari.js";
+import { javon3dYasa } from "../lib/javon-3d.js";
 import { fonOl, SUKUT_FON } from "../lib/fonlar.js";
 
 // Kuchsiz qurilmani aniqlash funksiyasi: mobil va past xotirali qurilmalarni aniqlab,
@@ -268,6 +269,10 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     const devor = new THREE.Mesh(devorGeo, devorMat);
     devor.position.set(0, 4, -2.4);
     scene.add(devor);
+
+    // 8. Haqiqiy 3D Reagentlar Javonini (3D Physical Cabinet) sahnaga o'rnatish
+    const javon3d = javon3dYasa(materiallar, arzonRejim);
+    scene.add(javon3d);
 
     // Fon almashganda shu obyektlarning rangi yangilanadi
     fonQismlariRef.current = { devorMat, ambientLight, mainLight, fillLight };
