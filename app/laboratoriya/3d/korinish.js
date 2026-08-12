@@ -42,10 +42,15 @@ const YUZA = {
 };
 
 export default function Korinish() {
+  const [mounted, setMounted] = useState(false);
   const [labMaLumot, setLabMaLumot] = useState(null);
   const [yuklanmoqda, setYuklanmoqda] = useState(true);
   const [kirilmagan, setKirilmagan] = useState(false);
   const [yuklashXatosi, setYuklashXatosi] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Faol tanlovlar va holatlar
   const [faolReagent, setFaolReagent] = useState(null);
@@ -301,12 +306,12 @@ export default function Korinish() {
     );
   }
 
-  if (yuklanmoqda) {
+  if (!mounted || yuklanmoqda) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center text-[var(--v3-matn)] bg-[var(--v3-fon)]">
+      <div className="v3 flex min-h-screen flex-col items-center justify-center text-[var(--v3-matn)] bg-[var(--v3-fon)]">
         <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
           <Ikon nom="vaqt" olcham={32} className="animate-spin" />
-          <span className="text-sm">3D Laboratoriya sahnasi yuklanmoqda...</span>
+          <span className="text-xs font-mono">3D Laboratoriya sahnasi yuklanmoqda...</span>
         </div>
       </div>
     );
