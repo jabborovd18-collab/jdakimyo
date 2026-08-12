@@ -401,6 +401,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     sahnaRef,
     kameraRef,
     rendererRef,
+    controlsRef,
     jihozQosh,
     jihozOlib,
     hammaJihozlar,
