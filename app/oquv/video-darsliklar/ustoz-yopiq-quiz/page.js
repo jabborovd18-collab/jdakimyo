@@ -63,7 +63,7 @@ export default function UstozYopiqQuizRoyxatiPage() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
+            <FonTanlagich fon={fon} tanla={fonTanla} />
             <Link href="/oquv/video-darsliklar" className="v3-tugma text-xs py-1.5 px-3">
               Markazga qaytish
             </Link>

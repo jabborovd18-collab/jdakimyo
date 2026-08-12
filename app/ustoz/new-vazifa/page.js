@@ -433,12 +433,10 @@ export default function NewVazifaPage() {
   // Loading states
   if (isLoadingGroups || isLoadingEdit) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin text-7xl mb-4">⏳</div>
-          <p className="text-purple-300 text-lg">
-            {editId ? 'Vazifa yuklanmoqda...' : 'Sahifa tayyorlanmoqda...'}
-          </p>
+      <div className="flex items-center justify-center py-24">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={32} className="animate-spin" />
+          <span className="text-sm">{editId ? 'Vazifa yuklanmoqda...' : 'Sahifa tayyorlanmoqda...'}</span>
         </div>
       </div>
     )

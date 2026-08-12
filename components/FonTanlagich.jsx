@@ -5,43 +5,39 @@ import { FONLAR, ODDIY_FON, fonOqi, fonYoz } from "@/lib/sahifa-fon"
 import Ikon from "./Ikon"
 
 /**
- * FON TANLASH — v3 sahifalari uchun.
- *
- * `useFon()` tanlovni saqlaydi va `<html>` ga `data-fon` bo'lib yozadi;
- * CSS o'zgaruvchilari (app/globals.css, "v3.0.0" bo'limi) shu atributga
- * bog'langan.
- *
- * SAHIFADAN CHIQQANDA ATRIBUT O'CHIRILADI. Bu shart, tozalik uchun emas:
- * saytning qolgan ~650 sahifasida ranglar Tailwind sinflari bilan qattiq
- * yozilgan va ular doim qorong'u fonni nazarda tutadi. "Kunduz" foni
- * o'sha sahifalarga o'tib ketsa, oq fonda oq matn chiqadi va sahifa
- * o'qib bo'lmaydigan holga keladi.
- *
- * NEGA SERVERDA EMAS. Tanlov localStorage'da — ya'ni birinchi chizishda
- * server uni bilmaydi va sahifa ODDIY_FON bilan keladi. Buni cookie bilan
- * hal qilish mumkin, lekin u har bir so'rovni shaxsiylashtiradi va statik
- * keshni buzadi. Bitta kadrlik almashuv shunga arzimaydi.
+ * FON TANLASH — v3 sahifalari uchun (tun, siyoh, grafit, kunduz).
+ * Tanlovni darhol saqlaydi va `<html>` ga `data-fon` bo'lib yozadi.
  */
 export function useFon() {
   const [fon, setFon] = useState(ODDIY_FON)
 
   useEffect(() => {
     const saqlangan = fonOqi()
-    if (saqlangan) setFon(saqlangan)
+    if (saqlangan) {
+      setFon(saqlangan)
+      if (typeof document !== 'undefined') {
+        document.documentElement.setAttribute("data-fon", saqlangan)
+      }
+    } else if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute("data-fon", ODDIY_FON)
+    }
   }, [])
 
-  useEffect(() => {
-    const el = document.documentElement
-    el.setAttribute("data-fon", fon)
-    return () => el.removeAttribute("data-fon")
-  }, [fon])
+  const almashtir = (id) => {
+    const toza = fonYoz(id)
+    setFon(toza)
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute("data-fon", toza)
+    }
+  }
 
-  return [fon, (id) => setFon(fonYoz(id))]
+  return [fon, almashtir]
 }
 
-export default function FonTanlagich({ fon, tanla }) {
+export default function FonTanlagich({ fon, tanla, onFonTanla, onTanla }) {
   const [ochiq, setOchiq] = useState(false)
   const joriy = FONLAR.find((f) => f.id === fon) || FONLAR[0]
+  const oziTanla = onFonTanla || tanla || onTanla || (() => {})
 
   return (
     <div className="relative">
@@ -68,7 +64,10 @@ export default function FonTanlagich({ fon, tanla }) {
                 type="button"
                 role="menuitemradio"
                 aria-checked={f.id === fon}
-                onClick={() => { tanla(f.id); setOchiq(false) }}
+                onClick={() => {
+                  oziTanla(f.id)
+                  setOchiq(false)
+                }}
                 className={`v3-menyu-qator w-full text-left ${f.id === fon ? "is-tanlangan" : ""}`}
               >
                 <span

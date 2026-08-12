@@ -206,7 +206,7 @@ export default function UstozQuizSolvePage() {
               </div>
             )}
 
-            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
+            <FonTanlagich fon={fon} tanla={fonTanla} />
 
             <button
               type="button"

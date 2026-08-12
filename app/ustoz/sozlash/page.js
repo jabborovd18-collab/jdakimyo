@@ -265,12 +265,12 @@ export default function UstozSozlamaPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-indigo-950 to-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin text-7xl mb-4">⏳</div>
-          <p className="text-purple-300">Profil yuklanmoqda...</p>
+      <div className="flex items-center justify-center py-24">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={32} className="animate-spin" />
+          <span className="text-sm">Profil yuklanmoqda...</span>
         </div>
-      </main>
+      </div>
     )
   }
 

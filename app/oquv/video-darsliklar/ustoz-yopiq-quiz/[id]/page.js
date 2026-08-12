@@ -168,7 +168,7 @@ export default function YopiqQuizYechishPage() {
                 {vaqtMatni(elapsed)}
               </div>
             )}
-            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
+            <FonTanlagich fon={fon} tanla={fonTanla} />
           </div>
         </div>
       </header>

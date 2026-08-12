@@ -88,7 +88,7 @@ export default function UstozShell({ user, children }) {
 
           <div className="flex items-center gap-2.5 sm:gap-3">
             {/* Fon tanlagich (4 rejim: tun, siyoh, grafit, kunduz) */}
-            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
+            <FonTanlagich fon={fon} tanla={fonTanla} />
 
             <div className="hidden md:flex items-center gap-2.5 pl-2 border-l border-[var(--v3-chiziq)]">
               <div className="w-8 h-8 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">

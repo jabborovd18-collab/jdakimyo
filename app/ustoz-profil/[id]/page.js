@@ -139,7 +139,7 @@ export default function UstozProfiliPage() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
+            <FonTanlagich fon={fon} tanla={fonTanla} />
             <Link href="/chat" className="v3-tugma text-xs py-1.5 px-3">
               <Ikon nom="xabar" olcham={14} />
               <span className="hidden sm:inline">Xabar yozish</span>
