@@ -1,18 +1,17 @@
-// app/oquv/video-darsliklar/ustoz-yopiq-quiz/[id]/page.js
 "use client"
 
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 
-/**
- * Talaba yopiq (variantsiz) quizni yechadigan sahifa.
- * Har bir savolga matn bilan javob yoziladi, ustoz keyin qo'lda baholaydi.
- */
-export default function YopiqQuizYechish() {
-  const { id } = useParams()
+export default function YopiqQuizYechishPage() {
+  const params = useParams()
+  const id = params?.id
   const router = useRouter()
+  const [fon, fonTanla] = useFon()
 
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -24,6 +23,7 @@ export default function YopiqQuizYechish() {
   const startedAt = useRef(Date.now())
 
   useEffect(() => {
+    if (!id) return
     let cancelled = false
     ;(async () => {
       try {
@@ -43,7 +43,7 @@ export default function YopiqQuizYechish() {
     return () => { cancelled = true }
   }, [id])
 
-  // Sarflangan vaqt
+  // Timer
   useEffect(() => {
     if (!data?.canSubmit) return
     const timer = setInterval(() => {
@@ -58,24 +58,26 @@ export default function YopiqQuizYechish() {
     return `${m}:${String(s).padStart(2, "0")}`
   }
 
-  const yozilganSoni = Object.values(answers).filter((v) => v && v.trim()).length
+  const handleTextChange = (questionId, value) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }))
+  }
 
-  const topshirish = async () => {
-    const tayyor = Object.entries(answers)
-      .filter(([, v]) => v && v.trim())
-      .map(([questionId, answer]) => ({ questionId, answer }))
+  const handleSubmit = async (e) => {
+    e?.preventDefault()
+    if (isSubmitting || !data?.canSubmit) return
 
-    if (tayyor.length === 0) {
-      toast.error("Kamida bitta savolga javob yozing")
-      return
-    }
+    const questionIds = (data.quiz?.questions || []).map((q) => q.id)
+    const formatted = questionIds.map((qid) => ({
+      questionId: qid,
+      answer: (answers[qid] || "").trim(),
+    }))
 
-    const jami = data.quiz.questions.length
-    if (tayyor.length < jami) {
-      const davom = confirm(
-        `${jami} ta savoldan ${tayyor.length} tasiga javob yozdingiz.\nBaribir topshirasizmi?`,
+    const emptyCount = formatted.filter((item) => !item.answer).length
+    if (emptyCount > 0) {
+      const ok = confirm(
+        `${emptyCount} ta savolga javob yozmadingiz. Shunday bo'lsa ham topshirilsinmi?`
       )
-      if (!davom) return
+      if (!ok) return
     }
 
     setIsSubmitting(true)
@@ -84,15 +86,19 @@ export default function YopiqQuizYechish() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          answers: tayyor,
-          timeSpent: Math.floor((Date.now() - startedAt.current) / 1000),
+          answers: formatted,
+          timeSpent: elapsed,
         }),
       })
-      const payload = await response.json()
-      if (!response.ok) throw new Error(payload.error || "Yuborib bo'lmadi")
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || "Topshirib bo'lmadi")
 
-      toast.success(payload.message, { duration: 5000 })
-      router.push("/oquv/video-darsliklar/ustoz-yopiq-quiz")
+      toast.success("Javoblaringiz qabul qilindi! Ustoz tekshirib baholaydi.")
+      
+      // Reload details
+      const refreshRes = await fetch(`/api/oquv/yopiq-quiz/${id}`)
+      const refreshData = await refreshRes.json()
+      if (refreshRes.ok) setData(refreshData)
     } catch (err) {
       toast.error(err.message)
     } finally {
@@ -102,153 +108,196 @@ export default function YopiqQuizYechish() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
-        <div className="text-purple-300">Yuklanmoqda...</div>
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={32} className="animate-spin" />
+          <span className="text-sm">Topshiriq yuklanmoqda...</span>
+        </div>
       </main>
     )
   }
 
-  if (error || !data) {
+  if (error || !data?.quiz) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
-        <div className="bg-red-900/20 border border-red-700/50 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center">
-          <div className="text-5xl mb-4">⚠️</div>
-          <p className="text-red-400 text-sm mb-6">{error}</p>
-          <Link href="/oquv/video-darsliklar/ustoz-yopiq-quiz" className="px-6 py-3 bg-purple-800/60 border border-purple-600/50 rounded-xl inline-block text-white">
-            Orqaga
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center p-4">
+        <div className="v3-panel-karta max-w-md w-full p-8 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto">
+            <Ikon nom="taqiq" olcham={24} />
+          </div>
+          <h2 className="font-bold text-lg text-[var(--v3-matn)]">Topshiriq ochilmadi</h2>
+          <p className="text-xs text-[var(--v3-xira)] leading-relaxed">{error || "Topshiriq topilmadi"}</p>
+          <Link href="/oquv/video-darsliklar/ustoz-yopiq-quiz" className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 inline-flex">
+            Barcha yozma testlarga qaytish
           </Link>
         </div>
       </main>
     )
   }
 
-  const { quiz, mySubmissions, canSubmit, expired, attemptsUsed } = data
-  const oxirgi = mySubmissions?.[0]
+  const { quiz, lastSubmission, canSubmit, reason } = data
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white pb-28">
-      {/* Sarlavha */}
-      <header className="border-b border-purple-800/50 bg-purple-950/95 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-3">
+    <main data-fon={fon} className="v3 v3-quiz min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
+      <div className="v3-quiz-fon" aria-hidden="true">
+        <span className="v3-nur v3-nur-a" />
+        <span className="v3-nur v3-nur-b" />
+        <span className="v3-tor-fon" />
+      </div>
+
+      {/* Top Header */}
+      <header className="v3-header sticky top-0 z-40 bg-[var(--v3-fon)]/90 backdrop-blur-xl border-b border-[var(--v3-chiziq)]">
+        <div className="v3-konteyner flex items-center justify-between gap-3 py-3.5">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/oquv/video-darsliklar/ustoz-yopiq-quiz" className="v3-ikon-tugma" aria-label="Orqaga">
+              <Ikon nom="chap" olcham={18} />
+            </Link>
             <div className="min-w-0">
-              <Link href="/oquv/video-darsliklar/ustoz-yopiq-quiz" className="text-purple-400 text-xs hover:text-purple-300">
-                ← Ro&apos;yxatga
-              </Link>
-              <h1 className="font-bold text-base sm:text-xl truncate">{quiz.title}</h1>
-              <p className="text-purple-400 text-xs truncate">
-                {quiz.teacher.fullName || quiz.teacher.username} · {quiz.maxScore} ball
-              </p>
-            </div>
-            {canSubmit ? (
-              <div className="text-right flex-shrink-0">
-                <div className="text-xs text-purple-400">Vaqt</div>
-                <div className="font-mono text-sm text-yellow-400">{vaqtMatni(elapsed)}</div>
+              <div className="text-xs font-bold text-[var(--v3-matn)] truncate max-w-[200px] sm:max-w-xs md:max-w-md">
+                {quiz.title}
               </div>
-            ) : null}
+              <div className="text-[10.5px] text-[var(--v3-xira)]">
+                Ustoz: {quiz.teacher?.fullName || quiz.teacher?.username}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            {canSubmit && (
+              <div className="px-3 py-1 rounded-lg border font-mono font-bold text-xs flex items-center gap-1.5 bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] border-[var(--v3-chiziq)]">
+                <Ikon nom="vaqt" olcham={13} />
+                {vaqtMatni(elapsed)}
+              </div>
+            )}
+            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
           </div>
         </div>
       </header>
 
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-5 space-y-4">
-        {/* Oldingi topshiriq natijasi */}
-        {oxirgi ? (
-          <div className={`rounded-2xl p-4 border ${
-            oxirgi.status === "graded"
-              ? "bg-green-900/20 border-green-700/50"
-              : "bg-amber-900/20 border-amber-700/50"
-          }`}>
-            <h2 className="font-bold text-sm mb-1">
-              {oxirgi.status === "graded" ? "✓ Baholandi" : "⏳ Tekshirilmoqda"}
-            </h2>
-            {oxirgi.status === "graded" ? (
-              <>
-                <p className="text-2xl font-bold text-green-400">
-                  {oxirgi.score} / {oxirgi.maxScore}
-                </p>
-                {oxirgi.feedback ? (
-                  <p className="text-purple-200 text-sm mt-2 whitespace-pre-wrap">{oxirgi.feedback}</p>
-                ) : null}
-              </>
-            ) : (
-              <p className="text-purple-300 text-sm">
-                Javoblaringiz ustozga yuborildi. Baholangach shu yerda ko&apos;rinadi.
-              </p>
+      <div className="v3-konteyner py-8 max-w-3xl space-y-6">
+        {/* Sarlavha Karta */}
+        <div className="v3-panel-karta p-6 sm:p-8 space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="v3-tag v3-tag-yopiq">
+              <Ikon nom="fayl" olcham={12} />
+              Variantsiz (Yozma)
+            </span>
+            {quiz.group?.name && (
+              <span className="v3-tag v3-tag-ochiq">
+                {quiz.group.name}
+              </span>
             )}
           </div>
-        ) : null}
 
-        {/* Ko'rsatmalar */}
-        {quiz.instructions ? (
-          <div className="bg-blue-900/20 border border-blue-700/40 rounded-2xl p-4">
-            <h2 className="font-semibold text-blue-300 text-sm mb-1">📋 Ko&apos;rsatma</h2>
-            <p className="text-purple-200 text-sm whitespace-pre-wrap">{quiz.instructions}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--v3-matn)]">
+            {quiz.title}
+          </h1>
+
+          {quiz.description && (
+            <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
+              {quiz.description}
+            </p>
+          )}
+
+          {quiz.instructions && (
+            <div className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] text-xs text-[var(--v3-xira)] leading-relaxed">
+              <strong className="text-[var(--v3-urgu)] block mb-0.5">Ustoz ko{"'"}rsatmasi:</strong>
+              {quiz.instructions}
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-[var(--v3-xira)] pt-2 border-t border-[var(--v3-chiziq)]">
+            <span>Savollar: <strong>{quiz.questions?.length || 0} ta</strong></span>
+            <span>Maksimal ball: <strong>{quiz.maxScore}</strong></span>
+            {quiz.timeLimit && <span>Vaqt chegarasi: <strong>{quiz.timeLimit} daqiqa</strong></span>}
           </div>
-        ) : null}
+        </div>
 
-        {/* Topshirib bo'lmaydigan holat */}
-        {!canSubmit ? (
-          <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4 text-sm text-purple-300">
-            {expired
-              ? "Topshirish muddati tugagan."
-              : attemptsUsed >= quiz.maxAttempts
-              ? `Urinishlar soni tugagan (${quiz.maxAttempts} ta).`
-              : "Bu quizda hali savol yo'q."}
-          </div>
-        ) : null}
-
-        {/* Savollar */}
-        {quiz.questions.map((savol, index) => (
-          <div key={savol.id} className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <h3 className="font-semibold text-sm sm:text-base flex-1">
-                <span className="text-yellow-400">{index + 1}.</span> {savol.questionText}
-              </h3>
-              <span className="text-[10px] px-2 py-0.5 bg-purple-950/60 border border-purple-700/50 rounded-full text-purple-300 flex-shrink-0">
-                {savol.maxPoints} ball
+        {/* Oldingi topshirilgan ish (agar bo'lsa) */}
+        {lastSubmission && (
+          <div className="v3-panel-karta p-6 space-y-4 border-l-4 border-l-[var(--v3-urgu)]">
+            <div className="flex items-center justify-between">
+              <span className="v3-nishon">Topshirgan ishingiz holati</span>
+              <span className={`v3-tag ${lastSubmission.status === 'graded' ? 'v3-tag-ochiq' : 'v3-tag-yopiq'}`}>
+                {lastSubmission.status === 'graded' ? 'Baholangan' : 'Ustoz tekshirmoqda'}
               </span>
             </div>
 
-            {savol.hint ? (
-              <p className="text-purple-400 text-xs mb-3">💡 {savol.hint}</p>
-            ) : null}
-
-            {canSubmit ? (
-              <textarea
-                value={answers[savol.id] || ""}
-                onChange={(e) => setAnswers((prev) => ({ ...prev, [savol.id]: e.target.value }))}
-                rows={4}
-                placeholder="Javobingizni shu yerga yozing..."
-                className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white text-sm placeholder-purple-500 focus:border-yellow-500 outline-none resize-y"
-              />
-            ) : oxirgi ? (
-              <div className="bg-purple-950/50 rounded-xl p-3 text-sm text-purple-200 whitespace-pre-wrap">
-                {oxirgi.answers?.find((a) => a.questionId === savol.id)?.answer || (
-                  <span className="text-purple-500 italic">Javob yozilmagan</span>
+            {lastSubmission.status === 'graded' ? (
+              <div className="space-y-3">
+                <div className="text-2xl font-bold font-mono text-green-400">
+                  {lastSubmission.score} / {lastSubmission.maxScore} ball
+                </div>
+                {lastSubmission.feedback && (
+                  <div className="p-3.5 rounded-xl border border-green-500/20 bg-green-500/5 text-xs text-[var(--v3-matn)] leading-relaxed">
+                    <strong className="text-green-400 block mb-0.5">Ustoz izohi (Feedback):</strong>
+                    {lastSubmission.feedback}
+                  </div>
                 )}
               </div>
-            ) : null}
+            ) : (
+              <p className="text-xs text-[var(--v3-xira)]">
+                Javoblaringiz yuborilgan ({new Date(lastSubmission.submittedAt).toLocaleString('uz-UZ')}). Ustoz tekshirib ball qo{"'"}yganida natija shu yerda ko{"'"}rinadi.
+              </p>
+            )}
           </div>
-        ))}
-      </section>
+        )}
 
-      {/* Pastdagi topshirish paneli — mobil uchun qulay */}
-      {canSubmit ? (
-        <div className="fixed bottom-0 inset-x-0 border-t border-purple-800/50 bg-purple-950/95 backdrop-blur-md">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-            <div className="text-xs text-purple-300">
-              {yozilganSoni} / {quiz.questions.length} javob yozildi
+        {/* Savollar va Yozish Formasi */}
+        {canSubmit ? (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="v3-nishon">Yozma javoblaringizni kiriting</div>
+
+            <div className="space-y-4">
+              {quiz.questions?.map((q, idx) => (
+                <div key={q.id} className="v3-panel-karta p-6 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-mono text-xs font-bold text-[var(--v3-urgu)] uppercase">
+                      {idx + 1}-SAVOL ({q.maxPoints} ball)
+                    </span>
+                    {q.hint && (
+                      <span className="text-[11px] text-[var(--v3-xira)] italic">
+                        Maslahat: {q.hint}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-sm sm:text-base font-semibold text-[var(--v3-matn)] leading-relaxed">
+                    {q.questionText}
+                  </h3>
+
+                  <textarea
+                    rows={4}
+                    value={answers[q.id] || ""}
+                    onChange={(e) => handleTextChange(q.id, e.target.value)}
+                    placeholder="Bu yerga to'liq, asoslangan javobingizni yozing..."
+                    className="v3-kiritish resize-y text-xs leading-relaxed font-sans"
+                  />
+                </div>
+              ))}
             </div>
-            <button
-              onClick={topshirish}
-              disabled={isSubmitting}
-              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl text-sm disabled:opacity-50"
-            >
-              {isSubmitting ? "Yuborilmoqda..." : "Topshirish"}
-            </button>
-          </div>
-        </div>
-      ) : null}
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--v3-chiziq)]">
+              <Link href="/oquv/video-darsliklar/ustoz-yopiq-quiz" className="v3-tugma text-xs py-2.5 px-4">
+                Bekor qilish
+              </Link>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-6 font-bold"
+              >
+                {isSubmitting ? 'Yuborilmoqda...' : '✓ Topshirishni tasdiqlash'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          !lastSubmission && (
+            <div className="v3-panel-karta p-6 text-center text-xs text-[var(--v3-xira)]">
+              {reason || "Topshirish imkoniyati cheklangan."}
+            </div>
+          )
+        )}
+      </div>
     </main>
   )
 }

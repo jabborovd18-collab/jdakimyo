@@ -14,7 +14,7 @@
 // to'g'ridan-to'g'ri sotib olishdan biroz foydali, lekin "sotib olib qayta
 // sotish" aylanmasi baribir zarar keltiradi.
 
-module.exports = [
+const SANDIQLAR = [
   {
     kalit: 'posilka',
     nom: 'Reaktiv posilkasi',
@@ -50,3 +50,6 @@ module.exports = [
     ehtimollar: { oddiy: 20, kam: 35, nodir: 35, noyob: 10 },
   },
 ]
+
+module.exports = SANDIQLAR
+export default SANDIQLAR

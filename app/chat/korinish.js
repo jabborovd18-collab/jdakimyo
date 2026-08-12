@@ -63,6 +63,48 @@ function Avatar({ odam, olcham = 42 }) {
   )
 }
 
+function XabarMazmuni({ matn }) {
+  if (!matn) return null
+
+  // Test ulashilgan xabarlarni aniqlash: [quiz:ID:Title] yoki havola
+  const quizMatch = matn.match(/\[quiz:([a-zA-Z0-9_\-]+):([^\]]+)\]/)
+  const linkMatch = matn.match(/\/oquv\/video-darsliklar\/ustoz-quiz\/([a-zA-Z0-9_\-]+)/)
+
+  if (quizMatch || linkMatch) {
+    const quizId = quizMatch ? quizMatch[1] : linkMatch[1]
+    const quizTitle = quizMatch ? quizMatch[2] : "Ustoz Testi"
+    const cleanText = matn
+      .replace(/🧪?\s*\[quiz:[a-zA-Z0-9_\-]+:[^\]]+\]/g, '')
+      .replace(/https?:\/\/[^\s]+\/oquv\/video-darsliklar\/ustoz-quiz\/[a-zA-Z0-9_\-]+/g, '')
+      .replace(/\/oquv\/video-darsliklar\/ustoz-quiz\/[a-zA-Z0-9_\-]+/g, '')
+      .trim()
+
+    return (
+      <div>
+        {cleanText && <div style={{ whiteSpace: 'pre-line', marginBottom: '8px' }}>{cleanText}</div>}
+        <Link
+          href={`/oquv/video-darsliklar/ustoz-quiz/${quizId}`}
+          className="chat-quiz-karta"
+        >
+          <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-[var(--v3-urgu)] uppercase tracking-wider">
+            <Ikon nom="quiz" olcham={13} />
+            <span>Ustoz testi</span>
+          </div>
+          <div className="chat-quiz-karta-sarlavha">
+            {quizTitle}
+          </div>
+          <div className="chat-quiz-karta-tugma">
+            <span>Testni yechish</span>
+            <Ikon nom="ong" olcham={13} />
+          </div>
+        </Link>
+      </div>
+    )
+  }
+
+  return <span style={{ whiteSpace: 'pre-line' }}>{matn}</span>
+}
+
 /** Ro'yxatdagi vaqt: bugungi suhbat — soat, eskisi — sana */
 function royxatVaqti(qiymat) {
   if (!qiymat) return ''
@@ -637,7 +679,7 @@ function Chat() {
                           {x.ochirilgan ? (
                             <span>Xabar o{"'"}chirildi</span>
                           ) : (
-                            <span style={{ whiteSpace: 'pre-line' }}>{x.matn}</span>
+                            <XabarMazmuni matn={x.matn} />
                           )}
 
                           <span className="chat-pufak-oyoq">

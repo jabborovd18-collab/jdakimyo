@@ -1,18 +1,14 @@
-// app/oquv/video-darsliklar/ustoz-yopiq-quiz/page.js
 "use client"
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 
-/**
- * Talaba uchun yopiq (variantsiz) quizlar ro'yxati.
- *
- * Bu sahifa umuman mavjud emas edi — video-darsliklar sahifasidagi
- * "Variantsiz o'qituvchilar testlari" kartasi 404 ga olib borardi.
- */
-export default function UstozYopiqQuizRoyxati() {
+export default function UstozYopiqQuizRoyxatiPage() {
   const { status } = useSession()
+  const [fon, fonTanla] = useFon()
   const [quizzes, setQuizzes] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
@@ -41,146 +37,153 @@ export default function UstozYopiqQuizRoyxati() {
     return () => { cancelled = true }
   }, [status])
 
-  const holatBelgisi = (quiz) => {
-    const oxirgi = quiz.mySubmissions?.[0]
-    if (!oxirgi) return null
-    if (oxirgi.status === "graded") {
-      return {
-        matn: `Baholandi: ${oxirgi.score}/${oxirgi.maxScore}`,
-        rang: "bg-green-600/20 text-green-400 border-green-600/40",
-      }
-    }
-    return {
-      matn: "Tekshirilmoqda",
-      rang: "bg-amber-600/20 text-amber-400 border-amber-600/40",
-    }
-  }
-
-  if (status === "unauthenticated") {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
-        <div className="text-center max-w-sm">
-          <div className="text-5xl mb-4">🔐</div>
-          <h1 className="text-xl font-bold text-white mb-2">Kirish talab qilinadi</h1>
-          <p className="text-purple-300 text-sm mb-6">
-            Ustoz quizlarini ko&apos;rish uchun tizimga kiring
-          </p>
-          <Link href="/login" className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl inline-block">
-            Kirish
-          </Link>
-        </div>
-      </main>
-    )
-  }
-
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
-      <header className="border-b border-purple-800/50 bg-purple-950/95 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
-          <nav className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-purple-400 mb-2">
-            <Link href="/" className="hover:text-purple-300">🏠</Link>
-            <span>›</span>
-            <Link href="/oquv/video-darsliklar" className="hover:text-purple-300">Video &amp; Quiz</Link>
-            <span>›</span>
-            <span className="text-amber-400 font-semibold">Variantsiz testlar</span>
-          </nav>
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
-            <span>✍️</span> Variantsiz testlar
-          </h1>
-          <p className="text-purple-300 text-sm mt-1">
-            Javobni o&apos;zingiz yozasiz — ustoz qo&apos;lda baholaydi
-          </p>
+    <main data-fon={fon} className="v3 v3-quiz min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
+      <div className="v3-quiz-fon" aria-hidden="true">
+        <span className="v3-nur v3-nur-a" />
+        <span className="v3-nur v3-nur-b" />
+        <span className="v3-tor-fon" />
+      </div>
+
+      <header className="v3-header sticky top-0 z-40 bg-[var(--v3-fon)]/90 backdrop-blur-xl border-b border-[var(--v3-chiziq)]">
+        <div className="v3-konteyner flex items-center justify-between gap-3 py-3.5">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/oquv/video-darsliklar" className="v3-ikon-tugma" aria-label="Orqaga">
+              <Ikon nom="chap" olcham={18} />
+            </Link>
+            <Link href="/" className="flex items-center gap-2.5 shrink-0">
+              <span className="v3-logo" aria-hidden="true" />
+              <span className="v3-logo-matn">JDA KIMYO</span>
+            </Link>
+            <span className="v3-quiz-header-ajratgich hidden sm:block" />
+            <div className="hidden sm:block min-w-0">
+              <div className="v3-nishon">O{"'"}qituvchilar testlari</div>
+              <div className="v3-quiz-header-nom truncate">Yozma topshiriqlar</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
+            <Link href="/oquv/video-darsliklar" className="v3-tugma text-xs py-1.5 px-3">
+              Markazga qaytish
+            </Link>
+          </div>
         </div>
       </header>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {isLoading ? (
-          <div className="text-center py-16 text-purple-300">Yuklanmoqda...</div>
+      <div className="v3-konteyner py-8 sm:py-12 space-y-8 max-w-5xl">
+        <div className="space-y-2">
+          <div className="v3-nishon">Erkin javobli topshiriqlar</div>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--v3-matn)]">
+            Variantsiz Yozma Testlar
+          </h1>
+          <p className="text-sm text-[var(--v3-xira)] leading-relaxed max-w-2xl">
+            Bu bo{"'"}limdagi savollarga o{"'"}z so{"'"}zingiz bilan matn shaklida javob berasiz. Javobingizni ustoz shaxsan o{"'"}qib chiqadi va baholaydi.
+          </p>
+        </div>
+
+        {status === "unauthenticated" ? (
+          <div className="v3-panel-karta p-8 text-center space-y-4 max-w-md mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+              <Ikon nom="odam" olcham={22} />
+            </div>
+            <h3 className="font-bold text-base text-[var(--v3-matn)]">Tizimga kirish kerak</h3>
+            <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+              Yozma testlarni ko{"'"}rish va topshirish uchun platformadagi hisobingizga kiring.
+            </p>
+            <Link href="/login" className="v3-tugma v3-tugma-asosiy text-xs py-2 px-5 inline-flex font-bold">
+              Kirish →
+            </Link>
+          </div>
+        ) : isLoading ? (
+          <div className="py-24 text-center text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
+            <Ikon nom="vaqt" olcham={18} className="animate-spin" />
+            <span>Testlar yuklanmoqda...</span>
+          </div>
         ) : error ? (
-          <div className="bg-red-900/20 border border-red-700/50 rounded-2xl p-6 text-center">
-            <p className="text-red-400 text-sm">{error}</p>
+          <div className="v3-panel-karta p-6 text-center text-xs text-red-400">
+            {error}
           </div>
         ) : quizzes.length === 0 ? (
-          <div className="bg-purple-900/20 border border-purple-700/40 rounded-2xl p-8 sm:p-12 text-center">
-            <div className="text-5xl mb-4">📭</div>
-            <h2 className="text-lg font-bold text-white mb-2">Hozircha test yo&apos;q</h2>
-            <p className="text-purple-300 text-sm">
-              Ustozingiz variantsiz test yaratganda shu yerda ko&apos;rinadi.
-              Avval ustoz sizni o&apos;z guruhiga qo&apos;shishi kerak.
+          <div className="v3-panel-karta py-20 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+              <Ikon nom="fayl" olcham={24} />
+            </div>
+            <h3 className="font-bold text-base text-[var(--v3-matn)]">Hozircha yozma testlar yo{"'"}q</h3>
+            <p className="text-xs text-[var(--v3-xira)] max-w-sm mx-auto">
+              Siz a{"'"}zo bo{"'"}lgan guruhlarda yangi yozma topshiriqlar e{"'"}lon qilinganda bu yerda ko{"'"}rinadi.
             </p>
           </div>
         ) : (
-          <div className="grid gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {quizzes.map((quiz) => {
-              const holat = holatBelgisi(quiz)
+              const deadlineDate = quiz.deadline ? new Date(quiz.deadline) : null
+              const isExpired = deadlineDate && Date.now() > deadlineDate.getTime()
+              const lastSub = quiz.mySubmissions?.[0]
+              const isGraded = lastSub?.status === 'graded'
+              const isPending = lastSub?.status === 'pending'
+
               return (
                 <div
                   key={quiz.id}
-                  className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4 sm:p-5"
+                  className="v3-panel-karta flex flex-col justify-between p-5 hover:border-[var(--v3-chiziq-2)] transition-all group"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <h2 className="font-bold text-white text-base sm:text-lg break-words">
-                        {quiz.title}
-                      </h2>
-                      <p className="text-purple-400 text-xs mt-1">
-                        {quiz.teacher.fullName || quiz.teacher.username}
-                        {quiz.group ? ` · ${quiz.group.name}` : ""}
-                      </p>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="v3-tag v3-tag-yopiq">
+                        <Ikon nom="odamlar" olcham={12} />
+                        {quiz.group?.name ? `Guruh: ${quiz.group.name}` : 'Mening guruhim'}
+                      </span>
 
-                      <div className="flex flex-wrap gap-1.5 mt-3">
-                        <span className="text-[10px] px-2 py-0.5 bg-purple-950/60 border border-purple-700/50 rounded-full text-purple-300">
-                          {quiz.questionCount} savol
+                      {deadlineDate && (
+                        <span className={`v3-tag ${isExpired ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'v3-tag-muhlat'}`}>
+                          <Ikon nom="taqvim" olcham={12} />
+                          {isExpired ? 'Muddati o\'tgan' : deadlineDate.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' })}
                         </span>
-                        <span className="text-[10px] px-2 py-0.5 bg-purple-950/60 border border-purple-700/50 rounded-full text-purple-300">
-                          {quiz.maxScore} ball
-                        </span>
-                        {quiz.timeLimit ? (
-                          <span className="text-[10px] px-2 py-0.5 bg-purple-950/60 border border-purple-700/50 rounded-full text-purple-300">
-                            ⏱ {quiz.timeLimit} daqiqa
-                          </span>
-                        ) : null}
-                        {quiz.deadline ? (
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
-                            quiz.expired
-                              ? "bg-red-600/20 text-red-400 border-red-600/40"
-                              : "bg-purple-950/60 text-purple-300 border-purple-700/50"
-                          }`}>
-                            {quiz.expired ? "Muddat tugagan" : `Muddat: ${new Date(quiz.deadline).toLocaleDateString("uz-UZ")}`}
-                          </span>
-                        ) : null}
-                        {holat ? (
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full border ${holat.rang}`}>
-                            {holat.matn}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="sm:flex-shrink-0">
-                      {quiz.canSubmit ? (
-                        <Link
-                          href={`/oquv/video-darsliklar/ustoz-yopiq-quiz/${quiz.id}`}
-                          className="block text-center px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl text-sm"
-                        >
-                          Boshlash
-                        </Link>
-                      ) : (
-                        <Link
-                          href={`/oquv/video-darsliklar/ustoz-yopiq-quiz/${quiz.id}`}
-                          className="block text-center px-5 py-2.5 bg-purple-800/50 border border-purple-600/50 text-purple-200 rounded-xl text-sm"
-                        >
-                          Ko&apos;rish
-                        </Link>
                       )}
                     </div>
+
+                    <div>
+                      <h3 className="font-bold text-base text-[var(--v3-matn)] group-hover:text-[var(--v3-urgu)] transition-colors">
+                        {quiz.title}
+                      </h3>
+                      {quiz.description && (
+                        <p className="text-xs text-[var(--v3-xira)] line-clamp-2 mt-1 leading-relaxed">
+                          {quiz.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2 text-[11px] text-[var(--v3-xira)] font-mono border-t border-[var(--v3-chiziq)]">
+                      <span>Savollar: <strong>{quiz._count?.questions || 0} ta</strong></span>
+                      <span>Maksimal ball: <strong>{quiz.maxScore}</strong></span>
+                      {quiz.timeLimit && <span>Vaqt: <strong>{quiz.timeLimit} daq</strong></span>}
+                    </div>
+
+                    {lastSub && (
+                      <div className="p-2.5 rounded-lg border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] flex items-center justify-between text-xs font-mono">
+                        <span className="text-[var(--v3-xira)]">Holati:</span>
+                        <span className={`font-bold ${isGraded ? 'text-green-400' : 'text-amber-300'}`}>
+                          {isGraded ? `Baholandi: ${lastSub.score}/${lastSub.maxScore}` : 'Ustoz tekshirmoqda'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-4 mt-2 border-t border-[var(--v3-chiziq)]">
+                    <Link
+                      href={`/oquv/video-darsliklar/ustoz-yopiq-quiz/${quiz.id}`}
+                      className="w-full v3-tugma v3-tugma-asosiy text-xs py-2 justify-center font-bold"
+                    >
+                      {lastSub ? 'Topshiriqni ko\'rish' : 'Topshiriqni yechish →'}
+                    </Link>
                   </div>
                 </div>
               )
             })}
           </div>
         )}
-      </section>
+      </div>
     </main>
   )
 }

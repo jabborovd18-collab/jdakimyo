@@ -275,78 +275,58 @@ export default function UstozSozlamaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-950 via-indigo-950 to-slate-950 text-white">
-      {/* HEADER */}
-      <header className="sticky top-0 z-40 bg-purple-950/95 backdrop-blur-xl border-b border-purple-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <Link
-                href="/ustoz"
-                className="w-10 h-10 rounded-lg bg-purple-800/50 hover:bg-purple-700/50 flex items-center justify-center flex-shrink-0"
-              >
-                ←
-              </Link>
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-bold truncate flex items-center gap-2">
-                  <span>🎓</span>
-                  <span>Ommaviy akademik profil</span>
-                </h1>
-                <p className="text-xs text-purple-400 truncate">
-                  Talabalar va hamkasblar ko'radigan profil
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Link
-                href={`/ustoz-profil/${session?.user?.id}`}
-                target="_blank"
-                className="hidden sm:flex px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 rounded-lg text-sm items-center gap-2"
-              >
-                <span>👁️</span>
-                <span>Ko'rish</span>
-              </Link>
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="px-4 sm:px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-lg shadow-lg disabled:opacity-50 flex items-center gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <span className="animate-spin">⏳</span>
-                    <span className="hidden sm:inline">Saqlanmoqda...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>💾</span>
-                    <span className="hidden sm:inline">Saqlash</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black shadow-lg'
-                    : 'bg-purple-900/40 text-purple-300 hover:bg-purple-800/50'
-                }`}
-              >
-                <span>{tab.icon}</span>
-                <span className="hidden sm:inline">{tab.label.split(' ').slice(1).join(' ')}</span>
-              </button>
-            ))}
-          </div>
+    <div className="space-y-6 max-w-5xl">
+      {/* ═══ TITLE BAR ═══ */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--v3-chiziq)]">
+        <div>
+          <div className="v3-nishon">Ustoz profili</div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--v3-matn)]">
+            Ommaviy Akademik Profil
+          </h1>
+          <p className="text-xs text-[var(--v3-xira)] mt-1">
+            Talabalar va hamkasblar ko{"'"}radigan akademik ma{"'"}lumotlarni sozlang
+          </p>
         </div>
-      </header>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/ustoz-profil/${session?.user?.id}`}
+            target="_blank"
+            className="v3-tugma text-xs py-2 px-3.5 inline-flex items-center gap-1.5"
+          >
+            <Ikon nom="tashqi" olcham={14} />
+            Ko{"'"}rish
+          </Link>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold"
+          >
+            {isSaving ? 'Saqlanmoqda...' : '✓ Saqlash'}
+          </button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2 border-b border-[var(--v3-chiziq)]">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === tab.id
+                ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] shadow-sm'
+                : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]'
+            }`}
+          >
+            <span>{tab.icon}</span>
+            <span>{tab.label.split(' ').slice(1).join(' ')}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-6">
         {/* ═══ PREVIEW CARD (har doim ko'rinadi) ═══ */}
         <div className="mb-6 bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">

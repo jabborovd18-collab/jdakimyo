@@ -1,9 +1,10 @@
-// app/ustoz/page.js
 "use client"
+
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import Ikon from '@/components/Ikon'
 
 export default function UstozDashboard() {
   const { data: session } = useSession()
@@ -12,7 +13,8 @@ export default function UstozDashboard() {
     totalGroups: 0,
     activeAssignments: 0,
     pendingSubmissions: 0,
-    totalAnnouncements: 0
+    totalAnnouncements: 0,
+    totalQuizzes: 0,
   })
   const [recentActivity, setRecentActivity] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -26,8 +28,8 @@ export default function UstozDashboard() {
       const res = await fetch('/api/ustoz/dashboard')
       const data = await res.json()
       if (res.ok) {
-        setStats(data.stats)
-        setRecentActivity(data.recentActivity)
+        setStats(data.stats || {})
+        setRecentActivity(data.recentActivity || [])
       }
     } catch (error) {
       toast.error('Dashboard ma\'lumotlarini yuklashda xatolik')
@@ -36,127 +38,187 @@ export default function UstozDashboard() {
     }
   }
 
+  const quickActions = [
+    { href: '/ustoz/open-quiz', ikon: 'quiz', label: 'Variantli test yaratish', tavsif: 'Ochiq va yopiq variantli testlar' },
+    { href: '/ustoz/yopiq-quiz', ikon: 'fayl', label: 'Yozma test va baholash', tavsif: 'Erkin javobli savollarni tekshirish' },
+    { href: '/ustoz/natijalar', ikon: 'orin', label: 'Natijalar tahlili', tavsif: 'Talabalarning o\'zlashtirish ko\'rsatkichlari' },
+    { href: '/ustoz/talaba', ikon: 'odamlar', label: 'Talabalarni boshqarish', tavsif: 'Takliflar va talabalar ro\'yxati' },
+    { href: '/ustoz/guruh', ikon: 'kitob', label: 'Guruhlar tuzish', tavsif: 'Kurslar va guruhlarni ajratish' },
+    { href: '/ustoz/new-vazifa', ikon: 'qosh', label: 'Vazifa berish', tavsif: 'Muddatli mustaqil ishlar' },
+  ]
+
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
-        <div className="animate-spin text-6xl">⏳</div>
-      </main>
+      <div className="flex items-center justify-center py-24">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={32} className="animate-spin" />
+          <span className="text-sm">Ma{"'"}lumotlar yuklanmoqda...</span>
+        </div>
+      </div>
     )
   }
 
-  // Sinflar TO'LIQ yozilgan, `from-${color}-900/30` kabi yig'ilmaydi.
-  // Tailwind manba matnini o'qib sinf yasaydi — qismlarga bo'lingan nomni
-  // u ko'rmaydi. Avval shunday yozilgani uchun `to-...-800/30` olti
-  // rangning hech biri uchun yaratilmagan va gradient ikkinchi rangga
-  // emas, shaffofga tugardi.
-  const quickActions = [
-    { href: '/ustoz/guruh', icon: '👥', label: 'Guruh yaratish', style: 'from-blue-900/30 to-blue-800/30 border-blue-700/50 hover:border-blue-500/50' },
-    { href: '/ustoz/new-vazifa', icon: '📝', label: 'Vazifa yaratish', style: 'from-green-900/30 to-green-800/30 border-green-700/50 hover:border-green-500/50' },
-    { href: '/ustoz/open-quiz', icon: '❓', label: 'Variantli quiz', style: 'from-purple-900/30 to-purple-800/30 border-purple-700/50 hover:border-purple-500/50' },
-    { href: '/ustoz/yopiq-quiz', icon: '✍️', label: 'Variantsiz quiz', style: 'from-orange-900/30 to-orange-800/30 border-orange-700/50 hover:border-orange-500/50' },
-    { href: '/ustoz/elonlar', icon: '📢', label: 'E\'lon qilish', style: 'from-pink-900/30 to-pink-800/30 border-pink-700/50 hover:border-pink-500/50' },
-    { href: '/ustoz/natijalar', icon: '📊', label: 'Natijalar', style: 'from-cyan-900/30 to-cyan-800/30 border-cyan-700/50 hover:border-cyan-500/50' }
-  ]
-
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
-      {/* Header */}
-      <header className="bg-slate-900/80 backdrop-blur-xl border-b border-purple-800/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-              JDA KIMYO
+    <div className="space-y-8 max-w-6xl">
+      {/* Welcome Banner */}
+      <div className="v3-panel-karta relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="v3-nishon mb-1">Ustoz ish stoli</div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--v3-matn)]">
+              Assalomu alaykum, <span className="text-[var(--v3-urgu)]">{session?.user?.fullName || session?.user?.username}</span>
+            </h1>
+            <p className="text-sm text-[var(--v3-xira)] mt-1 max-w-xl leading-relaxed">
+              Ochiq va guruhli testlaringizni boshqaring, talabalar yechimlarini tekshiring va shaxsiy tahlillarni kuzating.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2.5">
+            <Link
+              href="/ustoz/open-quiz"
+              className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4"
+            >
+              <Ikon nom="qosh" olcham={15} />
+              Yangi test tuzish
             </Link>
-            <div className="h-6 w-px bg-purple-800"></div>
-            <span className="text-purple-300 text-sm">O'qituvchi Paneli</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/profil" className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 rounded-xl text-sm">
-              👤 Profilim
+            <Link
+              href="/oquv/video-darsliklar/ustoz-quiz"
+              className="v3-tugma text-xs py-2 px-4"
+            >
+              <Ikon nom="tashqi" olcham={15} />
+              Barcha ochiq testlar
             </Link>
           </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Welcome */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            Xush kelibsiz, <span className="text-yellow-400">{session?.user?.fullName || session?.user?.username}</span>! 👋
-          </h1>
-          <p className="text-purple-300">Bugungi statistika va tezkor harakatlar</p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-5">
-            <div className="text-3xl mb-2">👥</div>
-            <div className="text-3xl font-bold text-blue-400">{stats.totalStudents}</div>
-            <div className="text-xs text-purple-300">Talabalar</div>
-          </div>
-          <div className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 border border-green-700/50 rounded-2xl p-5">
-            <div className="text-3xl mb-2">📚</div>
-            <div className="text-3xl font-bold text-green-400">{stats.totalGroups}</div>
-            <div className="text-xs text-purple-300">Guruhlar</div>
-          </div>
-          <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-700/50 rounded-2xl p-5">
-            <div className="text-3xl mb-2">📝</div>
-            <div className="text-3xl font-bold text-purple-400">{stats.activeAssignments}</div>
-            <div className="text-xs text-purple-300">Faol vazifalar</div>
-          </div>
-          <div className="bg-gradient-to-br from-orange-900/40 to-red-900/40 border border-orange-700/50 rounded-2xl p-5">
-            <div className="text-3xl mb-2">⏳</div>
-            <div className="text-3xl font-bold text-orange-400">{stats.pendingSubmissions}</div>
-            <div className="text-xs text-purple-300">Tekshirish kerak</div>
-          </div>
-          <div className="bg-gradient-to-br from-pink-900/40 to-rose-900/40 border border-pink-700/50 rounded-2xl p-5">
-            <div className="text-3xl mb-2">📢</div>
-            <div className="text-3xl font-bold text-pink-400">{stats.totalAnnouncements}</div>
-            <div className="text-xs text-purple-300">E'lonlar</div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">⚡ Tezkor harakatlar</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {quickActions.map((action, idx) => (
-              <Link
-                key={idx}
-                href={action.href}
-                className={`bg-gradient-to-br ${action.style} border rounded-2xl p-6 transition-all transform hover:-translate-y-1 text-center group`}
-              >
-                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{action.icon}</div>
-                <div className="text-sm font-semibold text-white">{action.label}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
-          <h2 className="text-xl font-bold mb-4">📋 Oxirgi faoliyat</h2>
-          {recentActivity.length > 0 ? (
-            <div className="space-y-3">
-              {recentActivity.map((activity, idx) => (
-                <div key={idx} className="bg-purple-950/30 rounded-xl p-4 flex items-center gap-4">
-                  <div className="text-2xl">{activity.icon}</div>
-                  <div className="flex-1">
-                    <div className="text-sm font-semibold text-white">{activity.title}</div>
-                    <div className="text-xs text-purple-400">{activity.time}</div>
-                  </div>
-                  <div className="text-xs text-purple-300">{activity.count}</div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-purple-400">
-              <div className="text-6xl mb-4">📭</div>
-              <p>Hali faoliyat yo'q</p>
-            </div>
-          )}
         </div>
       </div>
-    </main>
+
+      {/* Stats Cards */}
+      <div>
+        <div className="v3-nishon mb-3">Umumiy ko{"'"}rsatkichlar</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div className="v3-panel-karta p-4 sm:p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[var(--v3-xira)] mb-2">
+              <span className="text-xs font-semibold">Talabalar</span>
+              <Ikon nom="odamlar" olcham={18} />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-[var(--v3-matn)]">
+              {stats.totalStudents || 0}
+            </div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-1">Faol a{"'"}zolar</div>
+          </div>
+
+          <div className="v3-panel-karta p-4 sm:p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[var(--v3-xira)] mb-2">
+              <span className="text-xs font-semibold">Guruhlar</span>
+              <Ikon nom="kitob" olcham={18} />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-[var(--v3-matn)]">
+              {stats.totalGroups || 0}
+            </div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-1">O{"'"}quv guruhlari</div>
+          </div>
+
+          <div className="v3-panel-karta p-4 sm:p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[var(--v3-xira)] mb-2">
+              <span className="text-xs font-semibold">Vazifalar</span>
+              <Ikon nom="kitob" olcham={18} />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-[var(--v3-matn)]">
+              {stats.activeAssignments || 0}
+            </div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-1">Berilgan topshiriqlar</div>
+          </div>
+
+          <div className="v3-panel-karta p-4 sm:p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[var(--v3-xira)] mb-2">
+              <span className="text-xs font-semibold">Tekshirishda</span>
+              <Ikon nom="vaqt" olcham={18} className={stats.pendingSubmissions > 0 ? 'text-[var(--v3-urgu)]' : ''} />
+            </div>
+            <div className={`text-2xl sm:text-3xl font-bold font-mono ${stats.pendingSubmissions > 0 ? 'text-[var(--v3-urgu)]' : 'text-[var(--v3-matn)]'}`}>
+              {stats.pendingSubmissions || 0}
+            </div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-1">Baho kutayotgan</div>
+          </div>
+
+          <div className="v3-panel-karta p-4 sm:p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[var(--v3-xira)] mb-2">
+              <span className="text-xs font-semibold">E{"'"}lonlar</span>
+              <Ikon nom="kanal" olcham={18} />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-[var(--v3-matn)]">
+              {stats.totalAnnouncements || 0}
+            </div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-1">Yetkazilgan xabarlar</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions Grid */}
+      <div>
+        <div className="v3-nishon mb-3">Bo{"'"}limlar va amallar</div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {quickActions.map((action, idx) => (
+            <Link
+              key={idx}
+              href={action.href}
+              className="v3-panel-karta group flex items-start gap-4 p-5 hover:border-[var(--v3-urgu)] transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)] group-hover:bg-[var(--v3-urgu)] group-hover:text-[var(--v3-urgu-matn)] transition-all shrink-0">
+                <Ikon nom={action.ikon} olcham={20} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-sm text-[var(--v3-matn)] group-hover:text-[var(--v3-urgu)] transition-colors flex items-center justify-between">
+                  <span>{action.label}</span>
+                  <Ikon nom="ong" olcham={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <p className="text-xs text-[var(--v3-xira)] mt-1 line-clamp-2 leading-relaxed">
+                  {action.tavsif}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="v3-panel-karta p-6">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--v3-chiziq)]">
+          <div className="font-bold text-sm text-[var(--v3-matn)] flex items-center gap-2">
+            <Ikon nom="vaqt" olcham={16} />
+            So{"'"}nggi faoliyat
+          </div>
+          <Link href="/ustoz/natijalar" className="text-xs text-[var(--v3-urgu)] hover:underline font-semibold">
+            Barcha natijalarga o{"'"}tish →
+          </Link>
+        </div>
+
+        {recentActivity.length > 0 ? (
+          <div className="divide-y divide-[var(--v3-chiziq)]">
+            {recentActivity.map((activity, idx) => (
+              <div key={idx} className="py-3 flex items-center justify-between gap-3 first:pt-0 last:pb-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-xira)] shrink-0">
+                    <Ikon nom="quiz" olcham={15} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-[var(--v3-matn)] truncate">
+                      {activity.title}
+                    </div>
+                    <div className="text-[11px] text-[var(--v3-xira)]">{activity.time}</div>
+                  </div>
+                </div>
+                <span className="text-xs font-mono text-[var(--v3-urgu-2)] shrink-0">
+                  {activity.count}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-10 text-center text-xs text-[var(--v3-xira)]">
+            Hozircha yangi topshiriqlar yoki urinishlar mavjud emas
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

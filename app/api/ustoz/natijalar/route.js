@@ -5,7 +5,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
 
-// GET - O'qituvchining barcha natijalari
+// GET - O'qituvchining o'zi yaratgan barcha test va vazifa natijalari
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
@@ -20,16 +20,8 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url)
     const groupId = searchParams.get('groupId') || 'all'
-    // `type` (quiz/vazifa) ataylab yo'q: uni sahifaning o'zi ro'yxatni
-    // chizishda qo'llaydi. Bu yerda o'qilardi-yu, hech qayerda
-    // ishlatilmasdi — kim o'qisa, filtr serverda ishlaydi deb o'ylardi.
 
-    // Quiz natijalari
-    // DIQQAT: shart `quiz` obyektining ICHIDA turishi shart.
-    // Avval u tashqarida edi va `...(shart && { quiz: { groupId } })`
-    // bir xil kalitni ikkinchi marta yozib, `teacherId` cheklovini
-    // butunlay o'chirib yuborardi. Natijada guruh bo'yicha filtrlanganda
-    // ustoz boshqa ustozning natijalarini ko'rar edi.
+    // 1. Variantli Quiz natijalari (Faqat shu o'qituvchining testlari)
     const quizAttempts = await prisma.teacherQuizAttempt.findMany({
       where: {
         quiz: {
@@ -51,23 +43,53 @@ export async function GET(request) {
           select: {
             id: true,
             title: true,
-            // maxScore bu yerda YO'Q: u TeacherQuiz'da emas, urinishning
-            // o'zida (TeacherQuizAttempt.maxScore) saqlanadi. Uni tanlashga
-            // urinish "Unknown field `maxScore`" xatosini berardi va
-            // natijalar sahifasi umuman ochilmasdi.
+            isPublic: true,
+            passingScore: true,
             group: {
               select: { id: true, name: true, color: true }
             }
           }
         }
       },
-      orderBy: { completedAt: 'desc' }
+      orderBy: { completedAt: 'desc' },
+      take: 200,
     })
 
-    // Vazifa natijalari (topshiriqlar)
+    // 2. Yopiq Yozma Quiz natijalari (Faqat shu o'qituvchining testlari)
+    const closedQuizSubmissions = await prisma.closedQuizSubmission.findMany({
+      where: {
+        quiz: {
+          teacherId: session.user.id,
+          ...(groupId !== 'all' && { groupId }),
+        },
+      },
+      include: {
+        student: {
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+            avatar: true,
+            userId: true
+          }
+        },
+        quiz: {
+          select: {
+            id: true,
+            title: true,
+            maxScore: true,
+            group: {
+              select: { id: true, name: true, color: true }
+            }
+          }
+        }
+      },
+      orderBy: { submittedAt: 'desc' },
+      take: 200,
+    })
+
+    // 3. Vazifa natijalari (topshiriqlar)
     const assignmentSubmissions = await prisma.assignmentSubmission.findMany({
-      // Yuqoridagi bilan bir xil sabab: shart `assignment` ichida turadi,
-      // aks holda egalik cheklovi ustiga yozilib yo'qoladi.
       where: {
         assignment: {
           teacherId: session.user.id,
@@ -96,32 +118,38 @@ export async function GET(request) {
           }
         }
       },
-      orderBy: { submittedAt: 'desc' }
+      orderBy: { submittedAt: 'desc' },
+      take: 200,
     })
 
-    // Guruhlar (filter uchun)
+    // Guruhlar
     const groups = await prisma.teacherGroup.findMany({
       where: { teacherId: session.user.id },
       select: { id: true, name: true, color: true },
       orderBy: { name: 'asc' }
     })
 
-    // Statistika
-    const stats = {
-      totalQuizAttempts: quizAttempts.length,
-      totalAssignmentSubmissions: assignmentSubmissions.length,
-      avgQuizScore: quizAttempts.length > 0
-        ? quizAttempts.reduce((sum, a) => sum + a.percentage, 0) / quizAttempts.length
-        : 0,
-      pendingGrading: assignmentSubmissions.filter(s => s.status === 'pending').length
-    }
+    // Hisob-kitoblar
+    const totalAttempts = quizAttempts.length
+    const avgScore = totalAttempts > 0
+      ? quizAttempts.reduce((sum, a) => sum + (a.percentage || 0), 0) / totalAttempts
+      : 0
+    const pendingGrading = closedQuizSubmissions.filter(s => s.status === 'pending').length +
+                           assignmentSubmissions.filter(s => s.status === 'pending').length
 
     return NextResponse.json({
       success: true,
       quizAttempts,
+      closedQuizSubmissions,
       assignmentSubmissions,
       groups,
-      stats
+      stats: {
+        totalQuizAttempts: totalAttempts,
+        totalClosedSubmissions: closedQuizSubmissions.length,
+        totalAssignmentSubmissions: assignmentSubmissions.length,
+        avgQuizScore: avgScore,
+        pendingGrading
+      }
     })
   } catch (error) {
     console.error('[Natijalar GET]', error)

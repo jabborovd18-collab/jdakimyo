@@ -1,19 +1,26 @@
-// app/oquv/video-darsliklar/ustoz-quiz/page.js
 "use client"
+
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import FonTanlagich, { useFon } from '@/components/FonTanlagich'
+import Ikon from '@/components/Ikon'
+import QuizUlashishModal from '@/components/QuizUlashishModal'
 
-export default function UstozQuizlarPage() {
+export default function UstozQuizlarKatalogPage() {
   const { data: session } = useSession()
+  const [fon, fonTanla] = useFon()
   const [quizzes, setQuizzes] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filter, setFilter] = useState('all') // all, mine, available
+  const [filter, setFilter] = useState('all') // 'all' | 'public' | 'mine' | 'completed'
   const [search, setSearch] = useState('')
+
+  // Modals
   const [showCodeModal, setShowCodeModal] = useState(false)
   const [accessCode, setAccessCode] = useState('')
   const [selectedQuiz, setSelectedQuiz] = useState(null)
+  const [shareQuiz, setShareQuiz] = useState(null)
 
   useEffect(() => {
     fetchQuizzes()
@@ -25,15 +32,25 @@ export default function UstozQuizlarPage() {
       const params = new URLSearchParams({ filter, search })
       const res = await fetch(`/api/oquv/ustoz-quiz?${params}`)
       const data = await res.json()
-      if (res.ok) setQuizzes(data.quizzes)
+      if (res.ok) {
+        setQuizzes(data.quizzes || [])
+      } else {
+        toast.error(data.error || 'Testlarni yuklab bo\'lmadi')
+      }
     } catch (error) {
-      toast.error('Quizlarni yuklashda xatolik')
+      toast.error('Testlarni yuklashda xatolik')
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleQuizClick = (quiz) => {
+    // Check if expired
+    if (quiz.deadline && Date.now() > new Date(quiz.deadline).getTime()) {
+      toast.error('Bu testning topshirish muhlati tugagan!')
+      return
+    }
+
     if (quiz.accessCode && !quiz.hasAccess) {
       setSelectedQuiz(quiz)
       setShowCodeModal(true)
@@ -47,178 +64,240 @@ export default function UstozQuizlarPage() {
       toast.error('Kodni kiriting!')
       return
     }
-    
+
     try {
       const res = await fetch('/api/oquv/ustoz-quiz/verify-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          quizId: selectedQuiz.id, 
-          code: accessCode 
+        body: JSON.stringify({
+          quizId: selectedQuiz.id,
+          code: accessCode
         })
       })
       const data = await res.json()
-      
-      if (!res.ok) throw new Error(data.error)
-      
-      toast.success('✓ Kod tasdiqlandi!')
-      setShowCodeModal(false)
-      setAccessCode('')
-      setSelectedQuiz(null)
-      window.location.href = `/oquv/video-darsliklar/ustoz-quiz/${selectedQuiz.id}`
-    } catch (error) {
-      toast.error(error.message)
-    }
-  }
-
-  const getStatusBadge = (quiz) => {
-    if (quiz.userAttempt) {
-      const passed = quiz.userAttempt.percentage >= (quiz.passingScore || 60)
-      return {
-        text: passed ? '✓ Topshirilgan' : '✗ Topshirilgan',
-        class: passed 
-          ? 'bg-green-600/20 text-green-400 border-green-600/30' 
-          : 'bg-orange-600/20 text-orange-400 border-orange-600/30',
-        score: `${quiz.userAttempt.percentage.toFixed(0)}%`
+      if (res.ok && data.success) {
+        toast.success('Ruxsat tasdiqlandi!')
+        window.location.href = `/oquv/video-darsliklar/ustoz-quiz/${selectedQuiz.id}`
+      } else {
+        toast.error(data.error || 'Kod noto\'g\'ri!')
       }
-    }
-    if (quiz.accessCode && !quiz.hasAccess) {
-      return {
-        text: '🔑 Kod kerak',
-        class: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30'
-      }
-    }
-    return {
-      text: '🆕 Yangi',
-      class: 'bg-blue-600/20 text-blue-400 border-blue-600/30'
+    } catch (err) {
+      toast.error('Xatolik yuz berdi')
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-950 via-indigo-950 to-slate-950 text-white">
-      <header className="sticky top-0 z-40 bg-purple-950/95 backdrop-blur-xl border-b border-purple-800/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/oquv/video-darsliklar"
-              className="w-10 h-10 rounded-lg bg-purple-800/50 hover:bg-purple-700/50 flex items-center justify-center"
-            >
-              ←
+    <main data-fon={fon} className="v3 v3-quiz min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
+      {/* Background glow & grid */}
+      <div className="v3-quiz-fon" aria-hidden="true">
+        <span className="v3-nur v3-nur-a" />
+        <span className="v3-nur v3-nur-b" />
+        <span className="v3-tor-fon" />
+      </div>
+
+      {/* Header */}
+      <header className="v3-header sticky top-0 z-40 bg-[var(--v3-fon)]/90 backdrop-blur-xl border-b border-[var(--v3-chiziq)]">
+        <div className="v3-konteyner flex items-center justify-between gap-3 py-3.5">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/oquv/video-darsliklar" className="v3-ikon-tugma" aria-label="Orqaga">
+              <Ikon nom="chap" olcham={18} />
             </Link>
-            <div>
-              <h1 className="text-xl font-bold">🎓 Ustoz Quizlari</h1>
-              <p className="text-xs text-purple-400">O'qituvchilar bergan testlar</p>
+            <Link href="/" className="flex items-center gap-2.5 shrink-0">
+              <span className="v3-logo" aria-hidden="true" />
+              <span className="v3-logo-matn">JDA KIMYO</span>
+            </Link>
+            <span className="v3-quiz-header-ajratgich hidden sm:block" />
+            <div className="hidden sm:block min-w-0">
+              <div className="v3-nishon">O{"'"}qituvchilar testlari</div>
+              <div className="v3-quiz-header-nom truncate">Variantli testlar katalogi</div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
+            <Link href="/oquv/video-darsliklar" className="v3-tugma text-xs py-1.5 px-3">
+              Markazga qaytish
+            </Link>
           </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Filters */}
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4 space-y-3">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="🔍 Quiz nomi yoki ustoz bo'yicha qidirish..."
-            className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 outline-none"
-          />
-          <div className="flex gap-2">
-            {[
-              { id: 'all', label: '📚 Barchasi' },
-              { id: 'mine', label: '👨‍🏫 Ustozlarim' },
-              { id: 'new', label: '🆕 Yangi' },
-              { id: 'completed', label: '✓ Topshirilgan' }
-            ].map(f => (
-              <button
-                key={f.id}
-                onClick={() => setFilter(f.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                  filter === f.id
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
-                    : 'bg-purple-800/30 text-purple-300 hover:bg-purple-700/50'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+      <div className="v3-konteyner py-8 sm:py-12 space-y-8">
+        {/* Title and Intro */}
+        <div className="max-w-3xl space-y-2">
+          <div className="v3-nishon">Ochiq va guruhli testlar</div>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--v3-matn)]">
+            Ustozlar Tomonidan Tuzilgan Testlar
+          </h1>
+          <p className="text-sm text-[var(--v3-xira)] leading-relaxed">
+            Platformaning tajribali ustozlari tomonidan tuzilgan variantli testlar. Ommaviy testlarni barcha yechishi mumkin, guruhli testlar esa talabalar bilimini baholashga mo{"'"}ljallangan.
+          </p>
+        </div>
+
+        {/* Filter and Search Toolbar */}
+        <div className="v3-panel-karta p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+            <button
+              type="button"
+              onClick={() => setFilter('all')}
+              className={`v3-tugma text-xs py-1.5 px-3.5 whitespace-nowrap ${filter === 'all' ? 'v3-tugma-asosiy' : ''}`}
+            >
+              Barchasi ({quizzes.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilter('mine')}
+              className={`v3-tugma text-xs py-1.5 px-3.5 whitespace-nowrap ${filter === 'mine' ? 'v3-tugma-asosiy' : ''}`}
+            >
+              Mening ustozlarim
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilter('completed')}
+              className={`v3-tugma text-xs py-1.5 px-3.5 whitespace-nowrap ${filter === 'completed' ? 'v3-tugma-asosiy' : ''}`}
+            >
+              Yechilganlar
+            </button>
+          </div>
+
+          <div className="relative w-full md:w-72">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Test yoki ustoz nomi..."
+              className="v3-kiritish text-xs py-1.5 pl-8"
+            />
+            <span className="absolute left-2.5 top-2.5 text-[var(--v3-xira)]">
+              <Ikon nom="qidiruv" olcham={13} />
+            </span>
           </div>
         </div>
 
-        {/* Quizlar */}
+        {/* Quizzes Grid */}
         {isLoading ? (
-          <div className="text-center py-12 text-purple-300">
-            <div className="animate-spin text-6xl mb-4">⏳</div>
-            <p>Yuklanmoqda...</p>
+          <div className="py-24 text-center text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
+            <Ikon nom="vaqt" olcham={18} className="animate-spin" />
+            <span>Testlar yuklanmoqda...</span>
           </div>
         ) : quizzes.length === 0 ? (
-          <div className="text-center py-16 bg-slate-900/50 border border-purple-800/50 rounded-2xl">
-            <div className="text-7xl mb-4">📭</div>
-            <h3 className="text-2xl font-bold mb-2">Quizlar topilmadi</h3>
-            <p className="text-purple-300">Hozircha sizga berilgan testlar yo'q</p>
+          <div className="v3-panel-karta py-20 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+              <Ikon nom="quiz" olcham={24} />
+            </div>
+            <h3 className="font-bold text-base text-[var(--v3-matn)]">Testlar topilmadi</h3>
+            <p className="text-xs text-[var(--v3-xira)] max-w-sm mx-auto">
+              Qidiruv so{"'"}rovingiz bo{"'"}yicha yoki sizning guruhlaringizda hozircha faol testlar yo{"'"}q.
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {quizzes.map(quiz => {
-              const status = getStatusBadge(quiz)
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {quizzes.map((quiz) => {
+              const deadlineDate = quiz.deadline ? new Date(quiz.deadline) : null
+              const isExpired = deadlineDate && Date.now() > deadlineDate.getTime()
+              const teacherName = quiz.teacher?.fullName || quiz.teacher?.username || 'O\'qituvchi'
+              const userAttempt = quiz.userAttempt
+
               return (
                 <div
                   key={quiz.id}
-                  onClick={() => handleQuizClick(quiz)}
-                  className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-5 hover:border-yellow-500/50 transition-all cursor-pointer group"
+                  className="v3-panel-karta flex flex-col justify-between p-5 hover:border-[var(--v3-chiziq-2)] transition-all group"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`px-2 py-0.5 text-xs rounded-full border ${status.class}`}>
-                        {status.text}
-                      </span>
-                      {status.score && (
-                        <span className="text-xs text-yellow-400 font-bold">
-                          {status.score}
+                  <div className="space-y-3">
+                    {/* Badges row */}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      {quiz.isPublic ? (
+                        <span className="v3-tag v3-tag-ochiq">
+                          <Ikon nom="ochiq" olcham={12} />
+                          Ommaviy (Public)
+                        </span>
+                      ) : (
+                        <span className="v3-tag v3-tag-yopiq">
+                          <Ikon nom="qulf" olcham={12} />
+                          {quiz.group?.name || 'Guruhli'}
+                        </span>
+                      )}
+
+                      {deadlineDate && (
+                        <span className={`v3-tag ${isExpired ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'v3-tag-muhlat'}`}>
+                          <Ikon nom="taqvim" olcham={12} />
+                          {isExpired ? 'Muhlati o\'tgan' : deadlineDate.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' })}
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-purple-400">
-                      {quiz.difficulty === 'easy' && '🟢'}
-                      {quiz.difficulty === 'medium' && '🟡'}
-                      {quiz.difficulty === 'hard' && '🟠'}
-                      {quiz.difficulty === 'expert' && '🔴'}
-                    </span>
-                  </div>
 
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">
-                    {quiz.title}
-                  </h3>
-
-                  {quiz.description && (
-                    <p className="text-sm text-purple-300 mb-3 line-clamp-2">
-                      {quiz.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center gap-3 text-xs text-purple-400 mb-3">
-                    <span>👨‍🏫 {quiz.teacher?.fullName || 'Ustoz'}</span>
-                    <span>📝 {quiz._count?.questions || 0} savol</span>
-                    <span>⏱️ {quiz.timeLimit} daq</span>
-                  </div>
-
-                  {quiz.tags?.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {quiz.tags.slice(0, 3).map((tag, i) => (
-                        <span key={i} className="text-[10px] px-2 py-0.5 bg-purple-800/50 rounded-full">
-                          #{tag}
-                        </span>
-                      ))}
+                    {/* Teacher info */}
+                    <div className="flex items-center gap-2.5 pt-1">
+                      <div className="w-8 h-8 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                        {quiz.teacher?.avatar ? (
+                          <img src={quiz.teacher.avatar} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          teacherName[0].toUpperCase()
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-[var(--v3-matn)] truncate">
+                          {teacherName}
+                        </div>
+                        <div className="text-[10px] text-[var(--v3-xira)] truncate">
+                          {quiz.teacher?.university || 'O\'qituvchi'}
+                        </div>
+                      </div>
                     </div>
-                  )}
 
-                  <div className="pt-3 border-t border-purple-800/30 flex items-center justify-between">
-                    <span className="text-xs text-purple-400">
-                      📅 {new Date(quiz.createdAt).toLocaleDateString('uz-UZ')}
-                    </span>
-                    <span className="text-xs text-yellow-400 font-semibold group-hover:translate-x-1 transition-transform">
-                      Boshlash →
-                    </span>
+                    {/* Quiz Title */}
+                    <div>
+                      <h3 className="font-bold text-base text-[var(--v3-matn)] group-hover:text-[var(--v3-urgu)] transition-colors line-clamp-2">
+                        {quiz.title}
+                      </h3>
+                      {quiz.description && (
+                        <p className="text-xs text-[var(--v3-xira)] line-clamp-2 mt-1 leading-relaxed">
+                          {quiz.description.startsWith('{') ? (JSON.parse(quiz.description).originalDescription || '') : quiz.description}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Meta info */}
+                    <div className="flex items-center gap-3 pt-2 text-[11px] text-[var(--v3-xira)] font-mono border-t border-[var(--v3-chiziq)]">
+                      <span>Savollar: <strong>{quiz._count?.questions || 0}</strong></span>
+                      {quiz.timeLimit && (
+                        <span>Vaqt: <strong>{quiz.timeLimit} daq</strong></span>
+                      )}
+                      <span>Urinishlar: <strong>{quiz._count?.attempts || 0}</strong></span>
+                    </div>
+
+                    {/* Previous Result (if attempted) */}
+                    {userAttempt && (
+                      <div className="p-2.5 rounded-lg border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] flex items-center justify-between text-xs font-mono">
+                        <span className="text-[var(--v3-xira)]">Oxirgi natijangiz:</span>
+                        <span className="font-bold text-[var(--v3-urgu)]">
+                          {userAttempt.score}/{userAttempt.maxScore} ({userAttempt.percentage.toFixed(0)}%)
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 pt-4 mt-2 border-t border-[var(--v3-chiziq)]">
+                    <button
+                      type="button"
+                      onClick={() => handleQuizClick(quiz)}
+                      disabled={isExpired}
+                      className={`flex-1 v3-tugma text-xs py-2 justify-center font-bold ${
+                        isExpired ? 'opacity-50 cursor-not-allowed' : 'v3-tugma-asosiy'
+                      }`}
+                    >
+                      {isExpired ? 'Muddati tugagan' : userAttempt ? 'Qayta yechish' : 'Testni boshlash'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShareQuiz(quiz)}
+                      className="v3-tugma text-xs p-2 shrink-0"
+                      title="Do'stlarga ulashish"
+                    >
+                      <Ikon nom="ulashish" olcham={15} />
+                    </button>
                   </div>
                 </div>
               )
@@ -227,46 +306,56 @@ export default function UstozQuizlarPage() {
         )}
       </div>
 
-      {/* Kod kiritish modal */}
+      {/* Access Code Modal */}
       {showCodeModal && selectedQuiz && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-yellow-600/50 rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-              🔑 Maxfiy kod kerak
-            </h3>
-            <p className="text-sm text-purple-300 mb-4">
-              "{selectedQuiz.title}" quiziga kirish uchun ustozi bergan kodni kiriting.
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-[var(--v3-chiziq-2)] bg-[var(--v3-fon-2)] p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div className="font-bold text-sm text-[var(--v3-matn)]">Maxfiy kod talab qilinadi</div>
+              <button onClick={() => setShowCodeModal(false)} className="text-[var(--v3-xira)] hover:text-[var(--v3-matn)]">
+                <Ikon nom="yopish" olcham={16} />
+              </button>
+            </div>
+
+            <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+              <strong>{selectedQuiz.title}</strong> testiga kirish uchun ustoz bergan maxfiy kodni kiriting:
             </p>
+
             <input
               type="text"
               value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === 'Enter' && handleCodeSubmit()}
-              className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none text-center text-xl font-mono tracking-widest"
-              placeholder="XXXXXX"
-              autoFocus
+              onChange={(e) => setAccessCode(e.target.value)}
+              placeholder="Maxfiy kod..."
+              className="v3-kiritish text-center font-mono tracking-widest text-base uppercase"
             />
-            <div className="flex gap-3 mt-4">
+
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
-                onClick={() => {
-                  setShowCodeModal(false)
-                  setAccessCode('')
-                  setSelectedQuiz(null)
-                }}
-                className="flex-1 py-3 bg-purple-800/50 rounded-xl"
+                type="button"
+                onClick={() => setShowCodeModal(false)}
+                className="v3-tugma text-xs py-2 px-3"
               >
                 Bekor qilish
               </button>
               <button
+                type="button"
                 onClick={handleCodeSubmit}
-                className="flex-1 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
+                className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold"
               >
-                ✓ Kirish
+                Kirish →
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+
+      {/* Share Modal */}
+      {shareQuiz && (
+        <QuizUlashishModal
+          quiz={shareQuiz}
+          onClose={() => setShareQuiz(null)}
+        />
+      )}
+    </main>
   )
 }

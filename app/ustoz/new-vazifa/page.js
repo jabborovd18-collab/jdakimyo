@@ -448,59 +448,40 @@ export default function NewVazifaPage() {
   // RENDER
   // ═══════════════════════════════════════════
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
-      {/* ═══ HEADER ═══ */}
-      <header className="sticky top-0 z-40 bg-purple-950/95 backdrop-blur-xl border-b border-purple-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <Link 
-                href="/ustoz/vazifa"
-                className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-800/50 hover:bg-purple-700/50 border border-purple-700/50 flex items-center justify-center transition-all"
-              >
-                ←
-              </Link>
-              <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold text-white truncate">
-                  {editId ? '✏️ Vazifani tahrirlash' : '✨ Yangi Vazifa Yaratish'}
-                </h1>
-                <p className="text-xs sm:text-sm text-purple-300 truncate">
-                  {selectedType?.icon} {selectedType?.name}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button
-                onClick={() => handleSubmit(true)}
-                disabled={isSaving || yuklanmoqda}
-                className="hidden sm:block px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-sm text-purple-200 transition-all disabled:opacity-50"
-              >
-                💾 Qoralama
-              </button>
-              <button
-                onClick={() => handleSubmit(false)}
-                disabled={isSaving || yuklanmoqda}
-                className="px-4 sm:px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-lg shadow-lg shadow-yellow-500/20 transition-all disabled:opacity-50 flex items-center gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <span className="animate-spin">⏳</span>
-                    <span className="hidden sm:inline">Saqlanmoqda...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>🚀</span>
-                    <span className="hidden sm:inline">{editId ? 'Yangilash' : 'E\'lon qilish'}</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+    <div className="space-y-6 max-w-7xl">
+      {/* ═══ TITLE BAR ═══ */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--v3-chiziq)]">
+        <div>
+          <div className="v3-nishon">Vazifalar boshqaruvi</div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--v3-matn)]">
+            {editId ? 'Vazifani tahrirlash' : 'Yangi Vazifa Yaratish'}
+          </h1>
+          <p className="text-xs text-[var(--v3-xira)] mt-1">
+            {selectedType?.name}
+          </p>
         </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => handleSubmit(true)}
+            disabled={isSaving || yuklanmoqda}
+            className="v3-tugma text-xs py-2 px-3.5"
+          >
+            Qoralama
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSubmit(false)}
+            disabled={isSaving || yuklanmoqda}
+            className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold"
+          >
+            {isSaving ? 'Saqlanmoqda...' : editId ? 'Yangilash' : '✓ E\'lon qilish'}
+          </button>
+        </div>
+      </div>
+
+      <div>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
           {/* ═══════════════════════════════════════ */}

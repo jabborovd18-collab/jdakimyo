@@ -1983,3 +1983,124 @@ html[data-fon] body {
   .v3-oquv-jadval-qator { min-width: 680px; }
   .v3-oquv-sxema-oyoq span:not(:last-child)::after { width: 12px; margin-left: 7px; }
 }
+
+/* ═══ USTOZ VA QUIZ v3.0.0 USLUBLARI ═══ */
+.v3-panel-karta {
+  border-radius: 16px;
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+  padding: 22px;
+  transition: all .2s ease;
+}
+.v3-panel-karta:hover {
+  border-color: var(--v3-chiziq-2);
+}
+
+.v3-kiritish {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--v3-fon-2);
+  border: 1px solid var(--v3-chiziq);
+  border-radius: 10px;
+  color: var(--v3-matn);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color .15s ease;
+}
+.v3-kiritish:focus {
+  border-color: var(--v3-urgu);
+}
+.v3-kiritish::placeholder {
+  color: var(--v3-xira);
+}
+
+.v3-yorliq {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--v3-xira);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.v3-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.v3-tag-ochiq {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+[data-fon='kunduz'] .v3-tag-ochiq {
+  color: #047857;
+  background: rgba(4, 120, 87, 0.1);
+  border-color: rgba(4, 120, 87, 0.25);
+}
+.v3-tag-yopiq {
+  color: #f5b301;
+  background: rgba(245, 179, 1, 0.12);
+  border: 1px solid rgba(245, 179, 1, 0.25);
+}
+[data-fon='kunduz'] .v3-tag-yopiq {
+  color: #a35a06;
+  background: rgba(163, 90, 6, 0.1);
+  border-color: rgba(163, 90, 6, 0.25);
+}
+.v3-tag-muhlat {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+[data-fon='kunduz'] .v3-tag-muhlat {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.1);
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+/* Chat ichidagi interaktiv Quiz karta */
+.chat-quiz-karta {
+  display: block;
+  margin: 6px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: var(--v3-fon-2);
+  color: var(--v3-matn);
+  text-decoration: none;
+  transition: all .2s ease;
+  min-width: 240px;
+  max-width: 320px;
+}
+.chat-quiz-karta:hover {
+  transform: translateY(-2px);
+  border-color: var(--v3-urgu);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+.chat-quiz-karta-sarlavha {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--v3-matn);
+  margin-top: 4px;
+  line-height: 1.35;
+}
+.chat-quiz-karta-tugma {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--v3-urgu);
+  color: var(--v3-urgu-matn);
+  font-size: 12px;
+  font-weight: 700;
+}
+
