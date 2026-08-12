@@ -14,6 +14,7 @@ export default function NatijaPaneli({
   onTanlovTanla,
   onQaytaUrin,
   onMolekulaZoom,
+  onEkspertTahlil,
   onPdfYukla,
 }) {
   const [faolTab, setFaolTab] = useState("natija"); // "natija" | "kinetika" | "hisobot"
@@ -178,15 +179,26 @@ export default function NatijaPaneli({
               )}
             </div>
 
-            {/* Molekulyar Nano-Zoom Tugmasi */}
-            <button
-              type="button"
-              onClick={() => typeof onMolekulaZoom === "function" && onMolekulaZoom("H₂O")}
-              className="w-full v3-tugma text-xs py-2 justify-center font-bold"
-            >
-              <Ikon nom="atom" olcham={14} />
-              <span>3D Molekula Tuzilishi</span>
-            </button>
+            {/* 🔍 Molekulyar Nano-Zoom va Ekspert Tahlili Tugmalari */}
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => typeof onEkspertTahlil === "function" && onEkspertTahlil()}
+                className="w-full v3-tugma v3-tugma-asosiy text-xs py-2 justify-center font-bold"
+              >
+                <Ikon nom="orin" olcham={14} />
+                <span>Ilmiy Ekspert Xulosasi</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => typeof onMolekulaZoom === "function" && onMolekulaZoom("H₂O")}
+                className="w-full v3-tugma text-xs py-2 justify-center font-bold"
+              >
+                <Ikon nom="atom" olcham={14} />
+                <span>3D Molekula Tuzilishi</span>
+              </button>
+            </div>
           </div>
         )}
 

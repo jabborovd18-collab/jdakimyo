@@ -16,6 +16,7 @@ import MolekulaZoomModal from "./components/MolekulaZoomModal.jsx";
 import PHMeterUI from "./components/PHMeterUI.jsx";
 import TaroziUI from "./components/TaroziUI.jsx";
 import EritmaTayyorlashModal from "./components/EritmaTayyorlashModal.jsx";
+import EkspertXulosaModal from "./components/EkspertXulosaModal.jsx";
 import XonaNavigatsiyaUI from "./components/XonaNavigatsiyaUI.jsx";
 import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
 import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
@@ -60,6 +61,7 @@ export default function Korinish() {
   const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
   const [portlashMaLumot, setPortlashMaLumot] = useState(null);
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
+  const [ekspertModalOchilgan, setEkspertModalOchilgan] = useState(false);
   const [faolZona, setFaolZona] = useState('asosiy');
 
   const handleZonaTanlandi = (zonaKaliti) => {
@@ -656,12 +658,14 @@ export default function Korinish() {
             otkaz(null, nishonIdishGroup);
           }}
           onMolekulaZoom={(kalit) => setMolekulaModalKalit(kalit || "H₂O")}
+          onEkspertTahlil={() => setEkspertModalOchilgan(true)}
           onPdfYukla={async () => {
             const res = await labDaftariPdfYukla({
               foydalanuvchiNom: labMaLumot?.foydalanuvchi?.ism || "Talaba",
               tenglama: natija?.reaksiya?.equation,
               observations: natija?.reaksiya?.observations,
               nisbat: nisbatBahosi,
+              kinetika,
               jurnal: jurnalRef?.current?.yozuvlar,
             });
             if (res && !res.ochildi && res.sabab !== "server") {
@@ -777,6 +781,18 @@ export default function Korinish() {
         <EritmaTayyorlashModal
           onEritmaTayyorlandi={handleEritmaTayyorlandi}
           onYop={() => setEritmaOchilgan(false)}
+        />
+      )}
+
+      {/* 5-BOSQICH: ILMIY EKSPERT XULOSASI MODALI */}
+      {ekspertModalOchilgan && natija && (
+        <EkspertXulosaModal
+          natija={natija}
+          nisbat={nisbatBahosi}
+          kinetika={kinetika}
+          jurnal={jurnalRef?.current?.yozuvlar}
+          foydalanuvchiNom={labMaLumot?.foydalanuvchi?.ism || "Talaba"}
+          onYop={() => setEkspertModalOchilgan(false)}
         />
       )}
 

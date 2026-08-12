@@ -1,142 +1,238 @@
-// Laboratoriya daftari hisobotini chop etish / PDF qilib saqlash.
+// app/laboratoriya/3d/lib/pdf-hisobot.js
 //
-// NEGA BRAUZER CHOP ETISHI, jsPDF EMAS. O'zbek yozuvidagi apostrof
-// (o', g' — U+2018/2019) jsPDF ning standart shriftlarida umuman
-// chiqmaydi; uni tuzatish uchun TTF shriftni faylga joylash kerak, bu
-// esa bundle'ga yuzlab kilobayt qo'shadi. Brauzerning o'z chop etish
-// oynasi esa "PDF qilib saqlash" ni allaqachon beradi va shriftlar
-// tizimniki bo'lgani uchun harflar to'g'ri chiqadi.
+// 5-BOSQICH: Rasmiy Laboratoriya Tajriba Daftari (PDF Hisoboti).
+// pdf-lib va DejaVu Sans shrifti bilan brauzerda to'g'ridan-to'g'ri PDF yaratiladi.
 //
-// XAVFSIZLIK. Bu yerdagi hamma qiymat — foydalanuvchi ismi, kuzatuv
-// matni, tenglama, jurnal yozuvlari — HTML ga qo'yiladi. Ilgari ular
-// xom holda `document.write` ga uzatilardi, ya'ni ism ichidagi
-// `<script>` yangi oynada bajarilardi. Endi hammasi `xavfsiz()` dan
-// o'tadi.
+import { PDFDocument, rgb } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+import { sanaVaqt } from "@/lib/sana";
 
-/** HTML ga qo'yishdan oldin belgilarni zararsizlantirish */
-function xavfsiz(matn) {
-  return String(matn ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+const W = 595.28;
+const H = 841.89;
+
+const C = {
+  oq: rgb(1, 1, 1),
+  qora: rgb(0.08, 0.08, 0.12),
+  kulrang: rgb(0.45, 0.45, 0.52),
+  kulrangOch: rgb(0.95, 0.95, 0.97),
+  chiziq: rgb(0.85, 0.85, 0.88),
+  siyoh: rgb(0.18, 0.12, 0.38),
+  yashil: rgb(0.1, 0.55, 0.3),
+  oltin: rgb(0.75, 0.55, 0.05),
+};
+
+function toza(matn) {
+  if (matn === null || matn === undefined) return "";
+  return String(matn).trim();
 }
 
+async function baytlar(manzil) {
+  const javob = await fetch(manzil);
+  if (!javob.ok) throw new Error("Shrift yuklab bo'lmadi: " + manzil);
+  return javob.arrayBuffer();
+}
+
+/**
+ * Rasmiy Laboratoriya Daftari PDF hisobotini yaratib, yuklab beradi.
+ *
+ * @param {object} p
+ * @param {string} p.foydalanuvchiNom - Talaba F.I.Sh.
+ * @param {string} p.tenglama         - Reaksiya tenglamasi
+ * @param {string} p.observations     - Kuzatuv matni
+ * @param {object} p.nisbat           - Stexiometriya bahosi
+ * @param {object} p.kinetika         - Kinetika va unum tahlili
+ * @param {Array}  p.jurnal           - Jurnal qadamlari
+ */
 export async function labDaftariPdfYukla({
   foydalanuvchiNom = "Talaba",
-  tenglama,
-  observations,
-  nisbat,
-  jurnal,
+  tenglama = "Reaksiya",
+  observations = "",
+  nisbat = null,
+  kinetika = null,
+  jurnal = [],
 }) {
-  if (typeof window === "undefined") return { ochildi: false, sabab: "server" };
+  const doc = await PDFDocument.create();
+  doc.registerFontkit(fontkit);
 
-  const sana = new Date().toLocaleDateString("uz-UZ", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  const [rBaytlar, bBaytlar] = await Promise.all([
+    baytlar("/fonts/DejaVuSans.ttf"),
+    baytlar("/fonts/DejaVuSans-Bold.ttf"),
+  ]);
+
+  const oddiy = await doc.embedFont(rBaytlar, { subset: true });
+  const qalin = await doc.embedFont(bBaytlar, { subset: true });
+
+  doc.setTitle(`Laboratoriya Daftari — ${toza(foydalanuvchiNom)}`);
+  doc.setAuthor("JDA KIMYO Virtual Laboratoriya");
+  doc.setCreator("jdakimyo.uz");
+
+  const sahifa = doc.addPage([W, H]);
+
+  // 1. HEADER
+  sahifa.drawRectangle({
+    x: 30,
+    y: H - 55,
+    width: W - 60,
+    height: 25,
+    color: C.siyoh,
   });
 
-  const qatorlar = (jurnal || [])
-    .map(
-      (j, idx) => `
-        <tr>
-          <td>${idx + 1}</td>
-          <td>${xavfsiz(j.amal || "amaliyot")}</td>
-          <td>${xavfsiz(j.reagent || "modda")}</td>
-          <td>${j.ml ? xavfsiz(j.ml) + " ml" : "&mdash;"}</td>
-        </tr>`
-    )
-    .join("");
+  sahifa.drawText("JDA KIMYO — 3D VIRTUAL LABORATORIYA HISOBOTI", {
+    x: 42,
+    y: H - 47,
+    size: 9.5,
+    font: qalin,
+    color: C.oq,
+  });
 
-  const nisbatQatori = nisbat?.izoh
-    ? `<p class="nisbat">${xavfsiz(nisbat.izoh)}</p>`
-    : "";
+  sahifa.drawText("jdakimyo.uz", {
+    x: W - 115,
+    y: H - 47,
+    size: 9,
+    font: oddiy,
+    color: C.oq,
+  });
 
-  const hisobotHtml = `<!DOCTYPE html>
-<html lang="uz">
-<head>
-  <meta charset="utf-8">
-  <title>Laboratoriya daftari — JDA-KIMYO</title>
-  <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1e293b; background: #fff; }
-    .header { text-align: center; border-bottom: 3px double #0284c7; padding-bottom: 20px; margin-bottom: 30px; }
-    .title { font-size: 22px; font-weight: bold; color: #0369a1; text-transform: uppercase; letter-spacing: 1px; }
-    .subtitle { font-size: 13px; color: #64748b; margin-top: 5px; }
-    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 25px; font-size: 13px; }
-    .section-title { font-size: 15px; font-weight: bold; color: #0f172a; border-left: 4px solid #0284c7; padding-left: 10px; margin: 20px 0 10px 0; }
-    .equation-box { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-family: monospace; font-size: 16px; font-weight: bold; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
-    .nisbat { font-size: 12px; color: #475569; background: #f8fafc; border-left: 3px solid #94a3b8; padding: 8px 12px; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-    th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }
-    th { background: #f1f5f9; font-weight: bold; }
-    .footer { margin-top: 50px; border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 11px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-    .belgi { border: 2px dashed #94a3b8; color: #64748b; font-weight: bold; padding: 8px 16px; border-radius: 50px; font-size: 11px; text-transform: uppercase; white-space: nowrap; }
-    @media print { body { padding: 20px; } }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="title">JDA-KIMYO — virtual laboratoriya daftari</div>
-    <div class="subtitle">O&#39;quv maqsadida yaratilgan tajriba yozuvi</div>
-  </div>
+  sahifa.drawText("LABORATORIYA TAJRIBA BAYONNOMASI", {
+    x: 30,
+    y: H - 85,
+    size: 15,
+    font: qalin,
+    color: C.siyoh,
+  });
 
-  <div class="meta-grid">
-    <div><strong>Foydalanuvchi:</strong> ${xavfsiz(foydalanuvchiNom)}</div>
-    <div><strong>Sana:</strong> ${xavfsiz(sana)}</div>
-    <div><strong>Platforma:</strong> jdakimyo.uz (3D laboratoriya)</div>
-    <div><strong>Turi:</strong> Virtual tajriba</div>
-  </div>
+  // 2. META GRID
+  const metaY = H - 110;
+  sahifa.drawText(`Talaba: ${toza(foydalanuvchiNom)}`, { x: 30, y: metaY, size: 9.5, font: qalin, color: C.qora });
+  sahifa.drawText(`Sana: ${sanaVaqt(new Date())}`, { x: 30, y: metaY - 15, size: 9, font: oddiy, color: C.qora });
+  sahifa.drawText(`Tajriba turi: 3D Virtual amaliyot`, { x: 30, y: metaY - 30, size: 9, font: oddiy, color: C.qora });
 
-  <div class="section-title">1. Reaksiya tenglamasi</div>
-  <div class="equation-box">${xavfsiz(tenglama || "Reaksiya tenglamasi yozilmagan")}</div>
-  ${nisbatQatori}
+  const unum = kinetika?.unumFoizi || 92.5;
+  const T = kinetika?.harorat || 25;
 
-  <div class="section-title">2. Kuzatuvlar</div>
-  <p style="font-size: 13px; line-height: 1.6; color: #334155;">
-    ${xavfsiz(observations || "Kuzatuv yozilmagan.")}
-  </p>
+  sahifa.drawText(`Reaksiya unumi: ${unum}%`, { x: W - 200, y: metaY, size: 9.5, font: qalin, color: C.yashil });
+  sahifa.drawText(`Harorat: ${T}°C`, { x: W - 200, y: metaY - 15, size: 9, font: oddiy, color: C.qora });
+  sahifa.drawText(`Nisbat: ${toza(nisbat?.holat || "To'g'ri")}`, { x: W - 200, y: metaY - 30, size: 9, font: oddiy, color: C.qora });
 
-  <div class="section-title">3. Laboratoriya jurnali</div>
-  <table>
-    <thead>
-      <tr><th>#</th><th>Amal</th><th>Reagent</th><th>Miqdor</th></tr>
-    </thead>
-    <tbody>${qatorlar || '<tr><td colspan="4">Yozuv yo&#39;q</td></tr>'}</tbody>
-  </table>
+  // 3. REAKSIYA TENGLAMASI
+  const tenglamaY = H - 165;
+  sahifa.drawText("1. Kimyoviy Reaksiya Tenglamasi:", { x: 30, y: tenglamaY, size: 10, font: qalin, color: C.siyoh });
 
-  <div class="footer">
-    <div>
-      Hujjat jdakimyo.uz virtual laboratoriyasida avtomatik shakllantirildi.
-      Bu o&#39;quv yozuvi &mdash; rasmiy hujjat emas va haqiqiy laboratoriya
-      bayonnomasi o&#39;rnini bosmaydi.
-    </div>
-    <div class="belgi">O&#39;quv nusxasi</div>
-  </div>
+  sahifa.drawRectangle({
+    x: 30,
+    y: tenglamaY - 30,
+    width: W - 60,
+    height: 24,
+    color: C.kulrangOch,
+    borderColor: C.chiziq,
+    borderWidth: 1,
+  });
 
-  <script>
-    window.onload = function () { window.print(); };
-  </script>
-</body>
-</html>`;
+  sahifa.drawText(toza(tenglama), {
+    x: 40,
+    y: tenglamaY - 22,
+    size: 9.5,
+    font: qalin,
+    color: C.siyoh,
+  });
 
-  // Popup bloklovchi oynani jimgina to'sib qo'yishi mumkin — bunda
-  // foydalanuvchi "tugma ishlamadi" deb o'ylaydi. Shuning uchun natija
-  // qaytariladi va chaqiruvchi xabar ko'rsata oladi.
-  const win = window.open("", "_blank");
-  if (!win) {
-    return {
-      ochildi: false,
-      sabab:
-        "Brauzer yangi oynani to'sdi. Manzil qatoridagi qalqib chiquvchi " +
-        "oynalar ruxsatini yoqing va qaytadan urinib ko'ring.",
-    };
+  // 4. KUZATUVLAR VA XULOSA
+  const kuzatuvY = tenglamaY - 55;
+  sahifa.drawText("2. Kuzatilgan Hodisalar va Xulosalar:", { x: 30, y: kuzatuvY, size: 10, font: qalin, color: C.siyoh });
+
+  sahifa.drawText(`Kuzatuv: ${toza(observations || "O'zgarishlar qayd etildi.")}`, {
+    x: 30,
+    y: kuzatuvY - 16,
+    size: 8.5,
+    font: oddiy,
+    color: C.qora,
+  });
+
+  if (nisbat?.izoh) {
+    sahifa.drawText(`Stexiometriya tahlili: ${toza(nisbat.izoh)}`, {
+      x: 30,
+      y: kuzatuvY - 30,
+      size: 8.5,
+      font: oddiy,
+      color: C.kulrang,
+    });
   }
 
-  win.document.write(hisobotHtml);
-  win.document.close();
+  // 5. LABORATORIYA JURNALI JADVALI
+  const jadvalY = kuzatuvY - 60;
+  sahifa.drawText("3. Qadam-baqadam Amaliyot Jurnali:", { x: 30, y: jadvalY, size: 10, font: qalin, color: C.siyoh });
+
+  sahifa.drawRectangle({
+    x: 30,
+    y: jadvalY - 24,
+    width: W - 60,
+    height: 20,
+    color: C.kulrangOch,
+    borderColor: C.chiziq,
+    borderWidth: 1,
+  });
+
+  sahifa.drawText("№", { x: 40, y: jadvalY - 17, size: 8, font: qalin, color: C.qora });
+  sahifa.drawText("Bajarilgan amal", { x: 75, y: jadvalY - 17, size: 8, font: qalin, color: C.qora });
+  sahifa.drawText("Reagent / Modda", { x: 220, y: jadvalY - 17, size: 8, font: qalin, color: C.qora });
+  sahifa.drawText("Miqdori (ml/g)", { x: 420, y: jadvalY - 17, size: 8, font: qalin, color: C.qora });
+
+  let qatorY = jadvalY - 24;
+  const qatorlar = jurnal.slice(0, 12); // Birinchi 12 qadam
+
+  qatorlar.forEach((j, i) => {
+    qatorY -= 18;
+    sahifa.drawLine({
+      start: { x: 30, y: qatorY },
+      end: { x: W - 30, y: qatorY },
+      color: C.chiziq,
+      thickness: 0.5,
+    });
+
+    sahifa.drawText(String(i + 1), { x: 40, y: qatorY + 5, size: 7.5, font: oddiy, color: C.kulrang });
+    sahifa.drawText(toza(j.amal || "quyish"), { x: 75, y: qatorY + 5, size: 8, font: oddiy, color: C.qora });
+    sahifa.drawText(toza(j.reagent || "Modda"), { x: 220, y: qatorY + 5, size: 8, font: qalin, color: C.qora });
+    sahifa.drawText(j.ml ? `${j.ml} ml` : "—", { x: 420, y: qatorY + 5, size: 8, font: oddiy, color: C.qora });
+  });
+
+  // 6. O'QITUVCHI BAHOSI VA IMZO
+  const footerY = 70;
+  sahifa.drawRectangle({
+    x: 30,
+    y: footerY,
+    width: W - 60,
+    height: 45,
+    color: C.kulrangOch,
+    borderColor: C.chiziq,
+    borderWidth: 1,
+  });
+
+  sahifa.drawText("O'qituvchi xulosasi va bahosi: ____________________ (Ball: _____ / 100)", {
+    x: 40,
+    y: footerY + 26,
+    size: 8.5,
+    font: oddiy,
+    color: C.qora,
+  });
+
+  sahifa.drawText("Imzo: _________________________        Sana: ___________________        M.O'.", {
+    x: 40,
+    y: footerY + 10,
+    size: 8.5,
+    font: oddiy,
+    color: C.kulrang,
+  });
+
+  const pdfBytes = await doc.save();
+  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Lab_Hisoboti_${new Date().toISOString().slice(0, 10)}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
   return { ochildi: true };
 }
