@@ -41,51 +41,37 @@ export default function MasalaSahifasi() {
         color: "var(--v3-matn)",
       }}
     >
-      {/* Container */}
-      <div className="mx-auto max-w-4xl flex flex-col gap-6">
-        {/* Navigation Breadcrumb & Header */}
+      <div className="mx-auto max-w-5xl flex flex-col gap-6">
+        {/* Navigation & Header */}
         <header className="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style={{ borderColor: "var(--v3-chiziq)" }}>
           <div>
             <div className="flex items-center gap-2">
               <a href="/oquv" className="v3-xira hover:underline text-xs">
-                ← Ta&apos;lim Bo&apos;limi
+                ← Ta&apos;lim Bo&apos;limiga qaytish
               </a>
               <span className="v3-xira text-xs">/</span>
-              <span className="text-xs font-bold text-amber-400">Masalalar Dvigateli</span>
+              <span className="text-xs font-bold text-amber-400">Masalalar Bo&apos;limi</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight mt-1">
-              🧪 AI Ovozli Kimyoviy Masala Tushuntirgich
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight mt-1">
+              🧪 AI Kimyoviy Masalalar Yechuvchisi
             </h1>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-bold text-amber-400">
-              ⚡ Server Stexiometriya Dvigateli
+            <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-3.5 py-1 text-xs font-bold text-amber-400">
+              🎙️ Ovozli Tushuntirish Bilan
             </span>
           </div>
         </header>
 
-        {/* Informational Banner */}
-        <div
-          className="rounded-2xl border p-4 text-xs font-medium leading-relaxed"
-          style={{
-            borderColor: "color-mix(in srgb, var(--v3-urgu) 40%, transparent)",
-            background: "color-mix(in srgb, var(--v3-urgu) 10%, transparent)",
-          }}
-        >
-          💡 <strong>Nima uchun bu tizim 100% aniq?</strong> Masalalar shunchaki generatsiya qilinmaydi. 
-          Serverdagi <code className="text-amber-400 font-bold">chem-balance</code> va <code className="text-amber-400 font-bold">lab-modda</code> dvigatellari orqali 
-          molyar massalar va stexiometrik nisbatlar matematik aniqlikda hisoblanib, so'ng o'zbek tilida ovozli tushuntiriladi.
-        </div>
-
         {/* Error Notification */}
         {xato && (
-          <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-3.5 text-xs font-bold text-red-400">
+          <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-xs font-bold text-red-400">
             ⚠️ {xato}
           </div>
         )}
 
-        {/* Input Form Section */}
+        {/* Main Category Cards & Input Form */}
         <MasalaKiritish onYechish={handleYechish} yuklanmoqda={yuklanmoqda} />
 
         {/* Solution Breakdown Section */}

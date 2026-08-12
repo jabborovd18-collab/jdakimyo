@@ -8,9 +8,20 @@ import {
   yechAtom,
 } from "@/lib/masala-dvigatel.js";
 
+// Gemini API keyni barcha o'zgaruvchilardan qidirish
+function apiKalitniOl() {
+  return (
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_AI_KEY ||
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+    process.env.API_KEY ||
+    ""
+  );
+}
+
 // Gemini AI API orqali har qanday kimyoviy masala yoki savolni 100% aniq va ilmiy yechish
 async function geminiBilanYech(masalaMatni) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = apiKalitniOl();
   if (!apiKey) return null;
 
   try {
@@ -69,17 +80,21 @@ export async function POST(request) {
       );
     }
 
+    const apiKey = apiKalitniOl();
+
     // 1. Birinchi navbatda Gemini AI orqali masalani chuqur va aniq yechish
-    const aiNatija = await geminiBilanYech(masalaMatni);
-    if (aiNatija) {
-      return NextResponse.json({
-        muvaffaqiyatli: true,
-        turi: "ai_mukammal",
-        ...aiNatija,
-      });
+    if (apiKey) {
+      const aiNatija = await geminiBilanYech(masalaMatni);
+      if (aiNatija) {
+        return NextResponse.json({
+          muvaffaqiyatli: true,
+          turi: "ai_mukammal",
+          ...aiNatija,
+        });
+      }
     }
 
-    // 2. AI ishlamasa, mahalliy determinik dvigatel orqali zaxira hisobini yurgizish
+    // 2. Agar API Key bo'lmasa yoki API ishlamasa, mahalliy dvigatel orqali hisoblash
     const tahlil = masalaMatniniTahlilQil(masalaMatni);
     const turi = masalaTuriniAniqla(masalaMatni);
 
@@ -94,14 +109,16 @@ export async function POST(request) {
       natija = yechAtom(masalaMatni, tahlil);
     } else {
       natija = {
-        tenglama: "Stexiometriya va Kimyoviy Mantiq",
+        tenglama: "Kimyoviy Stexiometriya va Mantiq",
         bosqichlar: [
           {
             sarlavha: "1-Bosqich: Masala matnini tahlil qilish",
             matn: `Berilgan masala sharti: "${masalaMatni}".`,
           },
         ],
-        yakuniyJavob: "Masalani yechish uchun ko'proq kimyoviy kattaliklar (g, mol, L) kiriting.",
+        yakuniyJavob: apiKey
+          ? "Masalani yechish uchun ko'proq kimyoviy kattaliklar (g, mol, L) kiriting."
+          : "⚠️ GEMINI_API_KEY o'rnatilmagan. Matnli va erkin savollarni 100% yechish uchun loyihadagi .env fayliga GEMINI_API_KEY=AIzaSy... kalitini qo'shing.",
         ovozMatni: "Masalani aniq hisoblash uchun iltimos moddalar formulalari va miqdorlarini to'liq kiritishni tekshiring.",
       };
     }
@@ -109,6 +126,7 @@ export async function POST(request) {
     return NextResponse.json({
       muvaffaqiyatli: true,
       turi,
+      apiKalitMavjud: Boolean(apiKey),
       ...natija,
     });
   } catch (err) {
