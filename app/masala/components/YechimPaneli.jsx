@@ -3,12 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import Ikon from "@/components/Ikon";
 import MasalaVizual from "./MasalaVizual.jsx";
+import { masalaPdfYukla } from "@/lib/masala-pdf.js";
 import toast from "react-hot-toast";
 
-export default function YechimPaneli({ natija, onToliqYechimgaOtish }) {
+export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvchiNom = "Talaba" }) {
   const [ijroEtilmoqda, setIjroEtilmoqda] = useState(false);
   const [tezlik, setTezlik] = useState(1);
   const [oqituvchiJavobi, setOqituvchiJavobi] = useState("");
+  const [pdfYuklanmoqda, setPdfYuklanmoqda] = useState(false);
   const utteranceRef = useRef(null);
 
   useEffect(() => {
@@ -64,6 +66,23 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish }) {
         utteranceRef.current.rate = yangiTezlik;
         window.speechSynthesis.speak(utteranceRef.current);
       }
+    }
+  };
+
+  const handlePdfYuklabOlish = async () => {
+    try {
+      setPdfYuklanmoqda(true);
+      toast.loading("Masala yechimi PDF hujjati tayyorlanmoqda...", { id: "masala-pdf" });
+      await masalaPdfYukla({
+        foydalanuvchiNom,
+        masalaMatni: natija.masalaMatni || natija.tenglama || "Kimyoviy Masala",
+        natija,
+      });
+      toast.success("PDF hisoboti muvaffaqiyatli yuklandi!", { id: "masala-pdf" });
+    } catch (err) {
+      toast.error("PDF yaratishda xatolik: " + err.message, { id: "masala-pdf" });
+    } finally {
+      setPdfYuklanmoqda(false);
     }
   };
 
@@ -137,11 +156,22 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish }) {
 
           <button
             type="button"
+            onClick={handlePdfYuklabOlish}
+            disabled={pdfYuklanmoqda}
+            className="v3-tugma text-xs py-1.5 px-3 font-semibold inline-flex items-center gap-1.5"
+            title="PDF formatida yuklab olish"
+          >
+            <Ikon nom="fayl" olcham={13} />
+            <span>PDF Daftari</span>
+          </button>
+
+          <button
+            type="button"
             onClick={nusxaOlish}
             className="v3-tugma text-xs py-1.5 px-2.5"
             title="Nusxa olish"
           >
-            <Ikon nom="fayl" olcham={13} />
+            <Ikon nom="belgi" olcham={13} />
           </button>
         </div>
       </div>
