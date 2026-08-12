@@ -16,9 +16,11 @@ import MolekulaZoomModal from "./components/MolekulaZoomModal.jsx";
 import PHMeterUI from "./components/PHMeterUI.jsx";
 import TaroziUI from "./components/TaroziUI.jsx";
 import EritmaTayyorlashModal from "./components/EritmaTayyorlashModal.jsx";
+import XonaNavigatsiyaUI from "./components/XonaNavigatsiyaUI.jsx";
 import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
 import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
 import KristallPanjaraModal from "./components/KristallPanjaraModal.jsx";
+import { zonagaOt } from "./lib/xona-zonalari.js";
 import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi } from "./lib/ovoz.js";
@@ -58,6 +60,14 @@ export default function Korinish() {
   const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
   const [portlashMaLumot, setPortlashMaLumot] = useState(null);
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
+  const [faolZona, setFaolZona] = useState('asosiy');
+
+  const handleZonaTanlandi = (zonaKaliti) => {
+    setFaolZona(zonaKaliti);
+    if (kameraRef?.current && controlsRef?.current) {
+      zonagaOt(kameraRef.current, controlsRef.current, zonaKaliti);
+    }
+  };
 
   // Spirtovkada isitish
   useEffect(() => {
@@ -511,9 +521,15 @@ export default function Korinish() {
         <main className="relative h-full min-h-[350px] w-full flex-1 overflow-hidden">
           <div ref={konteynerRef} className="absolute inset-0 h-full w-full" />
 
+          {/* 4-BOSQICH: XONA ZONALARI NAVIGATSIYASI */}
+          <XonaNavigatsiyaUI
+            faolZona={faolZona}
+            onZonaTanlandi={handleZonaTanlandi}
+          />
+
           {/* 1-BOSQICH: 3D Interaktiv Ko'rsatma / Status */}
           <div
-            className="pointer-events-none absolute left-4 top-4 rounded-xl border px-3 py-1.5 text-xs backdrop-blur-md bg-[var(--v3-fon-2)]/90 border-[var(--v3-chiziq)] space-y-0.5"
+            className="pointer-events-none absolute left-4 top-4 z-20 rounded-xl border px-3 py-1.5 text-xs backdrop-blur-md bg-[var(--v3-fon-2)]/90 border-[var(--v3-chiziq)] space-y-0.5"
           >
             <div className="font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
               <Ikon nom="kolba" olcham={14} className="text-[var(--v3-urgu)]" />

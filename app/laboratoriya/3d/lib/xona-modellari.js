@@ -1,0 +1,173 @@
+// app/laboratoriya/3d/lib/xona-modellari.js
+//
+// 4-BOSQICH: 3D Laboratoriya Xonasi Interyeri modellari
+// (Fume Hood, Analitik tarozi stoli, Yuvinish rakovinasi, Devor panellari).
+//
+import * as THREE from "three";
+
+/** Davriy jadval plakatini yaratish */
+function davriyJadvalPlakati() {
+  if (typeof document === "undefined") return new THREE.Group();
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#0f172a";
+  ctx.fillRect(0, 0, 512, 256);
+
+  ctx.strokeStyle = "#38bdf8";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(4, 4, 504, 248);
+
+  ctx.fillStyle = "#facc15";
+  ctx.font = "bold 22px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("D.I. MENDELEYEV DAVRIY SISTEMASI", 256, 32);
+
+  // Rangli elementlar bloklari chizish
+  const colors = ["#ef4444", "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#06b6d4"];
+  for (let r = 0; r < 6; r++) {
+    for (let c = 0; c < 16; c++) {
+      ctx.fillStyle = colors[(r + c) % colors.length];
+      ctx.fillRect(24 + c * 29, 48 + r * 30, 26, 26);
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const geo = new THREE.PlaneGeometry(1.6, 0.8);
+  const mat = new THREE.MeshBasicMaterial({ map: texture });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(0, 1.9, -1.25);
+  return mesh;
+}
+
+/** Tortma Shkaf (Fume Hood) modeli */
+function tortmaShkafYasa(materiallar) {
+  const group = new THREE.Group();
+  group.name = "Fume_Hood";
+  group.position.set(1.05, 0.9, -0.1);
+
+  const poLatMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.3, metalness: 0.6 });
+  const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.35 });
+
+  // 1. Shkaf korpusi
+  const korpusGeo = new THREE.BoxGeometry(0.75, 1.1, 0.55);
+  const korpus = new THREE.Mesh(korpusGeo, poLatMat);
+  korpus.position.y = 0.55;
+  group.add(korpus);
+
+  // 2. Ichki ish kamerasi (bo'shliq effekti)
+  const kameraGeo = new THREE.BoxGeometry(0.68, 0.7, 0.48);
+  const kameraMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
+  const kamera = new THREE.Mesh(kameraGeo, kameraMat);
+  kamera.position.set(0, 0.45, 0.02);
+  group.add(kamera);
+
+  // 3. Shisha suriluvchi oyna (Sash)
+  const oynaGeo = new THREE.BoxGeometry(0.66, 0.5, 0.015);
+  const oyna = new THREE.Mesh(oynaGeo, shishaMat);
+  oyna.position.set(0, 0.55, 0.25);
+  group.add(oyna);
+
+  // 4. Ventilyatsiya trubasi (Tepasida)
+  const trubaGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 16);
+  const truba = new THREE.Mesh(trubaGeo, poLatMat);
+  truba.position.set(0, 1.35, 0);
+  group.add(truba);
+
+  // 5. Ichki yorug'lik chirog'i
+  const ichkiChiroq = new THREE.PointLight(0xffffff, 0.8, 1.2);
+  ichkiChiroq.position.set(0, 0.75, 0);
+  group.add(ichkiChiroq);
+
+  return group;
+}
+
+/** Analitik Tarozi Stoli modeli */
+function taroziStoliYasa(materiallar) {
+  const group = new THREE.Group();
+  group.name = "Tarozi_Stansiyasi";
+  group.position.set(-1.0, 0.9, 0.15);
+
+  const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7 });
+  const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.35 });
+
+  // Tarozi poydevori
+  const korpusGeo = new THREE.BoxGeometry(0.38, 0.08, 0.34);
+  const korpus = new THREE.Mesh(korpusGeo, metallMat);
+  korpus.position.y = 0.04;
+  group.add(korpus);
+
+  // Dumaloq metall palla (Pan)
+  const pallaGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.01, 24);
+  const pallaMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 });
+  const palla = new THREE.Mesh(pallaGeo, pallaMat);
+  palla.position.set(0, 0.09, -0.02);
+  group.add(palla);
+
+  // Shisha shamol himoya qutisi (Glass Draft Shield)
+  const qutiGeo = new THREE.BoxGeometry(0.32, 0.24, 0.28);
+  const quti = new THREE.Mesh(qutiGeo, shishaMat);
+  quti.position.set(0, 0.2, -0.02);
+  group.add(quti);
+
+  // Raqamli displey ekrani
+  const ekranGeo = new THREE.BoxGeometry(0.14, 0.03, 0.01);
+  const ekranMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
+  const ekran = new THREE.Mesh(ekranGeo, ekranMat);
+  ekran.position.set(0, 0.05, 0.165);
+  group.add(ekran);
+
+  return group;
+}
+
+/** Yuvinish Rakovinasi va Kran modeli */
+function rakovinaYasa(materiallar) {
+  const group = new THREE.Group();
+  group.name = "Yuvinish_Rakovinasi";
+  group.position.set(-0.95, 0.9, -0.85);
+
+  const chinniMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.1 });
+  const kranMat = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.9, roughness: 0.1 });
+
+  // Rakovina chuqurligi
+  const botiqGeo = new THREE.BoxGeometry(0.45, 0.22, 0.35);
+  const botiq = new THREE.Mesh(botiqGeo, chinniMat);
+  botiq.position.y = -0.1;
+  group.add(botiq);
+
+  // Xrom kran
+  const kranAsosGeo = new THREE.CylinderGeometry(0.015, 0.018, 0.16, 16);
+  const kranAsos = new THREE.Mesh(kranAsosGeo, kranMat);
+  kranAsos.position.set(0, 0.08, -0.14);
+  group.add(kranAsos);
+
+  const kranTrubaGeo = new THREE.TorusGeometry(0.06, 0.012, 12, 16, Math.PI);
+  const kranTruba = new THREE.Mesh(kranTrubaGeo, kranMat);
+  kranTruba.rotation.y = Math.PI / 2;
+  kranTruba.position.set(0, 0.16, -0.08);
+  group.add(kranTruba);
+
+  return group;
+}
+
+/** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
+export function xonaInteryeriniYasa(materiallar) {
+  const roomGroup = new THREE.Group();
+  roomGroup.name = "3D_Laboratoriya_Interyeri";
+
+  // 1. Davriy Jadval Plakati
+  roomGroup.add(davriyJadvalPlakati());
+
+  // 2. Tortma Shkaf (O'ng tomonda)
+  roomGroup.add(tortmaShkafYasa(materiallar));
+
+  // 3. Analitik Tarozi Stantsiyasi (Chap oldinda)
+  roomGroup.add(taroziStoliYasa(materiallar));
+
+  // 4. Yuvinish Rakovinasi (Chap orqada)
+  roomGroup.add(rakovinaYasa(materiallar));
+
+  return roomGroup;
+}
