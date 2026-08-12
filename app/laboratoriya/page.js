@@ -1,49 +1,91 @@
 // app/laboratoriya/page.js
 "use client"
+
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import FonTanlagich, { useFon } from '@/components/FonTanlagich'
+import Ikon from '@/components/Ikon'
 
-// Do'kondagi bitta dona qancha modda berishini matn qilib beradi.
-// Jihoz uchun bo'sh — u allaqachon donalab sanaladi.
 const ULUSH_MATNI = (birlik) =>
   birlik === 'ml' ? '25 ml' : birlik === 'gr' ? '5 g' : null
 
 const NODIRLIK = {
-  oddiy: { nom: 'Oddiy', rang: 'border-slate-600/50 bg-slate-800/40', matn: 'text-slate-300' },
-  kam: { nom: 'Kam', rang: 'border-green-700/50 bg-green-950/30', matn: 'text-green-400' },
-  nodir: { nom: 'Nodir', rang: 'border-blue-700/50 bg-blue-950/30', matn: 'text-blue-400' },
-  noyob: { nom: 'Noyob', rang: 'border-purple-600/50 bg-purple-950/40', matn: 'text-purple-300' },
+  oddiy: { nom: 'Oddiy', rang: 'bg-[var(--v3-yuza-2)] border-[var(--v3-chiziq)] text-[var(--v3-matn)]', badgeClass: 'v3-tag' },
+  kam: { nom: 'Kam', rang: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300', badgeClass: 'v3-tag-ochiq' },
+  nodir: { nom: 'Nodir', rang: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300', badgeClass: 'v3-tag-muhlat' },
+  noyob: { nom: 'Noyob', rang: 'bg-amber-500/15 border-amber-500/40 text-amber-300', badgeClass: 'v3-tag-yopiq' },
 }
 
 const GURUH_NOMI = {
-  shisha: '🧪 Shisha idishlar',
-  isitish: '🔥 Isitish',
-  olchov: '📏 O\'lchov',
-  tayanch: '🔩 Tayanch',
-  ajratish: '🔻 Ajratish',
-  gaz: '🪈 Gaz',
-  himoya: '🛡️ Xavfsizlik',
-  chinni: '🥣 Chinni',
-  elektr: '⚡ Elektr',
-  sarf: '🔗 Sarf materiallari',
-  sanoat: '🏭 Sanoat',
+  shisha: 'Shisha idishlar',
+  isitish: 'Isitish asboblari',
+  olchov: 'O\'lchov asboblari',
+  tayanch: 'Tayanch va shtativlar',
+  ajratish: 'Ajratish va filtrlar',
+  gaz: 'Gaz asboblari',
+  himoya: 'Xavfsizlik va himoya',
+  chinni: 'Chinni idishlar',
+  elektr: 'Elektr asboblari',
+  sarf: 'Sarf materiallari',
+  sanoat: 'Sanoat apparatlari',
+}
+
+// Ovoz sintezi (Web Audio API)
+function sandiqOvozi(turi = 'ochilish') {
+  if (typeof window === 'undefined') return
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext
+    if (!AudioContext) return
+    const ctx = new AudioContext()
+    
+    if (turi === 'titrash') {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'triangle'
+      osc.frequency.setValueAtTime(140, ctx.currentTime)
+      osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.6)
+      gain.gain.setValueAtTime(0.08, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start()
+      osc.stop(ctx.currentTime + 0.6)
+    } else if (turi === 'yutuq') {
+      const notes = [261.63, 329.63, 392.00, 523.25] // C, E, G, C
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.1)
+        gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.1)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.1 + 0.4)
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.start(ctx.currentTime + idx * 0.1)
+        osc.stop(ctx.currentTime + idx * 0.1 + 0.4)
+      })
+    }
+  } catch {
+    // Audio xatosi e'tiborsiz qoldiriladi
+  }
 }
 
 export default function LaboratoriyaPage() {
+  const [fon, fonTanla] = useFon()
   const [holat, setHolat] = useState(null)
   const [buyumlar, setBuyumlar] = useState([])
   const [guruhlar, setGuruhlar] = useState([])
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
   const [kirmagan, setKirmagan] = useState(false)
-  // Xato alohida holat: usiz yuklash yiqilganda sahifa "Laboratoriya bo'sh"
-  // deb ko'rsatardi va foydalanuvchi hamma narsasini yo'qotgandek his qilardi.
   const [xato, setXato] = useState('')
 
-  const [tab, setTab] = useState('inventar')
+  const [tab, setTab] = useState('inventar') // 'inventar' | 'tajriba' | 'sandiq' | 'dokon'
   const [sandiqlar, setSandiqlar] = useState([])
   const [ochilmoqda, setOchilmoqda] = useState(null)
+  const [ochishFazasida, setOchishFazasida] = useState(false)
   const [natija, setNatija] = useState(null)
+
   const [turFiltr, setTurFiltr] = useState('all')
   const [guruhFiltr, setGuruhFiltr] = useState('all')
   const [qidiruv, setQidiruv] = useState('')
@@ -51,10 +93,8 @@ export default function LaboratoriyaPage() {
 
   // ─── Tajriba ───
   const [tanlangan, setTanlangan] = useState([])
-  const [tajriba, setTajriba] = useState(null) // {mumkin, jurnal}
+  const [tajriba, setTajriba] = useState(null)
   const [tajribaNatija, setTajribaNatija] = useState(null)
-  // Bitta reagent to'plamidan bir nechta reaksiya chiqqanda: sharoit
-  // bo'yicha tanlash ro'yxati
   const [tanlov, setTanlov] = useState(null)
   const [otkazilmoqda, setOtkazilmoqda] = useState(false)
 
@@ -83,8 +123,8 @@ export default function LaboratoriyaPage() {
         const res = await fetch(`/api/laboratoriya/dokon?${p}`)
         const data = await res.json()
         if (!res.ok) throw new Error(data.error)
-        setBuyumlar(data.buyumlar)
-        setGuruhlar(data.guruhlar)
+        setBuyumlar(data.buyumlar || [])
+        setGuruhlar(data.guruhlar || [])
       } catch (error) {
         toast.error('Do\'kon yuklanmadi: ' + error.message)
       }
@@ -96,9 +136,9 @@ export default function LaboratoriyaPage() {
     try {
       const res = await fetch('/api/laboratoriya/sandiq')
       const data = await res.json()
-      if (res.ok) setSandiqlar(data.sandiqlar)
+      if (res.ok) setSandiqlar(data.sandiqlar || [])
     } catch {
-      // jim — sahifaning qolgan qismi ishlayveradi
+      // Ignored
     }
   }, [])
 
@@ -106,9 +146,13 @@ export default function LaboratoriyaPage() {
     if (tab === 'sandiq' && !kirmagan) sandiqlarniYukla()
   }, [tab, kirmagan, sandiqlarniYukla])
 
+  // Sandiq ochish — animatsiya va ovoz effekti bilan
   const sandiqOch = async (kalit) => {
     setOchilmoqda(kalit)
+    setOchishFazasida(true)
     setNatija(null)
+    sandiqOvozi('titrash')
+
     try {
       const res = await fetch('/api/laboratoriya/sandiq', {
         method: 'POST',
@@ -117,11 +161,18 @@ export default function LaboratoriyaPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setNatija(data)
-      setHolat((h) => (h ? { ...h, balans: { ...h.balans, ...data.balans } } : h))
-      holatniYukla()
-      sandiqlarniYukla()
+
+      // Kichik intizorlik animatsiyasi (800ms)
+      setTimeout(() => {
+        setOchishFazasida(false)
+        setNatija(data)
+        sandiqOvozi('yutuq')
+        setHolat((h) => (h ? { ...h, balans: { ...h.balans, ...data.balans } } : h))
+        holatniYukla()
+        sandiqlarniYukla()
+      }, 850)
     } catch (error) {
+      setOchishFazasida(false)
       toast.error(error.message)
     } finally {
       setOchilmoqda(null)
@@ -134,7 +185,7 @@ export default function LaboratoriyaPage() {
       const data = await res.json()
       if (res.ok) setTajriba(data)
     } catch {
-      // jim — sahifaning qolgan qismi ishlayveradi
+      // Ignored
     }
   }, [])
 
@@ -160,8 +211,6 @@ export default function LaboratoriyaPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
 
-      // Bir xil reagentlardan sharoitga qarab har xil mahsulot chiqadi —
-      // qaysi biri kerakligini foydalanuvchi tanlaydi
       if (data.tanlov) {
         setTanlov(data.tanlov)
         setTajribaNatija(null)
@@ -206,19 +255,20 @@ export default function LaboratoriyaPage() {
 
   if (kirmagan) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center bg-slate-900/60 border border-purple-800/50 rounded-2xl p-8">
-          <div className="text-6xl mb-4">🔬</div>
-          <h1 className="text-2xl font-bold mb-2">Laboratoriya</h1>
-          <p className="text-purple-300 text-sm mb-6">
-            O'z laboratoriyangizni ochish uchun tizimga kiring. Missiyalarni bajarib
-            tanga yig'asiz, jihoz sotib olasiz va tajriba o'tkazasiz.
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center p-4">
+        <div className="v3-panel-karta max-w-md w-full text-center p-8 space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+            <Ikon nom="kolba" olcham={24} />
+          </div>
+          <h1 className="text-xl font-bold text-[var(--v3-matn)]">Virtual Laboratoriya</h1>
+          <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+            O{"'"}z laboratoriyangizni ochish uchun tizimga kiring. Reagentlar yig{"'"}ing, jihozlar oling va tajribalar o{"'"}tkazing.
           </p>
           <Link
             href="/login?callbackUrl=/laboratoriya"
-            className="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold"
+            className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-6 font-bold inline-flex"
           >
-            Kirish
+            Kirish →
           </Link>
         </div>
       </main>
@@ -227,29 +277,30 @@ export default function LaboratoriyaPage() {
 
   if (yuklanmoqda) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white flex items-center justify-center">
-        <div className="text-purple-300">⏳ Laboratoriya yuklanmoqda...</div>
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={32} className="animate-spin" />
+          <span className="text-sm">Laboratoriya yuklanmoqda...</span>
+        </div>
       </main>
     )
   }
 
-  // Yuklash yiqilsa — bo'sh laboratoriya EMAS, xato ko'rsatiladi.
-  // Aks holda foydalanuvchi jihozlarim yo'qoldi deb o'ylardi.
   if (xato || !holat?.lab) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center bg-slate-900/60 border border-red-800/50 rounded-2xl p-8">
-          <div className="text-5xl mb-4">⚠️</div>
-          <h1 className="text-xl font-bold mb-2">Laboratoriya yuklanmadi</h1>
-          <p className="text-purple-300 text-sm mb-1">{xato || 'Ma\'lumot kelmadi'}</p>
-          <p className="text-purple-500 text-xs mb-6">
-            Jihozlaringiz va tangalaringiz joyida — bu faqat yuklashdagi nosozlik.
-          </p>
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center p-4">
+        <div className="v3-panel-karta max-w-md w-full text-center p-8 space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto">
+            <Ikon nom="taqiq" olcham={24} />
+          </div>
+          <h1 className="text-base font-bold text-[var(--v3-matn)]">Laboratoriya yuklanmadi</h1>
+          <p className="text-xs text-[var(--v3-xira)] leading-relaxed">{xato || 'Ma\'lumot kelmadi'}</p>
           <button
             onClick={() => { setYuklanmoqda(true); holatniYukla() }}
-            className="px-6 py-3 rounded-xl bg-purple-800/60 hover:bg-purple-700/70 border border-purple-600/50 font-semibold"
+            className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold inline-flex items-center gap-2"
           >
-            🔄 Qayta urinish
+            <Ikon nom="qayta" olcham={14} />
+            Qayta urinish
           </button>
         </div>
       </main>
@@ -261,479 +312,345 @@ export default function LaboratoriyaPage() {
   const jihozlar = inventar.filter((i) => i.turi === 'jihoz')
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white py-6 px-4">
-      <div className="max-w-5xl mx-auto space-y-5">
-        {/* Sarlavha va balans */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <Link href="/" className="text-xs text-purple-400 hover:text-purple-300">← Bosh sahifa</Link>
-            <h1 className="text-3xl font-bold mt-1">🔬 {holat?.lab?.nom}</h1>
-            <p className="text-purple-300 text-sm mt-0.5">
-              {holat?.lab?.daraja}-daraja laboratoriya
-            </p>
-            {/* Daraja tajribadan o'sadi — qancha qolganini ko'rsatamiz */}
-            {holat?.lab?.darajaHolati && (
-              <div className="mt-2 w-56">
-                <div className="h-1.5 rounded-full bg-purple-950 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-yellow-500 to-orange-500"
-                    style={{ width: `${holat.lab.darajaHolati.foiz}%` }}
-                  />
+    <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
+      {/* Background glow & grid */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <span className="v3-nur v3-nur-a" />
+        <span className="v3-nur v3-nur-b" />
+        <span className="v3-tor-fon" />
+      </div>
+
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-[var(--v3-fon-2)]/95 backdrop-blur-xl border-b border-[var(--v3-chiziq)]">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="v3-ikon-tugma" aria-label="Bosh sahifa">
+              <Ikon nom="chap" olcham={18} />
+            </Link>
+            <div className="flex items-center gap-2.5">
+              <span className="v3-logo" aria-hidden="true" />
+              <span className="v3-logo-matn">JDA KIMYO</span>
+            </div>
+            <span className="hidden sm:inline-block w-px h-5 bg-[var(--v3-chiziq)]" />
+            <span className="hidden sm:inline text-xs font-bold text-[var(--v3-matn)]">
+              {holat?.lab?.nom || 'Virtual Laboratoriya'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Balans */}
+            <div className="flex items-center gap-2 bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] rounded-xl px-3 py-1 font-mono text-xs">
+              <span className="flex items-center gap-1 text-yellow-400 font-bold">
+                <span>🪙</span>
+                <span>{holat?.balans?.coins || 0}</span>
+              </span>
+              <span className="text-[var(--v3-chiziq)]">|</span>
+              <span className="flex items-center gap-1 text-cyan-400 font-bold">
+                <span>💎</span>
+                <span>{holat?.balans?.gems || 0}</span>
+              </span>
+            </div>
+
+            {/* 3D Lab ga o'tish tugmasi */}
+            <Link
+              href="/laboratoriya/3d"
+              className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 font-bold inline-flex items-center gap-1.5"
+            >
+              <Ikon nom="kolba" olcham={14} />
+              <span>3D Rejim</span>
+            </Link>
+
+            <FonTanlagich fon={fon} tanla={fonTanla} />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Container */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* Lab Level Progress Banner */}
+        <div className="v3-panel-karta p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="v3-tag v3-tag-ochiq font-bold font-mono">
+                {holat?.lab?.daraja || 1}-DARAJA LABORATORIYA
+              </span>
+              <span className="text-xs text-[var(--v3-xira)] font-mono">
+                XP: {holat?.lab?.tajriba || 0}
+              </span>
+            </div>
+            <h2 className="text-lg font-bold text-[var(--v3-matn)]">
+              {holat?.lab?.nom}
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/laboratoriya/3d"
+              className="v3-tugma text-xs py-2 px-4 inline-flex items-center gap-1.5"
+            >
+              <span>3D Stolga o{"'"}tish</span>
+              <Ikon nom="ong" olcham={14} />
+            </Link>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex gap-2 border-b border-[var(--v3-chiziq)] pb-2 overflow-x-auto">
+          {[
+            { id: 'inventar', nom: 'Inventarim', son: inventar.length, ikon: 'kitob' },
+            { id: 'tajriba', nom: 'Tajriba o\'tkazish', ikon: 'atom' },
+            { id: 'sandiq', nom: 'Sandiqlar', son: sandiqlar.length, ikon: 'orin' },
+            { id: 'dokon', nom: 'Do\'kon', ikon: 'fayl' },
+          ].map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                tab === t.id
+                  ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold shadow-sm'
+                  : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
+              }`}
+            >
+              <Ikon nom={t.ikon} olcham={14} />
+              <span>{t.nom}</span>
+              {t.son !== undefined && <span className="opacity-75 font-mono">({t.son})</span>}
+            </button>
+          ))}
+        </div>
+
+        {/* ─── TAB 1: INVENTAR ─── */}
+        {tab === 'inventar' && (
+          <div className="space-y-6">
+            {inventar.length === 0 ? (
+              <div className="v3-panel-karta py-16 text-center text-xs text-[var(--v3-xira)] space-y-3">
+                <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+                  <Ikon nom="kolba" olcham={20} />
                 </div>
-                <div className="text-[10px] text-purple-400 mt-1">
-                  {holat.lab.darajaHolati.joriy} / {holat.lab.darajaHolati.kerak} tajriba →{' '}
-                  {holat.lab.darajaHolati.daraja + 1}-daraja
-                </div>
+                <p className="font-bold text-sm text-[var(--v3-matn)]">Inventaringiz hozircha bo{"'"}sh</p>
+                <p>Do{"'"}kondan reagentlar sotib oling yoki bepul kunlik sandiqni oching.</p>
+                <button
+                  type="button"
+                  onClick={() => setTab('sandiq')}
+                  className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold inline-flex mt-2"
+                >
+                  Sandiq ochish →
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Reagentlar */}
+                {reagentlar.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="v3-nishon">Reagentlar ({reagentlar.length} ta)</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {reagentlar.map(i => {
+                        const n = NODIRLIK[i.nodirlik] || NODIRLIK.oddiy
+                        return (
+                          <div key={i.kalit} className={`v3-panel-karta p-4 flex items-center justify-between gap-3 ${n.rang}`}>
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="text-2xl shrink-0">{i.icon || '⚗️'}</span>
+                              <div className="min-w-0">
+                                <div className="font-bold text-xs text-[var(--v3-matn)] truncate">{i.nom}</div>
+                                <div className="text-[10.5px] font-mono text-[var(--v3-xira)]">
+                                  Miqdor: <strong className="text-[var(--v3-urgu)]">{i.matn || i.miqdor}</strong>
+                                </div>
+                              </div>
+                            </div>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${n.badgeClass}`}>
+                              {n.nom}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Jihozlar */}
+                {jihozlar.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="v3-nishon">Laboratoriya Jihozlari ({jihozlar.length} ta)</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {jihozlar.map(i => {
+                        const n = NODIRLIK[i.nodirlik] || NODIRLIK.oddiy
+                        return (
+                          <div key={i.kalit} className={`v3-panel-karta p-4 flex items-center justify-between gap-3 ${n.rang}`}>
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="text-2xl shrink-0">{i.icon || '🧪'}</span>
+                              <div className="min-w-0">
+                                <div className="font-bold text-xs text-[var(--v3-matn)] truncate">{i.nom}</div>
+                                <div className="text-[10.5px] text-[var(--v3-xira)]">
+                                  {GURUH_NOMI[i.guruh] || 'Jihoz'}
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-[11px] font-mono font-bold text-[var(--v3-matn)]">
+                              ×{i.soni} dona
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/laboratoriya/3d"
-              className="flex items-center gap-2 rounded-xl border border-purple-500/50 bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-900/40 transition hover:scale-[1.03] hover:shadow-purple-800/60"
-            >
-              <span>🔬 3D Rejim</span>
-              <span className="rounded bg-yellow-400 px-1.5 py-0.5 text-[10px] font-extrabold text-black uppercase tracking-wider">
-                Yangi
-              </span>
-            </Link>
-            <div className="px-4 py-2.5 rounded-xl bg-amber-950/40 border border-amber-700/40 text-center">
-              <div className="text-xl font-bold text-amber-400">🪙 {holat?.balans?.coins ?? 0}</div>
-              <div className="text-[10px] text-amber-300/70">Tanga</div>
-            </div>
-            <div className="px-4 py-2.5 rounded-xl bg-cyan-950/40 border border-cyan-700/40 text-center">
-              <div className="text-xl font-bold text-cyan-300">💎 {holat?.balans?.gems ?? 0}</div>
-              <div className="text-[10px] text-cyan-300/70">Olmos</div>
-            </div>
-          </div>
-        </div>
+        )}
 
-        {/* Tablar va 3D o'tish tugmasi */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'inventar', nom: `🎒 Inventar (${inventar.length})` },
-              { id: 'tajriba', nom: '🧪 Tajriba' },
-              { id: 'sandiq', nom: '🎁 Sandiqlar' },
-              { id: 'dokon', nom: '🏪 Do\'kon' },
-            ].map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-                  tab === t.id
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
-                    : 'bg-slate-900/60 border border-purple-800/50 text-purple-200 hover:bg-slate-800/60'
-                }`}
-              >
-                {t.nom}
-              </button>
-            ))}
-          </div>
+        {/* ─── TAB 2: TAJRIBA O'TKAZISH ─── */}
+        {tab === 'tajriba' && (
+          <div className="space-y-6">
+            <div className="v3-panel-karta p-6 space-y-4">
+              <div>
+                <div className="v3-nishon">2D Reaksiya Simulyatori</div>
+                <h3 className="font-bold text-base text-[var(--v3-matn)]">
+                  Reagentlarni tanlang va tajriba o{"'"}tkazing
+                </h3>
+                <p className="text-xs text-[var(--v3-xira)] mt-1">
+                  Inventaringizdagi reagentlarni belgilang. Server ularning kimyoviy mosligini, stexiometriyasini va kerakli jihozlarni tekshiradi.
+                </p>
+              </div>
 
-          <Link
-            href="/laboratoriya/3d"
-            className="flex items-center gap-2 rounded-xl border border-purple-700/60 bg-purple-950/40 px-4 py-2.5 text-xs font-bold text-purple-200 hover:bg-purple-900/50 hover:text-white transition"
-          >
-            <span>✨ 3D Laboratoriyaga o'tish →</span>
-          </Link>
-        </div>
-
-        {/* ─── INVENTAR ─── */}
-        {tab === 'inventar' && (
-          inventar.length === 0 ? (
-            <div className="text-center py-14 bg-slate-900/50 border border-purple-800/50 rounded-2xl">
-              <div className="text-6xl mb-4">📦</div>
-              <h3 className="text-xl font-bold mb-2">Laboratoriya bo'sh</h3>
-              <p className="text-purple-300 text-sm max-w-md mx-auto mb-5">
-                Har bir kimyogar bo'sh xonadan boshlaydi. Missiyalarni bajarib tanga
-                yig'ing va birinchi probirkangizni oling.
-              </p>
-              <button
-                onClick={() => setTab('dokon')}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold"
-              >
-                🏪 Do'konga o'tish
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-5">
-              {[
-                { nom: '🔧 Jihozlar', royxat: jihozlar },
-                { nom: '⚗️ Reagentlar', royxat: reagentlar },
-              ].filter((b) => b.royxat.length > 0).map((bolim) => (
-                <div key={bolim.nom}>
-                  <h2 className="text-sm font-bold text-purple-300 mb-2">{bolim.nom}</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {bolim.royxat.map((i) => {
-                      const n = NODIRLIK[i.nodirlik] || NODIRLIK.oddiy
+              {/* Reagentlar tanlash paneli */}
+              <div className="space-y-2 pt-2 border-t border-[var(--v3-chiziq)]">
+                <div className="text-xs font-bold text-[var(--v3-matn)]">Mavjud reagentlaringiz:</div>
+                {reagentlar.length === 0 ? (
+                  <p className="text-xs text-[var(--v3-xira)]">Tajriba o'tkazish uchun reagentlar yo'q. Do'kondan xarid qiling.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {reagentlar.map((r) => {
+                      const isSelected = tanlangan.includes(r.kalit)
                       return (
-                        <div key={i.kalit} className={`rounded-xl border p-3.5 ${n.rang}`}>
-                          <div className="flex items-start justify-between gap-2">
-                            <span className="text-2xl">{i.icon || '📦'}</span>
-                            <span className="text-sm font-bold text-white">{i.matn || `×${i.soni}`}</span>
-                          </div>
-                          <div className="mt-2 font-semibold text-white text-sm leading-tight">{i.nom}</div>
-                          <div className={`text-[10px] mt-0.5 ${n.matn}`}>{n.nom}</div>
-                          {i.sotishNarxi > 0 && (
-                            <button
-                              onClick={() => savdo('sotish', i.kalit, 1)}
-                              disabled={ishlamoqda === i.kalit + 'sotish'}
-                              className="mt-2.5 w-full py-1.5 rounded-lg bg-purple-800/50 hover:bg-purple-700/60 border border-purple-600/40 text-xs font-semibold disabled:opacity-50"
-                            >
-                              Sotish · {i.sotishNarxi} 🪙
-                            </button>
-                          )}
-                        </div>
+                        <button
+                          key={r.kalit}
+                          type="button"
+                          onClick={() => reagentniBelgila(r.kalit)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border flex items-center gap-1.5 ${
+                            isSelected
+                              ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] border-[var(--v3-urgu)] shadow-sm'
+                              : 'bg-[var(--v3-fon-2)] text-[var(--v3-matn)] border-[var(--v3-chiziq)] hover:border-[var(--v3-chiziq-2)]'
+                          }`}
+                        >
+                          <span>{r.icon || '⚗️'}</span>
+                          <span>{r.nom}</span>
+                          <span className="opacity-70 font-mono text-[10px]">({r.matn || r.miqdor})</span>
+                        </button>
                       )
                     })}
                   </div>
+                )}
+              </div>
+
+              {/* Tanlangan reagentlar va Tajriba tugmasi */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[var(--v3-chiziq)]">
+                <div className="text-xs font-mono text-[var(--v3-xira)]">
+                  Tanlandi: <strong className="text-[var(--v3-urgu)]">{tanlangan.length}</strong> ta modda
                 </div>
-              ))}
-            </div>
-          )
-        )}
 
-        {/* ─── TAJRIBA ─── */}
-        {tab === 'tajriba' && (
-          <div className="space-y-4">
-            {/* Ish stoli — tanlangan reagentlar tenglama ko'rinishida */}
-            <div className="rounded-2xl border border-purple-800/50 bg-slate-900/60 p-5">
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <h2 className="font-bold text-white">🧫 Ish stoli</h2>
-                {tajriba?.mumkin && (
-                  <span className="text-[11px] text-purple-400">
-                    {tajriba.mumkin.kashfEtilgan} / {tajriba.mumkin.jamiReaksiya} reaksiya kashf etilgan
-                  </span>
-                )}
-              </div>
-
-              <div className="min-h-[52px] flex items-center flex-wrap gap-2 rounded-xl bg-purple-950/40 border border-purple-800/40 px-4 py-3">
-                {tanlangan.length === 0 ? (
-                  <span className="text-sm text-purple-500">
-                    Pastdan reagent tanlang — kamida bittasini
-                  </span>
-                ) : (
-                  tanlangan.map((k, i) => (
-                    <span key={k} className="flex items-center gap-2">
-                      {i > 0 && <span className="text-purple-500">+</span>}
-                      <button
-                        onClick={() => reagentniBelgila(k)}
-                        className="px-3 py-1.5 rounded-lg bg-purple-800/60 border border-purple-600/50 text-sm font-semibold hover:bg-purple-700/60"
-                        title="Olib tashlash"
-                      >
-                        {k} ✕
-                      </button>
-                    </span>
-                  ))
-                )}
-              </div>
-
-              <div className="flex gap-2 mt-3">
                 <button
+                  type="button"
                   onClick={() => tajribaOtkaz()}
-                  disabled={otkazilmoqda || tanlangan.length === 0}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold text-sm disabled:opacity-40"
+                  disabled={tanlangan.length < 1 || otkazilmoqda}
+                  className="v3-tugma v3-tugma-asosiy text-xs py-2 px-6 font-bold disabled:opacity-40"
                 >
-                  {otkazilmoqda ? '⏳ Reaksiya ketmoqda...' : '🔥 Tajriba o\'tkazish'}
+                  {otkazilmoqda ? 'Reaksiya bormoqda...' : '🧪 Reaksiyani boshlash'}
                 </button>
-                {tanlangan.length > 0 && (
-                  <button
-                    onClick={() => { setTanlangan([]); setTanlov(null) }}
-                    className="px-4 py-2.5 rounded-xl bg-slate-800/70 border border-purple-800/50 text-sm font-semibold"
-                  >
-                    Tozalash
-                  </button>
-                )}
               </div>
             </div>
 
-            {/* Bir xil reagentlardan bir nechta reaksiya chiqdi */}
+            {/* Sharoit bo'yicha tanlov (agar bir nechta reaksiya bo'lsa) */}
             {tanlov && (
-              <div className="rounded-2xl border border-cyan-700/50 bg-cyan-950/30 p-5">
-                <h3 className="font-bold text-cyan-300 mb-1">Sharoitni tanlang</h3>
-                <p className="text-[11px] text-cyan-200/70 mb-3">
-                  Bu reagentlardan bir nechta reaksiya chiqadi — qaysi biri bo'lishi
-                  harorat va katalizatorga bog'liq.
-                </p>
-                <div className="space-y-2">
-                  {tanlov.map((t) => (
+              <div className="v3-panel-karta p-6 space-y-4 border-[var(--v3-urgu)]">
+                <div className="font-bold text-sm text-[var(--v3-matn)]">
+                  Bir nechta reaksiya varianti mavjud. Kerakli sharoitni tanlang:
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {tanlov.map(t => (
                     <button
-                      key={t.id}
-                      onClick={() => tajribaOtkaz(t.id)}
-                      disabled={otkazilmoqda}
-                      className="w-full text-left px-4 py-3 rounded-xl bg-slate-900/70 border border-cyan-800/50 hover:border-cyan-500/70 disabled:opacity-50"
+                      key={t.reactionId}
+                      type="button"
+                      onClick={() => tajribaOtkaz(t.reactionId)}
+                      className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] text-left hover:border-[var(--v3-urgu)] transition-all space-y-1"
                     >
-                      <div className="text-sm font-semibold text-white">
-                        {t.name || 'Nomsiz reaksiya'}
-                      </div>
-                      <div className="text-[11px] text-cyan-300/80 mt-0.5">
-                        {[t.temperature, t.catalyst && `katalizator: ${t.catalyst}`, t.environment]
-                          .filter(Boolean)
-                          .join(' · ') || 'Odatdagi sharoit'}
-                      </div>
+                      <div className="font-bold text-xs text-[var(--v3-matn)]">{t.name}</div>
+                      <div className="text-xs font-mono text-[var(--v3-urgu-2)]">{t.equation}</div>
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Natija */}
+            {/* Reaksiya Natijasi */}
             {tajribaNatija && (
-              <div className="rounded-2xl border border-green-700/50 bg-gradient-to-br from-green-950/40 to-slate-900/60 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-lg font-bold text-white break-words">
-                      {tajribaNatija.reaksiya.equation}
-                    </div>
-                    {tajribaNatija.reaksiya.name && (
-                      <div className="text-sm text-green-300 mt-0.5">
-                        {tajribaNatija.reaksiya.name}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setTajribaNatija(null)}
-                    className="text-purple-400 hover:text-white"
-                  >
-                    ✕
-                  </button>
+              <div className="v3-panel-karta p-6 space-y-4 border-green-500/30 bg-green-500/5 animate-in fade-in duration-200">
+                <div className="flex items-center gap-2 text-green-400 font-bold text-sm">
+                  <span>✓</span>
+                  <span>Reaksiya muvaffaqiyatli amalga oshdi!</span>
                 </div>
 
-                {/* Kuzatuv — foydalanuvchi reaksiyani aynan shu orqali ko'radi */}
-                <div className="mt-4 rounded-xl bg-slate-950/60 border border-green-800/40 p-4">
-                  <div className="text-[10px] uppercase tracking-wider text-green-500 mb-1">
-                    Nima ko'rindi
+                <div className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] space-y-1.5">
+                  <div className="text-xs font-mono font-bold text-[var(--v3-urgu)]">
+                    {tajribaNatija.reaksiya?.equation}
                   </div>
-                  <p className="text-sm text-green-100/90 leading-relaxed">
-                    {tajribaNatija.reaksiya.observations}
-                  </p>
-                </div>
-
-                {tajribaNatija.reaksiya.hazards?.length > 0 && (
-                  <div className="mt-3 rounded-xl bg-red-950/40 border border-red-800/50 p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-red-400 mb-1">
-                      ⚠️ Xavfsizlik
-                    </div>
-                    <ul className="text-[12px] text-red-200/90 space-y-0.5 list-disc list-inside">
-                      {tajribaNatija.reaksiya.hazards.map((x, i) => <li key={i}>{x}</li>)}
-                    </ul>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                  <div className="rounded-xl bg-slate-900/60 border border-purple-800/40 p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-purple-400 mb-1.5">
-                      Sarflandi
-                    </div>
-                    {tajribaNatija.sarflandi.map((s) => (
-                      <div key={s.kalit} className="text-sm text-purple-200">
-                        −{s.matn || `${s.soni} ×`} {s.nom}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="rounded-xl bg-slate-900/60 border border-green-800/40 p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-green-400 mb-1.5">
-                      Inventarga tushdi
-                    </div>
-                    {tajribaNatija.olindi.length === 0 ? (
-                      <div className="text-sm text-purple-400">—</div>
-                    ) : (
-                      tajribaNatija.olindi.map((m) => (
-                        <div key={m.kalit} className="text-sm text-green-200">
-                          +{m.matn || `${m.soni} ×`} {m.nom}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 flex-wrap mt-3 text-xs">
-                  <span className="px-3 py-1.5 rounded-lg bg-yellow-950/50 border border-yellow-700/40 text-yellow-300 font-semibold">
-                    +{tajribaNatija.olinganXP} tajriba
-                  </span>
-                  {tajribaNatija.birinchi && (
-                    <span className="px-3 py-1.5 rounded-lg bg-purple-900/60 border border-purple-600/50 text-purple-200 font-semibold">
-                      🎉 Birinchi kashfiyot
-                    </span>
-                  )}
-                  {tajribaNatija.darajaOshdi && (
-                    <span className="px-3 py-1.5 rounded-lg bg-green-900/60 border border-green-600/50 text-green-200 font-semibold">
-                      {tajribaNatija.yangiDaraja}-daraja
-                    </span>
-                  )}
-                  {!tajribaNatija.reaksiya.isVerified && (
-                    <span className="text-purple-500">
-                      Bu reaksiya kimyogar tomonidan hali tasdiqlanmagan
-                    </span>
+                  {tajribaNatija.reaksiya?.observations && (
+                    <p className="text-xs text-[var(--v3-matn)]">
+                      Kuzatuv: {tajribaNatija.reaksiya.observations}
+                    </p>
                   )}
                 </div>
-              </div>
-            )}
 
-            {/* Inventardagi reagentlar */}
-            <div>
-              <h2 className="text-sm font-bold text-purple-300 mb-2">
-                ⚗️ Inventardagi reagentlar
-              </h2>
-              {reagentlar.length === 0 ? (
-                <div className="text-center py-10 bg-slate-900/50 border border-purple-800/50 rounded-xl">
-                  <p className="text-purple-300 text-sm max-w-md mx-auto">
-                    Reagent yo'q. Kunlik yetkazib berish bepul — sandiqlar bo'limidan
-                    oling yoki do'kondan sotib oling.
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {reagentlar.map((r) => {
-                    const belgilangan = tanlangan.includes(r.kalit)
-                    return (
-                      <button
-                        key={r.kalit}
-                        onClick={() => reagentniBelgila(r.kalit)}
-                        className={`px-3 py-2 rounded-xl border text-sm font-semibold transition-all ${
-                          belgilangan
-                            ? 'bg-yellow-500 text-black border-yellow-400'
-                            : 'bg-slate-900/60 border-purple-800/50 text-purple-100 hover:border-purple-500/70'
-                        }`}
-                      >
-                        {r.nom} <span className="opacity-70">{r.matn || `×${r.soni}`}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Hozirgi inventar bilan nima qilish mumkin */}
-            <div>
-              <h2 className="text-sm font-bold text-purple-300 mb-2">
-                📋 Hozir mumkin bo'lgan tajribalar
-                {tajriba?.mumkin ? ` (${tajriba.mumkin.jami})` : ''}
-              </h2>
-              {!tajriba?.mumkin?.royxat?.length ? (
-                <div className="text-center py-8 bg-slate-900/50 border border-purple-800/50 rounded-xl text-sm text-purple-300">
-                  Hozircha bironta reaksiyani to'liq yig'a olmaysiz — reagent yoki
-                  jihoz yetishmayapti.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {tajriba.mumkin.royxat.map((m) => (
-                    <button
-                      key={m.id}
-                      onClick={() => { setTanlangan(m.reagentlar.map((r) => r.kalit)); setTanlov(null) }}
-                      className="text-left rounded-xl border border-purple-800/50 bg-slate-900/60 hover:border-yellow-500/60 p-4"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        {/* Kashf etilmagan reaksiyaning mahsuloti berilmaydi —
-                            uni tajribaning o'zi ko'rsatishi kerak */}
-                        <span className="text-sm font-semibold text-white break-words">
-                          {m.kashfEtilgan && m.equation ? (
-                            m.equation
-                          ) : (
-                            <>
-                              {m.reagentlar.map((r) => `${r.koef > 1 ? r.koef : ''}${r.nom}`).join(' + ')}
-                              <span className="text-purple-500"> → ?</span>
-                            </>
-                          )}
-                        </span>
-                        {m.kashfEtilgan && (
-                          <span className="text-[10px] text-green-400 flex-shrink-0">✓ kashf etilgan</span>
-                        )}
-                      </div>
-                      <div className="text-[10px] text-purple-400 mt-1.5">
-                        {m.jihozlar.map((j) => `${j.icon || '🔧'} ${j.nom}`).join(' · ')}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Laboratoriya daftari */}
-            {tajriba?.jurnal?.length > 0 && (
-              <div>
-                <h2 className="text-sm font-bold text-purple-300 mb-2">📓 Laboratoriya daftari</h2>
-                <div className="rounded-xl border border-purple-800/50 bg-slate-900/50 divide-y divide-purple-900/50">
-                  {tajriba.jurnal.map((y) => (
-                    <div key={y.id} className="px-4 py-2.5 flex items-center justify-between gap-3">
-                      <span className="text-[13px] text-purple-100 break-words">{y.equation}</span>
-                      <span className="text-[11px] text-purple-400 flex-shrink-0">
-                        {y.birinchi ? '🎉 ' : ''}+{y.tajriba}
-                      </span>
-                    </div>
-                  ))}
+                <div className="flex items-center gap-4 text-xs font-mono text-[var(--v3-xira)]">
+                  <span>Olingan XP: <strong className="text-yellow-400">+{tajribaNatija.xp} XP</strong></span>
+                  {tajribaNatija.birinchiMarta && <span className="v3-tag v3-tag-ochiq">Yangi kashfiyot!</span>}
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* ─── SANDIQLAR ─── */}
+        {/* ─── TAB 3: SANDIQLAR ─── */}
         {tab === 'sandiq' && (
-          <div className="space-y-4">
-            {/* Ochilgan sandiq natijasi */}
-            {natija && (
-              <div className="rounded-2xl border border-yellow-600/50 bg-gradient-to-br from-yellow-950/50 to-orange-950/40 p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">{natija.sandiq.icon}</span>
-                  <h3 className="font-bold text-yellow-300">{natija.sandiq.nom} ochildi</h3>
-                  <button
-                    onClick={() => setNatija(null)}
-                    className="ml-auto text-purple-400 hover:text-white"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {natija.tushgan.map((t) => {
-                    const n = NODIRLIK[t.nodirlik] || NODIRLIK.oddiy
-                    return (
-                      <div key={t.kalit} className={`rounded-xl border p-3 text-center ${n.rang}`}>
-                        <div className="text-2xl">{t.icon || '⚗️'}</div>
-                        <div className="font-semibold text-white text-sm mt-1">{t.nom}</div>
-                        <div className={`text-[10px] ${n.matn}`}>{n.nom}</div>
-                        <div className="text-xs text-white/80 mt-1">×{t.soni}</div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {sandiqlar.map((s) => {
                 const bepul = !s.narx
                 const narxMatn = bepul
                   ? 'Bepul'
                   : s.narx.gems
-                    ? `${s.narx.gems} 💎`
-                    : `${s.narx.coins} 🪙`
+                  ? `${s.narx.gems} 💎`
+                  : `${s.narx.coins} 🪙`
+
                 return (
                   <div
                     key={s.kalit}
-                    className="rounded-2xl border border-purple-800/50 bg-slate-900/60 p-5 flex flex-col"
+                    className="v3-panel-karta p-6 flex flex-col justify-between space-y-4 hover:border-[var(--v3-chiziq-2)] transition-all"
                   >
-                    <div className="text-4xl text-center">{s.icon}</div>
-                    <h3 className="font-bold text-white text-center mt-2">{s.nom}</h3>
-                    <p className="text-[11px] text-purple-300/80 leading-relaxed mt-2 flex-1">
-                      {s.tavsif}
-                    </p>
-
-                    {/* Ehtimollar oshkora ko'rsatiladi */}
-                    <div className="mt-3 pt-3 border-t border-purple-800/40">
-                      <div className="text-[10px] text-purple-400 uppercase tracking-wider mb-1.5">
-                        Tushish ehtimoli · {s.buyumSoni} ta buyum
+                    <div className="space-y-3">
+                      <div className="w-16 h-16 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-4xl shadow-inner">
+                        {s.icon || '📦'}
                       </div>
-                      <div className="space-y-1">
-                        {Object.entries(s.ehtimollar)
+
+                      <div className="text-center">
+                        <h3 className="font-bold text-base text-[var(--v3-matn)]">{s.nom}</h3>
+                        <p className="text-xs text-[var(--v3-xira)] mt-1 leading-relaxed">
+                          {s.tavsif}
+                        </p>
+                      </div>
+
+                      {/* Ehtimollar */}
+                      <div className="pt-3 border-t border-[var(--v3-chiziq)] space-y-1 text-xs">
+                        <div className="text-[10px] font-mono uppercase text-[var(--v3-xira)] mb-1">
+                          Tushish ehtimollari ({s.buyumSoni} ta):
+                        </div>
+                        {Object.entries(s.ehtimollar || {})
                           .filter(([, v]) => v > 0)
                           .map(([nodirlik, foiz]) => {
                             const n = NODIRLIK[nodirlik] || NODIRLIK.oddiy
                             return (
-                              <div key={nodirlik} className="flex items-center justify-between text-[11px]">
-                                <span className={n.matn}>{n.nom}</span>
-                                <span className="text-white/70">{foiz}%</span>
+                              <div key={nodirlik} className="flex justify-between text-[11px] font-mono">
+                                <span className={n.rang.includes('text-') ? n.rang : ''}>{n.nom}</span>
+                                <span className="text-[var(--v3-matn)]">{foiz}%</span>
                               </div>
                             )
                           })}
@@ -741,62 +658,61 @@ export default function LaboratoriyaPage() {
                     </div>
 
                     <button
+                      type="button"
                       onClick={() => sandiqOch(s.kalit)}
                       disabled={ochilmoqda === s.kalit || s.ochilgan}
-                      className={`mt-4 w-full py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50 ${
+                      className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all ${
                         s.ochilgan
-                          ? 'bg-slate-800 text-purple-400 border border-purple-800/50'
-                          : bepul
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-black'
-                            : s.narx.gems
-                              ? 'bg-cyan-700/80 hover:bg-cyan-600 text-white'
-                              : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
+                          ? 'bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] border border-[var(--v3-chiziq)] cursor-not-allowed'
+                          : 'v3-tugma v3-tugma-asosiy'
                       }`}
                     >
                       {ochilmoqda === s.kalit
-                        ? '⏳ Ochilmoqda...'
+                        ? 'Ochilmoqda...'
                         : s.ochilgan
-                          ? '✓ Bugun olingan'
-                          : `Ochish · ${narxMatn}`}
+                        ? '✓ Bugun ochilgan'
+                        : `Ochish · ${narxMatn}`}
                     </button>
                   </div>
                 )
               })}
             </div>
-
-            <p className="text-center text-[11px] text-purple-500">
-              Nima tushishi server tomonda hal qilinadi. Ehtimollar yuqorida ko'rsatilgan
-              va o'zgartirilmaydi.
-            </p>
           </div>
         )}
 
-        {/* ─── DO'KON ─── */}
+        {/* ─── TAB 4: DO'KON ─── */}
         {tab === 'dokon' && (
           <div className="space-y-4">
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4 space-y-3">
-              <input
-                type="text"
-                value={qidiruv}
-                onChange={(e) => setQidiruv(e.target.value)}
-                placeholder="🔍 Nomi bo'yicha qidirish..."
-                className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
-              />
-              <div className="flex flex-wrap gap-2">
+            <div className="v3-panel-karta p-4 flex flex-col sm:flex-row items-center gap-3 justify-between">
+              <div className="relative flex-1 w-full sm:w-auto">
+                <input
+                  type="text"
+                  value={qidiruv}
+                  onChange={(e) => setQidiruv(e.target.value)}
+                  placeholder="Do'kondan qidirish..."
+                  className="v3-kiritish text-xs py-2 pl-8"
+                />
+                <span className="absolute left-2.5 top-2.5 text-[var(--v3-xira)]">
+                  <Ikon nom="qidiruv" olcham={13} />
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <select
                   value={turFiltr}
                   onChange={(e) => { setTurFiltr(e.target.value); setGuruhFiltr('all') }}
-                  className="px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white text-sm outline-none"
+                  className="v3-kiritish text-xs py-2 w-auto"
                 >
-                  <option value="all">Hammasi</option>
-                  <option value="jihoz">🔧 Jihozlar</option>
-                  <option value="reagent">⚗️ Reagentlar</option>
+                  <option value="all">Barchasi</option>
+                  <option value="reagent">Reagentlar</option>
+                  <option value="jihoz">Jihozlar</option>
                 </select>
+
                 {turFiltr === 'jihoz' && (
                   <select
                     value={guruhFiltr}
                     onChange={(e) => setGuruhFiltr(e.target.value)}
-                    className="px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white text-sm outline-none"
+                    className="v3-kiritish text-xs py-2 w-auto"
                   >
                     <option value="all">Barcha guruhlar</option>
                     {guruhlar.map((g) => (
@@ -810,63 +726,67 @@ export default function LaboratoriyaPage() {
             </div>
 
             {buyumlar.length === 0 ? (
-              <div className="text-center py-12 text-purple-300 bg-slate-900/50 border border-purple-800/50 rounded-xl">
-                Hech narsa topilmadi
+              <div className="v3-panel-karta py-16 text-center text-xs text-[var(--v3-xira)]">
+                Buyumlar topilmadi
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {buyumlar.map((b) => {
                   const n = NODIRLIK[b.nodirlik] || NODIRLIK.oddiy
                   const inv = inventar.find((i) => i.kalit === b.kalit)
                   const bor = inv?.miqdor ?? inv?.soni ?? 0
-                  // Do'kon DONALAB sotadi, inventar esa ml yoki grammda
-                  // yashaydi. Bitta dona nima berishini aytmasak,
-                  // "×1 sotib oldim, nega 25 ml chiqdi?" degan savol tug'iladi.
                   const ulushMatni = ULUSH_MATNI(b.birlik)
+
                   return (
-                    <div key={b.kalit} className={`rounded-xl border p-4 ${n.rang}`}>
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl flex-shrink-0">{b.icon || '📦'}</span>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-semibold text-white text-sm leading-tight">{b.nom}</div>
-                          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                            <span className={`text-[10px] ${n.matn}`}>{n.nom}</span>
-                            {b.sanoat && <span className="text-[10px] text-orange-400">🏭 Sanoat</span>}
-                            {ulushMatni && (
-                              <span className="text-[10px] text-purple-400">1 dona = {ulushMatni}</span>
-                            )}
-                            {bor > 0 && (
-                              <span className="text-[10px] text-purple-400">
-                                bor: {inv?.matn || bor}
-                              </span>
-                            )}
+                    <div key={b.kalit} className="v3-panel-karta p-4 flex flex-col justify-between space-y-3">
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="text-2xl shrink-0">{b.icon || '📦'}</span>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-xs text-[var(--v3-matn)] truncate">{b.nom}</h4>
+                              <div className="flex items-center gap-1.5 text-[10.5px] text-[var(--v3-xira)]">
+                                <span className={n.badgeClass}>{n.nom}</span>
+                                {ulushMatni && <span>· 1 dona = {ulushMatni}</span>}
+                              </div>
+                            </div>
                           </div>
                         </div>
+
+                        {b.tavsif && (
+                          <p className="text-xs text-[var(--v3-xira)] line-clamp-2 leading-relaxed">
+                            {b.tavsif}
+                          </p>
+                        )}
                       </div>
 
-                      {b.tavsif && (
-                        <p className="text-[11px] text-purple-300/80 mt-2 leading-relaxed line-clamp-3">{b.tavsif}</p>
-                      )}
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-[var(--v3-chiziq)]">
+                        <span className="text-[11px] font-mono text-[var(--v3-xira)]">
+                          {bor > 0 ? `Sizda: ${inv?.matn || bor}` : 'Yo\'q'}
+                        </span>
 
-                      <div className="flex gap-2 mt-3">
-                        {b.narx > 0 && (
-                          <button
-                            onClick={() => savdo('xarid', b.kalit, 1, 'coins')}
-                            disabled={ishlamoqda === b.kalit + 'xarid'}
-                            className="flex-1 py-2 rounded-lg bg-amber-600/80 hover:bg-amber-500 text-black text-xs font-bold disabled:opacity-50"
-                          >
-                            {b.narx} 🪙
-                          </button>
-                        )}
-                        {b.gemsNarxi > 0 && (
-                          <button
-                            onClick={() => savdo('xarid', b.kalit, 1, 'gems')}
-                            disabled={ishlamoqda === b.kalit + 'xarid'}
-                            className="flex-1 py-2 rounded-lg bg-cyan-700/70 hover:bg-cyan-600 text-white text-xs font-bold disabled:opacity-50"
-                          >
-                            {b.gemsNarxi} 💎
-                          </button>
-                        )}
+                        <div className="flex gap-1.5">
+                          {b.narx > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => savdo('xarid', b.kalit, 1, 'coins')}
+                              disabled={ishlamoqda === b.kalit + 'xarid'}
+                              className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 font-bold font-mono"
+                            >
+                              {b.narx} 🪙
+                            </button>
+                          )}
+                          {b.gemsNarxi > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => savdo('xarid', b.kalit, 1, 'gems')}
+                              disabled={ishlamoqda === b.kalit + 'xarid'}
+                              className="v3-tugma text-xs py-1.5 px-3 font-bold font-mono text-cyan-300 border-cyan-500/40 hover:bg-cyan-500/10"
+                            >
+                              {b.gemsNarxi} 💎
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )
@@ -875,12 +795,80 @@ export default function LaboratoriyaPage() {
             )}
           </div>
         )}
-
-        <p className="text-center text-xs text-purple-500 pt-2">
-          Tanga kunlik missiyalardan yig'iladi.{' '}
-          <Link href="/profil" className="text-purple-400 hover:text-purple-300">Missiyalarga o'tish</Link>
-        </p>
       </div>
+
+      {/* ═══ SANDIQ OCHILISHI EFFEKT MODALI ═══ */}
+      {(ochishFazasida || natija) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+          {/* 1-FAZA: Titrash va Ochilish Animatsiyasi */}
+          {ochishFazasida && (
+            <div className="text-center space-y-6 relative flex flex-col items-center">
+              {/* Orqa nurlar aylanmasi */}
+              <div className="absolute -inset-10 opacity-30 sandiq-nur-aylanish pointer-events-none">
+                <div className="w-64 h-64 rounded-full bg-gradient-to-tr from-yellow-400 via-amber-500 to-transparent blur-2xl" />
+              </div>
+
+              <div className="relative z-10 sandiq-animatsiya-titrash text-7xl select-none">
+                📦
+              </div>
+
+              <div className="relative z-10 space-y-1">
+                <div className="text-base font-bold text-yellow-300 tracking-wider uppercase animate-pulse">
+                  Sandiq ochilmoqda...
+                </div>
+                <div className="text-xs text-[var(--v3-xira)]">
+                  Nodir moddalar va jihozlar ajratilmoqda
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 2-FAZA: Buyumlar Ko'rinishi va Yutuq Modali */}
+          {!ochishFazasida && natija && (
+            <div className="w-full max-w-lg rounded-2xl border border-[var(--v3-chiziq-2)] bg-[var(--v3-fon-2)] p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95 duration-300">
+              <div className="text-center space-y-1">
+                <div className="v3-nishon text-[var(--v3-urgu)]">Mukofotlar qabul qilindi</div>
+                <h3 className="text-xl font-bold text-[var(--v3-matn)]">
+                  {natija.sandiq?.nom || 'Sandiq'} Ochildi!
+                </h3>
+              </div>
+
+              {/* Tushgan Buyumlar Kartalari */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {natija.tushgan?.map((t, idx) => {
+                  const n = NODIRLIK[t.nodirlik] || NODIRLIK.oddiy
+                  return (
+                    <div
+                      key={t.kalit + idx}
+                      style={{ animationDelay: `${idx * 120}ms` }}
+                      className={`buyum-ochilish-karta p-4 rounded-xl border text-center space-y-2 ${n.rang} shadow-md`}
+                    >
+                      <div className="text-3xl">{t.icon || '⚗️'}</div>
+                      <div className="font-bold text-xs text-[var(--v3-matn)] truncate">{t.nom}</div>
+                      <div className="text-[10.5px] font-mono font-bold text-[var(--v3-urgu)]">
+                        +{t.soni || 1} {t.birlik === 'ml' ? 'ml' : t.birlik === 'gr' ? 'g' : 'dona'}
+                      </div>
+                      <span className={`text-[9.5px] px-1.5 py-0.5 rounded font-semibold ${n.badgeClass}`}>
+                        {n.nom}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="flex justify-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setNatija(null)}
+                  className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-8 font-bold"
+                >
+                  Yopish
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </main>
   )
 }
