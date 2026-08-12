@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import {
-  molyarMassaHisobla,
   masalaMatniniTahlilQil,
   masalaTuriniAniqla,
   yechEritmalar,
@@ -9,24 +8,26 @@ import {
   yechAtom,
 } from "@/lib/masala-dvigatel.js";
 
-// Gemini AI API orqali har qanday kimyoviy savolni dinamik va aniq yechish
+// Gemini AI API orqali har qanday kimyoviy masala yoki savolni 100% aniq va ilmiy yechish
 async function geminiBilanYech(masalaMatni) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
   try {
-    const prompt = `Siz o'zbek tilidagi professional kimyo o'qituvchisisiz. Quyidagi kimyoviy masala yoki savolni tahlil qiling: "${masalaMatni}".
-Agarda bu savol nazariy bo'lsa (masalan "havodagi kislorod massasi qancha"), uni o'zbek tilida aniq va ilmiy hisob-kitoblar (masalan havo o'rtacha molyar massasi 29 g/mol, O2 hajmiy ulushi 21% va massaviy ulushi ~23%) bilan javob bering.
+    const prompt = `Siz o'zbek tilidagi eng bilimli va professional kimyo professorisiz. Quyidagi kimyoviy masala yoki savolni diqqat bilan tahlil qiling va hisoblang:
+"${masalaMatni}"
 
-Javobni FAQAT QUYIDAGI SOF JSON KO'RINISHIDA QAYTARING:
+REJALASHTIRISH VA HISOBLASH QOIDALARI:
+1. Agarda masala aralashma (masalan kislorod O₂ va ozon O₃ aralashmasi), stexiometriya, eritmalar yoki nazariy savol bo'lsa, barcha tenglamalarni va matematik hisoblarni O'ZBEK TILIDA qadamma-qadam bajaring.
+2. Natijani FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING:
 {
-  "tenglama": "Reaksiya tenglamasi yoki asosiy formula (masalan: M(havo) = 29 g/mol, w(O₂) = 23%)",
-  "yakuniyJavob": "Qisqa va aniq javob (masalan: Havoda kislorod massaviy ulushi ~23% (1m³ havoda 299g O₂))",
+  "tenglama": "Reaksiya tenglamasi, aralashma formulasi yoki asosiy mantiqiy hisob tengligi",
+  "yakuniyJavob": "Aniq va qisqa yakuniy javob (masalan: Hajmiy nisbati V(O₂) : V(O₃) = 3 : 1)",
   "bosqichlar": [
-    { "sarlavha": "1-Bosqich...", "matn": "..." },
-    { "sarlavha": "2-Bosqich...", "matn": "..." }
+    { "sarlavha": "1-Bosqich: Molyar massalar va mollar nisbati", "matn": "M(O₂) = 32 g/mol, M(O₃) = 48 g/mol..." },
+    { "sarlavha": "2-Bosqich: Matematik sistema tenglamasi", "matn": "..." }
   ],
-  "ovozMatni": "Ovozda dona-dona o'qiladigan 3-4 ta gapdan iborat o'zbekcha matn"
+  "ovozMatni": "Ovozli pleyerda o'zbek tilida dona-dona va tushunarli o'qiladigan 3-4 ta gapdan iborat matn"
 }`;
 
     const res = await fetch(
@@ -45,7 +46,6 @@ Javobni FAQAT QUYIDAGI SOF JSON KO'RINISHIDA QAYTARING:
     const data = await res.json();
     const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-    // JSON extract qilish
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
@@ -69,24 +69,21 @@ export async function POST(request) {
       );
     }
 
+    // 1. Birinchi navbatda Gemini AI orqali masalani chuqur va aniq yechish
+    const aiNatija = await geminiBilanYech(masalaMatni);
+    if (aiNatija) {
+      return NextResponse.json({
+        muvaffaqiyatli: true,
+        turi: "ai_mukammal",
+        ...aiNatija,
+      });
+    }
+
+    // 2. AI ishlamasa, mahalliy determinik dvigatel orqali zaxira hisobini yurgizish
     const tahlil = masalaMatniniTahlilQil(masalaMatni);
     const turi = masalaTuriniAniqla(masalaMatni);
 
-    // 1. Agar savol nazariy bo'lsa yoki formulalar bo'lmasa, avval Gemini AI API orqali yechish
-    if (tahlil.formulalar.length === 0 || tahlil.miqdorlar.length === 0) {
-      const aiNatija = await geminiBilanYech(masalaMatni);
-      if (aiNatija) {
-        return NextResponse.json({
-          muvaffaqiyatli: true,
-          turi: "ai_tahlil",
-          ...aiNatija,
-        });
-      }
-    }
-
-    // 2. Mantiqiy matematik hisoblagichlar
     let natija = null;
-
     if (turi === "eritmalar") {
       natija = yechEritmalar(masalaMatni, tahlil);
     } else if (turi === "gazlar") {
@@ -96,35 +93,16 @@ export async function POST(request) {
     } else if (turi === "atom") {
       natija = yechAtom(masalaMatni, tahlil);
     } else {
-      // AI Fallback or Stexiometriya
-      const aiNatija = await geminiBilanYech(masalaMatni);
-      if (aiNatija) {
-        return NextResponse.json({
-          muvaffaqiyatli: true,
-          turi: "stexiometriya_ai",
-          ...aiNatija,
-        });
-      }
-
-      // Standart Stexiometrik Yechim (Hech qachon noto'g'ri NaOH bermaydi)
-      const f1 = tahlil.formulalar[0] || "O₂";
-      const f2 = tahlil.formulalar[1] || "N₂";
-      const m1 = tahlil.miqdorlar[0]?.qiymat || 21;
-
       natija = {
-        tenglama: `M(Havo) = 28.98 g/mol | ${f1}`,
+        tenglama: "Stexiometriya va Kimyoviy Mantiq",
         bosqichlar: [
           {
-            sarlavha: "1-Bosqich: Havoning tarkibi va kislorod ulushi",
-            matn: `Havo tarkibida kislorod (O₂) hajmiy jihatdan 21%, massaviy jihatdan ~23.2% ni tashkil qiladi.`,
-          },
-          {
-            sarlavha: "2-Bosqich: Molyar massa hisobi",
-            matn: `Havoning o'rtacha molyar massasi 28.98 g/mol. 1 m³ (1000 Litr) havoda taxminan 299 gramm kislorod bo'ladi.`,
+            sarlavha: "1-Bosqich: Masala matnini tahlil qilish",
+            matn: `Berilgan masala sharti: "${masalaMatni}".`,
           },
         ],
-        yakuniyJavob: `Havoda kislorod hajmiy ulushi: 21% (Massaviy ulushi: ~23.2%)`,
-        ovozMatni: `Havo tarkibida kislorod hajmiy jihatdan 21 foizni, massaviy jihatdan esa 23.2 foizni tashkil qiladi. Bir kubometr havoda taxminan 299 gramm toza kislorod mavjud.`,
+        yakuniyJavob: "Masalani yechish uchun ko'proq kimyoviy kattaliklar (g, mol, L) kiriting.",
+        ovozMatni: "Masalani aniq hisoblash uchun iltimos moddalar formulalari va miqdorlarini to'liq kiritishni tekshiring.",
       };
     }
 
