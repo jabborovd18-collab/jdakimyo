@@ -1846,3 +1846,140 @@ html[data-fon] body {
   .v3-quiz-spinner { animation: none; }
   .v3-quiz-progress > span { transition: none; }
 }
+
+/* ═══ TESTLAR MARKAZI KIRISH SAHIFASI ═══
+   `/oquv/video-darsliklar` eski manzil bo'lib qoladi, lekin sahifa endi
+   mavjud bo'lmagan premium/video imkoniyatlarni va'da qilmaydi. */
+.v3-oquv-hero {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(330px, .85fr);
+  align-items: center; gap: 58px;
+}
+.v3-oquv-sxema {
+  padding: 20px; border-radius: 19px;
+  border: 1px solid var(--v3-chiziq-2); background: var(--v3-fon-2);
+  box-shadow: 0 25px 70px rgba(0,0,0,.14);
+}
+.v3-oquv-sxema-bosh {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; padding: 4px 3px 17px; border-bottom: 1px solid var(--v3-chiziq);
+}
+.v3-oquv-sxema-bosh strong {
+  color: var(--v3-urgu); font: 750 11px ui-monospace, monospace;
+  letter-spacing: .08em;
+}
+.v3-oquv-sxema-qator {
+  display: grid; grid-template-columns: 34px minmax(0, 1fr) 28px;
+  align-items: center; gap: 10px; padding: 15px 3px;
+  border-bottom: 1px solid var(--v3-chiziq);
+}
+.v3-oquv-sxema-qator > span {
+  color: var(--v3-urgu); font: 700 10px ui-monospace, monospace;
+}
+.v3-oquv-sxema-qator strong { display: block; font-size: 13px; }
+.v3-oquv-sxema-qator small { display: block; color: var(--v3-xira); font-size: 10px; margin-top: 3px; }
+.v3-oquv-sxema-qator > svg { color: var(--v3-urgu-2); }
+.v3-oquv-sxema-oyoq {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding-top: 16px; color: var(--v3-xira);
+  font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em;
+}
+.v3-oquv-sxema-oyoq span:not(:last-child)::after {
+  content: ""; display: inline-block; width: 24px; height: 1px;
+  margin-left: 14px; vertical-align: middle; background: var(--v3-chiziq-2);
+}
+
+.v3-oquv-format-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+}
+.v3-oquv-format {
+  min-height: 390px; padding: 23px; display: flex; flex-direction: column;
+  border-radius: 18px; border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza); transition: all .23s;
+}
+.v3-oquv-format.is-asosiy {
+  border-color: color-mix(in srgb, var(--v3-urgu) 38%, transparent);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--v3-urgu) 9%, transparent), transparent 58%),
+    var(--v3-yuza);
+}
+.v3-oquv-format:hover {
+  transform: translateY(-3px); border-color: var(--v3-chiziq-2);
+  background-color: var(--v3-yuza-2);
+}
+.v3-oquv-format-tepa {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 14px; margin-bottom: 30px;
+}
+.v3-oquv-format-ikon {
+  width: 42px; height: 42px; display: inline-grid; place-items: center;
+  flex-shrink: 0; border-radius: 12px; color: var(--v3-urgu-2);
+  border: 1px solid var(--v3-chiziq); background: var(--v3-fon-2);
+}
+.v3-oquv-format.is-asosiy .v3-oquv-format-ikon {
+  color: var(--v3-urgu); border-color: color-mix(in srgb, var(--v3-urgu) 35%, transparent);
+  background: color-mix(in srgb, var(--v3-urgu) 9%, var(--v3-fon-2));
+}
+.v3-oquv-format h3 {
+  font-family: var(--font-syne), sans-serif; font-size: 21px;
+  font-weight: 700; letter-spacing: -.025em; line-height: 1.15;
+}
+.v3-oquv-format > p {
+  min-height: 86px; margin-top: 11px; color: var(--v3-xira);
+  font-size: 13px; line-height: 1.62;
+}
+.v3-oquv-belgilar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 17px; }
+.v3-oquv-belgilar span {
+  padding: 4px 8px; border-radius: 7px; color: var(--v3-xira);
+  border: 1px solid var(--v3-chiziq); background: var(--v3-fon-2);
+  font-size: 9.5px; font-weight: 600;
+}
+.v3-oquv-format-past {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-top: auto; padding-top: 19px;
+  border-top: 1px solid var(--v3-chiziq); color: var(--v3-xira);
+  font-size: 11.5px; font-weight: 600;
+}
+.v3-oquv-format-past svg { color: var(--v3-urgu); transition: transform .2s; }
+.v3-oquv-format:hover .v3-oquv-format-past { color: var(--v3-matn); }
+.v3-oquv-format:hover .v3-oquv-format-past svg { transform: translateX(3px); }
+
+.v3-oquv-jadval {
+  overflow: hidden; border-radius: 17px;
+  border: 1px solid var(--v3-chiziq); background: var(--v3-chiziq);
+}
+.v3-oquv-jadval-qator {
+  display: grid; grid-template-columns: 1.05fr repeat(3, 1fr); gap: 1px;
+  background: var(--v3-chiziq);
+}
+.v3-oquv-jadval-qator + .v3-oquv-jadval-qator { border-top: 1px solid var(--v3-chiziq); }
+.v3-oquv-jadval-qator > * {
+  min-width: 0; padding: 15px 17px; background: var(--v3-fon-2);
+  font-size: 12px; line-height: 1.45;
+}
+.v3-oquv-jadval-qator > strong { color: var(--v3-matn); font-weight: 650; }
+.v3-oquv-jadval-qator > span { color: var(--v3-xira); }
+.v3-oquv-jadval-qator.is-bosh > span {
+  color: var(--v3-urgu); font-size: 9.5px; font-weight: 750;
+  text-transform: uppercase; letter-spacing: .08em;
+  background: var(--v3-yuza-2);
+}
+.v3-oquv-video-izoh {
+  display: flex; align-items: center; gap: 14px; margin-top: 14px; padding: 16px;
+  border-radius: 14px; border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+}
+.v3-oquv-video-izoh strong { display: block; font-size: 13px; }
+.v3-oquv-video-izoh p { color: var(--v3-xira); font-size: 11.5px; margin-top: 3px; line-height: 1.5; }
+
+@media (max-width: 980px) {
+  .v3-oquv-hero { grid-template-columns: 1fr; }
+  .v3-oquv-sxema { width: min(570px, 100%); }
+  .v3-oquv-format-grid { grid-template-columns: 1fr; }
+  .v3-oquv-format { min-height: 0; }
+  .v3-oquv-format > p { min-height: 0; }
+}
+@media (max-width: 700px) {
+  .v3-oquv-jadval { overflow-x: auto; }
+  .v3-oquv-jadval-qator { min-width: 680px; }
+  .v3-oquv-sxema-oyoq span:not(:last-child)::after { width: 12px; margin-left: 7px; }
+}

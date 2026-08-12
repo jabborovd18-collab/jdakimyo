@@ -1,418 +1,228 @@
+"use client"
+
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 
-export default function VideoDarsliklar() {
+const FORMATLAR = [
+  {
+    raqam: "01",
+    ikon: "quiz",
+    href: "/oquv/video-darsliklar/quiz",
+    nom: "Mavzuli quizlar",
+    qisqa: "Mustaqil mashq",
+    tavsif:
+      "Platforma savollaridan 20 talik test. Har savoldan keyin tushuntirish yoki tezkor davom etish rejimi mavjud.",
+    belgilar: ["4 asosiy mavzu", "Aralash test", "PDF hisobot"],
+    amal: "Quiz markaziga kirish",
+    asosiy: true,
+  },
+  {
+    raqam: "02",
+    ikon: "ustoz",
+    href: "/oquv/video-darsliklar/ustoz-quiz",
+    nom: "Variantli ustoz testlari",
+    qisqa: "Guruh nazorati",
+    tavsif:
+      "Ustoz yaratgan variantli testlar. Kirish guruhi yoki ustoz bergan ruxsat orqali boshqariladi.",
+    belgilar: ["Ustoz savollari", "Urinishlar nazorati", "Tezkor natija"],
+    amal: "Ustoz testlarini ko'rish",
+  },
+  {
+    raqam: "03",
+    ikon: "kitob",
+    href: "/oquv/video-darsliklar/ustoz-yopiq-quiz",
+    nom: "Yozma ustoz testlari",
+    qisqa: "Erkin javob",
+    tavsif:
+      "Variantsiz savollarga o'z so'zingiz bilan javob berasiz. Natijani ustoz ko'rib chiqadi va baholaydi.",
+    belgilar: ["Yozma javob", "Ustoz tekshiruvi", "Shaxsiy fikr"],
+    amal: "Yozma testlarni ko'rish",
+  },
+]
+
+const TAQQOSLASH = [
+  { nom: "Savol manbasi", qiymatlar: ["JDA KIMYO bazasi", "Ustoz yaratadi", "Ustoz yaratadi"] },
+  { nom: "Javob shakli", qiymatlar: ["Variant tanlash", "Variant tanlash", "Erkin matn"] },
+  { nom: "Natija", qiymatlar: ["Darhol", "Darhol", "Ustoz baholagach"] },
+  { nom: "Kirish", qiymatlar: ["Hamma uchun", "Hisob va ruxsat", "Hisob va ruxsat"] },
+]
+
+export default function TestlarMarkaziPage() {
+  const [fon, fonTanla] = useFon()
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
-      {/* Header */}
-       <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50 bg-purple-950/80 backdrop-blur-md sticky top-0 z-40">
-         <Link href="/oquv" className="text-purple-400 hover:text-purple-300 transition-all text-lg flex items-center gap-2">
-           <span>←</span>
-           <span>Orqaga</span>
-         </Link>
-         <div className="h-8 w-px bg-purple-800"></div>
-         <div>
-           <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-             🎬 Video darsliklar va Quiz
-           </h1>
-           <p className="text-purple-400 text-sm">O'z bilimingizni sinab ko'ring • Premium kontent</p>
-         </div>
-       </header>
+    <main data-fon={fon} className="v3 v3-quiz min-h-screen overflow-x-hidden">
+      <div className="v3-quiz-fon" aria-hidden="true">
+        <span className="v3-nur v3-nur-a" />
+        <span className="v3-nur v3-nur-b" />
+        <span className="v3-tor-fon" />
+      </div>
 
-       <section className="max-w-5xl mx-auto px-6 py-12">
-         {/* Hero Section */}
-         <div className="bg-gradient-to-br from-purple-900/60 to-blue-900/60 border border-purple-700/50 rounded-3xl p-8 mb-10 relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-           <div className="relative z-10">
-             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-yellow-600/20 border border-yellow-600/30 rounded-full text-xs font-semibold text-yellow-400 mb-4">
-               <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
-               PREMIUM TA'LIM KONTENTLARI
-             </div>
-             <h2 className="text-4xl font-bold text-white mb-4">
-               Oliy kimyoni
-               <br />
-               <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                 professional darajada o'rganing
-               </span>
-             </h2>
-             <p className="text-purple-200 text-lg mb-8 max-w-2xl">
-               Yirik savol bazasidan tuzilgan interaktiv testlar va professional video darsliklar. 
-               Har safar yangi savollar, batafsil tushuntirishlar va PDF natijalar bilan.
-             </p>
-             {/* Umumiy statistika */}
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               <div className="bg-purple-950/50 rounded-xl p-4 text-center border border-purple-700/30">
-                 <div className="text-3xl mb-2">📚</div>
-                 <div className="text-2xl font-bold text-yellow-400">5</div>
-                 <div className="text-purple-400 text-xs">Mavzu</div>
-               </div>
-               <div className="bg-purple-950/50 rounded-xl p-4 text-center border border-purple-700/30">
-                 <div className="text-3xl mb-2">📝</div>
-                 <div className="text-2xl font-bold text-yellow-400">500+</div>
-                 <div className="text-purple-400 text-xs">Savollar bazasi</div>
-               </div>
-               <div className="bg-purple-950/50 rounded-xl p-4 text-center border border-purple-700/30">
-                 <div className="text-3xl mb-2">🎬</div>
-                 <div className="text-2xl font-bold text-yellow-400">20+</div>
-                 <div className="text-purple-400 text-xs">Video darslik</div>
-               </div>
-               <div className="bg-purple-950/50 rounded-xl p-4 text-center border border-purple-700/30">
-                 <div className="text-3xl mb-2">🏆</div>
-                 <div className="text-2xl font-bold text-yellow-400">PDF</div>
-                 <div className="text-purple-400 text-xs">Sertifikat</div>
-               </div>
-             </div>
-           </div>
-         </div>
+      <header className="v3-header">
+        <div className="v3-konteyner flex items-center justify-between gap-3 py-3.5">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/oquv" className="v3-ikon-tugma" aria-label="O'quv bo'limiga qaytish">
+              <Ikon nom="chap" olcham={18} />
+            </Link>
+            <Link href="/" className="flex items-center gap-2.5 shrink-0">
+              <span className="v3-logo" aria-hidden="true" />
+              <span className="v3-logo-matn">JDA KIMYO</span>
+            </Link>
+            <span className="v3-quiz-header-ajratgich hidden sm:block" />
+            <div className="hidden sm:block min-w-0">
+              <div className="v3-nishon">O'quv bo'limi</div>
+              <div className="v3-quiz-header-nom truncate">Testlar markazi</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/profil/quizlar" className="v3-tugma v3-mobil-yashir">
+              <Ikon nom="grafik" olcham={16} />
+              Natijalarim
+            </Link>
+            <FonTanlagich fon={fon} tanla={fonTanla} />
+          </div>
+        </div>
+      </header>
 
-         {/* Asosiy kartalar (4 ta variant) */}
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-           
-           {/* 1. Sayt Quiz Test Bazasi */}
-           <Link 
-             href="/oquv/video-darsliklar/quiz" 
-             className="group bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 hover:border-green-400/50 transition-all transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-green-500/10 relative overflow-hidden"
-           >
-             <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-green-500/10 transition-all"></div>
-             <div className="relative z-10">
-               <div className="flex items-start justify-between mb-6">
-                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-lg shadow-green-500/20">
-                   📝
-                 </div>
-                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-600/20 text-green-400 border border-green-600/30 rounded-full text-xs font-semibold">
-                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-                   TIZIMLIK
-                 </span>
-               </div>
-               <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors">
-                 Sayt Quiz Test Bazasi
-               </h2>
-               <p className="text-purple-300 mb-6 leading-relaxed">
-                 Hamma uchun mavzulashtirilgan, tizimlik test bazasi. Har safar yangi savollar va batafsil tushuntirishlar.
-               </p>
-               <div className="flex flex-wrap gap-2 mb-6">
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">5 ta mavzu</span>
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">Yirik baza</span>
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">PDF natija</span>
-               </div>
-               <div className="flex items-center justify-between pt-4 border-t border-purple-700/30">
-                 <div className="flex items-center gap-2 text-sm text-purple-400">
-                   <span>🎯</span>
-                   <span>Mavzu tanlash</span>
-                 </div>
-                 <div className="flex items-center gap-2 text-green-400 font-semibold text-sm group-hover:translate-x-2 transition-transform">
-                   <span>Boshlash</span>
-                   <span>→</span>
-                 </div>
-               </div>
-             </div>
-           </Link>
+      <section className="v3-konteyner relative z-10 py-14 md:py-20">
+        <div className="v3-oquv-hero">
+          <div>
+            <div className="v3-eyebrow mb-5">
+              <span className="v3-nuqta" />
+              Koordinatsion kimyo · bilim nazorati
+            </div>
+            <h1 className="v3-quiz-h1">
+              Bilimni tekshirishning
+              <span className="v3-urgu-matn block">uchta aniq yo'li</span>
+            </h1>
+            <p className="v3-quiz-lid">
+              Mustaqil mashq qiling, ustoz testini yeching yoki yozma javob yuboring.
+              Bu sahifada faqat hozir ishlaydigan o'quv vositalari ko'rsatiladi.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/oquv/video-darsliklar/quiz" className="v3-tugma-asosiy v3-katta">
+                Mustaqil testni boshlash
+                <Ikon nom="ong" olcham={17} />
+              </Link>
+              <a href="#formatlar" className="v3-tugma v3-katta">
+                Formatlarni solishtirish
+                <Ikon nom="past" olcham={16} />
+              </a>
+            </div>
+          </div>
 
-           {/* 2. Video darsliklar (Tez kunda) */}
-           <div className="group bg-gradient-to-br from-purple-900/40 to-pink-900/20 border border-purple-700/50 rounded-3xl p-8 relative overflow-hidden opacity-70 cursor-not-allowed">
-             <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
-             <div className="relative z-10">
-               <div className="flex items-start justify-between mb-6">
-                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-600 to-rose-600 flex items-center justify-center text-3xl shadow-lg shadow-pink-500/20">
-                   🎬
-                 </div>
-                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 rounded-full text-xs font-semibold">
-                   <span>⏳</span>
-                   TEZ KUNDA
-                 </span>
-               </div>
-               <h2 className="text-2xl font-bold text-white mb-3">
-                 Video darsliklar
-               </h2>
-               <p className="text-purple-300 mb-6 leading-relaxed">
-                 Barcha mavzular bo'yicha professional video darsliklar. 3D modellar va interaktiv tushuntirishlar.
-               </p>
-               <div className="flex flex-wrap gap-2 mb-6">
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">20+ video</span>
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">3D modellar</span>
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">Premium</span>
-               </div>
-               <div className="flex items-center justify-between pt-4 border-t border-purple-700/30">
-                 <div className="flex items-center gap-2 text-sm text-purple-400">
-                   <span>🔒</span>
-                   <span>Obuna talab etiladi</span>
-                 </div>
-                 <div className="flex items-center gap-2 text-pink-400 font-semibold text-sm">
-                   <span>Kutilmoqda</span>
-                 </div>
-               </div>
-             </div>
-           </div>
+          <div className="v3-oquv-sxema" aria-label="Mustaqil, variantli va yozma test formatlari">
+            <div className="v3-oquv-sxema-bosh">
+              <span className="v3-nishon">Nazorat yo'li</span>
+              <strong>TEST / 03</strong>
+            </div>
+            {FORMATLAR.map((format) => (
+              <div key={format.raqam} className="v3-oquv-sxema-qator">
+                <span>{format.raqam}</span>
+                <div><strong>{format.nom}</strong><small>{format.qisqa}</small></div>
+                <Ikon nom={format.ikon} olcham={19} />
+              </div>
+            ))}
+            <div className="v3-oquv-sxema-oyoq">
+              <span>Tanlash</span>
+              <span>Yechish</span>
+              <span>Tahlil</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
-           {/* 3. Variantli O'qituvchilar Testlari */}
-           <Link 
-             href="/oquv/video-darsliklar/ustoz-quiz" 
-             className="group bg-gradient-to-br from-purple-900/40 to-cyan-900/20 border border-purple-700/50 rounded-3xl p-8 hover:border-cyan-400/50 transition-all transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 relative overflow-hidden"
-           >
-             <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-cyan-500/10 transition-all"></div>
-             <div className="relative z-10">
-               <div className="flex items-start justify-between mb-6">
-                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-600 to-blue-600 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-lg shadow-cyan-500/20">
-                   👨‍🏫
-                 </div>
-                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-600/20 text-cyan-400 border border-cyan-600/30 rounded-full text-xs font-semibold">
-                   <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
-                   USTOZ TESTI
-                 </span>
-               </div>
-               <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">
-                 Variantli Ustoz Testlari
-               </h2>
-               <p className="text-purple-300 mb-6 leading-relaxed">
-                 O'qituvchilar tomonidan yaratilgan testlar. Haqiqiy ustozlar bazasi orqali bilimingizni sinab ko'ring.
-               </p>
-               <div className="flex flex-wrap gap-2 mb-6">
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">Variantli</span>
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">Ustozlar bazasi</span>
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">Tezkor natija</span>
-               </div>
-               <div className="flex items-center justify-between pt-4 border-t border-purple-700/30">
-                 <div className="flex items-center gap-2 text-sm text-purple-400">
-                   <span>✅</span>
-                   <span>Variantlar bilan</span>
-                 </div>
-                 <div className="flex items-center gap-2 text-cyan-400 font-semibold text-sm group-hover:translate-x-2 transition-transform">
-                   <span>Boshlash</span>
-                   <span>→</span>
-                 </div>
-               </div>
-             </div>
-           </Link>
+      <div className="v3-lenta-qobiq relative z-10">
+        <div className="v3-lenta">
+          {[...FORMATLAR, ...FORMATLAR, ...FORMATLAR].map((format, index) => (
+            <span key={`${format.raqam}-${index}`} className="v3-lenta-band">
+              {format.raqam} · {format.nom}
+              <span className="v3-lenta-ajratgich">/</span>
+            </span>
+          ))}
+        </div>
+      </div>
 
-           {/* 4. Variantsiz O'qituvchilar Testlari (Yopiq) */}
-           <Link 
-             href="/oquv/video-darsliklar/ustoz-yopiq-quiz" 
-             className="group bg-gradient-to-br from-purple-900/40 to-amber-900/20 border border-purple-700/50 rounded-3xl p-8 hover:border-amber-400/50 transition-all transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 relative overflow-hidden"
-           >
-             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-amber-500/10 transition-all"></div>
-             <div className="relative z-10">
-               <div className="flex items-start justify-between mb-6">
-                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-600 to-yellow-600 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-lg shadow-amber-500/20">
-                   ✍️
-                 </div>
-                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-600/20 text-amber-400 border border-amber-600/30 rounded-full text-xs font-semibold">
-                   <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span>
-                   YOPIQ TEST
-                 </span>
-               </div>
-               <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-amber-400 transition-colors">
-                 Variantsiz Ustoz Testlari
-               </h2>
-               <p className="text-purple-300 mb-6 leading-relaxed">
-                 Variantlarsiz testlar. Javoblaringiz o'qituvchilar tomonidan qo'lda tekshirilib, baholanadi.
-               </p>
-               <div className="flex flex-wrap gap-2 mb-6">
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">Variantsiz</span>
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">Qo'lda tekshirish</span>
-                 <span className="bg-purple-950/50 text-purple-300 border border-purple-700/50 px-3 py-1 rounded-full text-xs">Ustoz bahosi</span>
-               </div>
-               <div className="flex items-center justify-between pt-4 border-t border-purple-700/30">
-                 <div className="flex items-center gap-2 text-sm text-purple-400">
-                   <span>📤</span>
-                   <span>Yuborish va baholanish</span>
-                 </div>
-                 <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm group-hover:translate-x-2 transition-transform">
-                   <span>Boshlash</span>
-                   <span>→</span>
-                 </div>
-               </div>
-             </div>
-           </Link>
+      <section id="formatlar" className="v3-konteyner relative z-10 py-14 md:py-20 scroll-mt-20">
+        <div className="v3-bosh">
+          <div>
+            <div className="v3-nishon mb-2">Ochiq bo'limlar</div>
+            <h2 className="v3-h2">Qaysi format sizga mos?</h2>
+          </div>
+          <p className="v3-bosh-izoh">
+            Mashq maqsadingizga qarab tanlang. Har bir karta aynan ishlayotgan
+            sahifaga olib boradi.
+          </p>
+        </div>
 
-         </div>
+        <div className="v3-oquv-format-grid">
+          {FORMATLAR.map((format) => (
+            <Link
+              key={format.raqam}
+              href={format.href}
+              className={`v3-oquv-format ${format.asosiy ? "is-asosiy" : ""}`}
+            >
+              <div className="v3-oquv-format-tepa">
+                <span className="v3-raqam">{format.raqam}</span>
+                <span className="v3-oquv-format-ikon"><Ikon nom={format.ikon} olcham={21} /></span>
+              </div>
+              <div className="v3-nishon mb-2">{format.qisqa}</div>
+              <h3>{format.nom}</h3>
+              <p>{format.tavsif}</p>
+              <div className="v3-oquv-belgilar">
+                {format.belgilar.map((belgi) => <span key={belgi}>{belgi}</span>)}
+              </div>
+              <div className="v3-oquv-format-past">
+                <span>{format.amal}</span>
+                <Ikon nom="ong" olcham={18} />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-         {/* Qanday ishlaydi */}
-         <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 mb-10">
-           <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-             <span>🎯</span>
-             Quiz qanday ishlaydi?
-           </h3>
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-             <div className="bg-purple-950/50 rounded-xl p-6 border border-purple-700/30">
-               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-white font-bold text-xl mb-4 shadow-lg shadow-yellow-500/20">
-                 1
-               </div>
-               <h4 className="text-lg font-bold text-yellow-400 mb-2">Mavzuni tanlang</h4>
-               <p className="text-purple-300 text-sm leading-relaxed">
-                 5 ta mavzudan birini yoki barcha mavzulardan aralash testni tanlang.
-               </p>
-             </div>
-             <div className="bg-purple-950/50 rounded-xl p-6 border border-purple-700/30">
-               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-white font-bold text-xl mb-4 shadow-lg shadow-yellow-500/20">
-                 2
-               </div>
-               <h4 className="text-lg font-bold text-yellow-400 mb-2">20 ta savolga javob bering</h4>
-               <p className="text-purple-300 text-sm leading-relaxed">
-                 Har bir savolda 4 ta variant, tasdiqlash tugmasi va batafsil tushuntirish.
-               </p>
-             </div>
-             <div className="bg-purple-950/50 rounded-xl p-6 border border-purple-700/30">
-               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-white font-bold text-xl mb-4 shadow-lg shadow-yellow-500/20">
-                 3
-               </div>
-               <h4 className="text-lg font-bold text-yellow-400 mb-2">PDF natijani yuklab oling</h4>
-               <p className="text-purple-300 text-sm leading-relaxed">
-                 Natijalar varaqchasi bilan premium PDF. Ismingiz bilan birga.
-               </p>
-             </div>
-           </div>
-         </div>
+      <section className="v3-konteyner relative z-10 pb-16 md:pb-24">
+        <div className="v3-bosh">
+          <div>
+            <div className="v3-nishon mb-2">Qisqa taqqoslash</div>
+            <h2 className="v3-h2">Formatlar orasidagi farq</h2>
+          </div>
+          <p className="v3-bosh-izoh">
+            Natija qachon chiqishi va kim savol tuzishi oldindan aniq.
+          </p>
+        </div>
 
-         {/* Afzalliklar */}
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-           <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6">
-             <div className="flex items-start gap-4">
-               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg shadow-green-500/20">
-                 🔄
-               </div>
-               <div>
-                 <h4 className="text-lg font-bold text-white mb-2">Takrorlanmaydigan savollar</h4>
-                 <p className="text-purple-300 text-sm leading-relaxed">
-                   Har bir testda yirik bazadan yangi savollar tanlanadi. Oldingi savollar chiqarib tashlanadi.
-                 </p>
-               </div>
-             </div>
-           </div>
-           <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6">
-             <div className="flex items-start gap-4">
-               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg shadow-blue-500/20">
-                 📚
-               </div>
-               <div>
-                 <h4 className="text-lg font-bold text-white mb-2">Batafsil tushuntirishlar</h4>
-                 <p className="text-purple-300 text-sm leading-relaxed">
-                   Har bir savol uchun to'liq tushuntirish. Xato javoblaringizni qayta o'rganing.
-                 </p>
-               </div>
-             </div>
-           </div>
-           <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6">
-             <div className="flex items-start gap-4">
-               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg shadow-purple-500/20">
-                 📊
-               </div>
-               <div>
-                 <h4 className="text-lg font-bold text-white mb-2">Progress tracking</h4>
-                 <p className="text-purple-300 text-sm leading-relaxed">
-                   Barcha testlaringiz statistikasi saqlanadi. O'sish dinamikasini kuzatib boring.
-                 </p>
-               </div>
-             </div>
-           </div>
-           <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6">
-             <div className="flex items-start gap-4">
-               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-600 to-rose-600 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg shadow-pink-500/20">
-                 📄
-               </div>
-               <div>
-                 <h4 className="text-lg font-bold text-white mb-2">PDF sertifikat</h4>
-                 <p className="text-purple-300 text-sm leading-relaxed">
-                   Natijalaringizni PDF formatida yuklab oling. Ismingiz bilan birga rasmiy hujjat.
-                 </p>
-               </div>
-             </div>
-           </div>
-         </div>
+        <div className="v3-oquv-jadval" role="table" aria-label="Test formatlarini taqqoslash">
+          <div className="v3-oquv-jadval-qator is-bosh" role="row">
+            <span role="columnheader">Mezon</span>
+            <span role="columnheader">Mavzuli quiz</span>
+            <span role="columnheader">Ustoz testi</span>
+            <span role="columnheader">Yozma test</span>
+          </div>
+          {TAQQOSLASH.map((qator) => (
+            <div key={qator.nom} className="v3-oquv-jadval-qator" role="row">
+              <strong role="rowheader">{qator.nom}</strong>
+              {qator.qiymatlar.map((qiymat, index) => <span key={`${qator.nom}-${index}`} role="cell">{qiymat}</span>)}
+            </div>
+          ))}
+        </div>
 
-         {/* Mavzular ro'yxati */}
-         <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 mb-10">
-           <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-             <span>📋</span>
-             Mavzular
-           </h3>
-           <div className="space-y-3">
-             <div className="flex items-center gap-4 bg-purple-950/50 rounded-xl p-4 border border-purple-700/30">
-               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-orange-600 flex items-center justify-center text-xl flex-shrink-0">
-                 📖
-               </div>
-               <div className="flex-1">
-                 <div className="text-white font-semibold">Nomlanishi</div>
-                 <div className="text-purple-400 text-xs">IUPAC qoidalari, ligandlar, formula yozish</div>
-               </div>
-               <span className="text-green-400 text-xs font-semibold">✓ Tayyor</span>
-             </div>
-             <div className="flex items-center gap-4 bg-purple-950/50 rounded-xl p-4 border border-purple-700/30">
-               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center text-xl flex-shrink-0">
-                 📊
-               </div>
-               <div className="flex-1">
-                 <div className="text-white font-semibold">Klassifikatsiyasi</div>
-                 <div className="text-purple-400 text-xs">Sinf, ligand, zaryad bo'yicha tasniflash</div>
-               </div>
-               <span className="text-green-400 text-xs font-semibold">✓ Tayyor</span>
-             </div>
-             <div className="flex items-center gap-4 bg-purple-950/50 rounded-xl p-4 border border-purple-700/30">
-               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-xl flex-shrink-0">
-                 💎
-               </div>
-               <div className="flex-1">
-                 <div className="text-white font-semibold">Fazoviy tuzilishi</div>
-                 <div className="text-purple-400 text-xs">Geometriya, gibridlanish, VSEPR</div>
-               </div>
-               <span className="text-green-400 text-xs font-semibold">✓ Tayyor</span>
-             </div>
-             <div className="flex items-center gap-4 bg-purple-950/50 rounded-xl p-4 border border-purple-700/30">
-               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-600 to-rose-600 flex items-center justify-center text-xl flex-shrink-0">
-                 🔄
-               </div>
-               <div className="flex-1">
-                 <div className="text-white font-semibold">Izomeriyasi</div>
-                 <div className="text-purple-400 text-xs">Geometrik, optik, linkage izomerlar</div>
-               </div>
-               <span className="text-green-400 text-xs font-semibold">✓ Tayyor</span>
-             </div>
-             <div className="flex items-center gap-4 bg-purple-950/50 rounded-xl p-4 border border-purple-700/30">
-               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-xl flex-shrink-0">
-                 🎯
-               </div>
-               <div className="flex-1">
-                 <div className="text-white font-semibold">Aralash test</div>
-                 <div className="text-purple-400 text-xs">Barcha mavzulardan 20 ta savol</div>
-               </div>
-               <span className="text-green-400 text-xs font-semibold">✓ Tayyor</span>
-             </div>
-           </div>
-         </div>
+        <div className="v3-oquv-video-izoh">
+          <span className="v3-oquv-format-ikon"><Ikon nom="video" olcham={20} /></span>
+          <div>
+            <strong>Video darsliklar hali nashr qilinmagan</strong>
+            <p>Tayyor material paydo bo'lganda u alohida ochiq bo'lim sifatida qo'shiladi.</p>
+          </div>
+        </div>
+      </section>
 
-         {/* CTA */}
-         <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-3xl p-8 text-center mb-10">
-           <h3 className="text-2xl font-bold text-white mb-4">
-             🚀 Bilimingizni sinab ko'rishga tayyormisiz?
-           </h3>
-           <p className="text-purple-200 mb-6 max-w-2xl mx-auto">
-             Hoziroq birinchi testni boshlang va natijalaringizni kuzatib boring. Har bir test — bu yangi bilim!
-           </p>
-           <Link
-             href="/oquv/video-darsliklar/quiz"
-             className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 rounded-xl text-white font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-yellow-500/20"
-           >
-             <span>📝</span>
-             <span>Sayt bazasidagi Quizni boshlash</span>
-             <span>→</span>
-           </Link>
-         </div>
-
-         {/* Manba */}
-         <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-6 text-center mb-6">
-           <p className="text-purple-300 text-sm mb-2">
-             📚 <strong>Manba:</strong> A.M. Nasimov, X.Sh. Tashpulatov — Noorganik kimyoning tanlangan boblari
-           </p>
-           <p className="text-purple-400 text-xs">
-             Barcha test savollari akademik manbalar asosida tuzilgan
-           </p>
-         </div>
-
-         {/* Footer */}
-         <footer className="border-t border-purple-800/30 pt-6 text-center">
-           <p className="text-purple-500 text-xs">
-             © 2026 JDA KIMYO • jdakimyo.uz • @diyorbek_jabborov
-           </p>
-         </footer>
-       </section>
-     </main>
+      <footer className="v3-oyoq relative z-10">
+        <div className="v3-konteyner py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="v3-xira text-xs">O'quv vositalari · Koordinatsion kimyo</p>
+          <p className="v3-xira text-xs">© 2026 JDA KIMYO</p>
+        </div>
+      </footer>
+    </main>
   )
 }
