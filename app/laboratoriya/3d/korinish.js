@@ -15,6 +15,7 @@ import SifatAnalizPaneli from "./components/SifatAnalizPaneli.jsx";
 import MolekulaZoomModal from "./components/MolekulaZoomModal.jsx";
 import PHMeterUI from "./components/PHMeterUI.jsx";
 import TaroziUI from "./components/TaroziUI.jsx";
+import EritmaTayyorlashModal from "./components/EritmaTayyorlashModal.jsx";
 import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
 import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
 import KristallPanjaraModal from "./components/KristallPanjaraModal.jsx";
@@ -53,6 +54,7 @@ export default function Korinish() {
   const [harorat, setHarorat] = useState(25);
   const [phMeterOchilgan, setPhMeterOchilgan] = useState(false);
   const [taroziOchilgan, setTaroziOchilgan] = useState(false);
+  const [eritmaOchilgan, setEritmaOchilgan] = useState(false);
   const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
   const [portlashMaLumot, setPortlashMaLumot] = useState(null);
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
@@ -210,6 +212,45 @@ export default function Korinish() {
     setAralashmaOzgarish((s) => s + 1);
   };
 
+  // 2-BOSQICH: Yangi tayyorlangan standart eritmani 3D stolga va holatga joylashtirish
+  const handleEritmaTayyorlandi = (eritmaData) => {
+    let target = nishonIdishGroup;
+    if (!target) {
+      target = jihozQosh('kolba');
+    }
+    if (target) {
+      const qoshilganMl = eritmaData.hajmMl || 100;
+      const qoshilganMol = Number((qoshilganMl * (eritmaData.molyarlik / 1000)).toFixed(6));
+
+      const yangiModdalar = {
+        ...holatRef.current.moddalar,
+        [eritmaData.reagent]: {
+          ml: qoshilganMl,
+          mol: qoshilganMol,
+          konsentratsiya: eritmaData.molyarlik,
+        }
+      };
+
+      holatRef.current = {
+        ...holatRef.current,
+        idish: target.userData?.kalit || 'kolba',
+        moddalar: yangiModdalar,
+        hajm: qoshilganMl,
+      };
+
+      suyuqlikSathiniYangila(target, qoshilganMl, { rang: eritmaData.rang, shaffoflik: 0.85 });
+
+      yoz(jurnalRef.current, {
+        amal: "eritma_tayyorlash",
+        reagent: eritmaData.reagent,
+        ml: qoshilganMl,
+        molyarlik: eritmaData.molyarlik,
+      });
+
+      setAralashmaOzgarish((s) => s + 1);
+    }
+  };
+
   const inventar = labMaLumot?.inventar || [];
   const reagentlar = inventar.filter((i) => i.turi === "reagent");
   const jihozlar = inventar.filter((i) => i.turi === "jihoz");
@@ -352,6 +393,16 @@ export default function Korinish() {
           >
             <Ikon nom="orin" olcham={13} />
             Sandiqlar
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setEritmaOchilgan(true)}
+            className="v3-tugma v3-tugma-asosiy text-xs font-bold"
+            title="Qattiq moddalarni tortib aniq molyar eritma tayyorlash"
+          >
+            <Ikon nom="kolba" olcham={13} />
+            Eritma Tayyorlash
           </button>
 
           <button
@@ -696,6 +747,18 @@ export default function Korinish() {
           idishKaliti={nishonIdishGroup?.userData?.kalit || "probirka"}
           moddalar={quyilganModdalar}
           onYop={() => setTaroziOchilgan(false)}
+          onEritmaOch={() => {
+            setTaroziOchilgan(false);
+            setEritmaOchilgan(true);
+          }}
+        />
+      )}
+
+      {/* 2-BOSQICH: ERITMA TAYYORLASH STENDI */}
+      {eritmaOchilgan && (
+        <EritmaTayyorlashModal
+          onEritmaTayyorlandi={handleEritmaTayyorlandi}
+          onYop={() => setEritmaOchilgan(false)}
         />
       )}
 

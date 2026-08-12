@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { massaHisobla } from "../lib/tarozi.js";
+import Ikon from "@/components/Ikon";
 
-export default function TaroziUI({ idishKaliti = "probirka", moddalar = {}, onYop }) {
+export default function TaroziUI({ idishKaliti = "probirka", moddalar = {}, onYop, onEritmaOch }) {
   const [taraMassa, setTaraMassa] = useState(0);
   const data = massaHisobla(idishKaliti, moddalar, taraMassa);
 
@@ -18,69 +19,56 @@ export default function TaroziUI({ idishKaliti = "probirka", moddalar = {}, onYo
 
   return (
     <div
-      className="fixed top-20 left-4 z-40 flex w-72 flex-col rounded-2xl border p-4 shadow-2xl backdrop-blur-xl transition-all"
-      style={{
-        background: "var(--v3-yuza)",
-        borderColor: "var(--v3-chiziq)",
-        color: "var(--v3-matn)",
-      }}
+      className="fixed top-20 left-4 z-40 flex w-80 flex-col rounded-2xl border p-4 shadow-2xl backdrop-blur-xl transition-all v3-panel-karta bg-[var(--v3-fon-2)]/95 border-[var(--v3-chiziq-2)] space-y-3"
     >
-      <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: "var(--v3-chiziq)" }}>
-        <span className="flex items-center gap-2 text-xs font-bold" style={{ color: "var(--v3-urgu)" }}>
-          ⚖️ Raqamli Analitik Tarozi
+      <div className="flex items-center justify-between pb-2 border-b border-[var(--v3-chiziq)]">
+        <span className="flex items-center gap-2 text-xs font-bold text-[var(--v3-urgu)]">
+          <Ikon nom="orin" olcham={15} />
+          Raqamli Analitik Tarozi
         </span>
         <button
           type="button"
           onClick={onYop}
-          className="rounded px-1.5 py-0.5 text-[10px] font-bold"
-          style={{ background: "var(--v3-yuza-2)" }}
+          className="p-1 rounded-lg text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
         >
-          ✕
+          <Ikon nom="yopish" olcham={14} />
         </button>
       </div>
 
       {/* Digital Weight Screen */}
       <div
-        className="my-3 flex flex-col items-center justify-center rounded-xl border py-3 font-mono"
-        style={{
-          background: "var(--v3-fon)",
-          borderColor: "var(--v3-urgu)",
-        }}
+        className="p-4 rounded-xl border flex flex-col items-center justify-center font-mono bg-[var(--v3-fon)] border-[var(--v3-urgu)] shadow-inner"
       >
-        <span className="text-2xl font-black tracking-widest text-emerald-400">
-          {data.nettoMassa.toFixed(3)} g
+        <span className="text-3xl font-black tracking-widest text-emerald-400">
+          {data.nettoMassa.toFixed(3)} <span className="text-sm text-[var(--v3-xira)]">g</span>
         </span>
-        <span className="mt-1 text-[10px]" style={{ color: "var(--v3-xira)" }}>
-          {taraMassa > 0 ? `(Tara o'rnatilgan: ${taraMassa.toFixed(3)}g)` : "Sof massa"}
+        <span className="mt-1 text-[10px] text-[var(--v3-xira)]">
+          {taraMassa > 0 ? `(Tara: ${taraMassa.toFixed(3)} g)` : "Sof netto massa"}
         </span>
       </div>
 
-      {/* Mass Breakdown Details */}
-      <div className="flex flex-col gap-1 text-[11px]" style={{ color: "var(--v3-xira)" }}>
-        <div className="flex justify-between border-b pb-1 border-white/5">
-          <span>Bo&apos;sh idish massasi:</span>
-          <span className="font-bold" style={{ color: "var(--v3-matn)" }}>{data.boshMassa.toFixed(3)} g</span>
+      {/* Details */}
+      <div className="space-y-1 text-[11px] font-mono text-[var(--v3-xira)] pt-1">
+        <div className="flex justify-between">
+          <span>Bo{"'"}sh idish massasi:</span>
+          <strong className="text-[var(--v3-matn)]">{data.boshMassa.toFixed(3)} g</strong>
         </div>
-        <div className="flex justify-between border-b pb-1 border-white/5">
-          <span>Suyuqlik massasi:</span>
-          <span className="font-bold" style={{ color: "var(--v3-matn)" }}>{data.suyuqlikMassa.toFixed(3)} g</span>
+        <div className="flex justify-between">
+          <span>Suyuqlik/Modda massasi:</span>
+          <strong className="text-[var(--v3-matn)]">{data.suyuqlikMassa.toFixed(3)} g</strong>
         </div>
-        <div className="flex justify-between pt-1">
+        <div className="flex justify-between border-t border-[var(--v3-chiziq)] pt-1">
           <span>Jami Brutto:</span>
-          <span className="font-bold" style={{ color: "var(--v3-urgu)" }}>{data.bruttoMassa.toFixed(3)} g</span>
+          <strong className="text-[var(--v3-urgu)]">{data.bruttoMassa.toFixed(3)} g</strong>
         </div>
       </div>
 
-      {/* Control buttons */}
-      <div className="mt-3 flex gap-2">
+      {/* Actions */}
+      <div className="flex gap-2 pt-1">
         <button
           type="button"
           onClick={handleTara}
-          className="flex-1 rounded-xl py-2 text-xs font-bold transition hover:scale-[1.01]"
-          style={{
-            background: "var(--v3-urgu)",
-            color: "var(--v3-urgu-matn)",
-          }}
+          className="flex-1 v3-tugma v3-tugma-asosiy text-xs py-2 justify-center font-bold"
         >
           🔘 TARA (Nol)
         </button>
@@ -88,13 +76,26 @@ export default function TaroziUI({ idishKaliti = "probirka", moddalar = {}, onYo
           <button
             type="button"
             onClick={handleNolgaQaytar}
-            className="rounded-xl px-3 py-2 text-xs font-bold border"
-            style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}
+            className="v3-tugma text-xs py-2 px-3"
+            title="Tarani bekor qilish"
           >
             ↺
           </button>
         )}
       </div>
+
+      {/* Eritma tayyorlash stendiga o'tish tugmasi */}
+      {typeof onEritmaOch === 'function' && (
+        <div className="pt-2 border-t border-[var(--v3-chiziq)]">
+          <button
+            type="button"
+            onClick={onEritmaOch}
+            className="w-full v3-tugma text-xs py-1.5 justify-center font-semibold text-[var(--v3-urgu)]"
+          >
+            🧪 Standart eritma tayyorlash →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
