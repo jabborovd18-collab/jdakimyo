@@ -1,20 +1,15 @@
 "use client"
+
 import { useEffect, useState } from "react"
 import { getRandomQuestions, getPreviousIds } from "./utils/storage"
+import { ASOSIY_QUIZ_SLUGLARI } from "./quiz-config"
 
 /**
- * Quiz savollarini bazadan yuklab, 20 tasini tanlaydi.
+ * Quiz savollarini bazadan yuklab, kerakli to'plamni tuzadi.
  *
- * Avval har bir sahifa `data.js` faylini import qilardi va savollar kod ichida
- * qotib qolgan edi — admin paneldan qo'shilgan savol saytda ko'rinmasdi.
- * Endi manba bitta: QuizQuestion jadvali (/api/quiz/bank).
- *
- * Tanlash mantig'i o'zgarmadi — getRandomQuestions o'sha-o'sha:
- * oxirgi safar chiqqan savollarni chetlab o'tadi va qiyinlik bo'yicha
- * proporsional tanlaydi (30% oson / 50% o'rta / 20% qiyin).
- *
- * @param {string} category — kategoriya slug'i (nomlanishi, aralash, ...)
- * @param {number} count — nechta savol kerak
+ * Oddiy mavzuda qiyinlik muvozanati saqlanadi. Aralash testda esa har
+ * asosiy yo'nalishdan teng miqdor olinadi; shunda bazadagi eng katta
+ * kategoriya butun testni egallab olmaydi.
  */
 export function useQuizBank(category, count = 20) {
   const [state, setState] = useState({
@@ -43,11 +38,25 @@ export function useQuizBank(category, count = 20) {
         }
 
         const previousIds = getPreviousIds(category)
-        setState({
-          questions: getRandomQuestions(data.questions, count, previousIds),
-          isLoading: false,
-          error: null,
-        })
+        let questions
+
+        if (category === "aralash") {
+          const harBiridan = Math.floor(count / ASOSIY_QUIZ_SLUGLARI.length)
+          const tanlangan = ASOSIY_QUIZ_SLUGLARI.flatMap((slug) => {
+            const bank = data.questions.filter((q) => q.category === slug)
+            if (bank.length < harBiridan) {
+              throw new Error(`${slug} mavzusida aralash test uchun savol yetarli emas`)
+            }
+            return getRandomQuestions(bank, harBiridan, previousIds)
+          })
+          // Yig'ilgan to'rtta blok ketma-ket turmasligi uchun yakuniy
+          // tanlov yana aralashtiriladi. Qiyinlik bu bosqichda o'zgarmaydi.
+          questions = aralashtir(tanlangan)
+        } else {
+          questions = getRandomQuestions(data.questions, count, previousIds)
+        }
+
+        setState({ questions, isLoading: false, error: null })
       } catch (error) {
         if (!cancelled) {
           setState({ questions: [], isLoading: false, error: error.message })
@@ -62,4 +71,13 @@ export function useQuizBank(category, count = 20) {
   }, [category, count])
 
   return state
+}
+
+function aralashtir(array) {
+  const nusxa = [...array]
+  for (let i = nusxa.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[nusxa[i], nusxa[j]] = [nusxa[j], nusxa[i]]
+  }
+  return nusxa
 }
