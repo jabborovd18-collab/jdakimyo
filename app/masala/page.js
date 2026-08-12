@@ -1,31 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import FonTanlagich, { useFon } from "@/components/FonTanlagich";
+import Ikon from "@/components/Ikon";
 import MasalaKiritish from "./components/MasalaKiritish.jsx";
 import YechimPaneli from "./components/YechimPaneli.jsx";
 
 export default function MasalaSahifasi() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [natija, setNatija] = useState(null);
+  const [oxirgiMatn, setOxirgiMatn] = useState("");
   const [yuklanmoqda, setYuklanmoqda] = useState(false);
   const [xato, setXato] = useState(null);
+  const [tarix, setTarix] = useState([]);
 
-  const handleYechish = async (masalaMatni) => {
+  // Tarixni localStorage dan yuklash
+  useEffect(() => {
+    try {
+      const saqlangan = localStorage.getItem("jda-masalalar-tarixi");
+      if (saqlangan) {
+        setTarix(JSON.parse(saqlangan));
+      }
+    } catch (e) {}
+  }, []);
+
+  const handleYechish = async (masalaMatni, rejim = "toliq") => {
     try {
       setYuklanmoqda(true);
       setXato(null);
+      setOxirgiMatn(masalaMatni);
 
       const res = await fetch("/api/masala/yech", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ masalaMatni }),
+        body: JSON.stringify({ masalaMatni, rejim }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.xato || "Masalani yechishda xatolik yuz berdi.");
+        throw new Error(data.xato || "Masalani tahlil qilishda xatolik yuz berdi.");
       }
 
       setNatija(data);
+
+      // Tarixga qo'shish
+      const yangiElement = {
+        id: Date.now(),
+        vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
+        matn: masalaMatni.slice(0, 80) + (masalaMatni.length > 80 ? "..." : ""),
+        toliqMatn: masalaMatni,
+        rejim,
+        tenglama: data.tenglama,
+      };
+
+      const yangiTarix = [yangiElement, ...tarix.filter((t) => t.toliqMatn !== masalaMatni)].slice(0, 8);
+      setTarix(yangiTarix);
+      try {
+        localStorage.setItem("jda-masalalar-tarixi", JSON.stringify(yangiTarix));
+      } catch (e) {}
     } catch (err) {
       setXato(err.message);
     } finally {
@@ -33,49 +66,110 @@ export default function MasalaSahifasi() {
     }
   };
 
+  const handleToliqYechimgaOtish = () => {
+    if (oxirgiMatn) {
+      handleYechish(oxirgiMatn, "toliq");
+    }
+  };
+
+  const tarixniTozalash = () => {
+    setTarix([]);
+    try {
+      localStorage.removeItem("jda-masalalar-tarixi");
+    } catch (e) {}
+  };
+
   return (
     <div
-      className="min-h-screen w-full p-4 sm:p-6 md:p-8"
-      style={{
-        background: "var(--v3-fon)",
-        color: "var(--v3-matn)",
-      }}
+      data-fon={fonKaliti}
+      className="v3 min-h-screen w-full p-4 sm:p-6 md:p-8 transition-colors duration-200 bg-[var(--v3-fon)] text-[var(--v3-matn)]"
     >
       <div className="mx-auto max-w-5xl flex flex-col gap-6">
-        {/* Navigation & Header */}
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style={{ borderColor: "var(--v3-chiziq)" }}>
-          <div>
-            <div className="flex items-center gap-2">
-              <a href="/oquv" className="v3-xira hover:underline text-xs">
-                ← Ta&apos;lim Bo&apos;limiga qaytish
-              </a>
-              <span className="v3-xira text-xs">/</span>
-              <span className="text-xs font-bold text-amber-400">Masalalar Bo&apos;limi</span>
+        {/* ─── YUQORI NAVIGATSIYA VA HEADER ─── */}
+        <header className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[var(--v3-chiziq)]">
+          <div className="flex items-center gap-3">
+            <Link href="/oquv" className="v3-tugma text-xs py-1.5 px-3">
+              <Ikon nom="chap" olcham={14} />
+              <span>Ta{"'"}lim</span>
+            </Link>
+            <div>
+              <div className="flex items-center gap-2 text-xs text-[var(--v3-xira)]">
+                <span>Kimyoviy Masalalar Markazi</span>
+                <span>/</span>
+                <span className="text-[var(--v3-urgu)] font-bold">3 Xil Yondashuv</span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-[var(--v3-matn)] flex items-center gap-2 mt-0.5">
+                <Ikon nom="kolba" olcham={22} className="text-[var(--v3-urgu)]" />
+                <span>AI Kimyo Masalalari Repetitori</span>
+              </h1>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight mt-1">
-              🧪 AI Kimyoviy Masalalar Yechuvchisi
-            </h1>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-3.5 py-1 text-xs font-bold text-amber-400">
-              🎙️ Ovozli Tushuntirish Bilan
-            </span>
+          <div className="flex items-center gap-2.5">
+            <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
+            <Link href="/laboratoriya/3d" className="v3-tugma text-xs py-1.5 px-3">
+              <Ikon nom="atom" olcham={14} />
+              <span>3D Lab</span>
+            </Link>
           </div>
         </header>
 
-        {/* Error Notification */}
+        {/* Xatolik xabarnomasi */}
         {xato && (
-          <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-xs font-bold text-red-400">
-            ⚠️ {xato}
+          <div className="p-4 rounded-xl border border-red-500/30 bg-red-500/10 text-xs font-bold text-red-400 flex items-center gap-2 animate-in fade-in duration-150">
+            <Ikon nom="taqiq" olcham={16} className="shrink-0" />
+            <span>{xato}</span>
           </div>
         )}
 
-        {/* Main Category Cards & Input Form */}
+        {/* ─── ASOSIY KIRITISH PANELI (3 TA REJIM & NAMUNALAR) ─── */}
         <MasalaKiritish onYechish={handleYechish} yuklanmoqda={yuklanmoqda} />
 
-        {/* Solution Breakdown Section */}
-        {natija && <YechimPaneli natija={natija} />}
+        {/* ─── YECHIM VA TAHLIL PANELI ─── */}
+        {natija && (
+          <YechimPaneli
+            natija={natija}
+            onToliqYechimgaOtish={handleToliqYechimgaOtish}
+          />
+        )}
+
+        {/* ─── 4-BOSQICH: MASALALAR TARIXI VA SHAXSIY DAFTARCHA ─── */}
+        {tarix.length > 0 && (
+          <section className="p-5 rounded-2xl border bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] space-y-3 shadow-lg">
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--v3-chiziq)]">
+              <div className="flex items-center gap-2">
+                <Ikon nom="vaqt" olcham={16} className="text-[var(--v3-urgu)]" />
+                <h4 className="text-xs font-bold text-[var(--v3-matn)]">
+                  Yaqinda Ko{"'"}rilgan Masalalar Tarixi ({tarix.length})
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={tarixniTozalash}
+                className="text-[11px] text-[var(--v3-xira)] hover:text-red-400 transition"
+              >
+                Tarixni tozalash
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {tarix.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleYechish(item.toliqMatn, item.rejim)}
+                  className="p-3 rounded-xl border text-left text-xs bg-[var(--v3-fon)] border-[var(--v3-chiziq)] hover:border-[var(--v3-urgu)] transition space-y-1"
+                >
+                  <div className="flex items-center justify-between text-[10px] font-mono text-[var(--v3-xira)]">
+                    <span className="text-[var(--v3-urgu)] font-bold uppercase">{item.rejim}</span>
+                    <span>{item.vaqt}</span>
+                  </div>
+                  <div className="text-[var(--v3-matn)] truncate font-medium">{item.matn}</div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

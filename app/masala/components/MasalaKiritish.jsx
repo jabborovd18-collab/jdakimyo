@@ -1,53 +1,92 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Ikon from "@/components/Ikon";
 
-// 4 Ta Asosiy Bo'lim va Tayyor Namunaviy Masalalar
+export const REJIMLAR = [
+  {
+    id: "tuzoq",
+    nom: "Keskin Burilish (Tuzoq)",
+    nishon: "⚡ 1-Rejim",
+    tavsif: "O'z ustida ishlayotganlar uchun: Masaladagi ko'zdan qochishi mumkin bo'lgan kalit tuzoq va ayyorlikni ochadi (Javobsiz).",
+    ikon: "chaqmoq",
+    rang: "border-amber-500/40 bg-amber-500/10 text-amber-400",
+  },
+  {
+    id: "yonalish",
+    nom: "Yo'l-yo'riq & Formulalar",
+    nishon: "🧭 2-Rejim",
+    tavsif: "Bosqichma-bosqich yechishga yordam: Reaksiya tenglamalari va formulalarni beradi, hisoblash talaba zimmasida.",
+    ikon: "kitob",
+    rang: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
+  },
+  {
+    id: "toliq",
+    nom: "To'liq Master Yechim",
+    nishon: "🎯 3-Rejim",
+    tavsif: "Barcha bosqichlar, stexiometrik proporsiyalar va yakuniy matematik javob bilan mukammal tushuntirilgan yechim.",
+    ikon: "orin",
+    rang: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
+  },
+];
+
 export const KATEGORIYALAR = [
   {
     id: "eritmalar",
-    nom: "💧 Eritmalar va Massaviy Ulush",
-    tavsif: "Massaviy ulush (%), suyultirish, bug'latish, molaritet va aralashmalar",
-    rang: "from-cyan-500/20 to-blue-500/10 border-cyan-500/40 text-cyan-400",
+    nom: "Eritmalar va Massaviy Ulush",
+    tavsif: "Massaviy ulush (%), suv qo'shish, bug'latish, eritmalar aralashmasi (Krest qoidasi)",
+    ikon: "kolba",
     namunalar: [
       "200 gramm 15% li CuSO4 eritmasiga 50 gramm suv qo'shilganda hosil bo'lgan yangi eritmaning massaviy ulushini toping.",
       "100 gramm 10% li va 300 gramm 30% li tuz eritmalar aralashtirilganda hosil bo'lgan yangi eritma massaviy ulushi necha foiz?",
-      "50 gramm CuSO4·5H2O kristallogidrati 200 gramm suvda eritilganda suvsiz tuz bo'yicha massaviy ulushni hisoblang.",
+      "300 gramm 20% li eritmadan 100 gramm suv bug'latilgach massaviy ulush necha foizga yetadi?",
     ],
   },
   {
-    id: "gazlar",
-    nom: "💨 Gazlar va Normal Sharoit",
-    tavsif: "N.SH. dagi hajm (22.4L), havo va vodorodga nisbatan zichlik",
-    rang: "from-sky-500/20 to-indigo-500/10 border-sky-500/40 text-sky-400",
+    id: "kristallogidrat",
+    nom: "Kristallogidratlar",
+    tavsif: "CuSO₄·5H₂O, FeSO₄·7H₂O kristallari, kristallizatsiya suvi va suvsiz tuz ulushi",
+    ikon: "atom",
     namunalar: [
-      "Normal sharoitda 5.6 litr CO2 gazi necha gramm massaga ega va uning havoga nisbatan zichligi nechaga teng?",
-      "40 gramm kislorod (O2) va ozon (O3) gazlar aralashmasining hajmiy nisbatini toping.",
+      "50 gramm CuSO4·5H2O kristallogidrati 200 gramm suvda eritilganda hosil bo'lgan eritmadagi suvsiz tuz massaviy ulushini hisoblang.",
+      "27.8 gramm FeSO4·7H2O temir kuporosi 172.2 gramm suvda eritildi. Hosil bo'lgan eritmaning foiz konsentratsiyasini toping.",
     ],
   },
   {
     id: "stexiometriya",
-    nom: "⚖️ Stexiometriya va Reaksiyalar",
-    tavsif: "Reaksiya tenglamalari, mollar nisbati va cheklovchi reagent",
-    rang: "from-amber-500/20 to-orange-500/10 border-amber-500/40 text-amber-400",
+    nom: "Stexiometriya va Reaksiyalar",
+    tavsif: "Reaksiya tenglamalari, mollar nisbati, ortib qolgan va cheklovchi reagent",
+    ikon: "reaksiya",
     namunalar: [
-      "10 gramm NaOH bilan 9.8 gramm H2SO4 ta'sirlashganda qancha Na2SO4 tuzi hosil bo'ladi va qaysi modda ortib qoladi?",
+      "10 gramm NaOH bilan 9.8 gramm H2SO4 ta'sirlashganda qancha Na2SO4 tuzi hosil bo'ladi va qaysi modda necha gramm ortib qoladi?",
       "0.5 mol HCl ni to'liq neytrallash uchun necha gramm KOH talab etiladi?",
+      "5.4 gramm Al metalli mo'l miqdordagi xlorid kislotada eriganida normal sharoitda necha litr vodorod ajraladi?",
     ],
   },
   {
-    id: "atom",
-    nom: "⚛️ Atom Tuzilishi va Termokimyo",
-    tavsif: "Molyar massa, Avogadro soni, 1 molekula massasi va issiqlik (kJ)",
-    rang: "from-purple-500/20 to-pink-500/10 border-purple-500/40 text-purple-400",
+    id: "gazlar",
+    nom: "Gazlar va Normal Sharoit",
+    tavsif: "N.SH. dagi hajm (22.4L), havo va vodorodga nisbatan zichlik (D)",
+    ikon: "bulut",
     namunalar: [
-      "1 ta H2O molekulasining haqiqiy massasi necha gramm bo'ladi?",
+      "Normal sharoitda 5.6 litr CO2 gazi necha gramm massaga ega va uning havoga nisbatan zichligi nechaga teng?",
+      "40 gramm kislorod (O2) va ozon (O3) gazlar aralashmasining havoga ko'ra zichligi 1.25 bo'lsa, aralashmadagi O2 hajmini toping.",
+    ],
+  },
+  {
+    id: "termokimyo",
+    nom: "Termokimyo va Atom Tuzilishi",
+    tavsif: "Yonish issiqligi (kJ), Avogadro soni (N_A), 1 ta yakka molekula massasi",
+    ikon: "olov",
+    namunalar: [
       "24 gramm uglerod yonganda 787 kJ issiqlik ajralsa, 1 mol uglerodning yonish issiqlik effektini toping.",
+      "1 dona H2O molekulasining haqiqiy massasi necha gramm bo'ladi?",
     ],
   },
 ];
 
 export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
+  const [faolRejim, setFaolRejim] = useState("toliq");
   const [faolKategoriya, setFaolKategoriya] = useState("eritmalar");
   const [matn, setMatn] = useState("");
   const [ovozYozilmoqda, setOvozYozilmoqda] = useState(false);
@@ -77,7 +116,7 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
 
   const handleOvozYozish = () => {
     if (!speechRecog) {
-      alert("Brauzeringiz ovoz bilan yozishni qo'llab-quvvatlamaydi.");
+      alert("Brauzeringiz ovoz bilan kiritishni qo'llab-quvvatlamaydi.");
       return;
     }
     if (ovozYozilmoqda) {
@@ -93,41 +132,54 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
     e.preventDefault();
     if (!matn.trim()) return;
     if (typeof onYechish === "function") {
-      onYechish(matn);
+      onYechish(matn, faolRejim);
     }
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* 4 Ta Asosiy Bo'lim Kartochkalari (Main Menu Style Category Cards) */}
-      <div>
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider v3-xira">
-          1. Kerakli Bo&apos;limni Tanlang:
-        </h3>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {KATEGORIYALAR.map((kat) => {
-            const tanlangan = faolKategoriya === kat.id;
+    <div className="flex flex-col gap-6 animate-in fade-in duration-200">
+      {/* ─── 1. REJIMNI TANLASH TUGMALARI (3 TA ASOSIY REJIM) ─── */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="v3-nishon text-[var(--v3-urgu)]">1. Tahlil va Yechim Rejimini Tanlang:</label>
+          <span className="text-[11px] text-[var(--v3-xira)] font-mono">
+            Tanlangan: <strong>{REJIMLAR.find((r) => r.id === faolRejim)?.nom}</strong>
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {REJIMLAR.map((r) => {
+            const isActive = faolRejim === r.id;
+
             return (
               <button
-                key={kat.id}
+                key={r.id}
                 type="button"
-                onClick={() => setFaolKategoriya(kat.id)}
-                className={`group flex flex-col justify-between rounded-2xl border p-4 text-left transition-all hover:scale-[1.02] ${
-                  tanlangan
-                    ? `bg-gradient-to-br ${kat.rang} shadow-xl ring-1 ring-amber-400/50`
-                    : "border-white/10 bg-black/40 hover:border-white/20"
+                onClick={() => setFaolRejim(r.id)}
+                className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
+                  isActive
+                    ? "bg-[var(--v3-yuza-2)] border-[var(--v3-urgu)] shadow-lg ring-1 ring-[var(--v3-urgu)]"
+                    : "bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] hover:border-[var(--v3-chiziq-2)]"
                 }`}
               >
-                <div>
-                  <div className="text-sm font-black tracking-wide">{kat.nom}</div>
-                  <div className="mt-1 text-[11px] font-medium v3-xira line-clamp-2">
-                    {kat.tavsif}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-[var(--v3-urgu)]">
+                      {r.nishon}
+                    </span>
+                    {isActive && (
+                      <span className="v3-tag v3-tag-ochiq text-[10px] font-bold">
+                        ✓ Faol
+                      </span>
+                    )}
                   </div>
-                </div>
-                <div className="mt-3 flex items-center justify-between border-t pt-2 border-white/10">
-                  <span className="text-[10px] font-bold text-amber-400">
-                    {tanlangan ? "✓ Tanlandi" : "Tanlash →"}
-                  </span>
+                  <h4 className="text-sm font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
+                    <Ikon nom={r.ikon} olcham={16} className="text-[var(--v3-urgu)]" />
+                    <span>{r.nom}</span>
+                  </h4>
+                  <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+                    {r.tavsif}
+                  </p>
                 </div>
               </button>
             );
@@ -135,81 +187,123 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
         </div>
       </div>
 
-      {/* Tanlangan Bo'lim uchun Namunaviy Masalalar (Sample Questions) */}
-      <div className="rounded-2xl border p-4 bg-black/30 border-white/10">
-        <h4 className="mb-2.5 text-xs font-bold text-amber-400">
-          💡 {tanlanganKat.nom} bo&apos;yicha namunaviy masalalar (1-Click Test):
-        </h4>
-        <div className="flex flex-col gap-2">
-          {tanlanganKat.namunalar.map((namuna, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setMatn(namuna)}
-              className="rounded-xl border p-3 text-left text-xs font-medium transition hover:border-amber-400/60 hover:bg-amber-400/5"
-              style={{
-                background: "var(--v3-fon)",
-                borderColor: "var(--v3-chiziq)",
-              }}
-            >
-              <span className="text-amber-400 font-bold mr-1 border-r pr-1.5 border-white/10">
-                #{idx + 1}
-              </span>
-              <span>{namuna}</span>
-            </button>
-          ))}
+      {/* ─── 2. KIMYOVIY MAVZULAR VA KATEGORIYALAR ─── */}
+      <div className="space-y-2">
+        <label className="v3-nishon">2. Mavzu Bo{"'"}yicha Namunalar (1-Click Test):</label>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {KATEGORIYALAR.map((kat) => {
+            const tanlangan = faolKategoriya === kat.id;
+            return (
+              <button
+                key={kat.id}
+                type="button"
+                onClick={() => setFaolKategoriya(kat.id)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border shrink-0 ${
+                  tanlangan
+                    ? "bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold border-[var(--v3-urgu)] shadow-sm"
+                    : "bg-[var(--v3-yuza)] text-[var(--v3-xira)] border-[var(--v3-chiziq)] hover:text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]"
+                }`}
+              >
+                <Ikon nom={kat.ikon} olcham={14} />
+                <span>{kat.nom}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tanlangan bo'lim uchun namunalar */}
+        <div className="p-4 rounded-2xl border bg-[var(--v3-fon-2)] border-[var(--v3-chiziq)] space-y-2.5">
+          <div className="text-xs font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
+            <Ikon nom="quiz" olcham={14} className="text-[var(--v3-urgu)]" />
+            <span>{tanlanganKat.nom} — Tezkor namunaviy savollar:</span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2">
+            {tanlanganKat.namunalar.map((namuna, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setMatn(namuna)}
+                className="p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] hover:border-[var(--v3-urgu)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]"
+              >
+                <span className="font-mono text-[11px] text-[var(--v3-urgu)] font-bold shrink-0">
+                  #{idx + 1}
+                </span>
+                <span className="leading-relaxed">{namuna}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Masala Matnini Kiritish Paneli */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-2xl border p-5 bg-black/40 border-white/10">
-        <label className="text-xs font-bold v3-matn">
-          📝 Masala sharti yoki savolingizni kiriting:
-        </label>
+      {/* ─── 3. MASALA MATNINI KIRITISH SHAKLI ─── */}
+      <form onSubmit={handleSubmit} className="p-5 rounded-2xl border bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] space-y-3.5 shadow-xl">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-[var(--v3-matn)] flex items-center gap-2">
+            <Ikon nom="fayl" olcham={15} className="text-[var(--v3-urgu)]" />
+            <span>Masala sharti yoki savolingizni kiriting:</span>
+          </label>
+
+          <span className="text-[11px] text-[var(--v3-xira)] font-mono">
+            {matn.length} belgi
+          </span>
+        </div>
 
         <div className="relative">
           <textarea
             rows={4}
             value={matn}
             onChange={(e) => setMatn(e.target.value)}
-            placeholder="Masala shartini yozing yoki mikrafon tugmasini bosib o'zbekcha ayting..."
-            className="w-full rounded-xl border p-4 text-xs font-medium outline-none transition"
-            style={{
-              background: "var(--v3-fon)",
-              borderColor: "var(--v3-chiziq)",
-              color: "var(--v3-matn)",
-            }}
+            placeholder="Masala shartini yozing yoki mikrofon orqali o'zbek tilida ayting..."
+            className="v3-kiritish w-full text-xs font-medium p-3.5 leading-relaxed pr-12 resize-none"
           />
           <button
             type="button"
             onClick={handleOvozYozish}
-            title="Ovoz bilan aytish"
-            className={`absolute right-3 bottom-3 flex h-10 w-10 items-center justify-center rounded-full border transition ${
+            title={ovozYozilmoqda ? "Ovoz yozilmoqda..." : "Ovoz bilan aytish"}
+            className={`absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-xl border transition ${
               ovozYozilmoqda
                 ? "animate-pulse border-red-500 bg-red-500/20 text-red-400 shadow-lg shadow-red-500/30"
-                : "border-amber-400/50 bg-amber-400/10 text-amber-400 hover:scale-110"
+                : "border-[var(--v3-chiziq)] bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] hover:scale-105"
             }`}
           >
-            🎙️
+            <Ikon nom="ovoz" olcham={16} />
           </button>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
           <button
             type="button"
             onClick={() => setMatn("")}
             disabled={!matn}
-            className="v3-tugma text-xs"
+            className="v3-tugma text-xs py-2 px-3 text-[var(--v3-xira)] hover:text-red-400 disabled:opacity-30"
           >
-            🗑️ Tozalash
+            <Ikon nom="ochir" olcham={13} />
+            <span>Tozalash</span>
           </button>
+
           <button
             type="submit"
             disabled={!matn.trim() || yuklanmoqda}
-            className="v3-tugma-asosiy text-xs font-bold px-5 py-2.5"
+            className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-6 font-bold inline-flex items-center gap-2 disabled:opacity-40"
           >
-            <span>⚡</span>
-            <span>{yuklanmoqda ? "AI Yechmoqda..." : "Masalani Yechish va Ovozli Tushuntirish"}</span>
+            {yuklanmoqda ? (
+              <>
+                <Ikon nom="vaqt" olcham={15} className="animate-spin" />
+                <span>AI Tahlil Qilmoqda...</span>
+              </>
+            ) : (
+              <>
+                <Ikon nom="chaqmoq" olcham={15} />
+                <span>
+                  {faolRejim === "tuzoq"
+                    ? "Tuzoqlarni aniqlash"
+                    : faolRejim === "yonalish"
+                    ? "Yo'l-yo'riq olish"
+                    : "Masalani yechish"}
+                </span>
+              </>
+            )}
           </button>
         </div>
       </form>
