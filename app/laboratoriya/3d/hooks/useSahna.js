@@ -358,7 +358,6 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
 
       if (rendererRef.current) {
         rendererRef.current.dispose();
-        rendererRef.current.forceContextLoss();
       }
       if (konteynerRef.current) {
         konteynerRef.current.innerHTML = "";

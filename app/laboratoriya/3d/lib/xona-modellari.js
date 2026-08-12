@@ -8,38 +8,42 @@ import * as THREE from "three";
 /** Davriy jadval plakatini yaratish */
 function davriyJadvalPlakati() {
   if (typeof document === "undefined") return new THREE.Group();
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return new THREE.Group();
 
-  ctx.fillStyle = "#0f172a";
-  ctx.fillRect(0, 0, 512, 256);
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(0, 0, 512, 256);
 
-  ctx.strokeStyle = "#38bdf8";
-  ctx.lineWidth = 4;
-  ctx.strokeRect(4, 4, 504, 248);
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, 504, 248);
 
-  ctx.fillStyle = "#facc15";
-  ctx.font = "bold 22px sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("D.I. MENDELEYEV DAVRIY SISTEMASI", 256, 32);
+    ctx.fillStyle = "#facc15";
+    ctx.font = "bold 22px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("D.I. MENDELEYEV DAVRIY SISTEMASI", 256, 32);
 
-  // Rangli elementlar bloklari chizish
-  const colors = ["#ef4444", "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#06b6d4"];
-  for (let r = 0; r < 6; r++) {
-    for (let c = 0; c < 16; c++) {
-      ctx.fillStyle = colors[(r + c) % colors.length];
-      ctx.fillRect(24 + c * 29, 48 + r * 30, 26, 26);
+    const colors = ["#ef4444", "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#06b6d4"];
+    for (let r = 0; r < 6; r++) {
+      for (let c = 0; c < 16; c++) {
+        ctx.fillStyle = colors[(r + c) % colors.length];
+        ctx.fillRect(24 + c * 29, 48 + r * 30, 26, 26);
+      }
     }
-  }
 
-  const texture = new THREE.CanvasTexture(canvas);
-  const geo = new THREE.PlaneGeometry(1.6, 0.8);
-  const mat = new THREE.MeshBasicMaterial({ map: texture });
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.set(0, 1.9, -1.25);
-  return mesh;
+    const texture = new THREE.CanvasTexture(canvas);
+    const geo = new THREE.PlaneGeometry(1.6, 0.8);
+    const mat = new THREE.MeshBasicMaterial({ map: texture });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(0, 1.9, -1.25);
+    return mesh;
+  } catch {
+    return new THREE.Group();
+  }
 }
 
 /** Tortma Shkaf (Fume Hood) modeli */
