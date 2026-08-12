@@ -67,6 +67,24 @@ const YOLLAR = {
     </>
   ),
   past: <path d="m6 9 6 6 6-6" />,
+  qayta: (
+    <>
+      <path d="M20 7v5h-5" />
+      <path d="M18.2 16.5A8 8 0 1 1 19.5 9" />
+    </>
+  ),
+  vaqt: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.2 2" />
+    </>
+  ),
+  fayl: (
+    <>
+      <path d="M6 3h8l4 4v14H6z" />
+      <path d="M14 3v5h5M12 11v6m-2.5-2.5L12 17l2.5-2.5" />
+    </>
+  ),
   tashqi: <path d="M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4" />,
 
   // ─── Holat ───

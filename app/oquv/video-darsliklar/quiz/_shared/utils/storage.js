@@ -1,26 +1,37 @@
-// app/oquv/video-darsliklar/quiz/nomlanishi/utils/storage.js
+// Quiz tarixi, savol tanlash va mahalliy statistika.
 
 /**
  * LocalStorage kalitlari
  */
 const STORAGE_KEYS = {
   nomlanishi: 'quiz_history_nomlanishi',
+  klassifikatsiyasi: 'quiz_history_klassifikatsiyasi',
   fazoviy: 'quiz_history_fazoviy',
-  izomeriyasi: 'quiz_history_izomeriyasi',
-  kimyoviy_boglanish: 'quiz_history_kimyoviy_boglanish',
-  video_darsliklar: 'quiz_history_video_darsliklar'
+  izomeriya: 'quiz_history_izomeriya',
+  aralash: 'quiz_history_aralash',
+}
+
+// Eski kod `izomeriyasi` deb yozgan. Avvalgi foydalanuvchining tarixi
+// birdan yo'qolib qolmasligi uchun o'qishda bir marta zaxira kalitga ham
+// qaraymiz; yangi yozuvlar esa to'g'ri nomga tushadi.
+const ESKI_STORAGE_KEYS = {
+  izomeriya: 'quiz_history_izomeriyasi',
 }
 
 /**
  * Oldingi savollar ID larini olish
  * @param {string} quizName - quiz nomi (masalan: "nomlanishi")
- * @returns {number[]} - oldingi savollar ID lari massivi
+ * @returns {string[]} - oldingi savollar ID lari massivi
  */
 export function getPreviousIds(quizName) {
   if (typeof window === 'undefined') return []
   
   const key = STORAGE_KEYS[quizName] || `quiz_history_${quizName}`
-  const stored = localStorage.getItem(key)
+  const stored = localStorage.getItem(key) || (
+    ESKI_STORAGE_KEYS[quizName]
+      ? localStorage.getItem(ESKI_STORAGE_KEYS[quizName])
+      : null
+  )
   
   if (!stored) return []
   
@@ -35,7 +46,7 @@ export function getPreviousIds(quizName) {
 /**
  * Quiz tarixini saqlash
  * @param {string} quizName - quiz nomi
- * @param {number[]} questionIds - yangi savollar ID lari
+ * @param {string[]} questionIds - yangi savollar ID lari
  */
 export function saveQuizHistory(quizName, questionIds) {
   if (typeof window === 'undefined') return
@@ -48,7 +59,6 @@ export function saveQuizHistory(quizName, questionIds) {
   
   try {
     localStorage.setItem(key, JSON.stringify(updatedIds))
-    console.log(`[Storage] ${questionIds.length} ta savol saqlandi. Jami: ${updatedIds.length}`)
   } catch (error) {
     console.error('[Storage] LocalStorage save error:', error)
   }
@@ -74,18 +84,16 @@ function shuffle(array) {
  * 
  * @param {Array} bank - savol bazasi (150 ta savol)
  * @param {number} count - nechta savol kerak (default: 20)
- * @param {number[]} previousIds - oldingi savollar ID lari
+ * @param {string[]} previousIds - oldingi savollar ID lari
  * @returns {Array} - tanlangan savollar (har doim count ta!)
  */
 export function getRandomQuestions(bank, count = 20, previousIds = []) {
   // 1. Oldingi savollarni chiqarib tashlash
   const available = bank.filter(q => !previousIds.includes(q.id))
   
-  console.log(`[Randomizer] Mavjud savollar: ${available.length}/${bank.length}`)
   
   // 2. Agar yetarli bo'lmasa, eski savollarni qayta qo'shish
   if (available.length < count) {
-    console.log(`[Randomizer] Yetarli savol yo'q (${available.length}/${count}). Barcha savollardan tanlanmoqda.`)
     return shuffle([...bank]).slice(0, count)
   }
   
@@ -94,7 +102,6 @@ export function getRandomQuestions(bank, count = 20, previousIds = []) {
   const medium = shuffle(available.filter(q => q.difficulty === "o'rta"))
   const hard = shuffle(available.filter(q => q.difficulty === "qiyin"))
   
-  console.log(`[Randomizer] Qiyinlik bo'yicha: ${easy.length} oson, ${medium.length} o'rta, ${hard.length} qiyin`)
   
   // 4. Proporsional tanlash (30% oson, 50% o'rta, 20% qiyin)
   // Lekin mavjud bo'lganlaridan oshmaslik uchun Math.min ishlatamiz
@@ -102,7 +109,6 @@ export function getRandomQuestions(bank, count = 20, previousIds = []) {
   const mediumCount = Math.min(Math.floor(count * 0.5), medium.length)
   const hardCount = Math.min(count - easyCount - mediumCount, hard.length)
   
-  console.log(`[Randomizer] Tanlangan: ${easyCount} oson, ${mediumCount} o'rta, ${hardCount} qiyin`)
   
   const result = [
     ...easy.slice(0, easyCount),
@@ -110,12 +116,10 @@ export function getRandomQuestions(bank, count = 20, previousIds = []) {
     ...hard.slice(0, hardCount)
   ]
   
-  console.log(`[Randomizer] Jami tanlangan: ${result.length}/${count}`)
   
   // 5. Agar yetarli bo'lmasa, qo'shimcha savollar qo'shish
   const remaining = count - result.length
   if (remaining > 0) {
-    console.log(`[Randomizer] ${remaining} ta qo'shimcha savol kerak`)
     
     // Qolgan barcha savollarni yig'ish
     const allRemaining = [
@@ -128,13 +132,11 @@ export function getRandomQuestions(bank, count = 20, previousIds = []) {
     const additionalQuestions = shuffle(allRemaining).slice(0, remaining)
     result.push(...additionalQuestions)
     
-    console.log(`[Randomizer] ${additionalQuestions.length} ta qo'shimcha savol qo'shildi`)
   }
   
   // 6. Yakuniy aralashtirish
   const finalResult = shuffle(result)
   
-  console.log(`[Randomizer] Yakuniy natija: ${finalResult.length} ta savol`)
   
   return finalResult
 }
@@ -150,7 +152,6 @@ export function clearQuizHistory(quizName) {
   
   try {
     localStorage.removeItem(key)
-    console.log(`[Storage] ${quizName} tarixi tozalandi`)
   } catch (error) {
     console.error('[Storage] LocalStorage remove error:', error)
   }
@@ -162,7 +163,7 @@ export function clearQuizHistory(quizName) {
 export function clearAllQuizHistory() {
   if (typeof window === 'undefined') return
   
-  Object.values(STORAGE_KEYS).forEach(key => {
+  ;[...Object.values(STORAGE_KEYS), ...Object.values(ESKI_STORAGE_KEYS)].forEach(key => {
     try {
       localStorage.removeItem(key)
     } catch (error) {
@@ -170,7 +171,6 @@ export function clearAllQuizHistory() {
     }
   })
   
-  console.log('[Storage] Barcha quiz tarixlari tozalandi')
 }
 
 /**
@@ -219,7 +219,6 @@ export function updateQuizStats(quizName, result) {
   
   try {
     localStorage.setItem(key, JSON.stringify(updatedStats))
-    console.log(`[Storage] ${quizName} statistikasi yangilandi: ${updatedStats.averageScore.toFixed(2)}`)
   } catch (error) {
     console.error('[Storage] LocalStorage save error:', error)
   }
