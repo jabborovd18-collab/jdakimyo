@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import Ikon from '@/components/Ikon'
+import { vedomostPDFYuklab } from '@/lib/vedomost-pdf'
 
 export default function NatijalarPage() {
   const { data: session } = useSession()
@@ -86,6 +87,65 @@ export default function NatijalarPage() {
     return m > 0 ? `${m} daq ${s} son` : `${s} son`
   }
 
+  const exportPDF = async () => {
+    try {
+      const guruhNomi = filterGroup === 'all'
+        ? 'Barcha guruhlar'
+        : groups.find(g => g.id === filterGroup)?.name || 'Guruh'
+
+      let qatorlar = []
+      let testNomi = 'Variantli va Yozma testlar'
+
+      if (activeTab === 'quiz') {
+        testNomi = 'Variantli testlar natijalari'
+        qatorlar = filteredQuizAttempts.map(a => ({
+          ism: a.student?.fullName || a.student?.username,
+          username: a.student?.username || 'user',
+          ball: `${a.score}/${a.maxScore}`,
+          foiz: a.percentage || 0,
+          otdimi: (a.percentage || 0) >= (a.quiz?.passingScore || 60),
+          sana: a.completedAt
+        }))
+      } else if (activeTab === 'yozma') {
+        testNomi = 'Yozma testlar natijalari'
+        qatorlar = filteredClosedSubmissions.map(s => ({
+          ism: s.student?.fullName || s.student?.username,
+          username: s.student?.username || 'user',
+          ball: s.score !== null ? `${s.score}/${s.quiz?.maxScore}` : 'Tekshirilmoqda',
+          foiz: s.score !== null && s.quiz?.maxScore ? (s.score / s.quiz.maxScore) * 100 : 0,
+          otdimi: s.score !== null && s.quiz?.maxScore ? (s.score / s.quiz.maxScore) >= 0.6 : false,
+          sana: s.submittedAt
+        }))
+      } else {
+        testNomi = 'Vazifalar natijalari'
+        qatorlar = filteredAssignments.map(s => ({
+          ism: s.student?.fullName || s.student?.username,
+          username: s.student?.username || 'user',
+          ball: s.score !== null ? `${s.score}/${s.assignment?.maxScore}` : '—',
+          foiz: s.score !== null && s.assignment?.maxScore ? (s.score / s.assignment.maxScore) * 100 : 0,
+          otdimi: s.score !== null && s.assignment?.maxScore ? (s.score / s.assignment.maxScore) >= 0.6 : false,
+          sana: s.submittedAt
+        }))
+      }
+
+      if (qatorlar.length === 0) {
+        toast.error('Yuklab olish uchun natijalar mavjud emas')
+        return
+      }
+
+      toast.loading('PDF vedomost tayyorlanmoqda...', { id: 'pdf' })
+      await vedomostPDFYuklab({
+        ustozNomi: session?.user?.fullName || session?.user?.username || 'O\'qituvchi',
+        guruhNomi,
+        testNomi,
+        qatorlar
+      })
+      toast.success('Vedomost muvaffaqiyatli yuklandi!', { id: 'pdf' })
+    } catch (err) {
+      toast.error('PDF yaratishda xatolik: ' + err.message, { id: 'pdf' })
+    }
+  }
+
   return (
     <div className="space-y-6 max-w-6xl">
       {/* Header */}
@@ -100,14 +160,26 @@ export default function NatijalarPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={fetchNatijalar}
-          className="v3-tugma text-xs py-2 px-3 self-start sm:self-auto"
-        >
-          <Ikon nom="qayta" olcham={14} />
-          Yangilash
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={exportPDF}
+            className="v3-tugma v3-tugma-asosiy text-xs py-2 px-3.5 font-bold inline-flex items-center gap-1.5"
+            title="Akademik vedomostni PDF formatida yuklab olish"
+          >
+            <Ikon nom="fayl" olcham={15} />
+            PDF Vedomost
+          </button>
+
+          <button
+            type="button"
+            onClick={fetchNatijalar}
+            className="v3-tugma text-xs py-2 px-3"
+          >
+            <Ikon nom="qayta" olcham={14} />
+            Yangilash
+          </button>
+        </div>
       </div>
 
       {/* Stats Summary Grid */}

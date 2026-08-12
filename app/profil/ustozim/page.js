@@ -11,20 +11,50 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 
 export default function UstozlarimPage() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const qoshilGuruhId = searchParams.get('qoshil')
+
   const [takliflar, setTakliflar] = useState([])
   const [guruhlarim, setGuruhlarim] = useState([])
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
-  // Qaysi yozuv ustida amal ketayotgani — tugmani ikki marta bosishdan
-  // saqlaydi va aynan qaysi karta kutayotganini ko'rsatadi.
   const [band, setBand] = useState(null)
 
   useEffect(() => {
     olib()
   }, [])
+
+  // Havola orqali kelganda guruhga qo'shilish
+  useEffect(() => {
+    if (qoshilGuruhId) {
+      guruhgaQoshil(qoshilGuruhId)
+    }
+  }, [qoshilGuruhId])
+
+  const guruhgaQoshil = async (groupId) => {
+    try {
+      const res = await fetch('/api/profil/ustozlarim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ groupId })
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast.success(data.message || 'Guruhga qo\'shildingiz!')
+        router.replace('/profil/ustozim')
+        olib()
+      } else {
+        toast.error(data.error || 'Guruhga qo\'shilib bo\'lmadi')
+      }
+    } catch (e) {
+      toast.error('Guruhga ulanishda xatolik')
+    }
+  }
 
   const olib = async () => {
     try {

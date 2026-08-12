@@ -56,6 +56,86 @@ export async function GET() {
   }
 }
 
+// POST — taklif havolasi orqali guruhga qo'shilish so'rovi yuborish
+export async function POST(request) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { groupId } = await request.json()
+    if (!groupId) {
+      return NextResponse.json({ error: 'Guruh ID kerak' }, { status: 400 })
+    }
+
+    const group = await prisma.teacherGroup.findUnique({
+      where: { id: groupId },
+      include: { teacher: { select: { id: true, fullName: true, username: true } } }
+    })
+
+    if (!group) {
+      return NextResponse.json({ error: 'Guruh topilmadi' }, { status: 404 })
+    }
+
+    // O'z guruhiga o'zi qo'shila olmaydi
+    if (group.teacherId === session.user.id) {
+      return NextResponse.json({ error: 'O\'zingizning guruhingizga talaba sifatida qo\'shila olmaysiz' }, { status: 400 })
+    }
+
+    // Allaqachon a'zomi?
+    const existing = await prisma.teacherStudent.findFirst({
+      where: {
+        teacherId: group.teacherId,
+        studentId: session.user.id,
+        groupId
+      }
+    })
+
+    if (existing) {
+      if (existing.holat === 'faol') {
+        return NextResponse.json({ error: 'Siz allaqachon ushbu guruh a\'zosisiz' }, { status: 400 })
+      }
+      if (existing.holat === 'sorov') {
+        // Agar taklif allaqachon tushgan bo'lsa, uni darhol qabul qilamiz
+        await prisma.teacherStudent.update({
+          where: { id: existing.id },
+          data: { holat: 'faol', javobVaqt: new Date() }
+        })
+        return NextResponse.json({ success: true, message: `✓ "${group.name}" guruhiga qo'shildingiz!` })
+      }
+    }
+
+    // Yangi qo'shilish
+    await prisma.teacherStudent.create({
+      data: {
+        teacherId: group.teacherId,
+        studentId: session.user.id,
+        groupId,
+        holat: 'faol',
+        javobVaqt: new Date()
+      }
+    })
+
+    const talabaNomi = session.user.fullName || session.user.username
+    await xabarYubor(group.teacherId, {
+      turi: 'tizim',
+      sarlavha: `✅ ${talabaNomi} guruhingizga qo'shildi`,
+      matn: `Guruh: ${group.name}`,
+      havola: '/ustoz/talaba',
+      icon: '✅',
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: `✓ "${group.name}" guruhiga muvaffaqiyatli qo'shildingiz!`
+    })
+  } catch (error) {
+    console.error('[Ustozlarim POST]', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
 // PUT — taklifga javob berish
 export async function PUT(request) {
   try {

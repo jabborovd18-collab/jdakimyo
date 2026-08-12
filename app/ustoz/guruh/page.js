@@ -248,6 +248,21 @@ export default function UstozGuruhlarPage() {
                   <Ikon nom="odamlar" olcham={13} />
                   Talabalar ({group._count?.students || 0})
                 </Link>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = `${window.location.origin}/profil/ustozim?qoshil=${group.id}`
+                    navigator.clipboard.writeText(url)
+                    toast.success(`"${group.name}" guruhiga qo'shilish havolasi nusxalandi!`)
+                  }}
+                  className="v3-tugma text-xs py-1.5 px-2.5 inline-flex items-center gap-1 text-[var(--v3-urgu)]"
+                  title="Taklif havolasini nusxalash"
+                >
+                  <Ikon nom="nusxa" olcham={13} />
+                  Havola
+                </button>
+
                 <Link
                   href={`/ustoz/vazifa?groupId=${group.id}`}
                   className="v3-tugma text-xs p-1.5"

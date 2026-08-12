@@ -25,6 +25,14 @@ export default function OpenQuizManagePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [editingId, setEditingId] = useState(null)
 
+  // Savollar banki
+  const [showBankModal, setShowBankModal] = useState(false)
+  const [bankQuestions, setBankQuestions] = useState([])
+  const [selectedBankIds, setSelectedBankIds] = useState(new Set())
+  const [bankSearch, setBankSearch] = useState('')
+  const [isBankLoading, setIsBankLoading] = useState(false)
+  const [sendingReminderId, setSendingReminderId] = useState(null)
+
   // Form State
   const [formData, setFormData] = useState({
     title: '',
@@ -55,6 +63,77 @@ export default function OpenQuizManagePage() {
   useEffect(() => {
     fetchQuizzes()
   }, [])
+
+  const fetchBankQuestions = async (searchVal = bankSearch) => {
+    setIsBankLoading(true)
+    try {
+      const res = await fetch(`/api/ustoz/savollar-banki?search=${encodeURIComponent(searchVal)}`)
+      const data = await res.json()
+      if (res.ok) {
+        setBankQuestions(data.questions || [])
+      }
+    } catch (err) {
+      toast.error('Savollar bankini yuklab bo\'lmadi')
+    } finally {
+      setIsBankLoading(false)
+    }
+  }
+
+  const openBankModal = () => {
+    setSelectedBankIds(new Set())
+    setShowBankModal(true)
+    fetchBankQuestions('')
+  }
+
+  const toggleBankSelection = (id) => {
+    const next = new Set(selectedBankIds)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    setSelectedBankIds(next)
+  }
+
+  const importSelectedFromBank = () => {
+    const toImport = bankQuestions.filter(q => selectedBankIds.has(q.id))
+    if (toImport.length === 0) {
+      toast.error('Savollarni tanlang')
+      return
+    }
+
+    const newQuestions = toImport.map(q => ({
+      id: Date.now() + Math.random(),
+      questionText: q.questionText,
+      options: [...q.options],
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation || '',
+      points: q.points || 1,
+    }))
+
+    setFormData(prev => ({
+      ...prev,
+      questions: prev.questions[0]?.questionText === '' ? newQuestions : [...prev.questions, ...newQuestions]
+    }))
+
+    setShowBankModal(false)
+    toast.success(`${newQuestions.length} ta savol muvaffaqiyatli qo'shildi!`)
+  }
+
+  const sendReminder = async (quizId) => {
+    setSendingReminderId(quizId)
+    try {
+      const res = await fetch('/api/ustoz/eslatma', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'quiz', id: quizId })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Eslatma yuborib bo\'lmadi')
+      toast.success(data.message || 'Eslatma yuborildi!')
+    } catch (err) {
+      toast.error(err.message)
+    } finally {
+      setSendingReminderId(null)
+    }
+  }
 
   const fetchQuizzes = async () => {
     setIsLoading(true)
@@ -417,6 +496,19 @@ export default function OpenQuizManagePage() {
                         Ulashish
                       </button>
 
+                      {deadlineDate && (
+                        <button
+                          type="button"
+                          onClick={() => sendReminder(quiz.id)}
+                          disabled={sendingReminderId === quiz.id}
+                          className="v3-tugma text-xs py-1.5 px-3 text-[var(--v3-urgu)] hover:border-[var(--v3-urgu)]"
+                          title="Topshirmagan talabalarga eslatma bildirishnomasi yuborish"
+                        >
+                          <Ikon nom="vaqt" olcham={14} />
+                          {sendingReminderId === quiz.id ? '...' : 'Eslatish'}
+                        </button>
+                      )}
+
                       <Link
                         href={`/ustoz/natijalar?groupId=${quiz.groupId || 'all'}`}
                         className="v3-tugma text-xs py-1.5 px-3"
@@ -568,19 +660,31 @@ export default function OpenQuizManagePage() {
 
           {/* Savollar Ro'yxati */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="font-bold text-sm text-[var(--v3-matn)]">
                 2. Test savollari va to{"'"}g{"'"}ri javoblar ({formData.questions.length} ta)
               </div>
 
-              <button
-                type="button"
-                onClick={addQuestion}
-                className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 inline-flex items-center gap-1.5"
-              >
-                <Ikon nom="qosh" olcham={14} />
-                Savol qo{"'"}shish
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={openBankModal}
+                  className="v3-tugma text-xs py-1.5 px-3 inline-flex items-center gap-1.5"
+                  title="Oldingi testlardagi savollardan tanlab qo'shish"
+                >
+                  <Ikon nom="kitob" olcham={14} />
+                  Savollar bankidan qo{"'"}shish
+                </button>
+
+                <button
+                  type="button"
+                  onClick={addQuestion}
+                  className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 inline-flex items-center gap-1.5 font-bold"
+                >
+                  <Ikon nom="qosh" olcham={14} />
+                  Yangi savol
+                </button>
+              </div>
             </div>
 
             {formData.questions.map((q, qIdx) => (
@@ -745,6 +849,116 @@ export default function OpenQuizManagePage() {
             >
               {isSaving ? 'Saqlanmoqda...' : '✓ Testni e\'lon qilish'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Savollar Banki Modali */}
+      {showBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl border border-[var(--v3-chiziq-2)] bg-[var(--v3-fon-2)] p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--v3-chiziq)]">
+              <div>
+                <div className="v3-nishon">Kutubxona</div>
+                <h3 className="font-bold text-base text-[var(--v3-matn)]">
+                  Savollar Bankidan Import Qilish
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBankModal(false)}
+                className="p-1.5 rounded-lg text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+              >
+                <Ikon nom="yopish" olcham={16} />
+              </button>
+            </div>
+
+            <div className="relative">
+              <input
+                type="text"
+                value={bankSearch}
+                onChange={(e) => {
+                  setBankSearch(e.target.value)
+                  fetchBankQuestions(e.target.value)
+                }}
+                placeholder="Savollar ichidan qidirish..."
+                className="v3-kiritish text-xs py-2 pl-8"
+              />
+              <span className="absolute left-2.5 top-2.5 text-[var(--v3-xira)]">
+                <Ikon nom="qidiruv" olcham={13} />
+              </span>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 min-h-[220px]">
+              {isBankLoading ? (
+                <div className="py-16 text-center text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
+                  <Ikon nom="vaqt" olcham={18} className="animate-spin" />
+                  <span>Savollar yuklanmoqda...</span>
+                </div>
+              ) : bankQuestions.length === 0 ? (
+                <div className="py-16 text-center text-xs text-[var(--v3-xira)]">
+                  Savollar topilmadi
+                </div>
+              ) : (
+                bankQuestions.map((q) => {
+                  const isSelected = selectedBankIds.has(q.id)
+
+                  return (
+                    <div
+                      key={q.id}
+                      onClick={() => toggleBankSelection(q.id)}
+                      className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
+                        isSelected
+                          ? 'bg-[var(--v3-yuza-2)] border-[var(--v3-urgu)]'
+                          : 'bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] hover:border-[var(--v3-chiziq-2)]'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => {}}
+                        className="mt-1 accent-[var(--v3-urgu)]"
+                      />
+
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="text-xs font-semibold text-[var(--v3-matn)]">
+                          {q.questionText}
+                        </div>
+                        <div className="text-[10.5px] text-[var(--v3-xira)] font-mono flex items-center gap-2">
+                          <span>Manba: {q.quizTitle}</span>
+                          <span>•</span>
+                          <span>{q.options?.length || 4} ta variant</span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-[var(--v3-chiziq)]">
+              <span className="text-xs font-mono text-[var(--v3-xira)]">
+                Tanlandi: <strong>{selectedBankIds.size}</strong> ta savol
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowBankModal(false)}
+                  className="v3-tugma text-xs py-2 px-3.5"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="button"
+                  onClick={importSelectedFromBank}
+                  disabled={selectedBankIds.size === 0}
+                  className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold disabled:opacity-40"
+                >
+                  Qo{"'"}shish ({selectedBankIds.size})
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
