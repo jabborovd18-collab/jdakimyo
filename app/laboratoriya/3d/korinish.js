@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import FonTanlagich, { useFon } from "@/components/FonTanlagich";
 import Ikon from "@/components/Ikon";
 import { useSahna } from "./hooks/useSahna.js";
@@ -26,7 +27,7 @@ import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi } from "./lib/ovoz.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
-import { jurnalYarat } from "./lib/jurnal.js";
+import { jurnalYarat, yoz } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
 import { moddaKorinishi } from "./lib/modda-korinishi.js";
 import { reagentBirligi, hajmniBirlikka, miqdorniFormatla } from "@/lib/lab-birlik.js";

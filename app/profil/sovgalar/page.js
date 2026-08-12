@@ -2,6 +2,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
 import toast from 'react-hot-toast'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 import Ikon from '@/components/Ikon'
