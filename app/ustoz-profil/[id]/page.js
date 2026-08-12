@@ -3,45 +3,29 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
+import TasdiqBelgisi from "@/components/TasdiqBelgisi"
 
-/**
- * Ustozning ommaviy profili — talabalar va hamkasblar ko'radigan sahifa.
- *
- * Bu sahifa yo'q edi. Ustoz panelidagi sozlash bo'limi profilni to'liq
- * to'ldirish imkonini berardi va ikki joyda `/ustoz-profil/{id}` ga havola
- * qilardi, lekin bunday yo'l mavjud emasdi — ya'ni "Ommaviy profilni ko'rish"
- * tugmasi 404 ga olib borardi va sozlangan profil hech kimga ko'rinmasdi.
- * API (/api/ustoz-profil/[id]) esa allaqachon hamma narsani qaytarardi.
- */
-
-// Sozlash sahifasidagi THEME_COLORS bilan bir xil bo'lishi shart
 const MAVZU = {
-  purple: "from-purple-600 to-indigo-600",
-  blue: "from-blue-600 to-cyan-600",
-  green: "from-green-600 to-emerald-600",
-  indigo: "from-indigo-600 to-blue-700",
-  amber: "from-amber-600 to-orange-600",
-  rose: "from-rose-600 to-pink-600",
+  purple: "from-purple-900/50 to-indigo-950/50 border-purple-700/40",
+  blue: "from-blue-900/50 to-cyan-950/50 border-blue-700/40",
+  green: "from-green-900/50 to-emerald-950/50 border-green-700/40",
+  indigo: "from-indigo-900/50 to-blue-950/50 border-indigo-700/40",
+  amber: "from-amber-900/50 to-orange-950/50 border-amber-700/40",
+  rose: "from-rose-900/50 to-pink-950/50 border-rose-700/40",
 }
 
 const HAVOLALAR = [
-  { kalit: "website", nom: "Shaxsiy sayt", belgi: "🌐" },
-  { kalit: "googleScholar", nom: "Google Scholar", belgi: "🎓" },
-  { kalit: "researchGate", nom: "ResearchGate", belgi: "🔬" },
-  { kalit: "orcid", nom: "ORCID", belgi: "🆔" },
-  { kalit: "scopus", nom: "Scopus", belgi: "📚" },
+  { kalit: "website", nom: "Shaxsiy sayt", ikon: "doska" },
+  { kalit: "googleScholar", nom: "Google Scholar", ikon: "kitob" },
+  { kalit: "researchGate", nom: "ResearchGate", ikon: "kolba" },
+  { kalit: "orcid", nom: "ORCID", ikon: "atom" },
+  { kalit: "scopus", nom: "Scopus", ikon: "kitob" },
 ]
 
-/** JSON maydonlar bo'sh yoki noto'g'ri turda bo'lishi mumkin. */
 const royxat = (q) => (Array.isArray(q) ? q : [])
 
-/**
- * TeacherQuiz.description ustunida odamga mo'ljallangan matn emas, JSON
- * metama'lumot saqlanadi (app/api/ustoz/open-quiz/route.js: originalDescription,
- * category, tags, ...). Uni to'g'ridan-to'g'ri chiqarsak, talaba xom JSON
- * ko'radi. Eski yozuvlarda oddiy matn bo'lishi mumkin — shuning uchun parse
- * ishlamasa, matnning o'zi qaytariladi.
- */
 function quizTavsifi(xom) {
   if (!xom) return ""
   try {
@@ -52,24 +36,28 @@ function quizTavsifi(xom) {
   }
 }
 
-function Bolim({ sarlavha, belgi, children }) {
+function Bolim({ sarlavha, ikon, children }) {
   return (
-    <section className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 sm:p-6">
-      <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <span>{belgi}</span> {sarlavha}
+    <section className="v3-panel-karta p-5 sm:p-6 space-y-4">
+      <h2 className="text-base font-bold text-[var(--v3-matn)] flex items-center gap-2 pb-2 border-b border-[var(--v3-chiziq)]">
+        <Ikon nom={ikon} olcham={16} className="text-[var(--v3-urgu)]" />
+        <span>{sarlavha}</span>
       </h2>
       {children}
     </section>
   )
 }
 
-export default function UstozProfili() {
-  const { id } = useParams()
+export default function UstozProfiliPage() {
+  const params = useParams()
+  const id = params?.id
+  const [fon, fonTanla] = useFon()
   const [data, setData] = useState(null)
   const [xato, setXato] = useState("")
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
 
   useEffect(() => {
+    if (!id) return
     let bekor = false
 
     fetch(`/api/ustoz-profil/${id}`)
@@ -87,28 +75,33 @@ export default function UstozProfili() {
 
   if (yuklanmoqda) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
-        <div className="text-purple-300">Yuklanmoqda...</div>
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={32} className="animate-spin" />
+          <span className="text-sm">Ustoz profili yuklanmoqda...</span>
+        </div>
       </main>
     )
   }
 
   if (xato || !data?.profile) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
-        <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-8 max-w-md w-full text-center">
-          <div className="text-5xl mb-4">👨‍🏫</div>
-          <h1 className="text-lg font-bold text-white mb-2">
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center p-4">
+        <div className="v3-panel-karta max-w-md w-full p-8 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+            <Ikon nom="odam" olcham={24} />
+          </div>
+          <h1 className="text-base font-bold text-[var(--v3-matn)]">
             {xato || "Profil topilmadi"}
           </h1>
-          <p className="text-purple-400 text-sm mb-5">
-            Ustoz profilini yashirgan bo'lishi yoki hali to'ldirmagan bo'lishi mumkin.
+          <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+            Ustoz profilini yashirgan bo{"'"}lishi yoki hali to{"'"}ldirmagan bo{"'"}lishi mumkin.
           </p>
           <Link
             href="/"
-            className="px-5 py-2.5 bg-purple-800/60 border border-purple-600/50 rounded-xl inline-block text-white text-sm"
+            className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 inline-flex font-bold"
           >
-            Bosh sahifa
+            Bosh sahifaga qaytish
           </Link>
         </div>
       </main>
@@ -116,33 +109,58 @@ export default function UstozProfili() {
   }
 
   const { profile, stats, activeCourses, publicQuizzes } = data
-  const u = profile.user
-  const gradient = MAVZU[profile.themeColor] || MAVZU.purple
+  const u = profile.user || {}
+  const themeCard = MAVZU[profile.themeColor] || MAVZU.purple
   const ism = profile.displayName || u.fullName || u.username
 
   const havolalar = HAVOLALAR.filter((h) => profile[h.kalit])
-  const ilmiySon =
-    profile.publications || profile.citations || profile.hIndex
+  const ilmiySon = profile.publications || profile.citations || profile.hIndex
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
+    <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
+      {/* Background glow & grid */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <span className="v3-nur v3-nur-a" />
+        <span className="v3-nur v3-nur-b" />
+        <span className="v3-tor-fon" />
+      </div>
 
-      {/* BANNER */}
-      <div className={`relative bg-gradient-to-br ${gradient}`}>
-        {profile.coverImage && (
-          <img
-            src={profile.coverImage}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-35"
-          />
-        )}
-        <div className="relative max-w-4xl mx-auto px-4 pt-8 pb-10">
-          <Link href="/" className="text-white/70 hover:text-white text-sm">
-            ← Bosh sahifa
-          </Link>
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-[var(--v3-fon)]/90 backdrop-blur-xl border-b border-[var(--v3-chiziq)]">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="v3-ikon-tugma" aria-label="Bosh sahifa">
+              <Ikon nom="chap" olcham={18} />
+            </Link>
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="v3-logo" aria-hidden="true" />
+              <span className="v3-logo-matn">JDA KIMYO</span>
+            </Link>
+          </div>
 
-          <div className="mt-6 flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-purple-950/60 border-4 border-white/20 grid place-items-center text-4xl font-bold overflow-hidden flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <FonTanlagich fon={fon} onFonTanla={fonTanla} ixcham />
+            <Link href="/chat" className="v3-tugma text-xs py-1.5 px-3">
+              <Ikon nom="xabar" olcham={14} />
+              <span className="hidden sm:inline">Xabar yozish</span>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Banner / Hero Section */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <div className={`v3-panel-karta bg-gradient-to-br ${themeCard} p-6 sm:p-8 space-y-6 relative overflow-hidden`}>
+          {profile.coverImage && (
+            <img
+              src={profile.coverImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+            />
+          )}
+
+          <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[var(--v3-fon-2)] border-2 border-[var(--v3-chiziq-2)] grid place-items-center text-3xl sm:text-4xl font-bold text-[var(--v3-urgu)] overflow-hidden shrink-0 shadow-lg">
               {u.avatar ? (
                 <img src={u.avatar} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -150,78 +168,72 @@ export default function UstozProfili() {
               )}
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 space-y-1.5 flex-1">
               <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-bold">{ism}</h1>
-                {profile.isVerified && (
-                  <span
-                    title="Admin tomonidan tasdiqlangan"
-                    className="text-xs bg-white/20 border border-white/30 px-2 py-0.5 rounded-full"
-                  >
-                    ✓ Tasdiqlangan
-                  </span>
-                )}
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--v3-matn)]">
+                  {ism}
+                </h1>
+                <TasdiqBelgisi tasdiqlangan={profile.isVerified || u.isVerified} olcham="katta" />
               </div>
 
               {profile.title && (
-                <p className="text-white/90 mt-1">{profile.title}</p>
+                <p className="text-sm font-semibold text-[var(--v3-urgu)]">
+                  {profile.title}
+                </p>
               )}
 
-              <p className="text-white/70 text-sm mt-1.5">
+              <p className="text-xs text-[var(--v3-xira)]">
                 {[profile.position, profile.department, profile.university || u.university]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
+
+              {profile.bannerQuote && (
+                <div className="pt-2">
+                  <p className="text-xs italic text-[var(--v3-matn)] border-l-2 border-[var(--v3-urgu)] pl-3">
+                    “{profile.bannerQuote}”
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-
-          {profile.bannerQuote && (
-            <p className="mt-6 text-white/90 italic text-sm sm:text-base border-l-2 border-white/40 pl-4">
-              “{profile.bannerQuote}”
-            </p>
-          )}
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-5">
-
-        {/* STATISTIKA */}
-        {stats && (
+        {/* Stats Row */}
+        {stats && profile.showStats && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { son: stats.students, nom: "Talaba", belgi: "👥" },
-              { son: stats.groups, nom: "Guruh", belgi: "🏫" },
-              { son: stats.quizzes, nom: "Quiz", belgi: "📝" },
-              { son: stats.assignments, nom: "Faol vazifa", belgi: "📋" },
+              { son: stats.students, nom: "Faol talaba", ikon: "odamlar" },
+              { son: stats.groups, nom: "Guruh", ikon: "kitob" },
+              { son: stats.quizzes, nom: "Testlar", ikon: "quiz" },
+              { son: stats.assignments, nom: "Vazifalar", ikon: "fayl" },
             ].map((s) => (
-              <div
-                key={s.nom}
-                className="bg-purple-900/30 border border-purple-700/50 rounded-xl p-4 text-center"
-              >
-                <div className="text-2xl mb-1">{s.belgi}</div>
-                <div className="text-2xl font-bold text-white tabular-nums">{s.son}</div>
-                <div className="text-xs text-purple-400">{s.nom}</div>
+              <div key={s.nom} className="v3-panel-karta p-4 text-center">
+                <div className="flex items-center justify-center text-[var(--v3-xira)] mb-1">
+                  <Ikon nom={s.ikon} olcham={16} />
+                </div>
+                <div className="text-2xl font-bold font-mono text-[var(--v3-matn)]">{s.son}</div>
+                <div className="text-[11px] text-[var(--v3-xira)]">{s.nom}</div>
               </div>
             ))}
           </div>
         )}
 
+        {/* Bio */}
         {profile.bio && (
-          <Bolim sarlavha="Ustoz haqida" belgi="📖">
-            <p className="text-purple-200 text-sm leading-relaxed whitespace-pre-wrap">
+          <Bolim sarlavha="Ustoz haqida" ikon="kitob">
+            <p className="text-xs sm:text-sm text-[var(--v3-matn)] leading-relaxed whitespace-pre-wrap">
               {profile.bio}
             </p>
           </Bolim>
         )}
 
+        {/* Specialties */}
         {royxat(profile.specialties).length > 0 && (
-          <Bolim sarlavha="Mutaxassislik" belgi="🎯">
+          <Bolim sarlavha="Mutaxassislik yo'nalishlari" ikon="atom">
             <div className="flex flex-wrap gap-2">
               {royxat(profile.specialties).map((s, i) => (
-                <span
-                  key={i}
-                  className="text-xs px-3 py-1.5 bg-purple-800/50 border border-purple-700/50 rounded-full text-purple-200"
-                >
+                <span key={i} className="v3-tag v3-tag-ochiq text-xs py-1 px-3">
                   {s}
                 </span>
               ))}
@@ -229,38 +241,40 @@ export default function UstozProfili() {
           </Bolim>
         )}
 
+        {/* Publications & Academic Stats */}
         {profile.showPublications && ilmiySon && (
-          <Bolim sarlavha="Ilmiy faoliyat" belgi="📊">
+          <Bolim sarlavha="Ilmiy va akademik faoliyat" ikon="orin">
             <div className="grid grid-cols-3 gap-3 text-center">
               {[
-                { son: profile.publications, nom: "Maqola" },
-                { son: profile.citations, nom: "Iqtibos" },
+                { son: profile.publications, nom: "Ilmiy maqola" },
+                { son: profile.citations, nom: "Iqtiboslar" },
                 { son: profile.hIndex, nom: "h-indeks" },
               ].map((s) => (
-                <div key={s.nom} className="bg-purple-950/40 rounded-xl p-4">
-                  <div className="text-2xl font-bold text-yellow-400 tabular-nums">
+                <div key={s.nom} className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)]">
+                  <div className="text-2xl font-bold font-mono text-[var(--v3-urgu)]">
                     {s.son ?? "—"}
                   </div>
-                  <div className="text-xs text-purple-400 mt-1">{s.nom}</div>
+                  <div className="text-[11px] text-[var(--v3-xira)] mt-1">{s.nom}</div>
                 </div>
               ))}
             </div>
             {profile.experienceYears ? (
-              <p className="text-purple-300 text-sm mt-4">
-                Pedagogik tajriba: <strong className="text-white">{profile.experienceYears} yil</strong>
+              <p className="text-xs text-[var(--v3-xira)] mt-3">
+                Pedagogik tajriba: <strong className="text-[var(--v3-matn)] font-mono">{profile.experienceYears} yil</strong>
               </p>
             ) : null}
           </Bolim>
         )}
 
+        {/* Research Areas */}
         {royxat(profile.researchAreas).length > 0 && (
-          <Bolim sarlavha="Tadqiqot yo'nalishlari" belgi="🔬">
+          <Bolim sarlavha="Ilmiy tadqiqot mavzulari" ikon="kolba">
             <div className="space-y-3">
               {royxat(profile.researchAreas).map((r, i) => (
-                <div key={i} className="bg-purple-950/40 rounded-xl p-4">
-                  <h3 className="font-semibold text-white text-sm">{r.name}</h3>
+                <div key={i} className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] space-y-1">
+                  <h3 className="font-bold text-xs text-[var(--v3-matn)]">{r.name}</h3>
                   {r.description && (
-                    <p className="text-purple-300 text-sm mt-1 leading-relaxed">{r.description}</p>
+                    <p className="text-xs text-[var(--v3-xira)] leading-relaxed">{r.description}</p>
                   )}
                 </div>
               ))}
@@ -268,19 +282,18 @@ export default function UstozProfili() {
           </Bolim>
         )}
 
-        {royxat(activeCourses).length > 0 && (
-          <Bolim sarlavha="Dars beradigan kurslar" belgi="📚">
+        {/* Courses */}
+        {profile.showCourses && royxat(activeCourses).length > 0 && (
+          <Bolim sarlavha="O'qitiladigan fanlar va kurslar" ikon="kitob">
             <div className="grid sm:grid-cols-2 gap-3">
               {royxat(activeCourses).map((k, i) => (
-                <div key={i} className="bg-purple-950/40 rounded-xl p-4">
-                  <h3 className="font-semibold text-white text-sm">{k.name}</h3>
-                  <p className="text-xs text-purple-400 mt-1">
-                    {[k.semester && `${k.semester}-semestr`, k.credits && `${k.credits} kredit`]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
+                <div key={i} className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] space-y-1">
+                  <h3 className="font-bold text-xs text-[var(--v3-matn)]">{k.name}</h3>
+                  <div className="text-[10.5px] text-[var(--v3-urgu)] font-mono">
+                    {[k.semester && `${k.semester}-semestr`, k.credits && `${k.credits} kredit`].filter(Boolean).join(" · ")}
+                  </div>
                   {k.description && (
-                    <p className="text-purple-300 text-sm mt-2 leading-relaxed">{k.description}</p>
+                    <p className="text-xs text-[var(--v3-xira)] leading-relaxed">{k.description}</p>
                   )}
                 </div>
               ))}
@@ -288,19 +301,18 @@ export default function UstozProfili() {
           </Bolim>
         )}
 
+        {/* Education & Awards */}
         {royxat(profile.education).length > 0 && (
-          <Bolim sarlavha="Ta'lim" belgi="🎓">
-            <div className="space-y-3">
+          <Bolim sarlavha="Akademik ta'lim" ikon="orin">
+            <div className="space-y-2.5">
               {royxat(profile.education).map((e, i) => (
-                <div key={i} className="flex gap-3 items-baseline">
-                  <span className="text-yellow-400 text-sm tabular-nums w-14 flex-shrink-0">
+                <div key={i} className="flex gap-3 text-xs items-baseline">
+                  <span className="font-mono font-bold text-[var(--v3-urgu)] w-14 shrink-0">
                     {e.year || "—"}
                   </span>
                   <div>
-                    <div className="text-white text-sm font-semibold">{e.degree}</div>
-                    {e.university && (
-                      <div className="text-purple-400 text-xs">{e.university}</div>
-                    )}
+                    <div className="font-bold text-[var(--v3-matn)]">{e.degree}</div>
+                    {e.university && <div className="text-[11px] text-[var(--v3-xira)]">{e.university}</div>}
                   </div>
                 </div>
               ))}
@@ -308,54 +320,38 @@ export default function UstozProfili() {
           </Bolim>
         )}
 
-        {royxat(profile.awards).length > 0 && (
-          <Bolim sarlavha="Mukofotlar" belgi="🏆">
-            <div className="space-y-3">
-              {royxat(profile.awards).map((a, i) => (
-                <div key={i} className="flex gap-3 items-baseline">
-                  <span className="text-yellow-400 text-sm tabular-nums w-14 flex-shrink-0">
-                    {a.year || "—"}
-                  </span>
-                  <div>
-                    <div className="text-white text-sm font-semibold">{a.title}</div>
-                    {a.organization && (
-                      <div className="text-purple-400 text-xs">{a.organization}</div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Bolim>
-        )}
-
+        {/* Public Quizzes */}
         {royxat(publicQuizzes).length > 0 && (
-          <Bolim sarlavha="Ochiq quizlar" belgi="📝">
+          <Bolim sarlavha="Ustozning ochiq testlari" ikon="quiz">
             <div className="grid sm:grid-cols-2 gap-3">
               {royxat(publicQuizzes).map((q) => {
                 const tavsif = quizTavsifi(q.description)
                 return (
-                <Link
-                  key={q.id}
-                  href={`/oquv/video-darsliklar/ustoz-quiz/${q.id}`}
-                  className="bg-purple-950/40 rounded-xl p-4 border border-purple-700/40 hover:border-yellow-500/50 transition-colors"
-                >
-                  <h3 className="font-semibold text-white text-sm">{q.title}</h3>
-                  {tavsif && (
-                    <p className="text-purple-300 text-xs mt-1 line-clamp-2">{tavsif}</p>
-                  )}
-                  <p className="text-xs text-yellow-400 mt-2">
-                    {q._count.questions} savol
-                    {q.timeLimit ? ` · ${q.timeLimit} daqiqa` : ""} · Boshlash →
-                  </p>
-                </Link>
+                  <Link
+                    key={q.id}
+                    href={`/oquv/video-darsliklar/ustoz-quiz/${q.id}`}
+                    className="p-4 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] hover:border-[var(--v3-urgu)] transition-all group block space-y-1.5"
+                  >
+                    <h3 className="font-bold text-xs text-[var(--v3-matn)] group-hover:text-[var(--v3-urgu)] transition-colors">
+                      {q.title}
+                    </h3>
+                    {tavsif && (
+                      <p className="text-xs text-[var(--v3-xira)] line-clamp-1">{tavsif}</p>
+                    )}
+                    <div className="text-[11px] text-[var(--v3-urgu)] font-mono flex items-center justify-between pt-1">
+                      <span>{q._count?.questions || 0} ta savol {q.timeLimit ? `· ${q.timeLimit} daq` : ''}</span>
+                      <span>Boshlash →</span>
+                    </div>
+                  </Link>
                 )
               })}
             </div>
           </Bolim>
         )}
 
+        {/* Academic Links */}
         {(havolalar.length > 0 || (profile.showEmail && u.email)) && (
-          <Bolim sarlavha="Akademik havolalar" belgi="🔗">
+          <Bolim sarlavha="Akademik havolalar va aloqa" ikon="doska">
             <div className="flex flex-wrap gap-2">
               {havolalar.map((h) => (
                 <a
@@ -363,27 +359,28 @@ export default function UstozProfili() {
                   href={profile[h.kalit]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm px-4 py-2 bg-purple-800/50 border border-purple-700/50 rounded-xl text-purple-200 hover:border-yellow-500/50 transition-colors"
+                  className="v3-tugma text-xs py-1.5 px-3"
                 >
-                  {h.belgi} {h.nom}
+                  <Ikon nom={h.ikon} olcham={13} />
+                  {h.nom}
                 </a>
               ))}
-              {/* Email faqat ustoz sozlamada ruxsat bergan bo'lsa keladi */}
               {profile.showEmail && u.email && (
                 <a
                   href={`mailto:${u.email}`}
-                  className="text-sm px-4 py-2 bg-purple-800/50 border border-purple-700/50 rounded-xl text-purple-200 hover:border-yellow-500/50 transition-colors"
+                  className="v3-tugma text-xs py-1.5 px-3"
                 >
-                  ✉️ {u.email}
+                  <Ikon nom="pochta" olcham={13} />
+                  {u.email}
                 </a>
               )}
             </div>
           </Bolim>
         )}
 
-        <p className="text-center text-xs text-purple-600 pt-2">
-          👁 {profile.views} marta ko'rilgan
-        </p>
+        <div className="text-center text-[11px] font-mono text-[var(--v3-xira)] pt-4">
+          Profil ko{"'"}rishlar soni: {profile.views || 0}
+        </div>
       </div>
     </main>
   )

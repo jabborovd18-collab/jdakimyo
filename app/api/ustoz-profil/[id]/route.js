@@ -4,110 +4,146 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 
-// GET - Ommaviy o'qituvchi profili (har kim ko'ra oladi)
+// GET - Ommaviy o'qituvchi profili
 export async function GET(request, { params }) {
   try {
-    // Next 16 da `params` — Promise. Avval `params.id` to'g'ridan-to'g'ri
-    // o'qilardi va undefined qaytarardi; Prisma esa undefined filtrni
-    // tashlab yuboradi, ya'ni so'rov "birinchi faol profil" ga aylanib
-    // qolgandi. Bitta profil borligi uchun sezilmagan, lekin ikkinchi ustoz
-    // qo'shilishi bilan talabalar noto'g'ri profilni ko'rgan bo'lardi.
-    // Stats va publicQuizzes ham teacherId: undefined bilan, ya'ni butun
-    // sayt bo'yicha hisoblanardi.
-    const { id: userId } = await params
+    const { id: paramId } = await params
 
-    if (!userId) {
+    if (!paramId) {
       return NextResponse.json({ error: 'ID berilmadi' }, { status: 400 })
     }
 
-    // Profilni olish (faqat isActive bo'lsa)
-    const profile = await prisma.teacherPublicProfile.findFirst({
-      where: { 
-        userId,
-        isActive: true
+    // 1. Foydalanuvchini topish: CUID id, public userId yoki username bo'yicha
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: paramId },
+          { userId: paramId },
+          { username: paramId }
+        ]
       },
-      include: {
-        user: {
-          select: {
-            id: true,
-            userId: true,
-            username: true,
-            fullName: true,
-            avatar: true,
-            university: true,
-            faculty: true,
-            role: true,
-            // Sozlamada "email ko'rsatilsin" yoqilgan bo'lsagina qaytariladi —
-            // pastda tekshiriladi va aks holda javobdan olib tashlanadi.
-            email: true
-          }
-        }
+      select: {
+        id: true,
+        userId: true,
+        username: true,
+        fullName: true,
+        avatar: true,
+        university: true,
+        faculty: true,
+        role: true,
+        isTeacher: true,
+        isVerified: true,
+        bio: true,
+        email: true
       }
     })
 
-    if (!profile) {
+    if (!user) {
       return NextResponse.json(
-        { error: 'O\'qituvchi profili topilmadi yoki yashirilgan' },
+        { error: 'Foydalanuvchi topilmadi' },
         { status: 404 }
       )
     }
 
-    // Email ochiq kontentga faqat ustozning o'zi ruxsat berganda chiqadi
-    if (!profile.showEmail) {
-      delete profile.user.email
-    }
-
-    // Ko'rishlar sonini oshirish — lekin ustozning o'zi ko'rsa hisoblanmaydi.
-    // Sozlash sahifasidagi "Ommaviy profilni ko'rish" tugmasi shu sahifani
-    // ochadi, ya'ni ustoz profilini har tekshirganda o'z sanoqchisini
-    // shishirib yuborardi.
     const session = await getServerSession(authOptions)
-    const oziniki = session?.user?.id === userId
+    const isOwner = session?.user?.id === user.id
 
-    if (!oziniki) {
-      await prisma.teacherPublicProfile.update({
-        where: { id: profile.id },
-        data: { views: { increment: 1 } }
-      })
-      profile.views += 1
+    // 2. Ustoz profilini bazadan olish
+    let profile = await prisma.teacherPublicProfile.findUnique({
+      where: { userId: user.id }
+    })
+
+    // Agar profil yashirilgan bo'lsa va ko'rayotgan odam ustozning o'zi bo'lmasa
+    if (profile && !profile.isActive && !isOwner) {
+      return NextResponse.json(
+        { error: 'O\'qituvchi profili hozirda yashirilgan' },
+        { status: 404 }
+      )
     }
 
-    // Statistika (agar showStats yoqilgan bo'lsa)
-    let stats = null
-    if (profile.showStats) {
-      const [studentsCount, groupsCount, activeQuizzes, activeAssignments] = await Promise.all([
-        prisma.teacherStudent.count({ where: { teacherId: userId, holat: 'faol' } }),
-        prisma.teacherGroup.count({ where: { teacherId: userId } }),
-        prisma.teacherQuiz.count({ 
-          where: { teacherId: userId, isDraft: false } 
-        }),
-        prisma.assignment.count({ 
-          where: { 
-            teacherId: userId, 
-            isDraft: false,
-            deadline: { gte: new Date() }
-          } 
-        })
-      ])
-
-      stats = {
-        students: studentsCount,
-        groups: groupsCount,
-        quizzes: activeQuizzes,
-        assignments: activeAssignments
+    // Agar profil yozuvi hali yaratilmagan bo'lsa (boshlang'ich holat)
+    if (!profile) {
+      profile = {
+        id: 'temp-' + user.id,
+        userId: user.id,
+        displayName: user.fullName || user.username,
+        title: 'Kimyo o\'qituvchisi',
+        bio: user.bio || '',
+        university: user.university || '',
+        department: user.faculty || '',
+        position: 'O\'qituvchi',
+        experienceYears: null,
+        specialties: ['Koordinatsion kimyo', 'Oliy kimyo'],
+        education: [],
+        publications: null,
+        citations: null,
+        hIndex: null,
+        awards: [],
+        researchAreas: [],
+        currentProjects: [],
+        courses: [],
+        website: null,
+        googleScholar: null,
+        researchGate: null,
+        orcid: null,
+        scopus: null,
+        showEmail: false,
+        showPhone: false,
+        showStats: true,
+        showCourses: true,
+        showPublications: true,
+        themeColor: 'purple',
+        coverImage: null,
+        bannerQuote: null,
+        isActive: true,
+        isVerified: user.isVerified || false,
+        views: 0
       }
     }
 
-    // Aktiv kurslar (agar showCourses yoqilgan bo'lsa)
-    let activeCourses = []
-    if (profile.showCourses && profile.courses) {
-      activeCourses = profile.courses
+    // Email faqat ustoz ruxsat berganda ochiq ko'rinadi
+    const userCopy = { ...user }
+    if (!profile.showEmail) {
+      delete userCopy.email
+    }
+    profile.user = userCopy
+
+    // Ko'rishlar sonini oshirish (faqat begonalar ko'rganda)
+    if (!isOwner && profile.id && !profile.id.startsWith('temp-')) {
+      await prisma.teacherPublicProfile.update({
+        where: { id: profile.id },
+        data: { views: { increment: 1 } }
+      }).catch(() => {})
+      profile.views = (profile.views || 0) + 1
     }
 
-    // Ochiq quizlar (talabalar yechishi mumkin)
+    // 3. Statistika
+    const [studentsCount, groupsCount, activeQuizzes, activeAssignments] = await Promise.all([
+      prisma.teacherStudent.count({ where: { teacherId: user.id, holat: 'faol' } }),
+      prisma.teacherGroup.count({ where: { teacherId: user.id } }),
+      prisma.teacherQuiz.count({ 
+        where: { teacherId: user.id, isDraft: false } 
+      }),
+      prisma.assignment.count({ 
+        where: { 
+          teacherId: user.id, 
+          isDraft: false,
+          deadline: { gte: new Date() }
+        } 
+      })
+    ])
+
+    const stats = {
+      students: studentsCount,
+      groups: groupsCount,
+      quizzes: activeQuizzes,
+      assignments: activeAssignments
+    }
+
+    // 4. Ochiq testlar
     const publicQuizzes = await prisma.teacherQuiz.findMany({
       where: {
-        teacherId: userId,
+        teacherId: user.id,
         isDraft: false,
         isPublic: true
       },
@@ -127,11 +163,11 @@ export async function GET(request, { params }) {
       success: true,
       profile,
       stats,
-      activeCourses,
+      activeCourses: profile.courses || [],
       publicQuizzes
     })
   } catch (error) {
-    console.error('[Teacher Public Profile GET]', error)
+    console.error('[Teacher Public Profile GET Error]', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -359,6 +359,15 @@ export default function PublicProfilePage() {
                 <span className="px-3 py-1 bg-blue-600/20 text-blue-400 border border-blue-600/30 rounded-full text-sm">
                   {roleLabels[user.role] || user.role}
                 </span>
+                {user.isTeacher && (
+                  <Link
+                    href={`/ustoz-profil/${user.userId || user.id}`}
+                    className="px-3 py-1 bg-green-600/20 text-green-300 border border-green-500/40 rounded-full text-sm font-semibold hover:bg-green-600/30 transition-all flex items-center gap-1.5"
+                  >
+                    <span>👨‍🏫</span>
+                    <span>Ustoz profili →</span>
+                  </Link>
+                )}
               </div>
               {user.university && (
                 <div className="text-purple-200 text-sm mb-2 flex items-center gap-2">
