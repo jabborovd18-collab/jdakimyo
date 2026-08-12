@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Ikon from "@/components/Ikon";
 import MasalaVizual from "./MasalaVizual.jsx";
 import { masalaPdfYukla } from "@/lib/masala-pdf.js";
+import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
 import toast from "react-hot-toast";
 
 export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvchiNom = "Talaba" }) {
@@ -11,62 +12,48 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
   const [tezlik, setTezlik] = useState(1);
   const [oqituvchiJavobi, setOqituvchiJavobi] = useState("");
   const [pdfYuklanmoqda, setPdfYuklanmoqda] = useState(false);
-  const utteranceRef = useRef(null);
+  const [faolGapIndeks, setFaolGapIndeks] = useState(-1);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && natija?.ovozMatni) {
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-        const ut = new SpeechSynthesisUtterance(natija.ovozMatni);
-        ut.lang = "uz-UZ";
-        ut.rate = tezlik;
-        ut.onend = () => setIjroEtilmoqda(false);
-        ut.onerror = () => setIjroEtilmoqda(false);
-        utteranceRef.current = ut;
-      }
-    }
-
     return () => {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
+      ovozPleyeri.toxtat();
     };
-  }, [natija, tezlik]);
+  }, []);
 
   if (!natija) return null;
 
   const handleOvozIjro = () => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      toast.error("Brauzeringiz ovozli o'qishni qo'llab-quvvatlamaydi.");
-      return;
-    }
-
     if (ijroEtilmoqda) {
-      window.speechSynthesis.pause();
+      ovozPleyeri.pausa();
       setIjroEtilmoqda(false);
     } else {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      } else {
-        window.speechSynthesis.cancel();
-        if (utteranceRef.current) {
-          utteranceRef.current.rate = tezlik;
-          window.speechSynthesis.speak(utteranceRef.current);
-        }
+      const matn = natija?.ovozMatni || natija?.yakuniyJavob || "";
+      if (!matn) {
+        toast.error("Ovozli o'qish uchun matn topilmadi.");
+        return;
       }
+
+      ovozPleyeri.boshla(matn, {
+        tezlik,
+        onBoshlandi: () => setIjroEtilmoqda(true),
+        onTugadi: () => {
+          setIjroEtilmoqda(false);
+          setFaolGapIndeks(-1);
+        },
+        onQadam: (idx) => {
+          setFaolGapIndeks(idx);
+        },
+        onXato: () => {
+          setIjroEtilmoqda(false);
+        },
+      });
       setIjroEtilmoqda(true);
     }
   };
 
   const handleTezlikOzgardi = (yangiTezlik) => {
     setTezlik(yangiTezlik);
-    if (ijroEtilmoqda) {
-      window.speechSynthesis.cancel();
-      if (utteranceRef.current) {
-        utteranceRef.current.rate = yangiTezlik;
-        window.speechSynthesis.speak(utteranceRef.current);
-      }
-    }
+    ovozPleyeri.tezlikniOrnat(yangiTezlik);
   };
 
   const handlePdfYuklabOlish = async () => {
