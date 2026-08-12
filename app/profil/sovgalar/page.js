@@ -1,16 +1,11 @@
 // app/profil/sovgalar/page.js
-//
-// Kunlik sovg'a sahifasi.
-//
-// Muhim jihat: sovg'a QABUL QILINGANDA tanga beriladi va u Toshkent
-// vaqti bilan yarim tunda kuyadi. Ikkalasi ham sahifada ochiq yozilgan —
-// odam kutib qolib, sovg'asini yo'qotmasin.
 "use client"
+
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
+import Ikon from '@/components/Ikon'
 
-/** ms ni "5 soat 12 daqiqa" ko'rinishiga keltiradi */
 function qolganVaqt(ms) {
   if (ms <= 0) return 'tugadi'
   const soat = Math.floor(ms / 3600000)
@@ -43,11 +38,11 @@ export default function SovgalarPage() {
       const res = await fetch('/api/sovga', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dostId }),
+        body: JSON.stringify({ qabulQiluvchiId: dostId }),
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error)
-      toast.success(d.message)
+      toast.success(d.message || 'Sovg\'a yuborildi!')
       yukla()
     } catch (e) {
       toast.error(e.message)
@@ -66,7 +61,7 @@ export default function SovgalarPage() {
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error)
-      toast.success(d.message, { duration: 5000, icon: '🎁' })
+      toast.success(d.message || 'Sovg\'a qabul qilindi!')
       yukla()
     } catch (e) {
       toast.error(e.message)
@@ -76,157 +71,147 @@ export default function SovgalarPage() {
   }
 
   if (!malumot) {
-    return <div className="py-16 text-center text-purple-300">⏳ Yuklanmoqda...</div>
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={28} className="animate-spin" />
+          <span className="text-xs">Sovg{"'"}alar yuklanmoqda...</span>
+        </div>
+      </div>
+    )
   }
 
-  const { kelganlar, bugungiYuborilgan, dostlar, tanga, kunTugashigaMs } = malumot
-  const filtrlangan = dostlar.filter((d) =>
-    !qidiruv ||
-    (d.fullName || '').toLowerCase().includes(qidiruv.toLowerCase()) ||
-    d.username.toLowerCase().includes(qidiruv.toLowerCase())
-  )
+  const dostlar = (malumot.dostlar || []).filter((d) => {
+    if (!qidiruv) return true
+    const q = qidiruv.toLowerCase()
+    return (
+      (d.fullName && d.fullName.toLowerCase().includes(q)) ||
+      (d.username && d.username.toLowerCase().includes(q))
+    )
+  })
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-1">🎁 Sovg'alar</h1>
-        <p className="text-sm text-purple-300">
-          Kuniga bitta do'stingizga sovg'a yuborasiz. Do'stingiz qabul qilsa,
-          <span className="text-yellow-300 font-semibold"> ikkalangiz ham {tanga} tangadan </span>
-          olasiz.
-        </p>
+    <div className="space-y-6 max-w-5xl">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--v3-chiziq)]">
+        <div>
+          <div className="v3-nishon">Tanga va hadyalar</div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--v3-matn)] flex items-center gap-2">
+            <Ikon nom="orin" olcham={22} className="text-[var(--v3-urgu)]" />
+            <span>Kunlik Sovg{"'"}alar</span>
+          </h1>
+          <p className="text-xs text-[var(--v3-xira)] mt-1">
+            Do{"'"}stlaringizga har kuni bepul 5 ta tanga yuboring va ulardan tangalar qabul qiling.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 font-mono text-xs text-[var(--v3-xira)]">
+          <span>Kuyishiga:</span>
+          <strong className="text-[var(--v3-urgu)]">{qolganVaqt(malumot.qolganMs)}</strong>
+        </div>
       </div>
 
       {/* ─── KELGAN SOVG'ALAR ─── */}
-      <section>
-        <h2 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
-          📬 Sizga kelgan
-          {kelganlar.length > 0 && (
-            <span className="px-2 py-0.5 bg-yellow-500/20 border border-yellow-500/40 rounded-full text-xs text-yellow-300">
-              {kelganlar.length}
-            </span>
-          )}
-        </h2>
-        {kelganlar.length > 0 && (
-          <p className="text-xs text-orange-300 mb-3">
-            ⏳ Yarim tungacha {qolganVaqt(kunTugashigaMs)} qoldi — keyin sovg'alar kuyadi
-          </p>
-        )}
-
-        {kelganlar.length === 0 ? (
-          <div className="text-center py-10 bg-slate-900/40 border border-purple-800/40 rounded-2xl">
-            <div className="text-4xl mb-2">📭</div>
-            <p className="text-purple-300 text-sm">Hozircha sovg'a yo'q</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {kelganlar.map((s) => (
+      {malumot.kelganlar && malumot.kelganlar.length > 0 && (
+        <section className="space-y-3">
+          <div className="v3-nishon">Sizga kelgan sovg{"'"}alar ({malumot.kelganlar.length})</div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {malumot.kelganlar.map((s) => (
               <div
                 key={s.id}
-                className="bg-gradient-to-br from-yellow-900/20 to-amber-900/10 border border-yellow-700/40 rounded-2xl p-4 flex items-center gap-3"
+                className="v3-panel-karta p-4 flex items-center justify-between gap-3 border-[var(--v3-urgu)]/40"
               >
-                <Avatar user={s.sender} />
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-white flex items-center gap-1.5">
-                    <span className="truncate">{s.sender.fullName || s.sender.username}</span>
-                    <TasdiqBelgisi tasdiqlangan={s.sender.isVerified} olcham="kichik" />
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                    {s.yuboruvchi.avatar ? (
+                      <img src={s.yuboruvchi.avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      (s.yuboruvchi.fullName?.[0] || s.yuboruvchi.username?.[0] || 'U').toUpperCase()
+                    )}
                   </div>
-                  <div className="text-xs text-purple-400">@{s.sender.username}</div>
+                  <div className="min-w-0">
+                    <div className="font-bold text-xs text-[var(--v3-matn)] truncate flex items-center gap-1">
+                      <span>{s.yuboruvchi.fullName || s.yuboruvchi.username}</span>
+                      <TasdiqBelgisi tasdiqlangan={s.yuboruvchi.isVerified} olcham="kichik" />
+                    </div>
+                    <div className="text-[10.5px] text-[var(--v3-urgu)] font-mono">+5 🪙 sovg{"'"}a yubordi</div>
+                  </div>
                 </div>
+
                 <button
+                  type="button"
                   onClick={() => qabulQil(s.id)}
                   disabled={band === s.id}
-                  className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl text-sm disabled:opacity-50 flex-shrink-0"
+                  className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 font-bold shrink-0"
                 >
-                  🎁 Olish
+                  {band === s.id ? '...' : 'Qabul qilish'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ─── DO'STLARGA YUBORISH ─── */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="v3-nishon">Do{"'"}stlarga sovg{"'"}a yuborish</div>
+
+          <input
+            type="text"
+            value={qidiruv}
+            onChange={(e) => setQidiruv(e.target.value)}
+            placeholder="Do'stni qidirish..."
+            className="v3-kiritish text-xs py-1.5 max-w-xs"
+          />
+        </div>
+
+        {dostlar.length === 0 ? (
+          <div className="v3-panel-karta py-16 text-center text-xs text-[var(--v3-xira)] space-y-2">
+            <p>Do{"'"}stlar topilmadi.</p>
+            <Link href="/profil/dostlar" className="text-[var(--v3-urgu)] hover:underline font-bold">
+              Do{"'"}stlar qidirish bo{"'"}limiga o{"'"}tish →
+            </Link>
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {dostlar.map((d) => (
+              <div
+                key={d.id}
+                className="v3-panel-karta p-4 flex items-center justify-between gap-3"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                    {d.avatar ? (
+                      <img src={d.avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      (d.fullName?.[0] || d.username?.[0] || 'U').toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-bold text-xs text-[var(--v3-matn)] truncate flex items-center gap-1">
+                      <span>{d.fullName || d.username}</span>
+                      <TasdiqBelgisi tasdiqlangan={d.isVerified} olcham="kichik" />
+                    </div>
+                    <div className="text-[10.5px] text-[var(--v3-xira)] font-mono truncate">@{d.username}</div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => yubor(d.id)}
+                  disabled={band === d.id || malumot.bugunYuborilgan}
+                  className={`v3-tugma text-xs py-1.5 px-3 shrink-0 ${
+                    malumot.bugunYuborilgan ? 'opacity-40 cursor-not-allowed' : 'v3-tugma-asosiy font-bold'
+                  }`}
+                >
+                  {band === d.id ? '...' : malumot.bugunYuborilgan ? 'Yuborilgan' : 'Sovg\'a'}
                 </button>
               </div>
             ))}
           </div>
         )}
       </section>
-
-      {/* ─── YUBORISH ─── */}
-      <section>
-        <h2 className="text-lg font-semibold text-white mb-3">📤 Sovg'a yuborish</h2>
-
-        {bugungiYuborilgan ? (
-          <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-4 flex items-center gap-3">
-            <Avatar user={bugungiYuborilgan.receiver} />
-            <div className="min-w-0 flex-1">
-              <div className="text-sm text-purple-300">Bugungi sovg'angiz yuborilgan:</div>
-              <div className="font-semibold text-white flex items-center gap-1.5">
-                <span className="truncate">
-                  {bugungiYuborilgan.receiver.fullName || bugungiYuborilgan.receiver.username}
-                </span>
-                <TasdiqBelgisi tasdiqlangan={bugungiYuborilgan.receiver.isVerified} olcham="kichik" />
-              </div>
-              <div className="text-xs mt-1">
-                {bugungiYuborilgan.holat === 'qabul' ? (
-                  <span className="text-green-400">✓ Qabul qilindi — {tanga} tanga oldingiz</span>
-                ) : bugungiYuborilgan.holat === 'kuygan' ? (
-                  <span className="text-red-400">Olinmadi, sovg'a kuydi</span>
-                ) : (
-                  <span className="text-yellow-400">⏳ Javob kutilmoqda</span>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : dostlar.length === 0 ? (
-          <div className="text-center py-10 bg-slate-900/40 border border-purple-800/40 rounded-2xl">
-            <div className="text-4xl mb-2">👥</div>
-            <p className="text-purple-300 text-sm">Sovg'a yuborish uchun avval do'st qo'shing</p>
-          </div>
-        ) : (
-          <>
-            {dostlar.length > 6 && (
-              <input
-                value={qidiruv}
-                onChange={(e) => setQidiruv(e.target.value)}
-                placeholder="🔍 Do'st qidirish..."
-                className="w-full mb-3 px-4 py-2.5 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white text-sm placeholder-purple-500 focus:border-yellow-500 outline-none"
-              />
-            )}
-            <div className="grid gap-2 sm:grid-cols-2">
-              {filtrlangan.map((d) => (
-                <div
-                  key={d.id}
-                  className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-3 flex items-center gap-3"
-                >
-                  <Avatar user={d} kichik />
-                  <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-white text-sm flex items-center gap-1.5">
-                      <span className="truncate">{d.fullName || d.username}</span>
-                      <TasdiqBelgisi tasdiqlangan={d.isVerified} olcham="kichik" />
-                    </div>
-                    <div className="text-xs text-purple-400 truncate">@{d.username}</div>
-                  </div>
-                  <button
-                    onClick={() => yubor(d.id)}
-                    disabled={band === d.id}
-                    className="px-3 py-1.5 bg-purple-700/60 hover:bg-purple-600/70 border border-purple-500/50 rounded-lg text-xs font-semibold text-white disabled:opacity-50 flex-shrink-0"
-                  >
-                    🎁 Yuborish
-                  </button>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </section>
-    </div>
-  )
-}
-
-function Avatar({ user, kichik = false }) {
-  const olcham = kichik ? 'w-9 h-9 text-sm' : 'w-11 h-11'
-  return (
-    <div className={`${olcham} rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center font-bold text-black flex-shrink-0 overflow-hidden`}>
-      {user.avatar ? (
-        <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-      ) : (
-        (user.fullName?.charAt(0) || user.username.charAt(0)).toUpperCase()
-      )}
     </div>
   )
 }

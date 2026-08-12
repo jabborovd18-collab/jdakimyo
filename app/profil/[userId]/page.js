@@ -1,5 +1,5 @@
-// app/profil/[userId]/page.js
 "use client"
+
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
@@ -7,19 +7,19 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { sana } from '@/lib/sana'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
-import { PremiumAurora, PremiumHalqa, PremiumYorliq } from '@/components/PremiumProfil'
+import FonTanlagich, { useFon } from '@/components/FonTanlagich'
+import Ikon from '@/components/Ikon'
+import SertifikatKarta from '@/components/SertifikatKarta'
 
-// Ochiq profilda ko'rsatiladigan havolalar. `to'liq` — qiymat allaqachon
-// to'liq manzil bo'lsa (website, orcid), aks holda oldiga sayt qo'shiladi.
 const HAVOLALAR = [
-  { kalit: 'telegram', nom: 'Telegram', icon: '✈️', oldi: 'https://t.me/' },
-  { kalit: 'instagram', nom: 'Instagram', icon: '📷', oldi: 'https://instagram.com/' },
-  { kalit: 'twitter', nom: 'X', icon: '𝕏', oldi: 'https://x.com/' },
-  { kalit: 'github', nom: 'GitHub', icon: '💻', oldi: 'https://github.com/' },
-  { kalit: 'linkedin', nom: 'LinkedIn', icon: '💼', oldi: 'https://linkedin.com/in/' },
-  { kalit: 'googleScholar', nom: 'Scholar', icon: '🎓', toliq: true },
-  { kalit: 'orcid', nom: 'ORCID', icon: '🆔', oldi: 'https://orcid.org/' },
-  { kalit: 'website', nom: 'Sayt', icon: '🌐', toliq: true },
+  { kalit: 'telegram', nom: 'Telegram', ikon: 'telegram', oldi: 'https://t.me/' },
+  { kalit: 'instagram', nom: 'Instagram', ikon: 'kanal', oldi: 'https://instagram.com/' },
+  { kalit: 'twitter', nom: 'X', ikon: 'chat', oldi: 'https://x.com/' },
+  { kalit: 'github', nom: 'GitHub', ikon: 'kitob', oldi: 'https://github.com/' },
+  { kalit: 'linkedin', nom: 'LinkedIn', ikon: 'odam', oldi: 'https://linkedin.com/in/' },
+  { kalit: 'googleScholar', nom: 'Scholar', ikon: 'kitob', toliq: true },
+  { kalit: 'orcid', nom: 'ORCID', ikon: 'atom', oldi: 'https://orcid.org/' },
+  { kalit: 'website', nom: 'Sayt', ikon: 'doska', toliq: true },
 ]
 
 function IjtimoiyHavolalar({ user }) {
@@ -30,8 +30,6 @@ function IjtimoiyHavolalar({ user }) {
     <div className="flex flex-wrap gap-2 mt-4">
       {bor.map((h) => {
         const qiymat = String(user[h.kalit]).trim()
-        // Foydalanuvchi ba'zan to'liq manzil, ba'zan faqat nikni yozadi —
-        // ikkalasi ham ishlashi kerak
         const manzil = /^https?:\/\//i.test(qiymat)
           ? qiymat
           : h.toliq
@@ -44,9 +42,9 @@ function IjtimoiyHavolalar({ user }) {
             href={manzil}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-800/40 hover:bg-purple-700/60 border border-purple-600/40 rounded-lg text-xs text-purple-200 hover:text-white transition-all"
+            className="v3-tugma text-xs py-1.5 px-3 inline-flex items-center gap-1.5"
           >
-            <span>{h.icon}</span>
+            <Ikon nom={h.ikon} olcham={13} />
             <span>{h.nom}</span>
           </a>
         )
@@ -55,82 +53,44 @@ function IjtimoiyHavolalar({ user }) {
   )
 }
 
-function Stat({ icon, qiymat, nom, rang }) {
-  return (
-    <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-4 backdrop-blur-sm text-center">
-      <div className="text-2xl mb-1">{icon}</div>
-      <div className={`text-xl font-bold mb-0.5 ${rang}`}>{qiymat}</div>
-      <div className="text-[11px] text-purple-300">{nom}</div>
-    </div>
-  )
-}
-
-export default function PublicProfilePage() {
+export default function FoydalanuvchiProfiliPage() {
   const { data: session } = useSession()
   const router = useRouter()
   const params = useParams()
+  const [fon, fonTanla] = useFon()
+
   const [profile, setProfile] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [friendshipStatus, setFriendshipStatus] = useState('none')
-  const [followStatus, setFollowStatus] = useState('none')
-  const [isFollowLoading, setIsFollowLoading] = useState(false)
-  const [chatOchilmoqda, setChatOchilmoqda] = useState(false)
-
-  // Suhbatni ochish: server do'stlikni tekshiradi va suhbatni "faol"
-  // yoki "sorov" holatida yaratadi
-  const chatniOch = async () => {
-    setChatOchilmoqda(true)
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: params.userId }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      if (data.holat === 'sorov') {
-        toast('Do\'st emassiz — xabaringiz so\'rov bo\'lib tushadi', { icon: '📨' })
-      }
-      router.push(`/chat?suhbat=${data.suhbatId}`)
-    } catch (e) {
-      toast.error(e.message)
-      setChatOchilmoqda(false)
-    }
-  }
+  const [error, setError] = useState('')
+  const [followStatus, setFollowStatus] = useState('not_following')
+  const [friendshipStatus, setFriendshipStatus] = useState('not_friends')
+  const [activeTab, setActiveTab] = useState('haqida')
 
   useEffect(() => {
-    if (params?.userId) {
-      fetchProfile()
-    }
+    if (params?.userId) fetchProfile()
   }, [params?.userId])
 
   const fetchProfile = async () => {
     setIsLoading(true)
-    setError(null)
+    setError('')
     try {
-      console.log('[Frontend] Fetching profile for userId:', params.userId)
       const response = await fetch(`/api/users/${params.userId}`)
       const data = await response.json()
-      console.log('[Frontend] API Response:', { ok: response.ok, data })
 
       if (!response.ok) {
-        throw new Error(data.error || 'Foydalanuvchi topilmadi')
+        throw new Error(data.error || 'Profilni yuklab bo\'lmadi')
       }
 
       setProfile(data)
-      setFriendshipStatus(data.friendshipStatus || 'none')
-      setFollowStatus(data.followStatus || 'none')
-    } catch (error) {
-      console.error('[Frontend] Error:', error)
-      setError(error.message)
-      toast.error(error.message)
+      setFollowStatus(data.isFollowing ? 'following' : 'not_following')
+      setFriendshipStatus(data.friendshipStatus || 'not_friends')
+    } catch (err) {
+      setError(err.message)
     } finally {
       setIsLoading(false)
     }
   }
 
-  // 🆕 Obuna bo'lish (Follow)
   const handleFollow = async () => {
     if (!session) {
       toast.error('Avval tizimga kiring')
@@ -138,56 +98,40 @@ export default function PublicProfilePage() {
       return
     }
 
-    setIsFollowLoading(true)
     try {
       const response = await fetch('/api/follow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ followingId: profile.user.id })
       })
-
       const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
 
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
-
-      toast.success('✓ Obuna bo\'ldingiz!')
+      toast.success('Obuna bo\'lindi')
       setFollowStatus('following')
-      // Profilni yangilash (sonlar o'zgarishi uchun)
       fetchProfile()
-    } catch (error) {
-      toast.error(error.message)
-    } finally {
-      setIsFollowLoading(false)
+    } catch (err) {
+      toast.error(err.message)
     }
   }
 
-  // 🆕 Obunani bekor qilish (Unfollow)
   const handleUnfollow = async () => {
     if (!confirm('Obunani bekor qilmoqchimisiz?')) return
 
-    setIsFollowLoading(true)
     try {
       const response = await fetch('/api/follow', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ followingId: profile.user.id })
       })
-
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
+      if (!response.ok) throw new Error(data.error)
 
       toast.success('Obuna bekor qilindi')
       setFollowStatus('not_following')
       fetchProfile()
-    } catch (error) {
-      toast.error(error.message)
-    } finally {
-      setIsFollowLoading(false)
+    } catch (err) {
+      toast.error(err.message)
     }
   }
 
@@ -205,72 +149,41 @@ export default function PublicProfilePage() {
         body: JSON.stringify({ receiverId: profile.user.id })
       })
       const data = await response.json()
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
+      if (!response.ok) throw new Error(data.error)
+
       toast.success("Do'stlik taklifi yuborildi!")
       setFriendshipStatus('sent')
-    } catch (error) {
-      toast.error(error.message)
+    } catch (err) {
+      toast.error(err.message)
     }
   }
 
-  const handleFriendRequest = async (action) => {
-    try {
-      const response = await fetch(`/api/friends/request/${profile.requestId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      })
-      const data = await response.json()
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
-      toast.success(data.message)
-      fetchProfile()
-    } catch (error) {
-      toast.error(error.message)
-    }
-  }
-
-  // Loading state
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-4xl mb-4 animate-pulse">
-            ⏳
-          </div>
-          <div className="text-purple-300 text-lg">Profil yuklanmoqda...</div>
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={32} className="animate-spin" />
+          <span className="text-sm">Foydalanuvchi profili yuklanmoqda...</span>
         </div>
       </main>
     )
   }
 
-  // Error state
   if (error || !profile) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
-        <div className="bg-red-900/20 border border-red-700/50 rounded-2xl p-8 max-w-md text-center">
-          <div className="text-6xl mb-4">😕</div>
-          <h2 className="text-2xl font-bold text-red-400 mb-2">Profil ochilmadi</h2>
-          <p className="text-purple-300 text-sm mb-6 break-words">{error || "Noma'lum xatolik"}</p>
-
-          {/* Qayta urinish tugmasi shart: xato ko'pincha profil yo'qligidan
-              emas, baza javob bermaganidan bo'ladi. Avval yagona yo'l orqaga
-              qaytish edi — foydalanuvchi profil o'chirilgan deb o'ylardi. */}
-          <div className="flex gap-2 justify-center flex-wrap">
-            <button
-              onClick={fetchProfile}
-              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
-            >
-              🔄 Qayta urinish
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center p-4">
+        <div className="v3-panel-karta max-w-md w-full p-8 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+            <Ikon nom="odam" olcham={24} />
+          </div>
+          <h2 className="font-bold text-base text-[var(--v3-matn)]">Profil ochilmadi</h2>
+          <p className="text-xs text-[var(--v3-xira)] leading-relaxed">{error || "Foydalanuvchi topilmadi"}</p>
+          <div className="flex gap-2 justify-center">
+            <button onClick={fetchProfile} className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold">
+              Qayta urinish
             </button>
-            <Link
-              href="/profil"
-              className="px-6 py-3 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl font-semibold"
-            >
-              ← Profilga qaytish
+            <Link href="/" className="v3-tugma text-xs py-2 px-4">
+              Bosh sahifa
             </Link>
           </div>
         </div>
@@ -279,409 +192,266 @@ export default function PublicProfilePage() {
   }
 
   const {
-    user, friends, achievements, quizResults, certificates, postlar,
-    followersCount, followingCount, korinadi = {},
+    user, friends = [], achievements = [], quizResults = [], certificates = [],
+    followersCount = 0, followingCount = 0,
   } = profile
-  const roleLabels = {
-    bakalavr: '🎓 Bakalavr',
-    magistr: '📚 Magistr',
-    doktorant: '🔬 Doktorant',
-    professor: '👨‍🏫 Professor',
-    mustaqil: '🧑‍🎓 Mustaqil'
-  }
 
-  // O'z profili - redirect
+  const ism = user.fullName || user.username
+  const boshHarf = ism[0].toUpperCase()
+
+  // O'z profili bo'lsa shaxsiy kabinetga yo'naltirish
   if (session?.user?.userId === user.userId) {
     router.push('/profil')
     return null
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
+    <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <span className="v3-nur v3-nur-a" />
+        <span className="v3-nur v3-nur-b" />
+        <span className="v3-tor-fon" />
+      </div>
+
       {/* Header */}
-      <header className="flex justify-between items-center px-6 py-4 border-b border-purple-800/50 bg-purple-950/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="text-purple-400 hover:text-purple-300 transition-all flex items-center gap-2"
-          >
-            <span>←</span>
-            <span>Orqaga</span>
-          </button>
-          <div className="h-6 w-px bg-purple-800"></div>
-          <Link href="/" className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-            JDA KIMYO
-          </Link>
+      <header className="sticky top-0 z-40 bg-[var(--v3-fon)]/90 backdrop-blur-xl border-b border-[var(--v3-chiziq)]">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.back()} className="v3-ikon-tugma" aria-label="Orqaga">
+              <Ikon nom="chap" olcham={18} />
+            </button>
+            <Link href="/" className="flex items-center gap-2">
+              <span className="v3-logo" aria-hidden="true" />
+              <span className="v3-logo-matn">JDA KIMYO</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <FonTanlagich fon={fon} tanla={fonTanla} />
+            {session && (
+              <Link
+                href={`/chat`}
+                className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 font-bold inline-flex items-center gap-1.5"
+              >
+                <Ikon nom="xabar" olcham={14} />
+                <span>Yozish</span>
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <div
-          className={`rounded-3xl p-8 mb-6 relative overflow-hidden border ${
-            user.isVerified
-              ? 'border-cyan-400/40 bg-slate-950'
-              : 'border-purple-700/50 bg-gradient-to-br from-purple-900/40 to-blue-900/40'
-          }`}
-        >
-          {/* Tasdiqlangan hisobda oddiy sariq dog' o'rniga jonli aurora */}
-          {user.isVerified ? (
-            <PremiumAurora korinsinmi uslub={user.premiumUslub} />
-          ) : (
-            <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-          )}
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
-            {/* Avatar */}
-            <PremiumHalqa korinsinmi={user.isVerified} uslub={user.premiumUslub}>
-              <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500 flex items-center justify-center text-5xl md:text-6xl font-bold text-black shadow-2xl shadow-yellow-500/30">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover rounded-2xl" />
-                ) : (
-                  user.fullName?.charAt(0)?.toUpperCase() || user.username.charAt(0).toUpperCase()
-                )}
-              </div>
-            </PremiumHalqa>
+      {/* Main Profile Container */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {/* User Card */}
+        <div className="v3-panel-karta p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[var(--v3-yuza-2)] border-2 border-[var(--v3-urgu)] grid place-items-center text-3xl sm:text-4xl font-bold text-[var(--v3-urgu)] overflow-hidden shrink-0 shadow-lg">
+              {user.avatar ? (
+                <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+              ) : (
+                boshHarf
+              )}
+            </div>
 
-            {/* Info */}
-            <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-extrabold mb-2 flex items-center gap-2">
-                {user.fullName || user.username}
-                <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" jonli />
-              </h1>
-              <div className="flex flex-wrap gap-2 mb-3">
-                <PremiumYorliq korinsinmi={user.isVerified} uslub={user.premiumUslub} />
-                <span className="px-3 py-1 bg-purple-800/50 border border-purple-700/50 rounded-full text-sm text-purple-200">
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--v3-matn)]">
+                  {ism}
+                </h1>
+                <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="katta" />
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <span className="v3-tag v3-tag-ochiq text-[11px]">
                   @{user.username}
                 </span>
-                <span className="px-3 py-1 bg-gradient-to-r from-yellow-600/30 to-amber-600/30 border border-yellow-500/50 rounded-full text-sm text-yellow-300 font-bold">
-                  🆔 {user.userId}
+                <span className="v3-tag v3-tag-yopiq text-[11px] font-mono font-bold">
+                  ID: {user.userId}
                 </span>
-                <span className="px-3 py-1 bg-blue-600/20 text-blue-400 border border-blue-600/30 rounded-full text-sm">
-                  {roleLabels[user.role] || user.role}
+                <span className="v3-tag text-[11px] bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] border-[var(--v3-chiziq)]">
+                  {user.role}
                 </span>
                 {user.isTeacher && (
                   <Link
                     href={`/ustoz-profil/${user.userId || user.id}`}
-                    className="px-3 py-1 bg-green-600/20 text-green-300 border border-green-500/40 rounded-full text-sm font-semibold hover:bg-green-600/30 transition-all flex items-center gap-1.5"
+                    className="v3-tag v3-tag-ochiq text-[11px] font-bold hover:scale-105 transition-transform"
                   >
-                    <span>👨‍🏫</span>
-                    <span>Ustoz profili →</span>
+                    👨‍🏫 Ustoz profili →
                   </Link>
                 )}
               </div>
+
               {user.university && (
-                <div className="text-purple-200 text-sm mb-2 flex items-center gap-2">
-                  <span>🏛️</span>
-                  <span>{user.university}</span>
-                  {user.faculty && <span className="text-purple-400">• {user.faculty}</span>}
-                </div>
-              )}
-              {user.location && (
-                <div className="text-purple-300 text-sm mb-2 flex items-center gap-2">
-                  <span>📍</span>
-                  <span>{user.location}</span>
-                </div>
-              )}
-              {user.bio && (
-                <p className="text-purple-200 mt-3 leading-relaxed max-w-2xl italic">
-                  &ldquo;{user.bio}&rdquo;
+                <p className="text-xs text-[var(--v3-xira)]">
+                  🏛️ {user.university} {user.faculty ? `• ${user.faculty}` : ''}
                 </p>
               )}
 
-              {/* Havolalar sozlamalarda to'ldirilardi-yu, hech qayerda
-                  ko'rinmasdi — kiritishning ma'nosi yo'q edi */}
+              {user.bio && (
+                <p className="text-xs sm:text-sm text-[var(--v3-matn)] leading-relaxed pt-1">
+                  {user.bio}
+                </p>
+              )}
+
               <IjtimoiyHavolalar user={user} />
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-2">
-              {/* Do'stlar to'g'ridan-to'g'ri yozadi, boshqalarniki so'rov
-                  bo'lib tushadi — buni bosishdan oldin aytib qo'yamiz */}
-              {session && (
-                <button
-                  onClick={chatniOch}
-                  disabled={chatOchilmoqda}
-                  className="px-6 py-3 bg-purple-700/60 hover:bg-purple-600/70 border border-purple-500/50 text-white font-bold rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
-                >
-                  <span>💬</span>
-                  <span>{chatOchilmoqda ? 'Ochilmoqda...' : 'Xabar yozish'}</span>
-                </button>
-              )}
-
-              {/* 🆕 FOLLOW TUGMASI */}
-              {session && (
-                <>
-                  {followStatus === 'not_following' && (
-                    <button
-                      onClick={handleFollow}
-                      disabled={isFollowLoading}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5 shadow-lg shadow-blue-500/20 flex items-center gap-2 disabled:opacity-50"
-                    >
-                      {isFollowLoading ? (
-                        <span className="animate-spin">⏳</span>
-                      ) : (
-                        <span>➕</span>
-                      )}
-                      <span>Obuna bo'lish</span>
-                    </button>
-                  )}
-                  {followStatus === 'following' && (
-                    <button
-                      onClick={handleUnfollow}
-                      disabled={isFollowLoading}
-                      className="px-6 py-3 bg-blue-600/20 border border-blue-600/30 hover:bg-red-600/20 hover:border-red-600/30 text-blue-400 hover:text-red-400 font-bold rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
-                    >
-                      {isFollowLoading ? (
-                        <span className="animate-spin">⏳</span>
-                      ) : (
-                        <span>✓</span>
-                      )}
-                      <span>Obuna</span>
-                    </button>
-                  )}
-                </>
-              )}
-
-              {/* FRIENDSHIP TUGMALARI */}
-              {friendshipStatus === 'none' && session && (
-                <button
-                  onClick={sendFriendRequest}
-                  className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all transform hover:-translate-y-0.5 shadow-lg shadow-yellow-500/20 flex items-center gap-2"
-                >
-                  <span>+</span>
-                  <span>Do'stlik taklif qilish</span>
-                </button>
-              )}
-              {friendshipStatus === 'sent' && (
-                <div className="px-6 py-3 bg-yellow-600/20 border border-yellow-600/30 rounded-xl text-yellow-400 font-semibold flex items-center gap-2">
-                  <span>⏳</span>
-                  <span>Taklif yuborildi</span>
-                </div>
-              )}
-              {friendshipStatus === 'received' && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleFriendRequest('accept')}
-                    className="px-4 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all flex items-center gap-2"
-                  >
-                    <span>✓</span>
-                    <span>Qabul</span>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pt-4">
+                {followStatus === 'following' ? (
+                  <button onClick={handleUnfollow} className="v3-tugma text-xs py-2 px-4">
+                    Obunani bekor qilish
                   </button>
-                  <button
-                    onClick={() => handleFriendRequest('reject')}
-                    className="px-4 py-3 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 text-red-400 font-bold rounded-xl transition-all flex items-center gap-2"
-                  >
-                    <span>✗</span>
-                    <span>Rad</span>
+                ) : (
+                  <button onClick={handleFollow} className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold">
+                    + Obuna bo{"'"}lish
                   </button>
-                </div>
-              )}
-              {friendshipStatus === 'friend' && (
-                <div className="px-6 py-3 bg-green-600/20 border border-green-600/30 rounded-xl text-green-400 font-semibold flex items-center gap-2">
-                  <span>✓</span>
-                  <span>Do'stlar</span>
-                </div>
-              )}
-              {!session && (
-                <Link
-                  href="/login"
-                  className="px-6 py-3 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-sm font-semibold text-center"
-                >
-                  Obuna bo'lish uchun kiring
-                </Link>
-              )}
+                )}
+
+                {friendshipStatus === 'not_friends' && (
+                  <button onClick={sendFriendRequest} className="v3-tugma text-xs py-2 px-4">
+                    👥 Do{"'"}stlik taklifi
+                  </button>
+                )}
+                {friendshipStatus === 'sent' && (
+                  <span className="v3-tag v3-tag-yopiq py-1.5 px-3">
+                    Taklif yuborilgan
+                  </span>
+                )}
+                {friendshipStatus === 'friends' && (
+                  <span className="v3-tag v3-tag-ochiq py-1.5 px-3">
+                    ✓ Do{"'"}stsiz
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Statistika */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
-          <Stat icon="🎯" qiymat={`Lvl ${user.level_points}`} nom="Daraja" rang="text-yellow-400" />
-          <Stat icon="⭐" qiymat={user.totalPoints} nom="Umumiy ball" rang="text-yellow-400" />
-          <Stat icon="🌟" qiymat={user.stars ?? 0} nom="Yulduz" rang="text-yellow-300" />
-          <Stat icon="🔥" qiymat={user.currentStreak ?? 0} nom="Kunlik seriya" rang="text-orange-400" />
-          <Stat
-            icon="👥"
-            qiymat={korinadi.dostlar === false ? '—' : friends.length}
-            nom="Do'stlar"
-            rang="text-yellow-400"
-          />
-          <Stat
-            icon="👤"
-            qiymat={followersCount ?? '—'}
-            nom="Obunachilar"
-            rang="text-cyan-400"
-          />
-          <Stat
-            icon="👁️"
-            qiymat={followingCount ?? '—'}
-            nom="Obuna bo'lgan"
-            rang="text-cyan-400"
-          />
+        {/* Stats summary */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="v3-panel-karta p-4 text-center">
+            <div className="text-xl font-bold font-mono text-[var(--v3-matn)]">{totalPoints || 0}</div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-0.5">Umumiy ball</div>
+          </div>
+          <div className="v3-panel-karta p-4 text-center">
+            <div className="text-xl font-bold font-mono text-yellow-400">{user.stars || 0} ⭐</div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-0.5">Yulduzlar</div>
+          </div>
+          <div className="v3-panel-karta p-4 text-center">
+            <div className="text-xl font-bold font-mono text-[var(--v3-matn)]">{followersCount}</div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-0.5">Obunachilar</div>
+          </div>
+          <div className="v3-panel-karta p-4 text-center">
+            <div className="text-xl font-bold font-mono text-[var(--v3-matn)]">{followingCount}</div>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-0.5">Obunalar</div>
+          </div>
         </div>
 
-        {/* A'zolik sanasi */}
-        {user.createdAt && (
-          <div className="text-center text-xs text-purple-500 mb-6">
-            JDA KIMYO a'zosi · {sana(user.createdAt)} dan beri
-            {user.longestStreak > 0 && ` · eng uzun seriyasi ${user.longestStreak} kun`}
+        {/* Tabs */}
+        <div className="flex gap-2 border-b border-[var(--v3-chiziq)] pb-2 overflow-x-auto">
+          {[
+            { id: 'haqida', nom: 'Yutuqlar', son: achievements.length },
+            { id: 'quizlar', nom: 'Quizlar', son: quizResults.length },
+            { id: 'sertifikatlar', nom: 'Sertifikatlar', son: certificates.length },
+            { id: 'dostlar', nom: 'Do\'stlar', son: friends.length },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                activeTab === tab.id
+                  ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold shadow-sm'
+                  : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
+              }`}
+            >
+              {tab.nom} ({tab.son})
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'haqida' && (
+          <div className="space-y-4">
+            {achievements.length === 0 ? (
+              <div className="v3-panel-karta py-16 text-center text-xs text-[var(--v3-xira)]">
+                Hozircha ochiq yutuqlar yo{"'"}q
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {achievements.map((ach) => (
+                  <div key={ach.id} className="v3-panel-karta p-4 space-y-1">
+                    <div className="font-bold text-xs text-[var(--v3-matn)]">{ach.name}</div>
+                    {ach.description && <p className="text-xs text-[var(--v3-xira)]">{ach.description}</p>}
+                    <div className="text-[10px] text-[var(--v3-urgu)] font-mono">{ach.rarity || 'Yutuq'}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Achievements */}
-        {achievements.length > 0 && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span>🏅</span>
-              Yutuqlar ({achievements.length})
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {achievements.map(achievement => (
-                <div key={achievement.id} className="bg-purple-950/50 rounded-xl p-4 text-center border border-purple-700/30">
-                  <div className="text-4xl mb-2">{achievement.icon}</div>
-                  <div className="font-semibold text-sm text-white mb-1">{achievement.name}</div>
-                  <div className="text-xs text-purple-400">{achievement.description}</div>
+        {activeTab === 'quizlar' && (
+          <div className="space-y-3">
+            {quizResults.length === 0 ? (
+              <div className="v3-panel-karta py-16 text-center text-xs text-[var(--v3-xira)]">
+                Hali quiz natijalari yo{"'"}q
+              </div>
+            ) : (
+              quizResults.map((q) => (
+                <div key={q.id} className="v3-panel-karta p-4 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="font-bold text-xs text-[var(--v3-matn)]">{q.quizName}</div>
+                    <div className="text-[10.5px] text-[var(--v3-xira)] font-mono mt-0.5">{sana(q.completedAt)}</div>
+                  </div>
+                  <span className="font-mono font-bold text-sm text-[var(--v3-urgu)]">
+                    {q.percentage}%
+                  </span>
                 </div>
-              ))}
-            </div>
+              ))
+            )}
           </div>
         )}
 
-        {/* Profil postlari — obuna bo'lganlar aynan shuni ko'radi */}
-        {postlar?.length > 0 && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span>✍️</span>
-              Postlar
-            </h2>
-            <div className="space-y-3">
-              {postlar.map(post => (
-                <div key={post.id} className="bg-purple-950/50 rounded-xl p-4 border border-purple-700/30">
-                  <p className="text-sm text-purple-100 whitespace-pre-line leading-relaxed">
-                    {post.matn}
-                  </p>
-                  <div className="text-[11px] text-purple-500 mt-2">{sana(post.createdAt)}</div>
+        {activeTab === 'sertifikatlar' && (
+          <div className="space-y-4">
+            {certificates.length === 0 ? (
+              <div className="v3-panel-karta py-16 text-center text-xs text-[var(--v3-xira)]">
+                Sertifikatlar mavjud emas
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {certificates.map((cert) => (
+                  <SertifikatKarta key={cert.id} sertifikat={cert} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'dostlar' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {friends.map((f) => (
+              <Link
+                key={f.id}
+                href={`/profil/${f.userId || f.id}`}
+                className="v3-panel-karta p-3.5 flex items-center gap-3 hover:border-[var(--v3-chiziq-2)] transition-all group"
+              >
+                <div className="w-10 h-10 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                  {f.avatar ? (
+                    <img src={f.avatar} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    (f.fullName?.[0] || f.username?.[0] || 'U').toUpperCase()
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Maxfiylik tufayli yopilgan bo'limlar. Ularni jimgina yashirish
-            chalg'ituvchi bo'lardi: profil bo'sh ko'rinardi, holbuki egasi
-            shunday tanlagan. */}
-        {(() => {
-          const yopiq = [
-            korinadi.postlar === false && 'postlar',
-            korinadi.dostlar === false && "do'stlar ro'yxati",
-            korinadi.quiz === false && 'quiz natijalari',
-            korinadi.yutuqlar === false && 'yutuqlar',
-            korinadi.sertifikatlar === false && 'sertifikatlar',
-            korinadi.obunachilar === false && 'obunachilar',
-          ].filter(Boolean)
-
-          if (yopiq.length === 0) return null
-
-          return (
-            <div className="bg-slate-900/40 border border-purple-800/50 rounded-2xl p-4 mb-6 text-center">
-              <span className="text-sm text-purple-400">
-                🔒 Bu foydalanuvchi {yopiq.join(', ')} bo'limini yopgan
-              </span>
-            </div>
-          )
-        })()}
-
-        {/* Sertifikatlar — admin bergan, QR bilan tekshiriladigan hujjatlar */}
-        {certificates?.length > 0 && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span>📜</span>
-              Sertifikatlar ({certificates.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {certificates.slice(0, 6).map(sert => (
-                <Link
-                  key={sert.id}
-                  href={`/sertifikat/verify/${sert.certId}`}
-                  className="bg-purple-950/50 rounded-xl p-4 border border-purple-700/30 hover:border-yellow-500/50 transition-all"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">🏅</span>
-                    <div className="min-w-0">
-                      <div className="font-semibold text-sm text-white">{sert.fan}</div>
-                      <div className="text-xs text-purple-400 mt-0.5">{sert.reason}</div>
-                      <div className="text-[10px] text-purple-500 mt-1 font-mono">
-                        {sert.certId} · {sana(sert.issuedAt)}
-                      </div>
-                    </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-xs text-[var(--v3-matn)] group-hover:text-[var(--v3-urgu)] transition-colors truncate">
+                    {f.fullName || f.username}
                   </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Quiz natijalari — maxfiylik sozlamasi ruxsat bergan bo'lsa keladi.
-            Avval ular API dan olinardi-yu, sahifada umuman chizilmasdi. */}
-        {quizResults?.length > 0 && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span>📝</span>
-              Oxirgi quiz natijalari
-            </h2>
-            <div className="space-y-2">
-              {quizResults.slice(0, 5).map(natija => (
-                <div
-                  key={natija.id}
-                  className="bg-purple-950/50 rounded-xl px-4 py-3 flex items-center justify-between gap-3 border border-purple-700/30"
-                >
-                  <div className="min-w-0">
-                    <div className="font-semibold text-sm text-white truncate">{natija.quizName}</div>
-                    <div className="text-[11px] text-purple-400">{sana(natija.completedAt)}</div>
-                  </div>
-                  <div
-                    className={`text-xl font-bold flex-shrink-0 ${
-                      natija.percentage >= 80
-                        ? 'text-green-400'
-                        : natija.percentage >= 60
-                          ? 'text-yellow-400'
-                          : 'text-red-400'
-                    }`}
-                  >
-                    {natija.percentage}%
-                  </div>
+                  <div className="text-[10px] text-[var(--v3-xira)] font-mono truncate">@{f.username}</div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Friends */}
-        {friends.length > 0 && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span>👥</span>
-              Do'stlar ({friends.length})
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {friends.map(friend => (
-                <Link
-                  key={friend.id}
-                  href={`/profil/${friend.userId}`}
-                  className="bg-purple-950/50 rounded-xl p-4 text-center border border-purple-700/30 hover:border-yellow-500/50 transition-all"
-                >
-                  <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-2xl font-bold mb-2">
-                    {friend.avatar ? (
-                      <img src={friend.avatar} alt={friend.fullName} className="w-full h-full object-cover rounded-full" />
-                    ) : (
-                      friend.fullName?.charAt(0)?.toUpperCase() || friend.username.charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div className="font-semibold text-sm">{friend.fullName || friend.username}</div>
-                  <div className="text-xs text-purple-400">@{friend.username}</div>
-                </Link>
-              ))}
-            </div>
+              </Link>
+            ))}
           </div>
         )}
       </div>

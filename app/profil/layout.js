@@ -1,89 +1,65 @@
-// app/profil/layout.js
 "use client"
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { isAdminRole, ustozPaneliOchiqmi, roleInfo } from '@/lib/roles'
+import { isAdminRole, ustozPaneliOchiqmi, isPartnerRole, roleInfo } from '@/lib/roles'
 import { useBildirishnomaSanoq } from '@/lib/use-bildirishnoma'
+import FonTanlagich, { useFon } from '@/components/FonTanlagich'
+import Ikon from '@/components/Ikon'
+import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 
-// Menyu guruhlarga bo'lingan. Avval 15+ havola bitta uzun ro'yxatda edi —
-// guruhlar kodda mavjud bo'lsa-da, render qilishdan oldin flat qilinardi.
-//
-// `belgi` — qaysi sondan qizil nishon chiqishi. Kalit /api/bildirishnomalar
-// qaytaradigan `sanoq` obyektidan olinadi.
 const MENU_GROUPS = [
   {
     title: 'Asosiy',
     items: [
-      { href: '/profil', label: 'Dashboard', icon: '📊', exact: true },
-      { href: '/profil/bildirishnomalar', label: 'Bildirishnomalar', icon: '🔔', belgi: 'oqilmagan' },
-      { href: '/profil/faoliyat', label: 'Faoliyat', icon: '📈' },
+      { href: '/profil', label: 'Bosh sahifa', ikon: 'grafik', exact: true },
+      { href: '/profil/bildirishnomalar', label: 'Bildirishnomalar', ikon: 'qongiroq', belgi: 'oqilmagan' },
+      { href: '/profil/faoliyat', label: 'Faollik grafigi', ikon: 'vaqt' },
     ],
   },
   {
-    title: "O'qish",
+    title: "O'qish & Ta'lim",
     items: [
-      { href: '/profil/ustozim', label: 'Ustozlarim', icon: '👨‍🏫' },
-      { href: '/profil/vazifalar', label: 'Vazifalar', icon: '📋' },
-      { href: '/profil/darslar', label: 'Darslar', icon: '🎬' },
-      { href: '/profil/quizlar', label: 'Quiz natijalari', icon: '📝' },
-      { href: '/profil/elonlar', label: 'Xabarlar', icon: '🔔' },
+      { href: '/profil/ustozim', label: 'Ustozlarim', ikon: 'ustoz' },
+      { href: '/profil/vazifalar', label: 'Vazifalar', ikon: 'kitob' },
+      { href: '/profil/darslar', label: 'Darslar va testlar', ikon: 'video' },
+      { href: '/profil/quizlar', label: 'Quiz natijalari', ikon: 'quiz' },
+      { href: '/profil/elonlar', label: 'Xabarnomalar', ikon: 'kanal' },
     ],
   },
   {
     title: 'Yutuqlar',
     items: [
-      { href: '/profil/yutuqlar', label: 'Yutuqlar', icon: '🏆' },
-      { href: '/profil/sertifikatlar', label: 'Sertifikatlar', icon: '📜' },
-      { href: '/profil/reytingim', label: 'Reytingim', icon: '🥇' },
+      { href: '/profil/yutuqlar', label: 'Yutuqlar', ikon: 'orin' },
+      { href: '/profil/sertifikatlar', label: 'Sertifikatlar', ikon: 'fayl' },
+      { href: '/profil/reytingim', label: 'Reytingim', ikon: 'yulduz' },
     ],
   },
   {
     title: 'Ijtimoiy',
     items: [
-      // "Xabarlar" emas, "Shaxsiy chat": bu menyuda "O'qish" guruhida ham
-      // "Xabarlar" (ustoz e'lonlari) bor edi — bir xil nomdagi ikki qator
-      // qaysi biri yozishma ekanini bosmasdan aytib bera olmasdi.
-      //
-      // Manzil kabinetdan tashqarida (/chat): chat to'liq ekranli o'z
-      // bo'limiga chiqdi, lekin havola shu yerda qoladi — odam uni
-      // "ijtimoiy" bo'limlar orasidan qidiradi.
-      { href: '/chat', label: 'Shaxsiy chat', icon: '💬', belgi: 'chat', tashqi: true },
-      { href: '/profil/sovgalar', label: "Sovg'alar", icon: '🎁' },
-      { href: '/profil/dostlar', label: "Do'stlar", icon: '👥', belgi: 'dostTaklifi' },
-      { href: '/profil/obunachilar', label: 'Obunachilar', icon: '👤' },
-      { href: '/profil/obunalar', label: 'Obunalar', icon: '👁️' },
+      { href: '/chat', label: 'Shaxsiy chat', ikon: 'xabar', belgi: 'chat', tashqi: true },
+      { href: '/profil/sovgalar', label: "Sovg'alar", ikon: 'orin' },
+      { href: '/profil/dostlar', label: "Do'stlar", ikon: 'odamlar', belgi: 'dostTaklifi' },
+      { href: '/profil/obunachilar', label: 'Obunachilar', ikon: 'odam' },
+      { href: '/profil/obunalar', label: 'Obunalar', ikon: 'tashqi' },
     ],
   },
   {
     title: 'Sozlamalar',
     items: [
-      { href: '/profil/sozlama', label: 'Sozlamalar', icon: '⚙️' },
-      { href: '/profil/maxfiylik', label: 'Maxfiylik', icon: '🔒' },
+      { href: '/profil/sozlama', label: 'Sozlamalar', ikon: 'sozlama' },
+      { href: '/profil/maxfiylik', label: 'Maxfiylik', ikon: 'qalqon' },
     ],
   },
 ]
 
-// Tailwind sinflari to'liq yozilishi shart — `bg-${rang}-600/20` kabi
-// yig'ilgan nom build paytida topilmaydi va uslub umuman chiqmaydi.
-const PANEL_RANGI = {
-  orange: 'bg-orange-600/20 hover:bg-orange-600/30 border-orange-600/40 text-orange-300',
-  green: 'bg-green-600/20 hover:bg-green-600/30 border-green-600/40 text-green-300',
-  cyan: 'bg-cyan-600/20 hover:bg-cyan-600/30 border-cyan-600/40 text-cyan-300',
-}
-
-/**
- * Qizil nishon.
- *
- * 99 dan oshsa "99+" bo'ladi: uch xonali son yonidagi matnni surib
- * yuborardi va menyu qatori buzilardi.
- */
 function Nishon({ soni }) {
   if (!soni) return null
   return (
-    <span className="ml-auto min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[11px] font-bold leading-none">
+    <span className="ml-auto min-w-[18px] h-[18px] px-1.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
       {soni > 99 ? '99+' : soni}
     </span>
   )
@@ -92,24 +68,20 @@ function Nishon({ soni }) {
 export default function ProfilLayout({ children }) {
   const { data: session, status } = useSession()
   const pathname = usePathname()
+  const [fon, fonTanla] = useFon()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  // Seans yuklanmaguncha so'ralmaydi: kirmagan odam /profil/* ga tushganda
-  // ham so'rov ketardi va u faqat 401 qaytarardi.
   const { sanoq } = useBildirishnomaSanoq(Boolean(session))
 
-  // Sahifa almashganda mobil menyu ochiq qolib ketmasin
   useEffect(() => {
     setSidebarOpen(false)
   }, [pathname])
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-3xl mb-4 animate-pulse">
-            ⏳
-          </div>
-          <p className="text-purple-300">Yuklanmoqda...</p>
+      <div data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={32} className="animate-spin" />
+          <span className="text-sm">Kabinet yuklanmoqda...</span>
         </div>
       </div>
     )
@@ -117,11 +89,17 @@ export default function ProfilLayout({ children }) {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Kirish talab qilinadi</h1>
-          <Link href="/login" className="px-6 py-3 bg-yellow-500 text-black font-bold rounded-xl">
-            Kirish
+      <div data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center p-4">
+        <div className="v3-panel-karta max-w-sm w-full p-8 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+            <Ikon nom="odam" olcham={24} />
+          </div>
+          <h1 className="text-lg font-bold text-[var(--v3-matn)]">Kirish talab qilinadi</h1>
+          <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+            Shaxsiy kabinetdan foydalanish uchun hisobingizga kiring.
+          </p>
+          <Link href="/login" className="v3-tugma v3-tugma-asosiy text-xs py-2 px-6 font-bold inline-flex">
+            Kirish →
           </Link>
         </div>
       </div>
@@ -131,200 +109,282 @@ export default function ProfilLayout({ children }) {
   const user = session.user
   const role = user.role || 'bakalavr'
   const info = roleInfo(role)
+  const ism = user.fullName || user.username || 'Foydalanuvchi'
+  const boshHarf = ism[0].toUpperCase()
 
-  // Panellar alohida ko'rsatiladi — bular profil ichidagi sahifa emas, tashqi bo'lim
   const panels = []
   if (isAdminRole(role)) {
-    panels.push({ href: '/admin', label: 'Admin panel', icon: '🛡️', accent: 'orange' })
+    panels.push({ href: '/admin', label: 'Admin paneli', ikon: 'qalqon' })
   }
-  // Rol satriga emas, foydalanuvchiga qaraymiz: ustozlik ikkilamchi
-  // bayroq bo'lgani uchun admin ham bir vaqtda ustoz bo'la oladi.
   if (ustozPaneliOchiqmi(user)) {
-    panels.push({ href: '/ustoz', label: 'Ustoz paneli', icon: '👨‍🏫', accent: 'green' })
+    panels.push({ href: '/ustoz', label: 'Ustoz paneli', ikon: 'ustoz' })
   }
-  // Laboratoriya hammada bor. U ham tashqi bo'lim: o'z sarlavhasi va
-  // to'liq ekrani bilan ochiladi, profil menyusi ichida qolmaydi.
-  panels.push({ href: '/laboratoriya', label: 'Laboratoriyam', icon: '🔬', accent: 'cyan' })
+  panels.push({ href: '/laboratoriya', label: 'Laboratoriyam', ikon: 'kolba' })
 
   const isActive = (item) => {
     if (item.exact) return pathname === item.href
     return pathname === item.href || pathname.startsWith(item.href + '/')
   }
 
-  // Joriy sahifa nomi (mobil sarlavha uchun)
-  const currentItem = MENU_GROUPS.flatMap(g => g.items).find(isActive)
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white">
-      {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-purple-950/95 backdrop-blur-xl border-b border-purple-800/50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            {/* Mobile Menu Button */}
+    <div data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
+      {/* Background glow & grid */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <span className="v3-nur v3-nur-a" />
+        <span className="v3-nur v3-nur-b" />
+        <span className="v3-tor-fon" />
+      </div>
+
+      {/* Header */}
+      <header className="sticky top-0 z-30 bg-[var(--v3-fon-2)]/95 backdrop-blur-xl border-b border-[var(--v3-chiziq)] transition-colors">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden p-2 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[var(--v3-matn)] hover:border-[var(--v3-urgu)] transition-all shrink-0"
               aria-label="Menyu"
-              className="md:hidden p-2 -ml-2 text-purple-300 hover:text-white transition-colors"
             >
-              {sidebarOpen ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-              )}
+              <Ikon nom="menyu" olcham={20} />
             </button>
 
-            <Link href="/" className="flex items-center gap-3 min-w-0">
-              <div className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent whitespace-nowrap">
-                JDA KIMYO
-              </div>
-              <div className="hidden lg:block px-3 py-1 bg-purple-900/60 rounded-full text-xs text-purple-300 border border-purple-700/50">
-                Shaxsiy kabinet
-              </div>
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <span className="v3-logo" aria-hidden="true" />
+              <span className="v3-logo-matn text-base sm:text-lg">JDA KIMYO</span>
             </Link>
 
-            {/* Mobilda joriy bo'lim nomi */}
-            {currentItem && (
-              <span className="md:hidden text-sm text-purple-300 truncate border-l border-purple-800 pl-3">
-                {currentItem.label}
+            <span className="hidden sm:inline-block w-px h-5 bg-[var(--v3-chiziq)]" />
+
+            <div className="hidden sm:flex items-center gap-1.5">
+              <span className="v3-tag v3-tag-ochiq text-[11px] font-bold">
+                Shaxsiy Kabinet
               </span>
-            )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Qo'ng'iroq — mobilda ham ko'rinadi, chunki u yerda yon menyu
-                yopiq turadi va nishonlar ko'rinmaydi */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Fon tanlagich (4 ta fon: tun, siyoh, grafit, kunduz) */}
+            <FonTanlagich fon={fon} tanla={fonTanla} />
+
             <Link
               href="/profil/bildirishnomalar"
-              className="relative p-2 rounded-xl hover:bg-purple-900/60 transition-colors"
+              className="relative p-2 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[var(--v3-matn)] hover:border-[var(--v3-urgu)] transition-all flex items-center justify-center shrink-0"
               aria-label="Bildirishnomalar"
             >
-              <span className="text-xl">🔔</span>
+              <Ikon nom="qongiroq" olcham={17} />
               {sanoq.oqilmagan > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none border-2 border-purple-950">
+                <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[9.5px] font-bold leading-none">
                   {sanoq.oqilmagan > 99 ? '99+' : sanoq.oqilmagan}
                 </span>
               )}
             </Link>
 
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <div className="text-sm font-semibold">{user.fullName || user.username}</div>
-                <div className="text-xs text-purple-400">@{user.username}</div>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-sm font-bold overflow-hidden border-2 border-purple-700 flex-shrink-0">
+            <div className="hidden md:flex items-center gap-2.5 pl-2 border-l border-[var(--v3-chiziq)]">
+              <div className="w-8 h-8 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">
                 {user.avatar ? (
-                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  (user.fullName || user.username || 'U')[0].toUpperCase()
+                  boshHarf
                 )}
+              </div>
+              <div className="min-w-0 text-left">
+                <div className="text-xs font-bold truncate max-w-[130px] text-[var(--v3-matn)] flex items-center gap-1">
+                  <span>{ism}</span>
+                  <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="kichik" />
+                </div>
+                <div className="text-[10px] text-[var(--v3-xira)]">@{user.username}</div>
               </div>
             </div>
 
             <button
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="px-3 md:px-4 py-2 text-sm bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-xl text-red-400 transition-all flex items-center gap-2"
+              className="v3-tugma text-xs py-1.5 px-3 text-red-400 hover:border-red-500/40"
+              title="Chiqish"
             >
-              <span>🚪</span>
-              <span className="hidden md:inline">Chiqish</span>
+              <Ikon nom="chiqish" olcham={14} />
+              <span className="hidden sm:inline">Chiqish</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobil sidebar uchun fon — bosilganda yopiladi */}
+      {/* ═══ MOBIL SIDEBAR DRAWER ═══ */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm md:hidden animate-in fade-in duration-200"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
 
-      <div className="flex max-w-7xl mx-auto">
-        {/* Sidebar */}
-        <aside
-          className={`
-            fixed md:sticky top-16 md:top-16 left-0 z-40 w-72 flex-shrink-0
-            h-[calc(100vh-4rem)] bg-purple-950/95 md:bg-transparent
-            border-r border-purple-800/50
-            transform transition-transform duration-300 md:transform-none
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          `}
-        >
-          <div className="p-4 h-full overflow-y-auto">
+          <div className="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[var(--v3-fon-2)] border-r border-[var(--v3-chiziq-2)] shadow-2xl flex flex-col md:hidden animate-in slide-in-from-left duration-200">
+            <div className="p-4 border-b border-[var(--v3-chiziq)] flex items-center justify-between bg-[var(--v3-yuza)]">
+              <div className="flex items-center gap-2">
+                <span className="v3-logo" aria-hidden="true" />
+                <div>
+                  <div className="font-bold text-xs text-[var(--v3-matn)]">JDA KIMYO</div>
+                  <div className="text-[10px] text-[var(--v3-urgu)] font-semibold">Shaxsiy Kabinet</div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(false)}
+                className="p-1.5 rounded-lg border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+              >
+                <Ikon nom="yopish" olcham={16} />
+              </button>
+            </div>
+
             {/* User Quick Info */}
-            <div className="mb-5 px-3 py-4 bg-purple-900/40 rounded-2xl border border-purple-700/30">
+            <div className="p-4 border-b border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)]">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-xl font-bold flex-shrink-0 overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-urgu)] flex items-center justify-center font-bold text-sm text-[var(--v3-urgu)] overflow-hidden shrink-0">
                   {user.avatar ? (
                     <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    (user.fullName || user.username || 'U')[0].toUpperCase()
+                    boshHarf
                   )}
                 </div>
                 <div className="min-w-0">
-                  <div className="font-semibold text-white truncate">{user.fullName || user.username}</div>
-                  <div className="text-xs text-purple-400">Level {user.level_points || 1}</div>
+                  <div className="text-xs font-bold text-[var(--v3-matn)] truncate flex items-center gap-1">
+                    <span>{ism}</span>
+                    <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="kichik" />
+                  </div>
+                  <div className="text-[10.5px] text-[var(--v3-xira)] font-mono truncate">
+                    @{user.username}
+                  </div>
                 </div>
-              </div>
-              <div className={`mt-3 px-2.5 py-1 rounded-lg border text-xs font-semibold inline-flex items-center gap-1.5 ${info.badge}`}>
-                <span>{info.icon}</span>
-                <span>{info.label}</span>
               </div>
             </div>
 
-            {/* Panellar (admin / ustoz) — eng tepada, chunki bular tashqi bo'lim */}
+            {/* External Panels */}
             {panels.length > 0 && (
-              <div className="mb-5 space-y-1.5">
+              <div className="p-3 border-b border-[var(--v3-chiziq)] space-y-1.5">
                 {panels.map(panel => (
                   <Link
                     key={panel.href}
                     href={panel.href}
-                    className={`
-                      flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all border
-                      ${PANEL_RANGI[panel.accent] || PANEL_RANGI.green}
-                    `}
+                    onClick={() => setSidebarOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-xs font-semibold text-[var(--v3-matn)] hover:border-[var(--v3-urgu)] transition-all"
                   >
-                    <span className="text-lg w-6">{panel.icon}</span>
+                    <Ikon nom={panel.ikon} olcham={15} />
                     <span>{panel.label}</span>
-                    <span className="ml-auto text-xs opacity-70">↗</span>
+                    <span className="ml-auto text-xs text-[var(--v3-xira)]">↗</span>
                   </Link>
                 ))}
               </div>
             )}
 
-            {/* Guruhlangan navigatsiya */}
-            <nav className="space-y-5 pb-6">
-              {MENU_GROUPS.map(group => (
+            {/* Nav Groups */}
+            <div className="flex-1 overflow-y-auto p-3.5 space-y-5">
+              {MENU_GROUPS.map((group) => (
                 <div key={group.title}>
-                  <div className="px-4 mb-1.5 text-[11px] font-bold uppercase tracking-wider text-purple-500">
+                  <div className="px-3 mb-1.5 text-[10px] font-bold tracking-wider uppercase text-[var(--v3-urgu)]">
                     {group.title}
                   </div>
                   <div className="space-y-0.5">
-                    {group.items.map(item => {
+                    {group.items.map((item) => {
+                      const active = isActive(item)
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`
+                            flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all
+                            ${active
+                              ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold shadow-sm'
+                              : 'text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]'
+                            }
+                          `}
+                        >
+                          <Ikon nom={item.ikon} olcham={15} qalin={active ? 2 : 1.6} />
+                          <span>{item.label}</span>
+                          {item.belgi && <Nishon soni={sanoq[item.belgi]} />}
+                          {item.tashqi && (
+                            <span className="ml-auto text-[10px] text-[var(--v3-xira)]">↗</span>
+                          )}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ═══ DESKTOP MAIN LAYOUT ═══ */}
+      <div className="relative z-10 max-w-7xl mx-auto flex">
+        {/* Desktop Sidebar */}
+        <aside className="hidden md:block md:sticky md:top-16 md:w-64 md:h-[calc(100vh-4rem)] md:shrink-0 md:border-r md:border-[var(--v3-chiziq)]">
+          <div className="p-4 h-full overflow-y-auto space-y-5">
+            {/* User Quick Info */}
+            <div className="p-3.5 rounded-2xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-urgu)] flex items-center justify-center font-bold text-sm text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    boshHarf
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-bold text-xs text-[var(--v3-matn)] truncate flex items-center gap-1">
+                    <span>{ism}</span>
+                    <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="kichik" />
+                  </div>
+                  <div className="text-[10px] text-[var(--v3-xira)] font-mono">@{user.username}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* External Panels */}
+            {panels.length > 0 && (
+              <div className="space-y-1.5">
+                {panels.map(panel => (
+                  <Link
+                    key={panel.href}
+                    href={panel.href}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-xs font-semibold text-[var(--v3-matn)] hover:border-[var(--v3-urgu)] transition-all"
+                  >
+                    <Ikon nom={panel.ikon} olcham={15} />
+                    <span>{panel.label}</span>
+                    <span className="ml-auto text-xs text-[var(--v3-xira)]">↗</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Nav Groups */}
+            <nav className="space-y-5 pb-6">
+              {MENU_GROUPS.map((group) => (
+                <div key={group.title}>
+                  <div className="px-3 mb-1.5 text-[10px] font-bold tracking-wider uppercase text-[var(--v3-xira)]">
+                    {group.title}
+                  </div>
+                  <div className="space-y-0.5">
+                    {group.items.map((item) => {
                       const active = isActive(item)
                       return (
                         <Link
                           key={item.href}
                           href={item.href}
                           className={`
-                            flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all
+                            flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all
                             ${active
-                              ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black shadow-lg'
-                              : 'hover:bg-purple-900/60 text-purple-200 hover:text-white'
+                              ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold shadow-sm'
+                              : 'text-[var(--v3-xira)] hover:text-[var(--v3-matn)] hover:bg-[var(--v3-yuza)]'
                             }
                           `}
                         >
-                          <span className="text-base w-5">{item.icon}</span>
+                          <Ikon nom={item.ikon} olcham={15} qalin={active ? 2 : 1.6} />
                           <span>{item.label}</span>
                           {item.belgi && <Nishon soni={sanoq[item.belgi]} />}
-                          {/* ↗ — havola kabinetdan chiqib ketishini bildiradi
-                              (chat o'z to'liq ekranli bo'limida). Nishon
-                              bo'lsa `ml-auto` allaqachon unda. */}
                           {item.tashqi && (
-                            <span className={`text-xs opacity-60 ${item.belgi && sanoq[item.belgi] ? '' : 'ml-auto'}`}>
-                              ↗
-                            </span>
+                            <span className="ml-auto text-[10px] opacity-60">↗</span>
                           )}
                         </Link>
                       )
@@ -337,7 +397,7 @@ export default function ProfilLayout({ children }) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0 min-h-[calc(100vh-4rem)] p-4 md:p-6 lg:p-8">
+        <main className="flex-1 min-w-0 p-3.5 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

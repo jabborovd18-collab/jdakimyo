@@ -1,25 +1,10 @@
-// app/profil/bildirishnomalar/page.js
 "use client"
+
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { qachon } from '@/lib/sana'
-
-// Turga qarab rang — xabar turi bir qarashda ko'rinsin.
-// Tailwind sinflari to'liq yozilgan: yig'ilgan nom build paytida topilmaydi.
-const RANG = {
-  tanga: 'border-amber-700/50 bg-amber-950/20',
-  olmos: 'border-cyan-700/50 bg-cyan-950/20',
-  taqiq: 'border-red-700/50 bg-red-950/20',
-  'taqiq-olindi': 'border-green-700/50 bg-green-950/20',
-  blok: 'border-red-700/50 bg-red-950/20',
-  'blok-olindi': 'border-green-700/50 bg-green-950/20',
-  rol: 'border-purple-700/50 bg-purple-950/20',
-  parol: 'border-orange-700/50 bg-orange-950/20',
-  sertifikat: 'border-yellow-700/50 bg-yellow-950/20',
-  dost: 'border-blue-700/50 bg-blue-950/20',
-  tizim: 'border-purple-800/50 bg-purple-950/20',
-}
+import Ikon from '@/components/Ikon'
 
 export default function BildirishnomalarPage() {
   const [royxat, setRoyxat] = useState([])
@@ -53,8 +38,6 @@ export default function BildirishnomalarPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      // Server javobini kutmasdan ro'yxatni ham yangilaymiz: qayta so'rov
-      // yubormasdan qizil belgilar darhol so'nadi
       setRoyxat((oldin) => oldin.map((b) => ({ ...b, oqilgan: true })))
       setOqilmagan(0)
       toast.success(`${data.soni} ta xabar o'qilgan deb belgilandi`)
@@ -73,96 +56,107 @@ export default function BildirishnomalarPage() {
         body: JSON.stringify({ idlar: [id] }),
       })
     } catch {
-      // Belgilash o'tmasa keyingi yuklashda qayta ko'rinadi — zarari yo'q
+      // Ignored
     }
   }
 
   if (yuklanmoqda) {
-    return <div className="text-purple-300 py-10 text-center">⏳ Yuklanmoqda...</div>
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center gap-3 text-[var(--v3-xira)]">
+          <Ikon nom="vaqt" olcham={28} className="animate-spin" />
+          <span className="text-xs">Bildirishnomalar yuklanmoqda...</span>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div className="space-y-6 max-w-5xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--v3-chiziq)]">
         <div>
-          <h1 className="text-2xl font-bold text-white">🔔 Bildirishnomalar</h1>
-          <p className="text-sm text-purple-300 mt-0.5">
-            {oqilmagan > 0 ? `${oqilmagan} ta o'qilmagan xabar` : 'Hammasi o\'qilgan'}
+          <div className="v3-nishon">Xabarlar va bildirishnomalar</div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--v3-matn)] flex items-center gap-2">
+            <Ikon nom="qongiroq" olcham={22} className="text-[var(--v3-urgu)]" />
+            <span>Bildirishnomalar</span>
+          </h1>
+          <p className="text-xs text-[var(--v3-xira)] mt-1">
+            {oqilmagan > 0 ? `${oqilmagan} ta yangi o'qilmagan xabar` : 'Barcha xabarlar o\'qilgan'}
           </p>
         </div>
+
         {oqilmagan > 0 && (
           <button
             onClick={hammasiniBelgila}
-            className="px-4 py-2 rounded-xl bg-purple-800/60 hover:bg-purple-700/70 border border-purple-600/50 text-sm font-semibold"
+            className="v3-tugma text-xs py-2 px-3.5 font-bold self-start sm:self-auto"
           >
-            Hammasini o'qilgan deb belgilash
+            Hammasini o{"'"}qilgan deb belgilash
           </button>
         )}
       </div>
 
       {xato && (
-        <div className="rounded-xl border border-red-700/50 bg-red-950/30 p-4 text-sm text-red-300">
+        <div className="v3-panel-karta p-4 text-xs text-red-400">
           {xato}
         </div>
       )}
 
       {royxat.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/40 border border-purple-800/50 rounded-2xl">
-          <div className="text-5xl mb-3">📭</div>
-          <h2 className="text-lg font-bold text-white mb-1">Hozircha xabar yo'q</h2>
-          <p className="text-sm text-purple-300 max-w-md mx-auto">
-            Do'stlik takliflari, sertifikatlar va administrator qarorlari shu
-            yerda ko'rinadi.
+        <div className="v3-panel-karta py-20 text-center text-xs text-[var(--v3-xira)] space-y-2">
+          <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+            <Ikon nom="qongiroq" olcham={20} />
+          </div>
+          <p className="font-bold text-sm text-[var(--v3-matn)]">Hozircha xabarlar yo{"'"}q</p>
+          <p className="max-w-xs mx-auto leading-relaxed">
+            Do{"'"}stlik takliflari, sertifikatlar va ustoz topshiriqlari shu yerda ko{"'"}rinadi.
           </p>
         </div>
       ) : (
         <div className="space-y-2.5">
           {royxat.map((b) => {
             const ichi = (
-              <>
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl flex-shrink-0">{b.icon || '🔔'}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start gap-2">
-                      <h3 className={`text-sm font-bold ${b.oqilgan ? 'text-purple-200' : 'text-white'}`}>
-                        {b.sarlavha}
-                      </h3>
-                      {!b.oqilgan && (
-                        <span className="mt-1.5 w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-                      )}
-                    </div>
-                    {b.matn && (
-                      <p className="text-[13px] text-purple-300/90 mt-1 leading-relaxed">{b.matn}</p>
+              <div className="flex items-start gap-3.5 p-4">
+                <div className="w-9 h-9 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)] shrink-0 mt-0.5">
+                  <Ikon nom={b.turi === 'chat' ? 'xabar' : b.turi === 'sertifikat' ? 'fayl' : b.turi === 'dost' ? 'odamlar' : 'qongiroq'} olcham={16} />
+                </div>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className={`text-xs font-bold ${b.oqilgan ? 'text-[var(--v3-matn)] opacity-80' : 'text-[var(--v3-matn)]'}`}>
+                      {b.sarlavha}
+                    </h3>
+                    {!b.oqilgan && (
+                      <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 mt-1" />
                     )}
-                    <div className="flex items-center gap-2 mt-1.5 text-[11px] text-purple-500">
-                      <span>{qachon(b.createdAt)}</span>
-                      {b.admin && (
-                        <>
-                          <span>·</span>
-                          <span>{b.admin.fullName || b.admin.username}</span>
-                        </>
-                      )}
-                    </div>
+                  </div>
+                  {b.matn && (
+                    <p className="text-xs text-[var(--v3-xira)] leading-relaxed">{b.matn}</p>
+                  )}
+                  <div className="flex items-center gap-2 text-[10.5px] text-[var(--v3-xira)] font-mono pt-0.5">
+                    <span>{qachon(b.createdAt)}</span>
+                    {b.admin && (
+                      <>
+                        <span>·</span>
+                        <span>{b.admin.fullName || b.admin.username}</span>
+                      </>
+                    )}
                   </div>
                 </div>
-              </>
+              </div>
             )
 
-            const sinf = `block rounded-2xl border p-4 transition-all ${
-              RANG[b.turi] || RANG.tizim
-            } ${b.oqilgan ? 'opacity-70' : 'hover:border-yellow-500/40'}`
+            const wrapperClass = `v3-panel-karta p-0 overflow-hidden transition-all ${
+              b.oqilgan ? 'opacity-70' : 'border-[var(--v3-urgu)]/30 hover:border-[var(--v3-urgu)]'
+            }`
 
-            // Havolasi bor xabar bosilganda o'sha joyga olib boradi va
-            // o'qilgan bo'lib qoladi; havolasiz xabar shunchaki belgilanadi.
             return b.havola ? (
-              <Link key={b.id} href={b.havola} onClick={() => bittasiniBelgila(b.id)} className={sinf}>
+              <Link key={b.id} href={b.havola} onClick={() => bittasiniBelgila(b.id)} className={`block ${wrapperClass}`}>
                 {ichi}
               </Link>
             ) : (
               <div
                 key={b.id}
                 onClick={() => !b.oqilgan && bittasiniBelgila(b.id)}
-                className={sinf + (b.oqilgan ? '' : ' cursor-pointer')}
+                className={`${wrapperClass} ${b.oqilgan ? '' : 'cursor-pointer'}`}
               >
                 {ichi}
               </div>

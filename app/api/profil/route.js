@@ -29,6 +29,9 @@ const USER_FIELDS = {
   totalPoints: true,
   currentStreak: true,
   longestStreak: true,
+  coins: true,
+  gems: true,
+  emailVerified: true,
   // Yulduz akkaunt darajasini belgilaydi, lekin kabinetda ko'rinmasdi —
   // foydalanuvchi nechta yulduzi borligini faqat reyting sahifasidan
   // bilardi
