@@ -9,6 +9,7 @@ import { PALITRA } from "@/lib/lab-modda.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
 import { jamiHajm } from "../lib/idish-holati.js";
 import { pufakchaChiqishi, chokmaTushishi } from "../lib/ovoz.js";
+import { kinetikaniBaho } from "../lib/reaksiya-kinetikasi.js";
 
 // Reaksiya o'tkazishni, API bilan bog'lanishni va 3D effektlar ketma-ketligini
 // boshqaruvchi asosiy hook.
@@ -22,6 +23,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
   const [xato, setXato] = useState(null);
   const [nisbatBahosi, setNisbatBahosi] = useState(null);
   const [hisobotMatni, setHisobotMatni] = useState(null);
+  const [kinetika, setKinetika] = useState(null);
 
   const kadrIdRef = useRef(null);
   const faolEffektRef = useRef(null);
@@ -139,14 +141,17 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
       // 3(c). Muvaffaqiyatli reaksiya
       if (ma_lumot.success && ma_lumot.reaksiya) {
         // Stexiometrik baho SERVERDAN keladi.
-        //
-        // Ilgari uni client o'zi hisoblardi (3d/lib/stexiometriya.js) va
-        // natijaga hech qanday ta'siri yo'q edi — ekranda "ortiqcha
-        // quyildingiz" deb yozilardi, lekin mahsulot ham, XP ham
-        // o'zgarmasdi. Endi hakam serverda: u nima sarflanishini va
-        // qancha mahsulot chiqishini ham shu baho bilan hal qiladi.
         const baho = ma_lumot.nisbat || null;
         setNisbatBahosi(baho);
+
+        // 3-BOSQICH: Kinetika, unum foizi va harorat ta'siri
+        const kin = kinetikaniBaho({
+          reaksiya: ma_lumot.reaksiya,
+          moddalar: moddalarObj,
+          harorat: holatRef?.current?.harorat || 25,
+          nisbatBahosi: baho,
+        });
+        setKinetika(kin);
 
         // Kuzatuv matnidan effektlar massivini chiqarib, ishga tushiramiz.
         // `olindi` ham uzatiladi: kuzatuv matnida cho'kmaning rangi
@@ -219,6 +224,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
     xato,
     nisbatBahosi,
     hisobotMatni,
+    kinetika,
     setNatija,
     setTanlov,
     setXato,

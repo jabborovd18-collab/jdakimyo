@@ -309,7 +309,76 @@ export function hidEffekti(sahna, idish, sozlama = {}) {
   };
 }
 
-// 9. ARALASHISH EFFEKTI (ZAXIRA) — yengil zarrachalar aylanishi.
+// 9. TUTUN EFFEKTI (NO2 qo'ng'ir yoki oq tutun)
+export function tutunEffekti(sahna, idish, sozlama = {}) {
+  const zarraSoni = 50;
+  const davomiylik = 3.5;
+  const ogizY = idish?.userData?.ogizBalandligi || 0.28;
+  const rang = sozlama.rang || 0x78350f; // Qoramtir-qo'ng'ir
+
+  const pozitsiyalar = new Float32Array(zarraSoni * 3);
+  for (let i = 0; i < zarraSoni; i++) {
+    pozitsiyalar[i * 3] = (Math.random() - 0.5) * 0.05;
+    pozitsiyalar[i * 3 + 1] = ogizY + Math.random() * 0.04;
+    pozitsiyalar[i * 3 + 2] = (Math.random() - 0.5) * 0.05;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pozitsiyalar, 3));
+
+  const mat = new THREE.PointsMaterial({
+    color: rang,
+    size: 0.02,
+    transparent: true,
+    opacity: 0.7,
+  });
+
+  const points = new THREE.Points(geo, mat);
+  if (idish) idish.add(points);
+
+  return {
+    yangila(dt, otganVaqt) {
+      const posAttr = geo.getAttribute("position");
+      const array = posAttr.array;
+
+      for (let i = 0; i < zarraSoni; i++) {
+        array[i * 3 + 1] += 0.07 * dt;
+        array[i * 3] += (Math.random() - 0.5) * 0.004;
+        array[i * 3 + 2] += (Math.random() - 0.5) * 0.004;
+      }
+      posAttr.needsUpdate = true;
+      mat.opacity = Math.max(0, 0.7 * (1 - otganVaqt / davomiylik));
+    },
+    tugadimi(otganVaqt) {
+      return otganVaqt >= davomiylik;
+    },
+    tozala() {
+      if (idish && points.parent === idish) idish.remove(points);
+      geo.dispose();
+      mat.dispose();
+    },
+  };
+}
+
+// 10. CHO'KMANING ERISHI EFFEKTI (Kompleks hosil bo'lishi)
+export function chokmaErishiEffekti(sahna, idish, sozlama = {}) {
+  const davomiylik = 2.0;
+  return {
+    yangila(dt, otganVaqt) {
+      const progress = Math.min(1, otganVaqt / davomiylik);
+      const chokmaMl = Math.max(0, 15 * (1 - progress));
+      suyuqlikSathiniYangila(idish, idish?.userData?.sigim * 0.5 || 25, null, chokmaMl);
+    },
+    tugadimi(otganVaqt) {
+      return otganVaqt >= davomiylik;
+    },
+    tozala() {
+      suyuqlikSathiniYangila(idish, idish?.userData?.sigim * 0.5 || 25, null, 0);
+    },
+  };
+}
+
+// 11. ARALASHISH EFFEKTI (ZAXIRA) — yengil zarrachalar aylanishi.
 export function aralashishEffekti(sahna, idish, sozlama = {}) {
   const davomiylik = 1.5;
   return pufakEffekti(sahna, idish, { ...sozlama, zarraSoni: 30, davomiylik });
@@ -320,6 +389,10 @@ function effektYasa(turi, sahna, idish, sozlama) {
   switch (turi) {
     case "chokma":
       return chokmaEffekti(sahna, idish, sozlama);
+    case "chokma_erishi":
+      return chokmaErishiEffekti(sahna, idish, sozlama);
+    case "tutun":
+      return tutunEffekti(sahna, idish, sozlama);
     case "pufak":
       return pufakEffekti(sahna, idish, sozlama);
     case "rang":

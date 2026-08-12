@@ -184,6 +184,7 @@ export default function Korinish() {
     xato,
     nisbatBahosi,
     hisobotMatni,
+    kinetika,
     setNatija,
     setTanlov,
     setXato,
@@ -627,6 +628,7 @@ export default function Korinish() {
           xato={xato}
           hisobot={hisobotMatni}
           nisbatBahosi={nisbatBahosi}
+          kinetika={kinetika}
           onYop={() => {
             setNatija(null);
             setTanlov(null);

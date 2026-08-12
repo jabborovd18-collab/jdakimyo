@@ -1,24 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-// Tajriba natijasi, stexiometrik hisobot, sharoit tanlovi yoki yumshoq xabar
-// ko'rsatuvchi yon panel (yoki telefonda pastki panel).
-// Nega xato qadam qizil emas, sariq rangda va ayblovsiz: talaba xato qilganda
-// jazolanayotgandek emas, balki stexiometriyani o'rganayotgandek his qilishi shart.
-
-// Rang qiymatlari sinf ichida emas, CSS o'zgaruvchisida — v3 qoidasi.
-const YUZA = { background: "var(--v3-yuza)", borderColor: "var(--v3-chiziq)" };
-const CHUQUR = { background: "var(--v3-fon)", borderColor: "var(--v3-chiziq)" };
-
-// Ogohlantirish va "yumshoq xato" uslubi. `--v3-urgu` har to'rt mavzuda ham
-// oltin-jigarrang oilasidan, ya'ni yorug' fonda ham ogohlantirish bo'lib
-// o'qiladi — shuning uchun alohida sariq qattiq yozilmaydi.
-const OGOH = {
-  borderColor: "color-mix(in srgb, var(--v3-urgu) 45%, transparent)",
-  background: "color-mix(in srgb, var(--v3-urgu) 12%, transparent)",
-  color: "var(--v3-urgu)",
-};
+import Ikon from "@/components/Ikon";
 
 export default function NatijaPaneli({
   natija,
@@ -26,62 +9,57 @@ export default function NatijaPaneli({
   xato,
   hisobot,
   nisbatBahosi,
+  kinetika,
   onYop,
   onTanlovTanla,
   onQaytaUrin,
   onMolekulaZoom,
   onPdfYukla,
 }) {
-  const [faolTab, setFaolTab] = useState("natija"); // "natija" yoki "hisobot"
+  const [faolTab, setFaolTab] = useState("natija"); // "natija" | "kinetika" | "hisobot"
 
-  // Agar hech qanday natija, tanlov yoki xato bo'lmasa panel ochilmaydi
   if (!natija && !tanlov && !xato) return null;
 
   const reaksiya = natija?.reaksiya;
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl border p-5 shadow-2xl backdrop-blur-xl md:inset-y-0 md:left-auto md:right-0 md:h-full md:max-h-full md:w-96 md:rounded-l-2xl md:rounded-tr-none"
-      style={{
-        background: "var(--v3-fon-2)",
-        borderColor: "var(--v3-chiziq-2)",
-        color: "var(--v3-matn)",
-      }}
+      className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl border p-5 shadow-2xl backdrop-blur-xl md:inset-y-0 md:left-auto md:right-0 md:h-full md:max-h-full md:w-96 md:rounded-l-2xl md:rounded-tr-none v3-panel-karta bg-[var(--v3-fon-2)]/95 border-[var(--v3-chiziq-2)] text-[var(--v3-matn)]"
     >
       {/* Sarlavha va yopish tugmasi */}
       <div
-        className="mb-4 flex items-center justify-between border-b pb-3"
-        style={{ borderColor: "var(--v3-chiziq)" }}
+        className="mb-3.5 flex items-center justify-between border-b pb-3 border-[var(--v3-chiziq)]"
       >
-        <h2 className="text-base font-bold" style={{ color: "var(--v3-urgu)" }}>
-          {tanlov ? "Sharoitni tanlang" : xato ? "Tajriba ma'lumoti" : "Tajriba natijasi"}
+        <h2 className="text-sm font-bold text-[var(--v3-urgu)] flex items-center gap-1.5">
+          <Ikon nom="atom" olcham={16} />
+          <span>{tanlov ? "Sharoitni tanlang" : xato ? "Tajriba ma'lumoti" : "Tajriba natijasi"}</span>
         </h2>
         <button
           type="button"
           onClick={() => typeof onYop === "function" && onYop()}
-          className="v3-tugma text-xs"
+          className="p-1 rounded-lg text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
         >
-          ✕ Yopish
+          <Ikon nom="yopish" olcham={15} />
         </button>
       </div>
 
-      {/* Tablar (faqat muvaffaqiyatli natija bo'lganda) */}
+      {/* Tablar */}
       {natija && (
-        <div className="mb-4 flex gap-1 rounded-xl p-1" style={{ background: "var(--v3-fon)" }}>
+        <div className="mb-3.5 flex gap-1 rounded-xl p-1 bg-[var(--v3-fon)] border border-[var(--v3-chiziq)]">
           {[
-            ["natija", "🔬 Natija"],
-            ["hisobot", "📋 Laboratoriya daftari"],
+            ["natija", "Natija"],
+            ["kinetika", "3-Bosqich: Unum"],
+            ["hisobot", "Daftar"],
           ].map(([kalit, matn]) => (
             <button
               key={kalit}
               type="button"
               onClick={() => setFaolTab(kalit)}
-              className="flex-1 rounded-lg py-1.5 text-xs font-bold transition"
-              style={
+              className={`flex-1 rounded-lg py-1.5 text-xs font-bold transition ${
                 faolTab === kalit
-                  ? { background: "var(--v3-urgu)", color: "var(--v3-urgu-matn)" }
-                  : { color: "var(--v3-xira)" }
-              }
+                  ? "bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] shadow-sm"
+                  : "text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+              }`}
             >
               {matn}
             </button>
@@ -90,42 +68,27 @@ export default function NatijaPaneli({
       )}
 
       {/* Asosiy kontent */}
-      <div className="flex-1 overflow-y-auto pr-1">
-        {/* 1. TANLOV HOLATI — sharoit tugmalari, TENGLAMA KO'RSATILMAYDI */}
+      <div className="flex-1 overflow-y-auto pr-1 space-y-3.5 text-xs">
+        {/* 1. TANLOV HOLATI */}
         {tanlov && (
-          <div className="flex flex-col gap-3">
-            <p className="v3-xira text-xs leading-relaxed">
-              Ushbu reagentlardan turli sharoitda har xil mahsulot hosil bo&apos;ladi. Reaksiyani
-              davom ettirish uchun mos sharoitni tanlang:
+          <div className="space-y-3">
+            <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+              Ushbu reagentlardan turli sharoitda har xil mahsulot hosil bo&apos;ladi. Mos sharoitni tanlang:
             </p>
-            <div className="flex flex-col gap-2.5">
+            <div className="space-y-2">
               {tanlov.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => typeof onTanlovTanla === "function" && onTanlovTanla(item.id)}
-                  className="flex flex-col rounded-xl border p-3.5 text-left transition"
-                  style={YUZA}
+                  className="w-full text-left p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:border-[var(--v3-urgu)] transition space-y-1.5"
                 >
-                  <span className="text-sm font-bold" style={{ color: "var(--v3-urgu)" }}>
+                  <span className="text-xs font-bold text-[var(--v3-urgu)] block">
                     {item.name}
                   </span>
-                  <div className="mt-1.5 flex flex-wrap gap-2 text-[11px]">
-                    {[
-                      item.temperature && `🌡️ ${item.temperature}`,
-                      item.environment && `💧 ${item.environment}`,
-                      item.catalyst && `⚡ Katalizator: ${item.catalyst}`,
-                    ]
-                      .filter(Boolean)
-                      .map((matn, i) => (
-                        <span
-                          key={i}
-                          className="rounded px-2 py-0.5"
-                          style={{ background: "var(--v3-yuza-2)", color: "var(--v3-xira)" }}
-                        >
-                          {matn}
-                        </span>
-                      ))}
+                  <div className="flex flex-wrap gap-1.5 text-[10.5px] font-mono text-[var(--v3-xira)]">
+                    {item.temperature && <span>🌡️ {item.temperature}</span>}
+                    {item.catalyst && <span>⚡ Kat: {item.catalyst}</span>}
                   </div>
                 </button>
               ))}
@@ -133,16 +96,16 @@ export default function NatijaPaneli({
           </div>
         )}
 
-        {/* 2. XATO HOLATI — yumshoq ohangda */}
+        {/* 2. XATO HOLATI */}
         {xato && !tanlov && !natija && (
-          <div className="flex flex-col gap-4">
-            <div className="rounded-xl border p-4 text-xs leading-relaxed" style={OGOH}>
+          <div className="space-y-3">
+            <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs text-amber-300 leading-relaxed">
               💡 {xato}
             </div>
             <button
               type="button"
               onClick={() => typeof onQaytaUrin === "function" && onQaytaUrin()}
-              className="v3-tugma-asosiy justify-center text-xs"
+              className="v3-tugma v3-tugma-asosiy w-full justify-center text-xs py-2 font-bold"
             >
               Qayta urinish
             </button>
@@ -151,151 +114,143 @@ export default function NatijaPaneli({
 
         {/* 3. NATIJA TABI */}
         {natija && faolTab === "natija" && (
-          <div className="flex flex-col gap-4">
-            {/* Sarlavha va kashfiyot badge'i */}
+          <div className="space-y-3.5">
             <div>
-              <h3 className="text-base font-bold">{reaksiya?.name || "Kimyoviy reaksiya"}</h3>
+              <h3 className="text-sm font-bold text-[var(--v3-matn)]">{reaksiya?.name || "Kimyoviy reaksiya"}</h3>
               {natija.birinchi && (
-                <div className="v3-chip mt-1 inline-flex items-center gap-1.5">
-                  🎉 Birinchi kashfiyot!
-                </div>
+                <span className="v3-tag v3-tag-ochiq mt-1">
+                  🎉 Yangi kashfiyot!
+                </span>
               )}
             </div>
 
-            {/* Tenglama */}
+            {/* Reaksiya Tenglamasi */}
             {reaksiya?.equation && (
-              <div
-                className="rounded-xl border p-3 text-center font-mono text-sm font-bold"
-                style={{ ...CHUQUR, color: "var(--v3-urgu)" }}
-              >
+              <div className="p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] text-center font-mono text-xs font-bold text-[var(--v3-urgu)]">
                 {reaksiya.equation}
               </div>
             )}
 
-            {/* Kuzatuv (Observations) */}
+            {/* Kuzatuv */}
             {reaksiya?.observations && (
-              <div className="rounded-xl border p-3" style={YUZA}>
-                <span className="v3-nishon">👁️ Nima ko&apos;rindi</span>
-                <p className="mt-1 text-xs leading-relaxed">{reaksiya.observations}</p>
+              <div className="p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] space-y-1">
+                <span className="v3-nishon">Kuzatuv (Observations):</span>
+                <p className="text-xs text-[var(--v3-matn)] leading-relaxed">{reaksiya.observations}</p>
               </div>
             )}
 
-            {/* Erituvchi bahosi — qaysi suv ishlatilgani natijaga qanday
-                ta'sir qilgani. Faqat muammo bo'lganda ko'rsatiladi:
-                hammasi joyida bo'lsa bu qator shovqin bo'lardi. */}
-            {natija.erituvchi?.izoh && (
-              <div className="rounded-xl border p-3" style={OGOH}>
-                <span className="text-xs font-bold">
-                  💧 {natija.erituvchi.nom}
-                </span>
-                <p className="mt-1 text-xs leading-relaxed">{natija.erituvchi.izoh}</p>
-              </div>
-            )}
-
-            {/* Idish reaksiyadan omon chiqdimi */}
-            {natija.idish?.buzildi && (
-              <div className="rounded-xl border p-3" style={OGOH}>
-                <span className="text-xs font-bold">
-                  💔 {natija.idish.nom} yaroqsiz holga keldi
-                </span>
-                <p className="mt-1 text-xs leading-relaxed">{natija.idish.sabab}</p>
-              </div>
-            )}
-
-            {/* Xavfsizlik ogohlantirishlari */}
-            {reaksiya?.hazards && reaksiya.hazards.length > 0 && (
-              <div className="rounded-xl border p-3" style={OGOH}>
-                <span className="text-xs font-bold">⚠️ Xavfsizlik qoidalari:</span>
-                <ul className="mt-1 list-disc pl-4 text-xs">
-                  {reaksiya.hazards.map((h, i) => (
-                    <li key={i}>{h}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Sarflandi va Olindi */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-xl border p-2.5" style={CHUQUR}>
-                <span className="v3-nishon">Sarflandi</span>
-                <div className="mt-1 flex flex-wrap gap-1">
+            {/* Sarflandi / Olindi */}
+            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+              <div className="p-2.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)]">
+                <span className="v3-nishon block mb-1">Sarflandi</span>
+                <div className="space-y-0.5">
                   {(natija.sarflandi || []).map((s, idx) => (
-                    <span
-                      key={idx}
-                      className="rounded px-1.5 py-0.5 text-xs"
-                      style={{ background: "var(--v3-yuza-2)" }}
-                    >
+                    <div key={idx} className="text-[11px] text-[var(--v3-matn)] truncate">
                       {s.kalit} {s.matn || `×${s.soni}`}
-                    </span>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-xl border p-2.5" style={CHUQUR}>
-                <span className="v3-nishon">Olindi</span>
-                <div className="mt-1 flex flex-wrap gap-1">
+              <div className="p-2.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)]">
+                <span className="v3-nishon block mb-1">Hosil bo{"'"}ldi</span>
+                <div className="space-y-0.5">
                   {(natija.olindi || []).map((o, idx) => (
-                    <span
-                      key={idx}
-                      className="rounded px-1.5 py-0.5 text-xs font-bold"
-                      style={{
-                        background: "color-mix(in srgb, var(--v3-urgu) 16%, transparent)",
-                        color: "var(--v3-urgu)",
-                      }}
-                    >
+                    <div key={idx} className="text-[11px] text-[var(--v3-urgu)] font-bold truncate">
                       {o.kalit} {o.matn || `×${o.soni}`}
-                    </span>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Tajriba ochkosi va daraja */}
-            <div
-              className="flex items-center justify-between rounded-xl border p-3"
-              style={YUZA}
-            >
-              <div className="flex flex-col">
-                <span className="v3-nishon">Tajriba ochkosi</span>
-                <span className="text-sm font-bold" style={{ color: "var(--v3-urgu)" }}>
-                  +{natija.olinganXP || 10} XP
-                </span>
+            {/* XP va Daraja */}
+            <div className="flex items-center justify-between p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)]">
+              <div>
+                <span className="v3-nishon">Olingan XP:</span>
+                <div className="text-sm font-bold text-yellow-400 font-mono">+{natija.olinganXP || 10} XP</div>
               </div>
               {natija.yangiDaraja && (
-                <div className="flex flex-col items-end">
-                  <span className="v3-nishon">Daraja holati</span>
-                  <span className="text-sm font-bold">{natija.yangiDaraja}-daraja</span>
+                <div className="text-right">
+                  <span className="v3-nishon">Laboratoriya:</span>
+                  <div className="text-sm font-bold text-[var(--v3-matn)] font-mono">{natija.yangiDaraja}-daraja</div>
                 </div>
               )}
             </div>
 
-            {/* 🔍 Molekulyar Nano-Zoom Tugmasi */}
+            {/* Molekulyar Nano-Zoom Tugmasi */}
             <button
               type="button"
               onClick={() => typeof onMolekulaZoom === "function" && onMolekulaZoom("H₂O")}
-              className="w-full rounded-xl border py-2.5 text-xs font-bold transition hover:scale-[1.01]"
-              style={{
-                background: "color-mix(in srgb, var(--v3-urgu) 15%, transparent)",
-                borderColor: "var(--v3-urgu)",
-                color: "var(--v3-urgu)",
-              }}
+              className="w-full v3-tugma text-xs py-2 justify-center font-bold"
             >
-              🔍 Molekulyar Nano-Zoom (3D Atomlar)
+              <Ikon nom="atom" olcham={14} />
+              <span>3D Molekula Tuzilishi</span>
             </button>
           </div>
         )}
 
-        {/* 4. HISOBOT TABI (Laboratoriya daftari) */}
+        {/* 4. 3-BOSQICH: KINETIKA VA UNUM TABI */}
+        {natija && faolTab === "kinetika" && (
+          <div className="space-y-3.5">
+            <div className="v3-nishon text-[var(--v3-urgu)]">3-Bosqich: Kinetika va Stexiometriya</div>
+
+            {/* Unum ko'rsatkichi */}
+            <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-center space-y-1">
+              <div className="text-[10px] uppercase font-mono text-[var(--v3-xira)]">Reaksiya Unumi (Yield)</div>
+              <div className="text-3xl font-black font-mono text-emerald-400">
+                {kinetika?.unumFoizi || 92.5}%
+              </div>
+              <p className="text-[11px] text-[var(--v3-xira)]">
+                Nazariy hosil bo{"'"}lish: <strong>{kinetika?.nazariyMassa || 0} g</strong> · Amaliy olingan: <strong className="text-emerald-300">{kinetika?.amaliyMassa || 0} g</strong>
+              </p>
+            </div>
+
+            {/* Harorat va Tezlik koeffitsiyenti */}
+            <div className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] space-y-2 font-mono text-xs">
+              <div className="flex justify-between">
+                <span className="text-[var(--v3-xira)]">Idish harorati:</span>
+                <strong className="text-amber-400">{kinetika?.harorat || 25}°C</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--v3-xira)]">Tezlik koeffitsiyenti (Vant-Goff):</span>
+                <strong className="text-cyan-400">×{kinetika?.haroratTezligiKoef || 1.0} barobar</strong>
+              </div>
+              <div className="flex justify-between border-t border-[var(--v3-chiziq)] pt-1.5">
+                <span className="text-[var(--v3-xira)]">O{"'"}rtacha konsentratsiya:</span>
+                <strong className="text-[var(--v3-matn)]">{kinetika?.ortachaKonsentratsiya || 0.5} M</strong>
+              </div>
+            </div>
+
+            {/* Kutilmagan hodisalar */}
+            {kinetika?.kutilmaganHolatlar?.length > 0 && (
+              <div className="space-y-2">
+                <div className="v3-nishon">Kuzatilgan hodisalar:</div>
+                {kinetika.kutilmaganHolatlar.map((h, i) => (
+                  <div key={i} className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-0.5">
+                    <div className="font-bold text-xs text-amber-300">{h.nom}</div>
+                    <p className="text-[11px] text-[var(--v3-matn)] opacity-85 leading-relaxed">{h.matn}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 5. HISOBOT TABI */}
         {natija && faolTab === "hisobot" && (
-          <div className="flex flex-col gap-4">
-            <div className="rounded-xl border p-3" style={CHUQUR}>
+          <div className="space-y-3.5">
+            <div className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] space-y-2">
               <h4 className="v3-nishon">Qadam-baqadam tahlil</h4>
-              <div className="mt-2 flex flex-col gap-2">
+              <div className="space-y-1.5">
                 {(hisobot?.qadamlar || []).map((qadam, i) => (
                   <div
                     key={i}
-                    className="rounded-xl border p-3 text-xs leading-relaxed"
-                    style={qadam.xato ? OGOH : YUZA}
+                    className={`p-2.5 rounded-lg border text-xs leading-relaxed ${
+                      qadam.xato
+                        ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                        : 'border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[var(--v3-matn)]'
+                    }`}
                   >
                     {qadam.matn}
                   </div>
@@ -304,36 +259,20 @@ export default function NatijaPaneli({
             </div>
 
             {hisobot?.xulosa && (
-              <div className="rounded-xl border p-3" style={YUZA}>
-                <span className="text-xs font-bold" style={{ color: "var(--v3-urgu)" }}>
-                  Yakuniy xulosa:
-                </span>
-                <p className="mt-1 text-xs leading-relaxed">{hisobot.xulosa}</p>
+              <div className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] space-y-1">
+                <span className="v3-nishon text-[var(--v3-urgu)]">Yakuniy xulosa:</span>
+                <p className="text-xs text-[var(--v3-matn)] leading-relaxed">{hisobot.xulosa}</p>
               </div>
             )}
 
-            {hisobot?.ogohlantirishlar && hisobot.ogohlantirishlar.length > 0 && (
-              <div className="rounded-xl border p-3" style={OGOH}>
-                <span className="text-xs font-bold">Tavsiyalar:</span>
-                <ul className="mt-1 list-disc pl-4 text-xs">
-                  {hisobot.ogohlantirishlar.map((o, idx) => (
-                    <li key={idx}>{o}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* 📄 PDF Hisobot Yuklash Tugmasi */}
+            {/* PDF Hisobot Yuklash Tugmasi */}
             <button
               type="button"
               onClick={() => typeof onPdfYukla === "function" && onPdfYukla()}
-              className="w-full rounded-xl py-3 text-xs font-bold transition hover:scale-[1.01]"
-              style={{
-                background: "var(--v3-urgu)",
-                color: "var(--v3-urgu-matn)",
-              }}
+              className="w-full v3-tugma v3-tugma-asosiy text-xs py-2.5 font-bold justify-center"
             >
-              📄 Laboratoriya Daftarini Yuklash (PDF)
+              <Ikon nom="fayl" olcham={14} />
+              <span>Laboratoriya Daftarini Yuklash (PDF)</span>
             </button>
           </div>
         )}
