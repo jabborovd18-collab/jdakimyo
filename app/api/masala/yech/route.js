@@ -8,7 +8,6 @@ import {
   yechAtom,
 } from "@/lib/masala-dvigatel.js";
 
-// Gemini API keyni barcha o'zgaruvchilardan qidirish
 function apiKalitniOl() {
   return (
     process.env.GEMINI_API_KEY ||
@@ -19,7 +18,7 @@ function apiKalitniOl() {
   );
 }
 
-// Gemini AI API orqali har qanday kimyoviy masala yoki savolni 100% aniq va ilmiy yechish
+// Google Interactions API orqali har qanday kimyoviy masala va savolni mukammal yechish
 async function geminiBilanYech(masalaMatni) {
   const apiKey = apiKalitniOl();
   if (!apiKey) return null;
@@ -29,25 +28,28 @@ async function geminiBilanYech(masalaMatni) {
 "${masalaMatni}"
 
 REJALASHTIRISH VA HISOBLASH QOIDALARI:
-1. Agarda masala aralashma (masalan kislorod O₂ va ozon O₃ aralashmasi), stexiometriya, eritmalar yoki nazariy savol bo'lsa, barcha tenglamalarni va matematik hisoblarni O'ZBEK TILIDA qadamma-qadam bajaring.
-2. Natijani FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING:
+1. Agarda masala to'liq berilgan bo'lsa, barcha tenglamalarni va hisoblarni O'ZBEK TILIDA qadamma-qadam bajaring.
+2. Agarda masala sharti chala yoki qo'shimcha ma'lumot yetishmasa (masalan faqat 40g O2 va O3 aralashmasi berilib, o'rtacha molyar massa berilmagan bo'lsa), buni foydalanuvchiga xushmuomalalik bilan tushuntirib, qaysi ma'lumot yetishmayotganini yozing.
+3. Natijani FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING:
 {
   "tenglama": "Reaksiya tenglamasi, aralashma formulasi yoki asosiy mantiqiy hisob tengligi",
-  "yakuniyJavob": "Aniq va qisqa yakuniy javob (masalan: Hajmiy nisbati V(O₂) : V(O₃) = 3 : 1)",
+  "yakuniyJavob": "Aniq va qisqa yakuniy javob yoki yetishmayotgan ma'lumot haqida qisqa eslatma",
   "bosqichlar": [
-    { "sarlavha": "1-Bosqich: Molyar massalar va mollar nisbati", "matn": "M(O₂) = 32 g/mol, M(O₃) = 48 g/mol..." },
-    { "sarlavha": "2-Bosqich: Matematik sistema tenglamasi", "matn": "..." }
+    { "sarlavha": "1-Bosqich: Masala va birikmalar tahlili", "matn": "..." },
+    { "sarlavha": "2-Bosqich: Hisoblash va mantiqiy natija", "matn": "..." }
   ],
   "ovozMatni": "Ovozli pleyerda o'zbek tilida dona-dona va tushunarli o'qiladigan 3-4 ta gapdan iborat matn"
 }`;
 
+    // 1. Interactions API endpoint
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/interactions?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
+          model: "antigravity-preview-05-2026",
+          input: prompt,
         }),
       }
     );
@@ -55,11 +57,29 @@ REJALASHTIRISH VA HISOBLASH QOIDALARI:
     if (!res.ok) return null;
 
     const data = await res.json();
-    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    // Interactions API javobidan matnni ajratish
+    const modelStep = data?.steps?.find((s) => s.type === "model_output");
+    const rawText = modelStep?.content?.[0]?.text || "";
 
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
+    }
+
+    // Agar model JSON formatlamagan bo'lsa, matnni chiroyli strukturaga o'tkazish
+    if (rawText.trim()) {
+      return {
+        tenglama: "Kimyoviy Masala Tahlili",
+        yakuniyJavob: rawText.slice(0, 120) + "...",
+        bosqichlar: [
+          {
+            sarlavha: "1-Bosqich: Ilmiy Tahlil va Yechim",
+            matn: rawText,
+          },
+        ],
+        ovozMatni: rawText.replace(/[*#]/g, "").slice(0, 300),
+      };
     }
   } catch (err) {
     console.error("Gemini API yechish xatosi:", err);
@@ -80,21 +100,17 @@ export async function POST(request) {
       );
     }
 
-    const apiKey = apiKalitniOl();
-
-    // 1. Birinchi navbatda Gemini AI orqali masalani chuqur va aniq yechish
-    if (apiKey) {
-      const aiNatija = await geminiBilanYech(masalaMatni);
-      if (aiNatija) {
-        return NextResponse.json({
-          muvaffaqiyatli: true,
-          turi: "ai_mukammal",
-          ...aiNatija,
-        });
-      }
+    // 1. Birinchi navbatda Google Interactions API orqali masalani chuqur va aniq yechish
+    const aiNatija = await geminiBilanYech(masalaMatni);
+    if (aiNatija) {
+      return NextResponse.json({
+        muvaffaqiyatli: true,
+        turi: "ai_interactions",
+        ...aiNatija,
+      });
     }
 
-    // 2. Agar API Key bo'lmasa yoki API ishlamasa, mahalliy dvigatel orqali hisoblash
+    // 2. AI ishlamasa, mahalliy determinik dvigatel orqali zaxira hisobini yurgizish
     const tahlil = masalaMatniniTahlilQil(masalaMatni);
     const turi = masalaTuriniAniqla(masalaMatni);
 
@@ -116,9 +132,7 @@ export async function POST(request) {
             matn: `Berilgan masala sharti: "${masalaMatni}".`,
           },
         ],
-        yakuniyJavob: apiKey
-          ? "Masalani yechish uchun ko'proq kimyoviy kattaliklar (g, mol, L) kiriting."
-          : "⚠️ GEMINI_API_KEY o'rnatilmagan. Matnli va erkin savollarni 100% yechish uchun loyihadagi .env fayliga GEMINI_API_KEY=AIzaSy... kalitini qo'shing.",
+        yakuniyJavob: "Masalani yechish uchun ko'proq kimyoviy kattaliklar (g, mol, L) kiriting.",
         ovozMatni: "Masalani aniq hisoblash uchun iltimos moddalar formulalari va miqdorlarini to'liq kiritishni tekshiring.",
       };
     }
@@ -126,7 +140,6 @@ export async function POST(request) {
     return NextResponse.json({
       muvaffaqiyatli: true,
       turi,
-      apiKalitMavjud: Boolean(apiKey),
       ...natija,
     });
   } catch (err) {
