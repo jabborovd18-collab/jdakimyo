@@ -1,19 +1,14 @@
 // components/EmailTasdiqlash.jsx
-//
-// Email tasdiqlash bloki — kabinetda, tasdiqlanmagan hisobda ko'rinadi.
-//
-// Chetlab o'tib bo'ladigan qilib qo'yilgan: hisob ishlaydi, faqat tanga
-// topish yopiq. Xat spam papkasiga tushsa yoki manzil xato bo'lsa,
-// odam butunlay yo'qolmasligi kerak.
 "use client"
+
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import Ikon from './Ikon'
 
 export default function EmailTasdiqlash() {
   const [holat, setHolat] = useState(null)
   const [kod, setKod] = useState('')
   const [band, setBand] = useState(false)
-  // Qayta yuborish tugmasi necha soniyadan keyin ochilishi
   const [kutish, setKutish] = useState(0)
 
   const yukla = useCallback(async () => {
@@ -22,13 +17,12 @@ export default function EmailTasdiqlash() {
       const d = await res.json()
       if (res.ok) setHolat(d)
     } catch {
-      // jim: blok ko'rsatilmasa ham qolgan sahifa ishlayveradi
+      // Ignored
     }
   }, [])
 
   useEffect(() => { yukla() }, [yukla])
 
-  // Qayta yuborish taymeri
   useEffect(() => {
     if (kutish <= 0) return
     const t = setTimeout(() => setKutish((k) => k - 1), 1000)
@@ -52,7 +46,7 @@ export default function EmailTasdiqlash() {
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error)
-      toast.success(d.message, { duration: 5000, icon: '✅' })
+      toast.success(d.message || 'Email tasdiqlandi!', { duration: 4000 })
       setHolat({ ...holat, tasdiqlangan: true })
     } catch (e2) {
       toast.error(e2.message)
@@ -67,7 +61,7 @@ export default function EmailTasdiqlash() {
       const res = await fetch('/api/auth/tasdiqlash', { method: 'PUT' })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error)
-      toast.success(d.message)
+      toast.success(d.message || 'Yangi kod yuborildi')
       setKutish(60)
     } catch (e) {
       toast.error(e.message)
@@ -77,49 +71,42 @@ export default function EmailTasdiqlash() {
   }
 
   return (
-    <section className="bg-gradient-to-br from-orange-900/25 to-amber-900/15 border border-orange-600/40 rounded-2xl p-5">
-      <div className="flex items-start gap-3 mb-4">
-        <span className="text-2xl">📧</span>
-        <div className="min-w-0">
-          <h2 className="font-bold text-white">Emailingizni tasdiqlang</h2>
-          <p className="text-sm text-orange-200/80 mt-0.5">
-            {holat.email ? <><span className="font-mono">{holat.email}</span> ga 6 xonali kod yuborildi.</> : 'Emailingizga 6 xonali kod yuborildi.'}
+    <section className="v3-panel-karta p-5 space-y-4 border-l-4 border-l-[var(--v3-urgu)] bg-[var(--v3-yuza-2)]">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)] shrink-0">
+          <Ikon nom="pochta" olcham={18} />
+        </div>
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="v3-nishon text-[var(--v3-urgu)]">Xavfsizlik va Tasdiq</div>
+          <h2 className="font-bold text-sm text-[var(--v3-matn)]">Elektron pochtangizni tasdiqlang</h2>
+          <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+            {holat.email ? <><strong className="text-[var(--v3-matn)]">{holat.email}</strong> ga 6 xonali tasdiqlash kodi yuborildi.</> : 'Pochtaga 6 xonali kod yuborildi.'}
+            Tasdiqlamaguningizcha tanga topish, sovg{"'"}alar va laboratoriya xaridlari yopiq turadi.
           </p>
-          {/* Nima cheklanayotganini ochiq aytamiz — odam nega
-              tasdiqlashi kerakligini bilsin */}
-          <p className="text-xs text-orange-300/70 mt-1.5">
-            Tasdiqlamaguningizcha tanga topa olmaysiz: missiya mukofoti,
-            sovg'a va laboratoriya xaridi yopiq.
-          </p>
-          {!holat.pochtaIshlaydi && (
-            <p className="text-xs text-red-300 mt-1.5">
-              ⚠️ Pochta xizmati hali sozlanmagan — administrator bilan bog'laning.
-            </p>
-          )}
         </div>
       </div>
 
-      <form onSubmit={tekshir} className="flex flex-wrap gap-2">
+      <form onSubmit={tekshir} className="flex flex-wrap items-center gap-2 pt-1">
         <input
           value={kod}
           onChange={(e) => setKod(e.target.value.replace(/\D/g, '').slice(0, 6))}
           placeholder="000000"
           inputMode="numeric"
           autoComplete="one-time-code"
-          className="w-32 px-4 py-2.5 bg-slate-950/60 border border-orange-700/50 rounded-xl text-white text-lg tracking-[0.3em] text-center font-mono placeholder-orange-800 focus:border-orange-400 outline-none"
+          className="w-32 v3-kiritish py-2 text-base tracking-[0.3em] text-center font-mono font-bold"
         />
         <button
           type="submit"
           disabled={band || kod.length !== 6}
-          className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl disabled:opacity-50"
+          className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold disabled:opacity-50"
         >
-          Tasdiqlash
+          {band ? 'Tekshirilmoqda...' : 'Tasdiqlash'}
         </button>
         <button
           type="button"
           onClick={qaytaYubor}
           disabled={band || kutish > 0}
-          className="px-4 py-2.5 bg-slate-800/60 hover:bg-slate-700/70 border border-slate-600/50 rounded-xl text-sm text-slate-200 disabled:opacity-50"
+          className="v3-tugma text-xs py-2 px-3 disabled:opacity-50"
         >
           {kutish > 0 ? `Qayta yuborish (${kutish}s)` : 'Qayta yuborish'}
         </button>

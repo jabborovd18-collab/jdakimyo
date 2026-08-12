@@ -1,38 +1,19 @@
 // components/TelegramUlash.jsx
-//
-// Sozlamalardagi Telegram bo'limi: hisobni botga ulash va uzish.
-//
-// NEGA ALOHIDA KOMPONENT. sozlama/page.js allaqachon 900 qatordan
-// oshgan va o'z holati bilan ishlaydi. Telegram holati (kod, muddat)
-// boshqa sozlamalar bilan birga saqlanmaydi — u darhol ta'sir qiladi,
-// "Saqlash" tugmasini kutmaydi.
 "use client"
+
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import Ikon from './Ikon'
 
-/**
- * @param {object} p
- * @param {string} [p.boshlangichKod] Botdan kelgan havoladagi kod
- *   (`/profil/telegram?kod=...`). Bo'lsa, maydon to'ldiriladi va
- *   odam hech narsa termaydi.
- */
 export default function TelegramUlash({ boshlangichKod = '', mustaqil = false }) {
   const [holat, setHolat] = useState(null)
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
   const [kod, setKod] = useState(null)
   const [band, setBand] = useState(false)
-  // Ikkinchi usul: botdan olingan kod
   const [botKod, setBotKod] = useState(boshlangichKod)
 
   useEffect(() => { holatniOl() }, [])
 
-  /**
-   * Botdan olingan kodni yuborish.
-   *
-   * Ikki usul ATAYLAB birga qoldirildi: odam ishni qayerdan
-   * boshlagani oldindan ma'lum emas — kimdir saytda o'tiradi,
-   * kimdir Telegramda.
-   */
   async function botKodniYubor(e) {
     e?.preventDefault()
     if (!botKod.trim()) return
@@ -45,7 +26,7 @@ export default function TelegramUlash({ boshlangichKod = '', mustaqil = false })
       })
       const data = await res.json()
       if (!res.ok) return toast.error(data.error || 'Ulanmadi')
-      toast.success(data.message || 'Ulandi')
+      toast.success(data.message || 'Telegram muvaffaqiyatli ulandi!')
       setBotKod('')
       setKod(null)
       await holatniOl()
@@ -62,8 +43,7 @@ export default function TelegramUlash({ boshlangichKod = '', mustaqil = false })
       const data = await res.json()
       if (res.ok) setHolat(data)
     } catch {
-      // Jim: bu bo'lim sahifaning asosiy qismi emas, xato tost
-      // chiqarib sozlamalarni ochgan odamni bezovta qilmaydi
+      // Ignored
     } finally {
       setYuklanmoqda(false)
     }
@@ -100,20 +80,18 @@ export default function TelegramUlash({ boshlangichKod = '', mustaqil = false })
   }
 
   if (yuklanmoqda) {
-    return mustaqil ? <div className="text-sm text-purple-400">Yuklanmoqda...</div> : null
+    return mustaqil ? (
+      <div className="py-6 text-center text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
+        <Ikon nom="vaqt" olcham={16} className="animate-spin" />
+        <span>Telegram holati yuklanmoqda...</span>
+      </div>
+    ) : null
   }
 
-  // Bot sozlanmagan bo'lsa bo'lim UMUMAN chizilmaydi: ishlamaydigan
-  // tugmani ko'rsatib qo'yish "bosdim, hech narsa bo'lmadi" degan
-  // eng yomon tajribani beradi.
-  //
-  // MUSTAQIL sahifada esa aksincha — u yerga odam ataylab kelgan
-  // (bot havolasi bo'yicha), bo'sh sahifa ko'rsatish sababsiz
-  // tupikka olib borardi.
   if (!holat?.ishlaydi) {
     if (!mustaqil) return null
     return (
-      <div className="text-sm text-purple-300">
+      <div className="text-xs text-[var(--v3-xira)]">
         {holat
           ? 'Telegram boti hali sozlanmagan. Keyinroq urinib ko\'ring.'
           : 'Bu sahifa uchun tizimga kirishingiz kerak.'}
@@ -122,125 +100,121 @@ export default function TelegramUlash({ boshlangichKod = '', mustaqil = false })
   }
 
   return (
-    <div className={mustaqil ? '' : 'pt-4 border-t border-purple-800/50'}>
-      {!mustaqil && <h4 className="text-sm font-bold text-yellow-300 mb-2">✈️ Telegram</h4>}
+    <div className={mustaqil ? '' : 'pt-4 border-t border-[var(--v3-chiziq)] space-y-3'}>
+      {!mustaqil && (
+        <div className="v3-nishon flex items-center gap-1.5 text-[#24A1DE]">
+          <Ikon nom="telegram" olcham={14} />
+          <span>Telegram Integratsiyasi</span>
+        </div>
+      )}
 
       {holat.ulangan ? (
-        <div className="bg-purple-900/30 border border-purple-700/50 rounded-xl p-4">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div>
-              <div className="text-sm text-green-400 font-semibold">✓ Ulangan</div>
-              <div className="text-xs text-purple-300 mt-1">
-                {holat.ulanish?.username ? `@${holat.ulanish.username}` : 'Telegram hisobi'}
-                {' · '}
-                Xabarlar: {holat.ulanish?.xabarlar ? 'yoqilgan' : "o'chirilgan"}
-              </div>
-              <div className="text-xs text-purple-400 mt-1">
-                Botda <span className="font-mono">/xabarlar</span> yozib oqimni to'xtatish mumkin.
-              </div>
+        <div className="p-4 rounded-xl border border-green-500/30 bg-green-500/5 flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div className="text-xs font-bold text-green-400 flex items-center gap-1">
+              <span>✓ Telegram hisobiga ulangan</span>
             </div>
-            <button
-              onClick={uzish}
-              disabled={band}
-              className="px-4 py-2 rounded-lg bg-red-600/20 border border-red-600/40 text-red-300 text-sm hover:bg-red-600/30 disabled:opacity-50 transition-all"
-            >
-              Uzish
-            </button>
+            <div className="text-[11px] text-[var(--v3-xira)] mt-1 font-mono">
+              {holat.ulanish?.username ? `@${holat.ulanish.username}` : 'Ulangan akkaunt'}
+              {' · '}
+              Xabarlar: {holat.ulanish?.xabarlar ? 'faol' : "o'chirilgan"}
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={uzish}
+            disabled={band}
+            className="v3-tugma text-xs py-1.5 px-3 text-red-400 hover:border-red-500/30 font-bold"
+          >
+            Uzish
+          </button>
         </div>
       ) : kod ? (
-        <div className="bg-purple-900/30 border border-purple-700/50 rounded-xl p-4">
-          <div className="text-xs text-purple-300 mb-3">
-            Quyidagi tugmani bosing — Telegram ochiladi va kod o'zi yuboriladi.
-          </div>
+        <div className="p-4 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] space-y-3">
+          <p className="text-xs text-[var(--v3-xira)]">
+            Tugmani bosing — Telegram ochiladi va tasdiqlash kodi avtomatik yuboriladi:
+          </p>
 
           <a
             href={kod.havola}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-5 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm transition-all"
+            className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold inline-flex items-center gap-1.5"
           >
-            ✈️ Telegramda ochish
+            <Ikon nom="telegram" olcham={14} />
+            <span>Telegramda ochish</span>
           </a>
 
-          <div className="text-xs text-purple-400 mt-3">
-            Tugma ishlamasa, botga shu kodni yuboring:
-          </div>
-          <div className="font-mono text-lg tracking-widest text-yellow-300 mt-1">{kod.kod}</div>
-          <div className="text-xs text-purple-500 mt-1">
-            Kod {kod.daqiqa} daqiqa amal qiladi.
+          <div className="pt-2 border-t border-[var(--v3-chiziq)] text-xs text-[var(--v3-xira)]">
+            <span>Yoki botga quyidagi kodni yozing:</span>
+            <div className="font-mono text-base font-bold text-[var(--v3-urgu)] tracking-widest mt-1">
+              {kod.kod}
+            </div>
           </div>
 
           <button
+            type="button"
             onClick={holatniOl}
-            className="mt-3 text-xs text-purple-300 underline hover:text-purple-200"
+            className="text-xs text-[var(--v3-urgu)] hover:underline font-semibold"
           >
-            Uladim, holatni yangilash
+            Uladim, tekshirish →
           </button>
         </div>
       ) : (
-        <div className="bg-purple-900/30 border border-purple-700/50 rounded-xl p-4">
-          <div className="text-xs text-purple-300 mb-4">
-            Saytdagi bildirishnomalarni Telegramda ham oling — do'stlik so'rovi,
-            ustoz taklifi, vazifa va sovg'a.
-          </div>
+        <div className="p-4 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] space-y-4">
+          <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
+            Saytdagi barcha xabarlar va natijalarni Telegram botingizda qabul qiling.
+          </p>
 
-          {/* USUL 1 — botdan kod olish. Birinchi turibdi, chunki odam
-              odatda Telegramni allaqachon ochib turadi va saytda
-              faqat kodni kiritishi kerak bo'ladi. */}
-          <form onSubmit={botKodniYubor} className="mb-4">
-            <div className="text-xs font-semibold text-purple-200 mb-1.5">
-              1-usul: botdan kod oling
+          <form onSubmit={botKodniYubor} className="space-y-2">
+            <div className="text-xs font-bold text-[var(--v3-matn)]">
+              Botdan olingan kod bilan ulash:
             </div>
-            <div className="text-[11px] text-purple-400 mb-2">
+            <div className="text-[11px] text-[var(--v3-xira)]">
               {holat.bot ? (
                 <>
                   <a
                     href={`https://t.me/${holat.bot}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sky-300 underline"
+                    className="text-[#24A1DE] font-semibold hover:underline"
                   >
                     @{holat.bot}
                   </a>
-                  {' '}ga <span className="font-mono">/kod</span> yozing va kodni shu yerga kiriting.
+                  {' '}ga <code className="font-mono bg-[var(--v3-yuza)] px-1 rounded">/kod</code> deb yozing va kelgan kodni kiriting:
                 </>
               ) : (
-                <>Botga <span className="font-mono">/kod</span> yozing.</>
+                <>Botga <code className="font-mono bg-[var(--v3-yuza)] px-1 rounded">/kod</code> deb yozing.</>
               )}
             </div>
             <div className="flex gap-2">
               <input
                 value={botKod}
                 onChange={(e) => setBotKod(e.target.value.toUpperCase())}
-                placeholder="ABC123"
+                placeholder="KOD123"
                 maxLength={8}
-                className="flex-1 min-w-0 bg-purple-950/50 border border-purple-700/50 rounded-lg px-3 py-2 text-sm font-mono tracking-widest text-white placeholder-purple-600 outline-none focus:border-yellow-500/50"
+                className="v3-kiritish py-1.5 text-xs font-mono tracking-widest uppercase flex-1"
               />
               <button
                 type="submit"
                 disabled={band || !botKod.trim()}
-                className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm disabled:opacity-40 transition-all whitespace-nowrap"
+                className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-4 font-bold shrink-0 disabled:opacity-40"
               >
                 Ulash
               </button>
             </div>
           </form>
 
-          {/* USUL 2 — saytdan kod olish (eski yo'l) */}
-          <div className="pt-3 border-t border-purple-800/40">
-            <div className="text-xs font-semibold text-purple-200 mb-1.5">
-              2-usul: saytdan kod oling
-            </div>
-            <div className="text-[11px] text-purple-400 mb-2">
-              Kod olasiz, tugma bosilganda Telegram ochiladi va kod o'zi yuboriladi.
-            </div>
+          <div className="pt-3 border-t border-[var(--v3-chiziq)] flex items-center justify-between">
+            <span className="text-[11px] text-[var(--v3-xira)]">Yoki to{"'"}g{"'"}ridan-to{"'"}g{"'"}ri havola orqali:</span>
             <button
+              type="button"
               onClick={kodOl}
               disabled={band}
-              className="px-4 py-2 rounded-lg bg-purple-800/50 border border-purple-600/50 text-purple-200 text-sm hover:bg-purple-700/50 disabled:opacity-50 transition-all"
+              className="v3-tugma text-xs py-1 px-3"
             >
-              {band ? 'Kutilmoqda...' : 'Kod olish'}
+              {band ? '...' : 'Havola olish'}
             </button>
           </div>
         </div>

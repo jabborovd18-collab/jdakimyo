@@ -1,6 +1,8 @@
 // components/StarsDisplay.jsx
 "use client"
+
 import { useState, useEffect } from 'react'
+import Ikon from './Ikon'
 
 export default function StarsDisplay() {
   const [leaderboard, setLeaderboard] = useState([])
@@ -14,7 +16,7 @@ export default function StarsDisplay() {
     try {
       const response = await fetch('/api/leaderboard')
       const data = await response.json()
-      
+
       if (response.ok) {
         setLeaderboard(data.leaders || [])
       }
@@ -27,12 +29,12 @@ export default function StarsDisplay() {
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border border-yellow-500/30 rounded-2xl p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-yellow-800/50 rounded w-1/3 mb-4"></div>
-          <div className="space-y-3">
+      <div className="v3-panel-karta p-6">
+        <div className="animate-pulse space-y-3">
+          <div className="h-4 bg-[var(--v3-yuza-2)] rounded w-1/3"></div>
+          <div className="space-y-2">
             {[1, 2, 3, 4, 5].map(i => (
-              <div key={i} className="h-16 bg-yellow-800/30 rounded-xl"></div>
+              <div key={i} className="h-12 bg-[var(--v3-yuza)] rounded-xl"></div>
             ))}
           </div>
         </div>
@@ -41,74 +43,74 @@ export default function StarsDisplay() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border border-yellow-500/30 rounded-2xl p-6">
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <span>🏆</span>
-        Haftalik yetakchilar
-      </h2>
+    <div className="v3-panel-karta p-6 space-y-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-yellow-400 shrink-0">
+            <Ikon nom="yulduz" olcham={18} />
+          </div>
+          <div>
+            <div className="v3-nishon">Peshqadamlar</div>
+            <h2 className="text-sm font-bold text-[var(--v3-matn)]">Haftalik Yetakchilar</h2>
+          </div>
+        </div>
+      </div>
 
       {leaderboard.length > 0 ? (
         <div className="space-y-2">
           {leaderboard.slice(0, 5).map((user, index) => (
             <div
               key={user.id}
-              className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
+              className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
                 index === 0
-                  ? 'bg-gradient-to-r from-yellow-600/30 to-orange-600/30 border border-yellow-500/50'
-                  : index === 1
-                  ? 'bg-gradient-to-r from-slate-600/30 to-slate-700/30 border border-slate-500/50'
-                  : index === 2
-                  ? 'bg-gradient-to-r from-orange-800/30 to-orange-900/30 border border-orange-700/50'
-                  : 'bg-purple-950/50 border border-purple-700/30'
+                  ? 'bg-[var(--v3-yuza-2)] border-[var(--v3-urgu)] shadow-sm'
+                  : 'bg-[var(--v3-fon-2)] border-[var(--v3-chiziq)]'
               }`}
             >
               {/* Rank */}
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0 ${
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 ${
                 index === 0
-                  ? 'bg-yellow-500 text-black'
+                  ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)]'
                   : index === 1
                   ? 'bg-slate-400 text-black'
                   : index === 2
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-purple-800/50 text-purple-300'
+                  ? 'bg-amber-700 text-white'
+                  : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)]'
               }`}>
-                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
+                #{index + 1}
               </div>
 
               {/* Avatar */}
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-sm font-bold text-black flex-shrink-0 overflow-hidden">
+              <div className="w-9 h-9 rounded-full bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-urgu)] shrink-0 overflow-hidden">
                 {user.avatar ? (
-                  <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover" />
+                  <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  user.fullName?.charAt(0)?.toUpperCase() || user.username?.charAt(0).toUpperCase()
+                  (user.fullName?.[0] || user.username?.[0] || 'U').toUpperCase()
                 )}
               </div>
 
               {/* User Info */}
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-white truncate">
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-xs text-[var(--v3-matn)] truncate">
                   {user.fullName || user.username}
                 </div>
-                <div className="text-xs text-purple-400 truncate">
+                <div className="text-[10px] text-[var(--v3-xira)] font-mono truncate">
                   @{user.username}
                 </div>
               </div>
 
               {/* Stars */}
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <span className="text-yellow-400 font-bold">{user.weeklyStars}</span>
-                <span className="text-lg">🌟</span>
+              <div className="flex items-center gap-1.5 shrink-0 font-mono text-xs text-yellow-400 font-bold">
+                <span>{user.weeklyStars}</span>
+                <Ikon nom="yulduz" olcham={13} />
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-8">
-          <div className="text-6xl mb-3">🏆</div>
-          <p className="text-purple-300 mb-2">Hali reyting shakllanmagan</p>
-          <p className="text-xs text-purple-400">
-            Missiyalarni bajarib, reytingga kiring!
-          </p>
+        <div className="text-center py-12 text-xs text-[var(--v3-xira)] space-y-1">
+          <p className="font-bold text-[var(--v3-matn)]">Hali reyting shakllanmagan</p>
+          <p>Missiyalarni bajarib, yulduzlar yig{"'"}ing va birinchi o{"'"}rinni egallang!</p>
         </div>
       )}
     </div>

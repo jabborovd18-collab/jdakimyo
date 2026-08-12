@@ -4,33 +4,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { sana } from '@/lib/sana'
+import Ikon from './Ikon'
 
-// Sertifikat kartasi — profildagi umumiy kartadan alohida.
-//
-// Umumiy karta faqat nom, tavsif va bitta raqam ko'rsatadi. Sertifikatda esa
-// raqam, fan, sabab, holat va pechatlar bor va ularning har biri muhim:
-// sertifikat tekshiriladigan hujjat, ro'yxatdagi bezak emas.
-
-/**
- * Holatni hisoblaydi. Muddat bazada emas, ko'rish vaqtida tekshiriladi —
- * shuning uchun "yaroqli" deb saqlangan sertifikat muddati o'tgan bo'lsa ham
- * bu yerda o'tgan deb ko'rsatiladi. Tekshirish sahifasi ham xuddi shunday
- * hisoblaydi (lib/sertifikat.js).
- */
 function holat(sertifikat) {
   if (sertifikat.status !== 'valid') {
-    return { yaroqli: false, matn: 'Bekor qilingan', rang: 'red' }
+    return { yaroqli: false, matn: 'Bekor qilingan', tagClass: 'bg-red-500/10 text-red-400 border-red-500/20' }
   }
   if (sertifikat.expiresAt && new Date() > new Date(sertifikat.expiresAt)) {
-    return { yaroqli: false, matn: 'Muddati tugagan', rang: 'orange' }
+    return { yaroqli: false, matn: 'Muddati tugagan', tagClass: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
   }
-  return { yaroqli: true, matn: 'Yaroqli', rang: 'green' }
-}
-
-const RANGLAR = {
-  green: 'bg-green-600/20 text-green-400 border-green-600/30',
-  red: 'bg-red-600/20 text-red-400 border-red-600/30',
-  orange: 'bg-orange-600/20 text-orange-400 border-orange-600/30',
+  return { yaroqli: true, matn: 'Yaroqli', tagClass: 'v3-tag-ochiq' }
 }
 
 export default function SertifikatKarta({ sertifikat }) {
@@ -38,8 +21,6 @@ export default function SertifikatKarta({ sertifikat }) {
   const seals = Array.isArray(sertifikat.seals) ? sertifikat.seals : []
   const [yasalmoqda, setYasalmoqda] = useState(false)
 
-  // pdf-lib, fontkit, qrcode va DejaVu shriftlari birgalikda katta hajm.
-  // Ular faqat tugma bosilganda yuklanadi — profil sahifasi ochilganda emas.
   const pdfYuklab = async () => {
     setYasalmoqda(true)
     try {
@@ -54,68 +35,72 @@ export default function SertifikatKarta({ sertifikat }) {
 
   return (
     <article
-      className={`rounded-2xl border bg-slate-900/50 p-5 transition ${
-        h.yaroqli
-          ? 'border-purple-700/40 hover:border-yellow-500/50'
-          : 'border-red-800/40 opacity-75'
+      className={`v3-panel-karta p-5 space-y-3 transition-all ${
+        h.yaroqli ? 'hover:border-[var(--v3-chiziq-2)]' : 'opacity-70'
       }`}
     >
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <code className="rounded border border-purple-700/50 bg-purple-950/70 px-2 py-0.5 font-mono text-xs text-yellow-400">
-          {sertifikat.certId}
-        </code>
-        <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${RANGLAR[h.rang]}`}>
-          {h.matn}
-        </span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <code className="rounded-lg border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] px-2 py-0.5 font-mono text-[11px] text-[var(--v3-urgu)]">
+            {sertifikat.certId}
+          </code>
+          <span className={`v3-tag text-[10.5px] ${h.tagClass}`}>
+            {h.matn}
+          </span>
+        </div>
+
         {sertifikat.grade && (
-          <span className="rounded-full border border-yellow-600/30 bg-yellow-600/20 px-2 py-0.5 text-xs text-yellow-400">
+          <span className="v3-tag v3-tag-yopiq text-[10.5px]">
             {sertifikat.grade}
             {sertifikat.score != null ? ` · ${sertifikat.score} ball` : ''}
           </span>
         )}
       </div>
 
-      <h2 className="text-lg font-bold text-white">{sertifikat.fullName}</h2>
-      <p className="mt-1 text-sm text-purple-300">
-        📚 {sertifikat.fan} — {sertifikat.reason}
-      </p>
+      <div>
+        <h2 className="text-base font-bold text-[var(--v3-matn)]">{sertifikat.fullName}</h2>
+        <p className="mt-0.5 text-xs text-[var(--v3-xira)]">
+          Fan: <strong className="text-[var(--v3-matn)]">{sertifikat.fan}</strong> — {sertifikat.reason}
+        </p>
+      </div>
+
       {sertifikat.description && (
-        <p className="mt-2 text-xs leading-relaxed text-purple-400">{sertifikat.description}</p>
+        <p className="text-xs leading-relaxed text-[var(--v3-matn)] opacity-85">{sertifikat.description}</p>
       )}
 
       {seals.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 pt-1">
           {seals.map((seal) => (
-            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               key={seal.url}
               src={seal.url}
               alt={seal.label || 'Pechat'}
               title={seal.label || 'Pechat'}
-              className="h-10 w-10 rounded bg-white/5 object-contain"
+              className="h-9 w-9 rounded-lg bg-white/5 object-contain border border-[var(--v3-chiziq)]"
             />
           ))}
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-purple-800/30 pt-3 text-xs text-purple-500">
-        <span>📅 {sana(sertifikat.issuedAt)}</span>
-        {sertifikat.expiresAt && <span>⏳ {sana(sertifikat.expiresAt)} gacha</span>}
+      <div className="flex flex-wrap items-center gap-4 border-t border-[var(--v3-chiziq)] pt-3 text-[11px] font-mono text-[var(--v3-xira)]">
+        <span>Berilgan: {sana(sertifikat.issuedAt)}</span>
+        {sertifikat.expiresAt && <span>Muddat: {sana(sertifikat.expiresAt)} gacha</span>}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2 pt-1">
         <button
+          type="button"
           onClick={pdfYuklab}
           disabled={yasalmoqda}
-          className="rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 px-3 py-2 text-xs font-bold text-black transition hover:from-yellow-400 hover:to-orange-400 disabled:opacity-50"
+          className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3.5 font-bold"
         >
-          {yasalmoqda ? '⏳ Tayyorlanmoqda...' : '📄 PDF yuklab olish'}
+          {yasalmoqda ? 'Tayyorlanmoqda...' : '📄 PDF yuklab olish'}
         </button>
         <Link
           href={`/sertifikat/verify/${sertifikat.certId}`}
-          className="rounded-lg border border-purple-600/50 bg-purple-800/40 px-3 py-2 text-xs font-semibold text-purple-200 transition hover:bg-purple-700/50"
+          className="v3-tugma text-xs py-1.5 px-3"
         >
-          🔍 Tekshirish sahifasi
+          🔍 Tekshirish
         </Link>
       </div>
     </article>

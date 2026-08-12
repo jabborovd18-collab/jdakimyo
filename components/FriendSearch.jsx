@@ -1,16 +1,11 @@
-// components/FriendSearch.jsx
 "use client"
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
+import Ikon from '@/components/Ikon'
 
-/**
- * Foydalanuvchi qidirish va do'stlik taklifini yuborish.
- * `onChange` — do'stlar ro'yxati o'zgarganda (taklif qabul qilinganda)
- * chaqiriladi, shunda sahifadagi ro'yxat yangilanadi.
- */
 export default function FriendSearch({ onChange }) {
   const [query, setQuery] = useState('')
   const [users, setUsers] = useState([])
@@ -37,7 +32,7 @@ export default function FriendSearch({ onChange }) {
       }
     }
 
-    const timeoutId = setTimeout(searchUsers, 300) // Debounce
+    const timeoutId = setTimeout(searchUsers, 300)
     return () => clearTimeout(timeoutId)
   }, [query])
 
@@ -50,14 +45,9 @@ export default function FriendSearch({ onChange }) {
       })
 
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
+      if (!response.ok) throw new Error(data.error)
 
       toast.success('Do\'stlik taklifi yuborildi!')
-
-      // Statusni yangilash
       setUsers(prev => prev.map(u =>
         u.id === userId ? { ...u, status: 'sent' } : u
       ))
@@ -66,14 +56,6 @@ export default function FriendSearch({ onChange }) {
     }
   }
 
-  /**
-   * Bizga kelgan taklifni qabul qilish.
-   *
-   * Avval bu tugma ham sendFriendRequest chaqirardi, ya'ni mavjud taklifni
-   * tasdiqlash o'rniga YANGI taklif yuborishga urinardi — server esa uni
-   * "Taklif allaqachon yuborilgan" deb rad etardi. Qabul qilish mavjud
-   * taklifni PUT bilan tasdiqlashdir.
-   */
   const acceptFriendRequest = async (user) => {
     if (!user.requestId) {
       toast.error('Taklif topilmadi')
@@ -88,13 +70,9 @@ export default function FriendSearch({ onChange }) {
       })
 
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
+      if (!response.ok) throw new Error(data.error)
 
       toast.success(data.message || 'Do\'stlik qabul qilindi!')
-
       setUsers(prev => prev.map(u =>
         u.id === user.id ? { ...u, status: 'friend', requestId: null } : u
       ))
@@ -105,92 +83,85 @@ export default function FriendSearch({ onChange }) {
     }
   }
 
-  const getButtonContent = (status) => {
-    switch (status) {
-      case 'friend':
-        return { text: '✓ Do\'st', disabled: true, className: 'bg-green-600/20 text-green-400 border-green-600/30' }
-      case 'sent':
-        return { text: '⏳ Yuborildi', disabled: true, className: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30' }
-      case 'received':
-        return { text: '📥 Qabul qilish', disabled: false, className: 'bg-blue-600 hover:bg-blue-500 text-white' }
-      default:
-        return { text: '+ Qo\'shish', disabled: false, className: 'bg-purple-600 hover:bg-purple-500 text-white' }
-    }
-  }
-
   return (
-    <div className="relative">
-      <div className="mb-4">
-        <label className="text-sm text-purple-300 mb-2 block">Do'stlarni qidirish</label>
+    <div className="space-y-4">
+      <div>
+        <label className="v3-yorliq">Do{"'"}stlarni qidirish</label>
         <div className="relative">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Username, ism yoki ID bo'yicha qidirish..."
-            className="w-full px-4 py-3 pl-11 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
+            className="v3-kiritish py-2 pl-9 text-xs"
           />
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400">🔍</span>
-          {isLoading && (
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400">
-              ⏳
-            </span>
-          )}
+          <span className="absolute left-3 top-2.5 text-[var(--v3-xira)]">
+            <Ikon nom="qidiruv" olcham={14} />
+          </span>
         </div>
       </div>
 
       {showResults && users.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-purple-300 mb-2">
-            Topilgan foydalanuvchilar ({users.length})
-          </h3>
-          {users.map(user => {
-            const button = getButtonContent(user.status)
-            
-            return (
-              <div 
-                key={user.id} 
-                className="bg-purple-950/50 border border-purple-700/30 rounded-xl p-4 flex items-center gap-4 hover:border-yellow-500/50 transition-all"
-              >
-                <Link href={`/profil/${user.userId}`} className="flex items-center gap-3 flex-1">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-lg font-bold text-black flex-shrink-0">
-                    {user.fullName?.charAt(0)?.toUpperCase() || user.username.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-white truncate flex items-center gap-1.5">
-                      <span className="truncate">{user.fullName || user.username}</span>
-                      <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="kichik" />
-                    </div>
-                    <div className="text-xs text-purple-400">
-                      @{user.username} • ID: {user.userId}
-                    </div>
-                    {user.university && (
-                      <div className="text-xs text-purple-500 mt-0.5">🏛️ {user.university}</div>
-                    )}
-                  </div>
-                </Link>
+        <div className="space-y-2.5">
+          <div className="text-[11px] font-mono text-[var(--v3-xira)]">
+            {users.length} ta foydalanuvchi topildi:
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {users.map(user => {
+              const isFriend = user.status === 'friend'
+              const isSent = user.status === 'sent'
+              const isReceived = user.status === 'received'
 
-                <button
-                  onClick={() =>
-                    user.status === 'received'
-                      ? acceptFriendRequest(user)
-                      : sendFriendRequest(user.id)
-                  }
-                  disabled={button.disabled}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all disabled:cursor-not-allowed ${button.className}`}
+              return (
+                <div 
+                  key={user.id} 
+                  className="p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] flex items-center justify-between gap-3 hover:border-[var(--v3-chiziq-2)] transition-all"
                 >
-                  {button.text}
-                </button>
-              </div>
-            )
-          })}
+                  <Link href={`/profil/${user.userId || user.id}`} className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-9 h-9 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        (user.fullName?.[0] || user.username?.[0] || 'U').toUpperCase()
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs text-[var(--v3-matn)] truncate flex items-center gap-1">
+                        <span>{user.fullName || user.username}</span>
+                        <TasdiqBelgisi tasdiqlangan={user.isVerified} olcham="kichik" />
+                      </div>
+                      <div className="text-[10px] text-[var(--v3-xira)] font-mono">
+                        @{user.username}
+                      </div>
+                    </div>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => isReceived ? acceptFriendRequest(user) : sendFriendRequest(user.id)}
+                    disabled={isFriend || isSent}
+                    className={`v3-tugma text-xs py-1 px-3 font-semibold shrink-0 ${
+                      isFriend
+                        ? 'v3-tag-ochiq cursor-default'
+                        : isSent
+                        ? 'v3-tag-yopiq cursor-default'
+                        : isReceived
+                        ? 'v3-tugma-asosiy font-bold'
+                        : 'hover:border-[var(--v3-urgu)]'
+                    }`}
+                  >
+                    {isFriend ? '✓ Do\'st' : isSent ? 'Yuborildi' : isReceived ? 'Qabul qilish' : '+ Do\'stlashish'}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
       {showResults && users.length === 0 && query.length >= 2 && !isLoading && (
-        <div className="text-center py-8">
-          <div className="text-4xl mb-2">🔍</div>
-          <p className="text-purple-400">Hech kim topilmadi</p>
+        <div className="py-6 text-center text-xs text-[var(--v3-xira)]">
+          Foydalanuvchi topilmadi
         </div>
       )}
     </div>

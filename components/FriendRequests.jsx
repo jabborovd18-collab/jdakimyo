@@ -1,17 +1,17 @@
-// components/FriendRequests.jsx
 "use client"
 
 import { useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
+import Ikon from '@/components/Ikon'
 
 export default function FriendRequests({ requests, onUpdate }) {
   const [loading, setLoading] = useState({})
 
   const handleRequest = async (requestId, action) => {
     setLoading({ ...loading, [requestId]: action })
-    
+
     try {
       const response = await fetch(`/api/friends/request/${requestId}`, {
         method: 'PUT',
@@ -20,17 +20,10 @@ export default function FriendRequests({ requests, onUpdate }) {
       })
 
       const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
 
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
-
-      toast.success(data.message)
-      
-      // Profilni yangilash
-      if (onUpdate) {
-        await onUpdate()
-      }
+      toast.success(data.message || 'Javob berildi')
+      if (onUpdate) await onUpdate()
     } catch (error) {
       toast.error(error.message)
     } finally {
@@ -38,72 +31,59 @@ export default function FriendRequests({ requests, onUpdate }) {
     }
   }
 
-  if (requests.length === 0) {
-    return null
-  }
+  if (!requests || requests.length === 0) return null
 
   return (
-    <div className="bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border-2 border-yellow-500/30 rounded-2xl p-6 mb-6">
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <span className="text-2xl">📥</span>
-        <span>Do'stlik so'rovlari ({requests.length})</span>
-      </h2>
-      <div className="space-y-3">
+    <div className="v3-panel-karta p-5 space-y-3.5 border-[var(--v3-urgu)]/40 bg-[var(--v3-yuza-2)]">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-bold text-[var(--v3-matn)] flex items-center gap-2">
+          <Ikon nom="odamlar" olcham={16} className="text-[var(--v3-urgu)]" />
+          <span>Kelgan do{"'"}stlik so{"'"}rovlari ({requests.length})</span>
+        </h2>
+      </div>
+
+      <div className="space-y-2">
         {requests.map(request => (
           <div 
             key={request.id} 
-            className="bg-purple-950/50 rounded-xl p-4 flex items-center gap-4 border border-purple-700/30 hover:border-yellow-500/50 transition-all"
+            className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] flex items-center justify-between gap-3"
           >
-            <Link href={`/profil/${request.sender.userId}`} className="flex items-center gap-3 flex-1">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-lg font-bold text-black flex-shrink-0">
-                {request.sender.fullName?.charAt(0)?.toUpperCase() || request.sender.username.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-white truncate">
-                  {request.sender.fullName || request.sender.username}
-                  <TasdiqBelgisi tasdiqlangan={request.sender.isVerified} olcham="kichik" className="ml-1" />
-                </div>
-                <div className="text-xs text-purple-400">
-                  @{request.sender.username} • ID: {request.sender.userId}
-                </div>
-                {request.message && (
-                  <div className="text-xs text-purple-300 mt-1 italic">
-                    "{request.message}"
-                  </div>
+            <Link href={`/profil/${request.sender?.userId || request.sender?.id}`} className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="w-10 h-10 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                {request.sender?.avatar ? (
+                  <img src={request.sender.avatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  (request.sender?.fullName?.[0] || request.sender?.username?.[0] || 'U').toUpperCase()
                 )}
+              </div>
+              <div className="min-w-0">
+                <div className="font-bold text-xs text-[var(--v3-matn)] truncate flex items-center gap-1">
+                  <span>{request.sender?.fullName || request.sender?.username}</span>
+                  <TasdiqBelgisi tasdiqlangan={request.sender?.isVerified} olcham="kichik" />
+                </div>
+                <div className="text-[10.5px] text-[var(--v3-xira)] font-mono">
+                  @{request.sender?.username}
+                </div>
               </div>
             </Link>
 
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  handleRequest(request.id, 'accept')
-                }}
+                type="button"
+                onClick={() => handleRequest(request.id, 'accept')}
                 disabled={loading[request.id]}
-                className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 font-bold"
               >
-                {loading[request.id] === 'accept' ? (
-                  <span className="animate-spin">⏳</span>
-                ) : (
-                  <span>✓</span>
-                )}
-                <span className="hidden sm:inline">Qabul</span>
+                {loading[request.id] === 'accept' ? '...' : 'Qabul'}
               </button>
+
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  handleRequest(request.id, 'reject')
-                }}
+                type="button"
+                onClick={() => handleRequest(request.id, 'reject')}
                 disabled={loading[request.id]}
-                className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 text-red-400 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                className="v3-tugma text-xs py-1.5 px-3 text-red-400 hover:border-red-500/30"
               >
-                {loading[request.id] === 'reject' ? (
-                  <span className="animate-spin">⏳</span>
-                ) : (
-                  <span>✗</span>
-                )}
-                <span className="hidden sm:inline">Rad</span>
+                {loading[request.id] === 'reject' ? '...' : 'Rad'}
               </button>
             </div>
           </div>

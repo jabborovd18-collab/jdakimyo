@@ -1,7 +1,9 @@
 // components/DailyMissions.jsx
 "use client"
+
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import Ikon from './Ikon'
 
 export default function DailyMissions({ onStatsUpdate }) {
   const [missions, setMissions] = useState([])
@@ -13,8 +15,6 @@ export default function DailyMissions({ onStatsUpdate }) {
     coins: 0,
     gems: 0,
     todayCompleted: 0,
-    // 0 — haqiqiy son serverdan keladi. Avval bu yerda 3 turardi, kunlik
-    // missiya esa 2 ta: yuklanmasidan oldin "0/3" ko'rinib turardi.
     todayTotal: 0,
     canClaimStars: false
   })
@@ -29,37 +29,26 @@ export default function DailyMissions({ onStatsUpdate }) {
     try {
       const response = await fetch('/api/missions/daily')
       const data = await response.json()
-      
+
       if (!response.ok) {
         throw new Error(data.error)
       }
 
-      setMissions(data.missions)
-      setStats(data.stats)
+      setMissions(data.missions || [])
+      setStats(data.stats || {})
     } catch (error) {
       console.error('[DailyMissions] Error:', error)
-      toast.error('Missiyalarni yuklashda xatolik')
     } finally {
       setIsLoading(false)
     }
   }
 
-  /**
-   * Missiya kartasidagi tugma.
-   *
-   * Amal hali bajarilmagan bo'lsa (`tayyor: false`) — kerakli sahifaga
-   * olib boradi. Bajarilgan bo'lsa — mukofotni oladi.
-   *
-   * Avval yo'naltirish missiya TURI bo'yicha qattiq yozilgan edi va
-   * ro'yxatga yangi missiya qo'shilsa, uning tugmasi hech qayerga olib
-   * bormasdi. Endi manzil serverdan keladi (`havola`).
-   */
   const handleCompleteMission = async (missionId, missionType, mission) => {
     if (mission && !mission.tayyor) {
       if (mission.havola) {
         window.location.href = mission.havola
       } else {
-        toast('Avval amalni bajaring', { icon: 'ℹ️' })
+        toast('Avval vazifani bajaring', { icon: 'ℹ️' })
       }
       return
     }
@@ -67,7 +56,6 @@ export default function DailyMissions({ onStatsUpdate }) {
     setCompletingMission(missionId)
 
     try {
-      // Missiyani bajarilgan deb belgilash
       const response = await fetch('/api/missions/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,27 +63,16 @@ export default function DailyMissions({ onStatsUpdate }) {
       })
 
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
+      if (!response.ok) throw new Error(data.error)
 
       toast.success(data.message)
-      
-      // Missiyalarni qayta yuklash
       fetchMissions()
-      
-      // Parent componentga yangilanish haqida xabar berish
-      if (onStatsUpdate) {
-        onStatsUpdate()
-      }
 
-      // Agar yulduz berilgan bo'lsa
+      if (onStatsUpdate) onStatsUpdate()
+
       if (data.starEarned) {
         setTimeout(() => {
-          toast.success('🌟 Tabriklaymiz! Siz bugungi yulduzni oldingiz!', {
-            duration: 5000
-          })
+          toast.success('🌟 Tabriklaymiz! Siz bugungi yulduzni oldingiz!', { duration: 5000 })
         }, 1000)
       }
     } catch (error) {
@@ -107,172 +84,110 @@ export default function DailyMissions({ onStatsUpdate }) {
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-purple-800/50 rounded w-1/3 mb-4"></div>
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-20 bg-purple-800/30 rounded-xl"></div>
-            ))}
-          </div>
+      <div className="v3-panel-karta p-6">
+        <div className="animate-pulse space-y-3">
+          <div className="h-4 bg-[var(--v3-yuza-2)] rounded w-1/3"></div>
+          <div className="h-24 bg-[var(--v3-yuza)] rounded-xl"></div>
         </div>
       </div>
     )
   }
 
-  // todayTotal serverdan kelmaguncha 0 — bo'lishdan NaN chiqmasligi uchun
   const progressPercentage =
     stats.todayTotal > 0 ? (stats.todayCompleted / stats.todayTotal) * 100 : 0
 
   return (
-    <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6">
+    <div className="v3-panel-karta p-6 space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <span>🎯</span>
-          Kunlik missiyalar
-        </h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)] shrink-0">
+            <Ikon nom="quiz" olcham={18} />
+          </div>
+          <div>
+            <div className="v3-nishon">Kunlik intizom</div>
+            <h2 className="text-sm font-bold text-[var(--v3-matn)]">Kunlik Missiyalar</h2>
+          </div>
+        </div>
+
         <div className="flex items-center gap-2">
-          <span className="text-sm text-purple-300">
+          <span className="text-xs font-mono text-[var(--v3-xira)]">
             {stats.todayCompleted}/{stats.todayTotal} bajarildi
           </span>
           {stats.canClaimStars && (
-            <span className="px-2 py-1 bg-yellow-600/30 border border-yellow-500/50 rounded-full text-xs text-yellow-400 font-bold animate-pulse">
-              🌟 Yulduz tayyor!
+            <span className="v3-tag v3-tag-ochiq font-bold">
+              ★ Yulduz tayyor!
             </span>
           )}
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="mb-6">
-        <div className="w-full h-3 bg-purple-950/70 rounded-full overflow-hidden">
+      <div className="space-y-1.5">
+        <div className="w-full h-2 bg-[var(--v3-fon-2)] rounded-full overflow-hidden border border-[var(--v3-chiziq)]">
           <div 
-            className="h-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-full transition-all duration-500 relative"
+            className="h-full bg-[var(--v3-urgu)] rounded-full transition-all duration-500"
             style={{ width: `${progressPercentage}%` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
-          </div>
+          />
         </div>
       </div>
 
       {/* Missions List */}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {missions.map(mission => (
           <div
             key={mission.id}
-            className={`bg-purple-950/50 rounded-xl p-4 border transition-all ${
+            className={`p-3.5 rounded-xl border transition-all flex items-center justify-between gap-3 ${
               mission.completed
-                ? 'border-green-600/50 bg-green-900/20'
-                : 'border-purple-700/30 hover:border-yellow-500/50'
+                ? 'bg-[var(--v3-yuza)] border-green-500/20 opacity-75'
+                : 'bg-[var(--v3-fon-2)] border-[var(--v3-chiziq)] hover:border-[var(--v3-chiziq-2)]'
             }`}
           >
-            <div className="flex items-center gap-4">
-              {/* Icon */}
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${
-                mission.completed
-                  ? 'bg-green-600/30'
-                  : 'bg-purple-800/50'
-              }`}>
-                {mission.completed ? '✅' : mission.icon}
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className={`font-bold text-xs ${
+                  mission.completed ? 'text-green-400 line-through' : 'text-[var(--v3-matn)]'
+                }`}>
+                  {mission.title}
+                </h3>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded border ${
+                  mission.difficulty === 'easy' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                  mission.difficulty === 'medium' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                  'bg-red-500/10 text-red-400 border-red-500/20'
+                }`}>
+                  {mission.difficulty === 'easy' ? 'Oson' : mission.difficulty === 'medium' ? 'O\'rta' : 'Qiyin'}
+                </span>
               </div>
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className={`font-semibold ${
-                    mission.completed ? 'text-green-400 line-through' : 'text-white'
-                  }`}>
-                    {mission.title}
-                  </h3>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    mission.difficulty === 'easy' ? 'bg-green-600/20 text-green-400' :
-                    mission.difficulty === 'medium' ? 'bg-yellow-600/20 text-yellow-400' :
-                    'bg-red-600/20 text-red-400'
-                  }`}>
-                    {mission.difficulty === 'easy' ? 'Oson' :
-                     mission.difficulty === 'medium' ? 'O\'rta' : 'Qiyin'}
-                  </span>
-                </div>
-                <p className="text-sm text-purple-300 mb-2">
-                  {mission.description}
-                </p>
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="text-yellow-400 font-bold">
-                    +{mission.xpReward} XP
-                  </span>
-                  {mission.completed && mission.completedAt && (
-                    <span className="text-green-400">
-                      ✓ {new Date(mission.completedAt).toLocaleTimeString('uz-UZ', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  )}
-                </div>
-              </div>
+              <p className="text-xs text-[var(--v3-xira)] line-clamp-1">
+                {mission.description}
+              </p>
 
-              {/* Amal tugmasi.
-                  Ikki holat: amal hali bajarilmagan bo'lsa "Boshlash"
-                  (kerakli sahifaga olib boradi), bajarilgan bo'lsa
-                  "Mukofotni olish". Avval tugma har doim "Bajarish"
-                  deyardi va nima qilish kerakligi noaniq qolardi. */}
-              {!mission.completed && (
-                <button
-                  onClick={() => handleCompleteMission(mission.id, mission.type, mission)}
-                  disabled={completingMission === mission.id}
-                  className={`px-4 py-2 font-bold rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2 text-sm flex-shrink-0 ${
-                    mission.tayyor
-                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black'
-                      : 'bg-purple-800/60 hover:bg-purple-700/70 border border-purple-600/50 text-purple-100'
-                  }`}
-                >
-                  {completingMission === mission.id ? (
-                    <span className="animate-spin">⏳</span>
-                  ) : mission.tayyor ? (
-                    <span>🪙 Mukofot</span>
-                  ) : (
-                    <span>Boshlash →</span>
-                  )}
-                </button>
-              )}
+              <div className="text-[11px] font-mono text-[var(--v3-urgu)]">
+                +{mission.xpReward} XP
+              </div>
             </div>
+
+            {!mission.completed && (
+              <button
+                type="button"
+                onClick={() => handleCompleteMission(mission.id, mission.type, mission)}
+                disabled={completingMission === mission.id}
+                className={`v3-tugma text-xs py-1.5 px-3 font-bold shrink-0 ${
+                  mission.tayyor ? 'v3-tugma-asosiy' : ''
+                }`}
+              >
+                {completingMission === mission.id ? (
+                  <span>...</span>
+                ) : mission.tayyor ? (
+                  <span>Mukofotni olish</span>
+                ) : (
+                  <span>Boshlash →</span>
+                )}
+              </button>
+            )}
           </div>
         ))}
-      </div>
-
-      {/* Stats Footer */}
-      <div className="mt-6 pt-4 border-t border-purple-700/30 grid grid-cols-3 gap-4">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-yellow-400">{stats.stars}</div>
-          <div className="text-xs text-purple-300">Umumiy 🌟</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-cyan-400">{stats.weeklyStars}</div>
-          <div className="text-xs text-purple-300">Haftalik 🌟</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-pink-400">{stats.monthlyStars}</div>
-          <div className="text-xs text-purple-300">Oylik 🌟</div>
-        </div>
-      </div>
-
-      {/* Laboratoriya valyutasi — missiyadan topiladi, laboratoriyada sarflanadi */}
-      <div className="mt-3 pt-3 border-t border-purple-700/30 grid grid-cols-2 gap-4">
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-xl">🪙</span>
-          <div>
-            <div className="text-xl font-bold text-amber-400">{stats.coins}</div>
-            <div className="text-[10px] text-purple-300">Tanga</div>
-          </div>
-        </div>
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-xl">💎</span>
-          <div>
-            <div className="text-xl font-bold text-cyan-300">{stats.gems}</div>
-            <div className="text-[10px] text-purple-300">Olmos</div>
-          </div>
-        </div>
       </div>
     </div>
   )
