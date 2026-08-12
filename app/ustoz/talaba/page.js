@@ -1,17 +1,20 @@
-// app/ustoz/talaba/page.js
 "use client"
+
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import Ikon from '@/components/Ikon'
 
 export default function UstozTalabalarPage() {
   const { data: session } = useSession()
   const [students, setStudents] = useState([])
+  const [kutilayotgan, setKutilayotgan] = useState([])
   const [groups, setGroups] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [groupFilter, setGroupFilter] = useState('all')
+  const [activeTab, setActiveTab] = useState('faol') // 'faol' | 'sorov'
 
   // Add Student Modal
   const [showAddModal, setShowAddModal] = useState(false)
@@ -43,12 +46,13 @@ export default function UstozTalabalarPage() {
       })
       const res = await fetch(`/api/ustoz/talaba?${params}`)
       const data = await res.json()
-      
+
       if (res.ok) {
-        setStudents(data.students)
-        setGroups(data.groups)
+        setStudents(data.students || [])
+        setKutilayotgan(data.kutilayotgan || [])
+        setGroups(data.groups || [])
       } else {
-        toast.error(data.error)
+        toast.error(data.error || 'Yuklab bo\'lmadi')
       }
     } catch (error) {
       toast.error('Talabalarni yuklashda xatolik')
@@ -59,7 +63,7 @@ export default function UstozTalabalarPage() {
 
   const searchUsers = async () => {
     if (!searchQuery || searchQuery.length < 2 || !selectedGroupId) return
-    
+
     setIsSearching(true)
     try {
       const params = new URLSearchParams({
@@ -68,9 +72,9 @@ export default function UstozTalabalarPage() {
       })
       const res = await fetch(`/api/ustoz/talaba/qidiruv?${params}`)
       const data = await res.json()
-      
+
       if (res.ok) {
-        setSearchResults(data.users)
+        setSearchResults(data.users || [])
       }
     } catch (error) {
       console.error('Qidiruvda xatolik:', error)
@@ -93,10 +97,10 @@ export default function UstozTalabalarPage() {
         body: JSON.stringify({ studentId, groupId: selectedGroupId })
       })
       const data = await res.json()
-      
+
       if (!res.ok) throw new Error(data.error)
-      
-      toast.success(data.message)
+
+      toast.success(data.message || 'Taklif yuborildi!')
       setSearchQuery('')
       setSearchResults([])
       setShowAddModal(false)
@@ -118,10 +122,10 @@ export default function UstozTalabalarPage() {
         method: 'DELETE'
       })
       const data = await res.json()
-      
+
       if (!res.ok) throw new Error(data.error)
-      
-      toast.success(data.message)
+
+      toast.success(data.message || 'Guruhdan chiqarildi')
       fetchStudents()
     } catch (error) {
       toast.error(error.message)
@@ -130,10 +134,7 @@ export default function UstozTalabalarPage() {
 
   const openAddModal = () => {
     if (groups.length === 0) {
-      toast.error('Avval guruh yarating!', {
-        icon: '⚠️',
-        duration: 3000
-      })
+      toast.error('Avval "Guruhlar" bo\'limida guruh yarating!')
       return
     }
     setSelectedGroupId(groups[0].id)
@@ -142,195 +143,254 @@ export default function UstozTalabalarPage() {
     setShowAddModal(true)
   }
 
-  const getColorClass = (color) => {
-    const map = {
-      blue: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
-      green: 'bg-green-600/20 text-green-400 border-green-600/30',
-      purple: 'bg-purple-600/20 text-purple-400 border-purple-600/30',
-      orange: 'bg-orange-600/20 text-orange-400 border-orange-600/30',
-      red: 'bg-red-600/20 text-red-400 border-red-600/30',
-      pink: 'bg-pink-600/20 text-pink-400 border-pink-600/30',
-      cyan: 'bg-cyan-600/20 text-cyan-400 border-cyan-600/30',
-      yellow: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30'
-    }
-    return map[color] || map.blue
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--v3-chiziq)]">
         <div>
-          <h1 className="text-3xl font-bold text-white">👥 Talabalarim</h1>
-          <p className="text-purple-300 mt-1">
-            Jami {students.length} ta talaba
+          <div className="v3-nishon">Talabalar jamoasi</div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--v3-matn)]">
+            Mening Talabalarim
+          </h1>
+          <p className="text-xs text-[var(--v3-xira)] mt-1">
+            Guruhlar bo{"'"}yicha talabalar ro{"'"}yxati, yuborilgan takliflar va o{"'"}zlashtirish statistikasi.
           </p>
         </div>
+
         <button
+          type="button"
           onClick={openAddModal}
-          className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl shadow-lg flex items-center gap-2 transition-all hover:scale-105"
+          className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 inline-flex items-center gap-2 self-start sm:self-auto font-bold"
         >
-          <span>➕</span>
-          <span>Talaba qo'shish</span>
+          <Ikon nom="qosh" olcham={15} />
+          Talaba qo{"'"}shish
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4 space-y-3">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Talaba nomi yoki username bo'yicha qidirish..."
-          className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
-        />
-        <div className="flex flex-wrap gap-2">
+      {/* Tabs & Search Filter */}
+      <div className="v3-panel-karta p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
           <button
-            onClick={() => setGroupFilter('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-              groupFilter === 'all'
-                ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
-                : 'bg-purple-800/30 text-purple-300 hover:bg-purple-700/50'
-            }`}
+            type="button"
+            onClick={() => setActiveTab('faol')}
+            className={`v3-tugma text-xs py-1.5 px-3.5 whitespace-nowrap ${activeTab === 'faol' ? 'v3-tugma-asosiy' : ''}`}
           >
-            Barchasi ({students.length})
+            <Ikon nom="odamlar" olcham={14} />
+            Faol talabalar ({students.length})
           </button>
-          {groups.map(g => (
-            <button
-              key={g.id}
-              onClick={() => setGroupFilter(g.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                groupFilter === g.id
-                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
-                  : 'bg-purple-800/30 text-purple-300 hover:bg-purple-700/50'
-              }`}
-            >
-              {g.name}
-            </button>
-          ))}
+          <button
+            type="button"
+            onClick={() => setActiveTab('sorov')}
+            className={`v3-tugma text-xs py-1.5 px-3.5 whitespace-nowrap ${activeTab === 'sorov' ? 'v3-tugma-asosiy' : ''}`}
+          >
+            <Ikon nom="vaqt" olcham={14} />
+            Kutilayotgan takliflar ({kutilayotgan.length})
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2.5 w-full md:w-auto">
+          <div className="relative flex-1 md:w-60">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Ism yoki username..."
+              className="v3-kiritish text-xs py-1.5 pl-8"
+            />
+            <span className="absolute left-2.5 top-2.5 text-[var(--v3-xira)]">
+              <Ikon nom="qidiruv" olcham={13} />
+            </span>
+          </div>
+
+          <select
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+            className="v3-kiritish text-xs py-1.5 md:w-44"
+          >
+            <option value="all">Barcha guruhlar</option>
+            {groups.map(g => (
+              <option key={g.id} value={g.id}>{g.name}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Students Grid */}
-      {isLoading ? (
-        <div className="text-center py-12 text-purple-300">
-          <div className="animate-spin text-6xl mb-4">⏳</div>
-          <p>Talabalar yuklanmoqda...</p>
-        </div>
-      ) : students.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/50 border border-purple-800/50 rounded-2xl">
-          <div className="text-7xl mb-4">👥</div>
-          <h3 className="text-2xl font-bold text-white mb-2">
-            {search ? 'Talaba topilmadi' : 'Hali talabalar yo\'q'}
-          </h3>
-          <p className="text-purple-300 mb-6">
-            {search 
-              ? 'Qidiruv so\'zini o\'zgartirib ko\'ring' 
-              : 'Birinchi talabangizni guruhga qo\'shing!'}
-          </p>
-          {!search && (
-            <button
-              onClick={openAddModal}
-              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all"
-            >
-              ➕ Birinchi talabani qo'shish
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {students.map((ts) => (
-            <div
-              key={ts.id}
-              className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-700/50 rounded-2xl p-5 hover:border-yellow-500/50 transition-all group"
-            >
-              {/* Header */}
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-xl font-bold text-black flex-shrink-0 overflow-hidden">
-                  {ts.student.avatar ? (
-                    <img src={ts.student.avatar} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    (ts.student.fullName?.charAt(0) || ts.student.username.charAt(0)).toUpperCase()
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/profil/${ts.student.userId}`}
-                    className="font-bold text-white group-hover:text-yellow-400 transition-colors line-clamp-1"
-                  >
-                    {ts.student.fullName || ts.student.username}
-                  </Link>
-                  <div className="text-xs text-purple-400 truncate">@{ts.student.username}</div>
-                  {ts.student.university && (
-                    <div className="text-xs text-purple-500 mt-1 truncate">🏛️ {ts.student.university}</div>
-                  )}
-                </div>
-                <button
-                  onClick={() => handleRemoveStudent(
-                    ts.id,
-                    ts.student.fullName || ts.student.username,
-                    ts.group.name
-                  )}
-                  className="w-8 h-8 rounded-lg bg-red-600/20 hover:bg-red-600/40 border border-red-600/50 flex items-center justify-center text-red-400 transition-all flex-shrink-0"
-                  title="Guruhdan olib tashlash"
+      {/* ─── TAB 1: FAOL TALABALAR ─── */}
+      {activeTab === 'faol' && (
+        <div>
+          {isLoading ? (
+            <div className="py-20 text-center text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
+              <Ikon nom="vaqt" olcham={18} className="animate-spin" />
+              <span>Talabalar yuklanmoqda...</span>
+            </div>
+          ) : students.length === 0 ? (
+            <div className="v3-panel-karta py-20 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+                <Ikon nom="odamlar" olcham={24} />
+              </div>
+              <h3 className="font-bold text-base text-[var(--v3-matn)]">
+                {search ? 'Talaba topilmadi' : 'Hali faol talabalar yo\'q'}
+              </h3>
+              <p className="text-xs text-[var(--v3-xira)] max-w-sm mx-auto">
+                {search ? 'Qidiruv so\'zini o\'zgartirib ko\'ring' : 'Guruhlaringizga talabalarni taklif qiling.'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {students.map((ts) => (
+                <div
+                  key={ts.id}
+                  className="v3-panel-karta p-5 flex flex-col justify-between space-y-4 group hover:border-[var(--v3-chiziq-2)] transition-all"
                 >
-                  ✕
-                </button>
-              </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-sm font-bold text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                      {ts.student?.avatar ? (
+                        <img src={ts.student.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        (ts.student?.fullName?.[0] || ts.student?.username?.[0] || 'U').toUpperCase()
+                      )}
+                    </div>
 
-              {/* Group Badge */}
-              <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border mb-3 ${getColorClass(ts.group.color)}`}>
-                <span>📚</span>
-                <span>{ts.group.name}</span>
-              </div>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/profil/${ts.student?.userId}`}
+                        className="font-bold text-sm text-[var(--v3-matn)] group-hover:text-[var(--v3-urgu)] transition-colors line-clamp-1"
+                      >
+                        {ts.student?.fullName || ts.student?.username}
+                      </Link>
+                      <div className="text-[11px] text-[var(--v3-xira)] font-mono">
+                        @{ts.student?.username}
+                      </div>
+                      {ts.student?.university && (
+                        <div className="text-[10px] text-[var(--v3-xira)] truncate mt-0.5">
+                          🏛️ {ts.student.university}
+                        </div>
+                      )}
+                    </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-purple-800/30">
-                <div className="text-center">
-                  <div className="text-lg">📝</div>
-                  <div className="text-xs text-purple-400">Topshiriq</div>
-                  <div className="text-sm font-bold text-white">{ts.stats.submissions}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg">⭐</div>
-                  <div className="text-xs text-purple-400">O'rtacha</div>
-                  <div className="text-sm font-bold text-yellow-400">
-                    {ts.stats.avgScore > 0 ? ts.stats.avgScore.toFixed(0) : '—'}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveStudent(
+                        ts.id,
+                        ts.student?.fullName || ts.student?.username,
+                        ts.group?.name
+                      )}
+                      className="p-1.5 rounded-lg border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-red-400 hover:border-red-500/30 transition-colors shrink-0"
+                      title="Guruhdan chiqarish"
+                    >
+                      <Ikon nom="ochir" olcham={13} />
+                    </button>
+                  </div>
+
+                  <div>
+                    <span className="v3-tag v3-tag-yopiq text-[10.5px]">
+                      <Ikon nom="kitob" olcham={11} />
+                      {ts.group?.name || 'Guruh'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[var(--v3-chiziq)] text-center font-mono">
+                    <div>
+                      <span className="text-[10px] text-[var(--v3-xira)] block">Topshiriq</span>
+                      <strong className="text-xs text-[var(--v3-matn)]">{ts.stats?.submissions || 0}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[var(--v3-xira)] block">O{"'"}rtacha</span>
+                      <strong className="text-xs text-[var(--v3-urgu)]">
+                        {ts.stats?.avgScore > 0 ? `${ts.stats.avgScore.toFixed(0)}%` : '—'}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[var(--v3-xira)] block">Daraja</span>
+                      <strong className="text-xs text-[var(--v3-matn)]">Lvl {ts.student?.level_points || 1}</strong>
+                    </div>
                   </div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg">🎯</div>
-                  <div className="text-xs text-purple-400">Daraja</div>
-                  <div className="text-sm font-bold text-white">Lvl {ts.student.level_points}</div>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
+        </div>
+      )}
+
+      {/* ─── TAB 2: KUTILAYOTGAN TAKLIFLAR ─── */}
+      {activeTab === 'sorov' && (
+        <div>
+          {kutilayotgan.length === 0 ? (
+            <div className="v3-panel-karta py-16 text-center text-xs text-[var(--v3-xira)]">
+              Kutilayotgan takliflar mavjud emas
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {kutilayotgan.map((ts) => (
+                <div
+                  key={ts.id}
+                  className="v3-panel-karta p-5 flex flex-col justify-between space-y-4 border-dashed"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-xira)] overflow-hidden shrink-0">
+                      {ts.student?.avatar ? (
+                        <img src={ts.student.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        (ts.student?.fullName?.[0] || ts.student?.username?.[0] || 'U').toUpperCase()
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="font-bold text-xs text-[var(--v3-matn)] truncate">
+                        {ts.student?.fullName || ts.student?.username}
+                      </div>
+                      <div className="text-[10.5px] text-[var(--v3-xira)] font-mono">
+                        @{ts.student?.username}
+                      </div>
+                      <div className="text-[10px] text-[var(--v3-urgu)] mt-1">
+                        Taklif yuborilgan: {ts.group?.name}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveStudent(
+                        ts.id,
+                        ts.student?.fullName || ts.student?.username,
+                        ts.group?.name
+                      )}
+                      className="p-1.5 rounded-lg border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-red-400"
+                      title="Taklifni bekor qilish"
+                    >
+                      <Ikon nom="yopish" olcham={13} />
+                    </button>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] text-[11px] text-[var(--v3-xira)]">
+                    Talaba qabul qilgach faol a{"'"}zoga aylanadi.
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* ADD STUDENT MODAL */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-purple-700/50 rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <span>➕</span> Talaba qo'shish
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-[var(--v3-chiziq-2)] bg-[var(--v3-fon-2)] p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--v3-chiziq)]">
+              <h3 className="font-bold text-base text-[var(--v3-matn)] flex items-center gap-2">
+                <Ikon nom="odamlar" olcham={16} />
+                Talabani guruhga taklif qilish
               </h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="w-9 h-9 rounded-lg bg-purple-800/50 hover:bg-red-600/80 text-purple-200 hover:text-white text-lg transition-all"
+                className="p-1 rounded-lg text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
               >
-                ✕
+                <Ikon nom="yopish" olcham={16} />
               </button>
             </div>
 
-            <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-              {/* Guruh tanlash */}
+            <div className="space-y-4 flex-1 overflow-y-auto pr-1">
               <div>
-                <label className="text-sm text-purple-300 mb-2 block">
-                  📚 Qaysi guruhga qo'shish?
-                </label>
+                <label className="v3-yorliq">Guruhni tanlang *</label>
                 <select
                   value={selectedGroupId}
                   onChange={(e) => {
@@ -338,7 +398,7 @@ export default function UstozTalabalarPage() {
                     setSearchQuery('')
                     setSearchResults([])
                   }}
-                  className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none focus:border-yellow-500"
+                  className="v3-kiritish"
                 >
                   {groups.map(g => (
                     <option key={g.id} value={g.id}>{g.name}</option>
@@ -346,83 +406,73 @@ export default function UstozTalabalarPage() {
                 </select>
               </div>
 
-              {/* Qidiruv */}
               <div>
-                <label className="text-sm text-purple-300 mb-2 block">
-                  🔍 Talabani qidirish (username yoki ism)
-                </label>
+                <label className="v3-yorliq">Talabani qidirish (username yoki ism) *</label>
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Masalan: akmal yoki test@..."
-                  className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 outline-none focus:border-yellow-500"
+                  placeholder="Masalan: akmal yoki olim..."
+                  className="v3-kiritish"
                   autoFocus
                 />
                 {searchQuery.length > 0 && searchQuery.length < 2 && (
-                  <p className="text-xs text-yellow-400 mt-1">
+                  <span className="text-[11px] text-[var(--v3-urgu)] mt-1 block">
                     Kamida 2 ta harf kiriting
-                  </p>
+                  </span>
                 )}
               </div>
 
               {/* Natijalar */}
-              <div className="min-h-[200px]">
+              <div className="min-h-[160px]">
                 {isSearching ? (
-                  <div className="text-center py-8 text-purple-300">
-                    <div className="animate-spin text-3xl mb-2">⏳</div>
-                    <p className="text-sm">Qidirilmoqda...</p>
+                  <div className="py-8 text-center text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
+                    <Ikon nom="vaqt" olcham={16} className="animate-spin" />
+                    <span>Qidirilmoqda...</span>
                   </div>
                 ) : searchQuery.length < 2 ? (
-                  <div className="text-center py-8 text-purple-400">
-                    <div className="text-4xl mb-2">🔍</div>
-                    <p className="text-sm">Qidiruvni boshlash uchun yozing</p>
+                  <div className="py-8 text-center text-xs text-[var(--v3-xira)]">
+                    Qidiruvni boshlash uchun talaba ismini yozing
                   </div>
                 ) : searchResults.length === 0 ? (
-                  <div className="text-center py-8 text-purple-400">
-                    <div className="text-4xl mb-2">😕</div>
-                    <p className="text-sm">Hech kim topilmadi</p>
-                    <p className="text-xs mt-1">Boshqa so'z bilan urinib ko'ring</p>
+                  <div className="py-8 text-center text-xs text-[var(--v3-xira)]">
+                    Foydalanuvchi topilmadi
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-xs text-purple-400 mb-2">
-                      {searchResults.length} ta natija topildi:
-                    </p>
+                    <div className="text-[11px] text-[var(--v3-xira)] font-mono">
+                      {searchResults.length} ta foydalanuvchi topildi:
+                    </div>
                     {searchResults.map(user => (
                       <div
                         key={user.id}
-                        className="flex items-center gap-3 p-3 bg-purple-950/30 hover:bg-purple-950/50 rounded-lg border border-purple-700/30 transition-all"
+                        className="p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] flex items-center justify-between gap-3"
                       >
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-sm font-bold text-black flex-shrink-0 overflow-hidden">
-                          {user.avatar ? (
-                            <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            (user.fullName?.charAt(0) || user.username.charAt(0)).toUpperCase()
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-white text-sm truncate">
-                            {user.fullName || user.username}
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                            {user.avatar ? (
+                              <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              (user.fullName?.[0] || user.username?.[0] || 'U').toUpperCase()
+                            )}
                           </div>
-                          {/* Email ataylab ko'rsatilmaydi: u profilning
-                              ochiq qismi emas. Talabani ajratish uchun
-                              username va fakultet yetarli. */}
-                          <div className="text-xs text-purple-400 truncate">
-                            @{user.username}
-                          </div>
-                          {(user.university || user.faculty) && (
-                            <div className="text-xs text-purple-500 truncate">
-                              🏛️ {[user.university, user.faculty].filter(Boolean).join(' • ')}
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-[var(--v3-matn)] truncate">
+                              {user.fullName || user.username}
                             </div>
-                          )}
+                            <div className="text-[10.5px] text-[var(--v3-xira)] font-mono">
+                              @{user.username}
+                            </div>
+                          </div>
                         </div>
+
                         <button
+                          type="button"
                           onClick={() => handleAddStudent(user.id, user.fullName || user.username)}
                           disabled={isAdding}
-                          className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white text-xs font-bold rounded-lg transition-all flex-shrink-0 disabled:opacity-50"
+                          className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 font-bold shrink-0"
                         >
-                          {isAdding ? '...' : '+ Qo\'shish'}
+                          {isAdding ? '...' : '+ Taklif qilish'}
                         </button>
                       </div>
                     ))}
@@ -431,11 +481,11 @@ export default function UstozTalabalarPage() {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="pt-4 mt-4 border-t border-purple-800/50">
+            <div className="pt-3 border-t border-[var(--v3-chiziq)] flex justify-end">
               <button
+                type="button"
                 onClick={() => setShowAddModal(false)}
-                className="w-full py-2.5 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white transition-all"
+                className="v3-tugma text-xs py-2 px-4"
               >
                 Yopish
               </button>

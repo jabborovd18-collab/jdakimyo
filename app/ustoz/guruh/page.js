@@ -1,19 +1,17 @@
-// app/ustoz/guruh/page.js
 "use client"
+
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import Ikon from '@/components/Ikon'
 
 const COLORS = [
-  { id: 'blue', name: 'Ko\'k', hex: '#3b82f6' },
+  { id: 'blue', name: 'Moviy', hex: '#3b82f6' },
   { id: 'green', name: 'Yashil', hex: '#10b981' },
   { id: 'purple', name: 'Binafsha', hex: '#8b5cf6' },
-  { id: 'orange', name: 'To\'q sariq', hex: '#f59e0b' },
-  { id: 'red', name: 'Qizil', hex: '#ef4444' },
-  { id: 'pink', name: 'Pushti', hex: '#ec4899' },
-  { id: 'cyan', name: 'Havo rang', hex: '#06b6d4' },
-  { id: 'yellow', name: 'Sariq', hex: '#eab308' }
+  { id: 'orange', name: 'Sariq-olov', hex: '#f59e0b' },
+  { id: 'cyan', name: 'Feruza', hex: '#06b6d4' },
 ]
 
 export default function UstozGuruhlarPage() {
@@ -21,7 +19,7 @@ export default function UstozGuruhlarPage() {
   const [groups, setGroups] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
-  
+
   // Modal state
   const [showModal, setShowModal] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -43,11 +41,11 @@ export default function UstozGuruhlarPage() {
       const params = new URLSearchParams({ search })
       const res = await fetch(`/api/ustoz/guruh?${params}`)
       const data = await res.json()
-      
+
       if (res.ok) {
-        setGroups(data.groups)
+        setGroups(data.groups || [])
       } else {
-        toast.error(data.error)
+        toast.error(data.error || 'Yuklab bo\'lmadi')
       }
     } catch (error) {
       toast.error('Guruhlarni yuklashda xatolik')
@@ -93,10 +91,10 @@ export default function UstozGuruhlarPage() {
         body: JSON.stringify(formData)
       })
       const data = await res.json()
-      
+
       if (!res.ok) throw new Error(data.error)
-      
-      toast.success(data.message)
+
+      toast.success(data.message || 'Guruh saqlandi')
       setShowModal(false)
       fetchGroups()
     } catch (error) {
@@ -107,7 +105,7 @@ export default function UstozGuruhlarPage() {
   }
 
   const handleDelete = async (id, name) => {
-    if (!confirm(`"${name}" guruhini o'chirmoqchimisiz?\n\n⚠️ Bu guruhga bog'liq barcha vazifalar va e'lonlar ham o'chiriladi!`)) {
+    if (!confirm(`"${name}" guruhini o'chirmoqchimisiz? Guruhga bog'liq barcha vazifalar ham o'chiriladi.`)) {
       return
     }
 
@@ -116,258 +114,209 @@ export default function UstozGuruhlarPage() {
         method: 'DELETE'
       })
       const data = await res.json()
-      
+
       if (!res.ok) throw new Error(data.error)
-      
-      toast.success(data.message)
+
+      toast.success(data.message || 'Guruh o\'chirildi')
       fetchGroups()
     } catch (error) {
       toast.error(error.message)
     }
   }
 
-  const getColorClass = (color) => {
-    const colorMap = {
-      blue: 'from-blue-600/20 to-cyan-600/20 border-blue-700/50',
-      green: 'from-green-600/20 to-emerald-600/20 border-green-700/50',
-      purple: 'from-purple-600/20 to-pink-600/20 border-purple-700/50',
-      orange: 'from-orange-600/20 to-amber-600/20 border-orange-700/50',
-      red: 'from-red-600/20 to-rose-600/20 border-red-700/50',
-      pink: 'from-pink-600/20 to-fuchsia-600/20 border-pink-700/50',
-      cyan: 'from-cyan-600/20 to-teal-600/20 border-cyan-700/50',
-      yellow: 'from-yellow-600/20 to-orange-600/20 border-yellow-700/50'
-    }
-    return colorMap[color] || colorMap.blue
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--v3-chiziq)]">
         <div>
-          <h1 className="text-3xl font-bold text-white">👥 Guruhlarim</h1>
-          <p className="text-purple-300 mt-1">
-            Talabalar guruhlaringizni boshqaring
+          <div className="v3-nishon">Tuzilma va Guruhlar</div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--v3-matn)]">
+            O{"'"}quv Guruhlari
+          </h1>
+          <p className="text-xs text-[var(--v3-xira)] mt-1">
+            Talabalarni guruhlarga ajrating, vazifalar va testlarni alohida guruhlarga yo{"'"}naltiring.
           </p>
         </div>
+
         <button
+          type="button"
           onClick={openAddModal}
-          className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl shadow-lg shadow-yellow-500/20 flex items-center gap-2 transition-all hover:scale-105"
+          className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 inline-flex items-center gap-2 self-start sm:self-auto font-bold"
         >
-          <span>➕</span>
-          <span>Yangi guruh</span>
+          <Ikon nom="qosh" olcham={15} />
+          Yangi guruh yaratish
         </button>
       </div>
 
-      {/* Search */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Guruh nomi bo'yicha qidirish..."
-          className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
-        />
+      {/* Search Filter Bar */}
+      <div className="v3-panel-karta p-4">
+        <div className="relative max-w-md">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Guruh nomi bo'yicha qidirish..."
+            className="v3-kiritish text-xs py-2 pl-8"
+          />
+          <span className="absolute left-2.5 top-2.5 text-[var(--v3-xira)]">
+            <Ikon nom="qidiruv" olcham={13} />
+          </span>
+        </div>
       </div>
 
       {/* Groups Grid */}
       {isLoading ? (
-        <div className="text-center py-12 text-purple-300">
-          <div className="animate-spin text-6xl mb-4">⏳</div>
-          <p>Guruhlar yuklanmoqda...</p>
+        <div className="py-20 text-center text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
+          <Ikon nom="vaqt" olcham={18} className="animate-spin" />
+          <span>Guruhlar yuklanmoqda...</span>
         </div>
       ) : groups.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/50 border border-purple-800/50 rounded-2xl">
-          <div className="text-7xl mb-4">👥</div>
-          <h3 className="text-2xl font-bold text-white mb-2">
-            {search ? 'Guruh topilmadi' : 'Hali guruhlar yo\'q'}
+        <div className="v3-panel-karta py-20 text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center mx-auto text-[var(--v3-urgu)]">
+            <Ikon nom="kitob" olcham={24} />
+          </div>
+          <h3 className="font-bold text-base text-[var(--v3-matn)]">
+            {search ? 'Guruh topilmadi' : 'Hali guruhlar yaratilmagan'}
           </h3>
-          <p className="text-purple-300 mb-6">
-            {search 
-              ? 'Qidiruv so\'zini o\'zgartirib ko\'ring' 
-              : 'Birinchi guruhingizni yarating va talabalarni qo\'shing!'}
+          <p className="text-xs text-[var(--v3-xira)] max-w-sm mx-auto">
+            {search ? 'Boshqa so\'z bilan qidirib ko\'ring' : 'Birinchi guruhingizni yarating va talabalarni taklif qiling.'}
           </p>
-          {!search && (
-            <button
-              onClick={openAddModal}
-              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all"
-            >
-              ➕ Birinchi guruhni yaratish
-            </button>
-          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {groups.map((group) => (
             <div
               key={group.id}
-              className={`bg-gradient-to-br ${getColorClass(group.color)} border rounded-2xl p-6 hover:scale-[1.02] transition-all group`}
+              className="v3-panel-karta p-5 flex flex-col justify-between space-y-4 hover:border-[var(--v3-chiziq-2)] transition-all group"
             >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xl font-bold text-white mb-1 truncate">
-                    {group.name}
-                  </h3>
-                  {group.description && (
-                    <p className="text-sm text-purple-300 line-clamp-2">
-                      {group.description}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-1 flex-shrink-0 ml-2">
-                  <button
-                    onClick={() => openEditModal(group)}
-                    className="w-8 h-8 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/50 flex items-center justify-center text-blue-400 transition-all"
-                    title="Tahrirlash"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    onClick={() => handleDelete(group.id, group.name)}
-                    className="w-8 h-8 rounded-lg bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 flex items-center justify-center text-red-400 transition-all"
-                    title="O'chirish"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                <div className="bg-purple-950/30 rounded-lg p-2 text-center">
-                  <div className="text-lg">👥</div>
-                  <div className="text-xs text-purple-300">Talabalar</div>
-                  <div className="text-sm font-bold text-white">{group._count.students}</div>
-                </div>
-                <div className="bg-purple-950/30 rounded-lg p-2 text-center">
-                  <div className="text-lg">📝</div>
-                  <div className="text-xs text-purple-300">Vazifalar</div>
-                  <div className="text-sm font-bold text-white">{group._count.assignments}</div>
-                </div>
-                <div className="bg-purple-950/30 rounded-lg p-2 text-center">
-                  <div className="text-lg">📢</div>
-                  <div className="text-xs text-purple-300">E'lonlar</div>
-                  <div className="text-sm font-bold text-white">{group._count.announcements}</div>
-                </div>
-              </div>
-
-              {/* Talabalar preview */}
-              {group.students.length > 0 && (
-                <div className="mb-4">
-                  <div className="text-xs text-purple-400 mb-2">Talabalar:</div>
-                  <div className="flex -space-x-2">
-                    {group.students.slice(0, 5).map((ts) => (
-                      <div
-                        key={ts.id}
-                        className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 border-2 border-purple-900 flex items-center justify-center text-xs font-bold text-black overflow-hidden"
-                        title={ts.student.fullName || ts.student.username}
-                      >
-                        {ts.student.avatar ? (
-                          <img src={ts.student.avatar} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          (ts.student.fullName?.charAt(0) || ts.student.username.charAt(0)).toUpperCase()
-                        )}
-                      </div>
-                    ))}
-                    {group._count.students > 5 && (
-                      <div className="w-8 h-8 rounded-full bg-purple-800 border-2 border-purple-900 flex items-center justify-center text-xs font-bold text-purple-300">
-                        +{group._count.students - 5}
-                      </div>
+              <div className="space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-base text-[var(--v3-matn)] truncate group-hover:text-[var(--v3-urgu)] transition-colors">
+                      {group.name}
+                    </h3>
+                    {group.description && (
+                      <p className="text-xs text-[var(--v3-xira)] line-clamp-2 mt-0.5 leading-relaxed">
+                        {group.description}
+                      </p>
                     )}
                   </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => openEditModal(group)}
+                      className="p-1.5 rounded-lg border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+                      title="Tahrirlash"
+                    >
+                      <Ikon nom="tahrir" olcham={13} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(group.id, group.name)}
+                      className="p-1.5 rounded-lg border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-red-400"
+                      title="O'chirish"
+                    >
+                      <Ikon nom="ochir" olcham={13} />
+                    </button>
+                  </div>
                 </div>
-              )}
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[var(--v3-chiziq)] text-center font-mono">
+                  <div className="p-2 rounded-lg bg-[var(--v3-fon-2)] border border-[var(--v3-chiziq)]">
+                    <span className="text-[10px] text-[var(--v3-xira)] block">Talabalar</span>
+                    <strong className="text-xs text-[var(--v3-matn)]">{group._count?.students || 0}</strong>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[var(--v3-fon-2)] border border-[var(--v3-chiziq)]">
+                    <span className="text-[10px] text-[var(--v3-xira)] block">Vazifalar</span>
+                    <strong className="text-xs text-[var(--v3-matn)]">{group._count?.assignments || 0}</strong>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[var(--v3-fon-2)] border border-[var(--v3-chiziq)]">
+                    <span className="text-[10px] text-[var(--v3-xira)] block">E{"'"}lonlar</span>
+                    <strong className="text-xs text-[var(--v3-matn)]">{group._count?.announcements || 0}</strong>
+                  </div>
+                </div>
+              </div>
 
               {/* Actions */}
-              <Link
-                href={`/ustoz/guruh/${group.id}`}
-                className="block w-full py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-center text-sm font-semibold text-white transition-all"
-              >
-                Batafsil ko'rish →
-              </Link>
+              <div className="flex items-center gap-2 pt-3 border-t border-[var(--v3-chiziq)]">
+                <Link
+                  href={`/ustoz/talaba?groupId=${group.id}`}
+                  className="flex-1 v3-tugma text-xs py-1.5 justify-center font-medium"
+                >
+                  <Ikon nom="odamlar" olcham={13} />
+                  Talabalar ({group._count?.students || 0})
+                </Link>
+                <Link
+                  href={`/ustoz/vazifa?groupId=${group.id}`}
+                  className="v3-tugma text-xs p-1.5"
+                  title="Vazifalar"
+                >
+                  <Ikon nom="kitob" olcham={14} />
+                </Link>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Modal */}
+      {/* Guruh qo'shish / tahrirlash modali */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-purple-700/50 rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-white mb-4">
-              {isEditing ? '✏️ Guruhni tahrirlash' : '➕ Yangi guruh yaratish'}
-            </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--v3-chiziq-2)] bg-[var(--v3-fon-2)] p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--v3-chiziq)]">
+              <h3 className="font-bold text-sm text-[var(--v3-matn)]">
+                {isEditing ? 'Guruhni tahrirlash' : 'Yangi guruh yaratish'}
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-1 rounded-lg text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+              >
+                <Ikon nom="yopish" olcham={16} />
+              </button>
+            </div>
 
             <div className="space-y-4">
-              {/* Guruh nomi */}
               <div>
-                <label className="text-sm text-purple-300 mb-1 block">
-                  Guruh nomi *
-                </label>
+                <label className="v3-yorliq">Guruh nomi *</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none focus:border-yellow-500"
-                  placeholder="Kimyo 203, Laboratoriya A, va h.k."
+                  placeholder="Masalan: Kimyo 203, Magistratura A..."
+                  className="v3-kiritish"
+                  autoFocus
                 />
               </div>
 
-              {/* Tavsif */}
               <div>
-                <label className="text-sm text-purple-300 mb-1 block">
-                  Tavsif (ixtiyoriy)
-                </label>
+                <label className="v3-yorliq">Tavsif (ixtiyoriy)</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none focus:border-yellow-500"
-                  rows="3"
                   placeholder="Guruh haqida qisqacha ma'lumot..."
+                  rows={3}
+                  className="v3-kiritish resize-none"
                 />
-              </div>
-
-              {/* Rang */}
-              <div>
-                <label className="text-sm text-purple-300 mb-2 block">
-                  Rang
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {COLORS.map((color) => (
-                    <button
-                      key={color.id}
-                      onClick={() => setFormData({ ...formData, color: color.id })}
-                      className={`h-12 rounded-lg border-2 transition-all flex items-center justify-center ${
-                        formData.color === color.id
-                          ? 'border-white scale-110'
-                          : 'border-purple-700/50 hover:border-purple-500/50'
-                      }`}
-                      style={{ backgroundColor: color.hex }}
-                      title={color.name}
-                    >
-                      {formData.color === color.id && (
-                        <span className="text-white text-xl">✓</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
 
-            <div className="flex gap-3 mt-6">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[var(--v3-chiziq)]">
               <button
+                type="button"
                 onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white transition-all"
+                className="v3-tugma text-xs py-2 px-4"
               >
                 Bekor qilish
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-lg disabled:opacity-50 transition-all"
+                className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold"
               >
-                {isSaving ? '⏳ Saqlanmoqda...' : (isEditing ? '✓ Yangilash' : '✓ Saqlash')}
+                {isSaving ? 'Saqlanmoqda...' : isEditing ? '✓ Yangilash' : '✓ Yaratish'}
               </button>
             </div>
           </div>
