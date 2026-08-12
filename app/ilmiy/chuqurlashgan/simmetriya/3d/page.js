@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. 3D VIZUALIZATOR — ASOSIY KOMPONENT

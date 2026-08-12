@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useRef, useCallback } from "react"
 import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { CPK, ATOM_INFO } from "../lib/constants"
 import { makeTextSprite } from "../lib/helpers"
 

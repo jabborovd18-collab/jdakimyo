@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useRef, useState, useCallback } from "react"
 import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import jsPDF from "jspdf"
 
 // ═══════════════════════════════════════════════════════════════════════════

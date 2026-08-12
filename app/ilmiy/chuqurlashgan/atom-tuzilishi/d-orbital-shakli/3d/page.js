@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState, useEffect, useRef, useCallback } from "react"
 import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SFERIK HARMONIKALAR Y₂ᵐ — d-orbital shakllari
