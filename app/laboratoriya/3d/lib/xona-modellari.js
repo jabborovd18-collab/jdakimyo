@@ -212,6 +212,71 @@ function titrlashStendiYasa(materiallar) {
   return group;
 }
 
+/** 3D Elektroliz Vannasi va Tok Manbai modeli */
+function elektrolizVannasiYasa(materiallar) {
+  const group = new THREE.Group();
+  group.name = "Elektroliz_Stansiyasi";
+  group.position.set(1.05, 0.9, -0.05);
+
+  const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.35 });
+  const elektrolitMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.1, transparent: true, opacity: 0.85 });
+  const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.8 });
+  const tokManbaiMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3 });
+
+  // 1. Shaffof Akril Vanna (Bath)
+  const vannaGeo = new THREE.BoxGeometry(0.34, 0.18, 0.22);
+  const vanna = new THREE.Mesh(vannaGeo, shishaMat);
+  vanna.position.set(0, 0.09, 0.05);
+  group.add(vanna);
+
+  // 2. Ichidagi ko'k elektrolit suyuqligi
+  const suyuqGeo = new THREE.BoxGeometry(0.32, 0.14, 0.2);
+  const suyuq = new THREE.Mesh(suyuqGeo, elektrolitMat);
+  suyuq.position.set(0, 0.07, 0.05);
+  group.add(suyuq);
+
+  // 3. Katod (-) Elektrod (Chapda)
+  const katodGeo = new THREE.BoxGeometry(0.012, 0.16, 0.05);
+  const katod = new THREE.Mesh(katodGeo, metallMat);
+  katod.position.set(-0.09, 0.1, 0.05);
+  group.add(katod);
+
+  // Katod ko'k klemmalari
+  const klemmaKGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.02, 16);
+  const klemmaKMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6 });
+  const klemmaK = new THREE.Mesh(klemmaKGeo, klemmaKMat);
+  klemmaK.position.set(-0.09, 0.19, 0.05);
+  group.add(klemmaK);
+
+  // 4. Anod (+) Elektrod (O'ngda)
+  const anodGeo = new THREE.BoxGeometry(0.012, 0.16, 0.05);
+  const anod = new THREE.Mesh(anodGeo, metallMat);
+  anod.position.set(0.09, 0.1, 0.05);
+  group.add(anod);
+
+  // Anod qizil klemmalari
+  const klemmaAGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.02, 16);
+  const klemmaAMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+  const klemmaA = new THREE.Mesh(klemmaAGeo, klemmaAMat);
+  klemmaA.position.set(0.09, 0.19, 0.05);
+  group.add(klemmaA);
+
+  // 5. Orqadagi DC Tok Manbai Qutisi
+  const blokGeo = new THREE.BoxGeometry(0.24, 0.15, 0.14);
+  const blok = new THREE.Mesh(blokGeo, tokManbaiMat);
+  blok.position.set(0, 0.075, -0.12);
+  group.add(blok);
+
+  // Tok manbai LED ekrani
+  const ledGeo = new THREE.BoxGeometry(0.12, 0.04, 0.005);
+  const ledMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
+  const led = new THREE.Mesh(ledGeo, ledMat);
+  led.position.set(0, 0.1, -0.048);
+  group.add(led);
+
+  return group;
+}
+
 /** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
 export function xonaInteryeriniYasa(materiallar) {
   const roomGroup = new THREE.Group();
@@ -229,7 +294,10 @@ export function xonaInteryeriniYasa(materiallar) {
   // 4. Byuretka va Titrlash Stendi (O'ng oldinda)
   roomGroup.add(titrlashStendiYasa(materiallar));
 
-  // 5. Yuvinish Rakovinasi (Chap orqada)
+  // 5. Elektroliz va Tok Manbai Stendi (O'ng orqada)
+  roomGroup.add(elektrolizVannasiYasa(materiallar));
+
+  // 6. Yuvinish Rakovinasi (Chap orqada)
   roomGroup.add(rakovinaYasa(materiallar));
 
   return roomGroup;

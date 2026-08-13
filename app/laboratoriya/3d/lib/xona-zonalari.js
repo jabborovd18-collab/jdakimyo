@@ -33,6 +33,15 @@ export const XONA_ZONALARI = {
     nishon: [0.65, 1.05, 0.1],
     fov: 40,
   },
+  elektroliz: {
+    kalit: "elektroliz",
+    nom: "Elektroliz va Tok Manbai",
+    tavsif: "Faradey qonunlari, katod/anod jarayonlari va galvanik qoplama",
+    ikon: "chaqmoq",
+    kamera: [1.25, 1.45, 0.55],
+    nishon: [1.05, 0.98, -0.05],
+    fov: 40,
+  },
   tortma_shkaf: {
     kalit: "tortma_shkaf",
     nom: "Tortma Shkaf (Fume Hood)",

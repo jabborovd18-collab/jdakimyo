@@ -18,6 +18,7 @@ import PHMeterUI from "./components/PHMeterUI.jsx";
 import TaroziUI from "./components/TaroziUI.jsx";
 import EritmaTayyorlashModal from "./components/EritmaTayyorlashModal.jsx";
 import TitrlashStendiUI from "./components/TitrlashStendiUI.jsx";
+import ElektrolizStendiUI from "./components/ElektrolizStendiUI.jsx";
 import EkspertXulosaModal from "./components/EkspertXulosaModal.jsx";
 import XonaNavigatsiyaUI from "./components/XonaNavigatsiyaUI.jsx";
 import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
@@ -66,6 +67,7 @@ export default function Korinish() {
   const [taroziOchilgan, setTaroziOchilgan] = useState(false);
   const [eritmaOchilgan, setEritmaOchilgan] = useState(false);
   const [titrlashOchilgan, setTitrlashOchilgan] = useState(false);
+  const [elektrolizOchilgan, setElektrolizOchilgan] = useState(false);
   const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
   const [portlashMaLumot, setPortlashMaLumot] = useState(null);
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
@@ -429,11 +431,21 @@ export default function Korinish() {
           <button
             type="button"
             onClick={() => setTitrlashOchilgan(true)}
-            className="v3-tugma v3-tugma-asosiy text-xs font-bold"
+            className="v3-tugma text-xs font-bold"
             title="50 ml Byuretka bilan volumetrik titrlash va ekvivalentlik tahlili"
           >
             <Ikon nom="atom" olcham={13} />
-            Byuretka & Titrlash
+            Titrlash
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setElektrolizOchilgan(true)}
+            className="v3-tugma v3-tugma-asosiy text-xs font-bold"
+            title="Faradey qonunlari, katod/anod elektroliz va tok manbai stendi"
+          >
+            <Ikon nom="chaqmoq" olcham={13} />
+            Elektroliz & Tok
           </button>
 
           <button
@@ -806,6 +818,13 @@ export default function Korinish() {
       {titrlashOchilgan && (
         <TitrlashStendiUI
           onYop={() => setTitrlashOchilgan(false)}
+        />
+      )}
+
+      {/* 2-QADAM: ELEKTROLIZ VA TOK MANBAI STENDI */}
+      {elektrolizOchilgan && (
+        <ElektrolizStendiUI
+          onYop={() => setElektrolizOchilgan(false)}
         />
       )}
 
