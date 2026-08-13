@@ -147,7 +147,39 @@ export default function Korinish() {
     kuchsizQurilma,
   } = useSahna(konteynerRef, yuklanmoqda, fonKaliti);
 
-  // 2. Erkin Ko'tarish va Sudrash hooki (3-Bosqich: Pick, Drag & Snap, Action & Return)
+  // 2. O'zgaruvchan tezlikdagi quyish hooki (3-Muammo: Devor shkaflaridan to'g'ridan-to'g'ri quyish)
+  const handleHolatOzgardimi = useCallback(() => {
+    setAralashmaOzgarish((s) => s + 1);
+
+    // Agar idish tarozida bo'lsa, real vaqtda 3D LED ekranidagi massani yangilash
+    if (tarozidagiIdish && tarozidagiIdish.userData?.tarozida) {
+      const idishKaliti = tarozidagiIdish.userData?.kalit || "probirka";
+      const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, taraMassa);
+      const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
+      if (taroziMesh?.userData?.ekranniYangila) {
+        taroziMesh.userData.ekranniYangila(data.nettoMassa, taraMassa, idishKaliti, true);
+      }
+    }
+  }, [sahnaRef, tarozidagiIdish, taraMassa]);
+
+  const {
+    quyishBoshla,
+    quyishToxtat,
+    burchakniOrnat,
+    shishaniKeltir,
+    javongaQaytar,
+    egishBurchagi,
+    quyilmoqda,
+    quyishTezligiMl,
+    faolShishaMesh,
+  } = useQuyish({
+    sahnaRef,
+    holatRef,
+    jurnalRef,
+    onOzgarish: handleHolatOzgardimi,
+  });
+
+  // 3. Tarozi, Spirtovka va Rakovina hodisalari
   const handleIdishTanlandi = useCallback((group) => {
     if (group && group.userData?.kalit) {
       if (group.userData.sigim > 0 && !group.userData.devorShishasi) {
@@ -155,12 +187,9 @@ export default function Korinish() {
       } else {
         const kalit = group.userData.kalit;
         setFaolReagent(kalit);
-        if (nishonIdishGroup) {
-          shishaniKeltir(kalit, nishonIdishGroup);
-        }
       }
     }
-  }, [nishonIdishGroup, shishaniKeltir]);
+  }, []);
 
   const handleTaroziTushdi = useCallback((group) => {
     setTarozidagiIdish(group);
@@ -265,6 +294,7 @@ export default function Korinish() {
     }, 2200);
   }, [sahnaRef]);
 
+  // 4. Erkin Ko'tarish va Sudrash hooki (3-Bosqich: Pick, Drag & Snap, Action & Return)
   const {
     tanlanganIdish,
     setTanlanganIdish,
@@ -291,7 +321,18 @@ export default function Korinish() {
 
   const nishonIdishGroup = yaqinNishon || tanlanganIdish || hammaJihozlar[0] || null;
 
-  // 2.5. Xonada erkin yurish (1-Qadam: PUBG Dual Joystick Free Roam)
+  // Reagent tanlanganda avtomatik devordan stoldagi probirkaga uchirib keltirish
+  useEffect(() => {
+    if (faolReagent && nishonIdishGroup && typeof shishaniKeltir === "function") {
+      shishaniKeltir(faolReagent, nishonIdishGroup);
+    }
+  }, [faolReagent, nishonIdishGroup, shishaniKeltir]);
+
+  const handleReagentTanla = useCallback((kalit) => {
+    setFaolReagent(kalit);
+  }, []);
+
+  // 5. Xonada erkin yurish (PUBG Dual Joystick Free Roam)
   const {
     yurishRejimi,
     toggleYurishRejimi,
@@ -304,45 +345,6 @@ export default function Korinish() {
     rendererRef,
     controlsRef,
   });
-
-  // 3. O'zgaruvchan tezlikdagi quyish hooki (3-Muammo: Devor shkaflaridan to'g'ridan-to'g'ri quyish)
-  const handleHolatOzgardimi = useCallback(() => {
-    setAralashmaOzgarish((s) => s + 1);
-
-    // Agar idish tarozida bo'lsa, real vaqtda 3D LED ekranidagi massani yangilash
-    if (tarozidagiIdish && tarozidagiIdish.userData?.tarozida) {
-      const idishKaliti = tarozidagiIdish.userData?.kalit || "probirka";
-      const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, taraMassa);
-      const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
-      if (taroziMesh?.userData?.ekranniYangila) {
-        taroziMesh.userData.ekranniYangila(data.nettoMassa, taraMassa, idishKaliti, true);
-      }
-    }
-  }, [sahnaRef, tarozidagiIdish, taraMassa]);
-
-  const {
-    quyishBoshla,
-    quyishToxtat,
-    burchakniOrnat,
-    shishaniKeltir,
-    javongaQaytar,
-    egishBurchagi,
-    quyilmoqda,
-    quyishTezligiMl,
-    faolShishaMesh,
-  } = useQuyish({
-    sahnaRef,
-    holatRef,
-    jurnalRef,
-    onOzgarish: handleHolatOzgardimi,
-  });
-
-  const handleReagentTanla = useCallback((kalit) => {
-    setFaolReagent(kalit);
-    if (kalit && nishonIdishGroup) {
-      shishaniKeltir(kalit, nishonIdishGroup);
-    }
-  }, [nishonIdishGroup, shishaniKeltir]);
 
   // 4. Lab ma'lumotlarini yuklash
   const yuklaLab = useCallback(async () => {
