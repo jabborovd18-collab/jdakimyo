@@ -179,8 +179,17 @@ export default function NatijaPaneli({
               )}
             </div>
 
-            {/* 🔍 Molekulyar Nano-Zoom va Ekspert Tahlili Tugmalari */}
+            {/* 🔍 Molekulyar Nano-Zoom, X-Ray Slow-Mo va Ekspert Tahlili Tugmalari */}
             <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => typeof onXRayOch === "function" && onXRayOch()}
+                className="w-full v3-tugma text-xs py-2 justify-center font-bold text-amber-400 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20"
+              >
+                <Ikon nom="chaqmoq" olcham={14} />
+                <span>⚡ Mortal Kombat X-Ray (Slow-Mo)</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => typeof onEkspertTahlil === "function" && onEkspertTahlil()}

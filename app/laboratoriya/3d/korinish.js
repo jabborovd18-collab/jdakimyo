@@ -27,6 +27,7 @@ import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
 import KristallPanjaraModal from "./components/KristallPanjaraModal.jsx";
 import DavriyJadvalModal from "./components/DavriyJadvalModal.jsx";
 import AmaliyMashgulotModal from "./components/AmaliyMashgulotModal.jsx";
+import XRayMolekulaModal from "./components/XRayMolekulaModal.jsx";
 import VirtualJoystick from "./components/VirtualJoystick.jsx";
 import { zonagaOt } from "./lib/xona-zonalari.js";
 import { portlashniAniqla } from "./lib/portlash.js";
@@ -77,6 +78,7 @@ export default function Korinish() {
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
   const [davriyJadvalOchilgan, setDavriyJadvalOchilgan] = useState(false);
   const [amaliyotOchilgan, setAmaliyotOchilgan] = useState(false);
+  const [xrayModalOchilgan, setXrayModalOchilgan] = useState(false);
   const [ekspertModalOchilgan, setEkspertModalOchilgan] = useState(false);
   const [faolZona, setFaolZona] = useState('asosiy');
 
@@ -493,6 +495,16 @@ export default function Korinish() {
 
           <button
             type="button"
+            onClick={() => setXrayModalOchilgan(true)}
+            className="v3-tugma text-xs font-bold text-amber-400 border-amber-500/40 bg-amber-500/10"
+            title="Mortal Kombat X-Ray Slow-Motion Bog'lar Uzilishi Tahlili"
+          >
+            <Ikon nom="chaqmoq" olcham={13} />
+            X-Ray Slow-Mo
+          </button>
+
+          <button
+            type="button"
             onClick={() => setAmaliyotOchilgan(true)}
             className="v3-tugma v3-tugma-asosiy text-xs font-bold"
             title="Ssenariyli amaliy laboratoriya ishlari va kvestlar"
@@ -771,6 +783,7 @@ export default function Korinish() {
             otkaz(null, nishonIdishGroup);
           }}
           onMolekulaZoom={(kalit) => setMolekulaModalKalit(kalit || "H₂O")}
+          onXRayOch={() => setXrayModalOchilgan(true)}
           onEkspertTahlil={() => setEkspertModalOchilgan(true)}
           onPdfYukla={async () => {
             const res = await labDaftariPdfYukla({
@@ -964,6 +977,14 @@ export default function Korinish() {
               setFaolReagent(m.reagentlar[0]);
             }
           }}
+        />
+      )}
+
+      {/* 3-BOSQICH: MORTAL KOMBAT X-RAY SLOW-MOTION BOG'LAR UZILISHI MODALI */}
+      {xrayModalOchilgan && (
+        <XRayMolekulaModal
+          reaksiyaTenglamasi={natija?.reaksiya?.equation || "HCl + NaOH"}
+          onYop={() => setXrayModalOchilgan(false)}
         />
       )}
     </div>
