@@ -333,6 +333,21 @@ export default function Korinish() {
 
   useEffect(() => {
     setMounted(true);
+
+    // 5-MUAMMO: Mobil brauzerlarda butun sahifa silkinishi va rubber-band scrollni bloklash
+    const prevOverflow = document.body.style.overflow;
+    const prevTouchAction = document.body.style.touchAction;
+    const prevOverscroll = document.body.style.overscrollBehavior;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    document.body.style.overscrollBehavior = "none";
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.touchAction = prevTouchAction;
+      document.body.style.overscrollBehavior = prevOverscroll;
+    };
   }, []);
 
   useEffect(() => {
@@ -566,7 +581,7 @@ export default function Korinish() {
   return (
     <div
       data-fon={fonKaliti}
-      className="v3 flex h-screen w-screen flex-col overflow-hidden text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200"
+      className="v3 flex h-[100dvh] w-screen flex-col overflow-hidden text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200 select-none touch-none overscroll-none fixed inset-0"
     >
       <MobilOgohlantirish />
 

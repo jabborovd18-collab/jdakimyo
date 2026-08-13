@@ -31,6 +31,7 @@ export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle 
 
   // 1. CHAP TOMON: ANALOG JOYSTIK HODISALARI
   const handleJoystickTouchStart = (e) => {
+    if (e.cancelable) e.preventDefault();
     const touch = e.changedTouches[0];
     if (!touch || !baseRef.current) return;
 
@@ -40,6 +41,7 @@ export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle 
   };
 
   const handleJoystickTouchMove = (e) => {
+    if (e.cancelable) e.preventDefault();
     if (touchIdRef.current === null) return;
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
@@ -51,6 +53,7 @@ export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle 
   };
 
   const handleJoystickTouchEnd = (e) => {
+    if (e.cancelable) e.preventDefault();
     for (let i = 0; i < e.changedTouches.length; i++) {
       if (e.changedTouches[i].identifier === touchIdRef.current) {
         touchIdRef.current = null;
@@ -93,6 +96,7 @@ export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle 
 
   // 2. O'NG TOMON: KAMERA BURISH (LOOK / AIM AREA)
   const handleRightTouchStart = (e) => {
+    if (e.cancelable) e.preventDefault();
     const touch = e.changedTouches[0];
     if (!touch) return;
     rightTouchIdRef.current = touch.identifier;
@@ -100,6 +104,7 @@ export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle 
   };
 
   const handleRightTouchMove = (e) => {
+    if (e.cancelable) e.preventDefault();
     if (rightTouchIdRef.current === null) return;
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
@@ -117,6 +122,7 @@ export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle 
   };
 
   const handleRightTouchEnd = (e) => {
+    if (e.cancelable) e.preventDefault();
     for (let i = 0; i < e.changedTouches.length; i++) {
       if (e.changedTouches[i].identifier === rightTouchIdRef.current) {
         rightTouchIdRef.current = null;
