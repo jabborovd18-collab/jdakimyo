@@ -124,6 +124,8 @@ export function qaynashniYangila(group, harorat = 25) {
   }
 }
 
+// Suyuqlik va cho'kma sathini balandlik bo'yicha ko'tarish funksiyasi.
+export function suyuqlikSathiniYangila(group, ml = 0, rangObyekti = null, chokmaMl = 0, chokmaRang = EFFEKT_RANGLARI.chokmaSukut, arzonMaterial = false) {
   if (!group || !group.userData) return;
 
   const suyuqlikMesh = group.userData.suyuqlikMesh;
