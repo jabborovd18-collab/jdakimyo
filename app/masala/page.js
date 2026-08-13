@@ -7,6 +7,7 @@ import Ikon from "@/components/Ikon";
 import MasalaKiritish from "./components/MasalaKiritish.jsx";
 import YechimPaneli from "./components/YechimPaneli.jsx";
 
+<<<<<<< HEAD
 export default function MasalaSahifasi() {
   const [fonKaliti, fonniOzgartir] = useFon();
   const [natija, setNatija] = useState(null);
@@ -15,6 +16,38 @@ export default function MasalaSahifasi() {
   const [xato, setXato] = useState(null);
   const [tarix, setTarix] = useState([]);
 
+=======
+const YUKLANISH_BOSQICHLARI = [
+  "🔍 1-bosqich: Masala sharti va kimyoviy birikmalar tahlil qilinmoqda...",
+  "⚖️ 2-bosqich: Stexiometrik reaksiya tenglamalari va mollar hisoblanmoqda...",
+  "💡 3-bosqich: Tanlangan rejim bo'yicha ilmiy xulosa shakllantirilmoqda...",
+];
+
+export default function MasalaSahifasi() {
+  const [fonKaliti, fonniOzgartir] = useFon();
+  const [natija, setNatija] = useState(null);
+  const [oxirgiMatn, setOxirgiMatn] = useState("");
+  const [oxirgiRasm, setOxirgiRasm] = useState(null);
+  const [yuklanmoqda, setYuklanmoqda] = useState(false);
+  const [yuklanishBosqich, setYuklanishBosqich] = useState(0);
+  const [xato, setXato] = useState(null);
+  const [tarix, setTarix] = useState([]);
+
+  // Yuklanish paytida dinamik xabarlar sikli
+  useEffect(() => {
+    let timer = null;
+    if (yuklanmoqda) {
+      setYuklanishBosqich(0);
+      timer = setInterval(() => {
+        setYuklanishBosqich((prev) => (prev + 1) % YUKLANISH_BOSQICHLARI.length);
+      }, 1200);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [yuklanmoqda]);
+
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
   // Tarixni localStorage dan yuklash
   useEffect(() => {
     try {
@@ -25,16 +58,28 @@ export default function MasalaSahifasi() {
     } catch (e) {}
   }, []);
 
+<<<<<<< HEAD
   const handleYechish = async (masalaMatni, rejim = "toliq") => {
+=======
+  const handleYechish = async (masalaMatni, rejim = "toliq", rasm = null) => {
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
     try {
       setYuklanmoqda(true);
       setXato(null);
       setOxirgiMatn(masalaMatni);
+<<<<<<< HEAD
+=======
+      setOxirgiRasm(rasm);
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
 
       const res = await fetch("/api/masala/yech", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+<<<<<<< HEAD
         body: JSON.stringify({ masalaMatni, rejim }),
+=======
+        body: JSON.stringify({ masalaMatni, rejim, rasm }),
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
       });
 
       const data = await res.json();
@@ -45,11 +90,20 @@ export default function MasalaSahifasi() {
       setNatija(data);
 
       // Tarixga qo'shish
+<<<<<<< HEAD
       const yangiElement = {
         id: Date.now(),
         vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
         matn: masalaMatni.slice(0, 80) + (masalaMatni.length > 80 ? "..." : ""),
         toliqMatn: masalaMatni,
+=======
+      const matnPreview = (masalaMatni || data.masalaMatni || "Rasm orqali masala").slice(0, 80);
+      const yangiElement = {
+        id: Date.now(),
+        vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
+        matn: matnPreview + (matnPreview.length >= 80 ? "..." : ""),
+        toliqMatn: masalaMatni || data.masalaMatni || "",
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
         rejim,
         tenglama: data.tenglama,
       };
@@ -67,8 +121,13 @@ export default function MasalaSahifasi() {
   };
 
   const handleToliqYechimgaOtish = () => {
+<<<<<<< HEAD
     if (oxirgiMatn) {
       handleYechish(oxirgiMatn, "toliq");
+=======
+    if (oxirgiMatn || oxirgiRasm) {
+      handleYechish(oxirgiMatn, "toliq", oxirgiRasm);
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
     }
   };
 
@@ -101,6 +160,10 @@ export default function MasalaSahifasi() {
               <h1 className="text-xl sm:text-2xl font-bold text-[var(--v3-matn)] flex items-center gap-2 mt-0.5">
                 <Ikon nom="kolba" olcham={22} className="text-[var(--v3-urgu)]" />
                 <span>AI Kimyo Masalalari Repetitori</span>
+<<<<<<< HEAD
+=======
+                <span className="v3-tag v3-tag-ochiq text-[10px] font-bold">Beta</span>
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
               </h1>
             </div>
           </div>
@@ -122,11 +185,48 @@ export default function MasalaSahifasi() {
           </div>
         )}
 
+<<<<<<< HEAD
         {/* ─── ASOSIY KIRITISH PANELI (3 TA REJIM & NAMUNALAR) ─── */}
         <MasalaKiritish onYechish={handleYechish} yuklanmoqda={yuklanmoqda} />
 
         {/* ─── YECHIM VA TAHLIL PANELI ─── */}
         {natija && (
+=======
+        {/* ─── ASOSIY KIRITISH PANELI (3 TA REJIM, RASM & NAMUNALAR) ─── */}
+        <MasalaKiritish onYechish={handleYechish} yuklanmoqda={yuklanmoqda} />
+
+        {/* ─── ANIMATSIYALI YUKLANISH HOLATI ("AI Masalani yechmoqda...") ─── */}
+        {yuklanmoqda && (
+          <div className="p-8 sm:p-12 rounded-2xl border border-[var(--v3-urgu)]/40 bg-[var(--v3-yuza)] text-center space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="relative flex items-center justify-center mx-auto w-16 h-16 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] text-[var(--v3-urgu)] shadow-inner">
+              <Ikon nom="atom" olcham={32} className="animate-spin" style={{ animationDuration: "3s" }} />
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--v3-urgu)] opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--v3-urgu)]" />
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base sm:text-lg font-bold text-[var(--v3-matn)]">
+                AI Kimyoviy Masalani Yechmoqda...
+              </h3>
+              <p className="text-xs sm:text-sm font-mono text-[var(--v3-urgu)] transition-all duration-300">
+                {YUKLANISH_BOSQICHLARI[yuklanishBosqich]}
+              </p>
+            </div>
+
+            <div className="max-w-xs mx-auto h-1.5 rounded-full bg-[var(--v3-fon)] overflow-hidden border border-[var(--v3-chiziq)]">
+              <div
+                className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500"
+                style={{ width: `${((yuklanishBosqich + 1) / YUKLANISH_BOSQICHLARI.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ─── YECHIM VA TAHLIL PANELI ─── */}
+        {natija && !yuklanmoqda && (
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
           <YechimPaneli
             natija={natija}
             onToliqYechimgaOtish={handleToliqYechimgaOtish}
@@ -134,7 +234,11 @@ export default function MasalaSahifasi() {
         )}
 
         {/* ─── 4-BOSQICH: MASALALAR TARIXI VA SHAXSIY DAFTARCHA ─── */}
+<<<<<<< HEAD
         {tarix.length > 0 && (
+=======
+        {tarix.length > 0 && !yuklanmoqda && (
+>>>>>>> fa6efa8 (feat(masala): mobil ovoz server proksi (/api/ovoz), rasm orqali masala yechish (OCR/Vision), AI yechilmoqda animatsiyasi va bosh menyuga AI Masalalar (Beta) qo'shildi)
           <section className="p-5 rounded-2xl border bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] space-y-3 shadow-lg">
             <div className="flex items-center justify-between pb-2 border-b border-[var(--v3-chiziq)]">
               <div className="flex items-center gap-2">

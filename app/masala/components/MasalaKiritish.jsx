@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Ikon from "@/components/Ikon";
+import toast from "react-hot-toast";
 
 export const REJIMLAR = [
   {
@@ -10,7 +11,6 @@ export const REJIMLAR = [
     nishon: "⚡ 1-Rejim",
     tavsif: "O'z ustida ishlayotganlar uchun: Masaladagi ko'zdan qochishi mumkin bo'lgan kalit tuzoq va ayyorlikni ochadi (Javobsiz).",
     ikon: "chaqmoq",
-    rang: "border-amber-500/40 bg-amber-500/10 text-amber-400",
   },
   {
     id: "yonalish",
@@ -18,7 +18,6 @@ export const REJIMLAR = [
     nishon: "🧭 2-Rejim",
     tavsif: "Bosqichma-bosqich yechishga yordam: Reaksiya tenglamalari va formulalarni beradi, hisoblash talaba zimmasida.",
     ikon: "kitob",
-    rang: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
   },
   {
     id: "toliq",
@@ -26,7 +25,6 @@ export const REJIMLAR = [
     nishon: "🎯 3-Rejim",
     tavsif: "Barcha bosqichlar, stexiometrik proporsiyalar va yakuniy matematik javob bilan mukammal tushuntirilgan yechim.",
     ikon: "orin",
-    rang: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
   },
 ];
 
@@ -89,8 +87,12 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
   const [faolRejim, setFaolRejim] = useState("toliq");
   const [faolKategoriya, setFaolKategoriya] = useState("eritmalar");
   const [matn, setMatn] = useState("");
+  const [rasmBase64, setRasmBase64] = useState(null);
+  const [rasmNomi, setRasmNomi] = useState("");
   const [ovozYozilmoqda, setOvozYozilmoqda] = useState(false);
   const [speechRecog, setSpeechRecog] = useState(null);
+
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -116,7 +118,7 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
 
   const handleOvozYozish = () => {
     if (!speechRecog) {
-      alert("Brauzeringiz ovoz bilan kiritishni qo'llab-quvvatlamaydi.");
+      toast.error("Brauzeringiz ovoz bilan kiritishni qo'llab-quvvatlamaydi.");
       return;
     }
     if (ovozYozilmoqda) {
@@ -128,11 +130,43 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
     }
   };
 
+  const handleRasmTanlandi = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Faqat rasm fayllarini yuklash mumkin!");
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Rasm hajmi 8 MB dan oshmasligi kerak!");
+      return;
+    }
+
+    setRasmNomi(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRasmBase64(reader.result);
+      toast.success("Rasm biriktirildi! AI rasm ichidagi masalani o'qiydi.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRasmOchir = () => {
+    setRasmBase64(null);
+    setRasmNomi("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!matn.trim()) return;
+    if (!matn.trim() && !rasmBase64) {
+      toast.error("Iltimos, masala matnini yozing yoki rasm biriktiring!");
+      return;
+    }
     if (typeof onYechish === "function") {
-      onYechish(matn, faolRejim);
+      onYechish(matn, faolRejim, rasmBase64);
     }
   };
 
@@ -236,12 +270,12 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
         </div>
       </div>
 
-      {/* ─── 3. MASALA MATNINI KIRITISH SHAKLI ─── */}
+      {/* ─── 3. MASALA MATNINI KIRITISH SHAKLI (MATN, OVOZ VA RASM) ─── */}
       <form onSubmit={handleSubmit} className="p-5 rounded-2xl border bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] space-y-3.5 shadow-xl">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold text-[var(--v3-matn)] flex items-center gap-2">
             <Ikon nom="fayl" olcham={15} className="text-[var(--v3-urgu)]" />
-            <span>Masala sharti yoki savolingizni kiriting:</span>
+            <span>Masala shartini yozing yoki kitobdan rasmga oling:</span>
           </label>
 
           <span className="text-[11px] text-[var(--v3-xira)] font-mono">
@@ -254,7 +288,7 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
             rows={4}
             value={matn}
             onChange={(e) => setMatn(e.target.value)}
-            placeholder="Masala shartini yozing yoki mikrofon orqali o'zbek tilida ayting..."
+            placeholder="Masala shartini yozing, mikrafon orqali ayting yoki pastdagi tugma orqali kitobdan rasm yuklang..."
             className="v3-kiritish w-full text-xs font-medium p-3.5 leading-relaxed pr-12 resize-none"
           />
           <button
@@ -271,26 +305,77 @@ export default function MasalaKiritish({ onYechish, yuklanmoqda }) {
           </button>
         </div>
 
+        {/* Biriktirilgan Rasm Preview bloki */}
+        {rasmBase64 && (
+          <div className="flex items-center justify-between p-3 rounded-xl border border-[var(--v3-urgu)]/50 bg-[var(--v3-fon)] gap-3 animate-in fade-in duration-150">
+            <div className="flex items-center gap-3 min-w-0">
+              <img
+                src={rasmBase64}
+                alt="Masala rasmi"
+                className="w-12 h-12 object-cover rounded-lg border border-[var(--v3-chiziq)]"
+              />
+              <div className="min-w-0 text-xs font-mono">
+                <div className="font-bold text-[var(--v3-matn)] truncate">{rasmNomi || "Masala_rasmi.jpg"}</div>
+                <div className="text-[10px] text-emerald-400">✓ AI Multimodal rasm biriktirildi</div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleRasmOchir}
+              className="p-1.5 rounded-lg border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-red-400 transition"
+              title="Rasmni o'chirish"
+            >
+              <Ikon nom="ochir" olcham={14} />
+            </button>
+          </div>
+        )}
+
+        {/* Yashirin Fayl Inputi */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleRasmTanlandi}
+          className="hidden"
+        />
+
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-          <button
-            type="button"
-            onClick={() => setMatn("")}
-            disabled={!matn}
-            className="v3-tugma text-xs py-2 px-3 text-[var(--v3-xira)] hover:text-red-400 disabled:opacity-30"
-          >
-            <Ikon nom="ochir" olcham={13} />
-            <span>Tozalash</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="v3-tugma text-xs py-2 px-3 inline-flex items-center gap-1.5"
+            >
+              <Ikon nom="rasm" olcham={14} />
+              <span>{rasmBase64 ? "Rasmni almashtirish" : "📷 Rasm yuklash / Rasmga olish"}</span>
+            </button>
+
+            {(matn || rasmBase64) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMatn("");
+                  handleRasmOchir();
+                }}
+                className="v3-tugma text-xs py-2 px-3 text-[var(--v3-xira)] hover:text-red-400"
+              >
+                <Ikon nom="ochir" olcham={13} />
+                <span>Tozalash</span>
+              </button>
+            )}
+          </div>
 
           <button
             type="submit"
-            disabled={!matn.trim() || yuklanmoqda}
+            disabled={(!matn.trim() && !rasmBase64) || yuklanmoqda}
             className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-6 font-bold inline-flex items-center gap-2 disabled:opacity-40"
           >
             {yuklanmoqda ? (
               <>
                 <Ikon nom="vaqt" olcham={15} className="animate-spin" />
-                <span>AI Tahlil Qilmoqda...</span>
+                <span>AI Masalani yechmoqda...</span>
               </>
             ) : (
               <>

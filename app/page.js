@@ -296,6 +296,7 @@ export default function Home() {
   // aylanib qoladi.
   const navHavolalar = [
     { href: "/#fanlar", label: "Fanlar" },
+    { href: "/masala", label: "AI Masalalar (Beta)" },
     { href: "/ilmiy/maqolalar/muhokama", label: "Dolzarb mavzular" },
     { href: "/laboratoriya", label: "Laboratoriya" },
     // Bo'lim nomi "video-darsliklar" bo'lsa ham, videolar hali TAYYOR EMAS
@@ -711,6 +712,14 @@ export default function Home() {
             />
           ))}
 
+          <BolimKarta
+            href="/masala"
+            ikon="kolba"
+            nom="AI Masalalar Yechuvchisi"
+            tavsif="3 xil yondashuv: yashirin tuzoqlar, formulalar va to'liq master yechim"
+            nishon="Beta"
+            urgulimi
+          />
           <BolimKarta
             href="/laboratoriya"
             ikon="kolba"

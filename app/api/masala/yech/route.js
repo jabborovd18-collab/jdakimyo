@@ -21,13 +21,13 @@ function apiKalitniOl() {
 }
 
 /**
- * Google Generative AI (Gemini) orqali masalani 3 xil rejimda tahlil qilish va yechish.
+ * Google Generative AI (Gemini Multimodal) orqali matn yoki rasm orqali masalani 3 xil rejimda yechish.
  * Rejimlar:
  *  - 'tuzoq': Masaladagi keskin burilish, yashirin qopqon va keng tarqalgan xatolar tahlili (javobsiz).
  *  - 'yonalish': Bosqichma-bosqich yo'l-yo'riq, reaksiya tenglamalari va formulalar (hisob-kitob talaba zimmasida).
  *  - 'toliq': Barcha bosqichlar, stexiometriya va yakuniy matematik javob bilan to'liq master yechim.
  */
-async function geminiBilanYech(masalaMatni, rejim = "toliq") {
+async function geminiBilanYech(masalaMatni, rejim = "toliq", rasm = null) {
   const apiKey = apiKalitniOl();
   if (!apiKey) return null;
 
@@ -65,10 +65,8 @@ TALABLAR:
 3. "yakuniyJavob" maydoniga aniq va chiroyli yakuniy sonli javobni yozing.`;
     }
 
-    const prompt = `Siz O'zbekistondagi eng kuchli kimyo professori, olimpiada murabbiyi va DTM ekspertisiz.
-Quyidagi kimyoviy masalani O'ZBEK TILIDA chuqur, mukammal va pedagogik mahorat bilan tahlil qiling:
-
-"${masalaMatni}"
+    const promptText = `Siz O'zbekistondagi eng kuchli kimyo professori, olimpiada murabbiyi va DTM ekspertisiz.
+${rasm ? "Ilova qilingan rasmda kimyoviy masala yoki savol keltirilgan. Rasmdagi barcha formulalar, matn va sonlarni o'qib oling, shartini aniqlang va O'ZBEK TILIDA chuqur, mukammal va pedagogik mahorat bilan tahlil qiling." : `Quyidagi kimyoviy masalani O'ZBEK TILIDA chuqur, mukammal va pedagogik mahorat bilan tahlil qiling:\n\n"${masalaMatni}"`}
 
 ${rejimTalabi}
 
@@ -78,6 +76,7 @@ Agar masalada eritmalar aralashmasi bo'lsa "krest" (Pearson diagonal), agar chek
 NATIJANI FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING (hech qanday markdown \`\`\`json tegisiz):
 {
   "rejim": "${rejim}",
+  "masalaMatni": "Rasmdan yoki matndan o'qib olingan aniq masala sharti",
   "tenglama": "Reaksiya tenglamasi yoki asosiy kimyoviy munosabat",
   "tuzoqTahlili": {
     "kalitNuqta": "...",
@@ -102,14 +101,33 @@ NATIJANI FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING (hech qanday markdown \`\`\
   "ovozMatni": "O'zbek tilida dona-dona va tushunarli o'qiladigan 3-4 ta gapdan iborat audio-matn"
 }`;
 
-    // Google API orqali so'rov yuborish
+    const parts = [{ text: promptText }];
+
+    if (rasm && typeof rasm === "string") {
+      let mimeType = "image/jpeg";
+      let base64Data = rasm;
+
+      if (rasm.includes(";base64,")) {
+        const split = rasm.split(";base64,");
+        mimeType = split[0].replace("data:", "");
+        base64Data = split[1];
+      }
+
+      parts.unshift({
+        inlineData: {
+          mimeType,
+          data: base64Data,
+        },
+      });
+    }
+
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
+          contents: [{ parts }],
           generationConfig: {
             temperature: 0.2,
             responseMimeType: "application/json",
@@ -119,7 +137,6 @@ NATIJANI FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING (hech qanday markdown \`\`\
     );
 
     if (!res.ok) {
-      // Zaxira endpoint: v1beta/interactions
       const resAlt = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/interactions?key=${apiKey}`,
         {
@@ -127,7 +144,7 @@ NATIJANI FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING (hech qanday markdown \`\`\
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "antigravity-preview-05-2026",
-            input: prompt,
+            input: promptText,
           }),
         }
       ).catch(() => null);
@@ -160,17 +177,17 @@ NATIJANI FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING (hech qanday markdown \`\`\
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { masalaMatni = "", rejim = "toliq" } = body;
+    const { masalaMatni = "", rejim = "toliq", rasm = null } = body;
 
-    if (!masalaMatni.trim()) {
+    if (!masalaMatni.trim() && !rasm) {
       return NextResponse.json(
-        { xato: "Masala matni kiritilmadi." },
+        { xato: "Masala matni yoki rasm kiritilmadi." },
         { status: 400 }
       );
     }
 
-    // 1. Birinchi navbatda Google AI orqali masalani tanlangan rejim bo'yicha chuqur yechish
-    const aiNatija = await geminiBilanYech(masalaMatni, rejim);
+    // 1. Birinchi navbatda Google AI (Multimodal) orqali masalani tanlangan rejim bo'yicha chuqur yechish
+    const aiNatija = await geminiBilanYech(masalaMatni, rejim, rasm);
     if (aiNatija) {
       return NextResponse.json({
         muvaffaqiyatli: true,
