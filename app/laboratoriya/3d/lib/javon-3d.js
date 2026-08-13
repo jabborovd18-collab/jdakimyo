@@ -1,102 +1,208 @@
 import * as THREE from "three";
 
-// 2-BOSQICH: 3D MARKAZIY OROL REAGENTLAR JAVONI (Central Island Reagent Station).
-// Markaziy javon stoli, 3 qavatli shaffof polkalar, LED yoritish va 14 xil 3D reagent shishalari.
+// 2-QADAM: KO'P QAVATLI KATTA REAGENTLAR JAVONI VA ANIQ HAJMLI SHISHALAR (25ml - 1000ml).
+// 4 ta alohida kimyoviy sektsiya, GHS xavfsizlik belgilari va real suyuqlik kamayishi.
 
-const SHISHA_REAGENTLAR = [
-  // 1-polka: Kislotalar va Distillangan Suv (Y = 1.48)
-  { kalit: "H₂O", nom: "Distillangan suv", rang: 0x38bdf8, pos: [-0.48, 1.46, -0.92] },
-  { kalit: "HCl", nom: "Xlorid kislota", rang: 0xf8fafc, pos: [-0.24, 1.46, -0.92] },
-  { kalit: "HNO₃", nom: "Nitrat kislota", rang: 0xfef08a, pos: [0.0, 1.46, -0.92] },
-  { kalit: "H₂SO₄", nom: "Sulfat kislota", rang: 0xfacc15, pos: [0.24, 1.46, -0.92] },
-  { kalit: "CH₃COOH", nom: "Sirka kislota", rang: 0xe2e8f0, pos: [0.48, 1.46, -0.92] },
+export const KATTA_JAVON_REAGENTLARI = [
+  // ─── 1-SEKTSIYA: KISLOTALAR VA OKSIDLOVCHILAR (500 ml Katta Amber/Shisha Bankalar) ───
+  { kalit: "HCl", nom: "Xlorid kislota", sigim: 500, joriyHajm: 450, rang: 0xf8fafc, ghs: "korroziy", shishaTuri: "tiniq", pos: [-0.62, 1.44, -0.92] },
+  { kalit: "HNO₃", nom: "Nitrat kislota", sigim: 500, joriyHajm: 420, rang: 0xfef08a, ghs: "oksidlovchi", shishaTuri: "amber", pos: [-0.38, 1.44, -0.92] },
+  { kalit: "H₂SO₄", nom: "Sulfat kislota (Quyuq)", sigim: 500, joriyHajm: 480, rang: 0xfacc15, ghs: "korroziy", shishaTuri: "amber", pos: [-0.14, 1.44, -0.92] },
+  { kalit: "CH₃COOH", nom: "Sirka kislota (Muzdek)", sigim: 500, joriyHajm: 380, rang: 0xe2e8f0, ghs: "yonuvchan", shishaTuri: "tiniq", pos: [0.10, 1.44, -0.92] },
+  { kalit: "H₂O", nom: "Distillangan suv (1L)", sigim: 1000, joriyHajm: 950, rang: 0x38bdf8, ghs: "xavfsiz", shishaTuri: "bak", pos: [0.45, 1.44, -0.92] },
 
-  // 2-polka: Ishqorlar va Indikatorlar (Y = 1.18)
-  { kalit: "NaOH", nom: "Natriy gidroksid", rang: 0xbae6fd, pos: [-0.48, 1.16, -0.92] },
-  { kalit: "KOH", nom: "Kaliy gidroksid", rang: 0x93c5fd, pos: [-0.24, 1.16, -0.92] },
-  { kalit: "NH₃", nom: "Ammiak suvi", rang: 0xcfe8ff, pos: [0.0, 1.16, -0.92] },
-  { kalit: "CuSO₄", nom: "Mis(II) sulfat", rang: 0x0284c7, pos: [0.24, 1.16, -0.92] },
-  { kalit: "AgNO₃", nom: "Kumush nitrat", rang: 0x94a3b8, pos: [0.48, 1.16, -0.92] },
+  // ─── 2-SEKTSIYA: ISHQORLAR VA ASOSLAR (500 ml / 250 ml) ───
+  { kalit: "NaOH", nom: "Natriy gidroksid ishqori", sigim: 500, joriyHajm: 400, rang: 0xbae6fd, ghs: "korroziy", shishaTuri: "tiniq", pos: [-0.55, 1.15, -0.92] },
+  { kalit: "KOH", nom: "Kaliy gidroksid", sigim: 500, joriyHajm: 350, rang: 0x93c5fd, ghs: "korroziy", shishaTuri: "tiniq", pos: [-0.30, 1.15, -0.92] },
+  { kalit: "NH₃", nom: "Ammiakli suv (25%)", sigim: 500, joriyHajm: 450, rang: 0xcfe8ff, ghs: "toksik", shishaTuri: "amber", pos: [-0.05, 1.15, -0.92] },
+  { kalit: "Ba(OH)₂", nom: "Bariy gidroksid", sigim: 250, joriyHajm: 200, rang: 0xf1f5f9, ghs: "korroziy", shishaTuri: "tiniq", pos: [0.20, 1.15, -0.92] },
+  { kalit: "Ca(OH)₂", nom: "Ohakli suv", sigim: 500, joriyHajm: 300, rang: 0xffffff, ghs: "xavfsiz", shishaTuri: "tiniq", pos: [0.45, 1.15, -0.92] },
 
-  // 3-polka: Tuzlar va Reaktivlar (Y = 0.88)
-  { kalit: "KMnO₄", nom: "Kaliy permanganat", rang: 0x7e22ce, pos: [-0.36, 0.86, -0.92] },
-  { kalit: "FeCl₃", nom: "Temir(III) xlorid", rang: 0xc2410c, pos: [-0.12, 0.86, -0.92] },
-  { kalit: "BaCl₂", nom: "Bariy xlorid", rang: 0xf1f5f9, pos: [0.12, 0.86, -0.92] },
-  { kalit: "KI", nom: "Kaliy yodid", rang: 0xfef08a, pos: [0.36, 0.86, -0.92] },
+  // ─── 3-SEKTSIYA: STANDART TUZLAR (100 ml O'rtacha Shishalar) ───
+  { kalit: "CuSO₄", nom: "Mis(II) sulfat", sigim: 100, joriyHajm: 85, rang: 0x0284c7, ghs: "xavfsiz", shishaTuri: "orta", pos: [-0.55, 0.86, -0.92] },
+  { kalit: "AgNO₃", nom: "Kumush nitrat", sigim: 100, joriyHajm: 70, rang: 0x94a3b8, ghs: "korroziy", shishaTuri: "amber", pos: [-0.35, 0.86, -0.92] },
+  { kalit: "KMnO₄", nom: "Kaliy permanganat", sigim: 100, joriyHajm: 90, rang: 0x7e22ce, ghs: "oksidlovchi", shishaTuri: "amber", pos: [-0.15, 0.86, -0.92] },
+  { kalit: "FeCl₃", nom: "Temir(III) xlorid", sigim: 100, joriyHajm: 75, rang: 0xc2410c, ghs: "korroziy", shishaTuri: "orta", pos: [0.05, 0.86, -0.92] },
+  { kalit: "BaCl₂", nom: "Bariy xlorid", sigim: 100, joriyHajm: 80, rang: 0xf1f5f9, ghs: "toksik", shishaTuri: "orta", pos: [0.25, 0.86, -0.92] },
+  { kalit: "KI", nom: "Kaliy yodid", sigim: 100, joriyHajm: 95, rang: 0xfef08a, ghs: "xavfsiz", shishaTuri: "orta", pos: [0.45, 0.86, -0.92] },
+
+  // ─── 4-SEKTSIYA: INDIKATORLAR (25 ml Tomizgichli Flakonlar) ───
+  { kalit: "Fenolftalein", nom: "Fenolftalein", sigim: 25, joriyHajm: 20, rang: 0xffffff, ghs: "yonuvchan", shishaTuri: "tomizgich", pos: [-0.25, 0.58, -0.92] },
+  { kalit: "Metiloranj", nom: "Metiloranj", sigim: 25, joriyHajm: 22, rang: 0xf97316, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [0.0, 0.58, -0.92] },
+  { kalit: "Lakmus", nom: "Lakmus indikatori", sigim: 25, joriyHajm: 18, rang: 0x8b5cf6, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [0.25, 0.58, -0.92] },
 ];
 
-function yorliq3dYasa(matn = "") {
+const GHS_RANGLARI = {
+  korroziy: "#ef4444",   // Qizil
+  oksidlovchi: "#f59e0b", // To'q sariq
+  toksik: "#a855f7",      // Binafsha
+  yonuvchan: "#f97316",   // Olovrang
+  xavfsiz: "#38bdf8",     // Zangori
+};
+
+/** Shisha uchun 3D Canvas Yorlig'i (Formula + Sig'im + GHS belgisi) */
+function shishaYorliginiYasa(item) {
   if (typeof document === "undefined") return new THREE.Group();
   const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 48;
+  canvas.width = 192;
+  canvas.height = 72;
   const ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "rgba(15, 23, 42, 0.92)";
+  // Fon
+  ctx.fillStyle = "rgba(15, 23, 42, 0.95)";
   ctx.beginPath();
-  ctx.roundRect(2, 2, 124, 44, 8);
+  ctx.roundRect(2, 2, 188, 68, 8);
   ctx.fill();
 
-  ctx.strokeStyle = "#38bdf8";
-  ctx.lineWidth = 2.5;
+  // GHS Hoshiyasi
+  const hoshiyaRangi = GHS_RANGLARI[item.ghs] || "#38bdf8";
+  ctx.strokeStyle = hoshiyaRangi;
+  ctx.lineWidth = 3;
   ctx.stroke();
 
+  // Formula
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 24px sans-serif";
+  ctx.font = "bold 26px sans-serif";
   ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(matn, 64, 24);
+  ctx.fillText(item.kalit, 96, 32);
+
+  // Sig'im (ml)
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "bold 16px monospace";
+  ctx.fillText(`${item.joriyHajm}/${item.sigim}ml`, 96, 56);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.minFilter = THREE.LinearFilter;
   const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
   const sprite = new THREE.Sprite(spriteMat);
-  sprite.scale.set(0.11, 0.042, 1);
+  sprite.scale.set(0.14, 0.052, 1);
   sprite.raycast = () => {};
   return sprite;
 }
 
+/** 3D Reagent Shishasi Yasash (25ml, 100ml, 500ml, 1000ml) */
+function reagentShishasiModel(item, materiallar) {
+  const bottleGroup = new THREE.Group();
+  bottleGroup.userData = {
+    kalit: item.kalit,
+    nom: item.nom,
+    sigim: item.sigim,
+    joriyHajm: item.joriyHajm,
+    ghs: item.ghs,
+    tanlanadi: true,
+  };
+
+  const shishaMat =
+    item.shishaTuri === "amber"
+      ? new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.2, transparent: true, opacity: 0.65 })
+      : materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.35 });
+
+  const suyuqMat = new THREE.MeshStandardMaterial({
+    color: item.rang,
+    roughness: 0.15,
+    metalness: 0.05,
+    transparent: true,
+    opacity: 0.85,
+  });
+
+  const qopqoqMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4 });
+
+  let radius = 0.026;
+  let balandlik = 0.075;
+  let boyinR = 0.012;
+  let boyinH = 0.022;
+
+  // 1. 25 ml Flakon
+  if (item.shishaTuri === "tomizgich") {
+    radius = 0.016;
+    balandlik = 0.045;
+    boyinR = 0.007;
+    boyinH = 0.018;
+  }
+  // 2. 500 ml Katta Banka
+  else if (item.sigim === 500) {
+    radius = 0.042;
+    balandlik = 0.11;
+    boyinR = 0.018;
+    boyinH = 0.028;
+  }
+  // 3. 1000 ml Suv Baki
+  else if (item.sigim === 1000) {
+    radius = 0.055;
+    balandlik = 0.14;
+    boyinR = 0.024;
+    boyinH = 0.035;
+  }
+
+  // Tana
+  const tanaGeo = new THREE.CylinderGeometry(radius, radius, balandlik, 18);
+  const tana = new THREE.Mesh(tanaGeo, shishaMat);
+  tana.position.y = balandlik / 2;
+  bottleGroup.add(tana);
+
+  // Ichidagi suyuqlik (Hajmga qarab)
+  const suyuqRatio = item.joriyHajm / item.sigim;
+  const suyuqH = (balandlik * 0.8) * suyuqRatio;
+  const suyuqGeo = new THREE.CylinderGeometry(radius * 0.9, radius * 0.9, suyuqH, 16);
+  const suyuq = new THREE.Mesh(suyuqGeo, suyuqMat);
+  suyuq.position.y = suyuqH / 2 + 0.004;
+  bottleGroup.add(suyuq);
+  bottleGroup.userData.suyuqlikMesh = suyuq;
+
+  // Bo'yin va Qopqoq
+  const qopqoqGeo = new THREE.CylinderGeometry(boyinR * 1.1, boyinR * 1.3, boyinH, 14);
+  const qopqoq = new THREE.Mesh(qopqoqGeo, qopqoqMat);
+  qopqoq.position.y = balandlik + boyinH / 2;
+  bottleGroup.add(qopqoq);
+
+  // Yorliq (Label)
+  const yorliq = shishaYorliginiYasa(item);
+  yorliq.position.set(0, balandlik + boyinH + 0.04, 0);
+  bottleGroup.add(yorliq);
+
+  bottleGroup.position.set(...item.pos);
+  return bottleGroup;
+}
+
 export function javon3dYasa(materiallar, arzonRejim = false) {
   const mainCabinetGroup = new THREE.Group();
-  mainCabinetGroup.name = "3D_Markaziy_Orol_Javoni";
+  mainCabinetGroup.name = "3D_Katta_Reagentlar_Javoni";
 
   const yogochMat = materiallar?.yogoch || new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 });
   const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.35 });
 
-  const eni = 1.35;
-  const balandlik = 0.95;
-  const chukur = 0.28;
+  const eni = 1.6;
+  const balandlik = 1.25;
+  const chukur = 0.32;
   const qalinlik = 0.035;
 
-  // 1. Javon Yon Ustunlari (Chap va O'ng)
+  // 1. Javon Karkasi
   const yonGeo = new THREE.BoxGeometry(qalinlik, balandlik, chukur);
   const yonChap = new THREE.Mesh(yonGeo, yogochMat);
-  yonChap.position.set(-eni / 2, 1.15, -0.95);
+  yonChap.position.set(-eni / 2, 1.05, -0.95);
   mainCabinetGroup.add(yonChap);
 
   const yonOng = new THREE.Mesh(yonGeo, yogochMat);
-  yonOng.position.set(eni / 2, 1.15, -0.95);
+  yonOng.position.set(eni / 2, 1.05, -0.95);
   mainCabinetGroup.add(yonOng);
 
-  // 2. Qopqoq Tepa va Tubi
   const qopqoqGeo = new THREE.BoxGeometry(eni + qalinlik, qalinlik, chukur);
   const qopqoqTepa = new THREE.Mesh(qopqoqGeo, yogochMat);
-  qopqoqTepa.position.set(0, 1.15 + balandlik / 2, -0.95);
+  qopqoqTepa.position.set(0, 1.05 + balandlik / 2, -0.95);
   mainCabinetGroup.add(qopqoqTepa);
 
   const qopqoqTub = new THREE.Mesh(qopqoqGeo, yogochMat);
-  qopqoqTub.position.set(0, 1.15 - balandlik / 2, -0.95);
+  qopqoqTub.position.set(0, 1.05 - balandlik / 2, -0.95);
   mainCabinetGroup.add(qopqoqTub);
 
-  // 3. Orqa panel
   const orqaGeo = new THREE.BoxGeometry(eni, balandlik, 0.015);
   const orqaPanel = new THREE.Mesh(orqaGeo, yogochMat);
-  orqaPanel.position.set(0, 1.15, -0.95 - chukur / 2);
+  orqaPanel.position.set(0, 1.05, -0.95 - chukur / 2);
   mainCabinetGroup.add(orqaPanel);
 
-  // 4. 3 ta Shisha Polkalar (Shelves)
+  // 2. 4 ta Shisha Polkalar (Shelves)
   const polkaGeo = new THREE.BoxGeometry(eni - 0.02, 0.015, chukur - 0.02);
-  const polkaYlar = [0.80, 1.10, 1.40];
+  const polkaYlar = [0.55, 0.82, 1.12, 1.42];
 
   polkaYlar.forEach((y) => {
     const polka = new THREE.Mesh(polkaGeo, shishaMat);
@@ -104,47 +210,10 @@ export function javon3dYasa(materiallar, arzonRejim = false) {
     mainCabinetGroup.add(polka);
   });
 
-  // 5. Polkalarda terilgan 3D Reagent Shishalari
-  SHISHA_REAGENTLAR.forEach((item) => {
-    const bottleGroup = new THREE.Group();
-    bottleGroup.userData = {
-      kalit: item.kalit,
-      nom: item.nom || item.kalit,
-      tanlanadi: true,
-      ogizBalandligi: 0.1,
-    };
-
-    // Shisha tanasi
-    const tanaGeo = new THREE.CylinderGeometry(0.026, 0.026, 0.075, 16);
-    const tanaMesh = new THREE.Mesh(tanaGeo, shishaMat);
-    tanaMesh.position.y = 0.038;
-    bottleGroup.add(tanaMesh);
-
-    // Ichidagi suyuqlik
-    const suyuqlikMat = new THREE.MeshStandardMaterial({
-      color: item.rang,
-      roughness: 0.2,
-      metalness: 0.1,
-    });
-    const suyuqlikGeo = new THREE.CylinderGeometry(0.023, 0.023, 0.055, 16);
-    const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
-    suyuqlikMesh.position.y = 0.03;
-    bottleGroup.add(suyuqlikMesh);
-
-    // Qopqoq
-    const qopqoqGeo = new THREE.CylinderGeometry(0.012, 0.015, 0.022, 12);
-    const qopqoqMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
-    const qopqoq = new THREE.Mesh(qopqoqGeo, qopqoqMat);
-    qopqoq.position.y = 0.086;
-    bottleGroup.add(qopqoq);
-
-    // 3D Yorliq (Formula Label)
-    const yorliq = yorliq3dYasa(item.kalit);
-    yorliq.position.set(0, 0.11, 0.01);
-    bottleGroup.add(yorliq);
-
-    bottleGroup.position.set(...item.pos);
-    mainCabinetGroup.add(bottleGroup);
+  // 3. Shishalarni o'rnatish
+  KATTA_JAVON_REAGENTLARI.forEach((item) => {
+    const bottle = reagentShishasiModel(item, materiallar);
+    mainCabinetGroup.add(bottle);
   });
 
   return mainCabinetGroup;
