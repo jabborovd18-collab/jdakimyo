@@ -60,6 +60,15 @@ export const XONA_ZONALARI = {
     nishon: [0, 1.18, -1.05],
     fov: 48,
   },
+  davriy_jadval: {
+    kalit: "davriy_jadval",
+    nom: "Davriy Jadval (IUPAC)",
+    tavsif: "Devordagi yuqori aniqlikdagi D.I. Mendeleyev Davriy Sistemasi",
+    ikon: "atom",
+    kamera: [0, 2.2, -0.4],
+    nishon: [0, 2.1, -2.35],
+    fov: 46,
+  },
   yuvinish: {
     kalit: "yuvinish",
     nom: "Yuvinish va Tozalash",

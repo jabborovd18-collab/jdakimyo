@@ -25,6 +25,7 @@ import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
 import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
 import KristallPanjaraModal from "./components/KristallPanjaraModal.jsx";
 import DavriyJadvalModal from "./components/DavriyJadvalModal.jsx";
+import AmaliyMashgulotModal from "./components/AmaliyMashgulotModal.jsx";
 import { zonagaOt } from "./lib/xona-zonalari.js";
 import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
@@ -73,6 +74,7 @@ export default function Korinish() {
   const [portlashMaLumot, setPortlashMaLumot] = useState(null);
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
   const [davriyJadvalOchilgan, setDavriyJadvalOchilgan] = useState(false);
+  const [amaliyotOchilgan, setAmaliyotOchilgan] = useState(false);
   const [ekspertModalOchilgan, setEkspertModalOchilgan] = useState(false);
   const [faolZona, setFaolZona] = useState('asosiy');
 
@@ -460,6 +462,16 @@ export default function Korinish() {
           >
             <Ikon nom="chaqmoq" olcham={13} />
             Elektroliz & Tok
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setAmaliyotOchilgan(true)}
+            className="v3-tugma v3-tugma-asosiy text-xs font-bold"
+            title="Ssenariyli amaliy laboratoriya ishlari va kvestlar"
+          >
+            <Ikon nom="kitob" olcham={13} />
+            Amaliy Mashg{"'"}ulotlar
           </button>
 
           <button
@@ -884,6 +896,17 @@ export default function Korinish() {
       {davriyJadvalOchilgan && (
         <DavriyJadvalModal
           onYop={() => setDavriyJadvalOchilgan(false)}
+        />
+      )}
+
+      {amaliyotOchilgan && (
+        <AmaliyMashgulotModal
+          onYop={() => setAmaliyotOchilgan(false)}
+          onMashgulotBoshlandi={(m) => {
+            if (m.reagentlar && m.reagentlar[0]) {
+              setFaolReagent(m.reagentlar[0]);
+            }
+          }}
         />
       )}
     </div>
