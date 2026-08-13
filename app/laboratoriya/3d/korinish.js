@@ -36,7 +36,7 @@ import { pufakchaChiqishi, oqimBoshla, oqimToxtat, taroziBip } from "./lib/ovoz.
 import { massaHisobla } from "./lib/tarozi.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat, yoz } from "./lib/jurnal.js";
-import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
+import { suyuqlikSathiniYangila, qaynashniYangila } from "./lib/jihoz-modellari.js";
 import { moddaKorinishi } from "./lib/modda-korinishi.js";
 import { reagentBirligi, hajmniBirlikka, miqdorniFormatla } from "@/lib/lab-birlik.js";
 import toast from "react-hot-toast";
@@ -106,27 +106,65 @@ export default function Korinish() {
     }
   };
 
-  // Spirtovkada isitish
+  // 4-MUAMMO: Spirtovkada isitish, termometr simob ustunini ko'tarish va qaynash girdobi
   useEffect(() => {
     let timer = null;
+    const spirtovkaMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "spirtovka");
+    const termometrMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "termometr");
+
     if (isitimoda) {
       pufakchaChiqishi();
+      if (spirtovkaMesh?.userData?.alanganiYangila) {
+        spirtovkaMesh.userData.alanganiYangila(true);
+      }
+
       timer = setInterval(() => {
         setHarorat((prev) => {
-          if (prev >= 100) {
-            pufakchaChiqishi();
-            return 100;
+          const yangi = Math.min(100, prev + 5);
+
+          if (termometrMesh?.userData?.haroratniYangila) {
+            termometrMesh.userData.haroratniYangila(yangi);
           }
-          return prev + 5;
+
+          if (nishonIdishGroup) {
+            qaynashniYangila(nishonIdishGroup, yangi);
+          }
+
+          if (yangi >= 90) {
+            pufakchaChiqishi();
+          }
+          return yangi;
         });
-      }, 800);
+      }, 750);
     } else {
-      setHarorat(25);
+      if (spirtovkaMesh?.userData?.alanganiYangila) {
+        spirtovkaMesh.userData.alanganiYangila(false);
+      }
+
+      // Sekin-asta sovish (Cooling back to 25°C)
+      timer = setInterval(() => {
+        setHarorat((prev) => {
+          if (prev <= 25) {
+            if (timer) clearInterval(timer);
+            if (nishonIdishGroup) qaynashniYangila(nishonIdishGroup, 25);
+            return 25;
+          }
+          const yangi = Math.max(25, prev - 4);
+          if (termometrMesh?.userData?.haroratniYangila) {
+            termometrMesh.userData.haroratniYangila(yangi);
+          }
+          if (nishonIdishGroup) {
+            qaynashniYangila(nishonIdishGroup, yangi);
+          }
+          return yangi;
+        });
+      }, 600);
     }
+
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isitimoda]);
+  }, [isitimoda, sahnaRef, nishonIdishGroup]);
 
   const [fonKaliti, fonniOzgartir] = useFon();
 

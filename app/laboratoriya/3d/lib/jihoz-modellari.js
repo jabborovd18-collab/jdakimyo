@@ -54,10 +54,76 @@ function yorliqQosh(group, matn) {
   return yorliq;
 }
 
-// Suyuqlik va cho'kma sathini balandlik bo'yicha ko'tarish funksiyasi.
-// Nega scale.y va position.y birga o'zgaradi: silindr markazi geometriya markazida joylashadi,
-// scale oshganda position.y yuqoriga ko'tarilmasa, suyuqlik idish tubidan pastga ochilib ketadi.
-export function suyuqlikSathiniYangila(group, ml = 0, rangObyekti = null, chokmaMl = 0, chokmaRang = EFFEKT_RANGLARI.chokmaSukut, arzonMaterial = false) {
+// Qaynash girdobi, konvektiv pufakchalar va bug' (steam) effektlarini yaratish
+function qaynashZarrachalariYasa(radius = 0.04, balandlik = 0.2) {
+  const group = new THREE.Group();
+  group.name = "Qaynash_Effekti";
+  group.visible = false;
+
+  const count = 36;
+  const positions = new Float32Array(count * 3);
+  const basePos = [];
+
+  for (let i = 0; i < count; i++) {
+    const r = Math.random() * radius * 0.75;
+    const theta = Math.random() * Math.PI * 2;
+    const x = Math.cos(theta) * r;
+    const y = 0.03 + Math.random() * (balandlik * 0.8);
+    const z = Math.sin(theta) * r;
+    positions[i * 3] = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
+    basePos.push({ x, y, z, speed: 0.003 + Math.random() * 0.006 });
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+  const mat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.008,
+    transparent: true,
+    opacity: 0.85,
+  });
+
+  const points = new THREE.Points(geo, mat);
+  group.add(points);
+
+  // Bug' (Steam vapor) ustuni
+  const steamGeo = new THREE.ConeGeometry(radius * 1.3, 0.16, 16, 1, true);
+  const steamMat = new THREE.MeshBasicMaterial({
+    color: 0xe2e8f0,
+    transparent: true,
+    opacity: 0.35,
+  });
+  const steam = new THREE.Mesh(steamGeo, steamMat);
+  steam.position.y = balandlik + 0.07;
+  steam.visible = false;
+  group.add(steam);
+
+  return { group, points, steam, basePos, geo, count, balandlik };
+}
+
+/** Idishdagi qaynash girdobi, pufakchalar va bug' sathini haroratga qarab yangilash */
+export function qaynashniYangila(group, harorat = 25) {
+  if (!group?.userData?.qaynashEffekti) return;
+  const { group: qGroup, steam, points } = group.userData.qaynashEffekti;
+  if (harorat >= 60) {
+    qGroup.visible = true;
+    points.material.opacity = Math.min(0.95, 0.4 + (harorat - 60) * 0.015);
+    if (harorat >= 85) {
+      steam.visible = true;
+      steam.scale.y = Math.min(1.5, (harorat - 80) / 20);
+      steam.material.opacity = Math.min(0.45, 0.15 + (harorat - 85) * 0.02);
+    } else {
+      steam.visible = false;
+    }
+  } else {
+    qGroup.visible = false;
+    steam.visible = false;
+  }
+}
+
   if (!group || !group.userData) return;
 
   const suyuqlikMesh = group.userData.suyuqlikMesh;
@@ -135,10 +201,15 @@ function probirkaYasa(materiallar) {
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
 
+  // Qaynash girdobi va bug' zarrachalari
+  const qaynash = qaynashZarrachalariYasa(0.04, 0.22);
+  group.add(qaynash.group);
+
   group.userData = {
     kalit: "probirka",
     suyuqlikMesh,
     chokmaMesh,
+    qaynashEffekti: qaynash,
     ogizBalandligi: 0.29,
     suyuqlikMaxBalandlik: 0.22,
     suyuqlikTubY: 0.04,
@@ -177,10 +248,15 @@ function stakanYasa(materiallar) {
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
 
+  // Qaynash girdobi
+  const qaynash = qaynashZarrachalariYasa(0.075, 0.18);
+  group.add(qaynash.group);
+
   group.userData = {
     kalit: "stakan",
     suyuqlikMesh,
     chokmaMesh,
+    qaynashEffekti: qaynash,
     ogizBalandligi: 0.22,
     suyuqlikMaxBalandlik: 0.18,
     suyuqlikTubY: 0.01,
@@ -222,10 +298,14 @@ function konussimonKolbaYasa(materiallar) {
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
 
+  const qaynash = qaynashZarrachalariYasa(0.07, 0.13);
+  group.add(qaynash.group);
+
   group.userData = {
     kalit: "konussimon-kolba",
     suyuqlikMesh,
     chokmaMesh,
+    qaynashEffekti: qaynash,
     ogizBalandligi: 0.26,
     suyuqlikMaxBalandlik: 0.13,
     suyuqlikTubY: 0.01,
@@ -266,10 +346,14 @@ function dumaloqTubliKolbaYasa(materiallar) {
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
 
+  const qaynash = qaynashZarrachalariYasa(0.075, 0.15);
+  group.add(qaynash.group);
+
   group.userData = {
     kalit: "dumaloq-tubli-kolba",
     suyuqlikMesh,
     chokmaMesh,
+    qaynashEffekti: qaynash,
     ogizBalandligi: 0.27,
     suyuqlikMaxBalandlik: 0.15,
     suyuqlikTubY: 0.02,
@@ -310,10 +394,14 @@ function kolbaYasa(materiallar) {
   chokmaMesh.visible = false;
   group.add(chokmaMesh);
 
+  const qaynash = qaynashZarrachalariYasa(0.07, 0.12);
+  group.add(qaynash.group);
+
   group.userData = {
     kalit: "kolba",
     suyuqlikMesh,
     chokmaMesh,
+    qaynashEffekti: qaynash,
     ogizBalandligi: 0.25,
     suyuqlikMaxBalandlik: 0.12,
     suyuqlikTubY: 0.01,
@@ -477,6 +565,7 @@ function spirtovkaYasa(materiallar) {
 
   // 4. Realistik Alanga guruhi (Dual-layer Flame)
   const alangaGroup = new THREE.Group();
+  alangaGroup.name = "Spirtovka_Alangasi";
   alangaGroup.position.set(0, 0.125, 0);
   alangaGroup.visible = false;
 
@@ -495,17 +584,29 @@ function spirtovkaYasa(materiallar) {
   alangaGroup.add(sariqAlanga);
 
   // Alanga nurli chirog'i (Point Light)
-  const alangaNuri = new THREE.PointLight(0xfbbf24, 1.2, 0.8);
+  const alangaNuri = new THREE.PointLight(0xfbbf24, 1.4, 1.2);
   alangaNuri.position.y = 0.04;
+  alangaNuri.visible = false;
   alangaGroup.add(alangaNuri);
 
   group.add(alangaGroup);
+
+  const alanganiYangila = (yoqilgan = false) => {
+    alangaGroup.visible = yoqilgan;
+    group.userData.yoqilgan = yoqilgan;
+    alangaNuri.visible = yoqilgan;
+  };
 
   group.userData = {
     kalit: "spirtovka",
     suyuqlikMesh: null,
     chokmaMesh: null,
     alanga: alangaGroup,
+    sariqAlanga,
+    kokAlanga,
+    alangaNuri,
+    alanganiYangila,
+    yoqilgan: false,
     ogizBalandligi: 0.18,
     tanlanadi: true,
   };
@@ -580,26 +681,104 @@ function probirkaShtativiYasa(materiallar) {
   return group;
 }
 
+function termometrYorliginiYasa(boshlangichHarorat = 25) {
+  if (typeof document === "undefined") {
+    const fake = new THREE.Sprite();
+    return { sprite: fake, yangila: () => {} };
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+
+  const chiz = (t) => {
+    ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
+    ctx.beginPath();
+    ctx.roundRect(2, 2, 124, 60, 8);
+    ctx.fill();
+
+    ctx.strokeStyle = "#ef4444";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 28px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(`${Math.round(t)}°C`, 64, 42);
+  };
+
+  chiz(boshlangichHarorat);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+  const sprite = new THREE.Sprite(spriteMat);
+  sprite.scale.set(0.12, 0.06, 1);
+  sprite.raycast = () => {};
+
+  const yangila = (t) => {
+    chiz(t);
+    texture.needsUpdate = true;
+  };
+
+  return { sprite, yangila };
+}
+
 // 12. TERMOMETR — Eritma va reaksiya haroratini o'lchash uchun simobli yoki spirtli shisha termometr.
 function termometrYasa(materiallar) {
   const group = new THREE.Group();
   const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.35, transparent: true });
+  const simobMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.2, metalness: 0.1 });
+  const shkalaMat = new THREE.MeshBasicMaterial({ color: 0x64748b });
 
+  // 1. Shaffof shisha kapillyar quvur
   const tanaGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.32, 16);
   const tana = new THREE.Mesh(tanaGeo, shishaMat);
   tana.position.y = 0.16;
   group.add(tana);
 
-  const uchGeo = new THREE.SphereGeometry(0.012, 16, 16);
-  const uchMat = new THREE.MeshStandardMaterial({ color: 0xdc2626 });
-  const uch = new THREE.Mesh(uchGeo, uchMat);
-  uch.position.y = 0.01;
-  group.add(uch);
+  // 2. Qizil simob lampochkasi (Bulb reservoir)
+  const bulbGeo = new THREE.SphereGeometry(0.014, 16, 16);
+  const bulb = new THREE.Mesh(bulbGeo, simobMat);
+  bulb.position.y = 0.014;
+  group.add(bulb);
+
+  // 3. Dinamik simob/spirt ustuni (Capillary Column)
+  const maxUstunH = 0.26;
+  const baseY = 0.02;
+  const ustunGeo = new THREE.CylinderGeometry(0.003, 0.003, maxUstunH, 12);
+  const ustun = new THREE.Mesh(ustunGeo, simobMat);
+  ustun.position.y = baseY + (maxUstunH * 0.25) / 2;
+  ustun.scale.y = 0.25; // 25°C sukut bo'yicha
+  group.add(ustun);
+
+  // 4. Shkala chiziqchalari (Graduation markings)
+  for (let i = 0; i <= 10; i++) {
+    const markGeo = new THREE.BoxGeometry(0.012, 0.0015, 0.001);
+    const mark = new THREE.Mesh(markGeo, shkalaMat);
+    mark.position.set(0.005, baseY + (maxUstunH / 10) * i, 0);
+    group.add(mark);
+  }
+
+  // 5. Dinamik Harorat Raqamli Ko'rsatkichi (Badge Sprite)
+  const { sprite: haroratSprite, yangila: haroratYorliqYangila } = termometrYorliginiYasa(25);
+  haroratSprite.position.set(0, 0.36, 0);
+  group.add(haroratSprite);
+
+  // Haroratni yangilash funksiyasi
+  const haroratniYangila = (harorat = 25) => {
+    const clamped = Math.max(0, Math.min(120, Number(harorat) || 0));
+    const ratio = Math.max(0.05, Math.min(1.0, clamped / 100));
+    ustun.scale.y = ratio;
+    ustun.position.y = baseY + (maxUstunH * ratio) / 2;
+    haroratYorliqYangila(clamped);
+  };
 
   group.userData = {
     kalit: "termometr",
-    suyuqlikMesh: null,
-    chokmaMesh: null,
+    simobUstun: ustun,
+    haroratniYangila,
+    joriyHarorat: 25,
     ogizBalandligi: 0.32,
     tanlanadi: true,
   };
