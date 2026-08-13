@@ -41,40 +41,18 @@ import { moddaKorinishi } from "./lib/modda-korinishi.js";
 import { reagentBirligi, hajmniBirlikka, miqdorniFormatla } from "@/lib/lab-birlik.js";
 import toast from "react-hot-toast";
 
-
 function hexDanCss(hex) {
   return `#${Number(hex || 0xffffff).toString(16).padStart(6, "0")}`;
 }
 
-const YUZA = {
-  background: "var(--v3-yuza)",
-  borderColor: "var(--v3-chiziq)",
-  color: "var(--v3-matn)",
-};
-
 export default function Korinish() {
+  // 1. Asosiy holatlar (States)
   const [mounted, setMounted] = useState(false);
   const [labMaLumot, setLabMaLumot] = useState(null);
   const [yuklanmoqda, setYuklanmoqda] = useState(true);
   const [kirilmagan, setKirilmagan] = useState(false);
   const [yuklashXatosi, setYuklashXatosi] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Ekranni tozalash va to'liq immersiv kino rejimini tinglash (H / Tab)
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.code === "KeyH" && !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) {
-        setTozaEkran((v) => !v);
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, []);
-
-  // Faol tanlovlar va holatlar
   const [tozaEkran, setTozaEkran] = useState(false);
   const [faolReagent, setFaolReagent] = useState(null);
   const [aralashmaOzgarish, setAralashmaOzgarish] = useState(0);
@@ -99,80 +77,14 @@ export default function Korinish() {
   const [ekspertModalOchilgan, setEkspertModalOchilgan] = useState(false);
   const [faolZona, setFaolZona] = useState('asosiy');
 
-  const handleZonaTanlandi = (zonaKaliti) => {
-    setFaolZona(zonaKaliti);
-    if (kameraRef?.current && controlsRef?.current) {
-      zonagaOt(kameraRef.current, controlsRef.current, zonaKaliti);
-    }
-  };
-
-  // 4-MUAMMO: Spirtovkada isitish, termometr simob ustunini ko'tarish va qaynash girdobi
-  useEffect(() => {
-    let timer = null;
-    const spirtovkaMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "spirtovka");
-    const termometrMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "termometr");
-
-    if (isitimoda) {
-      pufakchaChiqishi();
-      if (spirtovkaMesh?.userData?.alanganiYangila) {
-        spirtovkaMesh.userData.alanganiYangila(true);
-      }
-
-      timer = setInterval(() => {
-        setHarorat((prev) => {
-          const yangi = Math.min(100, prev + 5);
-
-          if (termometrMesh?.userData?.haroratniYangila) {
-            termometrMesh.userData.haroratniYangila(yangi);
-          }
-
-          if (nishonIdishGroup) {
-            qaynashniYangila(nishonIdishGroup, yangi);
-          }
-
-          if (yangi >= 90) {
-            pufakchaChiqishi();
-          }
-          return yangi;
-        });
-      }, 750);
-    } else {
-      if (spirtovkaMesh?.userData?.alanganiYangila) {
-        spirtovkaMesh.userData.alanganiYangila(false);
-      }
-
-      // Sekin-asta sovish (Cooling back to 25°C)
-      timer = setInterval(() => {
-        setHarorat((prev) => {
-          if (prev <= 25) {
-            if (timer) clearInterval(timer);
-            if (nishonIdishGroup) qaynashniYangila(nishonIdishGroup, 25);
-            return 25;
-          }
-          const yangi = Math.max(25, prev - 4);
-          if (termometrMesh?.userData?.haroratniYangila) {
-            termometrMesh.userData.haroratniYangila(yangi);
-          }
-          if (nishonIdishGroup) {
-            qaynashniYangila(nishonIdishGroup, yangi);
-          }
-          return yangi;
-        });
-      }, 600);
-    }
-
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [isitimoda, sahnaRef, nishonIdishGroup]);
-
   const [fonKaliti, fonniOzgartir] = useFon();
 
+  // 2. Reflar
   const holatRef = useRef(idishYarat("probirka", 0));
   const jurnalRef = useRef(jurnalYarat());
   const konteynerRef = useRef(null);
 
-  // 1. 3D Sahna
+  // 3. 3D Sahna Hooki
   const {
     tayyor,
     sahnaRef,
@@ -185,11 +97,10 @@ export default function Korinish() {
     kuchsizQurilma,
   } = useSahna(konteynerRef, yuklanmoqda, fonKaliti);
 
-  // 2. O'zgaruvchan tezlikdagi quyish hooki (3-Muammo: Devor shkaflaridan to'g'ridan-to'g'ri quyish)
+  // 4. Tarozi, Spirtovka va Rakovina Callbacklari
   const handleHolatOzgardimi = useCallback(() => {
     setAralashmaOzgarish((s) => s + 1);
 
-    // Agar idish tarozida bo'lsa, real vaqtda 3D LED ekranidagi massani yangilash
     if (tarozidagiIdish && tarozidagiIdish.userData?.tarozida) {
       const idishKaliti = tarozidagiIdish.userData?.kalit || "probirka";
       const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, taraMassa);
@@ -200,24 +111,6 @@ export default function Korinish() {
     }
   }, [sahnaRef, tarozidagiIdish, taraMassa]);
 
-  const {
-    quyishBoshla,
-    quyishToxtat,
-    burchakniOrnat,
-    shishaniKeltir,
-    javongaQaytar,
-    egishBurchagi,
-    quyilmoqda,
-    quyishTezligiMl,
-    faolShishaMesh,
-  } = useQuyish({
-    sahnaRef,
-    holatRef,
-    jurnalRef,
-    onOzgarish: handleHolatOzgardimi,
-  });
-
-  // 3. Tarozi, Spirtovka va Rakovina hodisalari
   const handleIdishTanlandi = useCallback((group) => {
     if (group && group.userData?.kalit) {
       if (group.userData.sigim > 0 && !group.userData.devorShishasi) {
@@ -239,7 +132,6 @@ export default function Korinish() {
       const idishKaliti = group.userData?.kalit || "probirka";
       const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, taraMassa);
 
-      // Stabilizatsiya tebranishi (0.001g analitik fluktuatsiya)
       const jitter = data.nettoMassa + (Math.random() * 0.012 - 0.006);
       taroziMesh.userData.ekranniYangila(jitter, taraMassa, idishKaliti, false);
 
@@ -332,7 +224,7 @@ export default function Korinish() {
     }, 2200);
   }, [sahnaRef]);
 
-  // 4. Erkin Ko'tarish va Sudrash hooki (3-Bosqich: Pick, Drag & Snap, Action & Return)
+  // 5. Sudrash Hooki
   const {
     tanlanganIdish,
     setTanlanganIdish,
@@ -359,18 +251,25 @@ export default function Korinish() {
 
   const nishonIdishGroup = yaqinNishon || tanlanganIdish || hammaJihozlar[0] || null;
 
-  // Reagent tanlanganda avtomatik devordan stoldagi probirkaga uchirib keltirish
-  useEffect(() => {
-    if (faolReagent && nishonIdishGroup && typeof shishaniKeltir === "function") {
-      shishaniKeltir(faolReagent, nishonIdishGroup);
-    }
-  }, [faolReagent, nishonIdishGroup, shishaniKeltir]);
+  // 6. Quyish Hooki
+  const {
+    quyishBoshla,
+    quyishToxtat,
+    burchakniOrnat,
+    shishaniKeltir,
+    javongaQaytar,
+    egishBurchagi,
+    quyilmoqda,
+    quyishTezligiMl,
+    faolShishaMesh,
+  } = useQuyish({
+    sahnaRef,
+    holatRef,
+    jurnalRef,
+    onOzgarish: handleHolatOzgardimi,
+  });
 
-  const handleReagentTanla = useCallback((kalit) => {
-    setFaolReagent(kalit);
-  }, []);
-
-  // 5. Xonada erkin yurish (PUBG Dual Joystick Free Roam)
+  // 7. Xonada Erkin Yurish Hooki
   const {
     yurishRejimi,
     toggleYurishRejimi,
@@ -384,7 +283,7 @@ export default function Korinish() {
     controlsRef,
   });
 
-  // 4. Lab ma'lumotlarini yuklash
+  // 8. Tajriba O'tkazish Hooki
   const yuklaLab = useCallback(async () => {
     setYuklanmoqda(true);
     setKirilmagan(false);
@@ -411,11 +310,6 @@ export default function Korinish() {
     }
   }, []);
 
-  useEffect(() => {
-    yuklaLab();
-  }, [yuklaLab]);
-
-  // 5. Tajriba o'tkazish
   const {
     otkaz,
     otkazilmoqda,
@@ -435,17 +329,118 @@ export default function Korinish() {
     holatniYangila: yuklaLab,
   });
 
+  // ─── BARCHA EFFECTLAR (HOOKLAR VA O'ZGARUVCHILARDAN KEYIN) ───
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.code === "KeyH" && !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) {
+        setTozaEkran((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  // 4-MUAMMO: Spirtovkada isitish, termometr simob ustunini ko'tarish va qaynash girdobi
+  useEffect(() => {
+    let timer = null;
+    const spirtovkaMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "spirtovka");
+    const termometrMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "termometr");
+
+    if (isitimoda) {
+      pufakchaChiqishi();
+      if (spirtovkaMesh?.userData?.alanganiYangila) {
+        spirtovkaMesh.userData.alanganiYangila(true);
+      }
+
+      timer = setInterval(() => {
+        setHarorat((prev) => {
+          const yangi = Math.min(100, prev + 5);
+
+          if (termometrMesh?.userData?.haroratniYangila) {
+            termometrMesh.userData.haroratniYangila(yangi);
+          }
+
+          if (nishonIdishGroup) {
+            qaynashniYangila(nishonIdishGroup, yangi);
+          }
+
+          if (yangi >= 90) {
+            pufakchaChiqishi();
+          }
+          return yangi;
+        });
+      }, 750);
+    } else {
+      if (spirtovkaMesh?.userData?.alanganiYangila) {
+        spirtovkaMesh.userData.alanganiYangila(false);
+      }
+
+      // Sekin-asta sovish (Cooling back to 25°C)
+      timer = setInterval(() => {
+        setHarorat((prev) => {
+          if (prev <= 25) {
+            if (timer) clearInterval(timer);
+            if (nishonIdishGroup) qaynashniYangila(nishonIdishGroup, 25);
+            return 25;
+          }
+          const yangi = Math.max(25, prev - 4);
+          if (termometrMesh?.userData?.haroratniYangila) {
+            termometrMesh.userData.haroratniYangila(yangi);
+          }
+          if (nishonIdishGroup) {
+            qaynashniYangila(nishonIdishGroup, yangi);
+          }
+          return yangi;
+        });
+      }, 600);
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isitimoda, sahnaRef, nishonIdishGroup]);
+
+  // Reagent tanlanganda avtomatik devordan stoldagi probirkaga uchirib keltirish
+  useEffect(() => {
+    if (faolReagent && nishonIdishGroup && typeof shishaniKeltir === "function") {
+      shishaniKeltir(faolReagent, nishonIdishGroup);
+    }
+  }, [faolReagent, nishonIdishGroup, shishaniKeltir]);
+
+  useEffect(() => {
+    yuklaLab();
+  }, [yuklaLab]);
+
   useEffect(() => {
     if (!natija?.reaksiya) return;
     const res = portlashniAniqla(natija.reaksiya, harorat);
     if (res.portladi) setPortlashMaLumot(res);
   }, [natija, harorat]);
 
+  // ─── AMAL VA INTERFEYS FUNKSIYALARI ───
+
+  const handleZonaTanlandi = (zonaKaliti) => {
+    setFaolZona(zonaKaliti);
+    if (kameraRef?.current && controlsRef?.current) {
+      zonagaOt(kameraRef.current, controlsRef.current, zonaKaliti);
+    }
+  };
+
+  const handleReagentTanla = useCallback((kalit) => {
+    setFaolReagent(kalit);
+  }, []);
+
   const handleTozalash = () => {
     holatRef.current = tozala(holatRef.current);
     jurnalRef.current = jurnalYarat();
     if (nishonIdishGroup) {
       suyuqlikSathiniYangila(nishonIdishGroup, 0, null, 0);
+      qaynashniYangila(nishonIdishGroup, 25);
     }
     setNatija(null);
     setTanlov(null);
@@ -453,7 +448,6 @@ export default function Korinish() {
     setAralashmaOzgarish((s) => s + 1);
   };
 
-  // 2-BOSQICH: Yangi tayyorlangan standart eritmani 3D stolga va holatga joylashtirish
   const handleEritmaTayyorlandi = (eritmaData) => {
     let target = nishonIdishGroup;
     if (!target) {
