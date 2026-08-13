@@ -229,18 +229,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     const materiallar = materiallarniYarat(fonKalitiRef.current, arzonRejim);
     materiallarRef.current = materiallar;
 
-    // 7. Xona: pol, stol va orqa devor
-    //
-    // Ilgari sahnada faqat bitta yassi taxta va kadrdan tashqarida qolgan
-    // devor bor edi — stol havoda osilib turardi va soyaning tushadigan
-    // joyi yo'q edi. Pol va oyoqlar qo'shilishi bilan idishlarning qayerda
-    // turgani ko'zga ko'rinadigan bo'ladi.
-    const polGeo = new THREE.PlaneGeometry(14, 14);
-    const pol = new THREE.Mesh(polGeo, materiallar.pol);
-    pol.rotation.x = -Math.PI / 2;
-    pol.receiveShadow = !arzonRejim;
-    scene.add(pol);
-
+    // 7. Asosiy Tajriba Stoli
     const stolGeo = new THREE.BoxGeometry(STOL.eni, STOL.qalinligi, STOL.boyi);
     const stol = new THREE.Mesh(stolGeo, materiallar.yogoch);
     stol.position.set(0, STOL.balandligi - STOL.qalinligi / 2, 0);
@@ -248,8 +237,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     stol.castShadow = !arzonRejim;
     scene.add(stol);
 
-    // To'rtta oyoq. Bitta geometriya to'rt marta ishlatiladi — alohida
-    // yasalsa GPU'da to'rt nusxa yotardi.
+    // To'rtta oyoq
     const oyoqBalandligi = STOL.balandligi - STOL.qalinligi;
     const oyoqGeo = new THREE.BoxGeometry(0.07, oyoqBalandligi, 0.07);
     const oyoqX = STOL.eni / 2 - 0.1;
@@ -261,17 +249,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       scene.add(oyoq);
     }
 
-    const devorGeo = new THREE.PlaneGeometry(14, 8);
-    const devorMat = new THREE.MeshStandardMaterial({
-      color: fon.devor,
-      roughness: 0.9,
-      envMapIntensity: (fon.muhitKuchi ?? 0.5) * 0.4,
-    });
-    const devor = new THREE.Mesh(devorGeo, devorMat);
-    devor.position.set(0, 4, -2.4);
-    scene.add(devor);
-
-    // 8. Haqiqiy 3D Reagentlar Javoni va Xona Interyerini sahnaga o'rnatish
+    // 8. Haqiqiy 3D Reagentlar Javoni va 4 Devorli Xona Interyerini sahnaga o'rnatish
     const javon3d = javon3dYasa(materiallar, arzonRejim);
     scene.add(javon3d);
 
@@ -279,7 +257,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     scene.add(xonaInteryeri);
 
     // Fon almashganda shu obyektlarning rangi yangilanadi
-    fonQismlariRef.current = { devorMat, ambientLight, mainLight, fillLight };
+    fonQismlariRef.current = { ambientLight, mainLight, fillLight };
 
     // Boshlang'ich holatda 1 ta probirkani stolga qo'yamiz
     const defProbirka = jihozYasa("probirka", materiallar);
@@ -347,9 +325,6 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
 
       stolGeo.dispose();
       oyoqGeo.dispose();
-      polGeo.dispose();
-      devorGeo.dispose();
-      devorMat.dispose();
       // PMREM generatori darrov tozalangan, lekin u yasagan xarita sahna
       // yashaguncha kerak — u shu yerda bo'shatiladi.
       muhitXaritasi.dispose();
@@ -383,14 +358,18 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       scene.fog.density = fon.tumanZichligi;
     }
 
-    qismlar.devorMat.color.setHex(fon.devor);
-    qismlar.devorMat.envMapIntensity = (fon.muhitKuchi ?? 0.5) * 0.4;
-    qismlar.ambientLight.color.setHex(fon.yorugliklar.muhit.rang);
-    qismlar.ambientLight.intensity = fon.yorugliklar.muhit.kuch;
-    qismlar.mainLight.color.setHex(fon.yorugliklar.asosiy.rang);
-    qismlar.mainLight.intensity = fon.yorugliklar.asosiy.kuch;
-    qismlar.fillLight.color.setHex(fon.yorugliklar.toldiruvchi.rang);
-    qismlar.fillLight.intensity = fon.yorugliklar.toldiruvchi.kuch;
+    if (qismlar.ambientLight) {
+      qismlar.ambientLight.color.setHex(fon.yorugliklar.muhit.rang);
+      qismlar.ambientLight.intensity = fon.yorugliklar.muhit.kuch;
+    }
+    if (qismlar.mainLight) {
+      qismlar.mainLight.color.setHex(fon.yorugliklar.asosiy.rang);
+      qismlar.mainLight.intensity = fon.yorugliklar.asosiy.kuch;
+    }
+    if (qismlar.fillLight) {
+      qismlar.fillLight.color.setHex(fon.yorugliklar.toldiruvchi.rang);
+      qismlar.fillLight.intensity = fon.yorugliklar.toldiruvchi.kuch;
+    }
 
     materiallarniFongaMoslash(materiallarRef.current, fonKaliti);
   }, [fonKaliti, tayyor]);
