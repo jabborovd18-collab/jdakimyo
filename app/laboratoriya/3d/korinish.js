@@ -270,11 +270,14 @@ export default function Korinish() {
     onOzgarish: handleHolatOzgardimi,
   });
 
-  // 7. Xonada Erkin Yurish Hooki
+  // 7. Xonada Erkin Yurish Hooki (FPS Direct Hands Engine)
   const {
     yurishRejimi,
     toggleYurishRejimi,
     yurmoqda,
+    fpsQaralganIdish,
+    fpsQolIdish,
+    qolgaOlYokiQoy,
     handleJoystickHarakat,
     handleJoystickBurilish,
   } = useYurish({
@@ -282,6 +285,11 @@ export default function Korinish() {
     kameraRef,
     rendererRef,
     controlsRef,
+    onIdishTanlandi: handleIdishTanlandi,
+    onQuyishBoshla: quyishBoshla,
+    onTaroziTushdi: handleTaroziTushdi,
+    onSpirtovkagaQoyildi: handleSpirtovkagaQoyildi,
+    onRakovinagaTushdi: handleRakovinagaTushdi,
   });
 
   // 8. Tajriba O'tkazish Hooki
@@ -868,18 +876,46 @@ export default function Korinish() {
             )}
           </div>
 
-          {/* EKRAN MARKAZIDAGI CROSSHAIR NUQTA (YURISH YOKI TOZA EKRANDA) */}
+          {/* EKRAN MARKAZIDAGI CROSSHAIR VA FPS INTERAKTIV PROMPT */}
           {(yurishRejimi || tozaEkran) && (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-20">
-              <div className="w-1.5 h-1.5 rounded-full bg-white/70 shadow-[0_0_8px_#fff]" />
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center z-20">
+              <div
+                className={`w-2 h-2 rounded-full transition-all ${
+                  fpsQaralganIdish
+                    ? "bg-amber-400 scale-150 shadow-[0_0_12px_#f59e0b]"
+                    : "bg-white/75 shadow-[0_0_8px_#fff]"
+                }`}
+              />
+
+              {yurishRejimi && fpsQaralganIdish && (
+                <div className="mt-3 px-3 py-1 rounded-xl bg-black/80 border border-amber-400 text-amber-300 text-[11px] font-mono font-bold backdrop-blur-md animate-in fade-in zoom-in-95 duration-100 shadow-2xl">
+                  {fpsQolIdish
+                    ? `[E] ${fpsQaralganIdish.userData?.kalit || "Idish"}ga quyish / qo'yish`
+                    : `[E / Klik] ${fpsQaralganIdish.userData?.kalit || "Idish"}ni qo'lga olish`}
+                </div>
+              )}
+
+              {yurishRejimi && fpsQolIdish && !fpsQaralganIdish && (
+                <div className="mt-3 px-3 py-1 rounded-xl bg-black/80 border border-emerald-400 text-emerald-300 text-[11px] font-mono font-bold backdrop-blur-md shadow-2xl">
+                  [E / G] {fpsQolIdish.userData?.kalit || "Idish"}ni stolga qo{"'"}yish
+                </div>
+              )}
             </div>
           )}
 
-          {/* MOBIL PUBG USLUBIDAGI DUAL SENSORLI ANALOG JOYSTIK */}
+          {/* MOBIL PUBG USLUBIDAGI DUAL SENSORLI ANALOG JOYSTIK VA FPS TUGMALARI */}
           {yurishRejimi && (
             <VirtualJoystick
               onHarakat={handleJoystickHarakat}
               onBurilish={handleJoystickBurilish}
+              qaralganIdish={fpsQaralganIdish}
+              qolIdish={fpsQolIdish}
+              onQolgaOlYokiQoy={qolgaOlYokiQoy}
+              onQuyish={() => {
+                if (fpsQolIdish && fpsQaralganIdish) {
+                  quyishBoshla(fpsQolIdish.userData?.kalit, fpsQaralganIdish, fpsQolIdish, 45);
+                }
+              }}
             />
           )}
 

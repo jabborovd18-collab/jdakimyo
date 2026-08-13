@@ -7,7 +7,15 @@ import Ikon from "@/components/Ikon";
  * PUBG MOBILE USLUBIDAGI DUAL SENSORLI ANALOG JOYSTIK.
  * Chapda 360° Analog Joystik (Harakat), O'ngda Kamera Burish Paneli (Look Area).
  */
-export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle }) {
+export default function VirtualJoystick({
+  onHarakat,
+  onBurilish,
+  onSprintToggle,
+  qaralganIdish,
+  qolIdish,
+  onQolgaOlYokiQoy,
+  onQuyish,
+}) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [knobPos, setKnobPos] = useState({ x: 0, y: 0 });
   const [joystickAktiv, setJoystickAktiv] = useState(false);
@@ -179,6 +187,29 @@ export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle 
       >
         ⚡ SPRINT
       </button>
+
+      {/* ─── INTERAKTIV BIRINCHI SHAXS AMALLAR TUGMALARI (FPS ACTION BUTTONS) ─── */}
+      {(qaralganIdish || qolIdish) && (
+        <div className="pointer-events-auto absolute right-6 bottom-28 flex flex-col gap-2.5 items-end z-50 animate-in slide-in-from-right duration-150">
+          <button
+            type="button"
+            onClick={() => typeof onQolgaOlYokiQoy === "function" && onQolgaOlYokiQoy()}
+            className="px-4 py-2.5 rounded-2xl border border-amber-400 bg-amber-500/30 text-amber-300 backdrop-blur-xl text-xs font-mono font-black shadow-2xl flex items-center gap-2 active:scale-95"
+          >
+            <span>{qolIdish ? "⬇️ Stolga qo'yish" : `✋ Qo'lga olish: ${qaralganIdish?.userData?.kalit || "Idish"}`}</span>
+          </button>
+
+          {qolIdish && qaralganIdish && qaralganIdish !== qolIdish && (
+            <button
+              type="button"
+              onClick={() => typeof onQuyish === "function" && onQuyish()}
+              className="px-4 py-2.5 rounded-2xl border border-emerald-400 bg-emerald-500/30 text-emerald-300 backdrop-blur-xl text-xs font-mono font-black shadow-2xl flex items-center gap-2 active:scale-95"
+            >
+              <span>🧪 {qaralganIdish.userData?.kalit || "Idish"}ga quyish</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ─── O'NG ZONA: KAMERA BURISH PANEL (TOUCH TO LOOK) ─── */}
       <div
