@@ -127,11 +127,19 @@ export default function Korinish() {
     kuchsizQurilma,
   } = useSahna(konteynerRef, yuklanmoqda, fonKaliti);
 
-  // 2. Erkin Ko'tarish va Sudrash hooki (1-Bosqich)
+  // 2. Erkin Ko'tarish va Sudrash hooki (3-Bosqich: Pick, Drag & Snap, Action & Return)
   const handleIdishTanlandi = useCallback((group) => {
     if (group && group.userData?.kalit) {
       holatRef.current.idish = group.userData.kalit;
     }
+  }, []);
+
+  const handleTaroziTushdi = useCallback((group) => {
+    setTaroziOchilgan(true);
+  }, []);
+
+  const handleSpirtovkagaQoyildi = useCallback((group) => {
+    setIsitimoda(true);
   }, []);
 
   const {
@@ -140,6 +148,7 @@ export default function Korinish() {
     kotarilganIdish,
     kursorIdish,
     yaqinNishon,
+    nishonTuri,
     sudralmoqda,
     idishniJoyigaQoy,
   } = useSudrash({
@@ -148,6 +157,8 @@ export default function Korinish() {
     rendererRef,
     controlsRef,
     onIdishTanlandi: handleIdishTanlandi,
+    onTaroziTushdi: handleTaroziTushdi,
+    onSpirtovkagaQoyildi: handleSpirtovkagaQoyildi,
   });
 
   const nishonIdishGroup = yaqinNishon || tanlanganIdish || hammaJihozlar[0] || null;
@@ -664,21 +675,21 @@ export default function Korinish() {
 
           {/* 1-BOSQICH: 3D Interaktiv Ko'rsatma / Status */}
           <div
-            className="pointer-events-none absolute left-4 top-4 z-20 rounded-xl border px-3 py-1.5 text-xs backdrop-blur-md bg-[var(--v3-fon-2)]/90 border-[var(--v3-chiziq)] space-y-0.5"
+            className="pointer-events-none absolute left-4 top-14 sm:top-4 z-20 rounded-xl border px-3 py-1.5 text-xs backdrop-blur-md bg-[var(--v3-fon-2)]/90 border-[var(--v3-chiziq)] space-y-0.5"
           >
             <div className="font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
               <Ikon nom="kolba" olcham={14} className="text-[var(--v3-urgu)]" />
               <span>
                 {kotarilganIdish
-                  ? `${kotarilganIdish.userData?.kalit || "Idish"} ko'tarildi`
+                  ? `${kotarilganIdish.userData?.kalit || "Idish"} ko'tarildi (Y=1.15m)`
                   : faolReagent
                   ? `${faolReagent} tanlandi`
                   : "Idishni bosing yoki sudrang"}
               </span>
             </div>
             {yaqinNishon && (
-              <div className="text-[11px] text-emerald-400 font-mono">
-                🎯 Nishon: {yaqinNishon.userData?.kalit || "Idish"}
+              <div className="text-[11px] text-emerald-400 font-mono flex items-center gap-1">
+                <span>{nishonTuri === "tarozi" ? "⚖️ Tarozi pallasiga tortilmoqda" : nishonTuri === "spirtovka" ? "🔥 Spirtovkaga qo'yilmoqda" : nishonTuri === "byuretka" ? "🧪 Byuretka tagiga qo'yilmoqda" : "🎯 Nishon: " + (yaqinNishon.userData?.kalit || "Idish")}</span>
               </div>
             )}
           </div>

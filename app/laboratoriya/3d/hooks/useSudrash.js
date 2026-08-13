@@ -17,13 +17,11 @@ function idishGuruhiniTop(obyekt) {
 }
 
 /**
- * 3D Sahnadagi idishlarni erkin ko'tarish, sudrash va stol/nishonlar ustiga qo'yish hooki.
+ * 3-BOSQICH: IDISHLARNI USHLASH, KO'TARISH VA STOLDA ISHLASHNING ANIQ 3 BOSQICHLI MEXANIKASI.
  *
- * 1-BOSQICH IMKONIYATLARI:
- *  1. Idishni bosganda ko'tarish (Y = 1.15m balandlikka ko'tariladi).
- *  2. Stol yuzasi bo'ylab 3D koordinatalarda erkin harakatlantirish.
- *  3. Boshqa idishga yaqinlashganda nishonni avtomatik aniqlash (quyish pozitsiyasi).
- *  4. OrbitControls bilan to'qnashuvsiz ishlash (sudrash paytida kamera qotadi).
+ * 1-QADAM: Pick & Lift (Y = 1.15m balandlikka ko'tarish, oltin nur, shisha urilish tovushi).
+ * 2-QADAM: Drag & Magnetic Snap (Boshqa idish, Tarozi, Byuretka va Spirtovkaga magnitdek tortilish).
+ * 3-QADAM: Action & Auto-slot Return (Bo'sh joyga qo'yilganda eng yaqin slotga silliq tushish).
  */
 export function useSudrash({
   sahnaRef,
@@ -34,25 +32,28 @@ export function useSudrash({
   onIdishKotarildi,
   onNishongaYaqinlashdi,
   onIdishQoyildi,
+  onTaroziTushdi,
+  onSpirtovkagaQoyildi,
 }) {
   const [tanlanganIdish, setTanlanganIdish] = useState(null);
   const [kotarilganIdish, setKotarilganIdish] = useState(null);
   const [kursorIdish, setKursorIdish] = useState(null);
   const [yaqinNishon, setYaqinNishon] = useState(null);
+  const [nishonTuri, setNishonTuri] = useState(null); // 'idish' | 'tarozi' | 'spirtovka' | 'byuretka'
   const [sudralmoqda, setSudralmoqda] = useState(false);
 
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
   const avvalgiYoritilganRef = useRef(null);
 
-  // Sudrash uchun tekislik (Plane parallel to table at Y = 1.15)
+  // Sudrash tekisligi (Y = 1.15m balandlikda)
   const sudrashTekisligiRef = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), -1.15));
   const kesishmaNuqtaRef = useRef(new THREE.Vector3());
   const boshlangichPozitsiyaRef = useRef(new THREE.Vector3());
   const sudrashOffsetRef = useRef(new THREE.Vector3());
   const faolGuruhRef = useRef(null);
 
-  // Emissive yoritish
+  // Emissive yoritish yordamchisi
   const yoritishniOzgartir = useCallback((group, yorit, rang = 0x38bdf8) => {
     if (!group) return;
     group.traverse((child) => {
@@ -62,7 +63,7 @@ export function useSudrash({
           if (yorit) {
             child.userData.aslEmissive = child.material.emissive.getHex();
             child.material.emissive.setHex(rang);
-            child.material.emissiveIntensity = 0.4;
+            child.material.emissiveIntensity = 0.45;
           } else {
             const asl = child.userData.aslEmissive || 0x000000;
             child.material.emissive.setHex(asl);
@@ -73,31 +74,64 @@ export function useSudrash({
     });
   }, []);
 
-  // Eng yaqin nishon idishni aniqlash
-  const yaqinIdishniTop = useCallback((kotarilganGuruh) => {
-    if (!kotarilganGuruh || !sahnaRef?.current) return null;
+  // Eng yaqin magnitli nishonni (Idish, Tarozi, Spirtovka, Byuretka) aniqlash
+  const yaqinNishonniTop = useCallback((kotarilganGuruh) => {
+    if (!kotarilganGuruh || !sahnaRef?.current) return { nishon: null, turi: null };
 
+    const pos = kotarilganGuruh.position;
+
+    // 1. Chap Stol: Analitik Tarozi ustiga yaqinlashish (X: -1.6, Z: 0.2)
+    const taroziMasofa = new THREE.Vector2(pos.x - (-1.6), pos.z - 0.2).length();
+    if (taroziMasofa < 0.45) {
+      return { nishon: { position: new THREE.Vector3(-1.6, 0.98, 0.2), kalit: "tarozi" }, turi: "tarozi" };
+    }
+
+    // 2. O'ng Stol: Byuretka stendiga yaqinlashish (X: 1.4, Z: 0.2)
+    const byuretkaMasofa = new THREE.Vector2(pos.x - 1.4, pos.z - 0.2).length();
+    if (byuretkaMasofa < 0.45) {
+      return { nishon: { position: new THREE.Vector3(1.4, 0.95, 0.2), kalit: "byuretka" }, turi: "byuretka" };
+    }
+
+    // 3. Stoldagi boshqa idishlar yoki Spirtovkaga yaqinlashish
     let engYaqin = null;
-    let engKamMasofa = 0.42; // 42 sm radiusda nishon qidiriladi
+    let engKamMasofa = 0.45;
+    let aniqlanganTur = null;
 
     sahnaRef.current.children.forEach((obj) => {
       if (
         obj !== kotarilganGuruh &&
         obj.userData &&
         obj.userData.tanlanadi &&
-        obj.userData.kalit &&
-        obj.userData.sigim // Faqat idishlar nishon bo'la oladi
+        obj.userData.kalit
       ) {
-        const masofa = kotarilganGuruh.position.distanceTo(obj.position);
+        const masofa = pos.distanceTo(obj.position);
         if (masofa < engKamMasofa) {
           engKamMasofa = masofa;
           engYaqin = obj;
+          aniqlanganTur = obj.userData.kalit === "spirtovka" ? "spirtovka" : "idish";
         }
       }
     });
 
-    return engYaqin;
+    return { nishon: engYaqin, turi: aniqlanganTur };
   }, [sahnaRef]);
+
+  // Bo'sh eng yaqin stol slotini topish
+  const engYaqinSlotniTop = useCallback((pos) => {
+    let engYaqinIndex = 0;
+    let minMasofa = Infinity;
+
+    SLOTLAR.forEach(([sx, sy, sz], idx) => {
+      const d = Math.hypot(pos.x - sx, pos.z - sz);
+      if (d < minMasofa) {
+        minMasofa = d;
+        engYaqinIndex = idx;
+      }
+    });
+
+    const [x, y, z] = SLOTLAR[engYaqinIndex];
+    return new THREE.Vector3(x, y, z);
+  }, []);
 
   useEffect(() => {
     const rendererElement = rendererRef?.current?.domElement;
@@ -110,6 +144,7 @@ export function useSudrash({
       return { x, y };
     };
 
+    // 1-QADAM: USHLASH & KO'TARISH (PICK & LIFT)
     const handlePointerDown = (event) => {
       if (!sahnaRef.current || !kameraRef.current) return;
       const { x, y } = koordinataniHisobla(event);
@@ -128,28 +163,25 @@ export function useSudrash({
       }
 
       if (topilganGroup) {
-        // Idish ko'tariladi
         faolGuruhRef.current = topilganGroup;
         boshlangichPozitsiyaRef.current.copy(topilganGroup.position);
 
-        // Kamera boshqaruvini to'xtatamiz
         if (controlsRef?.current) {
           controlsRef.current.enabled = false;
         }
 
-        // Sudrash tekisligini idish balandligiga moslaymiz
-        sudrashTekisligiRef.current.constant = -(topilganGroup.position.y + 0.22);
-        
+        sudrashTekisligiRef.current.constant = -(topilganGroup.position.y + 0.24);
+
         if (raycasterRef.current.ray.intersectPlane(sudrashTekisligiRef.current, kesishmaNuqtaRef.current)) {
           sudrashOffsetRef.current.copy(topilganGroup.position).sub(kesishmaNuqtaRef.current);
         }
 
-        // Idishni balandlikka ko'taramiz
-        topilganGroup.position.y = Math.max(1.12, topilganGroup.position.y + 0.22);
+        // Ko'z oldiga silliq ko'tariladi (Y = 1.15m)
+        topilganGroup.position.y = Math.max(1.15, topilganGroup.position.y + 0.25);
         topilganGroup.userData.kotarilgan = true;
 
-        shishaUrilishi(2600);
-        yoritishniOzgartir(topilganGroup, true, 0xfacc15); // Oltin urg'u bilan yoritish
+        shishaUrilishi(2400);
+        yoritishniOzgartir(topilganGroup, true, 0xfacc15); // Oltin neon hoshiya
 
         setTanlanganIdish(topilganGroup);
         setKotarilganIdish(topilganGroup);
@@ -162,6 +194,7 @@ export function useSudrash({
       }
     };
 
+    // 2-QADAM: ERKIN HARAKATLANTIRISH VA MAGNITLI NISHONLASH (DRAG & SNAP)
     const handlePointerMove = (event) => {
       if (!sahnaRef.current || !kameraRef.current) return;
       const { x, y } = koordinataniHisobla(event);
@@ -169,31 +202,36 @@ export function useSudrash({
 
       raycasterRef.current.setFromCamera(mouseRef.current, kameraRef.current);
 
-      // Agar idish ko'tarilgan va sudralayotgan bo'lsa
       if (faolGuruhRef.current && controlsRef?.current?.enabled === false) {
         if (raycasterRef.current.ray.intersectPlane(sudrashTekisligiRef.current, kesishmaNuqtaRef.current)) {
           const yangiPos = kesishmaNuqtaRef.current.add(sudrashOffsetRef.current);
-          
-          // Stol chegarasidan chiqib ketmasligi uchun cheklovlar
-          yangiPos.x = Math.max(-1.4, Math.min(1.4, yangiPos.x));
-          yangiPos.z = Math.max(-0.65, Math.min(0.65, yangiPos.z));
+
+          // Xona chegaralari
+          yangiPos.x = Math.max(-2.8, Math.min(2.8, yangiPos.x));
+          yangiPos.z = Math.max(-1.8, Math.min(1.8, yangiPos.z));
 
           faolGuruhRef.current.position.x = yangiPos.x;
           faolGuruhRef.current.position.z = yangiPos.z;
 
-          // Yaqin nishonni qidiramiz
-          const nishon = yaqinIdishniTop(faolGuruhRef.current);
+          // Magnitli nishonni tekshirish
+          const { nishon, turi } = yaqinNishonniTop(faolGuruhRef.current);
           if (nishon !== yaqinNishon) {
-            if (yaqinNishon) yoritishniOzgartir(yaqinNishon, false);
-            if (nishon) yoritishniOzgartir(nishon, true, 0x34d399); // Yashil nishon yoritish
+            if (yaqinNishon && yaqinNishon.userData) yoritishniOzgartir(yaqinNishon, false);
+            if (nishon && nishon.userData) yoritishniOzgartir(nishon, true, 0x10b981); // Yashil nishon hoshiya
+
             setYaqinNishon(nishon);
-            if (typeof onNishongaYaqinlashdi === "function") onNishongaYaqinlashdi(nishon);
+            setNishonTuri(turi);
+
+            if (nishon) {
+              shishaUrilishi(2800);
+              if (typeof onNishongaYaqinlashdi === "function") onNishongaYaqinlashdi(nishon, turi);
+            }
           }
         }
         return;
       }
 
-      // Oddiy hover tekshiruvi
+      // Oddiy hover
       const kesishmalar = raycasterRef.current.intersectObjects(sahnaRef.current.children, true);
       let topilganGroup = null;
       for (const kesish of kesishmalar) {
@@ -219,21 +257,26 @@ export function useSudrash({
       }
     };
 
+    // 3-QADAM: AMALLARNI BAJARISH VA JOYIGA QAYTARISH (ACTION & AUTO-SLOT RETURN)
     const handlePointerUp = () => {
       if (faolGuruhRef.current) {
         const guruh = faolGuruhRef.current;
-        
-        // Agar nishon bo'lmasa, stolga tushadi
+
         if (!yaqinNishon) {
-          // Eng yaqin slotga yoki o'z joyiga qaytarish
-          guruh.position.y = 0.9; // Stol sathi
+          // Eng yaqin bo'sh slotga silliq tushadi
+          const slotPos = engYaqinSlotniTop(guruh.position);
+          guruh.position.copy(slotPos);
           guruh.userData.kotarilgan = false;
           yoritishniOzgartir(guruh, false);
           setKotarilganIdish(null);
           if (typeof onIdishQoyildi === "function") onIdishQoyildi(guruh);
         } else {
-          // Nishon ustida qoladi (quyish holati uchun tayyor)
-          shishaUrilishi(2200);
+          // Nishon ustida quyish yoki amaliyot holatida qoladi
+          if (nishonTuri === "tarozi" && typeof onTaroziTushdi === "function") {
+            onTaroziTushdi(guruh);
+          } else if (nishonTuri === "spirtovka" && typeof onSpirtovkagaQoyildi === "function") {
+            onSpirtovkagaQoyildi(guruh);
+          }
         }
 
         faolGuruhRef.current = null;
@@ -259,27 +302,29 @@ export function useSudrash({
         yoritishniOzgartir(avvalgiYoritilganRef.current, false);
       }
     };
-  }, [sahnaRef, kameraRef, rendererRef, controlsRef, yoritishniOzgartir, yaqinIdishniTop, yaqinNishon, kotarilganIdish, onIdishTanlandi, onIdishKotarildi, onNishongaYaqinlashdi, onIdishQoyildi]);
+  }, [sahnaRef, kameraRef, rendererRef, controlsRef, yoritishniOzgartir, yaqinNishonniTop, engYaqinSlotniTop, yaqinNishon, nishonTuri, kotarilganIdish, onIdishTanlandi, onIdishKotarildi, onNishongaYaqinlashdi, onIdishQoyildi, onTaroziTushdi, onSpirtovkagaQoyildi]);
 
-  // Idishni qo'lda joyiga tushirish
+  // Idishni qo'lda stol slotiga tushirish
   const idishniJoyigaQoy = useCallback((group) => {
     const nishonGroup = group || kotarilganIdish;
     if (!nishonGroup) return;
 
-    nishonGroup.position.y = 0.9;
+    const slotPos = engYaqinSlotniTop(nishonGroup.position);
+    nishonGroup.position.copy(slotPos);
     nishonGroup.rotation.set(0, 0, 0);
     nishonGroup.userData.kotarilgan = false;
     yoritishniOzgartir(nishonGroup, false);
 
-    if (yaqinNishon) {
+    if (yaqinNishon && yaqinNishon.userData) {
       yoritishniOzgartir(yaqinNishon, false);
       setYaqinNishon(null);
+      setNishonTuri(null);
     }
 
     setKotarilganIdish(null);
     setTanlanganIdish(null);
     if (typeof onIdishQoyildi === "function") onIdishQoyildi(nishonGroup);
-  }, [kotarilganIdish, yaqinNishon, yoritishniOzgartir, onIdishQoyildi]);
+  }, [kotarilganIdish, yaqinNishon, yoritishniOzgartir, engYaqinSlotniTop, onIdishQoyildi]);
 
   return {
     tanlanganIdish,
@@ -287,6 +332,7 @@ export function useSudrash({
     kotarilganIdish,
     kursorIdish,
     yaqinNishon,
+    nishonTuri,
     sudralmoqda,
     idishniJoyigaQoy,
   };
