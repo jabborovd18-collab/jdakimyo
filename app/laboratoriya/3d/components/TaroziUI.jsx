@@ -4,18 +4,36 @@ import { useState } from "react";
 import { massaHisobla } from "../lib/tarozi.js";
 import Ikon from "@/components/Ikon";
 
-export default function TaroziUI({ idishKaliti = "probirka", moddalar = {}, onYop, onEritmaOch }) {
-  const [taraMassa, setTaraMassa] = useState(0);
+export default function TaroziUI({
+  idishKaliti = "probirka",
+  moddalar = {},
+  taraMassa: tashqiTara = null,
+  onTara,
+  onNolgaQaytar,
+  onYop,
+  onEritmaOch,
+}) {
+  const [ichkiTara, setIchkiTara] = useState(0);
+  const taraMassa = tashqiTara !== null ? tashqiTara : ichkiTara;
   const data = massaHisobla(idishKaliti, moddalar, taraMassa);
 
   const handleTara = () => {
     const hozirgiBrutto = data.bruttoMassa;
-    setTaraMassa(hozirgiBrutto);
+    if (typeof onTara === "function") {
+      onTara(hozirgiBrutto);
+    } else {
+      setIchkiTara(hozirgiBrutto);
+    }
   };
 
   const handleNolgaQaytar = () => {
-    setTaraMassa(0);
+    if (typeof onNolgaQaytar === "function") {
+      onNolgaQaytar();
+    } else {
+      setIchkiTara(0);
+    }
   };
+
 
   return (
     <div

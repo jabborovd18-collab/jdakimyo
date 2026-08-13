@@ -32,12 +32,15 @@ import VirtualJoystick from "./components/VirtualJoystick.jsx";
 import { zonagaOt } from "./lib/xona-zonalari.js";
 import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
-import { pufakchaChiqishi, oqimBoshla, oqimToxtat } from "./lib/ovoz.js";
+import { pufakchaChiqishi, oqimBoshla, oqimToxtat, taroziBip } from "./lib/ovoz.js";
+import { massaHisobla } from "./lib/tarozi.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat, yoz } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
 import { moddaKorinishi } from "./lib/modda-korinishi.js";
 import { reagentBirligi, hajmniBirlikka, miqdorniFormatla } from "@/lib/lab-birlik.js";
+import toast from "react-hot-toast";
+
 
 function hexDanCss(hex) {
   return `#${Number(hex || 0xffffff).toString(16).padStart(6, "0")}`;
@@ -82,6 +85,8 @@ export default function Korinish() {
   const [harorat, setHarorat] = useState(25);
   const [phMeterOchilgan, setPhMeterOchilgan] = useState(false);
   const [taroziOchilgan, setTaroziOchilgan] = useState(false);
+  const [taraMassa, setTaraMassa] = useState(0);
+  const [tarozidagiIdish, setTarozidagiIdish] = useState(null);
   const [eritmaOchilgan, setEritmaOchilgan] = useState(false);
   const [titrlashOchilgan, setTitrlashOchilgan] = useState(false);
   const [elektrolizOchilgan, setElektrolizOchilgan] = useState(false);
@@ -154,7 +159,72 @@ export default function Korinish() {
   }, []);
 
   const handleTaroziTushdi = useCallback((group) => {
+    setTarozidagiIdish(group);
     setTaroziOchilgan(true);
+    taroziBip(2400);
+
+    const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
+    if (taroziMesh?.userData?.ekranniYangila) {
+      const idishKaliti = group.userData?.kalit || "probirka";
+      const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, taraMassa);
+
+      // Stabilizatsiya tebranishi (0.001g analitik fluktuatsiya)
+      const jitter = data.nettoMassa + (Math.random() * 0.012 - 0.006);
+      taroziMesh.userData.ekranniYangila(jitter, taraMassa, idishKaliti, false);
+
+      setTimeout(() => {
+        taroziMesh.userData.ekranniYangila(data.nettoMassa, taraMassa, idishKaliti, true);
+        taroziBip(3200);
+      }, 160);
+    }
+  }, [sahnaRef, taraMassa]);
+
+  const handleTarozidanOlingan = useCallback((group) => {
+    setTarozidagiIdish(null);
+    taroziBip(2000);
+    const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
+    if (taroziMesh?.userData?.ekranniYangila) {
+      const netto = taraMassa > 0 ? -taraMassa : 0;
+      taroziMesh.userData.ekranniYangila(netto, taraMassa, "", true);
+    }
+  }, [sahnaRef, taraMassa]);
+
+  const handleTaroziTara = useCallback((brutto) => {
+    taroziBip(2800);
+    let yangiTara = brutto;
+    if (typeof yangiTara !== "number") {
+      const idishKaliti = tarozidagiIdish?.userData?.kalit || holatRef.current?.idish || "probirka";
+      const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, 0);
+      yangiTara = data.bruttoMassa;
+    }
+    setTaraMassa(yangiTara);
+
+    const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
+    if (taroziMesh?.userData?.ekranniYangila) {
+      const idishNomi = tarozidagiIdish?.userData?.kalit || "";
+      taroziMesh.userData.ekranniYangila(0, yangiTara, idishNomi, true);
+    }
+    toast.success(`✓ Tarozi TARA qilindi: ${yangiTara.toFixed(3)} g nolga tenglashtirildi!`);
+  }, [sahnaRef, tarozidagiIdish]);
+
+  const handleTaroziNol = useCallback(() => {
+    taroziBip(2400);
+    setTaraMassa(0);
+    const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
+    if (taroziMesh?.userData?.ekranniYangila) {
+      if (tarozidagiIdish) {
+        const idishKaliti = tarozidagiIdish.userData?.kalit || "probirka";
+        const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, 0);
+        taroziMesh.userData.ekranniYangila(data.nettoMassa, 0, idishKaliti, true);
+      } else {
+        taroziMesh.userData.ekranniYangila(0, 0, "", true);
+      }
+    }
+    toast("↺ Tarozi nolga qaytarildi", { icon: "⚖️" });
+  }, [sahnaRef, tarozidagiIdish]);
+
+  const handleTaroziBosildi = useCallback(() => {
+    setTaroziOchilgan((v) => !v);
   }, []);
 
   const handleSpirtovkagaQoyildi = useCallback((group) => {
@@ -207,6 +277,10 @@ export default function Korinish() {
     controlsRef,
     onIdishTanlandi: handleIdishTanlandi,
     onTaroziTushdi: handleTaroziTushdi,
+    onTarozidanOlingan: handleTarozidanOlingan,
+    onTaroziBosildi: handleTaroziBosildi,
+    onTaroziTara: handleTaroziTara,
+    onTaroziNol: handleTaroziNol,
     onSpirtovkagaQoyildi: handleSpirtovkagaQoyildi,
     onRakovinagaTushdi: handleRakovinagaTushdi,
   });
@@ -230,7 +304,17 @@ export default function Korinish() {
   // 3. O'zgaruvchan tezlikdagi quyish hooki (1-Bosqich)
   const handleHolatOzgardimi = useCallback(() => {
     setAralashmaOzgarish((s) => s + 1);
-  }, []);
+
+    // Agar idish tarozida bo'lsa, real vaqtda 3D LED ekranidagi massani yangilash
+    if (tarozidagiIdish && tarozidagiIdish.userData?.tarozida) {
+      const idishKaliti = tarozidagiIdish.userData?.kalit || "probirka";
+      const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, taraMassa);
+      const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
+      if (taroziMesh?.userData?.ekranniYangila) {
+        taroziMesh.userData.ekranniYangila(data.nettoMassa, taraMassa, idishKaliti, true);
+      }
+    }
+  }, [sahnaRef, tarozidagiIdish, taraMassa]);
 
   const {
     quyishBoshla,
@@ -666,8 +750,12 @@ export default function Korinish() {
         )}
 
         {/* --- 3D CANVAS VA HUD MAYDONI --- */}
-        <main className="relative h-full min-h-[350px] w-full flex-1 overflow-hidden">
-          <div ref={konteynerRef} className="absolute inset-0 h-full w-full" />
+        <main className="relative h-full min-h-[350px] w-full flex-1 overflow-hidden select-none touch-none overscroll-none">
+          <div
+            ref={konteynerRef}
+            className="absolute inset-0 h-full w-full touch-none select-none"
+            style={{ touchAction: "none", overscrollBehavior: "none" }}
+          />
 
           {/* 4-BOSQICH: XONA ZONALARI NAVIGATSIYASI */}
           <XonaNavigatsiyaUI
@@ -965,8 +1053,11 @@ export default function Korinish() {
 
       {taroziOchilgan && (
         <TaroziUI
-          idishKaliti={nishonIdishGroup?.userData?.kalit || "probirka"}
+          idishKaliti={tarozidagiIdish?.userData?.kalit || nishonIdishGroup?.userData?.kalit || "probirka"}
           moddalar={quyilganModdalar}
+          taraMassa={taraMassa}
+          onTara={handleTaroziTara}
+          onNolgaQaytar={handleTaroziNol}
           onYop={() => setTaroziOchilgan(false)}
           onEritmaOch={() => {
             setTaroziOchilgan(false);

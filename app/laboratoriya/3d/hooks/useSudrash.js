@@ -33,6 +33,10 @@ export function useSudrash({
   onNishongaYaqinlashdi,
   onIdishQoyildi,
   onTaroziTushdi,
+  onTarozidanOlingan,
+  onTaroziBosildi,
+  onTaroziTara,
+  onTaroziNol,
   onSpirtovkagaQoyildi,
   onRakovinagaTushdi,
 }) {
@@ -75,22 +79,22 @@ export function useSudrash({
     });
   }, []);
 
-  // Eng yaqin magnitli nishonni (Idish, Tarozi, Spirtovka, Byuretka) aniqlash
+  // Eng yaqin magnitli nishonni (Idish, Tarozi, Spirtovka, Byuretka, Rakovina) aniqlash
   const yaqinNishonniTop = useCallback((kotarilganGuruh) => {
     if (!kotarilganGuruh || !sahnaRef?.current) return { nishon: null, turi: null };
 
     const pos = kotarilganGuruh.position;
 
-    // 1. Chap Stol: Analitik Tarozi ustiga yaqinlashish (X: -1.6, Z: 0.2)
-    const taroziMasofa = new THREE.Vector2(pos.x - (-1.6), pos.z - 0.2).length();
-    if (taroziMasofa < 0.45) {
-      return { nishon: { position: new THREE.Vector3(-1.6, 0.98, 0.2), kalit: "tarozi" }, turi: "tarozi" };
+    // 1. Chap Stol: Analitik Tarozi ustiga yaqinlashish (X: -3.2, Z: 0.2)
+    const taroziMasofa = new THREE.Vector2(pos.x - (-3.2), pos.z - 0.2).length();
+    if (taroziMasofa < 0.65) {
+      return { nishon: { position: new THREE.Vector3(-3.2, 1.014, 0.18), kalit: "tarozi" }, turi: "tarozi" };
     }
 
-    // 2. O'ng Stol: Byuretka stendiga yaqinlashish (X: 1.4, Z: 0.2)
-    const byuretkaMasofa = new THREE.Vector2(pos.x - 1.4, pos.z - 0.2).length();
-    if (byuretkaMasofa < 0.45) {
-      return { nishon: { position: new THREE.Vector3(1.4, 0.95, 0.2), kalit: "byuretka" }, turi: "byuretka" };
+    // 2. O'ng Stol: Byuretka stendiga yaqinlashish (X: 3.2, Z: 0.4)
+    const byuretkaMasofa = new THREE.Vector2(pos.x - 3.2, pos.z - 0.4).length();
+    if (byuretkaMasofa < 0.65) {
+      return { nishon: { position: new THREE.Vector3(3.2, 0.98, 0.4), kalit: "byuretka" }, turi: "byuretka" };
     }
 
     // 3. Yuvinish Rakovinasi krani tagiga yaqinlashish (X: -5.5, Z: -4.8)
@@ -160,6 +164,27 @@ export function useSudrash({
       raycasterRef.current.setFromCamera(mouseRef.current, kameraRef.current);
       const kesishmalar = raycasterRef.current.intersectObjects(sahnaRef.current.children, true);
 
+      // Avval maxsus tugmalarni tekshirish (TARA, NOL yoki Tarozi korpusi)
+      for (const kesish of kesishmalar) {
+        const obj = kesish.object;
+        if (obj?.userData?.kalit === "tarozi_tara") {
+          if (typeof onTaroziTara === "function") onTaroziTara();
+          return;
+        }
+        if (obj?.userData?.kalit === "tarozi_nol") {
+          if (typeof onTaroziNol === "function") onTaroziNol();
+          return;
+        }
+        let ota = obj;
+        while (ota) {
+          if (ota.name === "Tarozi_Stansiyasi") {
+            if (typeof onTaroziBosildi === "function") onTaroziBosildi();
+            break;
+          }
+          ota = ota.parent;
+        }
+      }
+
       let topilganGroup = null;
       for (const kesish of kesishmalar) {
         const group = idishGuruhiniTop(kesish.object);
@@ -181,6 +206,14 @@ export function useSudrash({
 
         if (raycasterRef.current.ray.intersectPlane(sudrashTekisligiRef.current, kesishmaNuqtaRef.current)) {
           sudrashOffsetRef.current.copy(topilganGroup.position).sub(kesishmaNuqtaRef.current);
+        }
+
+        // Agar tarozi pallasida turgan bo'lsa, undan olinganini bildirish
+        if (topilganGroup.userData.tarozida) {
+          topilganGroup.userData.tarozida = false;
+          if (typeof onTarozidanOlingan === "function") {
+            onTarozidanOlingan(topilganGroup);
+          }
         }
 
         // Ko'z oldiga silliq ko'tariladi (Y = 1.15m)
@@ -213,9 +246,9 @@ export function useSudrash({
         if (raycasterRef.current.ray.intersectPlane(sudrashTekisligiRef.current, kesishmaNuqtaRef.current)) {
           const yangiPos = kesishmaNuqtaRef.current.add(sudrashOffsetRef.current);
 
-          // Xona chegaralari
-          yangiPos.x = Math.max(-2.8, Math.min(2.8, yangiPos.x));
-          yangiPos.z = Math.max(-1.8, Math.min(1.8, yangiPos.z));
+          // Butun 16x12m laboratoriya bo'yicha erkin surish chegaralari
+          yangiPos.x = Math.max(-7.0, Math.min(7.0, yangiPos.x));
+          yangiPos.z = Math.max(-5.0, Math.min(5.0, yangiPos.z));
 
           faolGuruhRef.current.position.x = yangiPos.x;
           faolGuruhRef.current.position.z = yangiPos.z;
@@ -241,12 +274,24 @@ export function useSudrash({
       // Oddiy hover
       const kesishmalar = raycasterRef.current.intersectObjects(sahnaRef.current.children, true);
       let topilganGroup = null;
+      let maxsusTugma = false;
+
       for (const kesish of kesishmalar) {
-        const group = idishGuruhiniTop(kesish.object);
+        const obj = kesish.object;
+        if (obj?.userData?.kalit === "tarozi_tara" || obj?.userData?.kalit === "tarozi_nol") {
+          maxsusTugma = true;
+          break;
+        }
+        const group = idishGuruhiniTop(obj);
         if (group) {
           topilganGroup = group;
           break;
         }
+      }
+
+      if (maxsusTugma) {
+        rendererElement.style.cursor = "pointer";
+        return;
       }
 
       if (topilganGroup !== avvalgiYoritilganRef.current) {
@@ -279,8 +324,18 @@ export function useSudrash({
           if (typeof onIdishQoyildi === "function") onIdishQoyildi(guruh);
         } else {
           // Nishon ustida quyish yoki amaliyot holatida qoladi
-          if (nishonTuri === "tarozi" && typeof onTaroziTushdi === "function") {
-            onTaroziTushdi(guruh);
+          if (nishonTuri === "tarozi") {
+            // Tarozi pallasiga aniq o'tiradi
+            guruh.position.set(-3.2, 1.014, 0.18);
+            guruh.rotation.set(0, 0, 0);
+            guruh.userData.kotarilgan = false;
+            guruh.userData.tarozida = true;
+            yoritishniOzgartir(guruh, false);
+            setKotarilganIdish(null);
+
+            if (typeof onTaroziTushdi === "function") {
+              onTaroziTushdi(guruh);
+            }
           } else if (nishonTuri === "spirtovka" && typeof onSpirtovkagaQoyildi === "function") {
             onSpirtovkagaQoyildi(guruh);
           } else if (nishonTuri === "rakovina" && typeof onRakovinagaTushdi === "function") {
@@ -311,7 +366,49 @@ export function useSudrash({
         yoritishniOzgartir(avvalgiYoritilganRef.current, false);
       }
     };
-  }, [sahnaRef, kameraRef, rendererRef, controlsRef, yoritishniOzgartir, yaqinNishonniTop, engYaqinSlotniTop, yaqinNishon, nishonTuri, kotarilganIdish, onIdishTanlandi, onIdishKotarildi, onNishongaYaqinlashdi, onIdishQoyildi, onTaroziTushdi, onSpirtovkagaQoyildi]);
+  }, [sahnaRef, kameraRef, rendererRef, controlsRef, yoritishniOzgartir, yaqinNishonniTop, engYaqinSlotniTop, yaqinNishon, nishonTuri, kotarilganIdish, onIdishTanlandi, onIdishKotarildi, onNishongaYaqinlashdi, onIdishQoyildi, onTaroziTushdi, onTarozidanOlingan, onTaroziBosildi, onTaroziTara, onTaroziNol, onSpirtovkagaQoyildi, onRakovinagaTushdi]);
+
+  // Idishni qo'lda stol slotiga tushirish
+  const idishniJoyigaQoy = useCallback((group) => {
+    const nishonGroup = group || kotarilganIdish;
+    if (!nishonGroup) return;
+
+    const slotPos = engYaqinSlotniTop(nishonGroup.position);
+    nishonGroup.position.copy(slotPos);
+    nishonGroup.rotation.set(0, 0, 0);
+    nishonGroup.userData.kotarilgan = false;
+    yoritishniOzgartir(nishonGroup, false);
+
+    if (nishonGroup.userData.tarozida) {
+      nishonGroup.userData.tarozida = false;
+      if (typeof onTarozidanOlingan === "function") {
+        onTarozidanOlingan(nishonGroup);
+      }
+    }
+
+    if (yaqinNishon && yaqinNishon.userData) {
+      yoritishniOzgartir(yaqinNishon, false);
+      setYaqinNishon(null);
+      setNishonTuri(null);
+    }
+
+    setKotarilganIdish(null);
+    setTanlanganIdish(null);
+    if (typeof onIdishQoyildi === "function") onIdishQoyildi(nishonGroup);
+  }, [kotarilganIdish, yaqinNishon, yoritishniOzgartir, engYaqinSlotniTop, onIdishQoyildi, onTarozidanOlingan]);
+
+  return {
+    tanlanganIdish,
+    setTanlanganIdish,
+    kotarilganIdish,
+    kursorIdish,
+    yaqinNishon,
+    nishonTuri,
+    sudralmoqda,
+    idishniJoyigaQoy,
+  };
+}
+
 
   // Idishni qo'lda stol slotiga tushirish
   const idishniJoyigaQoy = useCallback((group) => {
