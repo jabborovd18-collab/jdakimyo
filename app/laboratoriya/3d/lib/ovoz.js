@@ -204,3 +204,28 @@ export function qadamTovushi() {
     osc.stop(ctx.currentTime + 0.08);
   } catch (e) {}
 }
+
+// 6. Shisha tiqini ochilishi ovozi (Stopper Pop sound)
+export function tiqinOchilishi() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(320, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.04);
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.09);
+
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.09);
+  } catch (e) {}
+}

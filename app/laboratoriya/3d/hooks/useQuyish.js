@@ -8,7 +8,7 @@ import { aralashmaRangi } from "../lib/rang-aralashtirish.js";
 import { moddaKorinishi } from "../lib/modda-korinishi.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
 import { yoz } from "../lib/jurnal.js";
-import { oqimBoshla, oqimToxtat } from "../lib/ovoz.js";
+import { oqimBoshla, oqimToxtat, tiqinOchilishi } from "../lib/ovoz.js";
 
 // Oqim silindri va tomchilar (Points) yaratish
 function oqimVaTomchilarYasa(rang = 0xffffff, balandlik = 0.24, qalinlik = 0.006) {
@@ -134,6 +134,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
       isExternalBottle: !sourceGroup,
     };
 
+    tiqinOchilishi(); // Tiqin ochilish ovozi
     oqimBoshla();
     setQuyilmoqda(true);
   }, [sahnaRef, holatRef]);
