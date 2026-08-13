@@ -518,6 +518,45 @@ function elektrolizVannasiYasa(materiallar) {
   return group;
 }
 
+/** Yon Ishchi Tajriba Stollari (Left & Right Workbenches) */
+function yonStollarniYasa(materiallar) {
+  const group = new THREE.Group();
+  const yogochMat = materiallar?.yogoch || new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+  const oyoqMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 });
+
+  // 1. Chap Stol (Tarozi va Molyar Eritmalar Maydoni)
+  const chapStolGeo = new THREE.BoxGeometry(1.6, 0.08, 1.2);
+  const chapStol = new THREE.Mesh(chapStolGeo, yogochMat);
+  chapStol.position.set(-2.0, 0.86, 0.2);
+  chapStol.receiveShadow = true;
+  group.add(chapStol);
+
+  // Chap stol oyoqlari
+  [[-2.6, -0.2], [-1.4, -0.2], [-2.6, 0.6], [-1.4, 0.6]].forEach(([x, z]) => {
+    const oyoqGeo = new THREE.BoxGeometry(0.06, 0.86, 0.06);
+    const oyoq = new THREE.Mesh(oyoqGeo, oyoqMat);
+    oyoq.position.set(x, 0.43, z);
+    group.add(oyoq);
+  });
+
+  // 2. O'ng Stol (Byuretka va Elektroliz Maydoni)
+  const ongStolGeo = new THREE.BoxGeometry(1.6, 0.08, 1.2);
+  const ongStol = new THREE.Mesh(ongStolGeo, yogochMat);
+  ongStol.position.set(2.0, 0.86, 0.2);
+  ongStol.receiveShadow = true;
+  group.add(ongStol);
+
+  // O'ng stol oyoqlari
+  [[1.4, -0.2], [2.6, -0.2], [1.4, 0.6], [2.6, 0.6]].forEach(([x, z]) => {
+    const oyoqGeo = new THREE.BoxGeometry(0.06, 0.86, 0.06);
+    const oyoq = new THREE.Mesh(oyoqGeo, oyoqMat);
+    oyoq.position.set(x, 0.43, z);
+    group.add(oyoq);
+  });
+
+  return group;
+}
+
 /** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
 export function xonaInteryeriniYasa(materiallar) {
   const roomGroup = new THREE.Group();
@@ -529,19 +568,22 @@ export function xonaInteryeriniYasa(materiallar) {
   // 2. Keng Formatli Davriy Jadval Plakati
   roomGroup.add(davriyJadvalPlakati());
 
-  // 3. Tortma Shkaf (O'ng orqada)
+  // 3. Yon Ishchi Tajriba Stollari (Chap & O'ng)
+  roomGroup.add(yonStollarniYasa(materiallar));
+
+  // 4. Tortma Shkaf (O'ng orqada)
   roomGroup.add(tortmaShkafYasa(materiallar));
 
-  // 4. Analitik Tarozi Stantsiyasi (Chap stolda)
+  // 5. Analitik Tarozi Stantsiyasi (Chap stolda)
   roomGroup.add(taroziStoliYasa(materiallar));
 
-  // 5. Byuretka va Titrlash Stendi (O'ng stolda)
+  // 6. Byuretka va Titrlash Stendi (O'ng stolda)
   roomGroup.add(titrlashStendiYasa(materiallar));
 
-  // 6. Elektroliz va Tok Manbai Stendi (O'ng stolda)
+  // 7. Elektroliz va Tok Manbai Stendi (O'ng stolda)
   roomGroup.add(elektrolizVannasiYasa(materiallar));
 
-  // 7. Yuvinish Rakovinasi (Chap orqada)
+  // 8. Yuvinish Rakovinasi (Chap orqada)
   roomGroup.add(rakovinaYasa(materiallar));
 
   return roomGroup;
