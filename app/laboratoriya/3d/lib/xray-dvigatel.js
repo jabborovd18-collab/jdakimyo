@@ -4,7 +4,7 @@
 //
 // Reaksiya vaqtida vaqt sekinlashadi, kamera nano-fazoga kirib,
 // kovalent/ion bog'larning taranglashib uzilishi, oraliq faollangan
-// kompleks ([...]#) va yangi molekulalar hosil bo'lishini 3D da ko'rsatadi.
+// kompleks ([...]‡) va yangi molekulalar hosil bo'lishini 3D da ko'rsatadi.
 
 // CPK Ranglar
 export const ATOM_RANGLARI = {
@@ -19,6 +19,7 @@ export const ATOM_RANGLARI = {
   S: 0xeab308,   // Sariq
   Ag: 0xe2e8f0,  // Kumushrang
   Fe: 0xc2410c,  // Zangori to'q qizil
+  Al: 0x94a3b8,  // Kumushrang-kulrang
 };
 
 export const XRAY_REAKSIYALAR = [
@@ -120,6 +121,67 @@ export const XRAY_REAKSIYALAR = [
     ],
   },
   {
+    id: "gaz_co2",
+    nomi: "Gaz Ajralishi va Karbonatning Parchalanishi",
+    tenglama: "Na₂CO₃ + 2HCl ➔ 2NaCl + H₂O + CO₂↑",
+    faollanishEnergiyasi: "Ea = +28.5 kJ/mol",
+    entalpiya: "ΔH = -32.4 kJ/mol (Gaz kengayishi)",
+    tavsif: "Karbonat ioniga H⁺ birikib, beqaror H₂CO₃ hosil bo'ladi va darhol C-O kovalent bog'i uzilib, chiziqli CO₂ gazi pufakcha bo'lib ajraladi.",
+    boshlangichMolekulalar: [
+      {
+        nom: "CO₃²⁻ (Planar karbonat ioni)",
+        atomlar: [
+          { elem: "C", pos: [-0.8, 0, 0], r: 0.35 },
+          { elem: "O", pos: [-0.8, 0.45, 0], r: 0.3 },
+          { elem: "O", pos: [-1.2, -0.3, 0], r: 0.3 },
+          { elem: "O", pos: [-0.4, -0.3, 0], r: 0.3 },
+        ],
+        boglar: [[0, 1], [0, 2], [0, 3]],
+      },
+      {
+        nom: "2H⁺ (Gidroksoniy protonlari)",
+        atomlar: [
+          { elem: "H", pos: [0.6, 0.3, 0], r: 0.22 },
+          { elem: "H", pos: [0.6, -0.3, 0], r: 0.22 },
+        ],
+        boglar: [],
+      },
+    ],
+    oraliqKompleks: {
+      nom: "[H₂O ····· C(=O)₂]‡ (C-O Kovalent Bog'ining Uzilishi)",
+      atomlar: [
+        { elem: "C", pos: [-0.2, 0, 0], r: 0.35 },
+        { elem: "O", pos: [-0.8, 0.1, 0], r: 0.3, kuch: "uzilmoqda" },
+        { elem: "O", pos: [0.4, 0.2, 0], r: 0.3 },
+        { elem: "O", pos: [-0.2, -0.5, 0], r: 0.3 },
+        { elem: "H", pos: [-1.1, 0.3, 0], r: 0.22 },
+        { elem: "H", pos: [-1.1, -0.1, 0], r: 0.22 },
+      ],
+      uziladiganBoglar: ["C-O kovalent bog'i uzilib gaz hosil qiladi"],
+      hosilBoladiganBoglar: ["O=C=O chiziqli qo'shbog'lari", "H-O-H suv kovalent bog'i"],
+    },
+    mahsulotlar: [
+      {
+        nom: "CO₂↑ (Chiziqli 180° gaz molekulasi)",
+        atomlar: [
+          { elem: "C", pos: [0.8, 0, 0], r: 0.35 },
+          { elem: "O", pos: [0.15, 0, 0], r: 0.3 },
+          { elem: "O", pos: [1.45, 0, 0], r: 0.3 },
+        ],
+        boglar: [[0, 1], [0, 2]],
+      },
+      {
+        nom: "H₂O (Suv)",
+        atomlar: [
+          { elem: "O", pos: [-0.8, 0, 0], r: 0.32 },
+          { elem: "H", pos: [-1.15, -0.25, 0], r: 0.22 },
+          { elem: "H", pos: [-0.45, -0.25, 0], r: 0.22 },
+        ],
+        boglar: [[0, 1], [0, 2]],
+      },
+    ],
+  },
+  {
     id: "orin_olish_zn_cu",
     nomi: "Redoks O'rin Olish (Zn + CuSO₄)",
     tenglama: "Zn + Cu²⁺ ➔ Zn²⁺ + Cu↓ (Elektron ko'chishi)",
@@ -160,6 +222,119 @@ export const XRAY_REAKSIYALAR = [
       },
     ],
   },
+  {
+    id: "chokma_cuoh2",
+    nomi: "Mis(II) Gidroksid Cho'kishi (CuSO₄ + 2NaOH)",
+    tenglama: "Cu²⁺ + 2OH⁻ ➔ Cu(OH)₂↓ (Moviy jelatin cho'kma)",
+    faollanishEnergiyasi: "Ea = +18.5 kJ/mol",
+    entalpiya: "ΔH = -88.6 kJ/mol",
+    tavsif: "Gidratlangan Cu²⁺ ionlariga OH⁻ anionlari koordinatsiyalanib, polimer qatlamli yorqin moviy cho'kma hosil qiladi.",
+    boshlangichMolekulalar: [
+      {
+        nom: "Cu²⁺ (Mis ioni)",
+        atomlar: [{ elem: "Cu", pos: [0, 0, 0], r: 0.43 }],
+        boglar: [],
+      },
+      {
+        nom: "2OH⁻ (Gidroksid ionlari)",
+        atomlar: [
+          { elem: "O", pos: [-1.2, 0.4, 0], r: 0.32 },
+          { elem: "H", pos: [-1.5, 0.6, 0], r: 0.22 },
+          { elem: "O", pos: [1.2, -0.4, 0], r: 0.32 },
+          { elem: "H", pos: [1.5, -0.6, 0], r: 0.22 },
+        ],
+        boglar: [[0, 1], [2, 3]],
+      },
+    ],
+    oraliqKompleks: {
+      nom: "[HO⁻ ····· Cu²⁺ ····· ⁻OH]‡ (Kovalent-Koordinatsion)",
+      atomlar: [
+        { elem: "Cu", pos: [0, 0, 0], r: 0.43 },
+        { elem: "O", pos: [-0.6, 0.2, 0], r: 0.32, kuch: "uzilmoqda" },
+        { elem: "H", pos: [-0.95, 0.4, 0], r: 0.22 },
+        { elem: "O", pos: [0.6, -0.2, 0], r: 0.32, kuch: "uzilmoqda" },
+        { elem: "H", pos: [0.95, -0.4, 0], r: 0.22 },
+      ],
+      uziladiganBoglar: ["Akva-kompleks [Cu(H₂O)₆]²⁺ suv molekulalari"],
+      hosilBoladiganBoglar: ["Cu-O mustahkam yarim kovalent cho'kma bog'i"],
+    },
+    mahsulotlar: [
+      {
+        nom: "Cu(OH)₂↓ (Moviy kompleks cho'kma)",
+        atomlar: [
+          { elem: "Cu", pos: [0, 0, 0], r: 0.43 },
+          { elem: "O", pos: [-0.5, 0.2, 0], r: 0.32 },
+          { elem: "H", pos: [-0.85, 0.4, 0], r: 0.22 },
+          { elem: "O", pos: [0.5, -0.2, 0], r: 0.32 },
+          { elem: "H", pos: [0.85, -0.4, 0], r: 0.22 },
+        ],
+        boglar: [[0, 1], [1, 2], [0, 3], [3, 4]],
+      },
+    ],
+  },
+  {
+    id: "esterifikatsiya",
+    nomi: "Organik Efirlar Hosil Bo'lishi (Sirka kislota + Etanol)",
+    tenglama: "CH₃COOH + C₂H₅OH ⇄ CH₃COOC₂H₅ + H₂O (Xushbo'y Efir)",
+    faollanishEnergiyasi: "Ea = +75.2 kJ/mol (Katalizator H⁺ talab qiladi)",
+    entalpiya: "ΔH = -4.5 kJ/mol (Muvozanatli)",
+    tavsif: "Karbonil uglerodiga spirt gidroksil guruhining nukleofil hujumi, tetraedrik oraliq holat va suv molekulasining ajralishi.",
+    boshlangichMolekulalar: [
+      {
+        nom: "CH₃COOH (Sirka kislota)",
+        atomlar: [
+          { elem: "C", pos: [-1.2, 0, 0], r: 0.35 },
+          { elem: "O", pos: [-1.2, 0.5, 0], r: 0.3 },
+          { elem: "O", pos: [-0.7, -0.3, 0], r: 0.3 },
+          { elem: "H", pos: [-0.4, -0.5, 0], r: 0.22 },
+        ],
+        boglar: [[0, 1], [0, 2], [2, 3]],
+      },
+      {
+        nom: "C₂H₅OH (Etanol)",
+        atomlar: [
+          { elem: "O", pos: [0.6, -0.2, 0], r: 0.3 },
+          { elem: "H", pos: [0.4, 0.2, 0], r: 0.22 },
+          { elem: "C", pos: [1.1, -0.1, 0], r: 0.35 },
+        ],
+        boglar: [[0, 1], [0, 2]],
+      },
+    ],
+    oraliqKompleks: {
+      nom: "[CH₃-C(OH)₂-O-C₂H₅]‡ (Tetraedrik Nukleofil Kompleks)",
+      atomlar: [
+        { elem: "C", pos: [-0.3, 0, 0], r: 0.35 },
+        { elem: "O", pos: [-0.3, 0.5, 0], r: 0.3 },
+        { elem: "O", pos: [-0.8, -0.3, 0], r: 0.3, kuch: "uzilmoqda" },
+        { elem: "O", pos: [0.3, -0.2, 0], r: 0.3 },
+        { elem: "H", pos: [-0.6, -0.6, 0], r: 0.22 },
+        { elem: "C", pos: [0.9, -0.1, 0], r: 0.35 },
+      ],
+      uziladiganBoglar: ["C-OH kislota bog'i va spirt O-H bog'i"],
+      hosilBoladiganBoglar: ["C-O-C murakkab efir bog'i", "H₂O suv molekulasi"],
+    },
+    mahsulotlar: [
+      {
+        nom: "CH₃COOC₂H₅ (Etilatsetat efiri)",
+        atomlar: [
+          { elem: "C", pos: [-0.5, 0, 0], r: 0.35 },
+          { elem: "O", pos: [-0.5, 0.5, 0], r: 0.3 },
+          { elem: "O", pos: [0.1, -0.2, 0], r: 0.3 },
+          { elem: "C", pos: [0.7, -0.1, 0], r: 0.35 },
+        ],
+        boglar: [[0, 1], [0, 2], [2, 3]],
+      },
+      {
+        nom: "H₂O (Ajralgan suv)",
+        atomlar: [
+          { elem: "O", pos: [-1.4, -0.3, 0], r: 0.3 },
+          { elem: "H", pos: [-1.7, -0.5, 0], r: 0.22 },
+          { elem: "H", pos: [-1.1, -0.5, 0], r: 0.22 },
+        ],
+        boglar: [[0, 1], [0, 2]],
+      },
+    ],
+  },
 ];
 
 /**
@@ -169,6 +344,9 @@ export function xrayProfiliniTop(reaksiyaTenglamasi = "") {
   const t = String(reaksiyaTenglamasi).toLowerCase();
   if (t.includes("hcl") && t.includes("naoh")) return XRAY_REAKSIYALAR[0];
   if (t.includes("agcl") || (t.includes("agno3") && t.includes("nacl"))) return XRAY_REAKSIYALAR[1];
-  if (t.includes("zn") && t.includes("cu")) return XRAY_REAKSIYALAR[2];
+  if (t.includes("co2") || t.includes("na2co3") || t.includes("caco3")) return XRAY_REAKSIYALAR[2];
+  if (t.includes("zn") && t.includes("cu")) return XRAY_REAKSIYALAR[3];
+  if (t.includes("cu(oh)2") || (t.includes("cuso4") && t.includes("naoh"))) return XRAY_REAKSIYALAR[4];
+  if (t.includes("cooc") || (t.includes("ch3cooh") && t.includes("c2h5oh"))) return XRAY_REAKSIYALAR[5];
   return XRAY_REAKSIYALAR[0]; // Standart kislota-asos
 }
