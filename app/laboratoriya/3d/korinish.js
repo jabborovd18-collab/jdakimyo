@@ -363,6 +363,12 @@ export default function Korinish() {
 
   // 4-MUAMMO: Spirtovkada isitish, termometr simob ustunini ko'tarish va qaynash girdobi
   useEffect(() => {
+    if (holatRef.current) {
+      holatRef.current.harorat = harorat;
+    }
+  }, [harorat]);
+
+  useEffect(() => {
     let timer = null;
     const spirtovkaMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "spirtovka");
     const termometrMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "termometr");
@@ -375,7 +381,7 @@ export default function Korinish() {
 
       timer = setInterval(() => {
         setHarorat((prev) => {
-          const yangi = Math.min(100, prev + 5);
+          const yangi = Math.min(250, prev + 5);
 
           if (termometrMesh?.userData?.haroratniYangila) {
             termometrMesh.userData.haroratniYangila(yangi);
@@ -1119,16 +1125,51 @@ export default function Korinish() {
               💧 +10ml H₂O
             </button>
 
-            {/* Spirtovka bilan isitish */}
-            <button
-              type="button"
-              onClick={() => setIsitimoda(!isitimoda)}
-              className={`v3-tugma text-xs font-bold transition ${
-                isitimoda ? "border-amber-500 bg-amber-500/20 text-amber-400" : ""
-              }`}
-            >
-              🔥 {isitimoda ? `Isitilmoqda (${harorat}°C)` : "Isitish (Spirtovka)"}
-            </button>
+            {/* Harorat va Spirtovka Boshqaruvi */}
+            <div className="flex items-center gap-1.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] px-2 py-1">
+              <button
+                type="button"
+                onClick={() => {
+                  const yangiRejim = !isitimoda;
+                  setIsitimoda(yangiRejim);
+                  if (yangiRejim && harorat === 25) setHarorat(80);
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  isitimoda
+                    ? "bg-amber-500 text-black border border-amber-400 shadow-md animate-pulse"
+                    : "text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+                }`}
+                title="Spirtovka alangasini yoqish/o'chirish"
+              >
+                🔥 {isitimoda ? `Alanga: ${harorat}°C` : "Spirtovka"}
+              </button>
+
+              <div className="hidden sm:flex items-center gap-1 font-mono text-[10px]">
+                {[25, 60, 100, 200].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => {
+                      setHarorat(t);
+                      setIsitimoda(t > 25);
+                      if (holatRef.current) holatRef.current.harorat = t;
+                      const spirtovkaMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "spirtovka");
+                      const termometrMesh = sahnaRef?.current?.children.find((c) => c.userData?.kalit === "termometr");
+                      if (spirtovkaMesh?.userData?.alanganiYangila) spirtovkaMesh.userData.alanganiYangila(t > 25);
+                      if (termometrMesh?.userData?.haroratniYangila) termometrMesh.userData.haroratniYangila(t);
+                      if (nishonIdishGroup) qaynashniYangila(nishonIdishGroup, t);
+                    }}
+                    className={`px-1.5 py-0.5 rounded border transition-all ${
+                      harorat === t
+                        ? "bg-amber-500 text-black font-bold border-amber-400"
+                        : "border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+                    }`}
+                  >
+                    {t}°C
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Reaksiyani tekshirish */}
             <button

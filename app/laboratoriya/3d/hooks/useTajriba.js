@@ -154,8 +154,6 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
         setKinetika(kin);
 
         // Kuzatuv matnidan effektlar massivini chiqarib, ishga tushiramiz.
-        // `olindi` ham uzatiladi: kuzatuv matnida cho'kmaning rangi
-        // aytilmagan bo'lsa, mahsulotning o'z rangi ishlatiladi.
         const tavsiflar = effektlarniAniqla(
           ma_lumot.reaksiya.observations,
           baho,
@@ -169,12 +167,14 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
         faolEffektRef.current = boshqaruvchi;
 
         let vaqt = Date.now();
-        const maxKutishMs = 5500;
+        // Harorat qancha yuqori bo'lsa, reaksiya shuncha tez kechadi (Vant-Goff qoidasi)
+        const tezlikKoef = kin?.haroratTezligiKoef || 1.0;
+        const maxKutishMs = Math.max(1200, Math.round(5000 / tezlikKoef));
         const boshlanishMs = vaqt;
 
         const asosiySikl = () => {
           const hozir = Date.now();
-          const dt = (hozir - vaqt) / 1000;
+          const dt = ((hozir - vaqt) / 1000) * Math.min(3.0, tezlikKoef);
           vaqt = hozir;
 
           boshqaruvchi.yangila(dt);
@@ -186,6 +186,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
               yoz(jurnalRef.current, {
                 amal: "reaksiya",
                 reagent: ma_lumot.reaksiya.name || "Tajriba",
+                harorat: holatRef?.current?.harorat || 25,
               });
             }
             const yakuniyHisobot = hisobot(jurnalRef?.current, ma_lumot.reaksiya, baho);
