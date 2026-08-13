@@ -148,30 +148,31 @@ export function pufakchaChiqishi() {
   }
 }
 
-// 4. Cho'kma tushishi ovozi (Precipitate Chime)
-export function chokmaTushishi() {
+// 5. Laboratoriyada qadam tovushi (Footstep sound)
+export function qadamTovushi() {
   const ctx = getAudioContext();
   if (!ctx) return;
 
   try {
-    const parda = [1200, 1600, 2000];
-    parda.forEach((freq, idx) => {
-      const kechikish = idx * 0.06;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
 
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + kechikish);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime + kechikish);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + kechikish + 0.15);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(90, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.08);
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(220, ctx.currentTime);
 
-      osc.start(ctx.currentTime + kechikish);
-      osc.stop(ctx.currentTime + kechikish + 0.16);
-    });
-  } catch (e) {
-    // Audio xatolarini bostiramiz
-  }
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08);
+  } catch (e) {}
 }

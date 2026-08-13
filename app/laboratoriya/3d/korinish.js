@@ -8,6 +8,7 @@ import { useSahna } from "./hooks/useSahna.js";
 import { useSudrash } from "./hooks/useSudrash.js";
 import { useQuyish } from "./hooks/useQuyish.js";
 import { useTajriba } from "./hooks/useTajriba.js";
+import { useYurish } from "./hooks/useYurish.js";
 import ReagentJavoni from "./components/ReagentJavoni.jsx";
 import JihozJavoni from "./components/JihozJavoni.jsx";
 import NatijaPaneli from "./components/NatijaPaneli.jsx";
@@ -150,6 +151,20 @@ export default function Korinish() {
   });
 
   const nishonIdishGroup = yaqinNishon || tanlanganIdish || hammaJihozlar[0] || null;
+
+  // 2.5. Xonada erkin yurish (Walk Mode)
+  const {
+    yurishRejimi,
+    toggleYurishRejimi,
+    yurmoqda,
+    mobilHarakat,
+    mobilBurilish,
+  } = useYurish({
+    sahnaRef,
+    kameraRef,
+    rendererRef,
+    controlsRef,
+  });
 
   // 3. O'zgaruvchan tezlikdagi quyish hooki (1-Bosqich)
   const handleHolatOzgardimi = useCallback(() => {
@@ -584,6 +599,68 @@ export default function Korinish() {
             faolZona={faolZona}
             onZonaTanlandi={handleZonaTanlandi}
           />
+
+          {/* XONADA ERKIN YURISH (WALK MODE) TUGMASI VA HUD */}
+          <div className="absolute top-4 left-4 z-30 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleYurishRejimi}
+              className={`v3-tugma text-xs font-bold py-1.5 px-3 backdrop-blur-xl shadow-lg transition-all ${
+                yurishRejimi
+                  ? "bg-emerald-500 text-black border-emerald-400 ring-2 ring-emerald-400"
+                  : "bg-[var(--v3-fon-2)]/95 border-[var(--v3-chiziq-2)]"
+              }`}
+            >
+              <Ikon nom={yurishRejimi ? "odam" : "urin"} olcham={14} />
+              <span>{yurishRejimi ? "🚶 Yurish Rejimi (WASD)" : "🚶 Xonada Yurish"}</span>
+            </button>
+
+            {yurishRejimi && (
+              <span className="hidden sm:inline-flex v3-tag v3-tag-ochiq text-[10px] font-mono">
+                WASD / Strelkalar bilan yuring · Sichqoncha bilan qarang
+              </span>
+            )}
+          </div>
+
+          {/* MOBIL ON-SCREEN VIRTUAL JOYSTICK / D-PAD (YURISH REJIMIDA) */}
+          {yurishRejimi && (
+            <div className="absolute bottom-8 left-6 z-40 flex flex-col items-center gap-1 sm:hidden p-2 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20">
+              <button
+                type="button"
+                onPointerDown={() => mobilHarakat(0, -1)}
+                onPointerUp={() => mobilHarakat(0, 0)}
+                className="w-10 h-10 rounded-xl bg-white/10 active:bg-emerald-500/40 text-white font-bold flex items-center justify-center border border-white/20"
+              >
+                ▲
+              </button>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onPointerDown={() => mobilHarakat(-1, 0)}
+                  onPointerUp={() => mobilHarakat(0, 0)}
+                  className="w-10 h-10 rounded-xl bg-white/10 active:bg-emerald-500/40 text-white font-bold flex items-center justify-center border border-white/20"
+                >
+                  ◀
+                </button>
+                <button
+                  type="button"
+                  onPointerDown={() => mobilHarakat(0, 1)}
+                  onPointerUp={() => mobilHarakat(0, 0)}
+                  className="w-10 h-10 rounded-xl bg-white/10 active:bg-emerald-500/40 text-white font-bold flex items-center justify-center border border-white/20"
+                >
+                  ▼
+                </button>
+                <button
+                  type="button"
+                  onPointerDown={() => mobilHarakat(1, 0)}
+                  onPointerUp={() => mobilHarakat(0, 0)}
+                  className="w-10 h-10 rounded-xl bg-white/10 active:bg-emerald-500/40 text-white font-bold flex items-center justify-center border border-white/20"
+                >
+                  ▶
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* 1-BOSQICH: 3D Interaktiv Ko'rsatma / Status */}
           <div
