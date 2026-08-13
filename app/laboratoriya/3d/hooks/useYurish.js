@@ -35,11 +35,13 @@ export function useYurish({
   onTaroziTushdi,
   onSpirtovkagaQoyildi,
   onRakovinagaTushdi,
+  onStansiyaOchildi,
 }) {
   const [yurishRejimi, setYurishRejimi] = useState(false);
   const [yurmoqda, setYurmoqda] = useState(false);
   const [fpsQaralganIdish, setFpsQaralganIdish] = useState(null);
   const [fpsQolIdish, setFpsQolIdish] = useState(null);
+  const [fpsQaralganStansiya, setFpsQaralganStansiya] = useState(null);
 
   // Harakat klavishlari va holatlar
   const keysRef = useRef({ w: false, s: false, a: false, d: false, sprint: false });
@@ -87,34 +89,52 @@ export function useYurish({
           eyeHeightRef.current = 1.6;
           verticalVelocityRef.current = 0;
           velocityRef.current.set(0, 0, 0);
+
+          if (rendererRef?.current?.domElement?.requestPointerLock) {
+            rendererRef.current.domElement.requestPointerLock().catch(() => {});
+          }
         } else {
           controlsRef.current.enabled = true;
           kameraRef.current.position.copy(aslKameraRef.current.pos);
           controlsRef.current.target.copy(aslKameraRef.current.target);
           controlsRef.current.update();
 
-          if (avvalgiFpsYoritilganRef.current) {
-            avvalgiFpsYoritilganRef.current = null;
+          if (document.exitPointerLock) {
+            document.exitPointerLock();
           }
+
+          avvalgiFpsYoritilganRef.current = null;
           setFpsQaralganIdish(null);
+          setFpsQaralganStansiya(null);
         }
       }
 
       return yangi;
     });
-  }, [kameraRef, controlsRef]);
+  }, [kameraRef, controlsRef, rendererRef]);
 
-  // Qo'ldagi idishni boshqarish (Ushlash / Stolga qo'yish / Nishonga o'rnatish)
+  // Qo'ldagi idishni boshqarish va stansiyalarni faollashtirish
   const qolgaOlYokiQoy = useCallback(() => {
     if (!kameraRef?.current) return;
 
-    // 1. Agar qo'lda idish bo'lsa -> Qaralgan joyga qo'yish yoki quyish
+    // 1. Agar stansiyaga qaralgan bo'lsa (Davriy jadval, Titrlash, Elektroliz)
+    if (!fpsQolIdish && fpsQaralganStansiya) {
+      shishaUrilishi(2200);
+      if (typeof onStansiyaOchildi === "function") {
+        onStansiyaOchildi(fpsQaralganStansiya);
+      }
+      return;
+    }
+
+    // 2. Agar qo'lda idish bo'lsa -> Qaralgan joyga qo'yish yoki quyish
     if (fpsQolIdish) {
       const held = fpsQolIdish;
 
-      // Agar boshqa idishga qaralgan bo'lsa -> Quyish
+      // Maxsus stansiyalarga qo'yish
       if (fpsQaralganIdish && fpsQaralganIdish !== held) {
-        if (fpsQaralganIdish.userData?.kalit === "tarozi") {
+        const targetKalit = fpsQaralganIdish.userData?.kalit;
+
+        if (targetKalit === "tarozi" || fpsQaralganStansiya === "tarozi") {
           held.position.set(-3.2, 1.014, 0.18);
           held.rotation.set(0, 0, 0);
           held.userData.tarozida = true;
@@ -123,7 +143,7 @@ export function useYurish({
           shishaUrilishi(2200);
           if (typeof onTaroziTushdi === "function") onTaroziTushdi(held);
           return;
-        } else if (fpsQaralganIdish.userData?.kalit === "spirtovka") {
+        } else if (targetKalit === "spirtovka") {
           held.position.set(fpsQaralganIdish.position.x, 1.08, fpsQaralganIdish.position.z);
           held.rotation.set(0, 0, 0);
           held.userData.qolda = false;
@@ -131,14 +151,14 @@ export function useYurish({
           shishaUrilishi(2200);
           if (typeof onSpirtovkagaQoyildi === "function") onSpirtovkagaQoyildi(held);
           return;
-        } else if (fpsQaralganIdish.userData?.kalit === "rakovina") {
+        } else if (targetKalit === "rakovina" || fpsQaralganStansiya === "yuvinish") {
           held.position.set(-5.5, 0.98, -4.8);
           held.rotation.set(0, 0, 0);
           held.userData.qolda = false;
           setFpsQolIdish(null);
           if (typeof onRakovinagaTushdi === "function") onRakovinagaTushdi(held);
           return;
-        } else {
+        } else if (fpsQaralganIdish.userData?.sigim > 0) {
           // Boshqa idishga quyish
           if (typeof onQuyishBoshla === "function") {
             onQuyishBoshla(held.userData?.kalit, fpsQaralganIdish, held, 45);
@@ -150,8 +170,7 @@ export function useYurish({
       // Erkin stol ustiga tushirish
       const dir = new THREE.Vector3();
       kameraRef.current.getWorldDirection(dir);
-      const dropPos = kameraRef.current.position.clone().addScaledVector(dir, 1.1);
-      dropPos.y = 0.90; // Stol sirti
+      const dropPos = kameraRef.current.position.clone().addScaledVector(dir, 1.0);
 
       held.position.set(dropPos.x, 0.90, dropPos.z);
       held.rotation.set(0, 0, 0);
@@ -162,7 +181,7 @@ export function useYurish({
       return;
     }
 
-    // 2. Agar qo'l bo'sh bo'lsa va nishonga qaralgan bo'lsa -> Qo'lga olish
+    // 3. Agar qo'l bo'sh bo'lsa va idishga qaralgan bo'lsa -> Qo'lga olish
     if (fpsQaralganIdish) {
       const target = fpsQaralganIdish;
       target.userData.qolda = true;
@@ -175,7 +194,7 @@ export function useYurish({
         onIdishTanlandi(target);
       }
     }
-  }, [fpsQolIdish, fpsQaralganIdish, kameraRef, onIdishTanlandi, onQuyishBoshla, onTaroziTushdi, onSpirtovkagaQoyildi, onRakovinagaTushdi]);
+  }, [fpsQolIdish, fpsQaralganIdish, fpsQaralganStansiya, kameraRef, onIdishTanlandi, onQuyishBoshla, onTaroziTushdi, onSpirtovkagaQoyildi, onRakovinagaTushdi, onStansiyaOchildi]);
 
   // 1. KLAVIATURA HODISALARI (CS 1.6 + E USHLASH / G TASHLASH)
   useEffect(() => {
@@ -193,7 +212,7 @@ export function useYurish({
       }
       if (k === "Space") {
         if (eyeHeightRef.current <= 1.62) {
-          verticalVelocityRef.current = 3.5;
+          verticalVelocityRef.current = 3.6;
         }
       }
     };
@@ -216,7 +235,7 @@ export function useYurish({
     };
   }, [yurishRejimi, qolgaOlYokiQoy]);
 
-  // 2. SICHQONCHA BILAN QARASH (CS 1.6 MOUSE LOOK & CLICK INTERACTION)
+  // 2. SICHQONCHA VA POINTER LOCK BILAN QARASH (CS 1.6 MOUSE LOOK)
   useEffect(() => {
     if (!yurishRejimi || !rendererRef?.current) return;
 
@@ -234,20 +253,28 @@ export function useYurish({
     };
 
     const onMouseMove = (e) => {
-      if (!isMouseDown) return;
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      lastX = e.clientX;
-      lastY = e.clientY;
+      let dx = 0;
+      let dy = 0;
 
-      rotationRef.current.yaw -= dx * 0.0035;
-      rotationRef.current.pitch -= dy * 0.0035;
+      if (document.pointerLockElement === domElement) {
+        dx = e.movementX || 0;
+        dy = e.movementY || 0;
+      } else if (isMouseDown) {
+        dx = e.clientX - lastX;
+        dy = e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      } else {
+        return;
+      }
+
+      rotationRef.current.yaw -= dx * 0.0032;
+      rotationRef.current.pitch -= dy * 0.0032;
       rotationRef.current.pitch = Math.max(-1.48, Math.min(1.48, rotationRef.current.pitch));
     };
 
     const onMouseUp = () => {
-      if (isMouseDown && performance.now() - downTime < 220) {
-        // Tez klik -> Obyektni ushlash yoki qo'yish
+      if (isMouseDown && performance.now() - downTime < 240) {
         qolgaOlYokiQoy();
       }
       isMouseDown = false;
@@ -264,7 +291,7 @@ export function useYurish({
     };
   }, [yurishRejimi, rendererRef, qolgaOlYokiQoy]);
 
-  // 3. ASOSIY FPS HARAKATLANISH VA CROSSHAIR INTERACTION SIKLI
+  // 3. ASOSIY FPS HARAKATLANISH, KOLLIZIYA VA CROSSHAIR SIKLI
   useEffect(() => {
     if (!yurishRejimi || !kameraRef?.current || !sahnaRef?.current) return;
 
@@ -282,18 +309,27 @@ export function useYurish({
       const keys = keysRef.current;
       const analog = analogRef.current;
 
-      // 1. Kirish signallarini hisoblash
-      let forward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
-      let strafe = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
+      // 1. Normalizatsiyalangan kirish signallari
+      let rawFwd = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
+      let rawStr = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
 
       if (analog.vx !== 0 || analog.vz !== 0) {
-        strafe = analog.vx;
-        forward = -analog.vz;
+        rawStr = analog.vx;
+        rawFwd = -analog.vz;
+      }
+
+      const inputLen = Math.hypot(rawFwd, rawStr);
+      let forward = 0;
+      let strafe = 0;
+
+      if (inputLen > 0.05) {
+        forward = rawFwd / Math.max(1, inputLen);
+        strafe = rawStr / Math.max(1, inputLen);
       }
 
       const isSprint = keys.sprint || analog.sprint;
-      const maxSpeed = isSprint ? 5.5 : 3.0; // m/s
-      const isMoving = Math.hypot(forward, strafe) > 0.05;
+      const maxSpeed = isSprint ? 5.2 : 2.8; // m/s
+      const isMoving = inputLen > 0.05;
 
       setYurmoqda(isMoving);
 
@@ -308,13 +344,27 @@ export function useYurish({
       if (isMoving) {
         targetVel.addScaledVector(forwardVec, forward);
         targetVel.addScaledVector(rightVec, strafe);
-        targetVel.normalize().multiplyScalar(maxSpeed);
+        targetVel.multiplyScalar(maxSpeed);
       }
 
       velocityRef.current.lerp(targetVel, dt * (isMoving ? 12 : 16));
 
-      kamera.position.x += velocityRef.current.x * dt;
-      kamera.position.z += velocityRef.current.z * dt;
+      // Yangi pozitsiya va stol to'siqlari kolliziyasi (AABB collision)
+      let nextX = kamera.position.x + velocityRef.current.x * dt;
+      let nextZ = kamera.position.z + velocityRef.current.z * dt;
+
+      // Asosiy markaziy stol to'sig'i (X: [-1.7, 1.7], Z: [-0.9, 0.9])
+      const inMainTable = nextX >= -1.7 && nextX <= 1.7 && nextZ >= -0.9 && nextZ <= 0.9;
+      if (inMainTable) {
+        if (Math.abs(kamera.position.x) > Math.abs(kamera.position.z)) {
+          nextX = kamera.position.x;
+        } else {
+          nextZ = kamera.position.z;
+        }
+      }
+
+      kamera.position.x = Math.max(-7.6, Math.min(7.6, nextX));
+      kamera.position.z = Math.max(-5.2, Math.min(5.8, nextZ));
 
       // Gravitatsiya va sakrash
       if (verticalVelocityRef.current !== 0 || eyeHeightRef.current > 1.6) {
@@ -341,10 +391,6 @@ export function useYurish({
         kamera.position.y = eyeHeightRef.current;
       }
 
-      // Xona devorlari
-      kamera.position.x = Math.max(-7.6, Math.min(7.6, kamera.position.x));
-      kamera.position.z = Math.max(-5.2, Math.min(5.8, kamera.position.z));
-
       // Kamera yo'nalishi
       const lookDir = new THREE.Vector3(
         -Math.sin(yaw) * Math.cos(pitch),
@@ -355,34 +401,69 @@ export function useYurish({
       const lookTarget = kamera.position.clone().add(lookDir);
       kamera.lookAt(lookTarget);
 
-      // 3. FPS QO'LDAGI IDISHNI KAMERA OLDIGA MAHKAMLASH (First-Person Hands View)
+      // 3. FPS QO'LDAGI IDISHNI KAMERA OLDIGA MAHKAMLASH
       if (fpsQolIdish) {
         const handOffset = new THREE.Vector3(0.24, -0.22, -0.48);
         handOffset.applyEuler(kamera.rotation);
         const handPos = kamera.position.clone().add(handOffset);
 
-        fpsQolIdish.position.lerp(handPos, 0.4);
+        fpsQolIdish.position.lerp(handPos, 0.45);
         fpsQolIdish.rotation.copy(kamera.rotation);
       }
 
-      // 4. CROSSHAIR RAYCASTING (Ekran markazidagi nishon)
+      // 4. CROSSHAIR RAYCASTING (Nishondagi idish yoki stansiyani aniqlash)
       centerRaycasterRef.current.setFromCamera(new THREE.Vector2(0, 0), kamera);
       const hits = centerRaycasterRef.current.intersectObjects(sahna.children, true);
 
-      let found = null;
+      let foundIdish = null;
+      let foundStansiya = null;
+
       for (const hit of hits) {
         if (hit.distance > 3.2) break;
-        const g = idishGuruhiniTop(hit.object);
-        if (g && g !== fpsQolIdish) {
-          found = g;
-          break;
+
+        const obj = hit.object;
+
+        // Maxsus stansiyalarni tekshirish
+        let ota = obj;
+        while (ota) {
+          if (ota.name === "Davriy_Jadval_LED_Plakat") {
+            foundStansiya = "davriy_jadval";
+            break;
+          }
+          if (ota.name === "Titrlash_Byuretka_Stansiyasi") {
+            foundStansiya = "titrlash";
+            break;
+          }
+          if (ota.name === "Elektroliz_Stansiyasi") {
+            foundStansiya = "elektroliz";
+            break;
+          }
+          if (ota.name === "Tarozi_Stansiyasi") {
+            foundStansiya = "tarozi";
+            break;
+          }
+          if (ota.name === "Yuvinish_Rakovinasi") {
+            foundStansiya = "yuvinish";
+            break;
+          }
+          ota = ota.parent;
+        }
+
+        let joriy = obj;
+        while (joriy) {
+          if (joriy.userData && joriy.userData.tanlanadi && joriy.userData.kalit && joriy !== fpsQolIdish) {
+            foundIdish = joriy;
+            break;
+          }
+          joriy = joriy.parent;
         }
       }
 
-      if (found !== avvalgiFpsYoritilganRef.current) {
-        avvalgiFpsYoritilganRef.current = found;
-        setFpsQaralganIdish(found);
+      if (foundIdish !== avvalgiFpsYoritilganRef.current) {
+        avvalgiFpsYoritilganRef.current = foundIdish;
+        setFpsQaralganIdish(foundIdish);
       }
+      setFpsQaralganStansiya(foundStansiya);
     };
 
     kadrIdRef.current = requestAnimationFrame(fpsLoop);
@@ -409,6 +490,7 @@ export function useYurish({
     yurmoqda,
     fpsQaralganIdish,
     fpsQolIdish,
+    fpsQaralganStansiya,
     qolgaOlYokiQoy,
     handleJoystickHarakat,
     handleJoystickBurilish,
