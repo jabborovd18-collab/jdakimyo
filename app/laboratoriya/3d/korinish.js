@@ -270,6 +270,13 @@ export default function Korinish() {
     onOzgarish: handleHolatOzgardimi,
   });
 
+  const handleStansiyaOchildi = useCallback((stansiya) => {
+    if (stansiya === "davriy_jadval") setDavriyJadvalOchilgan(true);
+    else if (stansiya === "titrlash") setTitrlashOchilgan(true);
+    else if (stansiya === "elektroliz") setElektrolizOchilgan(true);
+    else if (stansiya === "tarozi") setTaroziOchilgan(true);
+  }, []);
+
   // 7. Xonada Erkin Yurish Hooki (FPS Direct Hands Engine)
   const {
     yurishRejimi,
