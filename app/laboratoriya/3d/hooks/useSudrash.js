@@ -409,37 +409,3 @@ export function useSudrash({
   };
 }
 
-
-  // Idishni qo'lda stol slotiga tushirish
-  const idishniJoyigaQoy = useCallback((group) => {
-    const nishonGroup = group || kotarilganIdish;
-    if (!nishonGroup) return;
-
-    const slotPos = engYaqinSlotniTop(nishonGroup.position);
-    nishonGroup.position.copy(slotPos);
-    nishonGroup.rotation.set(0, 0, 0);
-    nishonGroup.userData.kotarilgan = false;
-    yoritishniOzgartir(nishonGroup, false);
-
-    if (yaqinNishon && yaqinNishon.userData) {
-      yoritishniOzgartir(yaqinNishon, false);
-      setYaqinNishon(null);
-      setNishonTuri(null);
-    }
-
-    setKotarilganIdish(null);
-    setTanlanganIdish(null);
-    if (typeof onIdishQoyildi === "function") onIdishQoyildi(nishonGroup);
-  }, [kotarilganIdish, yaqinNishon, yoritishniOzgartir, engYaqinSlotniTop, onIdishQoyildi]);
-
-  return {
-    tanlanganIdish,
-    setTanlanganIdish,
-    kotarilganIdish,
-    kursorIdish,
-    yaqinNishon,
-    nishonTuri,
-    sudralmoqda,
-    idishniJoyigaQoy,
-  };
-}
