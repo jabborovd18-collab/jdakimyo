@@ -205,10 +205,10 @@ export function bugEffekti(sahna, idish, sozlama = {}) {
   };
 }
 
-// 5. ALANGA EFFEKTI — spirtovka alangasi, Math.sin bilan tebranadi.
+// 5. ALANGA EFFEKTI — Spirtovka yoki Bunzen gorelkasi alangasi, dual-layer realistik tebranish bilan.
 export function alangaEffekti(sahna, idish, sozlama = {}) {
   const alangaMesh = idish?.userData?.alanga;
-  const davomiylik = 3.0;
+  const davomiylik = sozlama.davomiylik || 4.0;
 
   if (alangaMesh) {
     alangaMesh.visible = true;
@@ -217,8 +217,17 @@ export function alangaEffekti(sahna, idish, sozlama = {}) {
   return {
     yangila(dt, otganVaqt) {
       if (!alangaMesh) return;
-      const tebranish = Math.sin(otganVaqt * 12) * 0.1;
-      alangaMesh.scale.set(1 + tebranish, 1 - tebranish * 0.5, 1 + tebranish);
+      const tebranishX = Math.sin(otganVaqt * 16) * 0.08;
+      const tebranishY = Math.cos(otganVaqt * 22) * 0.12;
+      const tebranishZ = Math.sin(otganVaqt * 14 + 1.2) * 0.08;
+
+      alangaMesh.scale.set(1 + tebranishX, 1 + tebranishY, 1 + tebranishZ);
+
+      // Chiroq kuchini tebrantirish
+      const pointLight = alangaMesh.children?.find((c) => c.isPointLight);
+      if (pointLight) {
+        pointLight.intensity = 1.0 + Math.sin(otganVaqt * 18) * 0.35;
+      }
     },
     tugadimi(otganVaqt) {
       return otganVaqt >= davomiylik;

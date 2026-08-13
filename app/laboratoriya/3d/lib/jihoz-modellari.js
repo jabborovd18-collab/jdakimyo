@@ -446,38 +446,66 @@ function tomizgichYasa(materiallar) {
 // 9. SPIRTOVKA — Moddalarni isitish va alanga reaksiyalari uchun spirtli yoritgich-isitgich.
 function spirtovkaYasa(materiallar) {
   const group = new THREE.Group();
-  const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x9aa4b2, metalness: 0.8 });
-  const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.35, transparent: true });
+  const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 });
+  const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, opacity: 0.4, transparent: true });
 
-  const tanaGeo = new THREE.CylinderGeometry(0.05, 0.07, 0.09, 32);
+  // 1. Shisha korpus (Faceted Alcohol Reservoir)
+  const tanaGeo = new THREE.CylinderGeometry(0.055, 0.075, 0.08, 24);
   const tana = new THREE.Mesh(tanaGeo, shishaMat);
-  tana.position.y = 0.045;
+  tana.position.y = 0.04;
   group.add(tana);
 
-  const qopqoqGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.02, 32);
+  // Ichidagi spirt suyuqligi
+  const spirtGeo = new THREE.CylinderGeometry(0.05, 0.07, 0.05, 20);
+  const spirtMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.5 });
+  const spirt = new THREE.Mesh(spirtGeo, spirtMat);
+  spirt.position.y = 0.025;
+  group.add(spirt);
+
+  // 2. Metall bo'g'iz va qopqoq
+  const qopqoqGeo = new THREE.CylinderGeometry(0.022, 0.026, 0.025, 24);
   const qopqoq = new THREE.Mesh(qopqoqGeo, metallMat);
-  qopqoq.position.y = 0.1;
+  qopqoq.position.y = 0.09;
   group.add(qopqoq);
 
+  // 3. Paxtali pilik (Wick)
   const pilikGeo = new THREE.CylinderGeometry(0.005, 0.005, 0.025, 16);
-  const pilikMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f4, roughness: 0.9 });
+  const pilikMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.9 });
   const pilik = new THREE.Mesh(pilikGeo, pilikMat);
-  pilik.position.y = 0.12;
+  pilik.position.y = 0.11;
   group.add(pilik);
 
-  // Alanga mesh'i (ConeGeometry, MeshBasicMaterial, boshida visible: false)
-  const alangaGeo = new THREE.ConeGeometry(0.02, 0.06, 16);
-  const alangaMat = new THREE.MeshBasicMaterial({ color: 0xfb923c });
-  const alangaMesh = new THREE.Mesh(alangaGeo, alangaMat);
-  alangaMesh.position.y = 0.16;
-  alangaMesh.visible = false;
-  group.add(alangaMesh);
+  // 4. Realistik Alanga guruhi (Dual-layer Flame)
+  const alangaGroup = new THREE.Group();
+  alangaGroup.position.set(0, 0.125, 0);
+  alangaGroup.visible = false;
+
+  // Ichki ko'k alanga konusi (Blue Core)
+  const kokAlangaGeo = new THREE.ConeGeometry(0.012, 0.04, 16);
+  const kokAlangaMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.9 });
+  const kokAlanga = new THREE.Mesh(kokAlangaGeo, kokAlangaMat);
+  kokAlanga.position.y = 0.02;
+  alangaGroup.add(kokAlanga);
+
+  // Tashqi to'q sariq-sariq alanga (Outer Orange Flame)
+  const sariqAlangaGeo = new THREE.ConeGeometry(0.024, 0.075, 16);
+  const sariqAlangaMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.85 });
+  const sariqAlanga = new THREE.Mesh(sariqAlangaGeo, sariqAlangaMat);
+  sariqAlanga.position.y = 0.038;
+  alangaGroup.add(sariqAlanga);
+
+  // Alanga nurli chirog'i (Point Light)
+  const alangaNuri = new THREE.PointLight(0xfbbf24, 1.2, 0.8);
+  alangaNuri.position.y = 0.04;
+  alangaGroup.add(alangaNuri);
+
+  group.add(alangaGroup);
 
   group.userData = {
     kalit: "spirtovka",
     suyuqlikMesh: null,
     chokmaMesh: null,
-    alanga: alangaMesh,
+    alanga: alangaGroup,
     ogizBalandligi: 0.18,
     tanlanadi: true,
   };

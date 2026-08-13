@@ -24,6 +24,7 @@ import XonaNavigatsiyaUI from "./components/XonaNavigatsiyaUI.jsx";
 import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
 import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
 import KristallPanjaraModal from "./components/KristallPanjaraModal.jsx";
+import DavriyJadvalModal from "./components/DavriyJadvalModal.jsx";
 import { zonagaOt } from "./lib/xona-zonalari.js";
 import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
@@ -71,6 +72,7 @@ export default function Korinish() {
   const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
   const [portlashMaLumot, setPortlashMaLumot] = useState(null);
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
+  const [davriyJadvalOchilgan, setDavriyJadvalOchilgan] = useState(false);
   const [ekspertModalOchilgan, setEkspertModalOchilgan] = useState(false);
   const [faolZona, setFaolZona] = useState('asosiy');
 
@@ -407,6 +409,18 @@ export default function Korinish() {
           >
             <Ikon nom="doska" olcham={13} />
             Kristall Panjara
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setDavriyJadvalOchilgan(!davriyJadvalOchilgan)}
+            className={`v3-tugma text-xs font-bold transition ${
+              davriyJadvalOchilgan ? "v3-tugma-asosiy" : ""
+            }`}
+            title="D.I. Mendeleyev Davriy Jadvali (IUPAC)"
+          >
+            <Ikon nom="atom" olcham={13} />
+            Davriy Jadval
           </button>
 
           <button
@@ -864,6 +878,12 @@ export default function Korinish() {
       {kristallPanjaraOchilgan && (
         <KristallPanjaraModal
           onYop={() => setKristallPanjaraOchilgan(false)}
+        />
+      )}
+
+      {davriyJadvalOchilgan && (
+        <DavriyJadvalModal
+          onYop={() => setDavriyJadvalOchilgan(false)}
         />
       )}
     </div>
