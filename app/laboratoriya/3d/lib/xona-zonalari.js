@@ -24,6 +24,15 @@ export const XONA_ZONALARI = {
     nishon: [-0.95, 0.96, 0.15],
     fov: 40,
   },
+  titrlash: {
+    kalit: "titrlash",
+    nom: "Byuretka va Titrlash Stendi",
+    tavsif: "50 ml li shisha byuretka, kislota-ishqor va redoks volumetrik tahlili",
+    ikon: "atom",
+    kamera: [0.75, 1.48, 1.15],
+    nishon: [0.65, 1.05, 0.1],
+    fov: 40,
+  },
   tortma_shkaf: {
     kalit: "tortma_shkaf",
     nom: "Tortma Shkaf (Fume Hood)",

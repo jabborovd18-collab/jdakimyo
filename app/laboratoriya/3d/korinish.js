@@ -17,6 +17,7 @@ import MolekulaZoomModal from "./components/MolekulaZoomModal.jsx";
 import PHMeterUI from "./components/PHMeterUI.jsx";
 import TaroziUI from "./components/TaroziUI.jsx";
 import EritmaTayyorlashModal from "./components/EritmaTayyorlashModal.jsx";
+import TitrlashStendiUI from "./components/TitrlashStendiUI.jsx";
 import EkspertXulosaModal from "./components/EkspertXulosaModal.jsx";
 import XonaNavigatsiyaUI from "./components/XonaNavigatsiyaUI.jsx";
 import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
@@ -64,6 +65,7 @@ export default function Korinish() {
   const [phMeterOchilgan, setPhMeterOchilgan] = useState(false);
   const [taroziOchilgan, setTaroziOchilgan] = useState(false);
   const [eritmaOchilgan, setEritmaOchilgan] = useState(false);
+  const [titrlashOchilgan, setTitrlashOchilgan] = useState(false);
   const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
   const [portlashMaLumot, setPortlashMaLumot] = useState(null);
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
@@ -417,11 +419,21 @@ export default function Korinish() {
           <button
             type="button"
             onClick={() => setEritmaOchilgan(true)}
-            className="v3-tugma v3-tugma-asosiy text-xs font-bold"
+            className="v3-tugma text-xs font-bold"
             title="Qattiq moddalarni tortib aniq molyar eritma tayyorlash"
           >
             <Ikon nom="kolba" olcham={13} />
             Eritma Tayyorlash
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTitrlashOchilgan(true)}
+            className="v3-tugma v3-tugma-asosiy text-xs font-bold"
+            title="50 ml Byuretka bilan volumetrik titrlash va ekvivalentlik tahlili"
+          >
+            <Ikon nom="atom" olcham={13} />
+            Byuretka & Titrlash
           </button>
 
           <button
@@ -787,6 +799,13 @@ export default function Korinish() {
         <EritmaTayyorlashModal
           onEritmaTayyorlandi={handleEritmaTayyorlandi}
           onYop={() => setEritmaOchilgan(false)}
+        />
+      )}
+
+      {/* 1-QADAM: VOLUMETRIK TITRLASH VA BYURETKA STENDI */}
+      {titrlashOchilgan && (
+        <TitrlashStendiUI
+          onYop={() => setTitrlashOchilgan(false)}
         />
       )}
 

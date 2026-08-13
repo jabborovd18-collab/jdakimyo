@@ -156,6 +156,62 @@ function rakovinaYasa(materiallar) {
   return group;
 }
 
+/** Volumetrik Titrlash va Byuretka Stendi modeli */
+function titrlashStendiYasa(materiallar) {
+  const group = new THREE.Group();
+  group.name = "Titrlash_Byuretka_Stansiyasi";
+  group.position.set(0.65, 0.9, 0.1);
+
+  const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.2 });
+  const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.35 });
+  const suyuqlikMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, transparent: true, opacity: 0.85 });
+
+  // 1. Shtativ quyma temir asosi (Base)
+  const asosGeo = new THREE.BoxGeometry(0.24, 0.02, 0.16);
+  const asos = new THREE.Mesh(asosGeo, metallMat);
+  asos.position.y = 0.01;
+  group.add(asos);
+
+  // 2. Vertikal temir sterjen (Rod)
+  const sterjenGeo = new THREE.CylinderGeometry(0.006, 0.006, 0.72, 16);
+  const sterjen = new THREE.Mesh(sterjenGeo, metallMat);
+  sterjen.position.set(-0.08, 0.36, 0);
+  group.add(sterjen);
+
+  // 3. Byuretka qisqichi (Burette Clamp / Lapka)
+  const qisqichGeo = new THREE.BoxGeometry(0.12, 0.025, 0.02);
+  const qisqich = new THREE.Mesh(qisqichGeo, metallMat);
+  qisqich.position.set(-0.02, 0.45, 0);
+  group.add(qisqich);
+
+  // 4. 50 ml li Shisha Byuretka naychasi
+  const byuretkaGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.52, 20);
+  const byuretka = new THREE.Mesh(byuretkaGeo, shishaMat);
+  byuretka.position.set(0.04, 0.42, 0);
+  group.add(byuretka);
+
+  // Byuretka ichidagi titrant suyuqligi
+  const suyuqGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.38, 16);
+  const suyuq = new THREE.Mesh(suyuqGeo, suyuqlikMat);
+  suyuq.position.set(0.04, 0.36, 0);
+  group.add(suyuq);
+
+  // 5. Jo'mrak (Teflon Stopcock)
+  const jomrakGeo = new THREE.BoxGeometry(0.035, 0.015, 0.015);
+  const jomrakMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+  const jomrak = new THREE.Mesh(jomrakGeo, jomrakMat);
+  jomrak.position.set(0.04, 0.17, 0);
+  group.add(jomrak);
+
+  // 6. Pastdagi Erlenmeyyer konussimon kolbasi
+  const kolbaGeo = new THREE.ConeGeometry(0.055, 0.1, 24);
+  const kolba = new THREE.Mesh(kolbaGeo, shishaMat);
+  kolba.position.set(0.04, 0.05, 0);
+  group.add(kolba);
+
+  return group;
+}
+
 /** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
 export function xonaInteryeriniYasa(materiallar) {
   const roomGroup = new THREE.Group();
@@ -170,7 +226,10 @@ export function xonaInteryeriniYasa(materiallar) {
   // 3. Analitik Tarozi Stantsiyasi (Chap oldinda)
   roomGroup.add(taroziStoliYasa(materiallar));
 
-  // 4. Yuvinish Rakovinasi (Chap orqada)
+  // 4. Byuretka va Titrlash Stendi (O'ng oldinda)
+  roomGroup.add(titrlashStendiYasa(materiallar));
+
+  // 5. Yuvinish Rakovinasi (Chap orqada)
   roomGroup.add(rakovinaYasa(materiallar));
 
   return roomGroup;
