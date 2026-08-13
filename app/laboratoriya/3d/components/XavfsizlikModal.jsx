@@ -3,7 +3,9 @@
 import { shishaUrilishi } from "../lib/ovoz.js";
 import { useEffect } from "react";
 
-export default function XavfsizlikModal({ maLumot, onYop }) {
+export default function XavfsizlikModal({ malumot, maLumot: ml, onYop }) {
+  const maLumot = malumot || ml;
+
   useEffect(() => {
     shishaUrilishi(800);
   }, []);
