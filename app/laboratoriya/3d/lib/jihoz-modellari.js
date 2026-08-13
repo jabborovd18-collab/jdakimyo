@@ -819,6 +819,205 @@ function voronkaYasa(materiallar) {
   return group;
 }
 
+// 14. O'LCHOV KOLBASI — Aniq molyar standart eritmalar tayyorlash uchun kalibrlangan tor bo'g'izli kolba (100 ml).
+function olchovKolbasiYasa(materiallar) {
+  const group = new THREE.Group();
+  const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.35, transparent: true });
+  const belgiMat = new THREE.MeshBasicMaterial({ color: 0xef4444 }); // Qizil kalibrlash halqasi
+
+  // Dumaloq tekis tub
+  const tubGeo = new THREE.CylinderGeometry(0.065, 0.065, 0.08, 32);
+  const tub = new THREE.Mesh(tubGeo, shishaMat);
+  tub.position.y = 0.04;
+  group.add(tub);
+
+  // Konus o'tish qismi
+  const konusGeo = new THREE.CylinderGeometry(0.016, 0.065, 0.08, 32);
+  const konus = new THREE.Mesh(konusGeo, shishaMat);
+  konus.position.y = 0.12;
+  group.add(konus);
+
+  // Uzun ingichka bo'g'iz
+  const boyinGeo = new THREE.CylinderGeometry(0.016, 0.016, 0.14, 32, 1, true);
+  const boyin = new THREE.Mesh(boyinGeo, shishaMat);
+  boyin.position.y = 0.23;
+  group.add(boyin);
+
+  // 100 ml Kalibrlash Menisk Halqasi (Calibration Ring Mark)
+  const halqaGeo = new THREE.TorusGeometry(0.0165, 0.0015, 12, 32);
+  const halqa = new THREE.Mesh(halqaGeo, belgiMat);
+  halqa.rotation.x = Math.PI / 2;
+  halqa.position.y = 0.24; // Aynan 100ml menisk sathi
+  group.add(halqa);
+
+  // Shisha tiqin (Ground glass stopper)
+  const tiqinGeo = new THREE.CylinderGeometry(0.017, 0.015, 0.03, 20);
+  const tiqinMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7, opacity: 0.7, transparent: true });
+  const tiqin = new THREE.Mesh(tiqinGeo, tiqinMat);
+  tiqin.position.y = 0.31;
+  group.add(tiqin);
+
+  const suyuqlikGeo = new THREE.CylinderGeometry(0.014, 0.06, 0.20, 32);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.75, materiallar?.arzon);
+  const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
+  suyuqlikMesh.visible = false;
+  group.add(suyuqlikMesh);
+
+  const chokmaGeo = new THREE.CylinderGeometry(0.015, 0.061, 0.20, 32);
+  const chokmaMat = new THREE.MeshStandardMaterial({ color: EFFEKT_RANGLARI.chokmaSukut, roughness: 0.8 });
+  const chokmaMesh = new THREE.Mesh(chokmaGeo, chokmaMat);
+  chokmaMesh.visible = false;
+  group.add(chokmaMesh);
+
+  const qaynash = qaynashZarrachalariYasa(0.055, 0.2);
+  group.add(qaynash.group);
+
+  group.userData = {
+    kalit: "olchov-kolba",
+    suyuqlikMesh,
+    chokmaMesh,
+    qaynashEffekti: qaynash,
+    ogizBalandligi: 0.30,
+    suyuqlikMaxBalandlik: 0.20,
+    suyuqlikTubY: 0.01,
+    tanlanadi: true,
+  };
+
+  yorliqQosh(group, "O'lchov kolbasi (100ml)");
+
+  return group;
+}
+
+// 15. O'LCHOV SILINDRI — Suyuqlik hajmini aniq o'lchash uchun shkalali shisha silindr (50 ml).
+function olchovSilindriYasa(materiallar) {
+  const group = new THREE.Group();
+  const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.35, transparent: true });
+  const shkalaMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+  // Oltiburchakli mustahkam taglik (Hexagonal Base)
+  const taglikGeo = new THREE.CylinderGeometry(0.055, 0.06, 0.012, 6);
+  const taglik = new THREE.Mesh(taglikGeo, shishaMat);
+  taglik.position.y = 0.006;
+  group.add(taglik);
+
+  // Asosiy silindr naycha
+  const naychaGeo = new THREE.CylinderGeometry(0.028, 0.028, 0.32, 32, 1, true);
+  const naycha = new THREE.Mesh(naychaGeo, shishaMat);
+  naycha.position.y = 0.17;
+  group.add(naycha);
+
+  // O'lchov shkala chiziqchalari (10ml, 20ml, 30ml, 40ml, 50ml)
+  for (let i = 1; i <= 5; i++) {
+    const markGeo = new THREE.BoxGeometry(0.016, 0.002, 0.001);
+    const mark = new THREE.Mesh(markGeo, shkalaMat);
+    mark.position.set(0.028, 0.03 + i * 0.055, 0);
+    group.add(mark);
+  }
+
+  const suyuqlikGeo = new THREE.CylinderGeometry(0.026, 0.026, 0.28, 32);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.75, materiallar?.arzon);
+  const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
+  suyuqlikMesh.visible = false;
+  group.add(suyuqlikMesh);
+
+  group.userData = {
+    kalit: "olchov-silindr",
+    suyuqlikMesh,
+    chokmaMesh: null,
+    ogizBalandligi: 0.33,
+    suyuqlikMaxBalandlik: 0.28,
+    suyuqlikTubY: 0.012,
+    tanlanadi: true,
+  };
+
+  yorliqQosh(group, "O'lchov silindri (50ml)");
+
+  return group;
+}
+
+// 16. SOAT SHISHASI — Qattiq tuz va kristallarni tarozida tortish uchun sferik botiq shisha plastinka.
+function soatShishasiYasa(materiallar) {
+  const group = new THREE.Group();
+  const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.45, transparent: true });
+
+  const plastinkaGeo = new THREE.SphereGeometry(0.06, 32, 16, 0, Math.PI * 2, Math.PI * 0.7, Math.PI * 0.3);
+  const plastinka = new THREE.Mesh(plastinkaGeo, shishaMat);
+  plastinka.rotation.x = Math.PI;
+  plastinka.position.y = 0.015;
+  group.add(plastinka);
+
+  const moddaGeo = new THREE.ConeGeometry(0.035, 0.018, 16);
+  const moddaMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.7 });
+  const moddaMesh = new THREE.Mesh(moddaGeo, moddaMat);
+  moddaMesh.position.y = 0.012;
+  moddaMesh.visible = false;
+  group.add(moddaMesh);
+
+  group.userData = {
+    kalit: "soat-shishasi",
+    suyuqlikMesh: moddaMesh,
+    chokmaMesh: null,
+    ogizBalandligi: 0.04,
+    tanlanadi: true,
+  };
+
+  yorliqQosh(group, "Soat shishasi");
+
+  return group;
+}
+
+// 17. SHISHA TAYOQCHA — Kristallarni eritish va aralashtirish uchun laboratoriya tayoqchasi.
+function shishaTayoqchaYasa(materiallar) {
+  const group = new THREE.Group();
+  const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.5, transparent: true });
+
+  const tayoqGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.28, 16);
+  const tayoq = new THREE.Mesh(tayoqGeo, shishaMat);
+  tayoq.position.y = 0.14;
+  tayoq.rotation.z = Math.PI / 12; // 15 gradus engil qiyalik
+  group.add(tayoq);
+
+  group.userData = {
+    kalit: "shisha-tayoqcha",
+    suyuqlikMesh: null,
+    chokmaMesh: null,
+    ogizBalandligi: 0.28,
+    tanlanadi: true,
+  };
+
+  yorliqQosh(group, "Shisha tayoqcha");
+
+  return group;
+}
+
+// 18. SPATULA — Qattiq reaktiv va tuzlarni taroziga olish uchun zanglamas po'lat qoshiqcha.
+function spatulaYasa(materiallar) {
+  const group = new THREE.Group();
+  const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
+
+  const dastaGeo = new THREE.BoxGeometry(0.008, 0.18, 0.003);
+  const dasta = new THREE.Mesh(dastaGeo, metallMat);
+  dasta.position.y = 0.09;
+  group.add(dasta);
+
+  const qoshiqGeo = new THREE.CylinderGeometry(0.014, 0.004, 0.03, 16);
+  const qoshiq = new THREE.Mesh(qoshiqGeo, metallMat);
+  qoshiq.position.y = 0.012;
+  group.add(qoshiq);
+
+  group.userData = {
+    kalit: "spatula",
+    suyuqlikMesh: null,
+    chokmaMesh: null,
+    ogizBalandligi: 0.18,
+    tanlanadi: true,
+  };
+
+  yorliqQosh(group, "Spatula");
+
+  return group;
+}
+
 // 14. ZAXIRA MODEL — Maxsus model taqdim etilmagan apparatlar uchun quti, quvur va nom yorlig'idan iborat zaxira model.
 function zaxiraModel(kalit, materiallar) {
   const group = new THREE.Group();
@@ -914,6 +1113,16 @@ function modelYasa(kalit, materiallar) {
       return dumaloqTubliKolbaYasa(materiallar);
     case "kolba":
       return kolbaYasa(materiallar);
+    case "olchov-kolba":
+      return olchovKolbasiYasa(materiallar);
+    case "olchov-silindr":
+      return olchovSilindriYasa(materiallar);
+    case "soat-shishasi":
+      return soatShishasiYasa(materiallar);
+    case "shisha-tayoqcha":
+      return shishaTayoqchaYasa(materiallar);
+    case "spatula":
+      return spatulaYasa(materiallar);
     case "kristallizator":
       return kristallizatorYasa(materiallar);
     case "byuretka":

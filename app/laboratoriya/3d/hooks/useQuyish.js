@@ -239,6 +239,46 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     }
   }, [quyishToxtat, faolShishaMesh]);
 
+  // Aniq millilitr miqdorida darhol silliq quyish (Direct Volumetric Quick Dosage)
+  const aniqHajmQuy = useCallback((reagentKaliti, targetGroup, qoshiladiganMl = 10) => {
+    if (!targetGroup || !holatRef?.current || !reagentKaliti) return;
+
+    oqimBoshla();
+    tiqinOchilishi();
+
+    const yangiHolat = quy(holatRef.current, reagentKaliti, qoshiladiganMl);
+    holatRef.current = yangiHolat;
+
+    const yangiHajm = jamiHajm(yangiHolat);
+    setHajm(yangiHajm);
+
+    const rangObj = aralashmaRangi(yangiHolat);
+    suyuqlikSathiniYangila(targetGroup, yangiHajm, rangObj);
+
+    // Devordagi shisha hajmini kamaytirish
+    const devorShisha = devorShishasiniTop(sahnaRef?.current, reagentKaliti);
+    if (devorShisha?.userData?.hajmniYangila) {
+      const joriy = devorShisha.userData.joriyHajm || devorShisha.userData.sigim || 500;
+      devorShisha.userData.hajmniYangila(Math.max(0, joriy - qoshiladiganMl));
+    }
+
+    if (jurnalRef?.current) {
+      yoz(jurnalRef.current, {
+        amal: "quyish",
+        reagent: reagentKaliti,
+        ml: qoshiladiganMl,
+      });
+    }
+
+    if (typeof onOzgarish === "function") {
+      onOzgarish(yangiHolat);
+    }
+
+    setTimeout(() => {
+      oqimToxtat();
+    }, 450);
+  }, [sahnaRef, holatRef, jurnalRef, onOzgarish]);
+
   // Quyish fizikasi animatsiyasi sikli
   useEffect(() => {
     if (!quyilmoqda) return;
@@ -312,6 +352,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     burchakniOrnat,
     shishaniKeltir,
     javongaQaytar,
+    aniqHajmQuy,
     egishBurchagi,
     quyilmoqda,
     hajm,

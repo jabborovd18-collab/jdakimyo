@@ -23,15 +23,21 @@ export const STOL = {
   balandligi: 0.9,
 };
 
-// Stol ustida jihozlar bir-birining ustiga tushmasligi va aniq panjara bo'yicha turishi uchun 6 ta joy koordinatasi (X, Y, Z).
+// Stol ustida jihozlar bir-birining ustiga tushmasligi va aniq panjara bo'yicha turishi uchun 12 ta joy koordinatasi (X, Y, Z).
 // Y balandligi stol sirtiga (0.9) teng qilib olingan.
 export const SLOTLAR = [
-  [-0.8, 0.9, 0.25],  // 1-slot: old qator, chap
-  [0,    0.9, 0.25],  // 2-slot: old qator, o'rta
-  [0.8,  0.9, 0.25],  // 3-slot: old qator, o'ng
-  [-0.8, 0.9, -0.25], // 4-slot: orqa qator, chap
-  [0,    0.9, -0.25], // 5-slot: orqa qator, o'rta
-  [0.8,  0.9, -0.25], // 6-slot: orqa qator, o'ng
+  [-1.1, 0.9, 0.35],  // 1-slot: old chap
+  [-0.55, 0.9, 0.35], // 2-slot: old o'rta-chap
+  [0,     0.9, 0.35], // 3-slot: old markaz
+  [0.55,  0.9, 0.35], // 4-slot: old o'rta-o'ng
+  [1.1,   0.9, 0.35], // 5-slot: old o'ng
+  [-1.1, 0.9, 0.0],   // 6-slot: o'rta chap
+  [-0.55, 0.9, 0.0],  // 7-slot: o'rta
+  [0,     0.9, 0.0],  // 8-slot: markaz
+  [0.55,  0.9, 0.0],  // 9-slot: o'rta o'ng
+  [1.1,   0.9, 0.0],  // 10-slot: o'rta chekka
+  [-0.7, 0.9, -0.35], // 11-slot: orqa chap
+  [0.7,  0.9, -0.35], // 12-slot: orqa o'ng
 ];
 
 // 16-lik rang kodlari RGB o'rniga hex formatda beriladi: Three.js materiallari hex format bilan eng tez ishlaydi.

@@ -202,10 +202,17 @@ export function useSudrash({
           controlsRef.current.enabled = false;
         }
 
-        sudrashTekisligiRef.current.constant = -(topilganGroup.position.y + 0.24);
+        // Sudrash tekisligini stol usti balandligiga o'rnatamiz
+        sudrashTekisligiRef.current.set(new THREE.Vector3(0, 1, 0), -1.05);
 
         if (raycasterRef.current.ray.intersectPlane(sudrashTekisligiRef.current, kesishmaNuqtaRef.current)) {
-          sudrashOffsetRef.current.copy(topilganGroup.position).sub(kesishmaNuqtaRef.current);
+          sudrashOffsetRef.current.set(
+            topilganGroup.position.x - kesishmaNuqtaRef.current.x,
+            0,
+            topilganGroup.position.z - kesishmaNuqtaRef.current.z
+          );
+        } else {
+          sudrashOffsetRef.current.set(0, 0, 0);
         }
 
         // Agar tarozi pallasida turgan bo'lsa, undan olinganini bildirish
@@ -216,8 +223,8 @@ export function useSudrash({
           }
         }
 
-        // Ko'z oldiga silliq ko'tariladi (Y = 1.15m)
-        topilganGroup.position.y = Math.max(1.15, topilganGroup.position.y + 0.25);
+        // Stol ustidan silliq ko'tariladi
+        topilganGroup.position.y = 1.05;
         topilganGroup.userData.kotarilgan = true;
 
         shishaUrilishi(2400);
@@ -243,15 +250,12 @@ export function useSudrash({
       raycasterRef.current.setFromCamera(mouseRef.current, kameraRef.current);
 
       if (faolGuruhRef.current && controlsRef?.current?.enabled === false) {
-        if (raycasterRef.current.ray.intersectPlane(sudrashTekisligiRef.current, kesishmaNuqtaRef.current)) {
-          const yangiPos = kesishmaNuqtaRef.current.add(sudrashOffsetRef.current);
+        const kesishma = new THREE.Vector3();
+        if (raycasterRef.current.ray.intersectPlane(sudrashTekisligiRef.current, kesishma)) {
+          const nx = Math.max(-7.0, Math.min(7.0, kesishma.x + sudrashOffsetRef.current.x));
+          const nz = Math.max(-5.0, Math.min(5.0, kesishma.z + sudrashOffsetRef.current.z));
 
-          // Butun 16x12m laboratoriya bo'yicha erkin surish chegaralari
-          yangiPos.x = Math.max(-7.0, Math.min(7.0, yangiPos.x));
-          yangiPos.z = Math.max(-5.0, Math.min(5.0, yangiPos.z));
-
-          faolGuruhRef.current.position.x = yangiPos.x;
-          faolGuruhRef.current.position.z = yangiPos.z;
+          faolGuruhRef.current.position.set(nx, 1.05, nz);
 
           // Magnitli nishonni tekshirish
           const { nishon, turi } = yaqinNishonniTop(faolGuruhRef.current);
@@ -315,12 +319,13 @@ export function useSudrash({
         const guruh = faolGuruhRef.current;
 
         if (!yaqinNishon) {
-          // Eng yaqin bo'sh slotga silliq tushadi
-          const slotPos = engYaqinSlotniTop(guruh.position);
-          guruh.position.copy(slotPos);
+          // Erkin qo'yilgan joyida stol sirtiga (Y = 0.90) silliq qo'nadi
+          guruh.position.y = 0.90;
+          guruh.rotation.set(0, 0, 0);
           guruh.userData.kotarilgan = false;
           yoritishniOzgartir(guruh, false);
           setKotarilganIdish(null);
+          shishaUrilishi(2000);
           if (typeof onIdishQoyildi === "function") onIdishQoyildi(guruh);
         } else {
           // Nishon ustida quyish yoki amaliyot holatida qoladi
@@ -337,6 +342,7 @@ export function useSudrash({
               onTaroziTushdi(guruh);
             }
           } else if (nishonTuri === "spirtovka" && typeof onSpirtovkagaQoyildi === "function") {
+            guruh.position.y = 1.10;
             onSpirtovkagaQoyildi(guruh);
           } else if (nishonTuri === "rakovina" && typeof onRakovinagaTushdi === "function") {
             onRakovinagaTushdi(guruh);

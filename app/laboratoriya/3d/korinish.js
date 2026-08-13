@@ -258,6 +258,7 @@ export default function Korinish() {
     burchakniOrnat,
     shishaniKeltir,
     javongaQaytar,
+    aniqHajmQuy,
     egishBurchagi,
     quyilmoqda,
     quyishTezligiMl,
@@ -947,10 +948,35 @@ export default function Korinish() {
                 </div>
               </div>
 
+              {/* Tezkor millilitr quyish tugmalari (Quick Volumetric Dosage) */}
+              <div className="space-y-1">
+                <div className="text-[10px] font-mono text-[var(--v3-xira)]">Aniq hajm quyish (ml):</div>
+                <div className="grid grid-cols-5 gap-1.5 text-center font-mono">
+                  {[
+                    { ml: 1, label: "+1 ml" },
+                    { ml: 5, label: "+5 ml" },
+                    { ml: 10, label: "+10 ml" },
+                    { ml: 25, label: "+25 ml" },
+                    { ml: 50, label: "+50 ml" },
+                  ].map(({ ml, label }) => (
+                    <button
+                      key={ml}
+                      type="button"
+                      onClick={() => {
+                        aniqHajmQuy(faolReagent || "H₂O", nishonIdishGroup, ml);
+                      }}
+                      className="py-1 rounded-lg text-[10px] font-bold border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:border-[var(--v3-urgu)] hover:text-[var(--v3-urgu)] transition-all"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Egish Burchagi Slideri */}
               <div className="space-y-1">
                 <div className="flex justify-between text-[11px] font-mono text-[var(--v3-xira)]">
-                  <span>Egish burchagi:</span>
+                  <span>Uzluksiz egish burchagi:</span>
                   <strong className="text-[var(--v3-matn)]">{egishBurchagi}°</strong>
                 </div>
 
@@ -1082,6 +1108,17 @@ export default function Korinish() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Tezkor suv quyish */}
+            <button
+              type="button"
+              disabled={!nishonIdishGroup}
+              onClick={() => aniqHajmQuy("H₂O", nishonIdishGroup, 10)}
+              className="v3-tugma text-xs font-bold text-sky-400 border-sky-500/30 hover:bg-sky-500/10"
+              title="Idishga 10 ml distillangan suv quyish"
+            >
+              💧 +10ml H₂O
+            </button>
+
             {/* Spirtovka bilan isitish */}
             <button
               type="button"

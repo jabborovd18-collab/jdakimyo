@@ -17,75 +17,70 @@ import { fonOl } from "./fonlar.js";
 // yaratilishi shu yerda hal bo'ladi va chaqiruvchi tomon o'zgarmaydi.
 export function materiallarniYarat(fonKaliti, arzonRejim = false) {
   const fon = fonOl(fonKaliti);
-  const muhitKuchi = fon.muhitKuchi ?? 0.5;
+  const muhitKuchi = fon.muhitKuchi ?? 0.8;
 
-  // Shisha. Nega `opacity` 1 va shaffoflik `transmission` orqali beriladi:
-  // ikkalasi birga ishlatilganda ular bir-birini yeydi — transmission nurni
-  // o'tkazadi, opacity esa o'sha o'tgan nurni yana susaytiradi va idish
-  // butunlay ko'rinmay qoladi. Aynan shuning uchun probirka bo'sh sahnada
-  // zo'rg'a bilinardi.
-  //
-  // `thickness` ham kamaytirildi: 0.4 probirkaning radiusidan (0.045) o'n
-  // barobar katta edi, ya'ni ingichka naycha qalin shisha g'o'la kabi
-  // hisoblanib, ichidagi hamma narsani qoraytirardi.
+  // Ultra-aniq Borosilikat Laboratoriya Shishasi (High-Fidelity Pyrex Glass Material)
   const shisha = arzonRejim
     ? new THREE.MeshStandardMaterial({
-        color: fon.shisha,
+        color: 0xe0f2fe,
         transparent: true,
-        opacity: 0.34,
-        roughness: 0.1,
-        metalness: 0,
-        envMapIntensity: muhitKuchi,
+        opacity: 0.42,
+        roughness: 0.08,
+        metalness: 0.1,
+        envMapIntensity: 1.2,
         side: THREE.DoubleSide,
       })
     : new THREE.MeshPhysicalMaterial({
-        color: fon.shisha,
+        color: 0xffffff,
         transparent: true,
-        opacity: 1,
-        roughness: 0.06,
-        metalness: 0,
-        transmission: 0.92,
-        thickness: 0.03,
-        ior: 1.5,
-        envMapIntensity: muhitKuchi,
+        opacity: 0.88,
+        roughness: 0.04,
+        metalness: 0.02,
+        transmission: 0.82, // Optimal shaffoflik: shisha chegaralari va yaltirashi aniq ko'rinadi
+        thickness: 0.06,
+        ior: 1.52, // Borosilikat laboratoriya shishasi sindirish ko'rsatkichi
+        specularIntensity: 1.0,
+        specularColor: new THREE.Color(0xffffff),
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.03,
+        attenuationColor: new THREE.Color(0xdbeafe),
+        attenuationDistance: 1.2,
+        envMapIntensity: 1.4,
         side: THREE.DoubleSide,
       });
 
   const metall = new THREE.MeshStandardMaterial({
-    color: RANGLAR.metall,
-    roughness: 0.3,
-    metalness: 0.85,
-    envMapIntensity: muhitKuchi,
+    color: 0x94a3b8,
+    roughness: 0.25,
+    metalness: 0.9,
+    envMapIntensity: 1.2,
   });
 
   const chinni = new THREE.MeshStandardMaterial({
-    color: 0xfafafa,
-    roughness: 0.6,
+    color: 0xf8fafc,
+    roughness: 0.2,
     metalness: 0.05,
-    envMapIntensity: muhitKuchi,
+    envMapIntensity: 0.9,
   });
 
   const yogoch = new THREE.MeshStandardMaterial({
     color: fon.stol,
-    roughness: 0.8,
+    roughness: 0.65,
     metalness: 0.1,
-    envMapIntensity: muhitKuchi * 0.6,
+    envMapIntensity: 0.7,
   });
 
   const rezina = new THREE.MeshStandardMaterial({
     color: 0x1e293b,
-    roughness: 0.9,
-    metalness: 0,
-    envMapIntensity: muhitKuchi * 0.4,
+    roughness: 0.85,
+    metalness: 0.05,
   });
 
-  // Pol. Stol ostida hech nima bo'lmagani uchun sahna "havoda osilgan taxta"
-  // bo'lib ko'rinardi — soyaning tushadigan joyi ham yo'q edi.
   const pol = new THREE.MeshStandardMaterial({
     color: fon.pol ?? fon.fon,
-    roughness: 0.95,
-    metalness: 0,
-    envMapIntensity: muhitKuchi * 0.35,
+    roughness: 0.35,
+    metalness: 0.15,
+    envMapIntensity: 0.5,
   });
 
   return {
@@ -95,9 +90,6 @@ export function materiallarniYarat(fonKaliti, arzonRejim = false) {
     yogoch,
     rezina,
     pol,
-    // Jihoz modellari suyuqlik materialini o'zi yasaydi — arzon rejimni
-    // shu bayroq orqali biladi, aks holda unga alohida argument uzatish
-    // uchun `jihozYasa` imzosini butun kod bo'ylab o'zgartirish kerak edi.
     arzon: arzonRejim,
   };
 }

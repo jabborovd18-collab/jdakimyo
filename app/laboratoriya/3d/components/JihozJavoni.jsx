@@ -11,10 +11,37 @@ const GURUH_NOMLARI = {
   boshqa: "🛠️ Boshqa jihozlar",
 };
 
+const STANDART_JIHOZLAR = [
+  { kalit: "probirka", nom: "Probirka (25ml)", guruh: "shisha", icon: "🧪" },
+  { kalit: "stakan", nom: "Kimyoviy stakan (100ml)", guruh: "shisha", icon: "🥛" },
+  { kalit: "olchov-kolba", nom: "O'lchov kolbasi (100ml)", guruh: "olchov", icon: "🧴" },
+  { kalit: "olchov-silindr", nom: "O'lchov silindri (50ml)", guruh: "olchov", icon: "📏" },
+  { kalit: "soat-shishasi", nom: "Soat shishasi (Tarozi uchun)", guruh: "olchov", icon: "🍽️" },
+  { kalit: "shisha-tayoqcha", nom: "Shisha tayoqcha (Aralashtirgich)", guruh: "boshqa", icon: "🥢" },
+  { kalit: "spatula", nom: "Spatula (Qoshiqcha)", guruh: "boshqa", icon: "🥄" },
+  { kalit: "konussimon-kolba", nom: "Erlenmeyyer kolba (120ml)", guruh: "shisha", icon: "🧪" },
+  { kalit: "dumaloq-tubli-kolba", nom: "Dumaloq tubli kolba (150ml)", guruh: "shisha", icon: "⚗️" },
+  { kalit: "kolba", nom: "Tekis tubli kolba (120ml)", guruh: "shisha", icon: "🧴" },
+  { kalit: "kristallizator", nom: "Kristallizator kosasi (80ml)", guruh: "shisha", icon: "🧊" },
+  { kalit: "voronka", nom: "Shisha voronka", guruh: "ajratish", icon: "🌪️" },
+  { kalit: "byuretka", nom: "Titrlash Byuretkasi (50ml)", guruh: "olchov", icon: "🌡️" },
+  { kalit: "spirtovka", nom: "Spirtovka (Alanga)", guruh: "isitish", icon: "🔥" },
+  { kalit: "probirka-shtativi", nom: "Probirka shtativi (6 ta)", guruh: "tayanch", icon: "📐" },
+  { kalit: "shtativ", nom: "Universal shtativ", guruh: "tayanch", icon: "🏗️" },
+  { kalit: "termometr", nom: "Shisha termometr (0-100°C)", guruh: "olchov", icon: "🌡️" },
+];
+
 export default function JihozJavoni({ jihozlar = [], stolda = [], onQosh, onOlib }) {
   const [qidiruv, setQidiruv] = useState("");
   const stoldagiSon = stolda.length;
-  const slotlarToldimi = stoldagiSon >= 6;
+  const slotlarToldimi = stoldagiSon >= 12; // Kengaytirilgan stol sig'imi
+
+  // Standart to'liq asboblar ro'yxatini birlashtirish
+  const birlashganJihozlar = useMemo(() => {
+    const mavjudKalitlar = new Set(jihozlar.map((j) => j.kalit));
+    const qoshimchalar = STANDART_JIHOZLAR.filter((s) => !mavjudKalitlar.has(s.kalit));
+    return [...jihozlar, ...qoshimchalar];
+  }, [jihozlar]);
 
   // Jihoz stolda bormi aniqlash
   const stoldaBormi = (kalit) => {
@@ -24,13 +51,13 @@ export default function JihozJavoni({ jihozlar = [], stolda = [], onQosh, onOlib
   // Filtrlash va qidiruv
   const filtrlanganlar = useMemo(() => {
     const matn = qidiruv.toLowerCase().trim();
-    if (!matn) return jihozlar;
-    return jihozlar.filter((item) => {
+    if (!matn) return birlashganJihozlar;
+    return birlashganJihozlar.filter((item) => {
       const kalit = String(item.kalit || "").toLowerCase();
       const nom = String(item.nom || "").toLowerCase();
       return kalit.includes(matn) || nom.includes(matn);
     });
-  }, [jihozlar, qidiruv]);
+  }, [birlashganJihozlar, qidiruv]);
 
   // Guruhlarga ajratish
   const guruhlanganlar = useMemo(() => {
