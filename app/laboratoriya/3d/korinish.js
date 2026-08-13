@@ -60,7 +60,19 @@ export default function Korinish() {
     setMounted(true);
   }, []);
 
+  // Ekranni tozalash va to'liq immersiv kino rejimini tinglash (H / Tab)
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.code === "KeyH" && !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) {
+        setTozaEkran((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
   // Faol tanlovlar va holatlar
+  const [tozaEkran, setTozaEkran] = useState(false);
   const [faolReagent, setFaolReagent] = useState(null);
   const [aralashmaOzgarish, setAralashmaOzgarish] = useState(0);
   const [mobilJavon, setMobilJavon] = useState(null);
@@ -133,7 +145,11 @@ export default function Korinish() {
   // 2. Erkin Ko'tarish va Sudrash hooki (3-Bosqich: Pick, Drag & Snap, Action & Return)
   const handleIdishTanlandi = useCallback((group) => {
     if (group && group.userData?.kalit) {
-      holatRef.current.idish = group.userData.kalit;
+      if (group.userData.sigim > 0) {
+        holatRef.current.idish = group.userData.kalit;
+      } else {
+        setFaolReagent(group.userData.kalit);
+      }
     }
   }, []);
 
@@ -391,179 +407,183 @@ export default function Korinish() {
     >
       <MobilOgohlantirish />
 
-      {/* --- YUQORI HEADER --- */}
-      <header
-        className="relative z-40 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2.5 backdrop-blur-md bg-[var(--v3-fon-2)]/95 border-[var(--v3-chiziq)]"
-      >
-        <div className="flex items-center gap-3">
-          <Link href="/laboratoriya" className="v3-tugma text-xs py-1.5 px-3">
-            <Ikon nom="chap" olcham={14} />
-            <span>2D Lab</span>
-          </Link>
-          <h1 className="flex items-center gap-2 text-sm font-bold tracking-wide sm:text-base">
-            <Ikon nom="kolba" olcham={18} className="text-[var(--v3-urgu)]" />
-            <span>3D Laboratoriya</span>
-            {kuchsizQurilma && <span className="v3-tag text-[10px]">Ixcham rejim</span>}
-          </h1>
-        </div>
-
-        {/* Asboblar va vidjetlar tugmalari */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setPhMeterOchilgan(!phMeterOchilgan)}
-            className={`v3-tugma text-xs font-bold transition ${
-              phMeterOchilgan ? "v3-tugma-asosiy" : ""
-            }`}
-          >
-            <Ikon nom="atom" olcham={13} />
-            pH-Metr
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTaroziOchilgan(!taroziOchilgan)}
-            className={`v3-tugma text-xs font-bold transition ${
-              taroziOchilgan ? "v3-tugma-asosiy" : ""
-            }`}
-          >
-            <Ikon nom="orin" olcham={13} />
-            Tarozi
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setKristallPanjaraOchilgan(!kristallPanjaraOchilgan)}
-            className={`v3-tugma text-xs font-bold transition ${
-              kristallPanjaraOchilgan ? "v3-tugma-asosiy" : ""
-            }`}
-          >
-            <Ikon nom="doska" olcham={13} />
-            Kristall Panjara
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setDavriyJadvalOchilgan(!davriyJadvalOchilgan)}
-            className={`v3-tugma text-xs font-bold transition ${
-              davriyJadvalOchilgan ? "v3-tugma-asosiy" : ""
-            }`}
-            title="D.I. Mendeleyev Davriy Jadvali (IUPAC)"
-          >
-            <Ikon nom="atom" olcham={13} />
-            Davriy Jadval
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSandiqOchilgan(!sandiqOchilgan)}
-            className="v3-tugma text-xs font-bold text-yellow-400"
-          >
-            <Ikon nom="orin" olcham={13} />
-            Sandiqlar
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setEritmaOchilgan(true)}
-            className="v3-tugma text-xs font-bold"
-            title="Qattiq moddalarni tortib aniq molyar eritma tayyorlash"
-          >
-            <Ikon nom="kolba" olcham={13} />
-            Eritma Tayyorlash
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTitrlashOchilgan(true)}
-            className="v3-tugma text-xs font-bold"
-            title="50 ml Byuretka bilan volumetrik titrlash va ekvivalentlik tahlili"
-          >
-            <Ikon nom="atom" olcham={13} />
-            Titrlash
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setElektrolizOchilgan(true)}
-            className="v3-tugma v3-tugma-asosiy text-xs font-bold"
-            title="Faradey qonunlari, katod/anod elektroliz va tok manbai stendi"
-          >
-            <Ikon nom="chaqmoq" olcham={13} />
-            Elektroliz & Tok
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setXrayModalOchilgan(true)}
-            className="v3-tugma text-xs font-bold text-amber-400 border-amber-500/40 bg-amber-500/10"
-            title="Mortal Kombat X-Ray Slow-Motion Bog'lar Uzilishi Tahlili"
-          >
-            <Ikon nom="chaqmoq" olcham={13} />
-            X-Ray Slow-Mo
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setAmaliyotOchilgan(true)}
-            className="v3-tugma v3-tugma-asosiy text-xs font-bold"
-            title="Ssenariyli amaliy laboratoriya ishlari va kvestlar"
-          >
-            <Ikon nom="kitob" olcham={13} />
-            Amaliy Mashg{"'"}ulotlar
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSifatAnalizOchilgan(!sifatAnalizOchilgan)}
-            className={`v3-tugma text-xs font-bold ${
-              sifatAnalizOchilgan ? "v3-tugma-asosiy" : ""
-            }`}
-          >
-            <Ikon nom="quiz" olcham={13} />
-            Sifat Analizi
-          </button>
-
-          <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
-
-          {/* Balans */}
-          <div
-            className="flex items-center gap-2 rounded-xl border px-3 py-1 text-xs font-mono font-bold bg-[var(--v3-yuza)] border-[var(--v3-chiziq)]"
-          >
-            <span className="flex items-center gap-1 text-yellow-400">
-              <span>🪙</span> {balans.coins || 0}
-            </span>
-            <span className="text-[var(--v3-chiziq)]">|</span>
-            <span className="flex items-center gap-1 text-cyan-400">
-              <span>💎</span> {balans.gems || 0}
-            </span>
+      {/* --- YUQORI HEADER (TOZA EKRAN BO'LMAGANDA) --- */}
+      {!tozaEkran && !yurishRejimi && (
+        <header
+          className="relative z-40 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2.5 backdrop-blur-md bg-[var(--v3-fon-2)]/95 border-[var(--v3-chiziq)]"
+        >
+          <div className="flex items-center gap-3">
+            <Link href="/laboratoriya" className="v3-tugma text-xs py-1.5 px-3">
+              <Ikon nom="chap" olcham={14} />
+              <span>2D Lab</span>
+            </Link>
+            <h1 className="flex items-center gap-2 text-sm font-bold tracking-wide sm:text-base">
+              <Ikon nom="kolba" olcham={18} className="text-[var(--v3-urgu)]" />
+              <span>3D Laboratoriya</span>
+              {kuchsizQurilma && <span className="v3-tag text-[10px]">Ixcham rejim</span>}
+            </h1>
           </div>
-        </div>
-      </header>
+
+          {/* Asboblar va vidjetlar tugmalari */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPhMeterOchilgan(!phMeterOchilgan)}
+              className={`v3-tugma text-xs font-bold transition ${
+                phMeterOchilgan ? "v3-tugma-asosiy" : ""
+              }`}
+            >
+              <Ikon nom="atom" olcham={13} />
+              pH-Metr
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setTaroziOchilgan(!taroziOchilgan)}
+              className={`v3-tugma text-xs font-bold transition ${
+                taroziOchilgan ? "v3-tugma-asosiy" : ""
+              }`}
+            >
+              <Ikon nom="orin" olcham={13} />
+              Tarozi
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setKristallPanjaraOchilgan(!kristallPanjaraOchilgan)}
+              className={`v3-tugma text-xs font-bold transition ${
+                kristallPanjaraOchilgan ? "v3-tugma-asosiy" : ""
+              }`}
+            >
+              <Ikon nom="doska" olcham={13} />
+              Kristall Panjara
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDavriyJadvalOchilgan(!davriyJadvalOchilgan)}
+              className={`v3-tugma text-xs font-bold transition ${
+                davriyJadvalOchilgan ? "v3-tugma-asosiy" : ""
+              }`}
+              title="D.I. Mendeleyev Davriy Jadvali (IUPAC)"
+            >
+              <Ikon nom="atom" olcham={13} />
+              Davriy Jadval
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSandiqOchilgan(!sandiqOchilgan)}
+              className="v3-tugma text-xs font-bold text-yellow-400"
+            >
+              <Ikon nom="orin" olcham={13} />
+              Sandiqlar
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setEritmaOchilgan(true)}
+              className="v3-tugma text-xs font-bold"
+              title="Qattiq moddalarni tortib aniq molyar eritma tayyorlash"
+            >
+              <Ikon nom="kolba" olcham={13} />
+              Eritma Tayyorlash
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setTitrlashOchilgan(true)}
+              className="v3-tugma text-xs font-bold"
+              title="50 ml Byuretka bilan volumetrik titrlash va ekvivalentlik tahlili"
+            >
+              <Ikon nom="atom" olcham={13} />
+              Titrlash
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setElektrolizOchilgan(true)}
+              className="v3-tugma text-xs font-bold"
+              title="Faradey qonunlari, katod/anod elektroliz va tok manbai stendi"
+            >
+              <Ikon nom="chaqmoq" olcham={13} />
+              Elektroliz
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setXrayModalOchilgan(true)}
+              className="v3-tugma text-xs font-bold text-amber-400 border-amber-500/40 bg-amber-500/10"
+              title="Mortal Kombat X-Ray Slow-Motion Bog'lar Uzilishi Tahlili"
+            >
+              <Ikon nom="chaqmoq" olcham={13} />
+              X-Ray Slow-Mo
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setAmaliyotOchilgan(true)}
+              className="v3-tugma v3-tugma-asosiy text-xs font-bold"
+              title="Ssenariyli amaliy laboratoriya ishlari va kvestlar"
+            >
+              <Ikon nom="kitob" olcham={13} />
+              Amaliy Mashg{"'"}ulotlar
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSifatAnalizOchilgan(!sifatAnalizOchilgan)}
+              className={`v3-tugma text-xs font-bold ${
+                sifatAnalizOchilgan ? "v3-tugma-asosiy" : ""
+              }`}
+            >
+              <Ikon nom="quiz" olcham={13} />
+              Sifat Analizi
+            </button>
+
+            <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
+
+            {/* Balans */}
+            <div
+              className="flex items-center gap-2 rounded-xl border px-3 py-1 text-xs font-mono font-bold bg-[var(--v3-yuza)] border-[var(--v3-chiziq)]"
+            >
+              <span className="flex items-center gap-1 text-yellow-400">
+                <span>🪙</span> {balans.coins || 0}
+              </span>
+              <span className="text-[var(--v3-chiziq)]">|</span>
+              <span className="flex items-center gap-1 text-cyan-400">
+                <span>💎</span> {balans.gems || 0}
+              </span>
+            </div>
+          </div>
+        </header>
+      )}
 
       {/* --- ASOSIY ISH MAYDONI --- */}
       <div className="relative flex flex-1 flex-col overflow-hidden md:flex-row">
-        {/* Chap panel: Javonlar */}
-        <aside
-          className="hidden w-80 shrink-0 flex-col gap-3 border-r p-3 md:flex border-[var(--v3-chiziq)] bg-[var(--v3-fon)]"
-        >
-          <div className="h-1/2 overflow-hidden">
-            <ReagentJavoni
-              reagentlar={reagentlar}
-              faol={faolReagent}
-              onTanla={setFaolReagent}
-              quyilgan={quyilganModdalar}
-            />
-          </div>
-          <div className="h-1/2 overflow-hidden">
-            <JihozJavoni
-              jihozlar={jihozlar}
-              stolda={hammaJihozlar}
-              onQosh={(kalit) => jihozQosh(kalit)}
-              onOlib={(kalit) => jihozOlib(kalit)}
-            />
-          </div>
-        </aside>
+        {/* Chap panel: Javonlar (Toza ekranda yashiriladi) */}
+        {!tozaEkran && !yurishRejimi && (
+          <aside
+            className="hidden w-80 shrink-0 flex-col gap-3 border-r p-3 md:flex border-[var(--v3-chiziq)] bg-[var(--v3-fon)]"
+          >
+            <div className="h-1/2 overflow-hidden">
+              <ReagentJavoni
+                reagentlar={reagentlar}
+                faol={faolReagent}
+                onTanla={setFaolReagent}
+                quyilgan={quyilganModdalar}
+              />
+            </div>
+            <div className="h-1/2 overflow-hidden">
+              <JihozJavoni
+                jihozlar={jihozlar}
+                stolda={hammaJihozlar}
+                onQosh={(kalit) => jihozQosh(kalit)}
+                onOlib={(kalit) => jihozOlib(kalit)}
+              />
+            </div>
+          </aside>
+        )}
 
         {/* Mobil javon tugmalari */}
         <div
@@ -639,12 +659,32 @@ export default function Korinish() {
               <span>{yurishRejimi ? "🚶 Yurish Rejimi (WASD)" : "🚶 Xonada Yurish"}</span>
             </button>
 
-            {yurishRejimi && (
+            {/* Toza ekran (Cinema Mode) tugmasi */}
+            <button
+              type="button"
+              onClick={() => setTozaEkran((v) => !v)}
+              className={`v3-tugma text-xs font-bold py-1.5 px-2.5 backdrop-blur-xl shadow-lg transition-all ${
+                tozaEkran ? "v3-tugma-asosiy ring-1 ring-[var(--v3-urgu)]" : "bg-[var(--v3-fon-2)]/95"
+              }`}
+              title="To'liq toza ekran (H / Tab)"
+            >
+              <Ikon nom={tozaEkran ? "ochiq" : "qidiruv"} olcham={14} />
+              <span>{tozaEkran ? "Interfeysni ochish" : "👁️ Toza Ekran"}</span>
+            </button>
+
+            {yurishRejimi && !tozaEkran && (
               <span className="hidden sm:inline-flex v3-tag v3-tag-ochiq text-[10px] font-mono">
                 ⌨️ W (oldinga) · S (orqaga) · A/D (strafe) · Sichqoncha (qarash) · Space (sakrash) · Shift (yugurish)
               </span>
             )}
           </div>
+
+          {/* EKRAN MARKAZIDAGI CROSSHAIR NUQTA (YURISH YOKI TOZA EKRANDA) */}
+          {(yurishRejimi || tozaEkran) && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-20">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/70 shadow-[0_0_8px_#fff]" />
+            </div>
+          )}
 
           {/* MOBIL PUBG USLUBIDAGI DUAL SENSORLI ANALOG JOYSTIK */}
           {yurishRejimi && (
@@ -801,79 +841,81 @@ export default function Korinish() {
         />
       </div>
 
-      {/* --- PASTKI BOSHQARUV PANELI --- */}
-      <footer
-        className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 backdrop-blur-md bg-[var(--v3-fon-2)]/95 border-[var(--v3-chiziq)]"
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col">
-            <span className="v3-nishon">
-              Joriy idish: {nishonIdishGroup?.userData?.kalit || "Probirka"}
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold font-mono text-[var(--v3-urgu)]">
-                {jamiMl.toFixed(1)} ml
+      {/* --- PASTKI BOSHQARUV PANELI (TOZA EKRAN BO'LMAGANDA) --- */}
+      {!tozaEkran && !yurishRejimi && (
+        <footer
+          className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 backdrop-blur-md bg-[var(--v3-fon-2)]/95 border-[var(--v3-chiziq)]"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col">
+              <span className="v3-nishon">
+                Joriy idish: {nishonIdishGroup?.userData?.kalit || "Probirka"}
               </span>
-              <span className="text-xs text-[var(--v3-xira)] font-mono">({quyilganKalitlar.length} xil modda)</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold font-mono text-[var(--v3-urgu)]">
+                  {jamiMl.toFixed(1)} ml
+                </span>
+                <span className="text-xs text-[var(--v3-xira)] font-mono">({quyilganKalitlar.length} xil modda)</span>
+              </div>
+            </div>
+
+            <div className="hidden flex-wrap gap-1 sm:flex">
+              {quyilganKalitlar.map((kalit) => {
+                const ml = quyilganModdalar[kalit]?.ml || 0;
+                const birlik = reagentBirligi(kalit);
+                const rang = hexDanCss(moddaKorinishi(kalit).rang);
+                return (
+                  <span
+                    key={kalit}
+                    className="inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs bg-[var(--v3-yuza)] border-[var(--v3-chiziq)]"
+                  >
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: rang }} />
+                    {kalit}{" "}
+                    <strong className="text-[var(--v3-urgu)] font-mono">
+                      {miqdorniFormatla(hajmniBirlikka(ml, birlik), birlik)}
+                    </strong>
+                  </span>
+                );
+              })}
             </div>
           </div>
 
-          <div className="hidden flex-wrap gap-1 sm:flex">
-            {quyilganKalitlar.map((kalit) => {
-              const ml = quyilganModdalar[kalit]?.ml || 0;
-              const birlik = reagentBirligi(kalit);
-              const rang = hexDanCss(moddaKorinishi(kalit).rang);
-              return (
-                <span
-                  key={kalit}
-                  className="inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs bg-[var(--v3-yuza)] border-[var(--v3-chiziq)]"
-                >
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: rang }} />
-                  {kalit}{" "}
-                  <strong className="text-[var(--v3-urgu)] font-mono">
-                    {miqdorniFormatla(hajmniBirlikka(ml, birlik), birlik)}
-                  </strong>
-                </span>
-              );
-            })}
+          <div className="flex items-center gap-2">
+            {/* Spirtovka bilan isitish */}
+            <button
+              type="button"
+              onClick={() => setIsitimoda(!isitimoda)}
+              className={`v3-tugma text-xs font-bold transition ${
+                isitimoda ? "border-amber-500 bg-amber-500/20 text-amber-400" : ""
+              }`}
+            >
+              🔥 {isitimoda ? `Isitilmoqda (${harorat}°C)` : "Isitish (Spirtovka)"}
+            </button>
+
+            {/* Reaksiyani tekshirish */}
+            <button
+              type="button"
+              disabled={jamiMl <= 0 || otkazilmoqda}
+              onClick={() => otkaz(null, nishonIdishGroup)}
+              className="v3-tugma v3-tugma-asosiy text-xs font-bold disabled:opacity-40"
+            >
+              <Ikon nom="atom" olcham={14} />
+              <span>{otkazilmoqda ? "O'tkazilmoqda..." : "Tajriba o'tkazish"}</span>
+            </button>
+
+            {/* Tozalash */}
+            <button
+              type="button"
+              disabled={jamiMl <= 0 && !natija && !xato}
+              onClick={handleTozalash}
+              className="v3-tugma text-xs text-red-400 hover:border-red-500/30"
+            >
+              <Ikon nom="ochir" olcham={14} />
+              Tozalash
+            </button>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Spirtovka bilan isitish */}
-          <button
-            type="button"
-            onClick={() => setIsitimoda(!isitimoda)}
-            className={`v3-tugma text-xs font-bold transition ${
-              isitimoda ? "border-amber-500 bg-amber-500/20 text-amber-400" : ""
-            }`}
-          >
-            🔥 {isitimoda ? `Isitilmoqda (${harorat}°C)` : "Isitish (Spirtovka)"}
-          </button>
-
-          {/* Reaksiyani tekshirish */}
-          <button
-            type="button"
-            disabled={jamiMl <= 0 || otkazilmoqda}
-            onClick={() => otkaz(null, nishonIdishGroup)}
-            className="v3-tugma v3-tugma-asosiy text-xs font-bold disabled:opacity-40"
-          >
-            <Ikon nom="atom" olcham={14} />
-            <span>{otkazilmoqda ? "O'tkazilmoqda..." : "Tajriba o'tkazish"}</span>
-          </button>
-
-          {/* Tozalash */}
-          <button
-            type="button"
-            disabled={jamiMl <= 0 && !natija && !xato}
-            onClick={handleTozalash}
-            className="v3-tugma text-xs text-red-400 hover:border-red-500/30"
-          >
-            <Ikon nom="ochir" olcham={14} />
-            Tozalash
-          </button>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* MODALLAR */}
       {molekulaModalKalit && (
