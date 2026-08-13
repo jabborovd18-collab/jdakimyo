@@ -4,10 +4,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { qadamTovushi, shishaUrilishi, tiqinOchilishi } from "../lib/ovoz.js";
 
-function idishGuruhiniTop(obyekt) {
+function obyektniTop(obyekt) {
   let joriy = obyekt;
   while (joriy) {
-    if (joriy.userData && joriy.userData.tanlanadi && joriy.userData.kalit) {
+    if (joriy.userData && (joriy.userData.tanlanadi || joriy.userData.kalit || joriy.name)) {
       return joriy;
     }
     joriy = joriy.parent;
@@ -16,14 +16,9 @@ function idishGuruhiniTop(obyekt) {
 }
 
 /**
- * CS 1.6 & GARRY'S MOD USLUBIDAGI 100% TO'LIQ BIRINCHI SHAXS (FPS HANDS-ON INTERACTION) DVIGATELI.
- *
- * Imkoniyatlari:
- *  - W, A, S, D + Sichqoncha/Sensor bilan zalda erkin yurish.
- *  - Ekran markazidagi nishon (Crosshair) bilan masofadagi (≤ 2.8m) idishlarni aniqlash.
- *  - E tugmasi (yoki mobil [✋ Qo'l] tugmasi) bilan probirka, kolba yoki devor shishasini qo'lga olish.
- *  - Qo'lda idish bilan zal bo'ylab erkin yurish.
- *  - Boshqa idishga qarab quyish, taroziga qo'yish, spirtovkaga o'rnatish yoki stolga qo'yish.
+ * CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA VA HARAKATLANISH DVIGATELI.
+ * Sichqoncha tugmasini bosib turish TALAB ETILMAYDI: sichqoncha harakati to'g'ridan-to'g'ri kamerani 360° aylantiradi.
+ * Chap tugma (Left Click) yoki E / F / G orqali idishlar va stansiyalar bilan bevosita jismoniy muloqot qilinadi.
  */
 export function useYurish({
   sahnaRef,
@@ -51,7 +46,7 @@ export function useYurish({
   const rotationRef = useRef({ yaw: 0, pitch: 0 });
   const velocityRef = useRef(new THREE.Vector3());
 
-  // Sakrash va balandlik
+  // Sakrash va ko'z balandligi
   const verticalVelocityRef = useRef(0);
   const eyeHeightRef = useRef(1.6); // 1.6m ko'z balandligi
 
@@ -90,8 +85,8 @@ export function useYurish({
           verticalVelocityRef.current = 0;
           velocityRef.current.set(0, 0, 0);
 
-          if (rendererRef?.current?.domElement?.requestPointerLock) {
-            rendererRef.current.domElement.requestPointerLock().catch(() => {});
+          if (rendererRef?.current?.domElement) {
+            rendererRef.current.domElement.requestPointerLock?.();
           }
         } else {
           controlsRef.current.enabled = true;
@@ -235,59 +230,62 @@ export function useYurish({
     };
   }, [yurishRejimi, qolgaOlYokiQoy]);
 
-  // 2. SICHQONCHA VA POINTER LOCK BILAN QARASH (CS 1.6 MOUSE LOOK)
+  // 2. CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA HARAKATI (SICHQONCHANI BOSIB TURISH SHART EMAS!)
   useEffect(() => {
     if (!yurishRejimi || !rendererRef?.current) return;
 
     const domElement = rendererRef.current.domElement;
-    let isMouseDown = false;
-    let lastX = 0;
-    let lastY = 0;
-    let downTime = 0;
+    let initialized = false;
+    let prevX = 0;
+    let prevY = 0;
 
-    const onMouseDown = (e) => {
-      isMouseDown = true;
-      lastX = e.clientX;
-      lastY = e.clientY;
-      downTime = performance.now();
-    };
-
-    const onMouseMove = (e) => {
+    // Sichqoncha qimirlashi bilan kamerani to'g'ridan-to'g'ri aylantirish
+    const handleMouseMove = (e) => {
       let dx = 0;
       let dy = 0;
 
       if (document.pointerLockElement === domElement) {
         dx = e.movementX || 0;
         dy = e.movementY || 0;
-      } else if (isMouseDown) {
-        dx = e.clientX - lastX;
-        dy = e.clientY - lastY;
-        lastX = e.clientX;
-        lastY = e.clientY;
       } else {
-        return;
+        if (!initialized) {
+          prevX = e.clientX;
+          prevY = e.clientY;
+          initialized = true;
+          return;
+        }
+        dx = e.clientX - prevX;
+        dy = e.clientY - prevY;
+        prevX = e.clientX;
+        prevY = e.clientY;
       }
 
-      rotationRef.current.yaw -= dx * 0.0032;
-      rotationRef.current.pitch -= dy * 0.0032;
+      rotationRef.current.yaw -= dx * 0.0028;
+      rotationRef.current.pitch -= dy * 0.0028;
+      // Vertikal burchak chegarasi (-85° dan +85° gacha)
       rotationRef.current.pitch = Math.max(-1.48, Math.min(1.48, rotationRef.current.pitch));
     };
 
-    const onMouseUp = () => {
-      if (isMouseDown && performance.now() - downTime < 240) {
-        qolgaOlYokiQoy();
+    // Canvasga bosilganda PointerLock faollashadi va qaralgan idish bilan amaliyot qilinadi
+    const handleCanvasClick = (e) => {
+      if (document.pointerLockElement !== domElement) {
+        domElement.requestPointerLock?.();
       }
-      isMouseDown = false;
+      qolgaOlYokiQoy();
     };
 
-    domElement.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
+    const handlePointerLockChange = () => {
+      initialized = false;
+    };
+
+    document.addEventListener("pointerlockchange", handlePointerLockChange);
+    window.addEventListener("mousemove", handleMouseMove);
+    domElement.addEventListener("click", handleCanvasClick);
 
     return () => {
-      domElement.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("pointerlockchange", handlePointerLockChange);
+      window.removeEventListener("mousemove", handleMouseMove);
+      domElement.removeEventListener("click", handleCanvasClick);
     };
   }, [yurishRejimi, rendererRef, qolgaOlYokiQoy]);
 
@@ -377,7 +375,7 @@ export function useYurish({
         }
       }
 
-      // Qadam va Head-Bobbing
+      // Qadam tovushi va Head-Bobbing
       if (isMoving && eyeHeightRef.current <= 1.62) {
         bobbingRef.current += dt * (isSprint ? 16 : 10);
         kamera.position.y = eyeHeightRef.current + Math.sin(bobbingRef.current) * 0.024;
