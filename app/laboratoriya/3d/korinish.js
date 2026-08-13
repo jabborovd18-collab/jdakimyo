@@ -27,6 +27,7 @@ import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
 import KristallPanjaraModal from "./components/KristallPanjaraModal.jsx";
 import DavriyJadvalModal from "./components/DavriyJadvalModal.jsx";
 import AmaliyMashgulotModal from "./components/AmaliyMashgulotModal.jsx";
+import VirtualJoystick from "./components/VirtualJoystick.jsx";
 import { zonagaOt } from "./lib/xona-zonalari.js";
 import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
@@ -163,13 +164,13 @@ export default function Korinish() {
 
   const nishonIdishGroup = yaqinNishon || tanlanganIdish || hammaJihozlar[0] || null;
 
-  // 2.5. Xonada erkin yurish (Walk Mode)
+  // 2.5. Xonada erkin yurish (1-Qadam: PUBG Dual Joystick Free Roam)
   const {
     yurishRejimi,
     toggleYurishRejimi,
     yurmoqda,
-    mobilHarakat,
-    mobilBurilish,
+    handleJoystickHarakat,
+    handleJoystickBurilish,
   } = useYurish({
     sahnaRef,
     kameraRef,
@@ -633,44 +634,12 @@ export default function Korinish() {
             )}
           </div>
 
-          {/* MOBIL ON-SCREEN VIRTUAL JOYSTICK / D-PAD (YURISH REJIMIDA) */}
+          {/* MOBIL PUBG USLUBIDAGI DUAL SENSORLI ANALOG JOYSTIK */}
           {yurishRejimi && (
-            <div className="absolute bottom-8 left-6 z-40 flex flex-col items-center gap-1 sm:hidden p-2 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20">
-              <button
-                type="button"
-                onPointerDown={() => mobilHarakat(0, -1)}
-                onPointerUp={() => mobilHarakat(0, 0)}
-                className="w-10 h-10 rounded-xl bg-white/10 active:bg-emerald-500/40 text-white font-bold flex items-center justify-center border border-white/20"
-              >
-                ▲
-              </button>
-              <div className="flex gap-1">
-                <button
-                  type="button"
-                  onPointerDown={() => mobilHarakat(-1, 0)}
-                  onPointerUp={() => mobilHarakat(0, 0)}
-                  className="w-10 h-10 rounded-xl bg-white/10 active:bg-emerald-500/40 text-white font-bold flex items-center justify-center border border-white/20"
-                >
-                  ◀
-                </button>
-                <button
-                  type="button"
-                  onPointerDown={() => mobilHarakat(0, 1)}
-                  onPointerUp={() => mobilHarakat(0, 0)}
-                  className="w-10 h-10 rounded-xl bg-white/10 active:bg-emerald-500/40 text-white font-bold flex items-center justify-center border border-white/20"
-                >
-                  ▼
-                </button>
-                <button
-                  type="button"
-                  onPointerDown={() => mobilHarakat(1, 0)}
-                  onPointerUp={() => mobilHarakat(0, 0)}
-                  className="w-10 h-10 rounded-xl bg-white/10 active:bg-emerald-500/40 text-white font-bold flex items-center justify-center border border-white/20"
-                >
-                  ▶
-                </button>
-              </div>
-            </div>
+            <VirtualJoystick
+              onHarakat={handleJoystickHarakat}
+              onBurilish={handleJoystickBurilish}
+            />
           )}
 
           {/* 1-BOSQICH: 3D Interaktiv Ko'rsatma / Status */}

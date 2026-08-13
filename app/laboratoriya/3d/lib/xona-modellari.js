@@ -200,42 +200,41 @@ function davriyJadvalPlakati() {
   }
 }
 
-/** 1-BOSQICH: TO'LIQ 4 DEVOR VA SHIFT ME'MORCHILIGI */
+/** 1-QADAM: 16x12m KATTA UNIVERSITET LABORATORIYA ZALI ME'MORCHILIGI */
 function xonaQobiginiYasa(materiallar) {
   const roomGroup = new THREE.Group();
-  roomGroup.name = "4_Devorli_Xona_Qobigi";
+  roomGroup.name = "16x12m_Grand_Laboratoriya_Zali";
 
   const devorMat = materiallar?.devor || new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.85 });
-  const shiftMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
-  const polMat = materiallar?.pol || new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.3, metalness: 0.1 });
-  const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.4 });
+  const shiftMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.9 });
+  const polMat = materiallar?.pol || new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.25, metalness: 0.15 });
+  const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.45 });
   const ramkaMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.2 });
 
-  const XONA_W = 8.0; // Eni
-  const XONA_H = 3.6; // Balandligi
-  const XONA_D = 6.8; // Uzunligi
+  const XONA_W = 16.0; // 16 metr eni
+  const XONA_H = 4.2;  // 4.2 metr balandligi
+  const XONA_D = 12.0; // 12 metr uzunligi
 
-  // 1. EPOKSI KIMYOVIY POL (Y = 0)
+  // 1. EPOKSI KIMYOVIY POL (Y = 0, 16x12m)
   const polGeo = new THREE.PlaneGeometry(XONA_W, XONA_D);
   const pol = new THREE.Mesh(polGeo, polMat);
   pol.rotation.x = -Math.PI / 2;
-  pol.position.set(0, 0, 0.9);
+  pol.position.set(0, 0, 0.4);
   pol.receiveShadow = true;
   roomGroup.add(pol);
 
-  // 2. SHIFT VA LED LYUMINESSENT PANELLARI (Y = 3.6)
+  // 2. SHIFT VA 8 TA RECESSED LED LYUMINESSENT PANELLARI (Y = 4.2)
   const shiftGeo = new THREE.PlaneGeometry(XONA_W, XONA_D);
   const shift = new THREE.Mesh(shiftGeo, shiftMat);
   shift.rotation.x = Math.PI / 2;
-  shift.position.set(0, XONA_H, 0.9);
+  shift.position.set(0, XONA_H, 0.4);
   roomGroup.add(shift);
 
-  // 6 ta Shift LED panel chiroqlari (Recessed Troffers)
-  const trofferGeo = new THREE.PlaneGeometry(1.2, 0.6);
+  const trofferGeo = new THREE.PlaneGeometry(2.0, 0.8);
   const trofferMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
   const trofferYlar = [
-    [-2.0, 0.0], [0.0, 0.0], [2.0, 0.0],
-    [-2.0, 2.2], [0.0, 2.2], [2.0, 2.2],
+    [-5.0, -3.0], [-1.8, -3.0], [1.8, -3.0], [5.0, -3.0],
+    [-5.0, 2.5],  [-1.8, 2.5],  [1.8, 2.5],  [5.0, 2.5],
   ];
   trofferYlar.forEach(([x, z]) => {
     const lamp = new THREE.Mesh(trofferGeo, trofferMat);
@@ -244,68 +243,77 @@ function xonaQobiginiYasa(materiallar) {
     roomGroup.add(lamp);
   });
 
-  // 3. CHAP DEVOR VA LABORATORIYA DERAZALARI (X = -4.0)
+  // 3. CHAP DEVOR VA 4 TA KATTA LABORATORIYA DERAZALARI (X = -8.0)
   const devorChapGeo = new THREE.PlaneGeometry(XONA_D, XONA_H);
   const devorChap = new THREE.Mesh(devorChapGeo, devorMat);
   devorChap.rotation.y = Math.PI / 2;
-  devorChap.position.set(-XONA_W / 2, XONA_H / 2, 0.9);
+  devorChap.position.set(-XONA_W / 2, XONA_H / 2, 0.4);
   devorChap.receiveShadow = true;
   roomGroup.add(devorChap);
 
-  // Deraza ramkasi va shishalari (Chap devorda)
-  const derazaGeo = new THREE.PlaneGeometry(3.2, 1.8);
-  const deraza = new THREE.Mesh(derazaGeo, shishaMat);
-  deraza.rotation.y = Math.PI / 2;
-  deraza.position.set(-XONA_W / 2 + 0.02, 2.2, 0.9);
-  roomGroup.add(deraza);
+  // 4 ta Deraza
+  [-3.5, -1.0, 1.5, 4.0].forEach((z) => {
+    const derazaGeo = new THREE.PlaneGeometry(2.0, 2.4);
+    const deraza = new THREE.Mesh(derazaGeo, shishaMat);
+    deraza.rotation.y = Math.PI / 2;
+    deraza.position.set(-XONA_W / 2 + 0.02, 2.3, z);
+    roomGroup.add(deraza);
+  });
 
-  // Deraza orqasidagi bog'/kunduzgi yorug'lik nuri
-  const daylight = new THREE.DirectionalLight(0xe0f2fe, 1.2);
-  daylight.position.set(-6.0, 4.0, 1.0);
+  // Tashqi kunduzgi yorug'lik nuri
+  const daylight = new THREE.DirectionalLight(0xe0f2fe, 1.4);
+  daylight.position.set(-12.0, 6.0, 1.0);
   daylight.target.position.set(0, 1.0, 0);
   roomGroup.add(daylight);
 
-  // 4. O'NG DEVOR (X = 4.0)
+  // 4. O'NG DEVOR (X = +8.0)
   const devorOngGeo = new THREE.PlaneGeometry(XONA_D, XONA_H);
   const devorOng = new THREE.Mesh(devorOngGeo, devorMat);
   devorOng.rotation.y = -Math.PI / 2;
-  devorOng.position.set(XONA_W / 2, XONA_H / 2, 0.9);
+  devorOng.position.set(XONA_W / 2, XONA_H / 2, 0.4);
   devorOng.receiveShadow = true;
   roomGroup.add(devorOng);
 
-  // 5. OLD DEVOR VA ESHIKLAR (Z = 4.3)
+  // 5. ORQA DEVOR (Z = -5.6)
+  const devorOrqaGeo = new THREE.PlaneGeometry(XONA_W, XONA_H);
+  const devorOrqa = new THREE.Mesh(devorOrqaGeo, devorMat);
+  devorOrqa.position.set(0, XONA_H / 2, -XONA_D / 2 + 0.4);
+  devorOrqa.receiveShadow = true;
+  roomGroup.add(devorOrqa);
+
+  // 6. OLD DEVOR VA KATTA ESHIKLAR (Z = 6.4)
   const devorOldGeo = new THREE.PlaneGeometry(XONA_W, XONA_H);
   const devorOld = new THREE.Mesh(devorOldGeo, devorMat);
   devorOld.rotation.y = Math.PI;
-  devorOld.position.set(0, XONA_H / 2, 4.3);
+  devorOld.position.set(0, XONA_H / 2, XONA_D / 2 + 0.4);
   devorOld.receiveShadow = true;
   roomGroup.add(devorOld);
 
-  // Laboratoriya kirish eshigi
-  const eshikGeo = new THREE.BoxGeometry(1.6, 2.3, 0.04);
+  // Kirish eshigi
+  const eshikGeo = new THREE.BoxGeometry(2.0, 2.6, 0.05);
   const eshik = new THREE.Mesh(eshikGeo, ramkaMat);
-  eshik.position.set(0, 1.15, 4.28);
+  eshik.position.set(0, 1.3, XONA_D / 2 + 0.38);
   roomGroup.add(eshik);
 
   // Yashil "CHIQISH / EXIT" LED nuri
-  const exitGeo = new THREE.BoxGeometry(0.4, 0.12, 0.02);
+  const exitGeo = new THREE.BoxGeometry(0.5, 0.16, 0.03);
   const exitMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
   const exitSign = new THREE.Mesh(exitGeo, exitMat);
-  exitSign.position.set(0, 2.45, 4.27);
+  exitSign.position.set(0, 2.8, XONA_D / 2 + 0.37);
   roomGroup.add(exitSign);
 
-  // 6. Xavfsizlik Dushi va Ko'z Yuvish (O'ng devorda)
+  // 7. Xavfsizlik Dushi va Ko'z Yuvish (O'ng devorda)
   const dushGroup = new THREE.Group();
-  dushGroup.position.set(3.85, 0.9, 2.5);
+  dushGroup.position.set(XONA_W / 2 - 0.15, 0.9, 3.5);
 
-  const trubaGeo = new THREE.CylinderGeometry(0.018, 0.018, 1.8, 16);
+  const trubaGeo = new THREE.CylinderGeometry(0.02, 0.02, 2.0, 16);
   const truba = new THREE.Mesh(trubaGeo, ramkaMat);
-  truba.position.y = 0.9;
+  truba.position.y = 1.0;
   dushGroup.add(truba);
 
-  const boshGeo = new THREE.ConeGeometry(0.08, 0.06, 16);
+  const boshGeo = new THREE.ConeGeometry(0.1, 0.08, 16);
   const bosh = new THREE.Mesh(boshGeo, new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8 }));
-  bosh.position.set(-0.15, 1.7, 0);
+  bosh.position.set(-0.2, 1.9, 0);
   dushGroup.add(bosh);
 
   roomGroup.add(dushGroup);

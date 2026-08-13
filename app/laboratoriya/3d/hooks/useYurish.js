@@ -5,39 +5,35 @@ import * as THREE from "three";
 import { qadamTovushi } from "../lib/ovoz.js";
 
 /**
- * 3D Laboratoriya Xonasida Erkin Yurish (First-Person Walkthrough) Hooki.
- * WASD / Strelkalar, Sichqoncha va Mobil Sensorlar orqali boshqariladi.
+ * 1-QADAM: 16x12m KATTA XONADA PUBG DUAL JOYSTIK BILAN ERKIN YURISH (Free Roam 360°).
  */
 export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
   const [yurishRejimi, setYurishRejimi] = useState(false);
-  const [tezlik, setTezlik] = useState(2.2); // m/s
+  const [tezlik, setTezlik] = useState(2.8); // m/s
   const [yurmoqda, setYurmoqda] = useState(false);
 
-  // Holatlar va vektorlar
   const harakatRef = useRef({ forward: 0, backward: 0, left: 0, right: 0, sprint: false });
+  const analogRef = useRef({ vx: 0, vz: 0, sprint: false }); // Analog joystik vektori
   const kursorRef = useRef({ yaw: 0, pitch: 0 });
   const kadrIdRef = useRef(null);
   const oldingiVaqtRef = useRef(performance.now());
   const qadamVaqtiRef = useRef(0);
   const bobbingFazaRef = useRef(0);
 
-  // Saqlangan dastlabki kamera holati
-  const aslKameraRef = useRef({ pos: new THREE.Vector3(0, 1.55, 2.3), target: new THREE.Vector3(0, 0.95, 0) });
+  const aslKameraRef = useRef({ pos: new THREE.Vector3(0, 1.55, 2.3), target: new THREE.Vector3(0, 0.95, 0.3) });
 
-  // Rejimni yoqish / o'chirish
+  // Rejimni almashtirish
   const toggleYurishRejimi = useCallback(() => {
     setYurishRejimi((prev) => {
       const yangi = !prev;
 
       if (kameraRef?.current && controlsRef?.current) {
         if (yangi) {
-          // OrbitControls ni to'xtatamiz
           aslKameraRef.current.pos.copy(kameraRef.current.position);
           aslKameraRef.current.target.copy(controlsRef.current.target);
 
           controlsRef.current.enabled = false;
 
-          // Ko'z balandligi 1.6m ga keltiriladi
           kameraRef.current.position.y = 1.6;
           kursorRef.current.yaw = Math.atan2(
             -kameraRef.current.position.x,
@@ -45,7 +41,6 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
           );
           kursorRef.current.pitch = 0;
         } else {
-          // OrbitControls ga qaytarish
           controlsRef.current.enabled = true;
           kameraRef.current.position.copy(aslKameraRef.current.pos);
           controlsRef.current.target.copy(aslKameraRef.current.target);
@@ -57,7 +52,7 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
     });
   }, [kameraRef, controlsRef]);
 
-  // Klaviatura hodisalarini tinglash
+  // Klaviatura hodisalari
   useEffect(() => {
     if (!yurishRejimi) return;
 
@@ -120,7 +115,7 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
     };
   }, [yurishRejimi]);
 
-  // Sichqoncha orqali qarash (Drag to look)
+  // Kompyuterda sichqoncha bilan qarash
   useEffect(() => {
     if (!yurishRejimi || !rendererRef?.current) return;
 
@@ -144,8 +139,6 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
 
       kursorRef.current.yaw -= dx * 0.0035;
       kursorRef.current.pitch -= dy * 0.0035;
-
-      // Pitch chegarasi (-80° dan +80° gacha)
       kursorRef.current.pitch = Math.max(-1.4, Math.min(1.4, kursorRef.current.pitch));
     };
 
@@ -164,7 +157,7 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
     };
   }, [yurishRejimi, rendererRef]);
 
-  // Asosiy harakatlanish va xona chegaralari fizika sikli
+  // 16x12m Katta Xonada 360° Harakatlanish Fizika Sikli
   useEffect(() => {
     if (!yurishRejimi || !kameraRef?.current) return;
 
@@ -179,13 +172,23 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
       oldingiVaqtRef.current = hozir;
 
       const h = harakatRef.current;
-      const moveZ = h.forward - h.backward;
-      const moveX = h.right - h.left;
-      const isMoving = moveZ !== 0 || moveX !== 0;
+      const a = analogRef.current;
 
+      // Klaviatura yoki Joystik orqali vektor
+      let moveZ = -(h.forward - h.backward);
+      let moveX = h.right - h.left;
+
+      // Agar joystik ishlatilayotgan bo'lsa
+      if (a.vx !== 0 || a.vz !== 0) {
+        moveX = a.vx;
+        moveZ = a.vz;
+      }
+
+      const isMoving = Math.hypot(moveX, moveZ) > 0.05;
       setYurmoqda(isMoving);
 
-      const joriyTezlik = (h.sprint ? tezlik * 1.8 : tezlik) * dt;
+      const isSprint = h.sprint || a.sprint;
+      const joriyTezlik = (isSprint ? tezlik * 1.9 : tezlik) * dt;
 
       // Forward va Right yo'nalish vektorlari (Yaw bo'yicha)
       const forwardVec = new THREE.Vector3(
@@ -201,28 +204,28 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
       ).normalize();
 
       if (isMoving) {
-        kamera.position.addScaledVector(forwardVec, moveZ * joriyTezlik);
+        kamera.position.addScaledVector(forwardVec, -moveZ * joriyTezlik);
         kamera.position.addScaledVector(rightVec, moveX * joriyTezlik);
 
-        // Head bobbing tebranish effekti
-        bobbingFazaRef.current += dt * (h.sprint ? 14 : 9);
+        // Head-bobbing tebranishi
+        bobbingFazaRef.current += dt * (isSprint ? 15 : 9.5);
         kamera.position.y = 1.6 + Math.sin(bobbingFazaRef.current) * 0.025;
 
         // Qadam tovushi
         qadamVaqtiRef.current += dt;
-        if (qadamVaqtiRef.current > (h.sprint ? 0.32 : 0.48)) {
+        if (qadamVaqtiRef.current > (isSprint ? 0.3 : 0.46)) {
           qadamTovushi();
           qadamVaqtiRef.current = 0;
         }
       } else {
-        kamera.position.y = THREE.MathUtils.lerp(kamera.position.y, 1.6, dt * 5);
+        kamera.position.y = THREE.MathUtils.lerp(kamera.position.y, 1.6, dt * 6);
       }
 
-      // Xona devorlari va to'qnashuv chegaralari (Room Boundaries)
-      kamera.position.x = Math.max(-3.4, Math.min(3.4, kamera.position.x));
-      kamera.position.z = Math.max(-2.0, Math.min(3.6, kamera.position.z));
+      // 16x12m Katta Xona Devorlari Chegarasi (Room Boundaries)
+      kamera.position.x = Math.max(-7.4, Math.min(7.4, kamera.position.x));
+      kamera.position.z = Math.max(-5.0, Math.min(5.8, kamera.position.z));
 
-      // Kamera qarayotgan nuqtasini hisoblash
+      // Qarash nuqtasi
       const lookTarget = new THREE.Vector3(
         kamera.position.x - Math.sin(kursorRef.current.yaw) * Math.cos(kursorRef.current.pitch),
         kamera.position.y + Math.sin(kursorRef.current.pitch),
@@ -239,17 +242,14 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
     };
   }, [yurishRejimi, tezlik, kameraRef]);
 
-  // Mobil sensor / Virtual D-pad orqali harakatlantirish
-  const mobilHarakat = useCallback((dx, dz) => {
-    harakatRef.current.left = dx < -0.2 ? 1 : 0;
-    harakatRef.current.right = dx > 0.2 ? 1 : 0;
-    harakatRef.current.forward = dz < -0.2 ? 1 : 0;
-    harakatRef.current.backward = dz > 0.2 ? 1 : 0;
+  // PUBG Analog Joystik boshqaruvi
+  const handleJoystickHarakat = useCallback((vx, vz, isSprint) => {
+    analogRef.current = { vx, vz, sprint: isSprint };
   }, []);
 
-  const mobilBurilish = useCallback((dyaw, dpitch) => {
-    kursorRef.current.yaw -= dyaw * 0.04;
-    kursorRef.current.pitch -= dpitch * 0.04;
+  const handleJoystickBurilish = useCallback((dx, dy) => {
+    kursorRef.current.yaw -= dx * 0.005;
+    kursorRef.current.pitch -= dy * 0.005;
     kursorRef.current.pitch = Math.max(-1.4, Math.min(1.4, kursorRef.current.pitch));
   }, []);
 
@@ -257,7 +257,7 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
     yurishRejimi,
     toggleYurishRejimi,
     yurmoqda,
-    mobilHarakat,
-    mobilBurilish,
+    handleJoystickHarakat,
+    handleJoystickBurilish,
   };
 }
