@@ -1,5 +1,5 @@
 // Sof brauzer Web Audio API yordamida shisha, liquid flow (oqim),
-// pufakchalar va alanga ovozlarini nolinchi kechikish (zero latency) bilan
+// pufakchalar, cho'kma va qadam ovozlarini nolinchi kechikish (zero latency) bilan
 // va tashqi audio fayllarsiz generatsiya qiluvchi dvigatel.
 
 let audioCtx = null;
@@ -143,6 +143,34 @@ export function pufakchaChiqishi() {
       osc.start(ctx.currentTime + kechikish);
       osc.stop(ctx.currentTime + kechikish + 0.06);
     }
+  } catch (e) {
+    // Audio xatolarini bostiramiz
+  }
+}
+
+// 4. Cho'kma tushishi ovozi (Precipitate Chime)
+export function chokmaTushishi() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const parda = [1200, 1600, 2000];
+    parda.forEach((freq, idx) => {
+      const kechikish = idx * 0.06;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + kechikish);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime + kechikish);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + kechikish + 0.15);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime + kechikish);
+      osc.stop(ctx.currentTime + kechikish + 0.16);
+    });
   } catch (e) {
     // Audio xatolarini bostiramiz
   }
