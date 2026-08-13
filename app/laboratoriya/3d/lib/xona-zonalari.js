@@ -4,7 +4,7 @@
 //
 import * as THREE from "three";
 
-/** 8 ta asosiy laboratoriya zonalari konfiguratsiyasi */
+/** 9 ta asosiy laboratoriya zonalari konfiguratsiyasi */
 export const XONA_ZONALARI = {
   asosiy: {
     kalit: "asosiy",
@@ -15,22 +15,49 @@ export const XONA_ZONALARI = {
     nishon: [0, 0.95, 0.3],
     fov: 45,
   },
-  javon: {
-    kalit: "javon",
-    nom: "Markaziy Orol Javoni",
-    tavsif: "3D javondagi barcha kislota, ishqor va tuzlar shishalari",
+  kislota_javon: {
+    kalit: "kislota_javon",
+    nom: "Kislotalar Shkafi",
+    tavsif: "Orqa devordagi 500ml kislotalar va oksidlovchilar shkafi",
+    ikon: "chaqmoq",
+    kamera: [-4.5, 1.85, -3.6],
+    nishon: [-4.5, 1.65, -5.35],
+    fov: 46,
+  },
+  ishqor_javon: {
+    kalit: "ishqor_javon",
+    nom: "Ishqorlar Shkafi",
+    tavsif: "Orqa devordagi 500ml ishqorlar va asoslar shkafi",
+    ikon: "kolba",
+    kamera: [4.5, 1.85, -3.6],
+    nishon: [4.5, 1.65, -5.35],
+    fov: 46,
+  },
+  tuz_javon: {
+    kalit: "tuz_javon",
+    nom: "Tuzlar Shkafi",
+    tavsif: "O'ng devordagi qattiq tuzlar va reaktivlar javoni",
+    ikon: "doska",
+    kamera: [5.8, 1.85, -1.5],
+    nishon: [7.6, 1.65, -1.5],
+    fov: 46,
+  },
+  eritma_javon: {
+    kalit: "eritma_javon",
+    nom: "Eritmalar & Indikatorlar",
+    tavsif: "Chap devordagi standart eritmalar va indikatorlar javoni",
     ikon: "kitob",
-    kamera: [0, 1.42, 0.25],
-    nishon: [0, 1.2, -0.95],
-    fov: 48,
+    kamera: [-5.8, 1.85, -1.5],
+    nishon: [-7.6, 1.65, -1.5],
+    fov: 46,
   },
   tarozi: {
     kalit: "tarozi",
     nom: "Chap Stol: Analitik Tarozi",
     tavsif: "Qattiq moddalarni 0.001g aniqlikda tortish va molyar eritmalar",
     ikon: "orin",
-    kamera: [-1.6, 1.42, 1.15],
-    nishon: [-1.6, 0.96, 0.2],
+    kamera: [-2.0, 1.45, 1.4],
+    nishon: [-2.0, 0.95, 0.2],
     fov: 42,
   },
   titrlash: {
@@ -38,8 +65,8 @@ export const XONA_ZONALARI = {
     nom: "O'ng Stol: Byuretka & Titrlash",
     tavsif: "50 ml li shisha byuretka va kislota-ishqor volumetrik tahlili",
     ikon: "atom",
-    kamera: [1.4, 1.48, 1.15],
-    nishon: [1.4, 1.05, 0.2],
+    kamera: [2.0, 1.48, 1.4],
+    nishon: [2.0, 1.05, 0.2],
     fov: 42,
   },
   elektroliz: {
@@ -47,17 +74,8 @@ export const XONA_ZONALARI = {
     nom: "O'ng Stol: Elektroliz Stendi",
     tavsif: "Faradey qonunlari, katod/anod jarayonlari va tok manbai",
     ikon: "chaqmoq",
-    kamera: [1.4, 1.45, 0.35],
-    nishon: [1.4, 0.98, -0.6],
-    fov: 42,
-  },
-  tortma_shkaf: {
-    kalit: "tortma_shkaf",
-    nom: "Tortma Shkaf (Fume Hood)",
-    tavsif: "Zaharli gazlar va konsentrlangan kislotalar bilan ishlash kamerasi",
-    ikon: "qalqon",
-    kamera: [2.4, 1.5, -0.7],
-    nishon: [2.4, 1.1, -1.8],
+    kamera: [2.0, 1.45, -0.6],
+    nishon: [2.0, 0.98, -1.2],
     fov: 42,
   },
   davriy_jadval: {
@@ -65,18 +83,9 @@ export const XONA_ZONALARI = {
     nom: "Davriy Jadval (IUPAC)",
     tavsif: "Devordagi yuqori aniqlikdagi D.I. Mendeleyev Davriy Sistemasi",
     ikon: "atom",
-    kamera: [0, 2.3, -0.3],
-    nishon: [0, 2.45, -2.36],
-    fov: 48,
-  },
-  yuvinish: {
-    kalit: "yuvinish",
-    nom: "Yuvinish Rakovinasi",
-    tavsif: "Distillangan suv krani va idishlarni tozalash rakovinasi",
-    ikon: "ochir",
-    kamera: [-2.4, 1.45, -0.8],
-    nishon: [-2.4, 0.95, -1.8],
-    fov: 45,
+    kamera: [0, 2.3, -3.2],
+    nishon: [0, 2.45, -5.4],
+    fov: 50,
   },
 };
 
