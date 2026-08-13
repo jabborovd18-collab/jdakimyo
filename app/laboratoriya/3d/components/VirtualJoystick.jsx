@@ -8,6 +8,7 @@ import Ikon from "@/components/Ikon";
  * Chapda 360° Analog Joystik (Harakat), O'ngda Kamera Burish Paneli (Look Area).
  */
 export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle }) {
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [knobPos, setKnobPos] = useState({ x: 0, y: 0 });
   const [joystickAktiv, setJoystickAktiv] = useState(false);
   const [sprintAktiv, setSprintAktiv] = useState(false);
@@ -18,6 +19,15 @@ export default function VirtualJoystick({ onHarakat, onBurilish, onSprintToggle 
   const rightLastPosRef = useRef({ x: 0, y: 0 });
 
   const RADIUS = 45; // Joystik maksimal harakat radiusi px
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0 || window.innerWidth < 1024;
+      setIsTouchDevice(isTouch);
+    }
+  }, []);
+
+  if (!isTouchDevice) return null;
 
   // 1. CHAP TOMON: ANALOG JOYSTIK HODISALARI
   const handleJoystickTouchStart = (e) => {

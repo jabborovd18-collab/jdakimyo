@@ -5,24 +5,38 @@ import * as THREE from "three";
 import { qadamTovushi } from "../lib/ovoz.js";
 
 /**
- * 1-QADAM: 16x12m KATTA XONADA PUBG DUAL JOYSTIK BILAN ERKIN YURISH (Free Roam 360°).
+ * CS 1.6 USLUBIDAGI 100% MUSTAQIL VA ERKIN YURISH (FIRST-PERSON FPS ENGINE).
+ * W (oldinga), S (orqaga), A (chapga strafe), D (o'ngga strafe), Shift (yugurish), Space (sakrash).
+ * Hech qanday markazga tortilish yoki orqaga sakrash muammosi bo'lmaydi!
  */
 export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
   const [yurishRejimi, setYurishRejimi] = useState(false);
-  const [tezlik, setTezlik] = useState(2.8); // m/s
   const [yurmoqda, setYurmoqda] = useState(false);
 
-  const harakatRef = useRef({ forward: 0, backward: 0, left: 0, right: 0, sprint: false });
-  const analogRef = useRef({ vx: 0, vz: 0, sprint: false }); // Analog joystik vektori
-  const kursorRef = useRef({ yaw: 0, pitch: 0 });
+  // Harakat klavishlari va holatlar
+  const keysRef = useRef({ w: false, s: false, a: false, d: false, sprint: false, space: false });
+  const analogRef = useRef({ vx: 0, vz: 0, sprint: false });
+
+  // Kamera burchaklari (Yaw: Gorizontal, Pitch: Vertikal)
+  const rotationRef = useRef({ yaw: 0, pitch: 0 });
+  const velocityRef = useRef(new THREE.Vector3()); // CS inersiya tezligi
+
+  // Sakrash va balandlik
+  const verticalVelocityRef = useRef(0);
+  const eyeHeightRef = useRef(1.6); // 1.6m ko'z balandligi
+
   const kadrIdRef = useRef(null);
   const oldingiVaqtRef = useRef(performance.now());
   const qadamVaqtiRef = useRef(0);
-  const bobbingFazaRef = useRef(0);
+  const bobbingRef = useRef(0);
 
-  const aslKameraRef = useRef({ pos: new THREE.Vector3(0, 1.55, 2.3), target: new THREE.Vector3(0, 0.95, 0.3) });
+  // Dastlabki orbit kamera holati
+  const aslKameraRef = useRef({
+    pos: new THREE.Vector3(0, 1.55, 2.3),
+    target: new THREE.Vector3(0, 0.95, 0.3),
+  });
 
-  // Rejimni almashtirish
+  // Rejimni yoqish / o'chirish
   const toggleYurishRejimi = useCallback(() => {
     setYurishRejimi((prev) => {
       const yangi = !prev;
@@ -32,15 +46,20 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
           aslKameraRef.current.pos.copy(kameraRef.current.position);
           aslKameraRef.current.target.copy(controlsRef.current.target);
 
+          // OrbitControls to'liq o'chiriladi
           controlsRef.current.enabled = false;
 
-          kameraRef.current.position.y = 1.6;
-          kursorRef.current.yaw = Math.atan2(
-            -kameraRef.current.position.x,
-            -kameraRef.current.position.z
-          );
-          kursorRef.current.pitch = 0;
+          // Joriy qarash burchagini hisoblash
+          const dir = new THREE.Vector3();
+          kameraRef.current.getWorldDirection(dir);
+          rotationRef.current.yaw = Math.atan2(-dir.x, -dir.z);
+          rotationRef.current.pitch = Math.asin(Math.max(-0.95, Math.min(0.95, dir.y)));
+
+          eyeHeightRef.current = 1.6;
+          verticalVelocityRef.current = 0;
+          velocityRef.current.set(0, 0, 0);
         } else {
+          // OrbitControls ga silliq qaytarish
           controlsRef.current.enabled = true;
           kameraRef.current.position.copy(aslKameraRef.current.pos);
           controlsRef.current.target.copy(aslKameraRef.current.target);
@@ -52,58 +71,31 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
     });
   }, [kameraRef, controlsRef]);
 
-  // Klaviatura hodisalari
+  // 1. KLAVIATURA HODISALARI (CS 1.6 KEYS)
   useEffect(() => {
     if (!yurishRejimi) return;
 
     const handleKeyDown = (e) => {
-      switch (e.code) {
-        case "KeyW":
-        case "ArrowUp":
-          harakatRef.current.forward = 1;
-          break;
-        case "KeyS":
-        case "ArrowDown":
-          harakatRef.current.backward = 1;
-          break;
-        case "KeyA":
-        case "ArrowLeft":
-          harakatRef.current.left = 1;
-          break;
-        case "KeyD":
-        case "ArrowRight":
-          harakatRef.current.right = 1;
-          break;
-        case "ShiftLeft":
-        case "ShiftRight":
-          harakatRef.current.sprint = true;
-          break;
+      const k = e.code;
+      if (k === "KeyW" || k === "ArrowUp") keysRef.current.w = true;
+      if (k === "KeyS" || k === "ArrowDown") keysRef.current.s = true;
+      if (k === "KeyA" || k === "ArrowLeft") keysRef.current.a = true;
+      if (k === "KeyD" || k === "ArrowRight") keysRef.current.d = true;
+      if (k === "ShiftLeft" || k === "ShiftRight") keysRef.current.sprint = true;
+      if (k === "Space") {
+        if (eyeHeightRef.current <= 1.62) {
+          verticalVelocityRef.current = 3.5; // Sakrash kuchi
+        }
       }
     };
 
     const handleKeyUp = (e) => {
-      switch (e.code) {
-        case "KeyW":
-        case "ArrowUp":
-          harakatRef.current.forward = 0;
-          break;
-        case "KeyS":
-        case "ArrowDown":
-          harakatRef.current.backward = 0;
-          break;
-        case "KeyA":
-        case "ArrowLeft":
-          harakatRef.current.left = 0;
-          break;
-        case "KeyD":
-        case "ArrowRight":
-          harakatRef.current.right = 0;
-          break;
-        case "ShiftLeft":
-        case "ShiftRight":
-          harakatRef.current.sprint = false;
-          break;
-      }
+      const k = e.code;
+      if (k === "KeyW" || k === "ArrowUp") keysRef.current.w = false;
+      if (k === "KeyS" || k === "ArrowDown") keysRef.current.s = false;
+      if (k === "KeyA" || k === "ArrowLeft") keysRef.current.a = false;
+      if (k === "KeyD" || k === "ArrowRight") keysRef.current.d = false;
+      if (k === "ShiftLeft" || k === "ShiftRight") keysRef.current.sprint = false;
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -115,142 +107,161 @@ export function useYurish({ sahnaRef, kameraRef, rendererRef, controlsRef }) {
     };
   }, [yurishRejimi]);
 
-  // Kompyuterda sichqoncha bilan qarash
+  // 2. SICHQONCHA BILAN QARASH (CS 1.6 MOUSE LOOK)
   useEffect(() => {
     if (!yurishRejimi || !rendererRef?.current) return;
 
     const domElement = rendererRef.current.domElement;
-    let bosildi = false;
-    let oldingiX = 0;
-    let oldingiY = 0;
+    let isMouseDown = false;
+    let lastX = 0;
+    let lastY = 0;
 
-    const handleMouseDown = (e) => {
-      bosildi = true;
-      oldingiX = e.clientX;
-      oldingiY = e.clientY;
+    const onMouseDown = (e) => {
+      isMouseDown = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
     };
 
-    const handleMouseMove = (e) => {
-      if (!bosildi) return;
-      const dx = e.clientX - oldingiX;
-      const dy = e.clientY - oldingiY;
-      oldingiX = e.clientX;
-      oldingiY = e.clientY;
+    const onMouseMove = (e) => {
+      if (!isMouseDown) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
 
-      kursorRef.current.yaw -= dx * 0.0035;
-      kursorRef.current.pitch -= dy * 0.0035;
-      kursorRef.current.pitch = Math.max(-1.4, Math.min(1.4, kursorRef.current.pitch));
+      rotationRef.current.yaw -= dx * 0.0035;
+      rotationRef.current.pitch -= dy * 0.0035;
+
+      // Vertikal burchak chegarasi (-85° dan +85° gacha)
+      rotationRef.current.pitch = Math.max(-1.48, Math.min(1.48, rotationRef.current.pitch));
     };
 
-    const handleMouseUp = () => {
-      bosildi = false;
+    const onMouseUp = () => {
+      isMouseDown = false;
     };
 
-    domElement.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+    domElement.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
 
     return () => {
-      domElement.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
+      domElement.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
     };
   }, [yurishRejimi, rendererRef]);
 
-  // 16x12m Katta Xonada 360° Harakatlanish Fizika Sikli
+  // 3. ASOSIY FPS HARAKATLANISH VA FIZIKA SIKLI
   useEffect(() => {
     if (!yurishRejimi || !kameraRef?.current) return;
 
     const kamera = kameraRef.current;
     oldingiVaqtRef.current = performance.now();
 
-    const yurishSikli = () => {
-      kadrIdRef.current = requestAnimationFrame(yurishSikli);
+    const fpsLoop = () => {
+      kadrIdRef.current = requestAnimationFrame(fpsLoop);
 
       const hozir = performance.now();
-      const dt = Math.min(0.1, (hozir - oldingiVaqtRef.current) / 1000);
+      const dt = Math.min(0.08, (hozir - oldingiVaqtRef.current) / 1000);
       oldingiVaqtRef.current = hozir;
 
-      const h = harakatRef.current;
-      const a = analogRef.current;
+      const keys = keysRef.current;
+      const analog = analogRef.current;
 
-      // Klaviatura yoki Joystik orqali vektor
-      let moveZ = -(h.forward - h.backward);
-      let moveX = h.right - h.left;
+      // 1. Kirish signallarini hisoblash
+      let forward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
+      let strafe = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
 
-      // Agar joystik ishlatilayotgan bo'lsa
-      if (a.vx !== 0 || a.vz !== 0) {
-        moveX = a.vx;
-        moveZ = a.vz;
+      // Agar mobil joystik faol bo'lsa
+      if (analog.vx !== 0 || analog.vz !== 0) {
+        strafe = analog.vx;
+        forward = -analog.vz;
       }
 
-      const isMoving = Math.hypot(moveX, moveZ) > 0.05;
+      const isSprint = keys.sprint || analog.sprint;
+      const maxSpeed = isSprint ? 5.5 : 3.0; // m/s
+      const isMoving = Math.hypot(forward, strafe) > 0.05;
+
       setYurmoqda(isMoving);
 
-      const isSprint = h.sprint || a.sprint;
-      const joriyTezlik = (isSprint ? tezlik * 1.9 : tezlik) * dt;
+      // 2. Kamera yo'nalish vektorlari (Yaw gorizontal burchak bo'yicha)
+      const yaw = rotationRef.current.yaw;
+      const pitch = rotationRef.current.pitch;
 
-      // Forward va Right yo'nalish vektorlari (Yaw bo'yicha)
-      const forwardVec = new THREE.Vector3(
-        -Math.sin(kursorRef.current.yaw),
-        0,
-        -Math.cos(kursorRef.current.yaw)
-      ).normalize();
+      const forwardVec = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw)).normalize();
+      const rightVec = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw)).normalize();
 
-      const rightVec = new THREE.Vector3(
-        Math.cos(kursorRef.current.yaw),
-        0,
-        -Math.sin(kursorRef.current.yaw)
-      ).normalize();
-
+      // 3. Nishon tezlik (Target velocity)
+      const targetVel = new THREE.Vector3();
       if (isMoving) {
-        kamera.position.addScaledVector(forwardVec, -moveZ * joriyTezlik);
-        kamera.position.addScaledVector(rightVec, moveX * joriyTezlik);
+        targetVel.addScaledVector(forwardVec, forward);
+        targetVel.addScaledVector(rightVec, strafe);
+        targetVel.normalize().multiplyScalar(maxSpeed);
+      }
 
-        // Head-bobbing tebranishi
-        bobbingFazaRef.current += dt * (isSprint ? 15 : 9.5);
-        kamera.position.y = 1.6 + Math.sin(bobbingFazaRef.current) * 0.025;
+      // 4. CS 1.6 Inersiya va ishqalanish (Damping acceleration)
+      velocityRef.current.lerp(targetVel, dt * (isMoving ? 12 : 16));
 
-        // Qadam tovushi
+      // 5. Kamerani siljitish
+      kamera.position.x += velocityRef.current.x * dt;
+      kamera.position.z += velocityRef.current.z * dt;
+
+      // 6. Sakrash va tortishish kuchi (Gravity)
+      if (verticalVelocityRef.current !== 0 || eyeHeightRef.current > 1.6) {
+        verticalVelocityRef.current -= 9.8 * dt; // Gravitatsiya
+        eyeHeightRef.current += verticalVelocityRef.current * dt;
+
+        if (eyeHeightRef.current <= 1.6) {
+          eyeHeightRef.current = 1.6;
+          verticalVelocityRef.current = 0;
+        }
+      }
+
+      // 7. Qadam tovushi va Head-Bobbing
+      if (isMoving && eyeHeightRef.current <= 1.62) {
+        bobbingRef.current += dt * (isSprint ? 16 : 10);
+        kamera.position.y = eyeHeightRef.current + Math.sin(bobbingRef.current) * 0.024;
+
         qadamVaqtiRef.current += dt;
-        if (qadamVaqtiRef.current > (isSprint ? 0.3 : 0.46)) {
+        if (qadamVaqtiRef.current > (isSprint ? 0.28 : 0.44)) {
           qadamTovushi();
           qadamVaqtiRef.current = 0;
         }
       } else {
-        kamera.position.y = THREE.MathUtils.lerp(kamera.position.y, 1.6, dt * 6);
+        kamera.position.y = eyeHeightRef.current;
       }
 
-      // 16x12m Katta Xona Devorlari Chegarasi (Room Boundaries)
-      kamera.position.x = Math.max(-7.4, Math.min(7.4, kamera.position.x));
-      kamera.position.z = Math.max(-5.0, Math.min(5.8, kamera.position.z));
+      // 8. 16x12m Katta Xona Chegaralari (Room Collision)
+      kamera.position.x = Math.max(-7.6, Math.min(7.6, kamera.position.x));
+      kamera.position.z = Math.max(-5.2, Math.min(5.8, kamera.position.z));
 
-      // Qarash nuqtasi
-      const lookTarget = new THREE.Vector3(
-        kamera.position.x - Math.sin(kursorRef.current.yaw) * Math.cos(kursorRef.current.pitch),
-        kamera.position.y + Math.sin(kursorRef.current.pitch),
-        kamera.position.z - Math.cos(kursorRef.current.yaw) * Math.cos(kursorRef.current.pitch)
+      // 9. Kamera qarash yo'nalishini o'rnatish (100% erkin qarash)
+      const lookDir = new THREE.Vector3(
+        -Math.sin(yaw) * Math.cos(pitch),
+        Math.sin(pitch),
+        -Math.cos(yaw) * Math.cos(pitch)
       );
 
+      const lookTarget = kamera.position.clone().add(lookDir);
       kamera.lookAt(lookTarget);
     };
 
-    kadrIdRef.current = requestAnimationFrame(yurishSikli);
+    kadrIdRef.current = requestAnimationFrame(fpsLoop);
 
     return () => {
       if (kadrIdRef.current) cancelAnimationFrame(kadrIdRef.current);
     };
-  }, [yurishRejimi, tezlik, kameraRef]);
+  }, [yurishRejimi, kameraRef]);
 
-  // PUBG Analog Joystik boshqaruvi
+  // Mobil Joystik boshqaruvi
   const handleJoystickHarakat = useCallback((vx, vz, isSprint) => {
     analogRef.current = { vx, vz, sprint: isSprint };
   }, []);
 
   const handleJoystickBurilish = useCallback((dx, dy) => {
-    kursorRef.current.yaw -= dx * 0.005;
-    kursorRef.current.pitch -= dy * 0.005;
-    kursorRef.current.pitch = Math.max(-1.4, Math.min(1.4, kursorRef.current.pitch));
+    rotationRef.current.yaw -= dx * 0.0055;
+    rotationRef.current.pitch -= dy * 0.0055;
+    rotationRef.current.pitch = Math.max(-1.48, Math.min(1.48, rotationRef.current.pitch));
   }, []);
 
   return {

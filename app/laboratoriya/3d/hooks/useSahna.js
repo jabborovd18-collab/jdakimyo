@@ -294,7 +294,9 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     const animate = () => {
       kadrIdRef.current = requestAnimationFrame(animate);
       if (!faolRender) return;
-      controls.update();
+      if (controls.enabled) {
+        controls.update();
+      }
       renderer.render(scene, kamera);
     };
     animate();

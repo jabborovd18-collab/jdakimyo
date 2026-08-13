@@ -629,7 +629,7 @@ export default function Korinish() {
 
             {yurishRejimi && (
               <span className="hidden sm:inline-flex v3-tag v3-tag-ochiq text-[10px] font-mono">
-                WASD / Strelkalar bilan yuring · Sichqoncha bilan qarang
+                ⌨️ W (oldinga) · S (orqaga) · A/D (strafe) · Sichqoncha (qarash) · Space (sakrash) · Shift (yugurish)
               </span>
             )}
           </div>
