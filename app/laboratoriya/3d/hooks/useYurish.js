@@ -16,9 +16,15 @@ function obyektniTop(obyekt) {
 }
 
 /**
- * CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA VA HARAKATLANISH DVIGATELI.
- * Sichqoncha tugmasini bosib turish TALAB ETILMAYDI: sichqoncha harakati to'g'ridan-to'g'ri kamerani 360° aylantiradi.
- * Chap tugma (Left Click) yoki E / F / G orqali idishlar va stansiyalar bilan bevosita jismoniy muloqot qilinadi.
+ * CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA VA BIRINCHI SHAXS HARAKATLANISH DVIGATELI.
+ *
+ * Imkoniyatlari:
+ *  - Sozlanuvchi sichqoncha sezgirligi (Sensitivity: 0.2x - 2.5x).
+ *  - E / F — Ushlash va Quyish (Primary Interact / Pour).
+ *  - G — Stolga qo'yish (Place down on table).
+ *  - C / Ctrl — Cho'qqayish (Crouch: 1.05m pastki javonlarni ko'rish).
+ *  - 1, 2, 3, 4 — Tezkor millilitr quyish.
+ *  - Space (sakrash), Shift (yugurish), W/A/S/D (yurish).
  */
 export function useYurish({
   sahnaRef,
@@ -27,6 +33,7 @@ export function useYurish({
   controlsRef,
   onIdishTanlandi,
   onQuyishBoshla,
+  onAniqHajmQuy,
   onTaroziTushdi,
   onSpirtovkagaQoyildi,
   onRakovinagaTushdi,
@@ -37,18 +44,23 @@ export function useYurish({
   const [fpsQaralganIdish, setFpsQaralganIdish] = useState(null);
   const [fpsQolIdish, setFpsQolIdish] = useState(null);
   const [fpsQaralganStansiya, setFpsQaralganStansiya] = useState(null);
+  const [sezgirlik, setSezgirlik] = useState(1.0); // 0.2 .. 2.5x
+
+  const sezgirlikRef = useRef(1.0);
+  sezgirlikRef.current = sezgirlik;
 
   // Harakat klavishlari va holatlar
-  const keysRef = useRef({ w: false, s: false, a: false, d: false, sprint: false });
+  const keysRef = useRef({ w: false, s: false, a: false, d: false, sprint: false, crouch: false });
   const analogRef = useRef({ vx: 0, vz: 0, sprint: false });
 
   // Kamera burchaklari (Yaw: Gorizontal, Pitch: Vertikal)
   const rotationRef = useRef({ yaw: 0, pitch: 0 });
   const velocityRef = useRef(new THREE.Vector3());
 
-  // Sakrash va ko'z balandligi
+  // Sakrash, cho'qqayish va ko'z balandligi
   const verticalVelocityRef = useRef(0);
-  const eyeHeightRef = useRef(1.6); // 1.6m ko'z balandligi
+  const targetEyeHeightRef = useRef(1.6);
+  const eyeHeightRef = useRef(1.6);
 
   const kadrIdRef = useRef(null);
   const oldingiVaqtRef = useRef(performance.now());
@@ -57,6 +69,31 @@ export function useYurish({
 
   const centerRaycasterRef = useRef(new THREE.Raycaster());
   const avvalgiFpsYoritilganRef = useRef(null);
+
+  // Sezgirlikni localStorage dan o'qish
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("lab-3d-sezgirlik");
+        if (saved) {
+          const val = parseFloat(saved);
+          if (!isNaN(val) && val >= 0.2 && val <= 3.0) {
+            setSezgirlik(val);
+            sezgirlikRef.current = val;
+          }
+        }
+      } catch (e) {}
+    }
+  }, []);
+
+  const sezgirlikniOzgartir = useCallback((yangiVal) => {
+    const val = Math.max(0.2, Math.min(3.0, Number(yangiVal) || 1.0));
+    setSezgirlik(val);
+    sezgirlikRef.current = val;
+    try {
+      localStorage.setItem("lab-3d-sezgirlik", String(val));
+    } catch (e) {}
+  }, []);
 
   // Dastlabki orbit kamera holati
   const aslKameraRef = useRef({
@@ -82,6 +119,7 @@ export function useYurish({
           rotationRef.current.pitch = Math.asin(Math.max(-0.95, Math.min(0.95, dir.y)));
 
           eyeHeightRef.current = 1.6;
+          targetEyeHeightRef.current = 1.6;
           verticalVelocityRef.current = 0;
           velocityRef.current.set(0, 0, 0);
 
@@ -109,7 +147,7 @@ export function useYurish({
   }, [kameraRef, controlsRef, rendererRef]);
 
   // Qo'ldagi idishni boshqarish va stansiyalarni faollashtirish
-  const qolgaOlYokiQoy = useCallback(() => {
+  const qolgaOlYokiQoy = useCallback((amal = "asosiy") => {
     if (!kameraRef?.current) return;
 
     // 1. Agar stansiyaga qaralgan bo'lsa (Davriy jadval, Titrlash, Elektroliz)
@@ -124,6 +162,21 @@ export function useYurish({
     // 2. Agar qo'lda idish bo'lsa -> Qaralgan joyga qo'yish yoki quyish
     if (fpsQolIdish) {
       const held = fpsQolIdish;
+
+      // Agar G bosilgan bo'lsa -> To'g'ridan-to'g'ri stolga qo'yish
+      if (amal === "stolga_qoy") {
+        const dir = new THREE.Vector3();
+        kameraRef.current.getWorldDirection(dir);
+        const dropPos = kameraRef.current.position.clone().addScaledVector(dir, 1.0);
+
+        held.position.set(dropPos.x, 0.90, dropPos.z);
+        held.rotation.set(0, 0, 0);
+        held.userData.qolda = false;
+        held.userData.kotarilgan = false;
+        setFpsQolIdish(null);
+        shishaUrilishi(2000);
+        return;
+      }
 
       // Maxsus stansiyalarga qo'yish
       if (fpsQaralganIdish && fpsQaralganIdish !== held) {
@@ -191,7 +244,7 @@ export function useYurish({
     }
   }, [fpsQolIdish, fpsQaralganIdish, fpsQaralganStansiya, kameraRef, onIdishTanlandi, onQuyishBoshla, onTaroziTushdi, onSpirtovkagaQoyildi, onRakovinagaTushdi, onStansiyaOchildi]);
 
-  // 1. KLAVIATURA HODISALARI (CS 1.6 + E USHLASH / G TASHLASH)
+  // 1. KLAVIATURA HODISALARI (CS 1.6 + E / F / G / C / 1-4)
   useEffect(() => {
     if (!yurishRejimi) return;
 
@@ -202,11 +255,31 @@ export function useYurish({
       if (k === "KeyA" || k === "ArrowLeft") keysRef.current.a = true;
       if (k === "KeyD" || k === "ArrowRight") keysRef.current.d = true;
       if (k === "ShiftLeft" || k === "ShiftRight") keysRef.current.sprint = true;
-      if (k === "KeyE" || k === "KeyF" || k === "KeyG") {
-        qolgaOlYokiQoy();
+
+      // Cho'qqayish (Crouch)
+      if (k === "KeyC" || k === "ControlLeft" || k === "ControlRight") {
+        keysRef.current.crouch = true;
+        targetEyeHeightRef.current = 1.05; // Pastki javonlar va stol sirtini ko'rish
       }
+
+      // E yoki F — Ushlash / Quyish
+      if (k === "KeyE" || k === "KeyF") {
+        qolgaOlYokiQoy("asosiy");
+      }
+
+      // G — Stolga qo'yish
+      if (k === "KeyG") {
+        qolgaOlYokiQoy("stolga_qoy");
+      }
+
+      // 1, 2, 3, 4 — Tezkor hajmlar
+      if (k === "Digit1" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(1);
+      if (k === "Digit2" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(5);
+      if (k === "Digit3" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(10);
+      if (k === "Digit4" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(25);
+
       if (k === "Space") {
-        if (eyeHeightRef.current <= 1.62) {
+        if (eyeHeightRef.current <= 1.62 && !keysRef.current.crouch) {
           verticalVelocityRef.current = 3.6;
         }
       }
@@ -219,6 +292,10 @@ export function useYurish({
       if (k === "KeyA" || k === "ArrowLeft") keysRef.current.a = false;
       if (k === "KeyD" || k === "ArrowRight") keysRef.current.d = false;
       if (k === "ShiftLeft" || k === "ShiftRight") keysRef.current.sprint = false;
+      if (k === "KeyC" || k === "ControlLeft" || k === "ControlRight") {
+        keysRef.current.crouch = false;
+        targetEyeHeightRef.current = 1.6;
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -228,9 +305,9 @@ export function useYurish({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [yurishRejimi, qolgaOlYokiQoy]);
+  }, [yurishRejimi, qolgaOlYokiQoy, onAniqHajmQuy]);
 
-  // 2. CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA HARAKATI (SICHQONCHANI BOSIB TURISH SHART EMAS!)
+  // 2. CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA HARAKATI
   useEffect(() => {
     if (!yurishRejimi || !rendererRef?.current) return;
 
@@ -239,14 +316,14 @@ export function useYurish({
     let prevX = 0;
     let prevY = 0;
 
-    // Sichqoncha qimirlashi bilan kamerani to'g'ridan-to'g'ri aylantirish
     const handleMouseMove = (e) => {
       let dx = 0;
       let dy = 0;
+      const sens = sezgirlikRef.current || 1.0;
 
       if (document.pointerLockElement === domElement) {
-        dx = e.movementX || 0;
-        dy = e.movementY || 0;
+        dx = (e.movementX || 0) * sens;
+        dy = (e.movementY || 0) * sens;
       } else {
         if (!initialized) {
           prevX = e.clientX;
@@ -254,24 +331,22 @@ export function useYurish({
           initialized = true;
           return;
         }
-        dx = e.clientX - prevX;
-        dy = e.clientY - prevY;
+        dx = (e.clientX - prevX) * sens;
+        dy = (e.clientY - prevY) * sens;
         prevX = e.clientX;
         prevY = e.clientY;
       }
 
       rotationRef.current.yaw -= dx * 0.0028;
       rotationRef.current.pitch -= dy * 0.0028;
-      // Vertikal burchak chegarasi (-85° dan +85° gacha)
       rotationRef.current.pitch = Math.max(-1.48, Math.min(1.48, rotationRef.current.pitch));
     };
 
-    // Canvasga bosilganda PointerLock faollashadi va qaralgan idish bilan amaliyot qilinadi
     const handleCanvasClick = (e) => {
       if (document.pointerLockElement !== domElement) {
         domElement.requestPointerLock?.();
       }
-      qolgaOlYokiQoy();
+      qolgaOlYokiQoy("asosiy");
     };
 
     const handlePointerLockChange = () => {
@@ -326,7 +401,8 @@ export function useYurish({
       }
 
       const isSprint = keys.sprint || analog.sprint;
-      const maxSpeed = isSprint ? 5.2 : 2.8; // m/s
+      const isCrouch = keys.crouch;
+      const maxSpeed = isCrouch ? 1.4 : isSprint ? 5.2 : 2.8; // m/s
       const isMoving = inputLen > 0.05;
 
       setYurmoqda(isMoving);
@@ -364,19 +440,22 @@ export function useYurish({
       kamera.position.x = Math.max(-7.6, Math.min(7.6, nextX));
       kamera.position.z = Math.max(-5.2, Math.min(5.8, nextZ));
 
+      // Ko'z balandligi va cho'qqayish lerp
+      eyeHeightRef.current = THREE.MathUtils.lerp(eyeHeightRef.current, targetEyeHeightRef.current, dt * 10);
+
       // Gravitatsiya va sakrash
-      if (verticalVelocityRef.current !== 0 || eyeHeightRef.current > 1.6) {
+      if (verticalVelocityRef.current !== 0 || eyeHeightRef.current > targetEyeHeightRef.current) {
         verticalVelocityRef.current -= 9.8 * dt;
         eyeHeightRef.current += verticalVelocityRef.current * dt;
 
-        if (eyeHeightRef.current <= 1.6) {
-          eyeHeightRef.current = 1.6;
+        if (eyeHeightRef.current <= targetEyeHeightRef.current) {
+          eyeHeightRef.current = targetEyeHeightRef.current;
           verticalVelocityRef.current = 0;
         }
       }
 
       // Qadam tovushi va Head-Bobbing
-      if (isMoving && eyeHeightRef.current <= 1.62) {
+      if (isMoving && eyeHeightRef.current <= 1.62 && !isCrouch) {
         bobbingRef.current += dt * (isSprint ? 16 : 10);
         kamera.position.y = eyeHeightRef.current + Math.sin(bobbingRef.current) * 0.024;
 
@@ -477,8 +556,9 @@ export function useYurish({
   }, []);
 
   const handleJoystickBurilish = useCallback((dx, dy) => {
-    rotationRef.current.yaw -= dx * 0.0055;
-    rotationRef.current.pitch -= dy * 0.0055;
+    const sens = sezgirlikRef.current || 1.0;
+    rotationRef.current.yaw -= dx * 0.0055 * sens;
+    rotationRef.current.pitch -= dy * 0.0055 * sens;
     rotationRef.current.pitch = Math.max(-1.48, Math.min(1.48, rotationRef.current.pitch));
   }, []);
 
@@ -490,6 +570,8 @@ export function useYurish({
     fpsQolIdish,
     fpsQaralganStansiya,
     qolgaOlYokiQoy,
+    sezgirlik,
+    sezgirlikniOzgartir,
     handleJoystickHarakat,
     handleJoystickBurilish,
   };

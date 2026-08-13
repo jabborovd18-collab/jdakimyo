@@ -277,7 +277,10 @@ export default function Korinish() {
     yurmoqda,
     fpsQaralganIdish,
     fpsQolIdish,
+    fpsQaralganStansiya,
     qolgaOlYokiQoy,
+    sezgirlik,
+    sezgirlikniOzgartir,
     handleJoystickHarakat,
     handleJoystickBurilish,
   } = useYurish({
@@ -287,9 +290,15 @@ export default function Korinish() {
     controlsRef,
     onIdishTanlandi: handleIdishTanlandi,
     onQuyishBoshla: quyishBoshla,
+    onAniqHajmQuy: (ml) => {
+      if (nishonIdishGroup) {
+        aniqHajmQuy(faolReagent || "H₂O", nishonIdishGroup, ml);
+      }
+    },
     onTaroziTushdi: handleTaroziTushdi,
     onSpirtovkagaQoyildi: handleSpirtovkagaQoyildi,
     onRakovinagaTushdi: handleRakovinagaTushdi,
+    onStansiyaOchildi: handleStansiyaOchildi,
   });
 
   // 8. Tajriba O'tkazish Hooki
@@ -870,9 +879,26 @@ export default function Korinish() {
             </button>
 
             {yurishRejimi && !tozaEkran && (
-              <span className="hidden sm:inline-flex v3-tag v3-tag-ochiq text-[10px] font-mono">
-                ⌨️ W (oldinga) · S (orqaga) · A/D (strafe) · Sichqoncha (qarash) · Space (sakrash) · Shift (yugurish)
-              </span>
+              <>
+                <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-[var(--v3-fon-2)]/95 border border-[var(--v3-chiziq-2)] shadow-lg text-[10px] font-mono">
+                  <span className="text-[var(--v3-xira)]">🎯 Sezgirlik:</span>
+                  <input
+                    type="range"
+                    min="0.2"
+                    max="2.5"
+                    step="0.1"
+                    value={sezgirlik}
+                    onChange={(e) => sezgirlikniOzgartir(e.target.value)}
+                    className="w-16 accent-[var(--v3-urgu)] cursor-pointer h-1"
+                    title="Sichqoncha sezgirligini sozlash"
+                  />
+                  <span className="font-bold text-[var(--v3-urgu)]">{sezgirlik.toFixed(1)}x</span>
+                </div>
+
+                <span className="hidden sm:inline-flex v3-tag v3-tag-ochiq text-[10px] font-mono">
+                  ⌨️ WASD · E (ushlash/quyish) · G (tashlash) · C (cho{"'"}qqayish) · 1-4 (doza)
+                </span>
+              </>
             )}
           </div>
 
