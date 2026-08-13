@@ -7,6 +7,8 @@ import { quy, jamiHajm } from "../lib/idish-holati.js";
 import { aralashmaRangi } from "../lib/rang-aralashtirish.js";
 import { moddaKorinishi } from "../lib/modda-korinishi.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
+import { devorShishasiniTop } from "../lib/javon-3d.js";
+import { shishaniUchiribKeltir, shishaniJavongaQaytar } from "../lib/shisha-animatsiya.js";
 import { yoz } from "../lib/jurnal.js";
 import { oqimBoshla, oqimToxtat, tiqinOchilishi } from "../lib/ovoz.js";
 
@@ -37,7 +39,7 @@ function oqimVaTomchilarYasa(rang = 0xffffff, balandlik = 0.24, qalinlik = 0.006
   return { group, oqimMesh, tomchilar };
 }
 
-// Reagent shishasi
+// Vaqtinchalik reagent shishasi (agar devorda topilmasa)
 function reagentShishasiYasa(kalit, rang) {
   const group = new THREE.Group();
   const shishaMat = new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.35, transparent: true });
@@ -62,18 +64,20 @@ function reagentShishasiYasa(kalit, rang) {
 }
 
 /**
- * 1-BOSQICH: Erkin egish va o'zgaruvchan tezlikdagi uzluksiz quyish hooki.
+ * 3-MUAMMO: Devor shkaflaridagi shishalarni to'g'ridan-to'g'ri probirkaga quyish hooki.
  *
  * Imkoniyatlari:
- *  - Burchakka to'g'ri proporsional quyish tezligi (Kam egilsa: tomchi, Ko'p egilsa: shiddatli oqim).
- *  - Idishdan idishga yoki reagent shishasidan idishga aniq quyish.
- *  - Haqiqiy vaqt rejimida stexiometriya va rang aralashishi.
+ *  - Devor shkafidagi shishani sinov idishiga silliq uchirib keltirish (Smooth Flight).
+ *  - Burchakka to'g'ri proporsional quyish tezligi (Kam egilsa: tomchi, Ko'p egilsa: tez oqim).
+ *  - Devordagi shishaning suyuqlik sathi real vaqtda kamayishi (Depletion).
+ *  - Tiqin ochilishi ovozi va javondagi o'z joyiga silliq qaytishi.
  */
 export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
   const [quyilmoqda, setQuyilmoqda] = useState(false);
   const [egishBurchagi, setEgishBurchagi] = useState(0); // 0 dan 80 gradusgacha
   const [hajm, setHajm] = useState(0);
   const [quyishTezligiMl, setQuyishTezligiMl] = useState(0); // ml/s ko'rsatkichi
+  const [faolShishaMesh, setFaolShishaMesh] = useState(null);
 
   const kadrIdRef = useRef(null);
   const vaqtRef = useRef(Date.now());
@@ -95,6 +99,22 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     }
   }, []);
 
+  // Shishani probirka ustiga uchirib keltirish
+  const shishaniKeltir = useCallback((reagentKaliti, targetGroup) => {
+    if (!targetGroup || !sahnaRef?.current || !reagentKaliti) return;
+
+    const devorShishasi = devorShishasiniTop(sahnaRef.current, reagentKaliti);
+    if (!devorShishasi) return;
+
+    setFaolShishaMesh(devorShishasi);
+    faolReagentRef.current = reagentKaliti;
+    nishonIdishRef.current = targetGroup;
+
+    shishaniUchiribKeltir(devorShishasi, targetGroup, (shisha) => {
+      // Shisha probirka tepasiga yetib keldi
+    });
+  }, [sahnaRef]);
+
   // Quyishni boshlash (Reagent yoki Idish orqali)
   const quyishBoshla = useCallback((reagentKaliti, targetGroup, sourceGroup = null, boshlangichBurchak = 45) => {
     if (!targetGroup || !sahnaRef?.current) return;
@@ -112,17 +132,31 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     const targetPos = targetGroup.position;
 
     let shishaGroup = null;
+    let isWallBottle = false;
+
     if (sourceGroup) {
       shishaGroup = sourceGroup;
       shishaGroup.position.set(targetPos.x + 0.14, targetPos.y + ogizY + 0.12, targetPos.z);
       shishaGroup.rotation.z = (boshlangichBurchak * Math.PI) / 180;
     } else {
-      shishaGroup = reagentShishasiYasa(faolReagentRef.current, korinish.rang);
-      shishaGroup.position.set(targetPos.x + 0.14, targetPos.y + ogizY + 0.12, targetPos.z);
-      shishaGroup.rotation.z = (boshlangichBurchak * Math.PI) / 180;
-      sahnaRef.current.add(shishaGroup);
+      // Devordagi haqiqiy shishani tekshirish
+      const devorShisha = devorShishasiniTop(sahnaRef.current, faolReagentRef.current);
+      if (devorShisha) {
+        shishaGroup = devorShisha;
+        isWallBottle = true;
+        shishaGroup.position.set(targetPos.x + 0.14, targetPos.y + ogizY + 0.12, targetPos.z);
+        shishaGroup.rotation.z = (boshlangichBurchak * Math.PI) / 180;
+      } else {
+        shishaGroup = reagentShishasiYasa(faolReagentRef.current, korinish.rang);
+        shishaGroup.position.set(targetPos.x + 0.14, targetPos.y + ogizY + 0.12, targetPos.z);
+        shishaGroup.rotation.z = (boshlangichBurchak * Math.PI) / 180;
+        sahnaRef.current.add(shishaGroup);
+      }
     }
 
+    setFaolShishaMesh(shishaGroup);
+
+    // Oqim va sachrash tomchilari
     const oqimBalandlik = 0.15;
     const { group: oqimGroup } = oqimVaTomchilarYasa(korinish.rang, oqimBalandlik, 0.006);
     oqimGroup.position.set(targetPos.x, targetPos.y + ogizY, targetPos.z);
@@ -131,8 +165,14 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     vizualGuruhRef.current = {
       shisha: shishaGroup,
       oqim: oqimGroup,
-      isExternalBottle: !sourceGroup,
+      isWallBottle,
+      isExternalBottle: !sourceGroup && !isWallBottle,
     };
+
+    if (isWallBottle && shishaGroup.userData?.qopqoqMesh) {
+      const aslY = shishaGroup.userData.aslQopqoqY || 0.1;
+      shishaGroup.userData.qopqoqMesh.position.y = aslY + 0.035;
+    }
 
     tiqinOchilishi(); // Tiqin ochilish ovozi
     oqimBoshla();
@@ -150,7 +190,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     }
 
     if (sahnaRef?.current && vizualGuruhRef.current) {
-      const { shisha, oqim, isExternalBottle } = vizualGuruhRef.current;
+      const { shisha, oqim, isExternalBottle, isWallBottle } = vizualGuruhRef.current;
       if (shisha) {
         if (isExternalBottle) {
           sahnaRef.current.remove(shisha);
@@ -183,10 +223,21 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
 
     setQuyilmoqda(false);
     setQuyishTezligiMl(0);
-    faolReagentRef.current = null;
-    manbaIdishRef.current = null;
-    nishonIdishRef.current = null;
   }, [quyilmoqda, sahnaRef, holatRef, jurnalRef]);
+
+  // Shishani o'z javonidagi joyiga silliq qaytarish
+  const javongaQaytar = useCallback(() => {
+    quyishToxtat();
+    if (faolShishaMesh && faolShishaMesh.userData?.devorShishasi) {
+      shishaniJavongaQaytar(faolShishaMesh, () => {
+        setFaolShishaMesh(null);
+        faolReagentRef.current = null;
+      });
+    } else {
+      setFaolShishaMesh(null);
+      faolReagentRef.current = null;
+    }
+  }, [quyishToxtat, faolShishaMesh]);
 
   // Quyish fizikasi animatsiyasi sikli
   useEffect(() => {
@@ -225,6 +276,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
 
       const qoshiladigan = tezlikMlSec * dt;
 
+      // 1. Maqsadli idishga suyuqlik quyish
       const yangiHolat = quy(holatRef.current, reagent, qoshiladigan);
       holatRef.current = yangiHolat;
 
@@ -233,6 +285,14 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
 
       const rangObj = aralashmaRangi(yangiHolat);
       suyuqlikSathiniYangila(idishGroup, yangiHajm, rangObj);
+
+      // 2. Devor javonidagi shishadan suyuqlik hajmini kamaytirish (Depletion)
+      const shisha = vizualGuruhRef.current?.shisha;
+      if (shisha && typeof shisha.userData?.hajmniYangila === "function") {
+        const hozirgiShishaHajm = shisha.userData.joriyHajm || shisha.userData.sigim || 500;
+        const yangiShishaHajm = Math.max(0, hozirgiShishaHajm - qoshiladigan);
+        shisha.userData.hajmniYangila(yangiShishaHajm);
+      }
 
       if (typeof onOzgarish === "function") {
         onOzgarish(yangiHolat);
@@ -250,9 +310,12 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     quyishBoshla,
     quyishToxtat,
     burchakniOrnat,
+    shishaniKeltir,
+    javongaQaytar,
     egishBurchagi,
     quyilmoqda,
     hajm,
     quyishTezligiMl,
+    faolShishaMesh,
   };
 }

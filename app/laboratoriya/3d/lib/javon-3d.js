@@ -45,30 +45,37 @@ const GHS_RANGLARI = {
 };
 
 function shishaYorliginiYasa(item) {
-  if (typeof document === "undefined") return new THREE.Group();
+  if (typeof document === "undefined") {
+    const fake = new THREE.Sprite();
+    return { sprite: fake, yangila: () => {} };
+  }
   const canvas = document.createElement("canvas");
   canvas.width = 192;
   canvas.height = 72;
   const ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "rgba(15, 23, 42, 0.95)";
-  ctx.beginPath();
-  ctx.roundRect(2, 2, 188, 68, 8);
-  ctx.fill();
+  const chizYorliq = (joriy, sigim) => {
+    ctx.fillStyle = "rgba(15, 23, 42, 0.95)";
+    ctx.beginPath();
+    ctx.roundRect(2, 2, 188, 68, 8);
+    ctx.fill();
 
-  const hoshiyaRangi = GHS_RANGLARI[item.ghs] || "#38bdf8";
-  ctx.strokeStyle = hoshiyaRangi;
-  ctx.lineWidth = 3;
-  ctx.stroke();
+    const hoshiyaRangi = GHS_RANGLARI[item.ghs] || "#38bdf8";
+    ctx.strokeStyle = hoshiyaRangi;
+    ctx.lineWidth = 3;
+    ctx.stroke();
 
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 26px sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(item.kalit, 96, 32);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 26px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(item.kalit, 96, 32);
 
-  ctx.fillStyle = "#94a3b8";
-  ctx.font = "bold 16px monospace";
-  ctx.fillText(`${item.joriyHajm}/${item.sigim}ml`, 96, 56);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 16px monospace";
+    ctx.fillText(`${Math.round(joriy)}/${sigim}ml`, 96, 56);
+  };
+
+  chizYorliq(item.joriyHajm, item.sigim);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.minFilter = THREE.LinearFilter;
@@ -76,19 +83,18 @@ function shishaYorliginiYasa(item) {
   const sprite = new THREE.Sprite(spriteMat);
   sprite.scale.set(0.13, 0.048, 1);
   sprite.raycast = () => {};
-  return sprite;
+
+  const yangila = (yangiHajm) => {
+    chizYorliq(yangiHajm, item.sigim);
+    texture.needsUpdate = true;
+  };
+
+  return { sprite, yangila };
 }
 
 function reagentShishasiModel(item, materiallar) {
   const bottleGroup = new THREE.Group();
-  bottleGroup.userData = {
-    kalit: item.kalit,
-    nom: item.nom,
-    sigim: item.sigim,
-    joriyHajm: item.joriyHajm,
-    ghs: item.ghs,
-    tanlanadi: true,
-  };
+  bottleGroup.name = `Devor_Shisha_${item.kalit}`;
 
   const shishaMat =
     item.shishaTuri === "amber"
@@ -132,24 +138,55 @@ function reagentShishasiModel(item, materiallar) {
   tana.position.y = balandlik / 2;
   bottleGroup.add(tana);
 
+  const maksSuyuqH = balandlik * 0.8;
   const suyuqRatio = item.joriyHajm / item.sigim;
-  const suyuqH = (balandlik * 0.8) * suyuqRatio;
-  const suyuqGeo = new THREE.CylinderGeometry(radius * 0.9, radius * 0.9, suyuqH, 16);
+  const suyuqH = maksSuyuqH * suyuqRatio;
+  const suyuqGeo = new THREE.CylinderGeometry(radius * 0.9, radius * 0.9, maksSuyuqH, 16);
   const suyuq = new THREE.Mesh(suyuqGeo, suyuqMat);
-  suyuq.position.y = suyuqH / 2 + 0.004;
+  suyuq.scale.y = suyuqRatio;
+  suyuq.position.y = (maksSuyuqH * suyuqRatio) / 2 + 0.004;
   bottleGroup.add(suyuq);
-  bottleGroup.userData.suyuqlikMesh = suyuq;
 
   const qopqoqGeo = new THREE.CylinderGeometry(boyinR * 1.1, boyinR * 1.3, boyinH, 14);
   const qopqoq = new THREE.Mesh(qopqoqGeo, qopqoqMat);
-  qopqoq.position.y = balandlik + boyinH / 2;
+  const aslQopqoqY = balandlik + boyinH / 2;
+  qopqoq.position.y = aslQopqoqY;
   bottleGroup.add(qopqoq);
 
-  const yorliq = shishaYorliginiYasa(item);
-  yorliq.position.set(0, balandlik + boyinH + 0.04, 0);
-  bottleGroup.add(yorliq);
+  const { sprite: yorliqSprite, yangila: yorliqYangila } = shishaYorliginiYasa(item);
+  yorliqSprite.position.set(0, balandlik + boyinH + 0.04, 0);
+  bottleGroup.add(yorliqSprite);
 
   bottleGroup.position.set(...item.pos);
+
+  // Hajmni kamaytirish va real vaqtda yangilash funksiyasi
+  const hajmniYangila = (yangiHajm) => {
+    const clamped = Math.max(0, Math.min(item.sigim, Number(yangiHajm) || 0));
+    bottleGroup.userData.joriyHajm = clamped;
+
+    const r = Math.max(0.01, clamped / item.sigim);
+    suyuq.scale.y = r;
+    suyuq.position.y = (maksSuyuqH * r) / 2 + 0.004;
+
+    yorliqYangila(clamped);
+  };
+
+  bottleGroup.userData = {
+    kalit: item.kalit,
+    nom: item.nom,
+    sigim: item.sigim,
+    joriyHajm: item.joriyHajm,
+    ghs: item.ghs,
+    tanlanadi: true,
+    devorShishasi: true,
+    aslPos: new THREE.Vector3(...item.pos),
+    aslQopqoqY,
+    suyuqlikMesh: suyuq,
+    qopqoqMesh: qopqoq,
+    hajmniYangila,
+    stolUstida: false,
+  };
+
   return bottleGroup;
 }
 
@@ -229,3 +266,21 @@ export function javon3dYasa(materiallar, arzonRejim = false) {
 
   return mainCabinetGroup;
 }
+
+/** Sahnadagi devor shkaflaridan berilgan reagent kaliti bo'yicha shisha guruhini topish */
+export function devorShishasiniTop(sahna, kalit) {
+  if (!sahna || !kalit) return null;
+  const javon = sahna.getObjectByName("3D_Devor_Reagent_Shkaflari");
+  if (!javon) return null;
+
+  let topildi = null;
+  javon.traverse((child) => {
+    if (topildi) return;
+    if (child.userData && child.userData.devorShishasi && child.userData.kalit === kalit) {
+      topildi = child;
+    }
+  });
+
+  return topildi;
+}
+

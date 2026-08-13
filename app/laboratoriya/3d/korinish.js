@@ -150,13 +150,17 @@ export default function Korinish() {
   // 2. Erkin Ko'tarish va Sudrash hooki (3-Bosqich: Pick, Drag & Snap, Action & Return)
   const handleIdishTanlandi = useCallback((group) => {
     if (group && group.userData?.kalit) {
-      if (group.userData.sigim > 0) {
+      if (group.userData.sigim > 0 && !group.userData.devorShishasi) {
         holatRef.current.idish = group.userData.kalit;
       } else {
-        setFaolReagent(group.userData.kalit);
+        const kalit = group.userData.kalit;
+        setFaolReagent(kalit);
+        if (nishonIdishGroup) {
+          shishaniKeltir(kalit, nishonIdishGroup);
+        }
       }
     }
-  }, []);
+  }, [nishonIdishGroup, shishaniKeltir]);
 
   const handleTaroziTushdi = useCallback((group) => {
     setTarozidagiIdish(group);
@@ -301,7 +305,7 @@ export default function Korinish() {
     controlsRef,
   });
 
-  // 3. O'zgaruvchan tezlikdagi quyish hooki (1-Bosqich)
+  // 3. O'zgaruvchan tezlikdagi quyish hooki (3-Muammo: Devor shkaflaridan to'g'ridan-to'g'ri quyish)
   const handleHolatOzgardimi = useCallback(() => {
     setAralashmaOzgarish((s) => s + 1);
 
@@ -320,15 +324,25 @@ export default function Korinish() {
     quyishBoshla,
     quyishToxtat,
     burchakniOrnat,
+    shishaniKeltir,
+    javongaQaytar,
     egishBurchagi,
     quyilmoqda,
     quyishTezligiMl,
+    faolShishaMesh,
   } = useQuyish({
     sahnaRef,
     holatRef,
     jurnalRef,
     onOzgarish: handleHolatOzgardimi,
   });
+
+  const handleReagentTanla = useCallback((kalit) => {
+    setFaolReagent(kalit);
+    if (kalit && nishonIdishGroup) {
+      shishaniKeltir(kalit, nishonIdishGroup);
+    }
+  }, [nishonIdishGroup, shishaniKeltir]);
 
   // 4. Lab ma'lumotlarini yuklash
   const yuklaLab = useCallback(async () => {
@@ -685,7 +699,7 @@ export default function Korinish() {
               <ReagentJavoni
                 reagentlar={reagentlar}
                 faol={faolReagent}
-                onTanla={setFaolReagent}
+                onTanla={handleReagentTanla}
                 quyilgan={quyilganModdalar}
               />
             </div>
@@ -730,7 +744,7 @@ export default function Korinish() {
                 reagentlar={reagentlar}
                 faol={faolReagent}
                 onTanla={(kalit) => {
-                  setFaolReagent(kalit);
+                  handleReagentTanla(kalit);
                   setMobilJavon(null);
                 }}
                 quyilgan={quyilganModdalar}
@@ -840,10 +854,17 @@ export default function Korinish() {
               <div className="flex items-center justify-between">
                 <div className="min-w-0">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--v3-urgu)]">
-                    1-Bosqich: Aniq Quyish va Egish
+                    Direct Hands-on: Devor Shishasidan Probirkaga Quyish
                   </div>
-                  <div className="text-xs font-bold text-[var(--v3-matn)] truncate">
-                    {kotarilganIdish ? kotarilganIdish.userData?.kalit : faolReagent} ➔ {nishonIdishGroup.userData?.kalit || "Probirka"}
+                  <div className="text-xs font-bold text-[var(--v3-matn)] truncate flex items-center gap-1.5">
+                    <span>{kotarilganIdish ? kotarilganIdish.userData?.kalit : faolReagent}</span>
+                    {faolShishaMesh?.userData?.joriyHajm !== undefined && (
+                      <span className="text-[10px] font-mono text-[var(--v3-xira)]">
+                        ({Math.round(faolShishaMesh.userData.joriyHajm)}/{faolShishaMesh.userData.sigim || 500}ml)
+                      </span>
+                    )}
+                    <span>➔</span>
+                    <span className="text-emerald-400">{nishonIdishGroup.userData?.kalit || "Probirka"}</span>
                   </div>
                 </div>
 
@@ -853,7 +874,7 @@ export default function Korinish() {
                       {quyishTezligiMl} ml/s
                     </span>
                   )}
-                  {kotarilganIdish && (
+                  {kotarilganIdish ? (
                     <button
                       type="button"
                       onClick={() => idishniJoyigaQoy()}
@@ -861,7 +882,19 @@ export default function Korinish() {
                     >
                       Stolga qo{"'"}yish
                     </button>
-                  )}
+                  ) : faolReagent ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        javongaQaytar();
+                        setFaolReagent(null);
+                      }}
+                      className="v3-tugma text-[11px] py-1 px-2.5 text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+                      title="Shishaning tiqinini yopib, o'z devor javonidagi joyiga qaytarish"
+                    >
+                      🚪 Javonga qaytarish
+                    </button>
+                  ) : null}
                 </div>
               </div>
 
