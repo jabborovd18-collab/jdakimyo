@@ -34,6 +34,7 @@ export function useSudrash({
   onIdishQoyildi,
   onTaroziTushdi,
   onSpirtovkagaQoyildi,
+  onRakovinagaTushdi,
 }) {
   const [tanlanganIdish, setTanlanganIdish] = useState(null);
   const [kotarilganIdish, setKotarilganIdish] = useState(null);
@@ -92,7 +93,13 @@ export function useSudrash({
       return { nishon: { position: new THREE.Vector3(1.4, 0.95, 0.2), kalit: "byuretka" }, turi: "byuretka" };
     }
 
-    // 3. Stoldagi boshqa idishlar yoki Spirtovkaga yaqinlashish
+    // 3. Yuvinish Rakovinasi krani tagiga yaqinlashish (X: -5.5, Z: -4.8)
+    const rakovinaMasofa = new THREE.Vector2(pos.x - (-5.5), pos.z - (-4.8)).length();
+    if (rakovinaMasofa < 0.85) {
+      return { nishon: { position: new THREE.Vector3(-5.5, 0.98, -4.8), kalit: "rakovina" }, turi: "rakovina" };
+    }
+
+    // 4. Stoldagi boshqa idishlar yoki Spirtovkaga yaqinlashish
     let engYaqin = null;
     let engKamMasofa = 0.45;
     let aniqlanganTur = null;
@@ -276,6 +283,8 @@ export function useSudrash({
             onTaroziTushdi(guruh);
           } else if (nishonTuri === "spirtovka" && typeof onSpirtovkagaQoyildi === "function") {
             onSpirtovkagaQoyildi(guruh);
+          } else if (nishonTuri === "rakovina" && typeof onRakovinagaTushdi === "function") {
+            onRakovinagaTushdi(guruh);
           }
         }
 

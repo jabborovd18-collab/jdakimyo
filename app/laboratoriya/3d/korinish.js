@@ -32,7 +32,7 @@ import VirtualJoystick from "./components/VirtualJoystick.jsx";
 import { zonagaOt } from "./lib/xona-zonalari.js";
 import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
-import { pufakchaChiqishi } from "./lib/ovoz.js";
+import { pufakchaChiqishi, oqimBoshla, oqimToxtat } from "./lib/ovoz.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat, yoz } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
@@ -161,6 +161,36 @@ export default function Korinish() {
     setIsitimoda(true);
   }, []);
 
+  const handleRakovinagaTushdi = useCallback((group) => {
+    oqimBoshla();
+    pufakchaChiqishi();
+
+    const rakovinaMesh = sahnaRef?.current?.getObjectByName("Yuvinish_Rakovinasi");
+    if (rakovinaMesh?.userData?.suvOqimiMesh) {
+      rakovinaMesh.userData.suvOqimiMesh.visible = true;
+      if (rakovinaMesh.userData.splashPoints) {
+        rakovinaMesh.userData.splashPoints.visible = true;
+      }
+    }
+
+    suyuqlikSathiniYangila(group, 0, null, 0);
+    holatRef.current = tozala(holatRef.current);
+    jurnalRef.current = jurnalYarat();
+
+    toast.success("✓ Idish distillangan suv bilan to'liq yuvildi va tozalandi!");
+    setAralashmaOzgarish((s) => s + 1);
+
+    setTimeout(() => {
+      oqimToxtat();
+      if (rakovinaMesh?.userData?.suvOqimiMesh) {
+        rakovinaMesh.userData.suvOqimiMesh.visible = false;
+        if (rakovinaMesh.userData.splashPoints) {
+          rakovinaMesh.userData.splashPoints.visible = false;
+        }
+      }
+    }, 2200);
+  }, [sahnaRef]);
+
   const {
     tanlanganIdish,
     setTanlanganIdish,
@@ -178,6 +208,7 @@ export default function Korinish() {
     onIdishTanlandi: handleIdishTanlandi,
     onTaroziTushdi: handleTaroziTushdi,
     onSpirtovkagaQoyildi: handleSpirtovkagaQoyildi,
+    onRakovinagaTushdi: handleRakovinagaTushdi,
   });
 
   const nishonIdishGroup = yaqinNishon || tanlanganIdish || hammaJihozlar[0] || null;

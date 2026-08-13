@@ -388,20 +388,23 @@ function taroziStoliYasa(materiallar) {
   return group;
 }
 
-/** Yuvinish Rakovinasi va Kran modeli */
+/** Yuvinish Rakovinasi, Distillangan Suv Krani va Oqim modeli */
 function rakovinaYasa(materiallar) {
   const group = new THREE.Group();
   group.name = "Yuvinish_Rakovinasi";
-  group.position.set(-5.5, 0.9, -4.8); // Chap orqa burchakka joylashtirildi
+  group.position.set(-5.5, 0.9, -4.8); // Chap orqa burchakda
 
   const chinniMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.1 });
   const kranMat = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.9, roughness: 0.1 });
+  const suvMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1 });
 
+  // 1. Rakovina chinni vannasi
   const botiqGeo = new THREE.BoxGeometry(0.6, 0.26, 0.45);
   const botiq = new THREE.Mesh(botiqGeo, chinniMat);
   botiq.position.y = -0.1;
   group.add(botiq);
 
+  // 2. Xrom kran ustuni va egik trubasi
   const kranAsosGeo = new THREE.CylinderGeometry(0.016, 0.02, 0.18, 16);
   const kranAsos = new THREE.Mesh(kranAsosGeo, kranMat);
   kranAsos.position.set(0, 0.09, -0.16);
@@ -412,6 +415,41 @@ function rakovinaYasa(materiallar) {
   kranTruba.rotation.y = Math.PI / 2;
   kranTruba.position.set(0, 0.18, -0.09);
   group.add(kranTruba);
+
+  // Kran jo'mragi (Lever)
+  const jomrakGeo = new THREE.BoxGeometry(0.015, 0.04, 0.015);
+  const jomrak = new THREE.Mesh(jomrakGeo, new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
+  jomrak.position.set(0, 0.18, -0.16);
+  group.add(jomrak);
+
+  // 3. Dinamik Distillangan Suv Oqimi (Water Stream)
+  const suvOqimiGeo = new THREE.CylinderGeometry(0.014, 0.018, 0.24, 16);
+  const suvOqimiMesh = new THREE.Mesh(suvOqimiGeo, suvMat);
+  suvOqimiMesh.position.set(0, 0.04, -0.02);
+  suvOqimiMesh.visible = false;
+  group.add(suvOqimiMesh);
+
+  // 4. Suv Sachrash Zarrachalari (Splashing droplets)
+  const splashGeo = new THREE.BufferGeometry();
+  const splashPos = new Float32Array(36);
+  for (let i = 0; i < 12; i++) {
+    splashPos[i * 3] = (Math.random() - 0.5) * 0.08;
+    splashPos[i * 3 + 1] = -0.08 + Math.random() * 0.04;
+    splashPos[i * 3 + 2] = -0.02 + (Math.random() - 0.5) * 0.08;
+  }
+  splashGeo.setAttribute("position", new THREE.BufferAttribute(splashPos, 3));
+  const splashMat = new THREE.PointsMaterial({ color: 0x38bdf8, size: 0.012, transparent: true, opacity: 0.85 });
+  const splashPoints = new THREE.Points(splashGeo, splashMat);
+  splashPoints.visible = false;
+  group.add(splashPoints);
+
+  group.userData = {
+    kalit: "rakovina",
+    tanlanadi: true,
+    suvOqimiMesh,
+    splashPoints,
+    suvOqmoqda: false,
+  };
 
   return group;
 }
