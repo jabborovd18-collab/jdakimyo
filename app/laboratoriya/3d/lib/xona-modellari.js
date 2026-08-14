@@ -916,19 +916,16 @@ export function xonaInteryeriniYasa(materiallar) {
   // 3. Yon Ishchi Tajriba Stollari (Chap & O'ng)
   roomGroup.add(yonStollarniYasa(materiallar));
 
-  // 4. Tortma Shkaf (O'ng orqa burchakda)
-  roomGroup.add(tortmaShkafYasa(materiallar));
-
-  // 5. Analitik Tarozi Stantsiyasi (Chap stolda)
+  // 4. Analitik Tarozi Stantsiyasi (Chap stolda)
   roomGroup.add(taroziStoliYasa(materiallar));
 
-  // 6. Byuretka va Titrlash Stendi (O'ng stolda)
+  // 5. Byuretka va Titrlash Stendi (O'ng stolda)
   roomGroup.add(titrlashStendiYasa(materiallar));
 
-  // 7. Elektroliz va Tok Manbai Stendi (O'ng stolda)
+  // 6. Elektroliz va Tok Manbai Stendi (O'ng stolda)
   roomGroup.add(elektrolizVannasiYasa(materiallar));
 
-  // 8. Yuvinish Rakovinasi (Chap orqa burchakda)
+  // 7. Yuvinish Rakovinasi (Chap orqa burchakda)
   roomGroup.add(rakovinaYasa(materiallar));
 
   return roomGroup;

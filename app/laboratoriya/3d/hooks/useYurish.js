@@ -15,16 +15,33 @@ function obyektniTop(obyekt) {
   return null;
 }
 
+// Qat'iy AABB to'siq kolliziyasi va itarib chiqarish (Push-out separation)
+function stolKolliziyasi(px, pz, minX, maxX, minZ, maxZ, radius = 0.42) {
+  const boxMinX = minX - radius;
+  const boxMaxX = maxX + radius;
+  const boxMinZ = minZ - radius;
+  const boxMaxZ = maxZ + radius;
+
+  let x = px;
+  let z = pz;
+
+  if (x > boxMinX && x < boxMaxX && z > boxMinZ && z < boxMaxZ) {
+    const dLeft = Math.abs(x - boxMinX);
+    const dRight = Math.abs(x - boxMaxX);
+    const dBack = Math.abs(z - boxMinZ);
+    const dFront = Math.abs(z - boxMaxZ);
+
+    const minD = Math.min(dLeft, dRight, dBack, dFront);
+    if (minD === dLeft) x = boxMinX;
+    else if (minD === dRight) x = boxMaxX;
+    else if (minD === dBack) z = boxMinZ;
+    else z = boxMaxZ;
+  }
+  return { x, z };
+}
+
 /**
  * CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA VA BIRINCHI SHAXS HARAKATLANISH DVIGATELI.
- *
- * Imkoniyatlari:
- *  - Sozlanuvchi sichqoncha sezgirligi (Sensitivity: 0.2x - 2.5x).
- *  - E / F — Ushlash va Quyish (Primary Interact / Pour).
- *  - G — Stolga qo'yish (Place down on table).
- *  - C / Ctrl — Cho'qqayish (Crouch: 1.05m pastki javonlarni ko'rish).
- *  - 1, 2, 3, 4 — Tezkor millilitr quyish.
- *  - Space (sakrash), Shift (yugurish), W/A/S/D (yurish).
  */
 export function useYurish({
   sahnaRef,
@@ -259,7 +276,7 @@ export function useYurish({
       // Cho'qqayish (Crouch)
       if (k === "KeyC" || k === "ControlLeft" || k === "ControlRight") {
         keysRef.current.crouch = true;
-        targetEyeHeightRef.current = 1.05; // Pastki javonlar va stol sirtini ko'rish
+        targetEyeHeightRef.current = 1.05;
       }
 
       // E yoki F — Ushlash / Quyish
@@ -280,7 +297,7 @@ export function useYurish({
 
       if (k === "Space") {
         if (eyeHeightRef.current <= 1.62 && !keysRef.current.crouch) {
-          verticalVelocityRef.current = 3.6;
+          verticalVelocityRef.current = 3.2;
         }
       }
     };
@@ -423,35 +440,31 @@ export function useYurish({
 
       velocityRef.current.lerp(targetVel, dt * (isMoving ? 12 : 16));
 
-      // Yangi pozitsiya va stol to'siqlari kolliziyasi (AABB collision)
+      // Yangi xom pozitsiya
       let nextX = kamera.position.x + velocityRef.current.x * dt;
       let nextZ = kamera.position.z + velocityRef.current.z * dt;
 
-      // 1. Asosiy markaziy stol to'sig'i (X: [-1.8, 1.8], Z: [-1.0, 1.0])
-      const inMainTable = nextX >= -1.8 && nextX <= 1.8 && nextZ >= -1.0 && nextZ <= 1.0;
-      if (inMainTable) {
-        if (Math.abs(kamera.position.x) > Math.abs(kamera.position.z)) {
-          nextX = kamera.position.x;
-        } else {
-          nextZ = kamera.position.z;
-        }
-      }
+      // 1. Asosiy markaziy stol to'sig'i itarishi (X: [-1.6, 1.6], Z: [-0.8, 0.8])
+      const cMain = stolKolliziyasi(nextX, nextZ, -1.6, 1.6, -0.8, 0.8, 0.45);
+      nextX = cMain.x;
+      nextZ = cMain.z;
 
-      // 2. Chap stol to'sig'i (X: [-4.4, -2.0], Z: [-0.8, 1.1])
-      const inLeftTable = nextX >= -4.4 && nextX <= -2.0 && nextZ >= -0.8 && nextZ <= 1.1;
-      if (inLeftTable) {
-        nextX = kamera.position.x;
-        nextZ = kamera.position.z;
-      }
+      // 2. Chap stol to'sig'i itarishi (X: [-4.2, -2.2], Z: [-0.5, 0.9])
+      const cLeft = stolKolliziyasi(nextX, nextZ, -4.2, -2.2, -0.5, 0.9, 0.45);
+      nextX = cLeft.x;
+      nextZ = cLeft.z;
 
-      // 3. O'ng stol to'sig'i (X: [2.0, 4.4], Z: [-0.8, 1.1])
-      const inRightTable = nextX >= 2.0 && nextX <= 4.4 && nextZ >= -0.8 && nextZ <= 1.1;
-      if (inRightTable) {
-        nextX = kamera.position.x;
-        nextZ = kamera.position.z;
-      }
+      // 3. O'ng stol to'sig'i itarishi (X: [2.2, 4.2], Z: [-0.5, 0.9])
+      const cRight = stolKolliziyasi(nextX, nextZ, 2.2, 4.2, -0.5, 0.9, 0.45);
+      nextX = cRight.x;
+      nextZ = cRight.z;
 
-      // 4. Qat'iy xona devorlari va eshik chegarasi (Z: [-4.8, 5.2], X: [-7.2, 7.2])
+      // 4. Chap orqa rakovina to'sig'i (X: [-6.0, -5.0], Z: [-5.3, -4.3])
+      const cSink = stolKolliziyasi(nextX, nextZ, -6.0, -5.0, -5.3, -4.3, 0.45);
+      nextX = cSink.x;
+      nextZ = cSink.z;
+
+      // 5. Qat'iy xona devorlari va eshik chegarasi
       kamera.position.x = Math.max(-7.2, Math.min(7.2, nextX));
       kamera.position.z = Math.max(-4.8, Math.min(5.2, nextZ));
 
