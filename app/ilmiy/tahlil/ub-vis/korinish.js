@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -405,6 +407,7 @@ const UBVIS_DATA = {
 }
 
 export default function UBVisSpektroskopiya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [showWarningModal, setShowWarningModal] = useState(true)
   const [activeTransition, setActiveTransition] = useState(0)
@@ -450,14 +453,14 @@ export default function UBVisSpektroskopiya() {
   const energyKJ = useMemo(() => (119627 / lambdaSlider).toFixed(0), [lambdaSlider])
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* ═══════════════ OGOHLANTIRISH MODALI ═══════════════ */}
       {showWarningModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
           <div className="bg-gradient-to-br from-purple-950 to-pink-950 border-2 border-pink-500 rounded-2xl p-6 max-w-3xl w-full">
             <h3 className="text-xl font-bold text-pink-400 mb-4 flex items-center gap-2">
-              <span className="text-3xl">🌈</span> UB-VIS SPEKTROSKOPIYA — ELEKTRON O'TISHLARNING KVANT MEXANIKASI
+              <span className="text-3xl"></span> UB-VIS SPEKTROSKOPIYA — ELEKTRON O'TISHLARNING KVANT MEXANIKASI
             </h3>
             <p className="text-purple-200 text-sm mb-4">
               <strong className="text-pink-300">Ultrabinafsha va ko'rinadigan spektroskopiya</strong> — kompleks birikmalar
@@ -466,16 +469,16 @@ export default function UBVisSpektroskopiya() {
               d–d va zaryad ko'chish (CT) o'tishlari, spin holati va oksidlanish darajasi</strong> aniqlanadi.
             </p>
 
-            <div className="bg-purple-950/60 rounded-lg p-4 mb-4">
+            <div className="p-4 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] mb-4">
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
-                  <div className="text-pink-400 font-bold mb-2">🔬 Fizik asos</div>
+                  <div className="text-pink-400 font-bold mb-2"> Fizik asos</div>
                   <div className="text-purple-200">Kvantlangan elektron energiyalari:</div>
                   <div className="text-purple-200 mt-1">E = hν = hc/λ = h·c·ν̃</div>
                   <div className="text-purple-200 mt-1">Foton yutilishi elektronni ↑ holatiga o'tkazadi</div>
                 </div>
                 <div>
-                  <div className="text-pink-400 font-bold mb-2">📐 Tanlash qoidalari</div>
+                  <div className="text-pink-400 font-bold mb-2"> Tanlash qoidalari</div>
                   <div className="text-purple-200">Spin: ΔS = 0</div>
                   <div className="text-purple-200">Laport: g ↮ g (markazsimmetrikda)</div>
                   <div className="text-purple-200">Orbital: Δl = ±1</div>
@@ -502,50 +505,35 @@ export default function UBVisSpektroskopiya() {
       )}
 
       {/* ═══════════════ HEADER ═══════════════ */}
-      {showHeader && (
-        <header className="border-b border-purple-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh sahifa</Link>
-              <span className="text-purple-600">›</span>
-              <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil usullari</Link>
-              <span className="text-purple-600">›</span>
-              <span className="text-pink-400 font-semibold">UB-Vis spektroskopiya</span>
+      <header className="border-b border-[var(--v3-chiziq)] sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <nav className="flex items-center gap-2 text-xs mb-1.5 text-[var(--v3-xira)] flex-wrap">
+              <Link href="/ilmiy" className="hover:text-[var(--v3-matn)]">Ilmiy Bo{"'"}lim</Link>
+              <span>›</span>
+              <Link href="/ilmiy/tahlil" className="hover:text-[var(--v3-matn)]">Tahlil usullari</Link>
+              <span>›</span>
+              <span className="text-[var(--v3-urgu)] font-semibold">UB-Vis Spektroskopiya</span>
             </nav>
 
-            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-pink-400 flex items-center gap-2">
-                  <span className="text-3xl">🌈</span>
-                  UB-Vis (Ultrabinafsha–ko'rinadigan) spektroskopiya
-                </h1>
-                <p className="text-purple-400 text-sm mt-1">
-                  Elektron spektroskopiya • Kristall maydon nazariyasi • d–d va CT o'tishlar • Tanabe-Sugano • Beer-Lambert
-                </p>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  <span className="px-2 py-1 rounded bg-pink-900/30 border border-pink-700/50 text-pink-400 text-[10px] uppercase tracking-wide">Kvant nazariyasi</span>
-                  <span className="px-2 py-1 rounded bg-purple-900/30 border border-purple-700/50 text-purple-300 text-[10px] uppercase tracking-wide">Kristall maydon</span>
-                  <span className="px-2 py-1 rounded bg-blue-900/30 border border-blue-700/50 text-blue-400 text-[10px] uppercase tracking-wide">d–d o'tishlar</span>
-                  <span className="px-2 py-1 rounded bg-yellow-900/30 border border-yellow-700/50 text-yellow-400 text-[10px] uppercase tracking-wide">LMCT / MLCT</span>
-                  <span className="px-2 py-1 rounded bg-green-900/30 border border-green-700/50 text-green-400 text-[10px] uppercase tracking-wide">Tanabe-Sugano</span>
-                  <span className="px-2 py-1 rounded bg-red-900/30 border border-red-700/50 text-red-400 text-[10px] uppercase tracking-wide">Beer-Lambert</span>
-                  <span className="px-2 py-1 rounded bg-cyan-900/30 border border-cyan-700/50 text-cyan-400 text-[10px] uppercase tracking-wide">Racah B, β</span>
-                </div>
-              </div>
-              <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-xs bg-pink-600/80 hover:bg-pink-500 text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
-                Birikmalar UB-Vis tahlili →
-              </Link>
-            </div>
+            <h1 className="text-xl md:text-2xl font-black text-[var(--v3-matn)] flex items-center gap-2">
+              <Ikon nom="nurlar" olcham={22} className="text-[var(--v3-urgu)]" />
+              <span>UB-Vis (Ultrabinafsha-Ko{"'"}rinuvchi) Spektroskopiyasi</span>
+            </h1>
           </div>
-        </header>
-      )}
 
-      <button
-        onClick={() => setShowHeader(!showHeader)}
-        className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-lg bg-pink-600 hover:bg-pink-500 text-white"
-      >
-        {showHeader ? "🔽 Header yashirish" : "🔼 Header ko'rsatish"}
-      </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/ilmiy/tahlil/ub-vis/birikmalar"
+              className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold flex items-center gap-1.5"
+            >
+              <span>Birikmalar Bazasini Ko{"'"}rish</span>
+              <Ikon nom="ong" olcham={13} />
+            </Link>
+            <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
+          </div>
+        </div>
+      </header>
 
       <section className="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
@@ -555,7 +543,7 @@ export default function UBVisSpektroskopiya() {
           className="group block bg-gradient-to-r from-pink-900/40 to-purple-900/40 border border-pink-700/50 rounded-2xl p-6 hover:bg-pink-900/60 hover:border-pink-500/60 transition-all transform hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-500/10"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">🔍</div>
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-pink-400 group-hover:text-pink-300 transition-colors">
                 Birikmalarning UB-Vis tahlili
@@ -577,7 +565,7 @@ export default function UBVisSpektroskopiya() {
         </Link>
 
         {/* ═══════════════ 1. NAZARIY ASOS — KVANT MEXANIKASI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">📚</span> 1. Nazariy asos — elektron o'tishlarning kvant mexanikasi
           </h2>
@@ -594,8 +582,8 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
-              <h3 className="text-pink-400 font-bold mb-2 text-sm">🔬 Asosiy tenglama</h3>
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
+              <h3 className="text-pink-400 font-bold mb-2 text-sm"> Asosiy tenglama</h3>
               <div className="text-yellow-300 text-lg font-mono text-center py-3">E = hν = hc/λ</div>
               <div className="text-xs text-purple-300 space-y-1">
                 <div><strong>h</strong> — Plank doimiysi (6.626×10⁻³⁴ J·s)</div>
@@ -605,8 +593,8 @@ export default function UBVisSpektroskopiya() {
               </div>
             </div>
 
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
-              <h3 className="text-pink-400 font-bold mb-2 text-sm">📐 Beer-Lambert qonuni</h3>
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
+              <h3 className="text-pink-400 font-bold mb-2 text-sm"> Beer-Lambert qonuni</h3>
               <div className="text-yellow-300 text-lg font-mono text-center py-3">A = ε · c · l</div>
               <div className="text-xs text-purple-300 space-y-1">
                 <div><strong>A</strong> — optik zichlik</div>
@@ -616,8 +604,8 @@ export default function UBVisSpektroskopiya() {
               </div>
             </div>
 
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
-              <h3 className="text-pink-400 font-bold mb-2 text-sm">🎯 Tanlash qoidalari</h3>
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
+              <h3 className="text-pink-400 font-bold mb-2 text-sm"> Tanlash qoidalari</h3>
               <div className="text-yellow-300 text-sm font-mono text-center py-3">ΔS = 0<br/>g ↔ u<br/>Δl = ±1</div>
               <div className="text-xs text-purple-300 space-y-1">
                 <div><strong>Spin</strong>: ko'plik o'zgarmasin</div>
@@ -642,7 +630,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 2. INTERAKTIV λ SLIDER — TO'LQIN UZUNLIGI ZONALARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🎨</span> 2. Interaktiv: to'lqin uzunligi va rang zonalari
           </h2>
@@ -660,19 +648,19 @@ export default function UBVisSpektroskopiya() {
           />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 text-center">
-            <div className="bg-purple-950/60 rounded-lg p-4 border border-purple-700/50">
+            <div className="p-4 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">To'lqin uzunligi (λ)</div>
               <div className="text-yellow-300 text-2xl font-bold font-mono">{lambdaSlider} <span className="text-sm">nm</span></div>
             </div>
-            <div className="bg-purple-950/60 rounded-lg p-4 border border-purple-700/50">
+            <div className="p-4 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">To'lqin soni (ν̃)</div>
               <div className="text-cyan-300 text-2xl font-bold font-mono">{wavenumber} <span className="text-sm">cm⁻¹</span></div>
             </div>
-            <div className="bg-purple-950/60 rounded-lg p-4 border border-purple-700/50">
+            <div className="p-4 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Energiya</div>
               <div className="text-green-300 text-2xl font-bold font-mono">{energyEV} <span className="text-sm">eV</span></div>
             </div>
-            <div className="bg-purple-950/60 rounded-lg p-4 border border-purple-700/50">
+            <div className="p-4 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Energiya</div>
               <div className="text-orange-300 text-2xl font-bold font-mono">{energyKJ} <span className="text-sm">kJ/mol</span></div>
             </div>
@@ -696,7 +684,7 @@ export default function UBVisSpektroskopiya() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-purple-950/60 border-b border-purple-700/50">
+                  <tr className="bg-purple-950/60 border-b border-[var(--v3-chiziq)]">
                     <th className="px-3 py-2 text-left text-purple-400">λ (nm)</th>
                     <th className="px-3 py-2 text-left text-purple-400">Yutilgan rang</th>
                     <th className="px-3 py-2 text-left text-purple-400">Ko'rinuvchi rang</th>
@@ -729,9 +717,9 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 3. ELEKTRON O'TISH TURLARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">⚡</span> 3. Elektron o'tishlarning asosiy turlari
+            <span className="text-3xl"></span> 3. Elektron o'tishlarning asosiy turlari
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">d–d, LMCT, MLCT, LLCT, IL va f–f o'tishlar — kompleks birikmalar spektrining asosi</p>
 
@@ -754,7 +742,7 @@ export default function UBVisSpektroskopiya() {
 
           {/* Active transition detali */}
           {UBVIS_DATA.transitionTypes[activeTransition] && (
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <h3 className={`text-2xl font-bold ${UBVIS_DATA.transitionTypes[activeTransition].color}`}>
                   {UBVIS_DATA.transitionTypes[activeTransition].name}
@@ -762,15 +750,15 @@ export default function UBVisSpektroskopiya() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                <div className="bg-purple-900/40 rounded-lg p-3 border border-purple-700/30">
+                <div className="bg-purple-900/40 rounded-lg p-3 border border-[var(--v3-chiziq)]">
                   <div className="text-xs text-purple-400 mb-1">Energiya</div>
                   <div className="text-sm text-yellow-300 font-mono">{UBVIS_DATA.transitionTypes[activeTransition].energy}</div>
                 </div>
-                <div className="bg-purple-900/40 rounded-lg p-3 border border-purple-700/30">
+                <div className="bg-purple-900/40 rounded-lg p-3 border border-[var(--v3-chiziq)]">
                   <div className="text-xs text-purple-400 mb-1">To'lqin uzunligi</div>
                   <div className="text-sm text-cyan-300 font-mono">{UBVIS_DATA.transitionTypes[activeTransition].lambda}</div>
                 </div>
-                <div className="bg-purple-900/40 rounded-lg p-3 border border-purple-700/30">
+                <div className="bg-purple-900/40 rounded-lg p-3 border border-[var(--v3-chiziq)]">
                   <div className="text-xs text-purple-400 mb-1">Molyar ε</div>
                   <div className="text-sm text-green-300 font-mono">{UBVIS_DATA.transitionTypes[activeTransition].epsilon}</div>
                 </div>
@@ -786,7 +774,7 @@ export default function UBVisSpektroskopiya() {
                 <div className="text-sm text-purple-200 italic">{UBVIS_DATA.transitionTypes[activeTransition].example}</div>
               </div>
 
-              <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-4">
+              <div className="bg-purple-900/20 border border-[var(--v3-chiziq)] rounded-lg p-4">
                 <div className="text-xs text-pink-400 font-bold mb-2">🎓 Nazariy izoh:</div>
                 <div className="text-sm text-purple-200 leading-relaxed">{UBVIS_DATA.transitionTypes[activeTransition].note}</div>
               </div>
@@ -795,7 +783,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 4. KRISTALL MAYDON NAZARIYASI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">💎</span> 4. Kristall maydon nazariyasi (CFT)
           </h2>
@@ -828,16 +816,16 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           {UBVIS_DATA.crystalField[activeGeom] && (
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
               <h3 className={`text-xl font-bold ${UBVIS_DATA.crystalField[activeGeom].color} mb-3`}>
                 {UBVIS_DATA.crystalField[activeGeom].geom}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="bg-purple-900/40 rounded-lg p-4 border border-purple-700/30">
+                <div className="bg-purple-900/40 rounded-lg p-4 border border-[var(--v3-chiziq)]">
                   <div className="text-xs text-purple-400 mb-1">Yorilish sxemasi:</div>
                   <div className="text-sm text-yellow-300 font-mono">{UBVIS_DATA.crystalField[activeGeom].splitting}</div>
                 </div>
-                <div className="bg-purple-900/40 rounded-lg p-4 border border-purple-700/30">
+                <div className="bg-purple-900/40 rounded-lg p-4 border border-[var(--v3-chiziq)]">
                   <div className="text-xs text-purple-400 mb-1">Yoriqlanish parametri:</div>
                   <div className="text-sm text-cyan-300 font-mono">{UBVIS_DATA.crystalField[activeGeom].delta}</div>
                 </div>
@@ -847,7 +835,7 @@ export default function UBVisSpektroskopiya() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-purple-950/60 border-b border-purple-700/50">
+                    <tr className="bg-purple-950/60 border-b border-[var(--v3-chiziq)]">
                       <th className="px-3 py-2 text-left text-purple-400">d-konfiguratsiya</th>
                       <th className="px-3 py-2 text-left text-purple-400">CFSE</th>
                       <th className="px-3 py-2 text-left text-purple-400">Spin (S)</th>
@@ -871,9 +859,9 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 5. TANLASH QOIDALARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">🎯</span> 5. Elektron o'tishlar uchun tanlash qoidalari
+            <span className="text-3xl"></span> 5. Elektron o'tishlar uchun tanlash qoidalari
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Manba: F. A. Cotton — Chemical Applications of Group Theory</p>
 
@@ -894,7 +882,7 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           {UBVIS_DATA.selectionRules[activeSelectionRule] && (
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
               <h3 className="text-xl font-bold text-white mb-3">{UBVIS_DATA.selectionRules[activeSelectionRule].name}</h3>
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4">
                 <div className="text-yellow-300 text-2xl font-mono text-center">
@@ -916,7 +904,7 @@ export default function UBVisSpektroskopiya() {
                 </div>
               </div>
               <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4">
-                <div className="text-blue-400 font-bold text-xs mb-1">💡 Muhim izoh:</div>
+                <div className="text-blue-400 font-bold text-xs mb-1"> Muhim izoh:</div>
                 <div className="text-sm text-purple-200">{UBVIS_DATA.selectionRules[activeSelectionRule].note}</div>
               </div>
             </div>
@@ -924,7 +912,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 6. BEER-LAMBERT KALKULYATORI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🧮</span> 6. Interaktiv: Beer-Lambert kalkulyatori
           </h2>
@@ -936,7 +924,7 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">ε (molyar koeffitsient, M⁻¹·sm⁻¹)</label>
               <input
                 type="range"
@@ -953,7 +941,7 @@ export default function UBVisSpektroskopiya() {
               </div>
             </div>
 
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">c (konsentratsiya, mol/L)</label>
               <input
                 type="range"
@@ -970,7 +958,7 @@ export default function UBVisSpektroskopiya() {
               </div>
             </div>
 
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">l (kyuveta, sm)</label>
               <input
                 type="range"
@@ -1023,9 +1011,9 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 7. SPEKTROXIMIK QATOR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">📊</span> 7. Spektroximik qator (ligandlarning Δo qiymati bo'yicha)
+            <span className="text-3xl"></span> 7. Spektroximik qator (ligandlarning Δo qiymati bo'yicha)
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Ligandning maydon kuchini o'lchash tartibi — Tsuchida (1938) ilk taklif qilgan</p>
 
@@ -1038,7 +1026,7 @@ export default function UBVisSpektroskopiya() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {UBVIS_DATA.spectrochemicalSeries.map((l, i) => (
-              <div key={i} className={`bg-purple-950/40 rounded-lg p-3 border ${l.color ? l.color.replace('text-', 'border-').replace('-400', '-500/50').replace('-500', '-500/50') : 'border-purple-700/30'} flex items-center justify-between`}>
+              <div key={i} className={`bg-purple-950/40 rounded-lg p-3 border ${l.color ? l.color.replace('text-', 'border-').replace('-400', '-500/50').replace('-500', '-500/50') : 'border-[var(--v3-chiziq)]'} flex items-center justify-between`}>
                 <div>
                   <div className={`text-sm font-bold ${l.color || 'text-purple-200'}`}>{l.ligand}</div>
                   <div className="text-xs text-purple-400">{l.class}</div>
@@ -1053,7 +1041,7 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           <div className="mt-6 bg-blue-900/20 border border-blue-700/30 rounded-xl p-5">
-            <h4 className="text-blue-400 font-bold text-sm mb-2">💡 Spektroximik qatordan xulosalar:</h4>
+            <h4 className="text-blue-400 font-bold text-sm mb-2"> Spektroximik qatordan xulosalar:</h4>
             <ul className="text-xs text-purple-200 space-y-1 list-disc list-inside">
               <li><strong className="text-red-300">Zaif maydon</strong> (I⁻, Br⁻, Cl⁻): π-donor ligandlar → HS (yuqori spin) beradi</li>
               <li><strong className="text-yellow-300">O'rta maydon</strong> (H₂O, NH₃): standart σ-donor</li>
@@ -1065,7 +1053,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 8. NEFELAUKSETIK QATOR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🔄</span> 8. Nefelauksetik qator (kovalentlik o'lchovi)
           </h2>
@@ -1083,7 +1071,7 @@ export default function UBVisSpektroskopiya() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {UBVIS_DATA.nephelauxeticSeries.map((l, i) => (
-              <div key={i} className="bg-purple-950/40 rounded-lg p-3 border border-purple-700/30 flex items-center justify-between">
+              <div key={i} className="bg-purple-950/40 rounded-lg p-3 border border-[var(--v3-chiziq)] flex items-center justify-between">
                 <div>
                   <div className={`text-sm font-bold ${l.color || 'text-purple-200'}`}>{l.ligand}</div>
                   <div className="text-xs text-purple-400">{l.class}</div>
@@ -1108,9 +1096,9 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 9. MUHIM KOMPLEKSLARDA O'TISHLAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">🧪</span> 9. Muhim komplekslar spektrlari va terminlar
+            <span className="text-3xl"></span> 9. Muhim komplekslar spektrlari va terminlar
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Yerdagi holat va qo'zg'algan holatlar — Russell-Saunders terminlar</p>
 
@@ -1131,7 +1119,7 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           {UBVIS_DATA.keyTransitions[activeKeyTransition] && (
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 <h3 className="text-xl font-bold text-yellow-300 font-mono">
                   {UBVIS_DATA.keyTransitions[activeKeyTransition].complex}
@@ -1139,7 +1127,7 @@ export default function UBVisSpektroskopiya() {
                 <span className="px-3 py-1 rounded-full bg-blue-900/40 border border-blue-700/50 text-blue-300 text-xs font-mono">
                   {UBVIS_DATA.keyTransitions[activeKeyTransition].config}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-purple-900/40 border border-purple-700/50 text-purple-300 text-xs font-mono">
+                <span className="px-3 py-1 rounded-full bg-purple-900/40 border border-[var(--v3-chiziq)] text-purple-300 text-xs font-mono">
                   Yer holati: {UBVIS_DATA.keyTransitions[activeKeyTransition].groundTerm}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-pink-900/40 border border-pink-700/50 text-pink-300 text-xs">
@@ -1150,7 +1138,7 @@ export default function UBVisSpektroskopiya() {
               <div className="overflow-x-auto mb-4">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-purple-950/60 border-b border-purple-700/50">
+                    <tr className="bg-purple-950/60 border-b border-[var(--v3-chiziq)]">
                       <th className="px-3 py-2 text-left text-purple-400">O'tish</th>
                       <th className="px-3 py-2 text-left text-purple-400">Energiya (cm⁻¹)</th>
                       <th className="px-3 py-2 text-left text-purple-400">λ (nm)</th>
@@ -1200,7 +1188,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 10. IZOMERLARNI UB-VIS BILAN ANIQLASH ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🔀</span> 10. Izomerlarni UB-Vis spektroskopiya bilan aniqlash
           </h2>
@@ -1223,7 +1211,7 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           {UBVIS_DATA.isomerDetection[activeIsomer] && (
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
               <h3 className="text-xl font-bold text-white mb-4">{UBVIS_DATA.isomerDetection[activeIsomer].name}</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -1233,7 +1221,7 @@ export default function UBVisSpektroskopiya() {
                     <div className="text-xs text-purple-300 space-y-1">
                       <div><strong>Simmetriya:</strong> {iso.symmetry}</div>
                       <div><strong>Yutilish polosalari:</strong> {iso.bands}</div>
-                      <div className="mt-2 pt-2 border-t border-purple-700/30">
+                      <div className="mt-2 pt-2 border-t border-[var(--v3-chiziq)]">
                         <strong className="text-yellow-300">Diagnostika:</strong> {iso.diagnostic}
                       </div>
                     </div>
@@ -1255,7 +1243,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 11. RACAH PARAMETRLARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🧬</span> 11. Racah parametrlari va termlar
           </h2>
@@ -1264,7 +1252,7 @@ export default function UBVisSpektroskopiya() {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-purple-950/60 border-b border-purple-700/50">
+                <tr className="bg-purple-950/60 border-b border-[var(--v3-chiziq)]">
                   <th className="px-3 py-2 text-left text-purple-400">Belgi</th>
                   <th className="px-3 py-2 text-left text-purple-400">Nomi</th>
                   <th className="px-3 py-2 text-left text-purple-400">Ta'rifi</th>
@@ -1286,8 +1274,8 @@ export default function UBVisSpektroskopiya() {
             </table>
           </div>
 
-          <div className="mt-6 bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
-            <h4 className="text-white font-bold text-sm mb-3">📐 Russell-Saunders termlar (LS bog'lanish):</h4>
+          <div className="mt-6 bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
+            <h4 className="text-white font-bold text-sm mb-3"> Russell-Saunders termlar (LS bog'lanish):</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div>
                 <div className="text-yellow-300 font-mono mb-2">²ˢ⁺¹L<sub>J</sub></div>
@@ -1311,7 +1299,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 12. TANABE-SUGANO DIAGRAMMALARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">📈</span> 12. Tanabe-Sugano diagrammalari
           </h2>
@@ -1327,8 +1315,8 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
-              <h4 className="text-pink-400 font-bold mb-3 text-sm">📊 Diagramma tuzilishi</h4>
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
+              <h4 className="text-pink-400 font-bold mb-3 text-sm"> Diagramma tuzilishi</h4>
               <ul className="text-xs text-purple-200 space-y-2 list-disc list-inside">
                 <li><strong>X o'qi:</strong> Δo/B — ligand maydonining kuchi</li>
                 <li><strong>Y o'qi:</strong> E/B — termlar energiyasi</li>
@@ -1338,8 +1326,8 @@ export default function UBVisSpektroskopiya() {
               </ul>
             </div>
 
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
-              <h4 className="text-pink-400 font-bold mb-3 text-sm">🔬 Ishlatish tartibi</h4>
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
+              <h4 className="text-pink-400 font-bold mb-3 text-sm"> Ishlatish tartibi</h4>
               <ol className="text-xs text-purple-200 space-y-2 list-decimal list-inside">
                 <li>Kompleks d-konfiguratsiyasini aniqlang</li>
                 <li>Spektrdan 2 ta polosa energiyasini o'lchang (ν₁, ν₂)</li>
@@ -1352,7 +1340,7 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           {/* SVG Tanabe-Sugano d³ misoli */}
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
             <h4 className="text-white font-bold mb-3 text-sm">📉 Namuna: d³ (Cr³⁺) Tanabe-Sugano diagrammasi</h4>
             <svg viewBox="0 0 500 300" className="w-full h-auto bg-purple-950/40 rounded-lg">
               {/* Grid */}
@@ -1405,9 +1393,9 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 13. SPEKTROMETR TURLARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">🔬</span> 13. Spektrometr turlari va texnikalar
+            <span className="text-3xl"></span> 13. Spektrometr turlari va texnikalar
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Amaliy o'lchov usullari va asboblar</p>
 
@@ -1428,7 +1416,7 @@ export default function UBVisSpektroskopiya() {
           </div>
 
           {UBVIS_DATA.instrumentTypes[activeInstrument] && (
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
               <h3 className="text-lg font-bold text-cyan-300 mb-3">{UBVIS_DATA.instrumentTypes[activeInstrument].name}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-3">
@@ -1444,7 +1432,7 @@ export default function UBVisSpektroskopiya() {
                   <div className="text-sm text-purple-200">{UBVIS_DATA.instrumentTypes[activeInstrument].freq}</div>
                 </div>
                 <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-3">
-                  <div className="text-xs text-yellow-400 font-bold mb-1">🎯 Optimal qo'llanilishi:</div>
+                  <div className="text-xs text-yellow-400 font-bold mb-1"> Optimal qo'llanilishi:</div>
                   <div className="text-sm text-purple-200">{UBVIS_DATA.instrumentTypes[activeInstrument].best}</div>
                 </div>
               </div>
@@ -1453,16 +1441,16 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 14. NAMUNA TAYYORLASH — ERITUVCHILAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">🧪</span> 14. Namuna tayyorlash — erituvchilar va texnikalar
+            <span className="text-3xl"></span> 14. Namuna tayyorlash — erituvchilar va texnikalar
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Har bir erituvchining UB cutoff qiymati va qo'llanilish sohasi</p>
 
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-purple-950/60 border-b border-purple-700/50">
+                <tr className="bg-purple-950/60 border-b border-[var(--v3-chiziq)]">
                   <th className="px-3 py-2 text-left text-purple-400">Usul</th>
                   <th className="px-3 py-2 text-left text-purple-400">Erituvchi</th>
                   <th className="px-3 py-2 text-left text-purple-400">UB cutoff</th>
@@ -1496,15 +1484,15 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 15. RANGNI TAHLIL QILISH ALGORITMI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">🎯</span> 15. Kompleksning rangini tahlil qilish algoritmi
+            <span className="text-3xl"></span> 15. Kompleksning rangini tahlil qilish algoritmi
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Spektrdan rang manbaigacha — bosqichma-bosqich yondashuv</p>
 
           <div className="space-y-3">
             {UBVIS_DATA.colorAnalysis.map((step, i) => (
-              <div key={i} className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 flex gap-4 items-start">
+              <div key={i} className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 flex gap-4 items-start">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center font-bold text-white">
                   {step.step}
                 </div>
@@ -1519,7 +1507,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 16. TARIXIY XRONOLOGIYA ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">📜</span> 16. UB-Vis spektroskopiyaning tarixiy xronologiyasi
           </h2>
@@ -1540,7 +1528,7 @@ export default function UBVisSpektroskopiya() {
               { year: "1966", who: "R. G. Pearson", event: "HSAB nazariyasi — LMCT/MLCT qattiq/yumshoq ligandlar" },
               { year: "1980-", who: "Zamonaviy", event: "TDDFT hisoblashlar, ultra-tez UB-Vis (fs)" },
             ].map((h, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-3 flex gap-4 items-center">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-3 flex gap-4 items-center">
                 <div className="text-yellow-300 font-mono font-bold text-sm w-16">{h.year}</div>
                 <div className="text-pink-400 font-semibold text-sm w-32 md:w-40">{h.who}</div>
                 <div className="text-purple-200 text-xs flex-1">{h.event}</div>
@@ -1550,7 +1538,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 17. TAQQOSLASH: UB-VIS vs BOSHQA USULLAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">⚖️</span> 17. UB-Vis vs boshqa spektroskopik usullar
           </h2>
@@ -1559,7 +1547,7 @@ export default function UBVisSpektroskopiya() {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-purple-950/60 border-b border-purple-700/50">
+                <tr className="bg-purple-950/60 border-b border-[var(--v3-chiziq)]">
                   <th className="px-3 py-2 text-left text-purple-400">Usul</th>
                   <th className="px-3 py-2 text-left text-purple-400">O'lchagani</th>
                   <th className="px-3 py-2 text-left text-purple-400">Diapazon</th>
@@ -1623,7 +1611,7 @@ export default function UBVisSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 18. ILMIY MANBALAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">📚</span> 18. Ilmiy manbalar (bibliografiya)
           </h2>
@@ -1644,7 +1632,7 @@ export default function UBVisSpektroskopiya() {
               { author: "D. Sutton", title: "Electronic Spectra of Transition Metal Complexes", year: "1968", publisher: "McGraw-Hill", tag: "Klassik amaliy" },
               { author: "R. G. Pearson", title: "J. Am. Chem. Soc., 85, 3533 (HSAB)", year: "1963", publisher: "—", tag: "Qattiq/yumshoq" },
             ].map((ref, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-4">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div className="text-yellow-300 font-bold text-sm">{ref.author}</div>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-900/40 border border-pink-700/50 text-pink-300">{ref.tag}</span>
@@ -1686,6 +1674,6 @@ export default function UBVisSpektroskopiya() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

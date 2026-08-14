@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -239,6 +241,7 @@ const IQ_DATA = {
 }
 
 export default function IQSpektroskopiya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [showWarningModal, setShowWarningModal] = useState(true)
   const [activeAmbidentate, setActiveAmbidentate] = useState(0)
@@ -261,14 +264,14 @@ export default function IQSpektroskopiya() {
   }, [freqSlider])
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* ═══════════════ OGOHLANTIRISH MODALI ═══════════════ */}
       {showWarningModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
           <div className="bg-gradient-to-br from-blue-950 to-purple-950 border-2 border-blue-500 rounded-2xl p-6 max-w-3xl w-full">
             <h3 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
-              <span className="text-3xl">📊</span> IQ SPEKTROSKOPIYA — TEBRANISH KVANT MEXANIKASI
+              <span className="text-3xl"></span> IQ SPEKTROSKOPIYA — TEBRANISH KVANT MEXANIKASI
             </h3>
             <p className="text-purple-200 text-sm mb-4">
               <strong className="text-blue-300">Infraqizil spektroskopiya</strong> — molekulaning tebranish holatlari orasidagi
@@ -276,15 +279,15 @@ export default function IQSpektroskopiya() {
               bog'lanishini, ligand denticity va geometriyani</strong> aniqlashning eng asosiy usuli.
             </p>
 
-            <div className="bg-blue-950/60 rounded-lg p-4 mb-4">
+            <div className="p-4 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] mb-4">
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
-                  <div className="text-blue-400 font-bold mb-2">🔬 Fizik asos</div>
+                  <div className="text-blue-400 font-bold mb-2"> Fizik asos</div>
                   <div className="text-purple-200">Kvantlangan tebranish energiyasi: E<sub>v</sub> = ℏω(v+½)</div>
                   <div className="text-purple-200 mt-1">Δv = ±1 asosiy o'tish, foton yutiladi</div>
                 </div>
                 <div>
-                  <div className="text-blue-400 font-bold mb-2">📐 Tanlash qoidasi</div>
+                  <div className="text-blue-400 font-bold mb-2"> Tanlash qoidasi</div>
                   <div className="text-purple-200">IQ faol: (∂μ/∂Q)₀ ≠ 0 — dipol moment o'zgarishi</div>
                   <div className="text-purple-200 mt-1">3N−6 normal moda (chiziqsiz molekula)</div>
                 </div>
@@ -293,7 +296,7 @@ export default function IQSpektroskopiya() {
 
             <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-3 mb-4">
               <p className="text-xs text-yellow-200">
-                <strong>⚠ Diqqat:</strong> M–L tebranishlari 600–200 cm⁻¹ oralig'ida — bu <em>uzoq IQ</em> (FT-FIR) sohasi.
+                <strong> Diqqat:</strong> M–L tebranishlari 600–200 cm⁻¹ oralig'ida — bu <em>uzoq IQ</em> (FT-FIR) sohasi.
                 Oddiy KBr tabletkada 400 cm⁻¹ dan past yo'qoladi — <strong>CsI</strong> yoki <strong>polietilen</strong> derazasi kerak.
               </p>
             </div>
@@ -309,59 +312,45 @@ export default function IQSpektroskopiya() {
       )}
 
       {/* ═══════════════ HEADER ═══════════════ */}
-      {showHeader && (
-        <header className="border-b border-purple-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh sahifa</Link>
-              <span className="text-purple-600">›</span>
-              <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil usullari</Link>
-              <span className="text-purple-600">›</span>
-              <span className="text-blue-400 font-semibold">IQ spektroskopiya</span>
+      <header className="border-b border-[var(--v3-chiziq)] sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <nav className="flex items-center gap-2 text-xs mb-1.5 text-[var(--v3-xira)] flex-wrap">
+              <Link href="/ilmiy" className="hover:text-[var(--v3-matn)]">Ilmiy Bo{"'"}lim</Link>
+              <span>›</span>
+              <Link href="/ilmiy/tahlil" className="hover:text-[var(--v3-matn)]">Tahlil usullari</Link>
+              <span>›</span>
+              <span className="text-[var(--v3-urgu)] font-semibold">IQ (FT-IR) Spektroskopiya</span>
             </nav>
 
-            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-blue-400 flex items-center gap-2">
-                  <span className="text-3xl">📊</span>
-                  IQ (Infraqizil) spektroskopiya
-                </h1>
-                <p className="text-purple-400 text-sm mt-1">
-                  Molekulyar tebranish spektroskopiyasi • Guruh nazariyasi • Metall–ligand tebranishlari • FT-IR/ATR/FIR
-                </p>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  <span className="px-2 py-1 rounded bg-blue-900/30 border border-blue-700/50 text-blue-400 text-[10px] uppercase tracking-wide">Kvant nazariyasi</span>
-                  <span className="px-2 py-1 rounded bg-purple-900/30 border border-purple-700/50 text-purple-300 text-[10px] uppercase tracking-wide">Guruh nazariyasi</span>
-                  <span className="px-2 py-1 rounded bg-green-900/30 border border-green-700/50 text-green-400 text-[10px] uppercase tracking-wide">3N−6 modalar</span>
-                  <span className="px-2 py-1 rounded bg-yellow-900/30 border border-yellow-700/50 text-yellow-400 text-[10px] uppercase tracking-wide">Sis-trans / fac-mer</span>
-                  <span className="px-2 py-1 rounded bg-red-900/30 border border-red-700/50 text-red-400 text-[10px] uppercase tracking-wide">Ambidentat</span>
-                  <span className="px-2 py-1 rounded bg-cyan-900/30 border border-cyan-700/50 text-cyan-400 text-[10px] uppercase tracking-wide">Nakamoto</span>
-                </div>
-              </div>
-              <Link href="/ilmiy/tahlil/iq/birikmalar" className="text-xs bg-blue-600/80 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
-                Birikmalar IQ tahlili →
-              </Link>
-            </div>
+            <h1 className="text-xl md:text-2xl font-black text-[var(--v3-matn)] flex items-center gap-2">
+              <Ikon nom="grafik" olcham={22} className="text-[var(--v3-urgu)]" />
+              <span>IQ (Infraqizil / FT-IR) Spektroskopiyasi</span>
+            </h1>
           </div>
-        </header>
-      )}
 
-      <button
-        onClick={() => setShowHeader(!showHeader)}
-        className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-lg bg-blue-600 hover:bg-blue-500 text-white"
-      >
-        {showHeader ? "🔽 Header yashirish" : "🔼 Header ko'rsatish"}
-      </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/ilmiy/tahlil/iq/birikmalar"
+              className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold flex items-center gap-1.5"
+            >
+              <span>Birikmalar Bazasini Ko{"'"}rish</span>
+              <Ikon nom="ong" olcham={13} />
+            </Link>
+            <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
+          </div>
+        </div>
+      </header>
 
       <section className="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
         {/* ═══════════════ 0. BIRIKMALAR KARTASI ═══════════════ */}
         <Link
           href="/ilmiy/tahlil/iq/birikmalar"
-          className="group block bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-700/50 rounded-2xl p-6 hover:bg-blue-900/60 hover:border-blue-500/60 transition-all transform hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10"
+          className="group block bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-[var(--v3-chiziq)] rounded-2xl p-6 hover:bg-blue-900/60 hover:border-blue-500/60 transition-all transform hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">🔍</div>
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-blue-400 group-hover:text-blue-300 transition-colors">
                 Birikmalarning IQ tahlili — 20 ta kompleks
@@ -382,7 +371,7 @@ export default function IQSpektroskopiya() {
         </Link>
 
         {/* ═══════════════ 1. NAZARIY ASOS — KVANT MEXANIKASI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">📚</span> 1. Nazariy asos — molekulyar tebranishlarning kvant mexanikasi
           </h2>
@@ -400,8 +389,8 @@ export default function IQSpektroskopiya() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             {/* Garmonik osillator */}
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-blue-300 font-bold mb-3">🎯 Garmonik osillator modeli</h3>
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
+              <h3 className="text-blue-300 font-bold mb-3"> Garmonik osillator modeli</h3>
               <p className="text-purple-200 text-sm mb-3">
                 Ikki atomli molekulani <strong>ideal prujina</strong> bilan bog'langan ikki massa deb tasavvur qilamiz.
                 Hooke qonuni: <em>F = −kx</em>.
@@ -422,7 +411,7 @@ export default function IQSpektroskopiya() {
             </div>
 
             {/* Anharmonik effekti */}
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-blue-300 font-bold mb-3">🌀 Anharmonik osillator (Morse potensiali)</h3>
               <p className="text-purple-200 text-sm mb-3">
                 Real molekulalarda bog' uzunligi kattalashganda parchalanish sodir bo'ladi.
@@ -456,9 +445,9 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 2. ELEKTROMAGNIT SPEKTRDA IQ ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">🌈</span> 2. IQ ning elektromagnit spektrdagi o'rni
+            <span className="text-3xl"></span> 2. IQ ning elektromagnit spektrdagi o'rni
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">IQ = ko'rinadigan qizil (700 nm) va mikroto'lqinlar orasida</p>
 
@@ -487,7 +476,7 @@ export default function IQSpektroskopiya() {
             </table>
           </div>
 
-          <div className="mt-4 bg-blue-900/20 border border-blue-700/30 rounded-xl p-4">
+          <div className="mt-4 bg-blue-900/20 border border-[var(--v3-chiziq)] rounded-xl p-4">
             <p className="text-purple-200 text-sm">
               <strong className="text-blue-300">Koordinatsion kimyo uchun eng muhim soha:</strong> O'rta IQ (4000–400 cm⁻¹) —
               funksional guruh identifikatsiyasi va Uzoq IQ (400–100 cm⁻¹) — <em>metall–ligand</em> tebranishlari.
@@ -497,7 +486,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 3. TEBRANISHLAR TURLARI (NORMAL MODALAR) ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🎼</span> 3. Molekulyar tebranishlar turlari — normal modalar
           </h2>
@@ -511,7 +500,7 @@ export default function IQSpektroskopiya() {
                 className={`text-left p-4 rounded-xl border transition-all ${
                   activeVibType === i
                     ? "bg-blue-600/20 border-blue-500 shadow-lg shadow-blue-500/20"
-                    : "bg-purple-950/40 border-purple-700/30 hover:border-blue-500/50"
+                    : "bg-purple-950/40 border-[var(--v3-chiziq)] hover:border-blue-500/50"
                 }`}
               >
                 <div className="flex items-baseline gap-2 mb-1">
@@ -524,7 +513,7 @@ export default function IQSpektroskopiya() {
           </div>
 
           {IQ_DATA.vibrationTypes.map((v, i) => activeVibType === i && (
-            <div key={i} className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30 space-y-3">
+            <div key={i} className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] space-y-3">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-3xl font-mono text-yellow-400 font-bold">{v.symbol}</span>
                 <div>
@@ -555,7 +544,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 4. GURUH NAZARIYASI VA TANLASH QOIDALARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🔷</span> 4. Guruh nazariyasi va tanlash qoidalari
           </h2>
@@ -572,7 +561,7 @@ export default function IQSpektroskopiya() {
 
           <div className="space-y-3 mb-6">
             {IQ_DATA.selectionRules.map((r, i) => (
-              <div key={i} className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
+              <div key={i} className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                   <div className="md:col-span-3">
                     <p className="text-blue-300 font-bold text-sm">{r.rule}</p>
@@ -598,7 +587,7 @@ export default function IQSpektroskopiya() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all border ${
                   activeGeom === i
                     ? "bg-blue-600 border-blue-500 text-white"
-                    : "bg-purple-950/50 border-purple-700/30 text-purple-400 hover:border-blue-500"
+                    : "bg-purple-950/50 border-[var(--v3-chiziq)] text-purple-400 hover:border-blue-500"
                 }`}
               >
                 {g.geom}
@@ -607,7 +596,7 @@ export default function IQSpektroskopiya() {
           </div>
 
           {IQ_DATA.geometryModes.map((g, i) => activeGeom === i && (
-            <div key={i} className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div key={i} className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h4 className="text-yellow-400 font-bold mb-3 font-mono">{g.geom}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="bg-purple-900/50 rounded-lg p-4">
@@ -632,7 +621,7 @@ export default function IQSpektroskopiya() {
 
           <div className="mt-4 bg-yellow-900/10 border border-yellow-700/30 rounded-xl p-4">
             <p className="text-yellow-200 text-sm">
-              <strong>⚡ Mutual exclusion qoidasi:</strong> Agar molekulada <em>inversiya markazi</em> (i) bo'lsa
+              <strong> Mutual exclusion qoidasi:</strong> Agar molekulada <em>inversiya markazi</em> (i) bo'lsa
               (masalan D₂ₕ, D₄ₕ, Oh guruhlarida), gerade (g) simmetriya modalari faqat Ramanda,
               ungerade (u) faqat IQ da ko'rinadi. Bu <strong>sis va trans izomerlarni</strong> osongina ajratish uchun
               asos beradi — trans izomer inversiya markaziga ega, sis izomer esa yo'q.
@@ -641,21 +630,21 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 5. KUCH KONSTANTASI VA HOOKE QONUNI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">💪</span> 5. Kuch konstantasi va chastota bog'liqligi
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Hooke qonuni: kuchli va yengil bog' — yuqori chastota</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-blue-300 font-bold mb-2">Kuch konstantasi ↑ → chastota ↑</h3>
               <p className="text-purple-200 text-sm">
                 Bog' qanchalik <strong>mustahkam</strong> (k katta) bo'lsa, tebranish chastotasi shuncha yuqori bo'ladi.
                 Yagona (C–C) &lt; qo'sh (C=C) &lt; uch bog' (C≡C).
               </p>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-blue-300 font-bold mb-2">Massa ↑ → chastota ↓</h3>
               <p className="text-purple-200 text-sm">
                 Atomlar <strong>og'irroq</strong> (μ katta) bo'lsa, chastota pastroq. Shuning uchun M–Cl (330) &lt; M–N (500)
@@ -698,7 +687,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 6. METALL-LIGAND TEBRANISHLARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🔗</span> 6. Metall–ligand tebranish chastotalari
           </h2>
@@ -738,7 +727,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 7. NAKAMOTO ZONA JADVALI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">📖</span> 7. Nakamoto zona ma'lumotnomasi — cho'qqilarni tayinlash
           </h2>
@@ -748,7 +737,7 @@ export default function IQSpektroskopiya() {
 
           <div className="space-y-2">
             {IQ_DATA.nakamotoReference.map((z, i) => (
-              <div key={i} className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30 hover:border-blue-500/50 transition-colors">
+              <div key={i} className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] hover:border-blue-500/50 transition-colors">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                   <div className="md:col-span-2">
                     <p className="text-yellow-400 font-mono font-bold text-lg">{z.region}</p>
@@ -767,7 +756,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 8. AMBIDENTAT LIGANDLAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🔀</span> 8. Ambidentat ligandlarni IQ orqali farqlash
           </h2>
@@ -790,7 +779,7 @@ export default function IQSpektroskopiya() {
                 className={`px-4 py-2 rounded-lg text-xs font-mono transition-all border ${
                   activeAmbidentate === i
                     ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20"
-                    : "bg-purple-950/50 border-purple-700/30 text-purple-400 hover:border-blue-500"
+                    : "bg-purple-950/50 border-[var(--v3-chiziq)] text-purple-400 hover:border-blue-500"
                 }`}
               >
                 {lig.name}
@@ -800,7 +789,7 @@ export default function IQSpektroskopiya() {
 
           {IQ_DATA.ambidentateLigands.map((lig, i) => activeAmbidentate === i && (
             <div key={i} className="space-y-4">
-              <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
                   <h3 className="text-yellow-400 font-bold text-lg">{lig.name}</h3>
                   <span className="text-cyan-300 text-xs bg-cyan-900/30 border border-cyan-700/30 px-3 py-1 rounded-full">
@@ -810,7 +799,7 @@ export default function IQSpektroskopiya() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
                   {lig.bonded.map((bonded, j) => (
-                    <div key={j} className="bg-purple-900/50 rounded-lg p-4 border border-purple-700/30">
+                    <div key={j} className="bg-purple-900/50 rounded-lg p-4 border border-[var(--v3-chiziq)]">
                       <p className={`${bonded.color} font-bold mb-2`}>{bonded.type}</p>
                       <p className="text-purple-200 text-sm mb-1">Formula: <span className="font-mono text-yellow-300">{bonded.formula}</span></p>
                       {bonded.freq_as && <p className="text-purple-200 text-xs">νₐₛ: <span className="font-mono text-cyan-300">{bonded.freq_as} cm⁻¹</span></p>}
@@ -820,17 +809,17 @@ export default function IQSpektroskopiya() {
                       {bonded.freq_bend && <p className="text-purple-200 text-xs">δ(NCS): <span className="font-mono text-cyan-300">{bonded.freq_bend} cm⁻¹</span></p>}
                       {bonded.freq_cn2 && <p className="text-purple-200 text-xs italic">{bonded.freq_cn2}</p>}
                       <p className="text-purple-300 mt-2 text-[10px] italic">📍 {bonded.example}</p>
-                      {bonded.note && <p className="text-yellow-300 mt-1 text-[10px]">💡 {bonded.note}</p>}
+                      {bonded.note && <p className="text-yellow-300 mt-1 text-[10px]"> {bonded.note}</p>}
                     </div>
                   ))}
                 </div>
 
                 <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-3 mb-2">
                   <p className="text-green-300 text-xs">
-                    <strong>🔍 Diagnostik:</strong> {lig.diagnostic}
+                    <strong> Diagnostik:</strong> {lig.diagnostic}
                   </p>
                 </div>
-                <div className="bg-purple-950/50 border border-purple-700/30 rounded-lg p-3">
+                <div className="bg-purple-950/50 border border-[var(--v3-chiziq)] rounded-lg p-3">
                   <p className="text-purple-300 text-xs italic">📚 {lig.isomerism}</p>
                 </div>
               </div>
@@ -839,7 +828,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 9. SIS-TRANS / FAC-MER IZOMERLAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🔄</span> 9. Geometrik izomerlar — guruh nazariyasi tahlili
           </h2>
@@ -864,7 +853,7 @@ export default function IQSpektroskopiya() {
                 className={`px-4 py-2 rounded-lg text-xs font-mono transition-all border ${
                   activeCisTrans === i
                     ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20"
-                    : "bg-purple-950/50 border-purple-700/30 text-purple-400 hover:border-blue-500"
+                    : "bg-purple-950/50 border-[var(--v3-chiziq)] text-purple-400 hover:border-blue-500"
                 }`}
               >
                 {iso.name}
@@ -874,7 +863,7 @@ export default function IQSpektroskopiya() {
 
           {IQ_DATA.cisTransIsomers.map((isomer, i) => activeCisTrans === i && (
             <div key={i}>
-              <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <h3 className="text-yellow-400 font-bold text-lg mb-4">{isomer.name}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
@@ -903,7 +892,7 @@ export default function IQSpektroskopiya() {
                           </div>
                         )}
                         <div className="bg-green-900/20 border border-green-700/30 rounded p-2">
-                          <span className="text-green-300">🔍 </span>
+                          <span className="text-green-300"> </span>
                           <span className="text-purple-200 italic">{iso.diagnostic}</span>
                         </div>
                       </div>
@@ -916,7 +905,7 @@ export default function IQSpektroskopiya() {
                     <strong>🧮 Guruh nazariyasi:</strong> {isomer.groupTheory}
                   </p>
                 </div>
-                <div className="bg-purple-950/50 border border-purple-700/30 rounded-lg p-3">
+                <div className="bg-purple-950/50 border border-[var(--v3-chiziq)] rounded-lg p-3">
                   <p className="text-purple-300 text-xs italic">💊 {isomer.biologicalNote}</p>
                 </div>
               </div>
@@ -925,9 +914,9 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 10. FUNKSIONAL GURUHLAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">🎯</span> 10. Funksional guruhlar chastotalari
+            <span className="text-3xl"></span> 10. Funksional guruhlar chastotalari
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Koordinatsion kimyoda uchraydigan barcha asosiy tebranishlar</p>
 
@@ -939,7 +928,7 @@ export default function IQSpektroskopiya() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all border ${
                   activeFunctionalGroup === i
                     ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20"
-                    : "bg-purple-950/50 border-purple-700/30 text-purple-400 hover:border-blue-500"
+                    : "bg-purple-950/50 border-[var(--v3-chiziq)] text-purple-400 hover:border-blue-500"
                 }`}
               >
                 {g.group}
@@ -948,7 +937,7 @@ export default function IQSpektroskopiya() {
           </div>
 
           {IQ_DATA.functionalGroups.map((g, i) => activeFunctionalGroup === i && (
-            <div key={i} className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div key={i} className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold text-lg mb-4 font-mono">{g.group}</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                 <div className="bg-purple-900/50 rounded-lg p-4">
@@ -965,9 +954,9 @@ export default function IQSpektroskopiya() {
                 </div>
               </div>
               {g.note && (
-                <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-3">
+                <div className="bg-blue-900/20 border border-[var(--v3-chiziq)] rounded-lg p-3">
                   <p className="text-blue-200 text-xs">
-                    <strong>💡 Diagnostika:</strong> {g.note}
+                    <strong> Diagnostika:</strong> {g.note}
                   </p>
                 </div>
               )}
@@ -976,7 +965,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 11. IZOTOPIK ALMASHISH ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">⚛️</span> 11. Izotopik almashish — tayinlashlarni tasdiqlash
           </h2>
@@ -1019,13 +1008,13 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 12. INTERAKTIV SPEKTR ZONALARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">📊</span> 12. Interaktiv IQ zonasi tanlash
+            <span className="text-3xl"></span> 12. Interaktiv IQ zonasi tanlash
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Slayderni harakatlantiring — chastotaga mos zona va bog' turi ko'rsatiladi</p>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30 mb-6">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] mb-6">
             <label className="block text-blue-400 font-bold mb-3">
               To'lqin soni: <span className="text-yellow-400 font-mono text-2xl">{freqSlider}</span> cm⁻¹
             </label>
@@ -1061,16 +1050,16 @@ export default function IQSpektroskopiya() {
                 <div className="text-xl text-blue-400 font-mono">{freqSlider} cm⁻¹</div>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-purple-700/50">
+            <div className="mt-4 pt-4 border-t border-[var(--v3-chiziq)]">
               <p className="text-purple-200 text-sm leading-relaxed">{currentZone.desc}</p>
             </div>
           </div>
         </div>
 
         {/* ═══════════════ 13. NAMUNA TAYYORLASH USULLARI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <span className="text-3xl">🧪</span> 13. Namuna tayyorlash usullari
+            <span className="text-3xl"></span> 13. Namuna tayyorlash usullari
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Har xil namuna turlari uchun turli texnikalar</p>
 
@@ -1082,7 +1071,7 @@ export default function IQSpektroskopiya() {
                 className={`text-left p-3 rounded-lg text-xs font-semibold transition-all border ${
                   activeSampling === i
                     ? "bg-blue-600 border-blue-500 text-white"
-                    : "bg-purple-950/50 border-purple-700/30 text-purple-300 hover:border-blue-500"
+                    : "bg-purple-950/50 border-[var(--v3-chiziq)] text-purple-300 hover:border-blue-500"
                 }`}
               >
                 {s.name}
@@ -1091,7 +1080,7 @@ export default function IQSpektroskopiya() {
           </div>
 
           {IQ_DATA.samplingMethods.map((s, i) => activeSampling === i && (
-            <div key={i} className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30 space-y-3">
+            <div key={i} className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] space-y-3">
               <h3 className="text-yellow-400 font-bold text-lg">{s.name}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-3">
@@ -1102,11 +1091,11 @@ export default function IQSpektroskopiya() {
                   <p className="text-red-400 font-bold text-xs uppercase mb-1">✗ Kamchiliklari</p>
                   <p className="text-purple-200 text-xs">{s.cons}</p>
                 </div>
-                <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-3">
+                <div className="bg-blue-900/20 border border-[var(--v3-chiziq)] rounded-lg p-3">
                   <p className="text-blue-400 font-bold text-xs uppercase mb-1">Chastota diapazoni</p>
                   <p className="text-yellow-300 font-mono text-sm">{s.freq}</p>
                 </div>
-                <div className="bg-purple-950/50 border border-purple-700/30 rounded-lg p-3">
+                <div className="bg-purple-950/50 border border-[var(--v3-chiziq)] rounded-lg p-3">
                   <p className="text-cyan-300 font-bold text-xs uppercase mb-1">Eng yaxshi qo'llash</p>
                   <p className="text-purple-200 text-xs">{s.best}</p>
                 </div>
@@ -1116,15 +1105,15 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 14. FT-IR APPARATI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🔧</span> 14. FT-IR spektrometr — ish printsipi
           </h2>
           <p className="text-purple-400 text-xs mb-6 italic">Zamonaviy IQ spektroskopiya asosidagi Michelson interferometri</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-blue-300 font-bold mb-3">🔬 Asosiy qismlar</h3>
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
+              <h3 className="text-blue-300 font-bold mb-3"> Asosiy qismlar</h3>
               <ol className="space-y-2 text-xs text-purple-200">
                 <li><strong className="text-yellow-300">1. Nurlanish manbai:</strong> Globar (SiC) — IQ chiqaruvchi qizdirilgan tayoq</li>
                 <li><strong className="text-yellow-300">2. Michelson interferometri:</strong> beam splitter (KBr/Ge) + statsionar oyna + harakatlanuvchi oyna</li>
@@ -1133,8 +1122,8 @@ export default function IQSpektroskopiya() {
                 <li><strong className="text-yellow-300">5. Fourier transformatsiya:</strong> interferogramma → spektr</li>
               </ol>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-blue-300 font-bold mb-3">⚡ FT-IR ning ustunliklari</h3>
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
+              <h3 className="text-blue-300 font-bold mb-3"> FT-IR ning ustunliklari</h3>
               <ul className="space-y-2 text-xs text-purple-200">
                 <li><strong className="text-green-400">Fellgett afzalligi:</strong> barcha chastotalar bir vaqtda o'lchanadi (S/N ↑)</li>
                 <li><strong className="text-green-400">Jacquinot afzalligi:</strong> yorug'lik oqimi katta (dispersion asboblarga nisbatan)</li>
@@ -1158,7 +1147,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 15. LABORATORIYA TARTIBI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">🥼</span> 15. Laboratoriyada 0 dan spektr olish tartibi
           </h2>
@@ -1175,7 +1164,7 @@ export default function IQSpektroskopiya() {
               { step: 7, title: "Uzoq IQ (agar kerak bo'lsa)", desc: "600–200 cm⁻¹ oralig'ini o'lchash uchun CsI derazasi va polietilen namuna qo'llash kerak. Bu M–Cl, M–Br va boshqa og'ir metall–ligand tebranishlari uchun asosiy." },
               { step: 8, title: "Xulosalar va hisobot", desc: "Har bir cho'qqiga izoh yozing. Ambidentat ligandlar, sis/trans izomerlar, ligand denticity haqida xulosa chiqaring. Cotton–Kraihanzel usulini karbonillar uchun qo'llang. Kutubxona qidiruvi (spectral library search) bilan tasdiqlang." },
             ].map((s, i) => (
-              <div key={i} className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30 hover:border-blue-500/50 transition-colors">
+              <div key={i} className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] hover:border-blue-500/50 transition-colors">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">{s.step}</div>
                   <div className="flex-1">
@@ -1189,9 +1178,9 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 16. QIZIQARLI FAKTLAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-            <span className="text-3xl">💡</span> 16. Qiziqarli va muhim faktlar
+            <span className="text-3xl"></span> 16. Qiziqarli va muhim faktlar
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
@@ -1217,7 +1206,7 @@ export default function IQSpektroskopiya() {
         </div>
 
         {/* ═══════════════ 17. KENGAYTIRUVCHI USULLAR ═══════════════ */}
-        <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-700/50 rounded-2xl p-8">
+        <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-[var(--v3-chiziq)] rounded-2xl p-8">
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="text-3xl">⚗️</span> 17. Kengaytiruvchi usullar (IQ bilan birga qo'llaniladi)
           </h2>
@@ -1227,12 +1216,12 @@ export default function IQSpektroskopiya() {
             {[
               { name: "Raman spektroskopiya", link: "/ilmiy/tahlil/raman", icon: "💚", desc: "IQ da noaktiv (gerade) tebranishlarni ko'radi. Suvli eritmalarda ustuvor (H₂O Ramanda kuchsiz). Rezonans Raman — o'z ligandi tanlab kuchaytiradi.", best: "Simmetrik va totalno-simmetrik modalar" },
               { name: "EXAFS/XANES", link: "/ilmiy/tahlil/exafs-xanes", icon: "⚛️", desc: "Metall–ligand masofalarini to'g'ridan-to'g'ri o'lchaydi (±0.02 Å). Koordinatsion soni va qo'shni atomlarni aniqlaydi. Amorf va eritma namunalarida ishlaydi.", best: "Aniq bog' uzunliklari va koordinatsion soni" },
-              { name: "Rentgen difraksiyasi", link: "/ilmiy/tahlil/xrd", icon: "💎", desc: "Kristall strukturasini to'liq aniqlaydi — barcha bog' uzunliklari va burchaklari. Faqat monokristall kerak. IQ tayinlashlarini tasdiqlaydi.", best: "To'liq 3D geometriya (bog' uzunligi, burchak)" },
-              { name: "NMR spektroskopiya", link: "/ilmiy/tahlil/nmr", icon: "🧲", desc: "Diamagnit komplekslarda H, C, P atomlari muhitini aniqlaydi. Ligandning M ga koordinatsiyasini ¹H kimyoviy siljish orqali tasdiqlaydi.", best: "Diamagnit komplekslar (d⁰, d¹⁰, past spin d⁶)" },
+              { name: "Rentgen difraksiyasi", link: "/ilmiy/tahlil/xrd", icon: "", desc: "Kristall strukturasini to'liq aniqlaydi — barcha bog' uzunliklari va burchaklari. Faqat monokristall kerak. IQ tayinlashlarini tasdiqlaydi.", best: "To'liq 3D geometriya (bog' uzunligi, burchak)" },
+              { name: "NMR spektroskopiya", link: "/ilmiy/tahlil/nmr", icon: "", desc: "Diamagnit komplekslarda H, C, P atomlari muhitini aniqlaydi. Ligandning M ga koordinatsiyasini ¹H kimyoviy siljish orqali tasdiqlaydi.", best: "Diamagnit komplekslar (d⁰, d¹⁰, past spin d⁶)" },
               { name: "DFT hisoblari", link: null, icon: "💻", desc: "Gaussian/ORCA dasturlari IQ spektrni nazariy hisoblab beradi. Har bir cho'qqini aniq tayinlashga yordam beradi. B3LYP/6-311G* darajasi standart.", best: "Tayinlashni tasdiqlash va noaniq cho'qqilar" },
               { name: "Mössbauer (Fe, Sn)", link: "/ilmiy/tahlil/mossbauer", icon: "☢️", desc: "Fe va Sn oksidlanish darajasi, spin holati aniq aniqlanadi. IQ dan olingan spinni tasdiqlaydi (masalan Fe(II) past/yuqori spin).", best: "Fe(II)/Fe(III), Sn(II)/Sn(IV) — spin va yadro atrofidagi elektron zichlik" },
             ].map((m, i) => (
-              <div key={i} className="bg-purple-950/50 rounded-xl p-5 border border-purple-700/30 hover:border-blue-500/50 transition-all group">
+              <div key={i} className="bg-purple-950/50 rounded-xl p-5 border border-[var(--v3-chiziq)] hover:border-blue-500/50 transition-all group">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="text-3xl">{m.icon}</div>
                   <h3 className="text-blue-300 font-bold text-sm">{m.name}</h3>
@@ -1254,7 +1243,7 @@ export default function IQSpektroskopiya() {
         {/* ═══════════════ 18. XULOSALAR ═══════════════ */}
         <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-2xl p-8">
           <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-            <span className="text-3xl">✅</span> 18. Asosiy xulosalar
+            <span className="text-3xl"></span> 18. Asosiy xulosalar
           </h2>
           <ol className="space-y-3 text-purple-200 list-decimal list-inside">
             <li className="pl-2"><strong className="text-yellow-400">IQ spektroskopiya — molekulyar tebranishlarning kvant o'tishlarini</strong> o'lchashga asoslangan. Tebranish energiyalari kvantlangan: E<sub>v</sub> = ℏω(v+½).</li>
@@ -1276,7 +1265,7 @@ export default function IQSpektroskopiya() {
             ← UV-Vis spektroskopiya
           </Link>
           <Link href="/ilmiy/tahlil/iq/birikmalar" className="px-6 py-3 bg-blue-600/80 rounded-xl hover:bg-blue-500 text-white font-semibold transition-colors">
-            IQ Birikmalar katalogi 🔍
+            IQ Birikmalar katalogi 
           </Link>
           <Link href="/ilmiy/tahlil/raman" className="px-6 py-3 bg-green-600/80 rounded-xl hover:bg-green-500 text-white font-semibold transition-colors">
             Raman spektroskopiya →
@@ -1298,6 +1287,6 @@ export default function IQSpektroskopiya() {
           </p>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }
