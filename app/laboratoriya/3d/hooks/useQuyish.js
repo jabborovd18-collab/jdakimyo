@@ -130,13 +130,15 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     const korinish = moddaKorinishi(faolReagentRef.current || 'suv');
     const ogizY = targetGroup.userData?.ogizBalandligi || 0.28;
     const targetPos = targetGroup.position;
+    const targetBaseY = targetPos.y > 0.5 ? targetPos.y : 0.90;
+    const targetPosY = Math.max(1.18, targetBaseY + ogizY + 0.08);
 
     let shishaGroup = null;
     let isWallBottle = false;
 
     if (sourceGroup) {
       shishaGroup = sourceGroup;
-      shishaGroup.position.set(targetPos.x + 0.14, targetPos.y + ogizY + 0.12, targetPos.z);
+      shishaGroup.position.set(targetPos.x + 0.12, targetPosY, targetPos.z);
       shishaGroup.rotation.z = (boshlangichBurchak * Math.PI) / 180;
     } else {
       // Devordagi haqiqiy shishani tekshirish
@@ -144,11 +146,11 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
       if (devorShisha) {
         shishaGroup = devorShisha;
         isWallBottle = true;
-        shishaGroup.position.set(targetPos.x + 0.14, targetPos.y + ogizY + 0.12, targetPos.z);
+        shishaGroup.position.set(targetPos.x + 0.12, targetPosY, targetPos.z);
         shishaGroup.rotation.z = (boshlangichBurchak * Math.PI) / 180;
       } else {
         shishaGroup = reagentShishasiYasa(faolReagentRef.current, korinish.rang);
-        shishaGroup.position.set(targetPos.x + 0.14, targetPos.y + ogizY + 0.12, targetPos.z);
+        shishaGroup.position.set(targetPos.x + 0.12, targetPosY, targetPos.z);
         shishaGroup.rotation.z = (boshlangichBurchak * Math.PI) / 180;
         sahnaRef.current.add(shishaGroup);
       }
@@ -159,7 +161,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     // Oqim va sachrash tomchilari
     const oqimBalandlik = 0.15;
     const { group: oqimGroup } = oqimVaTomchilarYasa(korinish.rang, oqimBalandlik, 0.006);
-    oqimGroup.position.set(targetPos.x, targetPos.y + ogizY, targetPos.z);
+    oqimGroup.position.set(targetPos.x, targetBaseY + ogizY, targetPos.z);
     sahnaRef.current.add(oqimGroup);
 
     vizualGuruhRef.current = {

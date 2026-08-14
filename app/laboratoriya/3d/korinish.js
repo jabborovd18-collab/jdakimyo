@@ -954,30 +954,36 @@ export default function Korinish() {
             />
           )}
 
-          {/* 1-BOSQICH: 3D Interaktiv Ko'rsatma / Status */}
-          <div
-            className="pointer-events-none absolute left-4 top-14 sm:top-4 z-20 rounded-xl border px-3 py-1.5 text-xs backdrop-blur-md bg-[var(--v3-fon-2)]/90 border-[var(--v3-chiziq)] space-y-0.5"
-          >
-            <div className="font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
-              <Ikon nom="kolba" olcham={14} className="text-[var(--v3-urgu)]" />
-              <span>
-                {kotarilganIdish
-                  ? `${kotarilganIdish.userData?.kalit || "Idish"} ko'tarildi (Y=1.15m)`
-                  : faolReagent
-                  ? `${faolReagent} tanlandi`
-                  : "Idishni bosing yoki sudrang"}
-              </span>
-            </div>
-            {yaqinNishon && (
-              <div className="text-[11px] text-emerald-400 font-mono flex items-center gap-1">
-                <span>{nishonTuri === "tarozi" ? "⚖️ Tarozi pallasiga tortilmoqda" : nishonTuri === "spirtovka" ? "🔥 Spirtovkaga qo'yilmoqda" : nishonTuri === "byuretka" ? "🧪 Byuretka tagiga qo'yilmoqda" : "🎯 Nishon: " + (yaqinNishon.userData?.kalit || "Idish")}</span>
+          {/* 1-BOSQICH: 3D Interaktiv Ko'rsatma / Status (Faqat Orbit rejimida) */}
+          {!yurishRejimi && !tozaEkran && (
+            <div
+              className="pointer-events-none absolute left-4 top-14 sm:top-4 z-20 rounded-xl border px-3 py-1.5 text-xs backdrop-blur-md bg-[var(--v3-fon-2)]/90 border-[var(--v3-chiziq)] space-y-0.5"
+            >
+              <div className="font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
+                <Ikon nom="kolba" olcham={14} className="text-[var(--v3-urgu)]" />
+                <span>
+                  {kotarilganIdish
+                    ? `${kotarilganIdish.userData?.kalit || "Idish"} ko'tarildi (Y=1.15m)`
+                    : faolReagent
+                    ? `${faolReagent} tanlandi`
+                    : "Idishni bosing yoki sudrang"}
+                </span>
               </div>
-            )}
-          </div>
+              {yaqinNishon && (
+                <div className="text-[11px] text-emerald-400 font-mono flex items-center gap-1">
+                  <span>{nishonTuri === "tarozi" ? "⚖️ Tarozi pallasiga tortilmoqda" : nishonTuri === "spirtovka" ? "🔥 Spirtovkaga qo'yilmoqda" : nishonTuri === "byuretka" ? "🧪 Byuretka tagiga qo'yilmoqda" : "🎯 Nishon: " + (yaqinNishon.userData?.kalit || "Idish")}</span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 1-BOSQICH: ERKIN KO'TARISH VA QUYISH BOSHQARUVI (FLOATING HUD) */}
           {(kotarilganIdish || faolReagent) && nishonIdishGroup && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-md rounded-2xl border p-4 shadow-2xl backdrop-blur-xl bg-[var(--v3-fon-2)]/95 border-[var(--v3-urgu)] space-y-3 animate-in slide-in-from-bottom duration-200">
+            <div className={`absolute z-30 rounded-2xl border p-4 shadow-2xl backdrop-blur-xl bg-[var(--v3-fon-2)]/95 border-[var(--v3-urgu)] space-y-3 animate-in slide-in-from-bottom duration-200 ${
+              yurishRejimi
+                ? "bottom-4 right-4 w-80 max-w-[90vw]"
+                : "bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md"
+            }`}>
               <div className="flex items-center justify-between">
                 <div className="min-w-0">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--v3-urgu)]">

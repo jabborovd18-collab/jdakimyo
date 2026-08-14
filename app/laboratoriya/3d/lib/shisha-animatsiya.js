@@ -25,9 +25,12 @@ export function shishaniUchiribKeltir(shishaGroup, nishonGroup, onYetibKeldi) {
 
   const startPos = shishaGroup.position.clone();
   const ogizY = nishonGroup.userData?.ogizBalandligi || 0.28;
+  const targetBaseY = nishonGroup.position.y > 0.5 ? nishonGroup.position.y : 0.90;
+  const targetPosY = Math.max(1.18, targetBaseY + ogizY + 0.08);
+
   const targetPos = new THREE.Vector3(
-    nishonGroup.position.x + 0.14,
-    nishonGroup.position.y + ogizY + 0.12,
+    nishonGroup.position.x + 0.12,
+    targetPosY,
     nishonGroup.position.z
   );
 
