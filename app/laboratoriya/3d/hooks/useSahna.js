@@ -171,18 +171,16 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     scene.environment = muhitXaritasi;
     pmrem.dispose();
 
-    // 4. OrbitControls
+    // 4. OrbitControls (Sukut bo'yicha o'chirilgan, chunki FPS Walk rejimi faol)
     const controls = new OrbitControls(kamera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = BOSHQARUV.engYaqin;
     controls.maxDistance = BOSHQARUV.engUzoq;
-    // Kamera stol ostiga kirib ketmasligi uchun engKattaBurchak cheklanadi
     controls.maxPolarAngle = BOSHQARUV.engKattaBurchak;
-    // Telefonda panning tasodifan ishlaydi, shuning uchun enablePan o'chirildi
     controls.enablePan = false;
+    controls.enabled = false;
     controls.target.set(KAMERA.nishon[0], KAMERA.nishon[1], KAMERA.nishon[2]);
-    controls.update();
     controlsRef.current = controls;
 
     // 5. Yorug'lik (AmbientLight + maksimal 2 ta DirectionalLight, faqat bittasi castShadow)

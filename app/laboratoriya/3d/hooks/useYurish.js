@@ -30,7 +30,7 @@ function stolKolliziyasi(px, pz, minX, maxX, minZ, maxZ, radius = 0.42) {
 }
 
 /**
- * CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA VA TUGMASIZ JISMONIY 3D OLAM DVIGATELI.
+ * CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA, MOBIL JOYSTIK VA TUGMASIZ JISMONIY 3D OLAM DVIGATELI.
  */
 export function useYurish({
   sahnaRef,
@@ -65,7 +65,7 @@ export function useYurish({
   tarozidagiIdish = null,
   taraMassa = 0,
 }) {
-  const [yurishRejimi, setYurishRejimi] = useState(true); // Sukut bo'yicha darhol FPS yurish rejimida
+  const [yurishRejimi, setYurishRejimi] = useState(true); // Sukut bo'yicha doimo FPS yurish faol
   const [yurmoqda, setYurmoqda] = useState(false);
   const [fpsQaralganIdish, setFpsQaralganIdish] = useState(null);
   const [fpsQolIdish, setFpsQolIdish] = useState(null);
@@ -77,7 +77,7 @@ export function useYurish({
   const sezgirlikRef = useRef(1.0);
   sezgirlikRef.current = sezgirlik;
 
-  // Harakat klavishlari va holatlar
+  // Harakat klavishlari va sensor analog kirishlari
   const keysRef = useRef({ w: false, s: false, a: false, d: false, sprint: false, crouch: false });
   const analogRef = useRef({ vx: 0, vz: 0, sprint: false });
 
@@ -98,6 +98,21 @@ export function useYurish({
   const centerRaycasterRef = useRef(new THREE.Raycaster());
   const avvalgiFpsYoritilganRef = useRef(null);
   const quyishBosilganRef = useRef(false);
+
+  // 1. Initializatsiya: OrbitControls ni to'liq o'chirib, kamerani FPS rejimiga o'rnatish
+  useEffect(() => {
+    if (controlsRef?.current) {
+      controlsRef.current.enabled = false;
+    }
+    if (kameraRef?.current) {
+      kameraRef.current.position.set(0, 1.58, 2.5);
+      const dir = new THREE.Vector3(0, -0.15, -1).normalize();
+      rotationRef.current.yaw = 0;
+      rotationRef.current.pitch = -0.12;
+      eyeHeightRef.current = 1.58;
+      targetEyeHeightRef.current = 1.58;
+    }
+  }, [kameraRef, controlsRef]);
 
   // Sezgirlikni localStorage dan o'qish
   useEffect(() => {
@@ -124,57 +139,15 @@ export function useYurish({
     } catch (e) {}
   }, []);
 
-  // Dastlabki orbit kamera holati
-  const aslKameraRef = useRef({
-    pos: new THREE.Vector3(0, 1.55, 2.3),
-    target: new THREE.Vector3(0, 0.95, 0.3),
-  });
-
-  // Rejimni yoqish / o'chirish
   const toggleYurishRejimi = useCallback(() => {
     setYurishRejimi((prev) => {
       const yangi = !prev;
-
-      if (kameraRef?.current && controlsRef?.current) {
-        if (yangi) {
-          aslKameraRef.current.pos.copy(kameraRef.current.position);
-          aslKameraRef.current.target.copy(controlsRef.current.target);
-
-          controlsRef.current.enabled = false;
-
-          const dir = new THREE.Vector3();
-          kameraRef.current.getWorldDirection(dir);
-          rotationRef.current.yaw = Math.atan2(-dir.x, -dir.z);
-          rotationRef.current.pitch = Math.asin(Math.max(-0.95, Math.min(0.95, dir.y)));
-
-          eyeHeightRef.current = 1.58;
-          targetEyeHeightRef.current = 1.58;
-          verticalVelocityRef.current = 0;
-          velocityRef.current.set(0, 0, 0);
-
-          if (rendererRef?.current?.domElement) {
-            rendererRef.current.domElement.requestPointerLock?.();
-          }
-        } else {
-          controlsRef.current.enabled = true;
-          kameraRef.current.position.copy(aslKameraRef.current.pos);
-          controlsRef.current.target.copy(aslKameraRef.current.target);
-          controlsRef.current.update();
-
-          if (document.exitPointerLock) {
-            document.exitPointerLock();
-          }
-
-          avvalgiFpsYoritilganRef.current = null;
-          setFpsQaralganIdish(null);
-          setFpsQaralganStansiya(null);
-          setFpsKontekstMatn("");
-        }
+      if (controlsRef?.current) {
+        controlsRef.current.enabled = !yangi;
       }
-
       return yangi;
     });
-  }, [kameraRef, controlsRef, rendererRef]);
+  }, [controlsRef]);
 
   // Qo'ldagi idishni boshqarish va stansiyalarni faollashtirish
   const qolgaOlYokiQoy = useCallback((amal = "asosiy") => {
@@ -290,7 +263,7 @@ export function useYurish({
       return;
     }
 
-    // 9. Agar devor javonidagi reagent shishasiga qaralgan bo'lsa
+    // 13. Agar devor javonidagi reagent shishasiga qaralgan bo'lsa
     if (!fpsQolIdish && fpsQaralganIdish?.userData?.devorShishasi) {
       const kalit = fpsQaralganIdish.userData.kalit;
       tiqinOchilishi();
@@ -303,7 +276,7 @@ export function useYurish({
       return;
     }
 
-    // 10. Agar qo'lda idish bo'lsa -> Qaralgan joyga qo'yish, yuvish yoki quyish
+    // 14. Agar qo'lda idish bo'lsa -> Qaralgan joyga qo'yish, yuvish yoki quyish
     if (fpsQolIdish) {
       const held = fpsQolIdish;
 
@@ -408,7 +381,7 @@ export function useYurish({
       return;
     }
 
-    // 9. Agar qo'l bo'sh bo'lsa va oddiy idishga qaralgan bo'lsa -> Qo'lga olish
+    // 15. Agar qo'l bo'sh bo'lsa va oddiy idishga qaralgan bo'lsa -> Qo'lga olish
     if (fpsQaralganIdish && !fpsQaralganIdish.userData?.stendJihozi) {
       const target = fpsQaralganIdish;
       target.userData.qolda = true;
@@ -425,33 +398,36 @@ export function useYurish({
         onIdishTanlandi(target);
       }
     }
-  }, [fpsQolIdish, fpsQaralganIdish, fpsQaralganStansiya, kameraRef, sahnaRef, onIdishTanlandi, onQuyishBoshla, onTaroziTushdi, onTarozidanOlingan, onTaroziTara, onTaroziNol, onSpirtovkaBosildi, onSpirtovkagaQoyildi, onRakovinaKraniBosildi, onRakovinagaTushdi, onPlanshetBosildi, onStansiyaOchildi, onStenddanJihozOlish, onJavongaQaytar]);
+  }, [fpsQolIdish, fpsQaralganIdish, fpsQaralganStansiya, kameraRef, sahnaRef, onIdishTanlandi, onQuyishBoshla, onTaroziTushdi, onTarozidanOlingan, onTaroziTara, onTaroziNol, onSpirtovkaBosildi, onSpirtovkagaQoyildi, onRakovinaKraniBosildi, onRakovinagaTushdi, onPlanshetBosildi, onStansiyaOchildi, onStenddanJihozOlish, onJavongaQaytar, onAralashtirish, onSpatulaAmal, onTitrlashKran, onElektrolizTok, onXavfsizlikDushi, onKozYuvish, onKozoynakTaqish, onGazNiqobiTaqish]);
 
-  // 1. KLAVIATURA HODISALARI (CS 1.6 + E / F / G / C / 1-5)
+  // 1. KLAVIATURA HODISALARI (WASD / Cyrillic / E / F / G / C / 1-5)
   useEffect(() => {
     if (!yurishRejimi) return;
 
     const handleKeyDown = (e) => {
+      if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
       const k = e.code;
-      if (k === "KeyW" || k === "ArrowUp") keysRef.current.w = true;
-      if (k === "KeyS" || k === "ArrowDown") keysRef.current.s = true;
-      if (k === "KeyA" || k === "ArrowLeft") keysRef.current.a = true;
-      if (k === "KeyD" || k === "ArrowRight") keysRef.current.d = true;
+      const key = e.key ? e.key.toLowerCase() : "";
+
+      if (k === "KeyW" || k === "ArrowUp" || key === "w" || key === "ц") keysRef.current.w = true;
+      if (k === "KeyS" || k === "ArrowDown" || key === "s" || key === "ы") keysRef.current.s = true;
+      if (k === "KeyA" || k === "ArrowLeft" || key === "a" || key === "ф") keysRef.current.a = true;
+      if (k === "KeyD" || k === "ArrowRight" || key === "d" || key === "в") keysRef.current.d = true;
       if (k === "ShiftLeft" || k === "ShiftRight") keysRef.current.sprint = true;
 
       // Cho'qqayish (Crouch)
-      if (k === "KeyC" || k === "ControlLeft" || k === "ControlRight") {
+      if (k === "KeyC" || k === "ControlLeft" || k === "ControlRight" || key === "c" || key === "с") {
         keysRef.current.crouch = true;
         targetEyeHeightRef.current = 1.05;
       }
 
       // E yoki F — Ushlash / Quyish / Faollashtirish
-      if (k === "KeyE" || k === "KeyF") {
+      if (k === "KeyE" || k === "KeyF" || key === "e" || key === "у" || key === "f" || key === "а") {
         qolgaOlYokiQoy("asosiy");
       }
 
       // G — Stolga qo'yish yoki Javonga qaytarish
-      if (k === "KeyG") {
+      if (k === "KeyG" || key === "g" || key === "п") {
         if (fpsQolIdish?.userData?.devorShishasi) {
           qolgaOlYokiQoy("javonga_qaytar");
         } else {
@@ -460,11 +436,11 @@ export function useYurish({
       }
 
       // 1, 2, 3, 4, 5 — Tezkor aniq hajmlar
-      if (k === "Digit1" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(1);
-      if (k === "Digit2" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(5);
-      if (k === "Digit3" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(10);
-      if (k === "Digit4" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(25);
-      if (k === "Digit5" && typeof onAniqHajmQuy === "function") onAniqHajmQuy(50);
+      if ((k === "Digit1" || key === "1") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(1);
+      if ((k === "Digit2" || key === "2") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(5);
+      if ((k === "Digit3" || key === "3") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(10);
+      if ((k === "Digit4" || key === "4") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(25);
+      if ((k === "Digit5" || key === "5") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(50);
 
       if (k === "Space") {
         if (eyeHeightRef.current <= 1.62 && !keysRef.current.crouch) {
@@ -475,12 +451,13 @@ export function useYurish({
 
     const handleKeyUp = (e) => {
       const k = e.code;
-      if (k === "KeyW" || k === "ArrowUp") keysRef.current.w = false;
-      if (k === "KeyS" || k === "ArrowDown") keysRef.current.s = false;
-      if (k === "KeyA" || k === "ArrowLeft") keysRef.current.a = false;
-      if (k === "KeyD" || k === "ArrowRight") keysRef.current.d = false;
+      const key = e.key ? e.key.toLowerCase() : "";
+      if (k === "KeyW" || k === "ArrowUp" || key === "w" || key === "ц") keysRef.current.w = false;
+      if (k === "KeyS" || k === "ArrowDown" || key === "s" || key === "ы") keysRef.current.s = false;
+      if (k === "KeyA" || k === "ArrowLeft" || key === "a" || key === "ф") keysRef.current.a = false;
+      if (k === "KeyD" || k === "ArrowRight" || key === "d" || key === "в") keysRef.current.d = false;
       if (k === "ShiftLeft" || k === "ShiftRight") keysRef.current.sprint = false;
-      if (k === "KeyC" || k === "ControlLeft" || k === "ControlRight") {
+      if (k === "KeyC" || k === "ControlLeft" || k === "ControlRight" || key === "c" || key === "с") {
         keysRef.current.crouch = false;
         targetEyeHeightRef.current = 1.58;
       }
@@ -533,7 +510,9 @@ export function useYurish({
     const handleMouseDown = (e) => {
       if (e.button === 0) { // Left Click
         if (document.pointerLockElement !== domElement) {
-          domElement.requestPointerLock?.();
+          try {
+            domElement.requestPointerLock?.();
+          } catch (err) {}
         }
         qolgaOlYokiQoy("asosiy");
         quyishBosilganRef.current = true;
@@ -578,7 +557,7 @@ export function useYurish({
     };
   }, [yurishRejimi, rendererRef, qolgaOlYokiQoy, onQuyishToxtat, onAniqHajmQuy, fpsQolIdish, fpsQaralganIdish]);
 
-  // 3. ASOSIY FPS HARAKATLANISH, KOLLIZIYA VA CROSSHAIR SIKLI
+  // 3. ASOSIY FPS HARAKATLANISH, KOLLIZIYA VA CROSSHAIR SIKLI (60 FPS)
   useEffect(() => {
     if (!yurishRejimi || !kameraRef?.current || !sahnaRef?.current) return;
 
