@@ -12,6 +12,7 @@ export default function EkspertXulosaModal({
   jurnal = [],
   foydalanuvchiNom = "Talaba",
   onYop,
+  onXRayOch,
 }) {
   if (!natija) return null;
 
@@ -128,23 +129,39 @@ export default function EkspertXulosaModal({
         )}
 
         {/* Actions */}
-        <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-[var(--v3-chiziq)]">
-          <button
-            type="button"
-            onClick={onYop}
-            className="v3-tugma text-xs py-2 px-4"
-          >
-            Yopish
-          </button>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[var(--v3-chiziq)]">
+          <div className="flex items-center gap-2">
+            {typeof onXRayOch === "function" && (
+              <button
+                type="button"
+                onClick={onXRayOch}
+                className="v3-tugma text-xs py-2 px-3 text-amber-400 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 font-bold flex items-center gap-1.5"
+                title="Mortal Kombat X-Ray Slow-Mo Bog'lar Uzilishi"
+              >
+                <Ikon nom="chaqmoq" olcham={14} />
+                <span>⚡ X-Ray Slow-Mo</span>
+              </button>
+            )}
+          </div>
 
-          <button
-            type="button"
-            onClick={pdfYuklabOlish}
-            className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-6 font-bold inline-flex items-center gap-2"
-          >
-            <Ikon nom="fayl" olcham={14} />
-            <span>Laboratoriya Daftarini Yuklash (PDF)</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onYop}
+              className="v3-tugma text-xs py-2 px-4"
+            >
+              Yopish
+            </button>
+
+            <button
+              type="button"
+              onClick={pdfYuklabOlish}
+              className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-5 font-bold inline-flex items-center gap-2"
+            >
+              <Ikon nom="fayl" olcham={14} />
+              <span>Laboratoriya Daftarini Yuklash (PDF)</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
