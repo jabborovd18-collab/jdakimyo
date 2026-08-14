@@ -53,6 +53,8 @@ export function useYurish({
   onStansiyaOchildi,
   onStenddanJihozOlish,
   onJavongaQaytar,
+  onAralashtirish,
+  onSpatulaAmal,
   isitimoda = false,
   tarozidagiIdish = null,
   taraMassa = 0,
@@ -276,9 +278,27 @@ export function useYurish({
         return;
       }
 
-      // Maxsus stansiyalarga qo'yish
+      // Maxsus stansiyalarga qo'yish yoki aralashtirish
       if (fpsQaralganIdish && fpsQaralganIdish !== held) {
         const targetKalit = fpsQaralganIdish.userData?.kalit;
+
+        // Agar qo'lda Shisha tayoqcha bo'lsa -> Aralashtirish
+        if (held.userData?.kalit === "shisha-tayoqcha" && fpsQaralganIdish.userData?.sigim > 0) {
+          shishaUrilishi(3200);
+          if (typeof onAralashtirish === "function") {
+            onAralashtirish(fpsQaralganIdish);
+          }
+          return;
+        }
+
+        // Agar qo'lda Spatula bo'lsa -> Kukun olish yoki solish
+        if (held.userData?.kalit === "spatula") {
+          shishaUrilishi(2600);
+          if (typeof onSpatulaAmal === "function") {
+            onSpatulaAmal(fpsQaralganIdish, held);
+          }
+          return;
+        }
 
         // Tarozi pallasiga qo'yish
         if (targetKalit === "tarozi" || targetKalit === "tarozi_palla" || fpsQaralganStansiya === "tarozi") {
@@ -737,7 +757,18 @@ export function useYurish({
         if (foundIdish && foundIdish !== fpsQolIdish) {
           const targetNom = foundIdish.userData?.nom || foundIdish.userData?.kalit || "Idish";
 
-          if (foundIdish.userData?.kalit === "spirtovka") {
+          if (fpsQolIdish.userData?.kalit === "shisha-tayoqcha" && (foundIdish.userData?.sigim > 0 || foundIdish.userData?.tanlanadi)) {
+            promptText = `[E / Klik] ${targetNom}ni shisha tayoqcha bilan aralashtirish (Reaksiya jadallashuvi)`;
+            promptType = "urgu";
+          } else if (fpsQolIdish.userData?.kalit === "spatula") {
+            if (foundIdish.userData?.devorShishasi || foundIdish.userData?.kalit?.startsWith("Cu") || foundIdish.userData?.kalit?.startsWith("Ag") || foundIdish.userData?.kalit?.startsWith("KMn") || foundIdish.userData?.kalit?.startsWith("Fe") || foundIdish.userData?.kalit?.startsWith("Ba")) {
+              promptText = `[E / Klik] 1.0g ${targetNom} kukunini spatulaga olish`;
+              promptType = "urgu";
+            } else if (foundIdish.userData?.sigim > 0) {
+              promptText = `[E / Klik] 1.0g kukunni ${targetNom}ga solish va eritish`;
+              promptType = "quyish";
+            }
+          } else if (foundIdish.userData?.kalit === "spirtovka") {
             promptText = `[E / Klik] ${heldNom}ni spirtovka ustiga qo'yish`;
             promptType = "urgu";
           } else if (foundIdish.userData?.kalit === "tarozi" || foundIdish.userData?.kalit === "tarozi_palla" || foundStansiya === "tarozi") {

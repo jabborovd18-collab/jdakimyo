@@ -317,6 +317,28 @@ export default function Korinish() {
     setEkspertModalOchilgan(true);
   }, []);
 
+  const [spatulaKukun, setSpatulaKukun] = useState(null);
+
+  const handleAralashtirish = useCallback((targetGroup) => {
+    pufakchaChiqishi();
+    toast.success("🌀 Shisha tayoqcha bilan aralashtirildi! Reaksiya kinetikasi tezlashdi.");
+    otkaz(null, targetGroup);
+  }, [otkaz]);
+
+  const handleSpatulaAmal = useCallback((group) => {
+    if (spatulaKukun) {
+      const tuz = spatulaKukun;
+      aniqHajmQuy(tuz, group, 5);
+      setSpatulaKukun(null);
+      toast.success(`🧂 1.0g ${tuz} kukuni idishga solindi va eridi!`);
+    } else {
+      const tuzKalit = group.userData?.kalit || "CuSO₄";
+      setSpatulaKukun(tuzKalit);
+      tiqinOchilishi();
+      toast.success(`🧂 Spatulaga 1.0g ${tuzKalit} kukuni olindi`);
+    }
+  }, [spatulaKukun, aniqHajmQuy]);
+
   const handleStansiyaOchildi = useCallback((stansiya) => {
     if (stansiya === "davriy_jadval") setDavriyJadvalOchilgan(true);
     else if (stansiya === "titrlash") setTitrlashOchilgan(true);
@@ -366,6 +388,8 @@ export default function Korinish() {
     onStansiyaOchildi: handleStansiyaOchildi,
     onStenddanJihozOlish: handleStenddanJihozOlish,
     onJavongaQaytar: javongaQaytar,
+    onAralashtirish: handleAralashtirish,
+    onSpatulaAmal: handleSpatulaAmal,
     isitimoda,
     tarozidagiIdish,
     taraMassa,
@@ -718,6 +742,25 @@ export default function Korinish() {
                 )}
               </div>
             </div>
+
+            {/* Spatula yoki Shisha tayoqcha holati */}
+            {fpsQolIdish.userData?.kalit === "spatula" && (
+              <div className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono">
+                {spatulaKukun ? (
+                  <span className="text-amber-400 font-bold flex items-center gap-1">
+                    <span>🧂</span> Spatulada: 1.0g {spatulaKukun} kukuni
+                  </span>
+                ) : (
+                  <span className="text-slate-400">🧂 Spatula bo{"'"}sh (Tuz shishasidan kukun oling)</span>
+                )}
+              </div>
+            )}
+
+            {fpsQolIdish.userData?.kalit === "shisha-tayoqcha" && (
+              <div className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
+                🌀 Shisha tayoqcha (Probirkani aralashtirish uchun bosing)
+              </div>
+            )}
 
             {/* Agar devor reagent shishasi bo'lsa -> Tezkor doza klavishlari */}
             {fpsQolIdish.userData?.devorShishasi && (
