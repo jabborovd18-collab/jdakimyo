@@ -57,6 +57,10 @@ export function useYurish({
   onSpatulaAmal,
   onTitrlashKran,
   onElektrolizTok,
+  onXavfsizlikDushi,
+  onKozYuvish,
+  onKozoynakTaqish,
+  onGazNiqobiTaqish,
   isitimoda = false,
   tarozidagiIdish = null,
   taraMassa = 0,
@@ -236,7 +240,39 @@ export function useYurish({
       return;
     }
 
-    // 7. Agar Smart Planshet / Monitor bosilsa
+    // 7. Agar Xavfsizlik Dushi zanjiri bosilsa
+    if (fpsQaralganIdish?.userData?.kalit === "xavfsizlik_dushi" || fpsQaralganStansiya === "xavfsizlik_dushi") {
+      if (typeof onXavfsizlikDushi === "function") {
+        onXavfsizlikDushi();
+      }
+      return;
+    }
+
+    // 8. Agar Ko'z Yuvish favvorasi bosilsa
+    if (fpsQaralganIdish?.userData?.kalit === "koz_yuvish" || fpsQaralganStansiya === "koz_yuvish") {
+      if (typeof onKozYuvish === "function") {
+        onKozYuvish();
+      }
+      return;
+    }
+
+    // 9. Agar Himoya ko'zoynagi bosilsa
+    if (fpsQaralganIdish?.userData?.kalit === "himoya_kozoynagi") {
+      if (typeof onKozoynakTaqish === "function") {
+        onKozoynakTaqish();
+      }
+      return;
+    }
+
+    // 10. Agar Gaz niqobi bosilsa
+    if (fpsQaralganIdish?.userData?.kalit === "gaz_niqobi") {
+      if (typeof onGazNiqobiTaqish === "function") {
+        onGazNiqobiTaqish();
+      }
+      return;
+    }
+
+    // 11. Agar Smart Planshet / Monitor bosilsa
     if (fpsQaralganIdish?.userData?.kalit === "lab_planshet" || fpsQaralganStansiya === "lab_planshet") {
       shishaUrilishi(2200);
       if (typeof onPlanshetBosildi === "function") {
@@ -245,8 +281,8 @@ export function useYurish({
       return;
     }
 
-    // 8. Agar Devor / Stend stansiyalari tanlangan bo'lsa (Davriy jadval, Titrlash, Elektroliz)
-    if (!fpsQolIdish && fpsQaralganStansiya && !["tarozi_tara", "tarozi_nol", "rakovina_kran", "lab_planshet", "titrlash_kran", "elektroliz_tok"].includes(fpsQaralganStansiya)) {
+    // 12. Agar Devor / Stend stansiyalari tanlangan bo'lsa (Davriy jadval, Titrlash, Elektroliz)
+    if (!fpsQolIdish && fpsQaralganStansiya && !["tarozi_tara", "tarozi_nol", "rakovina_kran", "lab_planshet", "titrlash_kran", "elektroliz_tok", "xavfsizlik_dushi", "koz_yuvish"].includes(fpsQaralganStansiya)) {
       shishaUrilishi(2200);
       if (typeof onStansiyaOchildi === "function") {
         onStansiyaOchildi(fpsQaralganStansiya);
@@ -733,6 +769,32 @@ export function useYurish({
             foundStansiya = "elektroliz_tok";
             foundIdish = ota;
             promptText = "[E / Klik] DC Tok Manbaini yoqish / o'chirish (Faradey Elektrolizi)";
+            promptType = "urgu";
+            break;
+          }
+          if (ota.userData?.kalit === "xavfsizlik_dushi" || ota.name === "Xavfsizlik_Dushi_Stansiyasi") {
+            foundStansiya = "xavfsizlik_dushi";
+            foundIdish = ota;
+            promptText = "[E / Klik] Favqulodda Xavfsizlik Dushini tortish (Zararsizlantirish)";
+            promptType = "urgu";
+            break;
+          }
+          if (ota.userData?.kalit === "koz_yuvish") {
+            foundStansiya = "koz_yuvish";
+            foundIdish = ota;
+            promptText = "[E / Klik] Ko'z Yuvish Favvorasini ochish";
+            promptType = "urgu";
+            break;
+          }
+          if (ota.userData?.kalit === "himoya_kozoynagi") {
+            foundIdish = ota;
+            promptText = "[E / Klik] Kimyoviy Himoya Ko'zoynagini taqish / yechish";
+            promptType = "urgu";
+            break;
+          }
+          if (ota.userData?.kalit === "gaz_niqobi") {
+            foundIdish = ota;
+            promptText = "[E / Klik] Kimyoviy Gaz Niqobini (Respirator) taqish / yechish";
             promptType = "urgu";
             break;
           }

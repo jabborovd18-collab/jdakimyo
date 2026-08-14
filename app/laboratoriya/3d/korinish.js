@@ -326,6 +326,76 @@ export default function Korinish() {
   const [elektrolizFaol, setElektrolizFaol] = useState(false);
   const [elektrolizVaqt, setElektrolizVaqt] = useState(0);
 
+  // 6-BOSQICH: Xavfsizlik Dushi, Ko'z Yuvish va HazMat jihozlari
+  const [dushOqmoqda, setDushOqmoqda] = useState(false);
+  const [kozYuvishOqmoqda, setKozYuvishOqmoqda] = useState(false);
+  const [kozoynakTaqilgan, setKozoynakTaqilgan] = useState(false);
+  const [gazNiqobiTaqilgan, setGazNiqobiTaqilgan] = useState(false);
+  const [xonaTutun, setXonaTutun] = useState(false);
+
+  const handleXavfsizlikDushi = useCallback(() => {
+    setDushOqmoqda((prev) => {
+      const yangi = !prev;
+      const dushStend = sahnaRef?.current?.getObjectByName("Xavfsizlik_Dushi_Stansiyasi");
+      if (dushStend?.userData?.dushniYangila) {
+        dushStend.userData.dushniYangila(yangi);
+      }
+      if (yangi) {
+        oqimBoshla();
+        pufakchaChiqishi();
+        toast.success("🚿 Favqulodda xavfsizlik dushi yoqildi! Kimyoviy zararsizlantirish bajarildi.");
+      } else {
+        oqimToxtat();
+        toast("🚿 Xavfsizlik dushi yopildi", { icon: "💧" });
+      }
+      return yangi;
+    });
+  }, [sahnaRef]);
+
+  const handleKozYuvish = useCallback(() => {
+    setKozYuvishOqmoqda((prev) => {
+      const yangi = !prev;
+      const dushStend = sahnaRef?.current?.getObjectByName("Xavfsizlik_Dushi_Stansiyasi");
+      if (dushStend?.userData?.kozYuvishniYangila) {
+        dushStend.userData.kozYuvishniYangila(yangi);
+      }
+      if (yangi) {
+        oqimBoshla();
+        toast.success("👁️ Ko'z yuvish favvorasi ochildi!");
+      } else {
+        oqimToxtat();
+        toast("👁️ Ko'z yuvish favvorasi yopildi", { icon: "💧" });
+      }
+      return yangi;
+    });
+  }, [sahnaRef]);
+
+  const handleKozoynakTaqish = useCallback(() => {
+    setKozoynakTaqilgan((prev) => {
+      const yangi = !prev;
+      shishaUrilishi(2600);
+      if (yangi) {
+        toast.success("🥽 Kimyoviy himoya ko'zoynagi taqildi!");
+      } else {
+        toast("🥽 Himoya ko'zoynagi yechildi", { icon: "👓" });
+      }
+      return yangi;
+    });
+  }, []);
+
+  const handleGazNiqobiTaqish = useCallback(() => {
+    setGazNiqobiTaqilgan((prev) => {
+      const yangi = !prev;
+      tiqinOchilishi();
+      if (yangi) {
+        toast.success("🎭 Kimyoviy gaz niqobi (Respirator) taqildi!");
+      } else {
+        toast("🎭 Gaz niqobi yechildi", { icon: "😷" });
+      }
+      return yangi;
+    });
+  }, []);
+
   const handleTitrlashKran = useCallback(() => {
     setTitrlashTomchilamoqda((prev) => {
       const yangi = !prev;
@@ -463,6 +533,10 @@ export default function Korinish() {
     onSpatulaAmal: handleSpatulaAmal,
     onTitrlashKran: handleTitrlashKran,
     onElektrolizTok: handleElektrolizTok,
+    onXavfsizlikDushi: handleXavfsizlikDushi,
+    onKozYuvish: handleKozYuvish,
+    onKozoynakTaqish: handleKozoynakTaqish,
+    onGazNiqobiTaqish: handleGazNiqobiTaqish,
     isitimoda,
     tarozidagiIdish,
     taraMassa,
@@ -718,6 +792,19 @@ export default function Korinish() {
           style={{ touchAction: "none", overscrollBehavior: "none" }}
         />
 
+        {/* --- BIRINCHI SHAXS KO'ZOYNAK / GAZ NIQOBI FPS HUD QATLAMI --- */}
+        {kozoynakTaqilgan && (
+          <div className="pointer-events-none absolute inset-0 z-10 border-[16px] sm:border-[28px] border-cyan-950/30 ring-1 ring-cyan-400/20 shadow-[inset_0_0_100px_rgba(6,182,212,0.15)] backdrop-brightness-105" />
+        )}
+
+        {gazNiqobiTaqilgan && (
+          <div className="pointer-events-none absolute inset-0 z-10 border-[24px] sm:border-[44px] border-slate-950/80 shadow-[inset_0_0_120px_rgba(0,0,0,0.85)] ring-2 ring-amber-500/30">
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/80 border border-amber-500/40 text-[10px] font-mono text-amber-400 font-bold tracking-widest uppercase">
+              ● RESPIRATOR HAZMAT FILTR FAOL (O₂: 99.8%)
+            </div>
+          </div>
+        )}
+
         {/* --- SLEEK MINIMAL CYBER-HUD (YUQORI BURCHAKLAR) --- */}
         {/* Yuqori chap: Brend va Rejim */}
         <div className="absolute top-3 left-4 z-30 flex items-center gap-2 pointer-events-none">
@@ -738,6 +825,18 @@ export default function Korinish() {
               <span className={`w-1.5 h-1.5 rounded-full ${tarozidagiIdish ? "bg-emerald-400" : "bg-slate-500"}`} />
               <span>{tarozidagiIdish ? "Tarozi band" : "Tarozi bo'sh"}</span>
             </span>
+            {kozoynakTaqilgan && (
+              <>
+                <span className="text-slate-600">|</span>
+                <span className="text-cyan-400 font-bold">🥽 Ko{"'"}zoynak</span>
+              </>
+            )}
+            {gazNiqobiTaqilgan && (
+              <>
+                <span className="text-slate-600">|</span>
+                <span className="text-amber-400 font-bold">🎭 Respirator</span>
+              </>
+            )}
           </div>
         </div>
 

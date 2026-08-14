@@ -327,80 +327,223 @@ function xonaQobiginiYasa(materiallar) {
   }
 
   // Eshik yonidagi Raqamli Xona Iqlim va Havfsizlik Stansiyasi (Room Climate & Safety Monitor)
-  if (typeof document !== "undefined") {
-    const climateCanvas = document.createElement("canvas");
-    climateCanvas.width = 512;
-    climateCanvas.height = 256;
-    const clCtx = climateCanvas.getContext("2d");
-    if (clCtx) {
-      clCtx.fillStyle = "#030712";
-      clCtx.fillRect(0, 0, 512, 256);
+  let clCanvas = null;
+  let clCtx = null;
+  let clTexture = null;
 
-      clCtx.strokeStyle = "#38bdf8";
-      clCtx.lineWidth = 4;
-      clCtx.strokeRect(6, 6, 500, 244);
+  const chizIqlimEkrani = (harorat = 22.4, tutunBormi = false, ventilyatsiyaFaol = false) => {
+    if (!clCtx || !clCanvas) return;
+    clCtx.fillStyle = "#030712";
+    clCtx.fillRect(0, 0, 512, 256);
 
-      clCtx.fillStyle = "#38bdf8";
-      clCtx.font = "bold 22px monospace";
-      clCtx.textAlign = "left";
-      clCtx.fillText("● JDA-LAB CLIMATE & SAFETY", 20, 36);
+    clCtx.strokeStyle = tutunBormi ? "#ef4444" : "#38bdf8";
+    clCtx.lineWidth = 4;
+    clCtx.strokeRect(6, 6, 500, 244);
 
-      clCtx.fillStyle = "#64748b";
-      clCtx.font = "bold 16px monospace";
-      clCtx.textAlign = "right";
-      clCtx.fillText("ONLINE", 492, 36);
+    clCtx.fillStyle = tutunBormi ? "#ef4444" : "#38bdf8";
+    clCtx.font = "bold 22px monospace";
+    clCtx.textAlign = "left";
+    clCtx.fillText("● JDA-LAB CLIMATE & SAFETY", 20, 36);
 
-      // Harorat
-      clCtx.fillStyle = "#10b981";
-      clCtx.font = "900 48px monospace";
-      clCtx.textAlign = "left";
-      clCtx.fillText("22.4°C", 20, 100);
+    clCtx.fillStyle = tutunBormi ? "#f59e0b" : "#64748b";
+    clCtx.font = "bold 16px monospace";
+    clCtx.textAlign = "right";
+    clCtx.fillText(tutunBormi ? "HAZARD ALERT" : "ONLINE", 492, 36);
 
-      clCtx.fillStyle = "#94a3b8";
-      clCtx.font = "bold 18px monospace";
-      clCtx.fillText("Namlik: 48% RH", 240, 75);
-      clCtx.fillText("Bosim: 758 mmHg", 240, 102);
+    // Harorat
+    clCtx.fillStyle = tutunBormi ? "#f59e0b" : "#10b981";
+    clCtx.font = "900 48px monospace";
+    clCtx.textAlign = "left";
+    clCtx.fillText(`${harorat.toFixed(1)}°C`, 20, 100);
 
-      // Havo sifati & O2
-      clCtx.fillStyle = "#0f172a";
-      clCtx.fillRect(16, 125, 480, 105);
-      clCtx.strokeStyle = "rgba(56, 189, 248, 0.25)";
-      clCtx.strokeRect(16, 125, 480, 105);
+    clCtx.fillStyle = "#94a3b8";
+    clCtx.font = "bold 18px monospace";
+    clCtx.fillText("Namlik: 48% RH", 240, 75);
+    clCtx.fillText("Bosim: 758 mmHg", 240, 102);
 
+    // Havo sifati & O2
+    clCtx.fillStyle = "#0f172a";
+    clCtx.fillRect(16, 125, 480, 105);
+    clCtx.strokeStyle = tutunBormi ? "rgba(239, 68, 68, 0.4)" : "rgba(56, 189, 248, 0.25)";
+    clCtx.strokeRect(16, 125, 480, 105);
+
+    if (tutunBormi) {
+      clCtx.fillStyle = "#ef4444";
+      clCtx.font = "bold 20px monospace";
+      clCtx.fillText("Havo: ⚠️ TUTUN VA GAZ ANIKLANDI!", 30, 160);
+      clCtx.fillStyle = "#f59e0b";
+      clCtx.fillText("Ventilyatsiya: MAKSIMAL (100% SO'RISH)", 30, 195);
+      clCtx.fillText("Tavsiya: Dush & Gaz niqobidan foydalaning", 30, 222);
+    } else {
       clCtx.fillStyle = "#34d399";
       clCtx.font = "bold 20px monospace";
       clCtx.fillText("Havo sifati: ● XAVFSIZ (0.00 ppm)", 30, 160);
-
       clCtx.fillStyle = "#38bdf8";
       clCtx.fillText("O₂ darajasi: 20.9% (Optimal)", 30, 195);
-      clCtx.fillText("Ventilyatsiya: FAOL (100%)", 30, 222);
+      clCtx.fillText("Ventilyatsiya: ME'YORDA (Avtomatik)", 30, 222);
+    }
+  };
 
-      const climateTexture = new THREE.CanvasTexture(climateCanvas);
-      const climateMeshGeo = new THREE.PlaneGeometry(0.85, 0.44);
-      const climateMeshMat = new THREE.MeshBasicMaterial({ map: climateTexture });
-      const climateMesh = new THREE.Mesh(climateMeshGeo, climateMeshMat);
-      climateMesh.name = "Xona_Iqlim_Stansiyasi";
-      climateMesh.rotation.y = Math.PI;
-      climateMesh.position.set(1.8, 1.65, XONA_D / 2 + 0.36);
-      roomGroup.add(climateMesh);
+  if (typeof document !== "undefined") {
+    clCanvas = document.createElement("canvas");
+    clCanvas.width = 512;
+    clCanvas.height = 256;
+    clCtx = clCanvas.getContext("2d");
+    if (clCtx) {
+      chizIqlimEkrani(22.4, false, false);
+      clTexture = new THREE.CanvasTexture(clCanvas);
     }
   }
 
-  // 7. Xavfsizlik Dushi va Ko'z Yuvish (O'ng devorda)
-  const dushGroup = new THREE.Group();
-  dushGroup.position.set(XONA_W / 2 - 0.15, 0.9, 3.5);
+  const climateMeshGeo = new THREE.PlaneGeometry(0.85, 0.44);
+  const climateMeshMat = clTexture
+    ? new THREE.MeshBasicMaterial({ map: clTexture })
+    : new THREE.MeshBasicMaterial({ color: 0x030712 });
+  const climateMesh = new THREE.Mesh(climateMeshGeo, climateMeshMat);
+  climateMesh.name = "Xona_Iqlim_Stansiyasi";
+  climateMesh.rotation.y = Math.PI;
+  climateMesh.position.set(1.8, 1.65, XONA_D / 2 + 0.36);
 
-  const trubaGeo = new THREE.CylinderGeometry(0.02, 0.02, 2.0, 16);
+  climateMesh.userData = {
+    kalit: "xona_iqlimi",
+    nom: "Xona Iqlim va Havfsizlik Ko'rsatkichi",
+    tanlanadi: true,
+    iqlimniYangila: (harorat = 22.4, tutunBormi = false, ventilyatsiyaFaol = false) => {
+      if (clCtx && clCanvas && clTexture) {
+        chizIqlimEkrani(harorat, tutunBormi, ventilyatsiyaFaol);
+        clTexture.needsUpdate = true;
+      }
+    },
+  };
+  roomGroup.add(climateMesh);
+
+  // 7. Xavfsizlik Dushi va Ko'z Yuvish Stansiyasi (O'ng devorda)
+  const dushGroup = new THREE.Group();
+  dushGroup.name = "Xavfsizlik_Dushi_Stansiyasi";
+  dushGroup.position.set(XONA_W / 2 - 0.15, 0, 3.5);
+
+  const suvMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 });
+  const sariqMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2 });
+
+  // Vertikal po'lat truba
+  const trubaGeo = new THREE.CylinderGeometry(0.025, 0.025, 2.8, 16);
   const truba = new THREE.Mesh(trubaGeo, ramkaMat);
-  truba.position.y = 1.0;
+  truba.position.y = 1.4;
   dushGroup.add(truba);
 
-  const boshGeo = new THREE.ConeGeometry(0.1, 0.08, 16);
-  const bosh = new THREE.Mesh(boshGeo, new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8 }));
-  bosh.position.set(-0.2, 1.9, 0);
+  // Dush kallagi
+  const boshGeo = new THREE.ConeGeometry(0.18, 0.12, 20);
+  const bosh = new THREE.Mesh(boshGeo, sariqMat);
+  bosh.position.set(-0.35, 2.7, 0);
   dushGroup.add(bosh);
 
+  // Tortish zanjiri va halqasi (Pull ring)
+  const zanjirGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.6, 8);
+  const zanjir = new THREE.Mesh(zanjirGeo, ramkaMat);
+  zanjir.position.set(-0.35, 2.3, 0);
+  dushGroup.add(zanjir);
+
+  const halqaGeo = new THREE.TorusGeometry(0.04, 0.008, 8, 16);
+  const halqa = new THREE.Mesh(halqaGeo, sariqMat);
+  halqa.position.set(-0.35, 2.0, 0);
+  halqa.userData = { kalit: "xavfsizlik_dushi", nom: "Favqulodda Xavfsizlik Dushi Zanjiri", tanlanadi: true };
+  dushGroup.add(halqa);
+
+  // Dush suv kaskadi (Shower Cascade mesh)
+  const dushSuvGeo = new THREE.CylinderGeometry(0.35, 0.55, 2.4, 20, 1, true);
+  const dushSuvMesh = new THREE.Mesh(dushSuvGeo, suvMat);
+  dushSuvMesh.position.set(-0.35, 1.4, 0);
+  dushSuvMesh.visible = false;
+  dushGroup.add(dushSuvMesh);
+
+  // Ko'z yuvish vannasi (Eyewash basin)
+  const vannaGeo = new THREE.CylinderGeometry(0.16, 0.12, 0.1, 20);
+  const vanna = new THREE.Mesh(vannaGeo, sariqMat);
+  vanna.position.set(-0.35, 1.05, 0);
+  vanna.userData = { kalit: "koz_yuvish", nom: "Ko'z Yuvish Favvorasi", tanlanadi: true };
+  dushGroup.add(vanna);
+
+  const favvoraGeo = new THREE.CylinderGeometry(0.01, 0.015, 0.18, 12);
+  const favvoraMesh = new THREE.Mesh(favvoraGeo, suvMat);
+  favvoraMesh.position.set(-0.35, 1.15, 0);
+  favvoraMesh.visible = false;
+  dushGroup.add(favvoraMesh);
+
+  const dushniYangila = (faol = false) => {
+    dushSuvMesh.visible = faol;
+  };
+
+  const kozYuvishniYangila = (faol = false) => {
+    favvoraMesh.visible = faol;
+  };
+
+  dushGroup.userData = {
+    kalit: "xavfsizlik_dushi",
+    nom: "Xavfsizlik Dushi va Ko'z Yuvish Stansiyasi",
+    tanlanadi: true,
+    dushniYangila,
+    kozYuvishniYangila,
+    dushFaol: false,
+    kozFaol: false,
+  };
   roomGroup.add(dushGroup);
+
+  // 8. Eshik Yonidagi Devor Xavfsizlik Shkafi (Ko'zoynak va Gaz Niqobi)
+  const xavfShkafGroup = new THREE.Group();
+  xavfShkafGroup.name = "Xavfsizlik_Shkafi";
+  xavfShkafGroup.position.set(-1.8, 1.65, XONA_D / 2 + 0.35);
+  xavfShkafGroup.rotation.y = Math.PI;
+
+  const shkafKarkasGeo = new THREE.BoxGeometry(0.65, 0.75, 0.18);
+  const shkafKarkasMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.3 }); // Emerald Green HazMat
+  const shkafKarkas = new THREE.Mesh(shkafKarkasGeo, shkafKarkasMat);
+  xavfShkafGroup.add(shkafKarkas);
+
+  const oynaQopqoqGeo = new THREE.BoxGeometry(0.60, 0.70, 0.01);
+  const oynaQopqoq = new THREE.Mesh(oynaQopqoqGeo, shishaMat);
+  oynaQopqoq.position.z = 0.09;
+  xavfShkafGroup.add(oynaQopqoq);
+
+  // Himoya Ko'zoynagi modeli
+  const kozoynakGroup = new THREE.Group();
+  kozoynakGroup.name = "Himoya_Kozoynagi";
+  kozoynakGroup.position.set(0, 0.15, 0.02);
+
+  const linzaGeo = new THREE.BoxGeometry(0.24, 0.08, 0.04);
+  const linzaMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.6, roughness: 0.1 });
+  const linza = new THREE.Mesh(linzaGeo, linzaMat);
+  kozoynakGroup.add(linza);
+
+  const tasmarGeo = new THREE.TorusGeometry(0.12, 0.008, 8, 16);
+  const tasma = new THREE.Mesh(tasmarGeo, new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+  tasma.rotation.x = Math.PI / 2;
+  kozoynakGroup.add(tasma);
+
+  kozoynakGroup.userData = { kalit: "himoya_kozoynagi", nom: "Kimyoviy Himoya Ko'zoynagi", tanlanadi: true };
+  xavfShkafGroup.add(kozoynakGroup);
+
+  // Gaz Niqobi / Respirator modeli
+  const niqobGroup = new THREE.Group();
+  niqobGroup.name = "Gaz_Niqobi";
+  niqobGroup.position.set(0, -0.15, 0.02);
+
+  const korpusNGeo = new THREE.ConeGeometry(0.09, 0.14, 16);
+  const korpusNMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+  const korpusN = new THREE.Mesh(korpusNGeo, korpusNMat);
+  korpusN.rotation.x = -Math.PI / 2;
+  niqobGroup.add(korpusN);
+
+  const filtrGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.04, 16);
+  const filtrMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8 });
+  const filtr = new THREE.Mesh(filtrGeo, filtrMat);
+  filtr.rotation.x = Math.PI / 2;
+  filtr.position.set(0, 0, 0.08);
+  niqobGroup.add(filtr);
+
+  niqobGroup.userData = { kalit: "gaz_niqobi", nom: "Kimyoviy Gaz Niqobi / Respirator", tanlanadi: true };
+  xavfShkafGroup.add(niqobGroup);
+
+  roomGroup.add(xavfShkafGroup);
 
   return roomGroup;
 }
