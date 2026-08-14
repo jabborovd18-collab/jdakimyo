@@ -21,6 +21,8 @@ import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi, oqimBoshla, oqimToxtat, taroziBip, shishaUrilishi, tiqinOchilishi } from "./lib/ovoz.js";
 import { massaHisobla } from "./lib/tarozi.js";
 import { eritmaHisobla } from "./lib/eritma-tayyorlash.js";
+import { titrlashHolatiniHisobla } from "./lib/titrlash-dvigatel.js";
+import { elektrolizHisobla } from "./lib/elektroliz-dvigatel.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat, yoz } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila, qaynashniYangila } from "./lib/jihoz-modellari.js";
@@ -319,6 +321,37 @@ export default function Korinish() {
   }, []);
 
   const [spatulaKukun, setSpatulaKukun] = useState(null);
+  const [titrlashTomchilamoqda, setTitrlashTomchilamoqda] = useState(false);
+  const [titrlashHajmi, setTitrlashHajmi] = useState(0);
+  const [elektrolizFaol, setElektrolizFaol] = useState(false);
+  const [elektrolizVaqt, setElektrolizVaqt] = useState(0);
+
+  const handleTitrlashKran = useCallback(() => {
+    setTitrlashTomchilamoqda((prev) => {
+      const yangi = !prev;
+      if (yangi) {
+        oqimBoshla();
+        toast.success("💧 Byuretka krani ochildi: Titrant tomchilamoqda");
+      } else {
+        oqimToxtat();
+        toast("💧 Byuretka krani yopildi", { icon: "🧪" });
+      }
+      return yangi;
+    });
+  }, []);
+
+  const handleElektrolizTok = useCallback(() => {
+    setElektrolizFaol((prev) => {
+      const yangi = !prev;
+      if (yangi) {
+        pufakchaChiqishi();
+        toast.success("⚡ DC Tok Manbai faollashdi (2.5 A). Elektroliz jarayoni boshlandi!");
+      } else {
+        toast("⚡ Tok manbai o'chirildi", { icon: "🔌" });
+      }
+      return yangi;
+    });
+  }, []);
 
   const handleAralashtirish = useCallback((targetGroup) => {
     pufakchaChiqishi();
@@ -428,12 +461,82 @@ export default function Korinish() {
     onJavongaQaytar: javongaQaytar,
     onAralashtirish: handleAralashtirish,
     onSpatulaAmal: handleSpatulaAmal,
+    onTitrlashKran: handleTitrlashKran,
+    onElektrolizTok: handleElektrolizTok,
     isitimoda,
     tarozidagiIdish,
     taraMassa,
   });
 
   // ─── BARCHA EFFECTLAR ───
+
+  // Titrlash jonli simulyatsiya sikli
+  useEffect(() => {
+    let timer = null;
+    const stend = sahnaRef?.current?.getObjectByName("Titrlash_Byuretka_Stansiyasi");
+
+    if (titrlashTomchilamoqda) {
+      timer = setInterval(() => {
+        setTitrlashHajmi((prev) => {
+          const yangi = Math.min(50, prev + 0.5);
+          const holat = titrlashHolatiniHisobla("kislota_kuchli", yangi);
+
+          if (stend?.userData?.stendniYangila) {
+            stend.userData.stendniYangila(yangi, holat.rangHex, true);
+          }
+
+          if (holat.ekvivalentlikYetdimi && Math.abs(yangi - holat.vEkvivalent) <= 0.5) {
+            pufakchaChiqishi();
+            toast.success(`🎯 EKVIVALENTLIK NUQTASI: pH = ${holat.ph} | V = ${yangi.toFixed(1)} ml!`);
+          }
+
+          return yangi;
+        });
+      }, 600);
+    } else {
+      if (stend?.userData?.stendniYangila) {
+        const holat = titrlashHolatiniHisobla("kislota_kuchli", titrlashHajmi);
+        stend.userData.stendniYangila(titrlashHajmi, holat.rangHex, false);
+      }
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [titrlashTomchilamoqda, titrlashHajmi, sahnaRef]);
+
+  // Elektroliz jonli simulyatsiya sikli
+  useEffect(() => {
+    let timer = null;
+    const stend = sahnaRef?.current?.getObjectByName("Elektroliz_Stansiyasi");
+
+    if (elektrolizFaol) {
+      pufakchaChiqishi();
+      timer = setInterval(() => {
+        setElektrolizVaqt((prev) => {
+          const yangi = prev + 1;
+          const data = elektrolizHisobla("cuso4_grafit", 2.5, yangi);
+
+          if (stend?.userData?.stendniYangila) {
+            stend.userData.stendniYangila(2.5, true, true);
+          }
+
+          if (yangi % 5 === 0) {
+            pufakchaChiqishi();
+          }
+          return yangi;
+        });
+      }, 1000);
+    } else {
+      if (stend?.userData?.stendniYangila) {
+        stend.userData.stendniYangila(0, false, false);
+      }
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [elektrolizFaol, sahnaRef]);
 
   useEffect(() => {
     setMounted(true);

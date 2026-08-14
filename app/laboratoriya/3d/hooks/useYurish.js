@@ -55,6 +55,8 @@ export function useYurish({
   onJavongaQaytar,
   onAralashtirish,
   onSpatulaAmal,
+  onTitrlashKran,
+  onElektrolizTok,
   isitimoda = false,
   tarozidagiIdish = null,
   taraMassa = 0,
@@ -218,7 +220,23 @@ export function useYurish({
       return;
     }
 
-    // 5. Agar Smart Planshet / Monitor bosilsa
+    // 5. Agar Byuretka krani bosilsa
+    if (fpsQaralganIdish?.userData?.kalit === "titrlash_kran" || fpsQaralganStansiya === "titrlash_kran") {
+      if (typeof onTitrlashKran === "function") {
+        onTitrlashKran();
+      }
+      return;
+    }
+
+    // 6. Agar Elektroliz tok manbai regulyatori bosilsa
+    if (fpsQaralganIdish?.userData?.kalit === "elektroliz_tok" || fpsQaralganStansiya === "elektroliz_tok") {
+      if (typeof onElektrolizTok === "function") {
+        onElektrolizTok();
+      }
+      return;
+    }
+
+    // 7. Agar Smart Planshet / Monitor bosilsa
     if (fpsQaralganIdish?.userData?.kalit === "lab_planshet" || fpsQaralganStansiya === "lab_planshet") {
       shishaUrilishi(2200);
       if (typeof onPlanshetBosildi === "function") {
@@ -227,8 +245,8 @@ export function useYurish({
       return;
     }
 
-    // 6. Agar Devor / Stend stansiyalari tanlangan bo'lsa (Davriy jadval, Titrlash, Elektroliz)
-    if (!fpsQolIdish && fpsQaralganStansiya && !["tarozi_tara", "tarozi_nol", "rakovina_kran", "lab_planshet"].includes(fpsQaralganStansiya)) {
+    // 8. Agar Devor / Stend stansiyalari tanlangan bo'lsa (Davriy jadval, Titrlash, Elektroliz)
+    if (!fpsQolIdish && fpsQaralganStansiya && !["tarozi_tara", "tarozi_nol", "rakovina_kran", "lab_planshet", "titrlash_kran", "elektroliz_tok"].includes(fpsQaralganStansiya)) {
       shishaUrilishi(2200);
       if (typeof onStansiyaOchildi === "function") {
         onStansiyaOchildi(fpsQaralganStansiya);
@@ -236,7 +254,7 @@ export function useYurish({
       return;
     }
 
-    // 7. Agar devor javonidagi reagent shishasiga qaralgan bo'lsa
+    // 9. Agar devor javonidagi reagent shishasiga qaralgan bo'lsa
     if (!fpsQolIdish && fpsQaralganIdish?.userData?.devorShishasi) {
       const kalit = fpsQaralganIdish.userData.kalit;
       tiqinOchilishi();
@@ -249,7 +267,7 @@ export function useYurish({
       return;
     }
 
-    // 8. Agar qo'lda idish bo'lsa -> Qaralgan joyga qo'yish, yuvish yoki quyish
+    // 10. Agar qo'lda idish bo'lsa -> Qaralgan joyga qo'yish, yuvish yoki quyish
     if (fpsQolIdish) {
       const held = fpsQolIdish;
 
@@ -701,6 +719,20 @@ export function useYurish({
             foundStansiya = "lab_planshet";
             foundIdish = ota;
             promptText = "[E / Klik] Reaksiya Tahlili va Ilmiy Hisobot";
+            promptType = "urgu";
+            break;
+          }
+          if (ota.userData?.kalit === "titrlash_kran") {
+            foundStansiya = "titrlash_kran";
+            foundIdish = ota;
+            promptText = "[E / Klik] Byuretka kranini burash (Tomchilatish / To'xtatish)";
+            promptType = "urgu";
+            break;
+          }
+          if (ota.userData?.kalit === "elektroliz_tok") {
+            foundStansiya = "elektroliz_tok";
+            foundIdish = ota;
+            promptText = "[E / Klik] DC Tok Manbaini yoqish / o'chirish (Faradey Elektrolizi)";
             promptType = "urgu";
             break;
           }

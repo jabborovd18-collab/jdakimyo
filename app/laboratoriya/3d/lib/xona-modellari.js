@@ -755,6 +755,7 @@ function titrlashStendiYasa(materiallar) {
   const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.2 });
   const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.35 });
   const suyuqlikMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, transparent: true, opacity: 0.85 });
+  const kolbaSuyuqMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15, transparent: true, opacity: 0.75 });
 
   const asosGeo = new THREE.BoxGeometry(0.24, 0.02, 0.16);
   const asos = new THREE.Mesh(asosGeo, metallMat);
@@ -771,36 +772,64 @@ function titrlashStendiYasa(materiallar) {
   qisqich.position.set(-0.02, 0.45, 0);
   group.add(qisqich);
 
+  // Byuretka shisha silindri (50ml)
   const byuretkaGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.52, 20);
   const byuretka = new THREE.Mesh(byuretkaGeo, shishaMat);
   byuretka.position.set(0.04, 0.42, 0);
   group.add(byuretka);
 
+  // Byuretka ichidagi titrant suyuqligi
   const suyuqGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.38, 16);
   const suyuq = new THREE.Mesh(suyuqGeo, suyuqlikMat);
   suyuq.position.set(0.04, 0.36, 0);
   group.add(suyuq);
 
+  // Byuretka jo'mrak krani (Stopcock)
   const jomrakGeo = new THREE.BoxGeometry(0.035, 0.015, 0.015);
-  const jomrakMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+  const jomrakMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.3 });
   const jomrak = new THREE.Mesh(jomrakGeo, jomrakMat);
   jomrak.position.set(0.04, 0.17, 0);
+  jomrak.userData = { kalit: "titrlash_kran", nom: "Byuretka Krani", tanlanadi: true };
   group.add(jomrak);
 
+  // Tagidagi Erlenmeyer kolbasi
   const kolbaGeo = new THREE.ConeGeometry(0.055, 0.1, 24);
   const kolba = new THREE.Mesh(kolbaGeo, shishaMat);
   kolba.position.set(0.04, 0.05, 0);
   group.add(kolba);
 
+  const kolbaSuyuqGeo = new THREE.ConeGeometry(0.05, 0.06, 20);
+  const kolbaSuyuq = new THREE.Mesh(kolbaSuyuqGeo, kolbaSuyuqMat);
+  kolbaSuyuq.position.set(0.04, 0.032, 0);
+  group.add(kolbaSuyuq);
+
+  // Tomchilar oqimi
+  const tomchiGeo = new THREE.CylinderGeometry(0.003, 0.003, 0.06, 8);
+  const tomchiMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 });
+  const tomchilar = new THREE.Mesh(tomchiGeo, tomchiMat);
+  tomchilar.position.set(0.04, 0.12, 0);
+  tomchilar.visible = false;
+  group.add(tomchilar);
+
+  const stendniYangila = (vTitrant = 0, rangHex = 0xffffff, tomchilamoqda = false) => {
+    const r = Math.max(0.05, (50 - vTitrant) / 50);
+    suyuq.scale.y = r;
+    suyuq.position.y = 0.17 + (0.38 * r) / 2;
+
+    kolbaSuyuqMat.color.setHex(rangHex);
+    tomchilar.visible = tomchilamoqda;
+    jomrak.rotation.z = tomchilamoqda ? Math.PI / 2 : 0;
+  };
+
   group.userData = {
     kalit: "titrlash",
     nom: "50ml Volumetrik Titrlash Stendi",
     tanlanadi: true,
+    jomrakMesh: jomrak,
+    stendniYangila,
+    tomchilamoqda: false,
+    vTitrant: 0,
   };
-
-  group.traverse((c) => {
-    c.userData = { kalit: "titrlash", nom: "50ml Volumetrik Titrlash Stendi", tanlanadi: true };
-  });
 
   return group;
 }
@@ -816,18 +845,22 @@ function elektrolizVannasiYasa(materiallar) {
   const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.8 });
   const tokManbaiMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3 });
 
+  // 1. Shisha vanna
   const vannaGeo = new THREE.BoxGeometry(0.34, 0.18, 0.22);
   const vanna = new THREE.Mesh(vannaGeo, shishaMat);
   vanna.position.set(0, 0.09, 0.05);
   group.add(vanna);
 
+  // 2. Elektrolit suyuqligi
   const suyuqGeo = new THREE.BoxGeometry(0.32, 0.14, 0.2);
   const suyuq = new THREE.Mesh(suyuqGeo, elektrolitMat);
   suyuq.position.set(0, 0.07, 0.05);
   group.add(suyuq);
 
+  // 3. Katod va Anod elektrodlari
   const katodGeo = new THREE.BoxGeometry(0.012, 0.16, 0.05);
-  const katod = new THREE.Mesh(katodGeo, metallMat);
+  const katodMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8 });
+  const katod = new THREE.Mesh(katodGeo, katodMat);
   katod.position.set(-0.09, 0.1, 0.05);
   group.add(katod);
 
@@ -838,7 +871,8 @@ function elektrolizVannasiYasa(materiallar) {
   group.add(klemmaK);
 
   const anodGeo = new THREE.BoxGeometry(0.012, 0.16, 0.05);
-  const anod = new THREE.Mesh(anodGeo, metallMat);
+  const anodMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 });
+  const anod = new THREE.Mesh(anodGeo, anodMat);
   anod.position.set(0.09, 0.1, 0.05);
   group.add(anod);
 
@@ -848,26 +882,75 @@ function elektrolizVannasiYasa(materiallar) {
   klemmaA.position.set(0.09, 0.19, 0.05);
   group.add(klemmaA);
 
+  // 4. DC Tok Manbai bloki
   const blokGeo = new THREE.BoxGeometry(0.24, 0.15, 0.14);
   const blok = new THREE.Mesh(blokGeo, tokManbaiMat);
   blok.position.set(0, 0.075, -0.12);
   group.add(blok);
 
-  const ledGeo = new THREE.BoxGeometry(0.12, 0.04, 0.005);
+  const ledGeo = new THREE.BoxGeometry(0.04, 0.04, 0.005);
   const ledMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
   const led = new THREE.Mesh(ledGeo, ledMat);
-  led.position.set(0, 0.1, -0.048);
+  led.position.set(-0.06, 0.1, -0.048);
   group.add(led);
+
+  // Tok kuchlanish regulyatori (Knob)
+  const knobGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.015, 16);
+  const knobMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.5 });
+  const knob = new THREE.Mesh(knobGeo, knobMat);
+  knob.rotation.x = Math.PI / 2;
+  knob.position.set(0.05, 0.1, -0.045);
+  knob.userData = { kalit: "elektroliz_tok", nom: "DC Tok Manbai Regulyatori", tanlanadi: true };
+  group.add(knob);
+
+  // 5. Gaz Pufakchalari (Points)
+  const zarrachaSoni = 20;
+  const kPoz = new Float32Array(zarrachaSoni * 3);
+  const aPoz = new Float32Array(zarrachaSoni * 3);
+  for (let i = 0; i < zarrachaSoni; i++) {
+    kPoz[i * 3] = -0.09 + (Math.random() - 0.5) * 0.02;
+    kPoz[i * 3 + 1] = 0.02 + Math.random() * 0.12;
+    kPoz[i * 3 + 2] = 0.05 + (Math.random() - 0.5) * 0.03;
+
+    aPoz[i * 3] = 0.09 + (Math.random() - 0.5) * 0.02;
+    aPoz[i * 3 + 1] = 0.02 + Math.random() * 0.12;
+    aPoz[i * 3 + 2] = 0.05 + (Math.random() - 0.5) * 0.03;
+  }
+
+  const kGeo = new THREE.BufferGeometry();
+  kGeo.setAttribute("position", new THREE.BufferAttribute(kPoz, 3));
+  const pufakMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.008, transparent: true, opacity: 0.85 });
+  const katodPufaklar = new THREE.Points(kGeo, pufakMat);
+  katodPufaklar.visible = false;
+  group.add(katodPufaklar);
+
+  const aGeo = new THREE.BufferGeometry();
+  aGeo.setAttribute("position", new THREE.BufferAttribute(aPoz, 3));
+  const anodPufaklar = new THREE.Points(aGeo, pufakMat);
+  anodPufaklar.visible = false;
+  group.add(anodPufaklar);
+
+  const stendniYangila = (tokAmper = 0, misQoplanishi = false, faol = false) => {
+    ledMat.color.setHex(faol ? 0x10b981 : 0x475569);
+    katodPufaklar.visible = faol && tokAmper > 0;
+    anodPufaklar.visible = faol && tokAmper > 0;
+
+    if (misQoplanishi) {
+      katodMat.color.setHex(0xb45309); // Qizil-jigarrang mis qoplamasi
+    } else {
+      katodMat.color.setHex(0x475569);
+    }
+  };
 
   group.userData = {
     kalit: "elektroliz",
     nom: "Elektroliz va Tok Manbai Stendi",
     tanlanadi: true,
+    knobMesh: knob,
+    stendniYangila,
+    faol: false,
+    tokAmper: 2.0,
   };
-
-  group.traverse((c) => {
-    c.userData = { kalit: "elektroliz", nom: "Elektroliz va Tok Manbai Stendi", tanlanadi: true };
-  });
 
   return group;
 }
