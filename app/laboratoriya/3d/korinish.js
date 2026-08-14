@@ -577,7 +577,7 @@ export default function Korinish() {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [titrlashTomchilamoqda, titrlashHajmi, sahnaRef]);
+  }, [titrlashTomchilamoqda, sahnaRef]);
 
   // Elektroliz jonli simulyatsiya sikli
   useEffect(() => {

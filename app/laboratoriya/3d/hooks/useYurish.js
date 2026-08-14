@@ -99,6 +99,14 @@ export function useYurish({
   const avvalgiFpsYoritilganRef = useRef(null);
   const quyishBosilganRef = useRef(false);
 
+  // Re-render bostiruvchi ref keshlar (React re-render storm oldini olish)
+  const prevIsMovingRef = useRef(false);
+  const prevStansiyaRef = useRef(null);
+  const prevPromptTextRef = useRef("");
+  const prevPromptTypeRef = useRef("oddiy");
+  const raycastFrameRef = useRef(0);
+  const cachedHitsRef = useRef({ foundIdish: null, foundStansiya: null, promptText: "", promptType: "oddiy" });
+
   // 1. Initializatsiya: OrbitControls ni to'liq o'chirib, kamerani FPS rejimiga o'rnatish
   useEffect(() => {
     if (controlsRef?.current) {
@@ -598,7 +606,10 @@ export function useYurish({
       const maxSpeed = isCrouch ? 1.4 : isSprint ? 5.2 : 2.8; // m/s
       const isMoving = inputLen > 0.05;
 
-      setYurmoqda(isMoving);
+      if (isMoving !== prevIsMovingRef.current) {
+        prevIsMovingRef.current = isMoving;
+        setYurmoqda(isMoving);
+      }
 
       // 2. Kamera yo'nalish vektorlari
       const yaw = rotationRef.current.yaw;
@@ -887,9 +898,21 @@ export function useYurish({
         avvalgiFpsYoritilganRef.current = foundIdish;
         setFpsQaralganIdish(foundIdish);
       }
-      setFpsQaralganStansiya(foundStansiya);
-      setFpsKontekstMatn(promptText);
-      setFpsKontekstTuri(promptType);
+
+      if (foundStansiya !== prevStansiyaRef.current) {
+        prevStansiyaRef.current = foundStansiya;
+        setFpsQaralganStansiya(foundStansiya);
+      }
+
+      if (promptText !== prevPromptTextRef.current) {
+        prevPromptTextRef.current = promptText;
+        setFpsKontekstMatn(promptText);
+      }
+
+      if (promptType !== prevPromptTypeRef.current) {
+        prevPromptTypeRef.current = promptType;
+        setFpsKontekstTuri(promptType);
+      }
     };
 
     kadrIdRef.current = requestAnimationFrame(fpsLoop);

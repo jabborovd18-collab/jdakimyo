@@ -4,8 +4,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Ikon from "@/components/Ikon";
 
 /**
- * PUBG MOBILE USLUBIDAGI DUAL SENSORLI ANALOG JOYSTIK.
- * Chapda 360° Analog Joystik (Harakat), O'ngda Kamera Burish Paneli (Look Area).
+ * PUBG MOBILE USLUBIDAGI ZERO-LAG DUAL SENSORLI ANALOG JOYSTIK.
+ * Chapda 360° Hardware-Accelerated Analog Joystik, O'ngda Kamera Burish Paneli (Look Area).
  */
 export default function VirtualJoystick({
   onHarakat,
@@ -17,16 +17,15 @@ export default function VirtualJoystick({
   onQuyish,
 }) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [knobPos, setKnobPos] = useState({ x: 0, y: 0 });
-  const [joystickAktiv, setJoystickAktiv] = useState(false);
   const [sprintAktiv, setSprintAktiv] = useState(false);
 
   const baseRef = useRef(null);
+  const knobRef = useRef(null);
   const touchIdRef = useRef(null);
   const rightTouchIdRef = useRef(null);
   const rightLastPosRef = useRef({ x: 0, y: 0 });
 
-  const RADIUS = 45; // Joystik maksimal harakat radiusi px
+  const RADIUS = 46; // Joystik maksimal harakat radiusi px
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -35,16 +34,13 @@ export default function VirtualJoystick({
     }
   }, []);
 
-  if (!isTouchDevice) return null;
-
-  // 1. CHAP TOMON: ANALOG JOYSTIK HODISALARI
+  // 1. CHAP TOMON: ANALOG JOYSTIK HODISALARI (ZERO REACT RE-RENDER)
   const handleJoystickTouchStart = (e) => {
     if (e.cancelable) e.preventDefault();
     const touch = e.changedTouches[0];
     if (!touch || !baseRef.current) return;
 
     touchIdRef.current = touch.identifier;
-    setJoystickAktiv(true);
     updateJoystickPos(touch.clientX, touch.clientY);
   };
 
@@ -65,8 +61,9 @@ export default function VirtualJoystick({
     for (let i = 0; i < e.changedTouches.length; i++) {
       if (e.changedTouches[i].identifier === touchIdRef.current) {
         touchIdRef.current = null;
-        setJoystickAktiv(false);
-        setKnobPos({ x: 0, y: 0 });
+        if (knobRef.current) {
+          knobRef.current.style.transform = "translate3d(0px, 0px, 0px)";
+        }
         if (typeof onHarakat === "function") onHarakat(0, 0, false);
         break;
       }
@@ -91,11 +88,13 @@ export default function VirtualJoystick({
       normY = (dy / distance) * RADIUS;
     }
 
-    setKnobPos({ x: normX, y: normY });
+    if (knobRef.current) {
+      knobRef.current.style.transform = `translate3d(${normX.toFixed(1)}px, ${normY.toFixed(1)}px, 0px)`;
+    }
 
     const vectorX = normX / RADIUS; // -1 .. +1 (Left / Right)
-    const vectorZ = normY / RADIUS; // -1 .. +1 (Forward / Backward)
-    const isSprint = distance >= RADIUS * 0.9 || sprintAktiv;
+    const vectorZ = normY / RADIUS; // -1 .. +1 (Forward / Backward: normY < 0 is UP/FORWARD)
+    const isSprint = distance >= RADIUS * 0.88 || sprintAktiv;
 
     if (typeof onHarakat === "function") {
       onHarakat(vectorX, vectorZ, isSprint);
@@ -139,8 +138,10 @@ export default function VirtualJoystick({
     }
   };
 
+  if (!isTouchDevice) return null;
+
   return (
-    <div className="absolute inset-0 pointer-events-none z-40 select-none overflow-hidden">
+    <div className="absolute inset-0 pointer-events-none z-40 select-none overflow-hidden touch-none">
       {/* ─── CHAP ZONA: ANALOG JOYSTIK ─── */}
       <div
         className="pointer-events-auto absolute bottom-8 left-6 w-36 h-36 flex items-center justify-center touch-none"
@@ -151,23 +152,18 @@ export default function VirtualJoystick({
       >
         <div
           ref={baseRef}
-          className={`relative w-28 h-28 rounded-full border-2 transition-colors flex items-center justify-center backdrop-blur-md shadow-2xl ${
-            joystickAktiv
-              ? "border-[var(--v3-urgu)] bg-[var(--v3-urgu)]/15"
-              : "border-white/25 bg-black/40"
-          }`}
+          className="relative w-28 h-28 rounded-full border-2 border-white/30 bg-black/50 transition-colors flex items-center justify-center backdrop-blur-md shadow-2xl"
         >
           {/* O'rta nuqta */}
-          <div className="w-2.5 h-2.5 rounded-full bg-white/20" />
+          <div className="w-2.5 h-2.5 rounded-full bg-white/25" />
 
-          {/* Harakatlanuvchi Joystik Boshchasi (Knob) */}
+          {/* Harakatlanuvchi Joystik Boshchasi (Knob - Direct CSS transform) */}
           <div
-            className="absolute w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 shadow-xl border-2 border-white flex items-center justify-center transition-transform duration-75"
-            style={{
-              transform: `translate(${knobPos.x}px, ${knobPos.y}px)`,
-            }}
+            ref={knobRef}
+            className="absolute w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 shadow-2xl border-2 border-white flex items-center justify-center will-change-transform"
+            style={{ transform: "translate3d(0px, 0px, 0px)" }}
           >
-            <div className="w-4 h-4 rounded-full bg-black/30" />
+            <div className="w-4 h-4 rounded-full bg-black/35" />
           </div>
         </div>
       </div>
@@ -176,13 +172,14 @@ export default function VirtualJoystick({
       <button
         type="button"
         onClick={() => {
-          setSprintAktiv(!sprintAktiv);
-          if (typeof onSprintToggle === "function") onSprintToggle(!sprintAktiv);
+          const yangi = !sprintAktiv;
+          setSprintAktiv(yangi);
+          if (typeof onSprintToggle === "function") onSprintToggle(yangi);
         }}
         className={`pointer-events-auto absolute bottom-44 left-10 p-2.5 rounded-2xl border text-xs font-mono font-bold transition-all shadow-xl ${
           sprintAktiv
-            ? "bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] border-[var(--v3-urgu)]"
-            : "bg-black/40 text-white/70 border-white/20 backdrop-blur-md"
+            ? "bg-amber-400 text-black border-amber-300 shadow-[0_0_15px_#f59e0b]"
+            : "bg-black/50 text-white/75 border-white/20 backdrop-blur-md"
         }`}
       >
         ⚡ SPRINT
@@ -197,7 +194,7 @@ export default function VirtualJoystick({
             className="px-4 py-2.5 rounded-2xl border border-amber-400 bg-amber-500/30 text-amber-300 backdrop-blur-xl text-xs font-mono font-black shadow-2xl flex items-center gap-2 active:scale-95"
           >
             <Ikon nom={qolIdish ? "past" : "kolba"} olcham={14} />
-            <span>{qolIdish ? "Stolga qo'yish" : `Qo'lga olish: ${qaralganIdish?.userData?.kalit || "Idish"}`}</span>
+            <span>{qolIdish ? "Stolga qo'yish" : `Qo'lga olish: ${qaralganIdish?.userData?.nom || qaralganIdish?.userData?.kalit || "Idish"}`}</span>
           </button>
 
           {qolIdish && qaralganIdish && qaralganIdish !== qolIdish && (
@@ -207,7 +204,7 @@ export default function VirtualJoystick({
               className="px-4 py-2.5 rounded-2xl border border-emerald-400 bg-emerald-500/30 text-emerald-300 backdrop-blur-xl text-xs font-mono font-black shadow-2xl flex items-center gap-2 active:scale-95"
             >
               <Ikon nom="atom" olcham={14} />
-              <span>{qaralganIdish.userData?.kalit || "Idish"}ga quyish</span>
+              <span>{qaralganIdish.userData?.nom || qaralganIdish.userData?.kalit || "Idish"}ga quyish</span>
             </button>
           )}
         </div>
