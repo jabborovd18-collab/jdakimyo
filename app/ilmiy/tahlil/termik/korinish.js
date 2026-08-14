@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -234,6 +236,7 @@ const TEMP_MAX = 1000
 // KOMPONENT — TERMIK TAHLIL PREMIUM SAHIFA
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function TermikTahlilPage() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   // ─── State: modal, sliderlar, tab-lar, kalkulyatorlar
   const [showIntro, setShowIntro] = useState(true)
   const [tempSlider, setTempSlider] = useState(120)
@@ -335,7 +338,7 @@ export default function TermikTahlilPage() {
   }, [dscArea, sampleMass, molarMassDsc])
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-purple-100">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* ═══════════════════ MODAL — KIRISH OGOHLANTIRISHI ═══════════════════ */}
       {showIntro && (
@@ -344,7 +347,7 @@ export default function TermikTahlilPage() {
             <div className="flex items-start justify-between mb-6">
               <div>
                 <div className="text-xs uppercase tracking-[0.3em] text-orange-400 mb-2">Ilmiy ogohlantirish • Kirish</div>
-                <h2 className="text-3xl font-black text-orange-100">🔥 Termik tahlilga sayohatingizdan oldin</h2>
+                <h2 className="text-3xl font-black text-orange-100"> Termik tahlilga sayohatingizdan oldin</h2>
               </div>
               <button
                 onClick={() => setShowIntro(false)}
@@ -368,7 +371,7 @@ export default function TermikTahlilPage() {
               </div>
 
               <div className="bg-red-900/40 border border-red-500/40 rounded-xl p-4">
-                <p className="font-bold text-red-300 mb-2">📐 Arrhenius tenglamasi — sahifaning bel bog'laydigan tenglamasi:</p>
+                <p className="font-bold text-red-300 mb-2"> Arrhenius tenglamasi — sahifaning bel bog'laydigan tenglamasi:</p>
                 <p className="text-center text-2xl font-mono text-yellow-200 py-2">k(T) = A · exp(−Eₐ / RT)</p>
                 <p className="text-red-200 text-xs">bu erda <em>k</em> — tezlik konstantasi, <em>A</em> — pre-eksponensial faktor (to'qnashuv chastotasi), <em>Eₐ</em> — aktivlanish energiyasi, <em>R</em> = 8.314 J/(mol·K).</p>
               </div>
@@ -467,7 +470,7 @@ export default function TermikTahlilPage() {
           <SectionHeader n="01" title="Nima uchun termik tahlil?" subtitle="Kirish — fizik-kimyoviy asos" />
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-slate-900/60 border border-orange-800/40 rounded-2xl p-6">
-              <h3 className="text-orange-300 font-bold mb-3 text-lg">🔥 Fizik mohiyat</h3>
+              <h3 className="text-orange-300 font-bold mb-3 text-lg"> Fizik mohiyat</h3>
               <p className="text-orange-100 leading-relaxed">
                 Harorat oshgan sari <strong className="text-yellow-300">atomlarning tebranish amplitudasi</strong> Boltzmann taqsimoti bo'yicha ortadi.
                 Yetarli energiya (E ≥ Eₐ) hosil bo'lganda bog'lar uziladi, faza o'zgaradi yoki gaz ajraladi.
@@ -476,7 +479,7 @@ export default function TermikTahlilPage() {
               <p className="mt-3 text-xs text-orange-400 italic">Manba: Brown M. E. — Introduction to Thermal Analysis, 2nd ed., Ch. 1</p>
             </div>
             <div className="bg-slate-900/60 border border-orange-800/40 rounded-2xl p-6">
-              <h3 className="text-red-300 font-bold mb-3 text-lg">⚛️ Koordinatsion kimyoda qo'llanishi</h3>
+              <h3 className="text-red-300 font-bold mb-3 text-lg"> Koordinatsion kimyoda qo'llanishi</h3>
               <ul className="text-orange-100 space-y-2 text-sm list-disc pl-5">
                 <li><strong>Ichki vs tashqi sfera</strong> suvni ajratish (Werner klassik dalili)</li>
                 <li><strong>Gidrat izomeriya</strong>ni bevosita isbotlash (CrCl₃·6H₂O 3 izomeri)</li>
@@ -529,7 +532,7 @@ export default function TermikTahlilPage() {
                 <div className="text-yellow-300 font-bold text-sm mb-1">{r.name}</div>
                 <div className="text-2xl font-mono text-orange-300">{r.range}</div>
                 <p className="text-xs text-orange-200 mt-2">{r.note}</p>
-                <div className="mt-3 text-xs text-red-300">🔬 {r.instrument}</div>
+                <div className="mt-3 text-xs text-red-300"> {r.instrument}</div>
               </div>
             ))}
           </div>
@@ -557,7 +560,7 @@ export default function TermikTahlilPage() {
             })}
           </div>
           <p className="mt-4 text-sm text-orange-300 italic">
-            💡 <strong>DSC belgisi konventsiyasi:</strong> IUPAC bo'yicha endotermik jarayonlar pastga (↓), ekzotermik yuqoriga (↑). Perkin-Elmer va TA Instruments teskari konventsiyani ishlatishi mumkin — doim <em>egzo/endo strelkasini</em> tekshiring.
+             <strong>DSC belgisi konventsiyasi:</strong> IUPAC bo'yicha endotermik jarayonlar pastga (↓), ekzotermik yuqoriga (↑). Perkin-Elmer va TA Instruments teskari konventsiyani ishlatishi mumkin — doim <em>egzo/endo strelkasini</em> tekshiring.
           </p>
         </div>
 
@@ -652,7 +655,7 @@ export default function TermikTahlilPage() {
           {/* Interaktiv model tanlagich */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gradient-to-br from-slate-900/80 to-orange-950/40 border border-orange-500/40 rounded-2xl p-6">
-              <label className="block text-orange-300 font-bold mb-2">🎯 Kinetik model tanlash</label>
+              <label className="block text-orange-300 font-bold mb-2"> Kinetik model tanlash</label>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
@@ -782,7 +785,7 @@ export default function TermikTahlilPage() {
                 <div className="text-xs text-purple-400 mb-3">({m.year})</div>
                 <p className="text-xs font-mono text-yellow-200 bg-slate-950/60 rounded p-2 mb-2 break-all">{m.equation}</p>
                 <p className="text-purple-200 text-xs">{m.description}</p>
-                <p className="text-orange-300 text-xs italic mt-2">💡 {m.note}</p>
+                <p className="text-orange-300 text-xs italic mt-2"> {m.note}</p>
               </div>
             ))}
           </div>
@@ -809,7 +812,7 @@ export default function TermikTahlilPage() {
 
             <div className="mt-6">
               <label className="block text-orange-300 font-bold mb-2">
-                🌡️ Harorat = <span className="text-yellow-300 font-mono text-2xl">{tempSlider}°C</span>
+                 Harorat = <span className="text-yellow-300 font-mono text-2xl">{tempSlider}°C</span>
                 <span className="text-orange-400 text-sm ml-2">({(tempSlider + 273.15).toFixed(1)} K)</span>
               </label>
               <input
@@ -847,7 +850,7 @@ export default function TermikTahlilPage() {
 
             {/* Parchalanish sxemasi */}
             <div className="mt-6 bg-slate-900/60 rounded-xl p-4 border border-orange-800/40">
-              <p className="text-orange-300 font-bold text-sm mb-3">🔬 Parchalanish sxemasi:</p>
+              <p className="text-orange-300 font-bold text-sm mb-3"> Parchalanish sxemasi:</p>
               <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
                 <span className={`px-3 py-2 rounded-lg font-mono ${tempSlider < 120 ? "bg-orange-500 text-white" : "bg-slate-800 text-orange-300"}`}>CaC₂O₄·H₂O</span>
                 <span className="text-red-400">—{'>'}</span>
@@ -932,7 +935,7 @@ export default function TermikTahlilPage() {
             </div>
           </div>
           <div className="mt-6 bg-yellow-950/40 border border-yellow-500/40 rounded-xl p-5">
-            <p className="text-yellow-300 font-bold mb-2">💡 Muhim xulosa (Werner nazariyasining termik isboti):</p>
+            <p className="text-yellow-300 font-bold mb-2"> Muhim xulosa (Werner nazariyasining termik isboti):</p>
             <p className="text-yellow-100 text-sm">
               Bir xil <strong>brutto formula</strong> (CrCl₃·6H₂O) uch xil <strong>termogramma</strong> beradi —
               chunki ichki (koordinatsion) va tashqi (kristall) suv turli haroratlarda ajraladi.
@@ -947,7 +950,7 @@ export default function TermikTahlilPage() {
           <SectionHeader n="13" title="Asbob printsipi — TGA va DSC" subtitle="Mikrotarozi, termopara, heat-flux vs power-comp" />
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gradient-to-br from-slate-900/70 to-red-950/30 border border-orange-500/40 rounded-2xl p-6">
-              <h4 className="text-orange-300 font-bold text-lg mb-3">⚖️ TGA (termobalance) tuzilishi</h4>
+              <h4 className="text-orange-300 font-bold text-lg mb-3"> TGA (termobalance) tuzilishi</h4>
               <ul className="text-orange-100 text-sm space-y-2 list-disc pl-5">
                 <li><strong>Ultra-mikrotarozi</strong> — 0.1 μg aniqlik (Cahn tipida)</li>
                 <li><strong>Furnace (pech)</strong> — Pt-Rh sim, Tₘₐₓ = 1600°C</li>
@@ -963,7 +966,7 @@ export default function TermikTahlilPage() {
             </div>
 
             <div className="bg-gradient-to-br from-slate-900/70 to-purple-950/30 border border-purple-500/40 rounded-2xl p-6">
-              <h4 className="text-purple-300 font-bold text-lg mb-3">🔥 DSC — ikki xil printsip</h4>
+              <h4 className="text-purple-300 font-bold text-lg mb-3"> DSC — ikki xil printsip</h4>
               <div className="space-y-4">
                 <div className="bg-slate-950/50 rounded-lg p-3">
                   <p className="text-yellow-300 font-bold text-sm">1) Heat-flux DSC (issiqlik oqimi)</p>
@@ -981,7 +984,7 @@ export default function TermikTahlilPage() {
                 </div>
               </div>
               <div className="mt-4 bg-purple-950/40 rounded-lg p-3 text-xs text-purple-200">
-                💡 <strong>Kalibrlash:</strong> In (156.6°C, ΔHf = 28.5 J/g), Zn (419.5°C), Al (660.3°C) etalon namunalarda.
+                 <strong>Kalibrlash:</strong> In (156.6°C, ΔHf = 28.5 J/g), Zn (419.5°C), Al (660.3°C) etalon namunalarda.
               </div>
             </div>
           </div>
@@ -992,7 +995,7 @@ export default function TermikTahlilPage() {
           <SectionHeader n="14" title="Namuna tayyorlash va atmosfera nazorati" subtitle="Krucible, gaz, massa, morfologiya — hammasi natijaga ta'sir qiladi" />
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-slate-900/60 border border-orange-800/40 rounded-2xl p-6">
-              <h4 className="text-orange-300 font-bold mb-3">🧪 Krucible (tigel) tanlash</h4>
+              <h4 className="text-orange-300 font-bold mb-3"> Krucible (tigel) tanlash</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between border-b border-orange-900/40 pb-2"><span className="text-orange-200">Al (aluminium)</span><span className="text-yellow-300 font-mono">≤ 600°C, ochiq/yopiq</span></div>
                 <div className="flex justify-between border-b border-orange-900/40 pb-2"><span className="text-orange-200">Al₂O₃ (alumina)</span><span className="text-yellow-300 font-mono">≤ 1600°C, inert</span></div>
@@ -1000,7 +1003,7 @@ export default function TermikTahlilPage() {
                 <div className="flex justify-between border-b border-orange-900/40 pb-2"><span className="text-orange-200">Grafit</span><span className="text-yellow-300 font-mono">≤ 2400°C, faqat inert atm.</span></div>
                 <div className="flex justify-between"><span className="text-orange-200">Kvarts / silika</span><span className="text-yellow-300 font-mono">≤ 1000°C, arzon</span></div>
               </div>
-              <p className="mt-4 text-xs text-red-300 italic">⚠️ Pt — organik namunalarda katalitik yonishga sabab bo'ladi (Al₂O₃ xavfsizroq).</p>
+              <p className="mt-4 text-xs text-red-300 italic">️ Pt — organik namunalarda katalitik yonishga sabab bo'ladi (Al₂O₃ xavfsizroq).</p>
             </div>
 
             <div className="bg-slate-900/60 border border-orange-800/40 rounded-2xl p-6">
@@ -1027,7 +1030,7 @@ export default function TermikTahlilPage() {
           </div>
 
           <div className="mt-6 bg-yellow-950/30 border border-yellow-500/40 rounded-2xl p-5">
-            <p className="text-yellow-300 font-bold mb-2">⚡ Massa va zarracha o'lchami ta'siri (ICTAC 2011 tavsiyalari):</p>
+            <p className="text-yellow-300 font-bold mb-2"> Massa va zarracha o'lchami ta'siri (ICTAC 2011 tavsiyalari):</p>
             <ul className="text-yellow-100 text-sm space-y-1 list-disc pl-5">
               <li><strong>Kichik massa</strong> (2–10 mg) — issiqlik gradiyentini kamaytiradi, tez teng vaznlanish</li>
               <li><strong>Nozik kukun</strong> (&lt; 100 μm) — diffuziya cheklovlarini yo'q qiladi</li>
@@ -1125,7 +1128,7 @@ export default function TermikTahlilPage() {
 
             {/* KALK 2: Kissinger Ea */}
             <div className="bg-gradient-to-br from-slate-900/80 to-red-950/30 border border-red-500/40 rounded-2xl p-6">
-              <h4 className="text-red-300 font-bold text-lg mb-3">⚡ Kalk. 2 — Kissinger Eₐ (3 nuqta)</h4>
+              <h4 className="text-red-300 font-bold text-lg mb-3"> Kalk. 2 — Kissinger Eₐ (3 nuqta)</h4>
               <p className="text-red-200 text-xs mb-4">ln(β/Tp²) = ln(AR/Eₐ) − Eₐ/(R·Tp)</p>
               <div className="grid grid-cols-3 gap-2 mb-4">
                 <div>
@@ -1162,7 +1165,7 @@ export default function TermikTahlilPage() {
 
             {/* KALK 3: DSC ΔH */}
             <div className="bg-gradient-to-br from-slate-900/80 to-purple-950/30 border border-purple-500/40 rounded-2xl p-6">
-              <h4 className="text-purple-300 font-bold text-lg mb-3">🔥 Kalk. 3 — DSC dan ΔH</h4>
+              <h4 className="text-purple-300 font-bold text-lg mb-3"> Kalk. 3 — DSC dan ΔH</h4>
               <p className="text-purple-200 text-xs mb-4">ΔH = (cho'qqi maydoni)/m · M</p>
               <label className="block text-purple-200 text-sm mb-1">Cho'qqi maydoni (mJ)</label>
               <input type="number" value={dscArea} onChange={(e) => setDscArea(parseFloat(e.target.value))} step="1"
@@ -1232,7 +1235,7 @@ export default function TermikTahlilPage() {
               <div key={i} className="bg-gradient-to-br from-slate-900/70 to-purple-950/30 border border-purple-500/40 rounded-2xl p-5 hover:border-purple-400/60 transition">
                 <div className="text-purple-300 font-bold text-lg mb-2">{e.name}</div>
                 <p className="text-purple-100 text-sm mb-2">{e.desc}</p>
-                <p className="text-xs text-yellow-300 italic">✨ {e.benefit}</p>
+                <p className="text-xs text-yellow-300 italic"> {e.benefit}</p>
               </div>
             ))}
           </div>
@@ -1260,7 +1263,7 @@ export default function TermikTahlilPage() {
         {/* ══════ NAVIGATSIYA ══════ */}
         <div className="flex flex-col md:flex-row justify-between gap-4 pt-6">
           <Link href="/ilmiy/tahlil/elektrokimyo" className="px-6 py-3 border border-orange-500/50 rounded-xl hover:bg-orange-800/40 text-orange-300 text-center transition">← Elektrokimyoviy tahlil</Link>
-          <Link href="/ilmiy/tahlil/termik/birikmalar" className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 rounded-xl text-white font-bold text-center shadow-lg shadow-red-500/40 transition">🔥 Termik birikmalar katalogi →</Link>
+          <Link href="/ilmiy/tahlil/termik/birikmalar" className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 rounded-xl text-white font-bold text-center shadow-lg shadow-red-500/40 transition"> Termik birikmalar katalogi →</Link>
           <Link href="/ilmiy/tahlil/konduktometriya" className="px-6 py-3 border border-purple-500/50 rounded-xl hover:bg-purple-800/40 text-purple-300 text-center transition">Konduktometriya →</Link>
         </div>
       </section>
@@ -1288,7 +1291,7 @@ export default function TermikTahlilPage() {
           </div>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }
 

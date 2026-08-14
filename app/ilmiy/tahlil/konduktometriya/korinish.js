@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -12,6 +14,7 @@ import { useState, useMemo } from "react"
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function Konduktometriya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [showWarningModal, setShowWarningModal] = useState(true)
   const [calcConductivity, setCalcConductivity] = useState(0.0015)
@@ -56,7 +59,7 @@ export default function Konduktometriya() {
     {
       title: "Tashqi va ichki sfera ionlarini farqlash",
       desc: "Konduktometrik o'lchashlar orqali kompleksning qancha ioni eritmada erkin holda ekanligi aniqlanadi. Ichki sferadagi ionlar erkin harakatlanmaydi va o'tkazuvchanlikka hissa qo'shmaydi.",
-      icon: "🔬"
+      icon: ""
     },
     {
       title: "Kompleks sintezini kuzatish",
@@ -66,7 +69,7 @@ export default function Konduktometriya() {
     {
       title: "Geometrik izomerlarni farqlash",
       desc: "sis- va trans-izomerlar turli xil gidroliz mahsulotlari hosil qiladi. Masalan, sis-[PtCl₂(NH₃)₂] suvda sekin gidrolizlanib ionlar hosil qiladi.",
-      icon: "🔬"
+      icon: ""
     },
     {
       title: "Kinetik tadqiqotlar",
@@ -76,14 +79,14 @@ export default function Konduktometriya() {
   ]
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
       {/* OGOHLANTIRISH MODALI */}
       {showWarningModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
           <div className="bg-gradient-to-br from-blue-950 to-purple-950 border-2 border-blue-500 rounded-2xl p-6 max-w-2xl w-full animate-pulse">
             <h3 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
-              <span className="text-3xl">🔌</span> KONDUKTOMETRIYA — VERNER NAZARIYASINI ISBOTLAGAN USUL!
+              <span className="text-3xl"></span> KONDUKTOMETRIYA — VERNER NAZARIYASINI ISBOTLAGAN USUL!
             </h3>
             <p className="text-purple-200 text-sm mb-4">
               <strong className="text-blue-300">Konduktometriya</strong> — eritmalarning elektr o'tkazuvchanligini o'lchashga asoslangan usul. 
@@ -93,7 +96,7 @@ export default function Konduktometriya() {
             <div className="bg-blue-950/60 rounded-lg p-4 mb-4">
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
-                  <div className="text-blue-400 font-bold mb-2">⚡ Nima o'lchanadi?</div>
+                  <div className="text-blue-400 font-bold mb-2"> Nima o'lchanadi?</div>
                   <div className="text-purple-200">
                     <strong>Molyar o'tkazuvchanlik (Λm)</strong> — S·cm²/mol birligida.
                   </div>
@@ -132,10 +135,10 @@ export default function Konduktometriya() {
       
       {/* HEADER */}
       {showHeader && (
-        <header className="border-b border-purple-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
+        <header className="border-b border-[var(--v3-chiziq)] sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh sahifa</Link>
+              <Link href="/" className="hover:text-purple-300"> Bosh sahifa</Link>
               <span className="text-purple-600">›</span>
               <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil usullari</Link>
               <span className="text-purple-600">›</span>
@@ -145,7 +148,7 @@ export default function Konduktometriya() {
             <div className="flex flex-col md:flex-row justify-between items-start gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-blue-400 flex items-center gap-2">
-                  <span className="text-3xl">🔌</span>
+                  <span className="text-3xl"></span>
                   Konduktometriya
                 </h1>
                 <p className="text-purple-400 text-sm mt-1">
@@ -155,7 +158,7 @@ export default function Konduktometriya() {
                   <span className="px-2 py-1 rounded bg-blue-900/30 border border-blue-700/50 text-blue-400 text-[10px] uppercase tracking-wide">Λm (S·cm²/mol)</span>
                   <span className="px-2 py-1 rounded bg-yellow-900/30 border border-yellow-700/50 text-yellow-400 text-[10px] uppercase tracking-wide">Nobel 1913</span>
                   <span className="px-2 py-1 rounded bg-green-900/30 border border-green-700/50 text-green-400 text-[10px] uppercase tracking-wide">12 ta birikma</span>
-                  <span className="px-2 py-1 rounded bg-purple-900/30 border border-purple-700/50 text-purple-400 text-[10px] uppercase tracking-wide">Verner isboti</span>
+                  <span className="px-2 py-1 rounded bg-purple-900/30 border border-[var(--v3-chiziq)] text-purple-400 text-[10px] uppercase tracking-wide">Verner isboti</span>
                 </div>
               </div>
               <Link 
@@ -184,7 +187,7 @@ export default function Konduktometriya() {
           className="group block bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-700/50 rounded-2xl p-6 hover:bg-blue-900/60 hover:border-blue-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-500/10"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">🔌</div>
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-blue-300 group-hover:text-blue-200 transition-colors">
                 Birikmalarning konduktometrik tahlili
@@ -205,8 +208,8 @@ export default function Konduktometriya() {
         </Link>
 
         {/* 1. ASOSIY MA'LUMOT */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Konduktometriya haqida</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-6"> Konduktometriya haqida</h2>
           
           <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-6 mb-6">
             <p className="text-purple-200 text-lg leading-relaxed">
@@ -221,7 +224,7 @@ export default function Konduktometriya() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-blue-300 font-bold mb-2">Nimani aniqlaydi?</h3>
               <ul className="text-purple-200 space-y-1 text-sm">
                 <li>• <strong>Molyar o'tkazuvchanlik (Λm)</strong> — 1 mol elektrolitning o'tkazuvchanligi (S·cm²/mol)</li>
@@ -231,7 +234,7 @@ export default function Konduktometriya() {
                 <li>• <strong>Dissotsiatsiya darajasi (α)</strong> — α = Λm / Λm°</li>
               </ul>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-blue-300 font-bold mb-2">Qanday ishlaydi?</h3>
               <ul className="text-purple-200 space-y-1 text-sm">
                 <li>• Ikkita <strong>platina elektrodlari</strong> eritmaga tushiriladi</li>
@@ -246,7 +249,7 @@ export default function Konduktometriya() {
         </div>
 
         {/* 2. VERNER NAZARIYASI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <h2 className="text-xl font-bold text-white mb-6">🏆 Verner nazariyasini konduktometrik isbotlash</h2>
           
           <p className="text-purple-200 mb-6 leading-relaxed">
@@ -255,7 +258,7 @@ export default function Konduktometriya() {
             ularning turli xil ionlar soniga ega ekanligini ko'rsatgan.
           </p>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30 mb-4">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] mb-4">
             <h3 className="text-blue-300 font-bold mb-3">Vernerning klassik tajribasi (25°C, suvli eritma):</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -293,8 +296,8 @@ export default function Konduktometriya() {
         </div>
 
         {/* 3. ELEKTROLIT TURLARI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📐 Elektrolit turlari va Λm diapazonlari</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-6"> Elektrolit turlari va Λm diapazonlari</h2>
           
           <p className="text-purple-200 mb-6 leading-relaxed">
             Eritmadagi <strong className="text-blue-300">ionlar soni qancha ko'p bo'lsa, molyar o'tkazuvchanlik shuncha yuqori</strong> bo'ladi.
@@ -351,7 +354,7 @@ export default function Konduktometriya() {
             </div>
           </div>
 
-          <div className="bg-purple-950/50 rounded-lg p-5 border border-purple-700/30">
+          <div className="bg-purple-950/50 rounded-lg p-5 border border-[var(--v3-chiziq)]">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <div className="text-xs text-purple-400">Molyar o'tkazuvchanlik Λm:</div>
@@ -369,12 +372,12 @@ export default function Konduktometriya() {
         </div>
 
         {/* 5. QO'LLANISH SOHALARI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">🧪 Konduktometriya qo'llanish sohalari</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-6"> Konduktometriya qo'llanish sohalari</h2>
           
           <div className="space-y-4">
             {applications.map((app, i) => (
-              <div key={i} className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div key={i} className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <h3 className="text-blue-300 font-bold mb-2 flex items-center gap-2">
                   <span className="text-2xl">{app.icon}</span>
                   {app.title}
@@ -386,8 +389,8 @@ export default function Konduktometriya() {
         </div>
 
         {/* 6. ASOSIY FORMULALAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📐 Asosiy formulalar</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-6"> Asosiy formulalar</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5">
@@ -415,7 +418,7 @@ export default function Konduktometriya() {
 
         {/* 7. XULOSA */}
         <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside">
             <li>Konduktometriya — <strong className="text-blue-300">ionlar sonini aniqlashning eng oddiy va ishonchli usuli</strong></li>
             <li>Verner nazariyasini isbotlashda <strong className="text-blue-300">tarixiy ahamiyatga ega</strong> (Nobel 1913)</li>
@@ -431,6 +434,6 @@ export default function Konduktometriya() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

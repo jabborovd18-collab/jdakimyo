@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -46,6 +48,7 @@ const betaValues = [
 ]
 
 export default function SpektrofotometrikTitrlash() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [showWarningModal, setShowWarningModal] = useState(true)
   
@@ -85,14 +88,14 @@ export default function SpektrofotometrikTitrlash() {
   }, [absorbance, ligandConcBH])
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-violet-950/20 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
       {/* OGOHLANTIRISH MODALI */}
       {showWarningModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
           <div className="bg-gradient-to-br from-violet-950 to-purple-950 border-2 border-violet-500 rounded-2xl p-6 max-w-3xl w-full animate-pulse">
             <h3 className="text-xl font-bold text-violet-400 mb-4 flex items-center gap-2">
-              <span className="text-3xl">📊</span> SPEKTROFOTOMETRIK TITRLASH — BARQARORLIK KONSTANTALARI!
+              <span className="text-3xl"></span> SPEKTROFOTOMETRIK TITRLASH — BARQARORLIK KONSTANTALARI!
             </h3>
             <p className="text-purple-200 text-sm mb-4">
               <strong className="text-violet-300">Spektrofotometrik titrlash</strong> — eritmadagi metall ioniga 
@@ -102,7 +105,7 @@ export default function SpektrofotometrikTitrlash() {
             <div className="bg-violet-950/60 rounded-lg p-4 mb-4">
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
-                  <div className="text-violet-400 font-bold mb-2">📊 Nima o'lchanadi?</div>
+                  <div className="text-violet-400 font-bold mb-2"> Nima o'lchanadi?</div>
                   <div className="text-purple-200">
                     <strong>Barqarorlik konstantasi (βn)</strong> — kompleks mustahkamligi.
                   </div>
@@ -111,7 +114,7 @@ export default function SpektrofotometrikTitrlash() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-violet-400 font-bold mb-2">🔬 Qanday ishlaydi?</div>
+                  <div className="text-violet-400 font-bold mb-2"> Qanday ishlaydi?</div>
                   <div className="text-purple-200">
                     <strong>Job metodi</strong> — uzluksiz variatsiyalar metodi.
                   </div>
@@ -148,10 +151,10 @@ export default function SpektrofotometrikTitrlash() {
       
       {/* HEADER */}
       {showHeader && (
-        <header className="border-b border-purple-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
+        <header className="border-b border-[var(--v3-chiziq)] sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh sahifa</Link>
+              <Link href="/" className="hover:text-purple-300"> Bosh sahifa</Link>
               <span className="text-purple-600">›</span>
               <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil usullari</Link>
               <span className="text-purple-600">›</span>
@@ -161,7 +164,7 @@ export default function SpektrofotometrikTitrlash() {
             <div className="flex flex-col md:flex-row justify-between items-start gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-violet-400 flex items-center gap-2">
-                  <span className="text-3xl">📊</span>
+                  <span className="text-3xl"></span>
                   Spektrofotometrik titrlash
                 </h1>
                 <p className="text-purple-400 text-sm mt-1">
@@ -198,7 +201,7 @@ export default function SpektrofotometrikTitrlash() {
           className="group block bg-gradient-to-r from-violet-900/40 to-purple-900/40 border border-violet-700/50 rounded-2xl p-6 hover:bg-violet-900/60 hover:border-violet-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl hover:shadow-violet-500/10"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">📊</div>
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-violet-400 group-hover:text-violet-300 transition-colors">
                 Birikmalarning spektrofotometrik titrlash tahlili
@@ -220,8 +223,8 @@ export default function SpektrofotometrikTitrlash() {
         </Link>
 
         {/* 1. ASOSIY MA'LUMOT */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Spektrofotometrik titrlash haqida</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-6"> Spektrofotometrik titrlash haqida</h2>
           
           <div className="bg-violet-600/10 border border-violet-500/30 rounded-xl p-6 mb-6">
             <p className="text-purple-200 text-lg leading-relaxed">
@@ -235,7 +238,7 @@ export default function SpektrofotometrikTitrlash() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-violet-400 font-bold mb-2">Nimani aniqlaydi?</h3>
               <ul className="text-purple-200 space-y-1 text-sm">
                 <li>• <strong>Barqarorlik konstantasi (βn)</strong> — kompleks hosil bo'lishining termodinamik o'lchovi</li>
@@ -245,7 +248,7 @@ export default function SpektrofotometrikTitrlash() {
                 <li>• <strong>Bosqichli konstantalar (K₁, K₂...)</strong> — har bir ligand qo'shilishidagi muvozanat</li>
               </ul>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-violet-400 font-bold mb-2">Qanday ishlaydi?</h3>
               <ul className="text-purple-200 space-y-1 text-sm">
                 <li>• Metall ioni eritmasiga <strong>ligand eritmasi qo'shib boriladi</strong></li>
@@ -259,8 +262,8 @@ export default function SpektrofotometrikTitrlash() {
         </div>
 
         {/* QIZIQARLI FAKTLAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-6">💡 Qiziqarli faktlar</h2>
+        <div className="v3-panel-karta p-6">
+          <h2 className="text-xl font-bold text-white mb-6"> Qiziqarli faktlar</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {interestingFacts.map((fact, i) => (
               <div key={i} className="bg-violet-900/20 border border-violet-500/30 rounded-xl p-4">
@@ -272,8 +275,8 @@ export default function SpektrofotometrikTitrlash() {
         </div>
 
         {/* 2. BARQARORLIK KONSTANTASI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📐 Barqarorlik konstantasi (βn) — kompleks mustahkamligi</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-6"> Barqarorlik konstantasi (βn) — kompleks mustahkamligi</h2>
           
           <p className="text-purple-200 mb-6 leading-relaxed">
             <strong className="text-violet-400">Umumiy barqarorlik konstantasi (βn)</strong> — metall ioniga 
@@ -281,7 +284,7 @@ export default function SpektrofotometrikTitrlash() {
             βn qancha katta bo'lsa, kompleks shuncha barqaror bo'ladi.
           </p>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30 mb-4">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] mb-4">
             <h3 className="text-violet-400 font-bold mb-3">Muvozanat va formulalar:</h3>
             <div className="space-y-3 text-sm text-purple-200">
               <div className="bg-violet-600/10 border border-violet-500/30 rounded-lg p-3">
@@ -333,7 +336,7 @@ export default function SpektrofotometrikTitrlash() {
         {/* 3. JOB METODI KALKULYATORI */}
         <div className="bg-violet-900/20 border border-violet-500/30 rounded-2xl p-8">
           <h3 className="text-violet-400 font-bold mb-4 flex items-center gap-2">
-            <span>🔬</span> Job metodi kalkulyatori — uzluksiz variatsiyalar
+            <span></span> Job metodi kalkulyatori — uzluksiz variatsiyalar
           </h3>
           <p className="text-xs text-purple-300 mb-5">
             Metall va ligand konsentratsiyalarini kiriting — <strong className="text-violet-300">stoxiometriya</strong> aniqlanadi.
@@ -362,7 +365,7 @@ export default function SpektrofotometrikTitrlash() {
             </div>
           </div>
 
-          <div className="bg-purple-950/50 rounded-lg p-5 border border-purple-700/30">
+          <div className="bg-purple-950/50 rounded-lg p-5 border border-[var(--v3-chiziq)]">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <div className="text-xs text-purple-400">Ligand mol ulushi (xL):</div>
@@ -377,7 +380,7 @@ export default function SpektrofotometrikTitrlash() {
               Formula: xL = [L] / ([M] + [L]) = {ligandConc} / ({metalConc} + {ligandConc}) = {jobResult.xL}
             </p>
             <p className="text-xs text-purple-400 mt-2">
-              💡 <strong>Eslatma:</strong> xL = 0.5 → 1:1, xL = 0.67 → 1:2, xL = 0.75 → 1:3, xL = 0.80 → 1:4
+               <strong>Eslatma:</strong> xL = 0.5 → 1:1, xL = 0.67 → 1:2, xL = 0.75 → 1:3, xL = 0.80 → 1:4
             </p>
           </div>
         </div>
@@ -424,7 +427,7 @@ export default function SpektrofotometrikTitrlash() {
             </div>
           </div>
 
-          <div className="bg-purple-950/50 rounded-lg p-5 border border-purple-700/30">
+          <div className="bg-purple-950/50 rounded-lg p-5 border border-[var(--v3-chiziq)]">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <div className="text-xs text-purple-400">βn:</div>
@@ -444,7 +447,7 @@ export default function SpektrofotometrikTitrlash() {
         {/* 5. BENESI-HILDEBRAND KALKULYATORI */}
         <div className="bg-blue-900/20 border border-blue-500/30 rounded-2xl p-8">
           <h3 className="text-blue-400 font-bold mb-4 flex items-center gap-2">
-            <span>📊</span> Benesi-Hildebrand kalkulyatori
+            <span></span> Benesi-Hildebrand kalkulyatori
           </h3>
           <p className="text-xs text-purple-300 mb-5">
             Absorbsiya va ligand konsentratsiyasini kiriting — <strong className="text-blue-300">1/A va 1/[L]</strong> hisoblanadi.
@@ -473,7 +476,7 @@ export default function SpektrofotometrikTitrlash() {
             </div>
           </div>
 
-          <div className="bg-purple-950/50 rounded-lg p-5 border border-purple-700/30">
+          <div className="bg-purple-950/50 rounded-lg p-5 border border-[var(--v3-chiziq)]">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <div className="text-xs text-purple-400">1/A:</div>
@@ -488,14 +491,14 @@ export default function SpektrofotometrikTitrlash() {
               Formula: 1/(A-A₀) = 1/(ε·[M]·βn) + 1/(ε·[M]·βn·[L])
             </p>
             <p className="text-xs text-purple-400 mt-2">
-              💡 <strong>Eslatma:</strong> 1/A vs 1/[L] grafigi chiziqli bo'lsa, βn hisoblanadi.
+               <strong>Eslatma:</strong> 1/A vs 1/[L] grafigi chiziqli bo'lsa, βn hisoblanadi.
             </p>
           </div>
         </div>
 
         {/* 6. IZOSBESTIK NUQTALAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📊 Izosbestik nuqtalar — muvozanat ko'rsatkichi</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-6"> Izosbestik nuqtalar — muvozanat ko'rsatkichi</h2>
           
           <p className="text-purple-200 mb-4 leading-relaxed">
             <strong className="text-violet-400">Izosbestik nuqta</strong> — turli konsentratsiyalarda 
@@ -528,11 +531,11 @@ export default function SpektrofotometrikTitrlash() {
         {/* 7. BOSHQA METODLAR */}
         <div className="bg-gradient-to-r from-violet-900/40 to-purple-900/40 border border-violet-700/50 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-            <span>⚖️</span> Spektrofotometrik titrlashga yaqin usullar
+            <span></span> Spektrofotometrik titrlashga yaqin usullar
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="bg-purple-950/50 rounded-xl p-5 border border-purple-700/30 hover:border-violet-500/50 transition-colors">
+            <div className="bg-purple-950/50 rounded-xl p-5 border border-[var(--v3-chiziq)] hover:border-violet-500/50 transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-sm font-bold text-violet-300">UV-Vis spektroskopiya</h3>
                 <div className="text-right">
@@ -553,7 +556,7 @@ export default function SpektrofotometrikTitrlash() {
               </div>
             </div>
 
-            <div className="bg-purple-950/50 rounded-xl p-5 border border-purple-700/30 hover:border-violet-500/50 transition-colors">
+            <div className="bg-purple-950/50 rounded-xl p-5 border border-[var(--v3-chiziq)] hover:border-violet-500/50 transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-sm font-bold text-violet-300">Potentsiometrik titrlash</h3>
                 <div className="text-right">
@@ -574,7 +577,7 @@ export default function SpektrofotometrikTitrlash() {
               </div>
             </div>
 
-            <div className="bg-purple-950/50 rounded-xl p-5 border border-purple-700/30 hover:border-violet-500/50 transition-colors">
+            <div className="bg-purple-950/50 rounded-xl p-5 border border-[var(--v3-chiziq)] hover:border-violet-500/50 transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-sm font-bold text-violet-300">Kalorimetrik titrlash</h3>
                 <div className="text-right">
@@ -595,7 +598,7 @@ export default function SpektrofotometrikTitrlash() {
               </div>
             </div>
 
-            <div className="bg-purple-950/50 rounded-xl p-5 border border-purple-700/30 hover:border-violet-500/50 transition-colors">
+            <div className="bg-purple-950/50 rounded-xl p-5 border border-[var(--v3-chiziq)] hover:border-violet-500/50 transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-sm font-bold text-violet-300">NMR spektroskopiya</h3>
                 <div className="text-right">
@@ -618,7 +621,7 @@ export default function SpektrofotometrikTitrlash() {
           </div>
 
           <div className="mt-5 bg-violet-900/20 border border-violet-700/30 rounded-xl p-4">
-            <h4 className="text-sm font-bold text-violet-300 mb-2">💡 To'liq tahlil uchun eng yaxshi kombinatsiya:</h4>
+            <h4 className="text-sm font-bold text-violet-300 mb-2"> To'liq tahlil uchun eng yaxshi kombinatsiya:</h4>
             <p className="text-xs text-purple-200 leading-relaxed">
               <strong className="text-white">Spektrofotometrik titrlash (βn, stoxiometriya) + UV-Vis (spektrlar) + NMR (struktura) + Kalorimetriya (ΔH, ΔS)</strong> — to'rtta metod birgalikda kompleksni to'liq tavsiflaydi.
             </p>
@@ -627,7 +630,7 @@ export default function SpektrofotometrikTitrlash() {
 
         {/* XULOSALAR */}
         <div className="bg-gradient-to-r from-violet-600/10 to-purple-600/10 border border-violet-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside">
             <li>Spektrofotometrik titrlash — <strong className="text-violet-400">barqarorlik konstantalarini aniqlashning asosiy usuli</strong></li>
             <li>Umumiy barqarorlik konstantasi βn — <strong className="text-violet-400">kompleks mustahkamligini</strong> ko'rsatadi</li>
@@ -650,6 +653,6 @@ export default function SpektrofotometrikTitrlash() {
           <p className="mt-1">Manbalar: Vogel's Quantitative Chemical Analysis, Skoog (Analytical Chemistry), Job (1928)</p>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }
