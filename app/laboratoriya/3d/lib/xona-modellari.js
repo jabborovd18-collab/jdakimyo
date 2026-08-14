@@ -178,7 +178,6 @@ function davriyJadvalPlakati() {
     texture.minFilter = THREE.LinearMipmapLinearFilter;
     texture.generateMipmaps = true;
 
-    // 3D Karkas va Keng Formatli Panel (Orqa devor markaziga o'rnatiladi: Z = -5.55)
     const group = new THREE.Group();
     group.name = "Davriy_Jadval_LED_Plakat";
     group.position.set(0, 2.65, -5.55);
@@ -186,14 +185,17 @@ function davriyJadvalPlakati() {
     const karkasGeo = new THREE.BoxGeometry(4.2, 2.1, 0.04);
     const karkasMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.2 });
     const karkas = new THREE.Mesh(karkasGeo, karkasMat);
+    karkas.userData = { kalit: "davriy_jadval", nom: "D.I. Mendeleyev Davriy Jadvali", tanlanadi: true };
     group.add(karkas);
 
     const panelGeo = new THREE.PlaneGeometry(4.12, 2.02);
     const panelMat = new THREE.MeshBasicMaterial({ map: texture });
     const panel = new THREE.Mesh(panelGeo, panelMat);
     panel.position.z = 0.022;
+    panel.userData = { kalit: "davriy_jadval", nom: "D.I. Mendeleyev Davriy Jadvali", tanlanadi: true };
     group.add(panel);
 
+    group.userData = { kalit: "davriy_jadval", nom: "D.I. Mendeleyev Davriy Jadvali", tanlanadi: true };
     return group;
   } catch {
     return new THREE.Group();
@@ -707,6 +709,7 @@ function rakovinaYasa(materiallar) {
   const jomrakGeo = new THREE.BoxGeometry(0.015, 0.04, 0.015);
   const jomrak = new THREE.Mesh(jomrakGeo, new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
   jomrak.position.set(0, 0.18, -0.16);
+  jomrak.userData = { kalit: "rakovina_kran", nom: "Distillangan Suv Krani", tanlanadi: true };
   group.add(jomrak);
 
   // 3. Dinamik Distillangan Suv Oqimi (Water Stream)
@@ -732,10 +735,12 @@ function rakovinaYasa(materiallar) {
 
   group.userData = {
     kalit: "rakovina",
+    nom: "Yuvinish Rakovinasi",
     tanlanadi: true,
     suvOqimiMesh,
     splashPoints,
     suvOqmoqda: false,
+    jomrakMesh: jomrak,
   };
 
   return group;
@@ -789,11 +794,12 @@ function titrlashStendiYasa(materiallar) {
 
   group.userData = {
     kalit: "titrlash",
+    nom: "50ml Volumetrik Titrlash Stendi",
     tanlanadi: true,
   };
 
   group.traverse((c) => {
-    c.userData = { kalit: "titrlash", tanlanadi: true };
+    c.userData = { kalit: "titrlash", nom: "50ml Volumetrik Titrlash Stendi", tanlanadi: true };
   });
 
   return group;
@@ -855,12 +861,264 @@ function elektrolizVannasiYasa(materiallar) {
 
   group.userData = {
     kalit: "elektroliz",
+    nom: "Elektroliz va Tok Manbai Stendi",
     tanlanadi: true,
   };
 
   group.traverse((c) => {
-    c.userData = { kalit: "elektroliz", tanlanadi: true };
+    c.userData = { kalit: "elektroliz", nom: "Elektroliz va Tok Manbai Stendi", tanlanadi: true };
   });
+
+  return group;
+}
+
+/** 3D Jihozlar Stendi (Glassware Rack) — Stolda tartiblangan yangi toza shisha idishlar */
+function jihozlarStendiYasa(materiallar) {
+  const group = new THREE.Group();
+  group.name = "Jihozlar_Stendi_Rack";
+  group.position.set(-1.15, 0.90, -0.32); // Asosiy ishchi stolning chap orqasida
+
+  const yogochMat = materiallar?.yogoch || new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+  const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 });
+  const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.45 });
+
+  // 1. Shtativ taxtasi (Base board)
+  const tagGeo = new THREE.BoxGeometry(0.70, 0.02, 0.22);
+  const tagMesh = new THREE.Mesh(tagGeo, yogochMat);
+  tagMesh.position.y = 0.01;
+  group.add(tagMesh);
+
+  // 2. Yuqori teshikli taxta (Upper rack plate)
+  const tepaGeo = new THREE.BoxGeometry(0.70, 0.015, 0.22);
+  const tepaMesh = new THREE.Mesh(tepaGeo, yogochMat);
+  tepaMesh.position.y = 0.12;
+  group.add(tepaMesh);
+
+  // Yon ustunchalar (Side pillars)
+  [[-0.33, -0.09], [0.33, -0.09], [-0.33, 0.09], [0.33, 0.09]].forEach(([px, pz]) => {
+    const ustunGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.12, 12);
+    const ustun = new THREE.Mesh(ustunGeo, metallMat);
+    ustun.position.set(px, 0.06, pz);
+    group.add(ustun);
+  });
+
+  // Stenddagi toza jihozlar
+  // 1. Probirkalar (3 ta probirka)
+  [-0.26, -0.18, -0.10].forEach((px, idx) => {
+    const probirkaGroup = new THREE.Group();
+    probirkaGroup.name = `Stend_Probirka_${idx + 1}`;
+    probirkaGroup.position.set(px, 0.02, -0.04);
+
+    const geo = new THREE.CylinderGeometry(0.012, 0.012, 0.15, 16);
+    const mesh = new THREE.Mesh(geo, shishaMat);
+    mesh.position.y = 0.075;
+    probirkaGroup.add(mesh);
+
+    const labGeo = new THREE.TorusGeometry(0.013, 0.002, 8, 16);
+    const labMesh = new THREE.Mesh(labGeo, shishaMat);
+    labMesh.rotation.x = Math.PI / 2;
+    labMesh.position.y = 0.15;
+    probirkaGroup.add(labMesh);
+
+    probirkaGroup.userData = { kalit: "probirka", nom: "Bo'sh Probirka (25ml)", tanlanadi: true, yangiJihoz: true };
+    group.add(probirkaGroup);
+  });
+
+  // 2. Erlenmeyer Kolba (100ml)
+  const kolbaGroup = new THREE.Group();
+  kolbaGroup.name = "Stend_Kolba";
+  kolbaGroup.position.set(0.02, 0.02, -0.02);
+  const kGeo = new THREE.ConeGeometry(0.045, 0.09, 20);
+  const kMesh = new THREE.Mesh(kGeo, shishaMat);
+  kMesh.position.y = 0.045;
+  kolbaGroup.add(kMesh);
+  const kBGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.04, 16);
+  const kBMesh = new THREE.Mesh(kBGeo, shishaMat);
+  kBMesh.position.y = 0.10;
+  kolbaGroup.add(kBMesh);
+  kolbaGroup.userData = { kalit: "kolba", nom: "Konussimon Kolba (100ml)", tanlanadi: true, yangiJihoz: true };
+  group.add(kolbaGroup);
+
+  // 3. Kimyoviy Stakan (100ml Beaker)
+  const stakanGroup = new THREE.Group();
+  stakanGroup.name = "Stend_Stakan";
+  stakanGroup.position.set(0.12, 0.02, -0.02);
+  const sGeo = new THREE.CylinderGeometry(0.032, 0.032, 0.08, 20);
+  const sMesh = new THREE.Mesh(sGeo, shishaMat);
+  sMesh.position.y = 0.04;
+  stakanGroup.add(sMesh);
+  stakanGroup.userData = { kalit: "stakan", nom: "Kimyoviy Stakan (100ml)", tanlanadi: true, yangiJihoz: true };
+  group.add(stakanGroup);
+
+  // 4. O'lchov Silindri (50ml Graduated Cylinder)
+  const silindrGroup = new THREE.Group();
+  silindrGroup.name = "Stend_Silindr";
+  silindrGroup.position.set(0.22, 0.02, -0.02);
+  const silGeo = new THREE.CylinderGeometry(0.016, 0.016, 0.14, 16);
+  const silMesh = new THREE.Mesh(silGeo, shishaMat);
+  silMesh.position.y = 0.07;
+  silindrGroup.add(silMesh);
+  const silAsosGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.008, 6);
+  const silAsos = new THREE.Mesh(silAsosGeo, shishaMat);
+  silAsos.position.y = 0.004;
+  silindrGroup.add(silAsos);
+  silindrGroup.userData = { kalit: "olchov-silindr", nom: "O'lchov Silindri (50ml)", tanlanadi: true, yangiJihoz: true };
+  group.add(silindrGroup);
+
+  // 5. Shisha Tayoqcha (Glass Stirring Rod) & Spatula
+  const tayoqGroup = new THREE.Group();
+  tayoqGroup.name = "Stend_ShishaTayoqcha";
+  tayoqGroup.position.set(-0.02, 0.02, 0.06);
+  const tGeo = new THREE.CylinderGeometry(0.003, 0.003, 0.18, 12);
+  const tMesh = new THREE.Mesh(tGeo, shishaMat);
+  tMesh.rotation.z = 0.15;
+  tMesh.position.y = 0.09;
+  tayoqGroup.add(tMesh);
+  tayoqGroup.userData = { kalit: "shisha-tayoqcha", nom: "Shisha Aralashtirgich Tayoqcha", tanlanadi: true, yangiJihoz: true };
+  group.add(tayoqGroup);
+
+  const spatulaGroup = new THREE.Group();
+  spatulaGroup.name = "Stend_Spatula";
+  spatulaGroup.position.set(0.08, 0.02, 0.06);
+  const spGeo = new THREE.BoxGeometry(0.008, 0.16, 0.002);
+  const spMesh = new THREE.Mesh(spGeo, metallMat);
+  spMesh.rotation.z = -0.15;
+  spMesh.position.y = 0.08;
+  spatulaGroup.add(spMesh);
+  spatulaGroup.userData = { kalit: "spatula", nom: "Kimyoviy Spatula", tanlanadi: true, yangiJihoz: true };
+  group.add(spatulaGroup);
+
+  group.userData = { kalit: "jihoz_stendi", nom: "Jihozlar Stendi (Rack)", tanlanadi: true };
+  return group;
+}
+
+/** 3D Smart Laboratoriya Plansheti (Cyber Lab Tablet & Journal Display) */
+function chizPlanshetEkrani(ctx, canvas, reaksiya = null, harorat = 25, kinetika = null) {
+  const w = canvas.width;
+  const h = canvas.height;
+
+  // OLED to'q fon
+  ctx.fillStyle = "#030712";
+  ctx.fillRect(0, 0, w, h);
+
+  // Kiber ramka
+  ctx.strokeStyle = "#38bdf8";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(6, 6, w - 12, h - 12);
+
+  // Sarlavha
+  ctx.fillStyle = "#38bdf8";
+  ctx.font = "bold 22px monospace";
+  ctx.textAlign = "left";
+  ctx.fillText("● JDA SMART LAB MONITOR", 20, 36);
+
+  ctx.fillStyle = "#10b981";
+  ctx.font = "bold 16px monospace";
+  ctx.textAlign = "right";
+  ctx.fillText("LIVE ANALYTICS", w - 20, 36);
+
+  // Reaksiya tenglamasi yoki kutish holati
+  ctx.fillStyle = "#0f172a";
+  ctx.fillRect(16, 50, w - 32, 90);
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.3)";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(16, 50, w - 32, 90);
+
+  if (reaksiya && (reaksiya.equation || reaksiya.nomi)) {
+    ctx.fillStyle = "#facc15";
+    ctx.font = "900 24px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(reaksiya.equation || reaksiya.nomi, w / 2, 92);
+
+    ctx.fillStyle = "#34d399";
+    ctx.font = "bold 16px monospace";
+    ctx.fillText(`Kinetika: ${kinetika ? kinetika.nom || "Faol" : "Tezkor"} | T = ${harorat}°C`, w / 2, 122);
+  } else {
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 20px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("[KUTISH REJIMI - Idishga modda soling]", w / 2, 92);
+    ctx.fillStyle = "#64748b";
+    ctx.font = "14px monospace";
+    ctx.fillText(`Harorat: ${harorat}°C | Vant-Goff kinetikasi faol`, w / 2, 122);
+  }
+
+  // Pastki ko'rsatma
+  ctx.fillStyle = "#1e293b";
+  ctx.fillRect(16, 155, w - 32, 80);
+  ctx.strokeStyle = "#10b981";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(16, 155, w - 32, 80);
+
+  ctx.fillStyle = "#10b981";
+  ctx.font = "900 22px monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("[E] BOSING: EKSPERT TAHLILI & PDF DIPLOM", w / 2, 195);
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "bold 14px monospace";
+  ctx.fillText("Stoximetriya, X-Ray Bog'lar va Ilmiy Xulosa", w / 2, 222);
+}
+
+function smartPlanshetYasa(materiallar) {
+  const group = new THREE.Group();
+  group.name = "Lab_Plansheti";
+  group.position.set(1.15, 0.90, -0.28);
+
+  const korpusMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.8 });
+  const metallMat = materiallar?.metall || new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9 });
+
+  // Planshet korpusi
+  const korpusGeo = new THREE.BoxGeometry(0.38, 0.018, 0.28);
+  const korpus = new THREE.Mesh(korpusGeo, korpusMat);
+  korpus.rotation.x = Math.PI / 8;
+  korpus.position.y = 0.04;
+  group.add(korpus);
+
+  // Stend oyog'i
+  const stendGeo = new THREE.BoxGeometry(0.24, 0.06, 0.08);
+  const stend = new THREE.Mesh(stendGeo, metallMat);
+  stend.position.set(0, 0.03, -0.06);
+  group.add(stend);
+
+  // LED Ekran
+  let canvas = null;
+  let ctx = null;
+  let texture = null;
+
+  if (typeof document !== "undefined") {
+    canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 256;
+    ctx = canvas.getContext("2d");
+    if (ctx) {
+      chizPlanshetEkrani(ctx, canvas, null, 25, null);
+      texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+    }
+  }
+
+  const ekranGeo = new THREE.PlaneGeometry(0.35, 0.24);
+  const ekranMat = texture
+    ? new THREE.MeshBasicMaterial({ map: texture })
+    : new THREE.MeshBasicMaterial({ color: 0x0f172a });
+  const ekran = new THREE.Mesh(ekranGeo, ekranMat);
+  ekran.rotation.x = -Math.PI / 2 + Math.PI / 8;
+  ekran.position.set(0, 0.052, 0.005);
+  group.add(ekran);
+
+  const ekranniYangila = (reaksiya = null, harorat = 25, kinetika = null) => {
+    if (ctx && canvas && texture) {
+      chizPlanshetEkrani(ctx, canvas, reaksiya, harorat, kinetika);
+      texture.needsUpdate = true;
+    }
+  };
+
+  group.userData = {
+    kalit: "lab_planshet",
+    nom: "Smart Laboratoriya Daftari & Tahlil",
+    tanlanadi: true,
+    ekranniYangila,
+  };
 
   return group;
 }
@@ -927,6 +1185,12 @@ export function xonaInteryeriniYasa(materiallar) {
 
   // 7. Yuvinish Rakovinasi (Chap orqa burchakda)
   roomGroup.add(rakovinaYasa(materiallar));
+
+  // 8. Stoldagi 3D Jihozlar Stendi (Glassware Rack — Probirkalar, Kolba, Stakan, Silindr, Spatula)
+  roomGroup.add(jihozlarStendiYasa(materiallar));
+
+  // 9. Stoldagi 3D Smart Laboratoriya Plansheti (Smart Monitor & Notebook)
+  roomGroup.add(smartPlanshetYasa(materiallar));
 
   return roomGroup;
 }

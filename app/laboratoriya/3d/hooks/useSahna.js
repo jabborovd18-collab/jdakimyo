@@ -259,13 +259,28 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     // Fon almashganda shu obyektlarning rangi yangilanadi
     fonQismlariRef.current = { ambientLight, mainLight, fillLight };
 
-    // Boshlang'ich holatda 1 ta probirkani stolga qo'yamiz
+    // Boshlang'ich holatda 1 ta probirka va 1 ta spirtovkani stolga qo'yamiz
     const defProbirka = jihozYasa("probirka", materiallar);
-    defProbirka.userData.slotIndex = 1; // 2-slot: old qator, o'rta
-    const [x, y, z] = SLOTLAR[1];
-    defProbirka.position.set(x, y, z);
+    defProbirka.userData.slotIndex = 1; // 2-slot: old qator, o'rta-chap
+    const [px, py, pz] = SLOTLAR[1];
+    defProbirka.position.set(px, py, pz);
     scene.add(defProbirka);
     jihozlarMapRef.current.set(1, defProbirka);
+
+    const defSpirtovka = jihozYasa("spirtovka", materiallar);
+    defSpirtovka.userData.slotIndex = 3; // 4-slot: old qator, o'rta-o'ng
+    const [sx, sy, sz] = SLOTLAR[3];
+    defSpirtovka.position.set(sx, sy, sz);
+    scene.add(defSpirtovka);
+    jihozlarMapRef.current.set(3, defSpirtovka);
+
+    const defTermometr = jihozYasa("termometr", materiallar);
+    defTermometr.userData.slotIndex = 8; // 9-slot: o'rta qator, o'rta-o'ng
+    const [tx, ty, tz] = SLOTLAR[8];
+    defTermometr.position.set(tx, ty, tz);
+    scene.add(defTermometr);
+    jihozlarMapRef.current.set(8, defTermometr);
+
     setHammaJihozlar(Array.from(jihozlarMapRef.current.values()));
 
     // 8. ResizeObserver (window.resize emas, chunki panel yig'ilganda ham canvas o'zgaradi)
