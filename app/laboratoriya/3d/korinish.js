@@ -851,11 +851,13 @@ export default function Korinish() {
             style={{ touchAction: "none", overscrollBehavior: "none" }}
           />
 
-          {/* 4-BOSQICH: XONA ZONALARI NAVIGATSIYASI */}
-          <XonaNavigatsiyaUI
-            faolZona={faolZona}
-            onZonaTanlandi={handleZonaTanlandi}
-          />
+          {/* 4-BOSQICH: XONA ZONALARI NAVIGATSIYASI (YURISH VA TOZA EKRANDA YASHIRILADI) */}
+          {!yurishRejimi && !tozaEkran && (
+            <XonaNavigatsiyaUI
+              faolZona={faolZona}
+              onZonaTanlandi={handleZonaTanlandi}
+            />
+          )}
 
           {/* XONADA ERKIN YURISH (WALK MODE) TUGMASI VA HUD */}
           <div className="absolute top-4 left-4 z-30 flex items-center gap-2">
@@ -1282,8 +1284,8 @@ export default function Korinish() {
 
       {taroziOchilgan && (
         <TaroziUI
-          idishKaliti={tarozidagiIdish?.userData?.kalit || nishonIdishGroup?.userData?.kalit || "probirka"}
-          moddalar={quyilganModdalar}
+          idishKaliti={tarozidagiIdish?.userData?.kalit || null}
+          moddalar={tarozidagiIdish ? (quyilganModdalar || {}) : {}}
           taraMassa={taraMassa}
           onTara={handleTaroziTara}
           onNolgaQaytar={handleTaroziNol}
