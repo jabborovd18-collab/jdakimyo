@@ -292,11 +292,97 @@ function xonaQobiginiYasa(materiallar) {
   eshik.position.set(0, 1.3, XONA_D / 2 + 0.38);
   roomGroup.add(eshik);
 
-  const exitGeo = new THREE.BoxGeometry(0.5, 0.16, 0.03);
-  const exitMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
-  const exitSign = new THREE.Mesh(exitGeo, exitMat);
-  exitSign.position.set(0, 2.8, XONA_D / 2 + 0.37);
-  roomGroup.add(exitSign);
+  // Haqiqiy neon nurli EXIT / CHIQISH belgisi (Illuminated Emergency Exit Sign)
+  if (typeof document !== "undefined") {
+    const exitCanvas = document.createElement("canvas");
+    exitCanvas.width = 256;
+    exitCanvas.height = 96;
+    const exitCtx = exitCanvas.getContext("2d");
+    if (exitCtx) {
+      exitCtx.fillStyle = "#064e3b";
+      exitCtx.fillRect(0, 0, 256, 96);
+      exitCtx.strokeStyle = "#10b981";
+      exitCtx.lineWidth = 6;
+      exitCtx.strokeRect(4, 4, 248, 88);
+
+      exitCtx.fillStyle = "#ffffff";
+      exitCtx.font = "900 34px sans-serif";
+      exitCtx.textAlign = "center";
+      exitCtx.fillText("EXIT / CHIQISH", 128, 48);
+
+      exitCtx.fillStyle = "#34d399";
+      exitCtx.font = "bold 20px monospace";
+      exitCtx.fillText("🏃 CHIQISH ESALIK", 128, 78);
+
+      const exitTexture = new THREE.CanvasTexture(exitCanvas);
+      const exitSignGeo = new THREE.PlaneGeometry(0.72, 0.26);
+      const exitSignMat = new THREE.MeshBasicMaterial({ map: exitTexture });
+      const exitSignMesh = new THREE.Mesh(exitSignGeo, exitSignMat);
+      exitSignMesh.rotation.y = Math.PI;
+      exitSignMesh.position.set(0, 2.85, XONA_D / 2 + 0.36);
+      roomGroup.add(exitSignMesh);
+    }
+  }
+
+  // Eshik yonidagi Raqamli Xona Iqlim va Havfsizlik Stansiyasi (Room Climate & Safety Monitor)
+  if (typeof document !== "undefined") {
+    const climateCanvas = document.createElement("canvas");
+    climateCanvas.width = 512;
+    climateCanvas.height = 256;
+    const clCtx = climateCanvas.getContext("2d");
+    if (clCtx) {
+      clCtx.fillStyle = "#030712";
+      clCtx.fillRect(0, 0, 512, 256);
+
+      clCtx.strokeStyle = "#38bdf8";
+      clCtx.lineWidth = 4;
+      clCtx.strokeRect(6, 6, 500, 244);
+
+      clCtx.fillStyle = "#38bdf8";
+      clCtx.font = "bold 22px monospace";
+      clCtx.textAlign = "left";
+      clCtx.fillText("● JDA-LAB CLIMATE & SAFETY", 20, 36);
+
+      clCtx.fillStyle = "#64748b";
+      clCtx.font = "bold 16px monospace";
+      clCtx.textAlign = "right";
+      clCtx.fillText("ONLINE", 492, 36);
+
+      // Harorat
+      clCtx.fillStyle = "#10b981";
+      clCtx.font = "900 48px monospace";
+      clCtx.textAlign = "left";
+      clCtx.fillText("22.4°C", 20, 100);
+
+      clCtx.fillStyle = "#94a3b8";
+      clCtx.font = "bold 18px monospace";
+      clCtx.fillText("Namlik: 48% RH", 240, 75);
+      clCtx.fillText("Bosim: 758 mmHg", 240, 102);
+
+      // Havo sifati & O2
+      clCtx.fillStyle = "#0f172a";
+      clCtx.fillRect(16, 125, 480, 105);
+      clCtx.strokeStyle = "rgba(56, 189, 248, 0.25)";
+      clCtx.strokeRect(16, 125, 480, 105);
+
+      clCtx.fillStyle = "#34d399";
+      clCtx.font = "bold 20px monospace";
+      clCtx.fillText("Havo sifati: ● XAVFSIZ (0.00 ppm)", 30, 160);
+
+      clCtx.fillStyle = "#38bdf8";
+      clCtx.fillText("O₂ darajasi: 20.9% (Optimal)", 30, 195);
+      clCtx.fillText("Ventilyatsiya: FAOL (100%)", 30, 222);
+
+      const climateTexture = new THREE.CanvasTexture(climateCanvas);
+      const climateMeshGeo = new THREE.PlaneGeometry(0.85, 0.44);
+      const climateMeshMat = new THREE.MeshBasicMaterial({ map: climateTexture });
+      const climateMesh = new THREE.Mesh(climateMeshGeo, climateMeshMat);
+      climateMesh.name = "Xona_Iqlim_Stansiyasi";
+      climateMesh.rotation.y = Math.PI;
+      climateMesh.position.set(1.8, 1.65, XONA_D / 2 + 0.36);
+      roomGroup.add(climateMesh);
+    }
+  }
 
   // 7. Xavfsizlik Dushi va Ko'z Yuvish (O'ng devorda)
   const dushGroup = new THREE.Group();
@@ -701,6 +787,15 @@ function titrlashStendiYasa(materiallar) {
   kolba.position.set(0.04, 0.05, 0);
   group.add(kolba);
 
+  group.userData = {
+    kalit: "titrlash",
+    tanlanadi: true,
+  };
+
+  group.traverse((c) => {
+    c.userData = { kalit: "titrlash", tanlanadi: true };
+  });
+
   return group;
 }
 
@@ -757,6 +852,15 @@ function elektrolizVannasiYasa(materiallar) {
   const led = new THREE.Mesh(ledGeo, ledMat);
   led.position.set(0, 0.1, -0.048);
   group.add(led);
+
+  group.userData = {
+    kalit: "elektroliz",
+    tanlanadi: true,
+  };
+
+  group.traverse((c) => {
+    c.userData = { kalit: "elektroliz", tanlanadi: true };
+  });
 
   return group;
 }

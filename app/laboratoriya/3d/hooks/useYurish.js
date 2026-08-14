@@ -427,8 +427,8 @@ export function useYurish({
       let nextX = kamera.position.x + velocityRef.current.x * dt;
       let nextZ = kamera.position.z + velocityRef.current.z * dt;
 
-      // Asosiy markaziy stol to'sig'i (X: [-1.7, 1.7], Z: [-0.9, 0.9])
-      const inMainTable = nextX >= -1.7 && nextX <= 1.7 && nextZ >= -0.9 && nextZ <= 0.9;
+      // 1. Asosiy markaziy stol to'sig'i (X: [-1.8, 1.8], Z: [-1.0, 1.0])
+      const inMainTable = nextX >= -1.8 && nextX <= 1.8 && nextZ >= -1.0 && nextZ <= 1.0;
       if (inMainTable) {
         if (Math.abs(kamera.position.x) > Math.abs(kamera.position.z)) {
           nextX = kamera.position.x;
@@ -437,8 +437,23 @@ export function useYurish({
         }
       }
 
-      kamera.position.x = Math.max(-7.6, Math.min(7.6, nextX));
-      kamera.position.z = Math.max(-5.2, Math.min(5.8, nextZ));
+      // 2. Chap stol to'sig'i (X: [-4.4, -2.0], Z: [-0.8, 1.1])
+      const inLeftTable = nextX >= -4.4 && nextX <= -2.0 && nextZ >= -0.8 && nextZ <= 1.1;
+      if (inLeftTable) {
+        nextX = kamera.position.x;
+        nextZ = kamera.position.z;
+      }
+
+      // 3. O'ng stol to'sig'i (X: [2.0, 4.4], Z: [-0.8, 1.1])
+      const inRightTable = nextX >= 2.0 && nextX <= 4.4 && nextZ >= -0.8 && nextZ <= 1.1;
+      if (inRightTable) {
+        nextX = kamera.position.x;
+        nextZ = kamera.position.z;
+      }
+
+      // 4. Qat'iy xona devorlari va eshik chegarasi (Z: [-4.8, 5.2], X: [-7.2, 7.2])
+      kamera.position.x = Math.max(-7.2, Math.min(7.2, nextX));
+      kamera.position.z = Math.max(-4.8, Math.min(5.2, nextZ));
 
       // Ko'z balandligi va cho'qqayish lerp
       eyeHeightRef.current = THREE.MathUtils.lerp(eyeHeightRef.current, targetEyeHeightRef.current, dt * 10);
