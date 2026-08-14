@@ -563,10 +563,16 @@ export default function Korinish() {
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800/90 shadow-2xl backdrop-blur-md text-[10px] font-mono text-slate-400">
-            <span>🔥 {harorat}°C</span>
-            <span>|</span>
-            <span>⚖️ {tarozidagiIdish ? "Tarozida band" : "Tarozi bo'sh"}</span>
+          <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800/90 shadow-2xl backdrop-blur-md text-[10px] font-mono text-slate-300">
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span>{harorat}°C</span>
+            </span>
+            <span className="text-slate-600">|</span>
+            <span className="flex items-center gap-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${tarozidagiIdish ? "bg-emerald-400" : "bg-slate-500"}`} />
+              <span>{tarozidagiIdish ? "Tarozi band" : "Tarozi bo'sh"}</span>
+            </span>
           </div>
         </div>
 
@@ -574,7 +580,7 @@ export default function Korinish() {
         <div className="absolute top-3 right-4 z-30 flex items-center gap-2">
           {/* Sezgirlik sozlagichi */}
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800/90 shadow-2xl backdrop-blur-md text-[10px] font-mono">
-            <span className="text-slate-400">🎯 Sezgirlik:</span>
+            <span className="text-slate-400">Sezgirlik:</span>
             <input
               type="range"
               min="0.2"
@@ -599,16 +605,17 @@ export default function Korinish() {
             }`}
             title="Ovozni yoqish / o'chirish (M)"
           >
-            <span className="text-xs">{ovozYoqilgan ? "🔊" : "🔇"}</span>
+            <Ikon nom={ovozYoqilgan ? "kanal" : "taqiq"} olcham={14} />
           </button>
 
           {/* Yordam & Boshqaruv qo'llanmasi tugmasi */}
           <button
             type="button"
             onClick={() => setYordamOchilgan(true)}
-            className="px-2.5 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 shadow-lg text-[11px] font-mono font-bold text-emerald-400 hover:border-emerald-400 backdrop-blur-md flex items-center gap-1 transition-all"
+            className="px-2.5 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 shadow-lg text-[11px] font-mono font-bold text-emerald-400 hover:border-emerald-400 backdrop-blur-md flex items-center gap-1.5 transition-all"
             title="Klaviatura va Boshqaruv Qo'llanmasi (H)"
           >
+            <Ikon nom="kitob" olcham={13} />
             <span>[H] Qo{"'"}llanma</span>
           </button>
 
@@ -845,38 +852,56 @@ export default function Korinish() {
 
             <div className="grid grid-cols-2 gap-3 text-xs font-mono">
               <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-cyan-400 font-bold">🚶 WASD / Joystik</div>
-                <div className="text-slate-400 text-[11px]">Xona bo{"'"}ylab 16x12m erkin harakatlanish</div>
+                <div className="text-cyan-400 font-bold flex items-center gap-1.5">
+                  <Ikon nom="odam" olcham={13} />
+                  <span>WASD / Joystik</span>
+                </div>
+                <div className="text-slate-400 text-[11px]">16x12m xona bo{"'"}ylab erkin yurish</div>
               </div>
 
               <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-cyan-400 font-bold">🖱️ Erkin Sichqoncha</div>
+                <div className="text-cyan-400 font-bold flex items-center gap-1.5">
+                  <Ikon nom="qidiruv" olcham={13} />
+                  <span>Erkin Sichqoncha</span>
+                </div>
                 <div className="text-slate-400 text-[11px]">CS 1.6 uslubidagi 360° ko{"'"}rish (Tugmasiz)</div>
               </div>
 
               <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-emerald-400 font-bold">[E] / Chap Klik</div>
+                <div className="text-emerald-400 font-bold flex items-center gap-1.5">
+                  <Ikon nom="kolba" olcham={13} />
+                  <span>[E] / Chap Klik</span>
+                </div>
                 <div className="text-slate-400 text-[11px]">Idishni olish, quyish, kran/tarozini bosish</div>
               </div>
 
               <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-amber-400 font-bold">[G] Klavishi</div>
+                <div className="text-amber-400 font-bold flex items-center gap-1.5">
+                  <Ikon nom="past" olcham={13} />
+                  <span>[G] Klavishi</span>
+                </div>
                 <div className="text-slate-400 text-[11px]">Idishni stolga qo{"'"}yish / Shkafga qaytarish</div>
               </div>
 
               <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-purple-400 font-bold">[1, 2, 3, 4, 5]</div>
+                <div className="text-purple-400 font-bold flex items-center gap-1.5">
+                  <Ikon nom="atom" olcham={13} />
+                  <span>[1, 2, 3, 4, 5]</span>
+                </div>
                 <div className="text-slate-400 text-[11px]">1ml, 5ml, 10ml, 25ml, 50ml aniq doza quyish</div>
               </div>
 
               <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-sky-400 font-bold">[C / Ctrl]</div>
+                <div className="text-sky-400 font-bold flex items-center gap-1.5">
+                  <Ikon nom="ochiq" olcham={13} />
+                  <span>[C / Ctrl]</span>
+                </div>
                 <div className="text-slate-400 text-[11px]">Cho{"'"}qqayish (Pastki javonlarni tekshirish)</div>
               </div>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-[11px] text-slate-300 space-y-1">
-              <strong className="text-white block font-mono">🌟 100% Tugmasiz Jismoniy Olam:</strong>
+              <strong className="text-white block font-mono text-cyan-400">100% Tugmasiz Jismoniy Olam:</strong>
               <p>
                 • <strong>Reagentlar:</strong> Devordagi 4 ta shkaf oldiga borib shishaga qarang va <code>[E]</code> bosing.
               </p>

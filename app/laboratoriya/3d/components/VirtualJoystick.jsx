@@ -196,7 +196,8 @@ export default function VirtualJoystick({
             onClick={() => typeof onQolgaOlYokiQoy === "function" && onQolgaOlYokiQoy()}
             className="px-4 py-2.5 rounded-2xl border border-amber-400 bg-amber-500/30 text-amber-300 backdrop-blur-xl text-xs font-mono font-black shadow-2xl flex items-center gap-2 active:scale-95"
           >
-            <span>{qolIdish ? "⬇️ Stolga qo'yish" : `✋ Qo'lga olish: ${qaralganIdish?.userData?.kalit || "Idish"}`}</span>
+            <Ikon nom={qolIdish ? "past" : "kolba"} olcham={14} />
+            <span>{qolIdish ? "Stolga qo'yish" : `Qo'lga olish: ${qaralganIdish?.userData?.kalit || "Idish"}`}</span>
           </button>
 
           {qolIdish && qaralganIdish && qaralganIdish !== qolIdish && (
@@ -205,7 +206,8 @@ export default function VirtualJoystick({
               onClick={() => typeof onQuyish === "function" && onQuyish()}
               className="px-4 py-2.5 rounded-2xl border border-emerald-400 bg-emerald-500/30 text-emerald-300 backdrop-blur-xl text-xs font-mono font-black shadow-2xl flex items-center gap-2 active:scale-95"
             >
-              <span>🧪 {qaralganIdish.userData?.kalit || "Idish"}ga quyish</span>
+              <Ikon nom="atom" olcham={14} />
+              <span>{qaralganIdish.userData?.kalit || "Idish"}ga quyish</span>
             </button>
           )}
         </div>
