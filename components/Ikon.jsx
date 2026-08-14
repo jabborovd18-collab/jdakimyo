@@ -160,6 +160,61 @@ const YOLLAR = {
       <ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(120 12 12)" />
     </>
   ),
+  chaqmoq: (
+    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+  ),
+  mikroskop: (
+    <>
+      <path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1" />
+      <circle cx="9" cy="8" r="2" />
+      <path d="M9 10v8M12 6l3-3 2.5 2.5-3 3" />
+    </>
+  ),
+  harorat: (
+    <>
+      <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+      <circle cx="11.5" cy="17.5" r="2" fill="currentColor" />
+    </>
+  ),
+  nurlar: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" />
+    </>
+  ),
+  magnit: (
+    <>
+      <path d="M4 14v-4a8 8 0 0 1 16 0v4M4 10h5M15 10h5M4 14h5M15 14h5" />
+    </>
+  ),
+  tomchi: (
+    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+  ),
+  kristall: (
+    <>
+      <path d="M6 3h12l4 6-10 12L2 9z" />
+      <path d="M2 9h20M10 3l-4 6 6 12 6-12-4-6" />
+    </>
+  ),
+  tolqin: (
+    <path d="M2 12s3-7 6-7 6 14 8 14 6-7 6-7" />
+  ),
+  plazma: (
+    <>
+      <path d="M12 2c1.5 3 4 5 4 8a4 4 0 1 1-8 0c0-3 2.5-5 4-8z" />
+      <path d="M12 12a1.5 1.5 0 0 0 0 3 1.5 1.5 0 0 0 0-3z" />
+    </>
+  ),
+  yadro: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <circle cx="12" cy="12" r="8" strokeDasharray="3 3" />
+      <circle cx="12" cy="4" r="1.5" />
+      <circle cx="20" cy="12" r="1.5" />
+      <circle cx="12" cy="20" r="1.5" />
+      <circle cx="4" cy="12" r="1.5" />
+    </>
+  ),
   kitob: (
     <>
       <path d="M5 4h9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H5z" />
