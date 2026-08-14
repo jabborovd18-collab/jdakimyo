@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -297,7 +299,7 @@ const THEORY_SECTIONS = [
   {
     id: "zeeman",
     title: "Zeeman effekti va spin energiya darajalari",
-    icon: "⚛️",
+    icon: "",
     content: `Yadro I spin kvant soniga ega (I = 0, 1/2, 1, 3/2, ...). Tashqi magnit maydoni B₀ yo'q bo'lganda 2I+1 magnit kvant soni holatlari (mᵢ = −I, −I+1, ..., +I) energiya jihatidan aynan tenglashgan (degenerativ).
 
 B₀ maydoni qo'llanilganda Zeeman effekti tufayli bu holatlar bo'linadi:
@@ -316,7 +318,7 @@ Masalan, B₀ = 9.4 T (400 MHz spektrometr) uchun ¹H ν₀ = 400.13 MHz, ¹³C 
   {
     id: "boltzmann",
     title: "Boltzmann taqsimoti va NMR sezgirligi",
-    icon: "📊",
+    icon: "",
     content: `NMR signali α va β holatlar populyatsiyalari orasidagi farqga to'g'ri proporsional. Termik muvozanatda:
     Nβ/Nα = exp(−ΔE/kBT) ≈ 1 − γℏB₀/(kBT)
 
@@ -338,7 +340,7 @@ Signal intensivligi:
   {
     id: "chemshift",
     title: "Kimyoviy siljish nazariyasi (Ramsey formulasi)",
-    icon: "🎯",
+    icon: "",
     content: `Yadroning atrofidagi elektronlar B₀ ta'sirida induktiv toklar hosil qiladi va mahalliy maydonni o'zgartiradi:
     B_local = B₀(1 − σ)
 
@@ -432,7 +434,7 @@ Yaqin protonlar (kichik r) juda kuchli kengayadi (1/r⁶ ga bog'liq). Bu — MRI
   {
     id: "ftnmr",
     title: "FT-NMR: impuls, FID va Furye almashtirishi",
-    icon: "📡",
+    icon: "",
     content: `Zamonaviy NMR — impuls-Furye texnikasi (Ernst 1966, Nobel 1991). Ish tartibi:
 
 1. RF IMPULS (90° yoki 30° flip angle) — barcha rezonans chastotalarni bir vaqtda qo'zg'atadi. 90° impuls Mz→Mxy.
@@ -461,7 +463,7 @@ Ko'p skan yig'ish: S/N ∝ √n. 4 marta yaxshiroq S/N → 16 marta ko'p skan ke
   {
     id: "paramagnetic",
     title: "Paramagnit NMR: Contact va Pseudocontact siljishlar",
-    icon: "🧲",
+    icon: "",
     content: `Juftlashmagan elektronli komplekslarda (d¹–d⁹, ba'zi d⁰ dan tashqari; f-elementlar) NMR signallari kuchli siljiydi va kengayadi. Umumiy paramagnit siljish:
     δ_para = δ_contact + δ_pseudocontact
 
@@ -856,7 +858,7 @@ const INTERFERENCES = [
 const LAB_PROCEDURE = [
   {
     step: 1,
-    title: "⚠️ Xavfsizlik va tayyorgarlik",
+    title: "️ Xavfsizlik va tayyorgarlik",
     desc: "Laboratoriya xalat, ko'zoynak, nitril qo'lqop. Kuchli magnit maydoni (5–14 T) — barcha ferromagnit predmetlarni (soat, telefon, kredit karta, tibbiy implantatlar) 5-gauss chizig'idan tashqarida qoldirish. Deyterlangan erituvchilarning MSDS ni o'qish (CDCl₃ — 2B kategoriya karsinogen; DMSO-d₆ — teri orqali oson so'riladi; benzol-d₆ — 1A karsinogen).",
     time: "10 daq",
     theoryNote: "5-gauss (0.5 mT) chizig'i — pace-maker'ga xavfli maydon oralig'i. Kriogen suyuqliklar (helium, azot) — quench holatida kislorod almashinishi mumkin, xona havolashini tekshiring. Superconducting magnit hech qachon o'chirilmaydi — magnit doim yoqilgan holatda."
@@ -939,7 +941,7 @@ const APPLICATIONS = [
   },
   {
     title: "Xelat effektining aniqlanishi",
-    icon: "🔄",
+    icon: "",
     method: "¹³C, ¹H koordinatsiya siljishi Δδ",
     example: "PPh₃ dan [Pt(PPh₃)₂Cl₂] ga o'tishda Δδ(³¹P) = +20 ppm; dppe da esa Δδ(³¹P) = +76 ppm — xelat effekti signalni kuchaytiradi.",
     principle: "Bidentat ligand koordinatsiyalanganida ligand konformatsion erkinligi cheklanadi va elektron zichlik metallga kuchliroq beriladi → koordinatsiya siljishi katta."
@@ -974,7 +976,7 @@ const APPLICATIONS = [
   },
   {
     title: "3D struktura (koordinatsion sfera geometriyasi)",
-    icon: "📐",
+    icon: "",
     method: "NOESY (fazoviy yaqinlik r < 5 Å)",
     example: "Oktaedrik [Co(en)₃]³⁺ Δ va Λ enantiomerlarida NOE cross-piklar. Δ da NH proton yaqin CH₂ bilan cis-NOE ko'proq, Λ da esa boshqacha.",
     principle: "NOESY cross-pik intensivligi 1/r⁶ ga bog'liq (Solomon-Bloembergen). Kalibrlangan ma'lum masofa (masalan, geminal CH₂ 1.78 Å) orqali boshqa masofalarni o'lchash."
@@ -999,6 +1001,7 @@ const APPLICATIONS = [
 // UI KOMPONENTI
 // ─────────────────────────────────────────────────────────────────────────────
 export default function YaMRSpektroskopiya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [showWarningModal, setShowWarningModal] = useState(true)
   const [activeNucleus, setActiveNucleus] = useState(0)
@@ -1030,14 +1033,14 @@ export default function YaMRSpektroskopiya() {
   const uniqueNuclei = ["Barchasi", ...new Set(CHEMICAL_SHIFTS.map(r => r.nucleus))]
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-green-950/20 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* OGOHLANTIRISH MODALI */}
       {showWarningModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
           <div className="bg-gradient-to-br from-green-950 to-purple-950 border-2 border-green-500 rounded-2xl p-6 max-w-3xl w-full">
             <h3 className="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
-              <span className="text-3xl">🧲</span> YaMR SPEKTROSKOPIYA — YADRO MAGNIT REZONANSI
+              <span className="text-3xl"></span> YaMR SPEKTROSKOPIYA — YADRO MAGNIT REZONANSI
             </h3>
             <p className="text-purple-200 text-sm mb-4">
               <strong className="text-green-300">YaMR (NMR)</strong> — molekulyar tuzilishni atom-atom aniqlashning eng kuchli usuli.
@@ -1047,7 +1050,7 @@ export default function YaMRSpektroskopiya() {
             <div className="bg-green-950/60 rounded-lg p-4 mb-4">
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
-                  <div className="text-green-400 font-bold mb-2">🎯 Nazariy asos:</div>
+                  <div className="text-green-400 font-bold mb-2"> Nazariy asos:</div>
                   <div className="text-purple-200 space-y-2">
                     <div>• <strong>Zeeman effekti</strong> — spin darajalarining ajralishi</div>
                     <div>• <strong>Larmor prekressiyasi</strong> — ν₀ = γB₀/2π</div>
@@ -1056,7 +1059,7 @@ export default function YaMRSpektroskopiya() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-green-400 font-bold mb-2">🔬 Koordinatsion kimyoda:</div>
+                  <div className="text-green-400 font-bold mb-2"> Koordinatsion kimyoda:</div>
                   <div className="text-purple-200 space-y-2">
                     <div>• <strong>Cis / trans</strong> — ¹⁹⁵Pt NMR</div>
                     <div>• <strong>Linkage izomerlar</strong> — ¹⁵N NMR</div>
@@ -1075,7 +1078,7 @@ export default function YaMRSpektroskopiya() {
 
             <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-3 mb-4">
               <p className="text-xs text-red-200">
-                <strong className="text-red-300">⚠️ XAVFSIZLIK:</strong> Kuchli magnit maydoni (5–14 T) — ferromagnit predmetlar (soat, telefon, kredit karta) 5-gauss chizig'idan tashqarida! Pace-maker va tibbiy implantatli shaxslar taqiqlanadi. Deyterlangan erituvchilar (CDCl₃ — 2B karsinogen, benzol-d₆ — 1A karsinogen) — MSDS ni o'qing!
+                <strong className="text-red-300">️ XAVFSIZLIK:</strong> Kuchli magnit maydoni (5–14 T) — ferromagnit predmetlar (soat, telefon, kredit karta) 5-gauss chizig'idan tashqarida! Pace-maker va tibbiy implantatli shaxslar taqiqlanadi. Deyterlangan erituvchilar (CDCl₃ — 2B karsinogen, benzol-d₆ — 1A karsinogen) — MSDS ni o'qing!
               </p>
             </div>
 
@@ -1092,10 +1095,10 @@ export default function YaMRSpektroskopiya() {
 
       {/* HEADER */}
       {showHeader && (
-        <header className="border-b border-purple-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
+        <header className="border-b border-[var(--v3-chiziq)] sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh sahifa</Link>
+              <Link href="/" className="hover:text-purple-300"> Bosh sahifa</Link>
               <span className="text-purple-600">›</span>
               <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil usullari</Link>
               <span className="text-purple-600">›</span>
@@ -1105,7 +1108,7 @@ export default function YaMRSpektroskopiya() {
             <div className="flex flex-col md:flex-row justify-between items-start gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-green-400 flex items-center gap-2">
-                  <span className="text-3xl">🧲</span>
+                  <span className="text-3xl"></span>
                   YaMR spektroskopiya
                 </h1>
                 <p className="text-purple-400 text-sm mt-1">Yadro magnit rezonansi • Zeeman → Larmor → Ramsey • Kimyoviy siljish • Dinamik jarayonlar</p>
@@ -1136,7 +1139,7 @@ export default function YaMRSpektroskopiya() {
       <section className="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
         {/* HERO */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 relative overflow-hidden">
+        <div className="v3-panel-karta p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
 
           <div className="flex flex-wrap gap-2 mb-4">
@@ -1169,22 +1172,22 @@ export default function YaMRSpektroskopiya() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Kimyoviy siljish</div>
               <div className="text-white font-bold">δ (ppm)</div>
               <div className="text-[10px] text-purple-400 mt-1">Ramsey: σ_dia + σ_para</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Skalyar bog'lanish</div>
               <div className="text-white font-bold">J (Hz)</div>
               <div className="text-[10px] text-purple-400 mt-1">Karplus: ³J(θ)</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Relaksatsiya</div>
               <div className="text-white font-bold">T₁, T₂ (s)</div>
               <div className="text-[10px] text-purple-400 mt-1">Bloch, SBM</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Metall zondi</div>
               <div className="text-white font-bold">¹⁹⁵Pt, ⁵⁹Co</div>
               <div className="text-[10px] text-purple-400 mt-1">Δ = 15 000+ ppm</div>
@@ -1198,7 +1201,7 @@ export default function YaMRSpektroskopiya() {
           className="group block bg-gradient-to-r from-green-900/40 to-purple-900/40 border border-green-700/50 rounded-2xl p-6 hover:bg-green-900/60 hover:border-green-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl hover:shadow-green-500/10"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">🔍</div>
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-green-400 group-hover:text-green-300 transition-colors">
                 Birikmalarning YaMR tahlili — Katalog
@@ -1219,7 +1222,7 @@ export default function YaMRSpektroskopiya() {
         </Link>
 
         {/* NAZARIY ASOSLAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+        <div className="v3-panel-karta p-8 space-y-6">
           <h2 className="text-xl font-bold text-white">📚 Nazariy asoslar — Zeeman dan Ramseygacha</h2>
           <p className="text-purple-300 text-sm">
             YaMR spektroskopiyasining fizik-matematik poydevori. Har bir bo'lim asosiy tenglamalar, formulalar va tarixiy manbalar bilan.
@@ -1233,7 +1236,7 @@ export default function YaMRSpektroskopiya() {
                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                   activeTheory === i
                     ? "bg-green-600/60 text-white border border-green-400/50"
-                    : "bg-purple-800/30 text-purple-300 border border-purple-700/50 hover:bg-purple-700/40"
+                    : "bg-purple-800/30 text-purple-300 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}
               >
                 {sec.icon} {sec.title}
@@ -1241,7 +1244,7 @@ export default function YaMRSpektroskopiya() {
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-6 border border-purple-700/30">
+          <div className="p-6 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <h3 className="text-green-400 font-bold text-lg mb-3 flex items-center gap-2">
               <span className="text-2xl">{THEORY_SECTIONS[activeTheory].icon}</span>
               {THEORY_SECTIONS[activeTheory].title}
@@ -1249,7 +1252,7 @@ export default function YaMRSpektroskopiya() {
             <div className="text-purple-200 text-sm leading-relaxed whitespace-pre-line mb-4">
               {THEORY_SECTIONS[activeTheory].content}
             </div>
-            <div className="bg-purple-950/60 rounded-lg p-4 mb-3 border border-green-500/30">
+            <div className="p-4 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] mb-3 border border-green-500/30">
               <div className="text-green-400 text-xs font-bold mb-2">🔑 Asosiy tenglama:</div>
               <div className="text-white font-mono text-sm">{THEORY_SECTIONS[activeTheory].formula}</div>
             </div>
@@ -1260,14 +1263,14 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* INTERAKTIV LARMOR CHASTOTASI KALKULYATORI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+        <div className="v3-panel-karta p-8 space-y-6">
           <h2 className="text-xl font-bold text-white">🧮 Interaktiv Larmor chastotasi kalkulyatori</h2>
           <p className="text-purple-300 text-sm">
             Magnit maydonini (B₀) o'zgartiring — turli yadrolar uchun rezonans chastotasi (MHz) real vaqtda hisoblanadi:
             <span className="text-green-400 font-mono ml-2">ν₀ = (γ / 2π) · B₀</span>
           </p>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <label className="block text-green-400 font-bold mb-2">
               Magnit maydoni B₀ = {b0Slider} T   ({(b0Slider * 42.577).toFixed(1)} MHz — ¹H shkalasida)
             </label>
@@ -1291,7 +1294,7 @@ export default function YaMRSpektroskopiya() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {Object.entries(larmorFreqs).map(([nuc, freq]) => (
-              <div key={nuc} className="bg-purple-800/30 rounded-lg p-4 border border-purple-700/30 text-center">
+              <div key={nuc} className="p-4 rounded-lg bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] text-center">
                 <div className="text-green-400 text-xs mb-1">{nuc.replace(/(\d+)/, "$1 → ")}</div>
                 <div className="text-2xl font-mono font-bold text-white">{freq}</div>
                 <div className="text-[10px] text-purple-400 mt-1">MHz</div>
@@ -1301,7 +1304,7 @@ export default function YaMRSpektroskopiya() {
 
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
             <p className="text-xs text-purple-200">
-              <strong className="text-green-400">💡 Fizik ma'no:</strong> γ (giromagnit nisbat) yadroga xos konstanta.
+              <strong className="text-green-400"> Fizik ma'no:</strong> γ (giromagnit nisbat) yadroga xos konstanta.
               Yuqori γ → yuqori chastota va sezgirlik. ¹H eng yuqori γ ga ega (267.522 × 10⁶ rad/T·s), shu sabab NMR shkalasi ¹H chastotasi bilan tavsiflanadi
               (masalan, &quot;400 MHz spektrometr&quot;). Manfiy γ (¹⁵N, ²⁹Si, ¹⁰³Rh, ¹⁰⁹Ag, ¹¹⁹Sn) — 180° impulsda spin qaramaqarshi tomonga o'tadi (NOE effekti belgisi ham teskari).
             </p>
@@ -1309,8 +1312,8 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* YADROLAR MA'LUMOTLARI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white">🧲 YaMR-faol yadrolar — koordinatsion kimyoning periodik jadvali</h2>
+        <div className="v3-panel-karta p-8 space-y-6">
+          <h2 className="text-xl font-bold text-white"> YaMR-faol yadrolar — koordinatsion kimyoning periodik jadvali</h2>
           <p className="text-purple-300 text-sm">
             {NUCLEI_DATA.length} ta muhim yadro: I=1/2 (tor signallar) va kvadrupol (I &gt; 1/2, keng signallar). Sezgirlik = γ³ · N · I(I+1) formulasi bo'yicha (¹H = 1.0 referens).
           </p>
@@ -1323,7 +1326,7 @@ export default function YaMRSpektroskopiya() {
                 className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                   activeNucleus === i
                     ? "bg-green-600/60 text-white border border-green-400/50"
-                    : "bg-purple-800/30 text-purple-300 border border-purple-700/50 hover:bg-purple-700/40"
+                    : "bg-purple-800/30 text-purple-300 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}
               >
                 {nuc.symbol}
@@ -1331,7 +1334,7 @@ export default function YaMRSpektroskopiya() {
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <div className="flex items-baseline justify-between mb-3">
               <h3 className="text-green-400 font-bold text-lg">
                 {NUCLEI_DATA[activeNucleus].symbol} — {NUCLEI_DATA[activeNucleus].name}
@@ -1382,8 +1385,8 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* KIMYOVIY SILJISHLAR JADVALI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white">📊 Kimyoviy siljishlar ma'lumotlar bazasi ({CHEMICAL_SHIFTS.length} yozuv)</h2>
+        <div className="v3-panel-karta p-8 space-y-6">
+          <h2 className="text-xl font-bold text-white"> Kimyoviy siljishlar ma'lumotlar bazasi ({CHEMICAL_SHIFTS.length} yozuv)</h2>
           <p className="text-purple-300 text-sm">
             Koordinatsion kimyoning eng muhim δ va J qiymatlari. Yadro bo'yicha filtrlash mumkin.
           </p>
@@ -1396,7 +1399,7 @@ export default function YaMRSpektroskopiya() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   selectedFilter === nuc
                     ? "bg-green-600/60 text-white border border-green-400/50"
-                    : "bg-purple-800/30 text-purple-300 border border-purple-700/50 hover:bg-purple-700/40"
+                    : "bg-purple-800/30 text-purple-300 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}
               >
                 {nuc}
@@ -1435,8 +1438,8 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* TRANS-INFLUENCE */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white">🎯 Trans-influence seriyasi — ¹J(¹⁹⁵Pt–³¹P) orqali o'lchash</h2>
+        <div className="v3-panel-karta p-8 space-y-6">
+          <h2 className="text-xl font-bold text-white"> Trans-influence seriyasi — ¹J(¹⁹⁵Pt–³¹P) orqali o'lchash</h2>
           <p className="text-purple-300 text-sm">
             Trans-influence — ligand L ning trans-partneri M–L' bog'ini bo'shashtirish qobiliyati.
             ¹J(¹⁹⁵Pt–³¹P) konstantasi trans-holatdagi ligandga qattiq bog'liq:
@@ -1474,14 +1477,14 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* INTERAKTIV SPEKTR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+        <div className="v3-panel-karta p-8 space-y-6">
           <h2 className="text-xl font-bold text-white">📈 Interaktiv YaMR spektr — ligand tipini aniqlash</h2>
           <p className="text-purple-200 leading-relaxed">
             Kimyoviy siljish δ ni o'zgartiring va ligandning kimyoviy muhitini kuzating. Bu simulyatsiya faqat ta'lim maqsadida;
             haqiqiy spektrda multipletlik, integrallar va boshqa signallar mavjud.
           </p>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30 mb-6">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] mb-6">
             <label className="block text-green-400 font-bold mb-2">
               ¹H kimyoviy siljish δ = {shiftSlider.toFixed(1)} ppm
             </label>
@@ -1505,7 +1508,7 @@ export default function YaMRSpektroskopiya() {
             </div>
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30 mb-6">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] mb-6">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <div className="text-xs text-purple-400">δ (ppm):</div>
@@ -1537,7 +1540,7 @@ export default function YaMRSpektroskopiya() {
             </div>
           </div>
 
-          <div className="bg-purple-950/40 p-4 rounded-xl border border-purple-700/30 relative h-80">
+          <div className="bg-purple-950/40 p-4 rounded-xl border border-[var(--v3-chiziq)] relative h-80">
             <svg viewBox="0 0 600 280" className="w-full h-full overflow-visible" role="img" aria-label="YaMR spektr">
               <title>YaMR spektr simulyatsiyasi</title>
               {[-25, -20, -15, -10, -5, 0, 5, 10, 15].map((ppm, i) => {
@@ -1589,7 +1592,7 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* DINAMIK JARAYONLAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+        <div className="v3-panel-karta p-8 space-y-6">
           <h2 className="text-xl font-bold text-white">⏱️ Dinamik jarayonlar va NMR vaqt shkalasi</h2>
           <p className="text-purple-300 text-sm">
             NMR spektroskopiyasi 10⁻⁶ dan 10⁹ s⁻¹ gacha bo'lgan tezliklarni ko'ra oladi. Signal shakli sekin/oraliq/tez almashinuv rejimlariga qarab o'zgaradi.
@@ -1598,7 +1601,7 @@ export default function YaMRSpektroskopiya() {
 
           <div className="space-y-4">
             {DYNAMIC_PROCESSES.map((proc, i) => (
-              <div key={i} className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div key={i} className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <h3 className="text-green-400 font-bold mb-2">{i+1}. {proc.name}</h3>
                 <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                   <div className="bg-purple-900/50 rounded-lg p-3">
@@ -1606,7 +1609,7 @@ export default function YaMRSpektroskopiya() {
                     <div className="text-white font-bold font-mono">{proc.timescale}</div>
                   </div>
                   <div className="bg-purple-900/50 rounded-lg p-3">
-                    <div className="text-purple-400 text-xs">🔬 O'lchash usuli</div>
+                    <div className="text-purple-400 text-xs"> O'lchash usuli</div>
                     <div className="text-white font-bold text-xs">{proc.method}</div>
                   </div>
                 </div>
@@ -1628,8 +1631,8 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* PARAMAGNIT EFFEKTLAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white">🧲 Paramagnit NMR — juftlashmagan elektronlar ta'siri</h2>
+        <div className="v3-panel-karta p-8 space-y-6">
+          <h2 className="text-xl font-bold text-white"> Paramagnit NMR — juftlashmagan elektronlar ta'siri</h2>
           <p className="text-purple-300 text-sm">
             Ochiq qobiqli komplekslarda (Fe²⁺/³⁺ HS, Co²⁺, Ni²⁺, Cu²⁺, Ln³⁺) juftlashmagan elektronlar YaMR signalini ±1000 ppm gacha siljitadi va kengaytiradi.
             Bertini I. va boshqalar (2001) tomonidan yaratilgan "Paramagnit NMR" bugungi kunda oqsillar, MOF va katalizatorlarni o'rganishning muhim vositasi.
@@ -1637,11 +1640,11 @@ export default function YaMRSpektroskopiya() {
 
           <div className="space-y-4">
             {PARAMAGNETIC_EFFECTS.map((effect, i) => (
-              <div key={i} className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div key={i} className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <h3 className="text-green-400 font-bold mb-2">{effect.name}</h3>
                 <p className="text-purple-200 text-sm mb-3 leading-relaxed">{effect.description}</p>
                 <div className="bg-purple-950/60 rounded-lg p-3 mb-3 border border-green-500/30">
-                  <div className="text-green-400 text-xs font-bold mb-1">📐 Formula:</div>
+                  <div className="text-green-400 text-xs font-bold mb-1"> Formula:</div>
                   <div className="text-white font-mono text-xs">{effect.formula}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm mb-3">
@@ -1668,8 +1671,8 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* AMALIY QO'LLANMALAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white">🎯 Amaliy qo'llanmalar — koordinatsion kimyoning YaMR masalalari</h2>
+        <div className="v3-panel-karta p-8 space-y-6">
+          <h2 className="text-xl font-bold text-white"> Amaliy qo'llanmalar — koordinatsion kimyoning YaMR masalalari</h2>
 
           <div className="flex flex-wrap gap-2 mb-4">
             {APPLICATIONS.map((app, i) => (
@@ -1679,7 +1682,7 @@ export default function YaMRSpektroskopiya() {
                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                   activeApplication === i
                     ? "bg-green-600/60 text-white border border-green-400/50"
-                    : "bg-purple-800/30 text-purple-300 border border-purple-700/50 hover:bg-purple-700/40"
+                    : "bg-purple-800/30 text-purple-300 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}
               >
                 {app.icon} {app.title}
@@ -1687,14 +1690,14 @@ export default function YaMRSpektroskopiya() {
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-6 border border-purple-700/30">
+          <div className="p-6 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <h3 className="text-green-400 font-bold text-lg mb-3 flex items-center gap-2">
               <span className="text-2xl">{APPLICATIONS[activeApplication].icon}</span>
               {APPLICATIONS[activeApplication].title}
             </h3>
             <div className="grid gap-3">
               <div className="bg-purple-900/50 rounded-lg p-3">
-                <div className="text-purple-400 text-xs mb-1">🔬 Uslub:</div>
+                <div className="text-purple-400 text-xs mb-1"> Uslub:</div>
                 <div className="text-white text-sm">{APPLICATIONS[activeApplication].method}</div>
               </div>
               <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-3">
@@ -1710,8 +1713,8 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* LABORATORIYA TARTIBI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white">🧪 Laboratoriya tartibi — nazariy asos bilan (10 bosqich)</h2>
+        <div className="v3-panel-karta p-8 space-y-6">
+          <h2 className="text-xl font-bold text-white"> Laboratoriya tartibi — nazariy asos bilan (10 bosqich)</h2>
           <p className="text-purple-300 text-sm">
             Namunani tayyorlashdan xulosaga qadar to'liq protokol. Har bir bosqichda amaliy va nazariy komponentlar.
           </p>
@@ -1719,7 +1722,7 @@ export default function YaMRSpektroskopiya() {
           <div className="space-y-3">
             {LAB_PROCEDURE.map((step, i) => (
               <div key={i} className={`rounded-xl p-5 cursor-pointer transition-all ${
-                activeLabStep === i ? "bg-green-900/40 border-2 border-green-400" : "bg-purple-800/30 border border-purple-700/30 hover:border-green-500/50"
+                activeLabStep === i ? "bg-green-900/40 border-2 border-green-400" : "bg-purple-800/30 border border-[var(--v3-chiziq)] hover:border-green-500/50"
               }`}
               onClick={() => setActiveLabStep(i)}>
                 <div className="flex items-center gap-3 mb-2">
@@ -1734,7 +1737,7 @@ export default function YaMRSpektroskopiya() {
                   <div className="text-[10px] text-purple-400">⏱ {step.time}</div>
                 </div>
                 {activeLabStep === i && (
-                  <div className="mt-3 pt-3 border-t border-purple-700/50">
+                  <div className="mt-3 pt-3 border-t border-[var(--v3-chiziq)]">
                     <p className="text-purple-200 text-sm mb-3 leading-relaxed">{step.desc}</p>
                     <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-3">
                       <div className="text-green-400 font-bold text-xs mb-1">📚 Nazariy asos:</div>
@@ -1748,8 +1751,8 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* HALAQIT BERUVCHI OMILLAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white">⚠️ Halaqit beruvchi omillar va ularni bartaraf etish</h2>
+        <div className="v3-panel-karta p-8 space-y-6">
+          <h2 className="text-xl font-bold text-white">️ Halaqit beruvchi omillar va ularni bartaraf etish</h2>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -1799,8 +1802,8 @@ export default function YaMRSpektroskopiya() {
         </div>
 
         {/* KENGAYTIRUVCHI METODLAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white">🔬 Kengaytirilgan NMR metodlari — 1D dan DNP gacha ({ADVANCED_TECHNIQUES.length} metod)</h2>
+        <div className="v3-panel-karta p-8 space-y-6">
+          <h2 className="text-xl font-bold text-white"> Kengaytirilgan NMR metodlari — 1D dan DNP gacha ({ADVANCED_TECHNIQUES.length} metod)</h2>
 
           <div className="flex flex-wrap gap-2 mb-6">
             {ADVANCED_TECHNIQUES.map((tech, i) => (
@@ -1810,7 +1813,7 @@ export default function YaMRSpektroskopiya() {
                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                   activeTechnique === i
                     ? "bg-green-600/60 text-white border border-green-400/50"
-                    : "bg-purple-800/30 text-purple-300 border border-purple-700/50 hover:bg-purple-700/40"
+                    : "bg-purple-800/30 text-purple-300 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}
               >
                 {tech.name.split(" ")[0]}
@@ -1818,7 +1821,7 @@ export default function YaMRSpektroskopiya() {
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <h3 className="text-green-400 font-bold mb-3">{ADVANCED_TECHNIQUES[activeTechnique].name}</h3>
             <p className="text-purple-200 text-sm mb-4 leading-relaxed">{ADVANCED_TECHNIQUES[activeTechnique].description}</p>
 
@@ -1842,7 +1845,7 @@ export default function YaMRSpektroskopiya() {
             </div>
 
             <div className="bg-purple-900/50 rounded-lg p-3 mb-3">
-              <div className="text-purple-400 text-xs mb-1">🎯 Eng yaxshi qo'llanish:</div>
+              <div className="text-purple-400 text-xs mb-1"> Eng yaxshi qo'llanish:</div>
               <div className="text-white text-sm">{ADVANCED_TECHNIQUES[activeTechnique].bestFor}</div>
             </div>
             <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-3">
@@ -1854,7 +1857,7 @@ export default function YaMRSpektroskopiya() {
 
         {/* XULOSA */}
         <div className="bg-gradient-to-r from-green-600/10 to-purple-600/10 border border-green-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-3 text-purple-200 list-decimal list-inside">
             <li><strong className="text-green-400">Fizik asosi:</strong> Zeeman effekti → Larmor prekressiyasi (ν₀ = γB₀/2π) → Ramsey ekranlashi (σ = σ_dia + σ_para)</li>
             <li><strong className="text-green-400">Sezgirlik:</strong> S ∝ γ³·B₀²·N·I(I+1). ¹H eng sezgir, ¹⁰³Rh eng past. DNP 10⁴× oshirishi mumkin.</li>
@@ -1884,6 +1887,6 @@ export default function YaMRSpektroskopiya() {
           <p className="italic">Adabiyot: Abragam A. (1961); Bertini I. (2001); Levitt M.H. &quot;Spin Dynamics&quot; (2008); Keeler J. &quot;Understanding NMR&quot; (2010); Pregosin P.S. &quot;NMR in Organometallic Chemistry&quot; (2012)</p>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }

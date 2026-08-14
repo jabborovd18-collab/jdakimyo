@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo, useEffect } from "react"
 
 // ============================================================================
@@ -10,7 +12,7 @@ function IlmiyAbstract() {
   return (
     <div className="bg-gradient-to-br from-teal-900/40 via-purple-900/30 to-blue-900/40 border border-teal-500/40 rounded-2xl p-8">
       <div className="flex items-start gap-4">
-        <div className="text-5xl">⚛️</div>
+        <div className="text-5xl"></div>
         <div className="flex-1">
           <h2 className="text-2xl font-bold text-teal-400 mb-3">Mössbauer spektroskopiyasi — ilmiy asoslar</h2>
           <p className="text-purple-100 leading-relaxed text-sm">
@@ -87,14 +89,14 @@ function FizikAsos() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="text-3xl">🎯</span>
+        <span className="text-3xl"></span>
         <div>
           <h3 className="text-white font-bold text-lg">Fizik asos — Mössbauer effekti va recoil-free fraksiya</h3>
           <p className="text-purple-400 text-xs">Nima uchun aynan qattiq jismda rezonans mumkin?</p>
         </div>
       </div>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-700/30 space-y-4">
 
         {/* NAZARIY MATN */}
         <div className="bg-purple-950/40 rounded-lg p-4 text-xs text-purple-200 space-y-3 leading-relaxed">
@@ -189,7 +191,7 @@ function FizikAsos() {
 
         {/* GAMMA REZONANS ILLYUSTRATSIYA */}
         <div className="bg-purple-950/50 rounded-lg p-4">
-          <h5 className="text-teal-400 font-bold text-xs mb-3">📊 Emitent va absorbent — rezonans sxemasi</h5>
+          <h5 className="text-teal-400 font-bold text-xs mb-3"> Emitent va absorbent — rezonans sxemasi</h5>
           <svg viewBox="0 0 500 220" className="w-full h-52">
             {/* Manba */}
             <rect x="20" y="90" width="80" height="40" fill="#7c3aed" opacity="0.4" rx="4" stroke="#a78bfa" strokeWidth="1"/>
@@ -338,7 +340,7 @@ function HyperfineParams() {
         ))}
       </div>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-700/30 space-y-3">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-700/30 space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <h4 className={`font-bold text-lg ${p.rang}`}>{p.nomi}</h4>
           <span className="text-purple-400 text-xs bg-purple-950/50 px-2 py-1 rounded">Birlik: {p.birlik}</span>
@@ -371,7 +373,7 @@ function HyperfineParams() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Fizik ma&apos;no:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Fizik ma&apos;no:</p>
           <p className="text-purple-200 leading-relaxed">{p.izoh}</p>
         </div>
       </div>
@@ -483,18 +485,18 @@ function MossbauerSpectrumSimulator() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="text-3xl">📊</span>
+        <span className="text-3xl"></span>
         <div>
           <h3 className="text-white font-bold text-lg">Interaktiv Mössbauer spektr simulyatori</h3>
           <p className="text-purple-400 text-xs">δ, ΔE<sub>Q</sub>, H<sub>hf</sub> parametrlarini o&apos;zgartiring va spektr shakli qanday o&apos;zgarishini kuzating</p>
         </div>
       </div>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-700/30 space-y-4">
 
         {/* PRESET TUGMALARI */}
         <div>
-          <p className="text-yellow-400 text-xs font-bold mb-2">🎯 Standart namunalar (tugmani bosing):</p>
+          <p className="text-yellow-400 text-xs font-bold mb-2"> Standart namunalar (tugmani bosing):</p>
           <div className="flex flex-wrap gap-2">
             {Object.entries(presets).map(([k, v]) => (
               <button key={k} onClick={() => setPreset(k)}
@@ -623,7 +625,7 @@ function MossbauerSpectrumSimulator() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Kuzatishlar va tanlash qoidalari:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Kuzatishlar va tanlash qoidalari:</p>
           <ul className="text-purple-200 space-y-1 list-disc list-inside">
             <li><strong>δ o&apos;ngga siljisa (musbat)</strong> → yuqori s-elektron zichligi (past oksidlanish, HS)</li>
             <li><strong>ΔE<sub>Q</sub> oshsa</strong> → past simmetriya, katta EFG (Jahn-Teller, aralash koord.)</li>
@@ -660,14 +662,14 @@ function IsomerShiftCalc() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="text-3xl">📐</span>
+        <span className="text-3xl"></span>
         <div>
           <h3 className="text-white font-bold text-lg">Izomer siljish (δ) — oksidlanish darajasi va spin holati bo&apos;yicha</h3>
           <p className="text-purple-400 text-xs">⁵⁷Fe uchun barcha ma&apos;lum oksidlanish holatlari</p>
         </div>
       </div>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-700/30 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {Object.entries(states).map(([key, val]) => (
             <button key={key} onClick={() => setSelectedState(key)}
@@ -711,7 +713,7 @@ function IsomerShiftCalc() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-4 text-xs space-y-2">
-          <p className="text-yellow-400 font-bold">🔬 δ nima uchun o&apos;zgaradi? — Fizik-kimyoviy mantiq:</p>
+          <p className="text-yellow-400 font-bold"> δ nima uchun o&apos;zgaradi? — Fizik-kimyoviy mantiq:</p>
           <p className="text-purple-200 leading-relaxed">
             <strong>Izomer siljish</strong> δ ∝ [|ψ<sub>abs</sub>(0)|² − |ψ<sub>manba</sub>(0)|²] · ΔR/R.
             ⁵⁷Fe uchun ΔR/R &lt; 0 (qo&apos;zg&apos;algan yadro kichikroq), demak <strong className="text-teal-300">yuqori s-elektron
@@ -740,7 +742,7 @@ function TajribaJihoz() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="text-3xl">🔬</span>
+        <span className="text-3xl"></span>
         <div>
           <h3 className="text-white font-bold text-lg">Tajriba usullari va apparatura</h3>
           <p className="text-purple-400 text-xs">Mössbauer o&apos;lchovni qanday amalga oshiriladi?</p>
@@ -749,7 +751,7 @@ function TajribaJihoz() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Transmissiya */}
-        <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-500/30">
+        <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-500/30">
           <h4 className="text-teal-400 font-bold mb-2 flex items-center gap-2">
             <span className="text-2xl">📈</span> Transmissiya rejimi (asosiy)
           </h4>
@@ -764,9 +766,9 @@ function TajribaJihoz() {
         </div>
 
         {/* Konversiya */}
-        <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-500/30">
+        <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-500/30">
           <h4 className="text-teal-400 font-bold mb-2 flex items-center gap-2">
-            <span className="text-2xl">🎯</span> CEMS (Conversion Electron)
+            <span className="text-2xl"></span> CEMS (Conversion Electron)
           </h4>
           <p className="text-purple-200 text-xs leading-relaxed mb-3">
             <strong>Konversiya elektronlari Mössbauer spektroskopiyasi</strong> — sirt uchun (0–300 nm chuqurlik).
@@ -779,7 +781,7 @@ function TajribaJihoz() {
         </div>
 
         {/* Emissiya */}
-        <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-500/30">
+        <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-500/30">
           <h4 className="text-teal-400 font-bold mb-2 flex items-center gap-2">
             <span className="text-2xl">💥</span> Emissiya (source) rejimi
           </h4>
@@ -791,9 +793,9 @@ function TajribaJihoz() {
         </div>
 
         {/* Sinxrotron */}
-        <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-500/30">
+        <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-500/30">
           <h4 className="text-teal-400 font-bold mb-2 flex items-center gap-2">
-            <span className="text-2xl">⚡</span> SMS / NRIXS (Sinxrotron)
+            <span className="text-2xl"></span> SMS / NRIXS (Sinxrotron)
           </h4>
           <p className="text-purple-200 text-xs leading-relaxed mb-3">
             <strong>Synchrotron Mössbauer Spectroscopy</strong> — puls sinxrotron nurlanishidan foydalanadi.
@@ -806,7 +808,7 @@ function TajribaJihoz() {
       {/* Namuna tayyorlash */}
       <div className="bg-purple-950/40 border border-teal-500/30 rounded-xl p-5">
         <h4 className="text-teal-400 font-bold mb-3 flex items-center gap-2">
-          <span className="text-2xl">🧪</span> Namuna tayyorlash — muhim texnik detallar
+          <span className="text-2xl"></span> Namuna tayyorlash — muhim texnik detallar
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-purple-200">
           <div className="bg-purple-900/40 rounded-lg p-3">
@@ -862,7 +864,7 @@ function TemperatureSCO() {
         </div>
       </div>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-teal-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-700/30 space-y-4">
 
         <div className="bg-purple-950/40 rounded-lg p-4 text-xs text-purple-200 leading-relaxed space-y-2">
           <p>
@@ -967,7 +969,7 @@ function TemperatureSCO() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 SCO tizimlari xilma-xilligi:</p>
+          <p className="text-yellow-400 font-bold mb-1"> SCO tizimlari xilma-xilligi:</p>
           <ul className="text-purple-200 space-y-1 list-disc list-inside">
             <li><strong>[Fe(phen)₂(NCS)₂]:</strong> Klassik, T<sub>1/2</sub> ≈ 176 K, keskin o&apos;tish.</li>
             <li><strong>[Fe(pic)₃]Cl₂·EtOH:</strong> Gradient (bosqichma-bosqich) o&apos;tish, plateau.</li>
@@ -1001,7 +1003,7 @@ function AmaliyQoshanish() {
       rang: "border-orange-500/40"
     },
     {
-      icon: "🧲",
+      icon: "",
       nomi: "Magnit va spintronik materiallar",
       tavsif: "Ferrit va spinellar (MgFe₂O₄, ZnFe₂O₄, CoFe₂O₄), nanoferritlar, ekzo/ekzo magnitlar, giant magnetoresistiv (GMR) plyonkalar, molekulyar magnitlar (SMM). H_hf orqali magnit tartib turini aniqlash.",
       misollar: "Fe₃O₄ nanozarrachalari: RT da sekstet kengayadi (superparamagnitizm), 4.2 K da barqaror sekstet. Kritik hajm ~20 nm.",
@@ -1056,7 +1058,7 @@ function AmaliyQoshanish() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sohalar.map((s, i) => (
-          <div key={i} className={`bg-purple-800/30 rounded-xl p-4 border ${s.rang} hover:bg-purple-800/50 transition-all`}>
+          <div key={i} className={`p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border ${s.rang} hover:bg-purple-800/50 transition-all`}>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-3xl">{s.icon}</span>
               <h4 className="text-teal-400 font-bold text-sm">{s.nomi}</h4>
@@ -1080,7 +1082,7 @@ function SpektrTiplari() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="text-3xl">🔍</span>
+        <span className="text-3xl"></span>
         <div>
           <h3 className="text-white font-bold text-lg">Spektr shakllari — vizual talqin qo&apos;llanma</h3>
           <p className="text-purple-400 text-xs">Har bir spektr shakli qanday holat haqida ma&apos;lumot beradi?</p>
@@ -1089,7 +1091,7 @@ function SpektrTiplari() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Singlet */}
-        <div className="bg-purple-800/30 rounded-xl p-4 border border-teal-500/40">
+        <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-500/40">
           <h4 className="text-teal-400 font-bold text-sm mb-2">1️⃣ Singlet — bitta chiziq</h4>
           <svg viewBox="0 0 200 100" className="w-full h-24 bg-purple-950/50 rounded">
             <line x1="10" y1="80" x2="190" y2="80" stroke="#4c1d95" strokeWidth="0.5" strokeDasharray="2,2"/>
@@ -1102,7 +1104,7 @@ function SpektrTiplari() {
         </div>
 
         {/* Dublet */}
-        <div className="bg-purple-800/30 rounded-xl p-4 border border-teal-500/40">
+        <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-500/40">
           <h4 className="text-teal-400 font-bold text-sm mb-2">2️⃣ Dublet — ikkita chiziq</h4>
           <svg viewBox="0 0 200 100" className="w-full h-24 bg-purple-950/50 rounded">
             <line x1="10" y1="80" x2="190" y2="80" stroke="#4c1d95" strokeWidth="0.5" strokeDasharray="2,2"/>
@@ -1117,7 +1119,7 @@ function SpektrTiplari() {
         </div>
 
         {/* Sekstet */}
-        <div className="bg-purple-800/30 rounded-xl p-4 border border-teal-500/40">
+        <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-500/40">
           <h4 className="text-teal-400 font-bold text-sm mb-2">3️⃣ Sekstet — 6 chiziq (3:2:1:1:2:3)</h4>
           <svg viewBox="0 0 200 100" className="w-full h-24 bg-purple-950/50 rounded">
             <line x1="10" y1="80" x2="190" y2="80" stroke="#4c1d95" strokeWidth="0.5" strokeDasharray="2,2"/>
@@ -1140,7 +1142,7 @@ function SpektrTiplari() {
         </div>
 
         {/* Aralash */}
-        <div className="bg-purple-800/30 rounded-xl p-4 border border-yellow-500/40">
+        <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-yellow-500/40">
           <h4 className="text-yellow-400 font-bold text-sm mb-2">4️⃣ Ikki dublet — ikki sayt</h4>
           <svg viewBox="0 0 200 100" className="w-full h-24 bg-purple-950/50 rounded">
             <line x1="10" y1="80" x2="190" y2="80" stroke="#4c1d95" strokeWidth="0.5" strokeDasharray="2,2"/>
@@ -1153,7 +1155,7 @@ function SpektrTiplari() {
         </div>
 
         {/* Superparamagnit */}
-        <div className="bg-purple-800/30 rounded-xl p-4 border border-orange-500/40">
+        <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-orange-500/40">
           <h4 className="text-orange-400 font-bold text-sm mb-2">5️⃣ &quot;Kollaps&quot; — superparamagnit</h4>
           <svg viewBox="0 0 200 100" className="w-full h-24 bg-purple-950/50 rounded">
             <line x1="10" y1="80" x2="190" y2="80" stroke="#4c1d95" strokeWidth="0.5" strokeDasharray="2,2"/>
@@ -1166,7 +1168,7 @@ function SpektrTiplari() {
         </div>
 
         {/* Keng chiziq */}
-        <div className="bg-purple-800/30 rounded-xl p-4 border border-red-500/40">
+        <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-red-500/40">
           <h4 className="text-red-400 font-bold text-sm mb-2">6️⃣ Keng chiziq / amorf</h4>
           <svg viewBox="0 0 200 100" className="w-full h-24 bg-purple-950/50 rounded">
             <line x1="10" y1="80" x2="190" y2="80" stroke="#4c1d95" strokeWidth="0.5" strokeDasharray="2,2"/>
@@ -1200,7 +1202,7 @@ function AfzallikChegara() {
         {/* Afzalliklar */}
         <div className="bg-gradient-to-br from-emerald-900/30 to-teal-900/30 border border-emerald-500/40 rounded-xl p-5">
           <h4 className="text-emerald-400 font-bold mb-3 flex items-center gap-2">
-            <span className="text-2xl">✅</span> Afzalliklar
+            <span className="text-2xl"></span> Afzalliklar
           </h4>
           <ul className="text-purple-200 text-xs space-y-2 list-disc list-inside">
             <li><strong className="text-emerald-300">Yadro-selektiv:</strong> faqat ⁵⁷Fe (yoki tanlangan izotop) sanaydi — matrisa muammosi yo&apos;q.</li>
@@ -1216,7 +1218,7 @@ function AfzallikChegara() {
         {/* Cheklovlar */}
         <div className="bg-gradient-to-br from-red-900/30 to-orange-900/30 border border-red-500/40 rounded-xl p-5">
           <h4 className="text-red-400 font-bold mb-3 flex items-center gap-2">
-            <span className="text-2xl">⚠️</span> Cheklovlar
+            <span className="text-2xl">️</span> Cheklovlar
           </h4>
           <ul className="text-purple-200 text-xs space-y-2 list-disc list-inside">
             <li><strong className="text-red-300">Faqat qattiq jism:</strong> gaz, suyuqlik yoki eritma o&apos;lchab bo&apos;lmaydi (recoil-free shart).</li>
@@ -1232,7 +1234,7 @@ function AfzallikChegara() {
 
       {/* Taqqoslama jadval */}
       <div className="bg-purple-800/30 border border-teal-700/30 rounded-xl p-5">
-        <h4 className="text-teal-400 font-bold mb-3">📊 Boshqa usullar bilan taqqoslash (Fe komplekslari uchun)</h4>
+        <h4 className="text-teal-400 font-bold mb-3"> Boshqa usullar bilan taqqoslash (Fe komplekslari uchun)</h4>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
@@ -1248,51 +1250,51 @@ function AfzallikChegara() {
             <tbody className="text-purple-200">
               <tr className="border-b border-purple-800/30">
                 <td className="p-2 font-bold text-teal-300">Mössbauer</td>
-                <td className="p-2">✅ To&apos;liq</td>
-                <td className="p-2">✅ HS/LS</td>
-                <td className="p-2">✅ ΔE_Q</td>
-                <td className="p-2">✅ H_hf</td>
-                <td className="p-2">✅</td>
+                <td className="p-2"> To&apos;liq</td>
+                <td className="p-2"> HS/LS</td>
+                <td className="p-2"> ΔE_Q</td>
+                <td className="p-2"> H_hf</td>
+                <td className="p-2"></td>
               </tr>
               <tr className="border-b border-purple-800/30">
                 <td className="p-2 font-bold">EPR</td>
-                <td className="p-2">⚠️ Faqat toq</td>
-                <td className="p-2">✅ Detal</td>
-                <td className="p-2">✅ ZFS</td>
-                <td className="p-2">⚠️ Bilvosita</td>
-                <td className="p-2">✅</td>
+                <td className="p-2">️ Faqat toq</td>
+                <td className="p-2"> Detal</td>
+                <td className="p-2"> ZFS</td>
+                <td className="p-2">️ Bilvosita</td>
+                <td className="p-2"></td>
               </tr>
               <tr className="border-b border-purple-800/30">
                 <td className="p-2 font-bold">UV-Vis</td>
-                <td className="p-2">⚠️ Bilvosita</td>
-                <td className="p-2">⚠️ Bilvosita</td>
-                <td className="p-2">⚠️ d-d</td>
+                <td className="p-2">️ Bilvosita</td>
+                <td className="p-2">️ Bilvosita</td>
+                <td className="p-2">️ d-d</td>
                 <td className="p-2">❌</td>
-                <td className="p-2">✅</td>
+                <td className="p-2"></td>
               </tr>
               <tr className="border-b border-purple-800/30">
                 <td className="p-2 font-bold">SQUID</td>
                 <td className="p-2">❌</td>
-                <td className="p-2">✅ μ_eff</td>
+                <td className="p-2"> μ_eff</td>
                 <td className="p-2">❌</td>
-                <td className="p-2">✅ Detal</td>
-                <td className="p-2">✅</td>
+                <td className="p-2"> Detal</td>
+                <td className="p-2"></td>
               </tr>
               <tr className="border-b border-purple-800/30">
                 <td className="p-2 font-bold">XPS</td>
-                <td className="p-2">✅ Sirt</td>
+                <td className="p-2"> Sirt</td>
                 <td className="p-2">❌</td>
-                <td className="p-2">⚠️</td>
+                <td className="p-2">️</td>
                 <td className="p-2">❌</td>
-                <td className="p-2">✅ Sirt</td>
+                <td className="p-2"> Sirt</td>
               </tr>
               <tr>
                 <td className="p-2 font-bold">EXAFS</td>
-                <td className="p-2">⚠️ Edge</td>
+                <td className="p-2">️ Edge</td>
                 <td className="p-2">❌</td>
-                <td className="p-2">✅ CN</td>
+                <td className="p-2"> CN</td>
                 <td className="p-2">❌</td>
-                <td className="p-2">✅</td>
+                <td className="p-2"></td>
               </tr>
             </tbody>
           </table>
@@ -1343,7 +1345,7 @@ function TarixiyKontekst() {
               <div className="absolute -left-8 top-1 w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-purple-600 border-2 border-purple-950 flex items-center justify-center text-[10px] font-bold text-white shadow-lg shadow-teal-500/30">
                 {i + 1}
               </div>
-              <div className="bg-purple-800/30 rounded-lg p-3 border border-teal-700/30 hover:border-teal-500/50 transition-all">
+              <div className="p-3 rounded-lg bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-teal-700/30 hover:border-teal-500/50 transition-all">
                 <div className="flex items-baseline gap-3 mb-1">
                   <span className="text-yellow-400 font-bold text-sm">{v.yil}</span>
                   <span className="text-teal-300 font-semibold text-sm" dangerouslySetInnerHTML={{__html: v.sarlavha}}/>
@@ -1362,17 +1364,18 @@ function TarixiyKontekst() {
 // ASOSIY SAHIFA
 // ============================================================================
 export default function MossbauerSpektroskopiya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* HEADER */}
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50 sticky top-0 bg-purple-950/80 backdrop-blur-md z-10">
+      <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)] sticky top-0 bg-purple-950/80 backdrop-blur-md z-10">
         <Link href="/ilmiy/tahlil" className="text-purple-400 hover:text-purple-300 text-lg transition-colors">
           ← Tahlil usullari
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-teal-400 flex items-center gap-2">
-            ⚛️ Mössbauer spektroskopiyasi
+             Mössbauer spektroskopiyasi
           </h1>
           <p className="text-purple-400 text-xs">
             ⁵⁷Fe · Izomer siljish · Kvadrupol bo&apos;linishi · Magnit o&apos;ta nozik tuzilish · Recoil-free rezonans
@@ -1396,7 +1399,7 @@ export default function MossbauerSpektroskopiya() {
           className="group block bg-gradient-to-r from-teal-900/40 via-purple-900/40 to-blue-900/40 border border-teal-500/50 rounded-2xl p-6 hover:border-teal-400/80 transition-all transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-500/20"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300">⚛️</div>
+            <div className="text-5xl group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl md:text-2xl font-bold text-teal-400 group-hover:text-teal-300 transition-colors">
                 Birikmalarning Mössbauer spektrlari →
@@ -1418,7 +1421,7 @@ export default function MossbauerSpektroskopiya() {
         </Link>
 
         {/* NAVIGATSIYA — QISQA */}
-        <nav className="bg-purple-900/40 border border-purple-700/50 rounded-xl p-4">
+        <nav className="bg-purple-900/40 border border-[var(--v3-chiziq)] rounded-xl p-4">
           <p className="text-yellow-400 text-xs font-bold mb-2">📍 Sahifa bo&apos;limlari:</p>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-[11px]">
             <a href="#fizik-asos" className="bg-purple-800/40 hover:bg-teal-600/30 rounded px-2 py-1 text-center text-teal-300 transition-colors">1. Fizik asos</a>
@@ -1435,52 +1438,52 @@ export default function MossbauerSpektroskopiya() {
         </nav>
 
         {/* 1. FIZIK ASOS */}
-        <div id="fizik-asos" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="fizik-asos" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <FizikAsos />
         </div>
 
         {/* 2. HYPERFINE */}
-        <div id="hyperfine" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="hyperfine" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <HyperfineParams />
         </div>
 
         {/* 3. SIMULYATOR */}
-        <div id="simulyator" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="simulyator" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <MossbauerSpectrumSimulator />
         </div>
 
         {/* 4. IZOMER SILJISH */}
-        <div id="izomer" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="izomer" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <IsomerShiftCalc />
         </div>
 
         {/* 5. TAJRIBA */}
-        <div id="tajriba" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="tajriba" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <TajribaJihoz />
         </div>
 
         {/* 6. SCO */}
-        <div id="sco" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="sco" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <TemperatureSCO />
         </div>
 
         {/* 7. AMALIY SOHALAR */}
-        <div id="amaliyot" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="amaliyot" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <AmaliyQoshanish />
         </div>
 
         {/* 8. SPEKTR TIPLARI */}
-        <div id="spektr-tipi" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="spektr-tipi" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <SpektrTiplari />
         </div>
 
         {/* 9. TAQQOSLAMA */}
-        <div id="taqqoslama" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="taqqoslama" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <AfzallikChegara />
         </div>
 
         {/* 10. TARIX */}
-        <div id="tarix" className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 scroll-mt-24">
+        <div id="tarix" className="v3-panel-karta p-6 md:p-8 scroll-mt-24">
           <TarixiyKontekst />
         </div>
 
@@ -1534,7 +1537,7 @@ export default function MossbauerSpektroskopiya() {
         {/* XULOSA */}
         <div className="bg-gradient-to-r from-teal-600/10 to-purple-600/10 border border-teal-500/30 rounded-2xl p-6 md:p-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span>✅</span> Asosiy xulosalar
+            <span></span> Asosiy xulosalar
           </h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside text-sm leading-relaxed">
             <li><strong className="text-teal-400">Mössbauer effekti</strong> — qattiq jismdagi qaytishsiz gamma-rezonans (Nobel 1961), Doppler tezligi orqali (±10 mm/s) rezonans sharti bajariladi.</li>
@@ -1579,7 +1582,7 @@ export default function MossbauerSpektroskopiya() {
               <div className="text-[10px] text-teal-100">Batafsil:</div>
               <div>Fe birikmalar tahlili</div>
             </div>
-            <span>⚛️</span>
+            <span></span>
           </Link>
           <Link href="/ilmiy/tahlil/cd" className="px-6 py-3 bg-teal-600/80 rounded-xl hover:bg-teal-500 text-white font-semibold transition-all flex items-center gap-2">
             <div className="text-right">
@@ -1593,7 +1596,7 @@ export default function MossbauerSpektroskopiya() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-purple-800/50 mt-12 py-6 px-6 text-center">
+      <footer className="border-t border-[var(--v3-chiziq)] mt-12 py-6 px-6 text-center">
         <p className="text-purple-400 text-xs">
           <strong className="text-teal-400">jdakimyo.uz</strong> — o&apos;zbek tilida ilmiy kompleks birikmalar platformasi
         </p>
@@ -1601,6 +1604,6 @@ export default function MossbauerSpektroskopiya() {
           Mössbauer spektroskopiyasi bo&apos;limi · Tahlil usullari to&apos;plami · ⁵⁷Fe
         </p>
       </footer>
-    </main>
+    </div>
   )
 }

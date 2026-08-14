@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useMemo, useState } from "react"
 
 const microwaveBands = [
@@ -287,7 +289,7 @@ function ResonanceWorkbench() {
       />
 
       <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-5">
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-5 space-y-4">
+        <div className="v3-panel-karta p-5 space-y-4">
           <div className="bg-purple-950/60 border border-lime-500/20 rounded-xl p-4 text-center font-mono">
             <p className="text-purple-400 text-xs mb-2">Rezonans tenglamasi</p>
             <p className="text-lime-400 text-2xl">hν = g · μB · B</p>
@@ -425,7 +427,7 @@ function HyperfineWorkbench() {
       />
 
       <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-5">
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-5 space-y-4">
+        <div className="v3-panel-karta p-5 space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="flex justify-between text-xs mb-2 text-purple-200">
@@ -486,7 +488,7 @@ function HyperfineWorkbench() {
           </div>
         </div>
 
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-5 space-y-4">
+        <div className="v3-panel-karta p-5 space-y-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <p className="text-white font-semibold">Simulyatsiya: absorbsiya va birinchi hosila</p>
             <div className="flex flex-wrap gap-2">
@@ -495,7 +497,7 @@ function HyperfineWorkbench() {
             </div>
           </div>
 
-          <svg viewBox="0 0 520 240" className="w-full h-64 rounded-xl bg-purple-950/50 border border-purple-700/30">
+          <svg viewBox="0 0 520 240" className="w-full h-64 rounded-xl bg-purple-950/50 border border-[var(--v3-chiziq)]">
             <line x1="40" y1="190" x2="490" y2="190" stroke="#4c1d95" strokeWidth="1" />
             <line x1="40" y1="30" x2="40" y2="210" stroke="#4c1d95" strokeWidth="1" />
             <text x="265" y="228" textAnchor="middle" fill="#c4b5fd" fontSize="11">Magnit maydon B (G)</text>
@@ -562,7 +564,7 @@ function ZFSWorkbench() {
       />
 
       <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-5">
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-5 space-y-4">
+        <div className="v3-panel-karta p-5 space-y-4">
           <div className="bg-purple-950/60 border border-lime-500/20 rounded-xl p-4 text-center font-mono">
             <p className="text-purple-400 text-xs mb-2">Triplet (S = 1) uchun</p>
             <p className="text-lime-400 text-sm">Ĥ = D[Sz² − 2/3] + E(Sx² − Sy²)</p>
@@ -606,8 +608,8 @@ function ZFSWorkbench() {
           </div>
         </div>
 
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-5 space-y-4">
-          <svg viewBox="0 0 520 240" className="w-full h-64 rounded-xl bg-purple-950/50 border border-purple-700/30">
+        <div className="v3-panel-karta p-5 space-y-4">
+          <svg viewBox="0 0 520 240" className="w-full h-64 rounded-xl bg-purple-950/50 border border-[var(--v3-chiziq)]">
             <line x1="70" y1="25" x2="70" y2="210" stroke="#4c1d95" strokeWidth="1" />
             <line x1="70" y1="118" x2="485" y2="118" stroke="#6d28d9" strokeDasharray="4 4" strokeWidth="1" />
             <text x="22" y="120" transform="rotate(-90 22 120)" fill="#c4b5fd" fontSize="11">Energiya</text>
@@ -658,7 +660,7 @@ function InterpretationWorkbench() {
       />
 
       <div className="grid lg:grid-cols-[0.72fr_1.28fr] gap-5">
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-5 space-y-3">
+        <div className="v3-panel-karta p-5 space-y-3">
           {speciesGuide.map((item, idx) => (
             <button
               key={item.nom}
@@ -705,16 +707,17 @@ function InterpretationWorkbench() {
 }
 
 export default function EPRSpektroskopiya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-purple-950 to-blue-950 text-white">
-      <header className="sticky top-0 z-20 backdrop-blur-md bg-purple-950/70 border-b border-purple-800/50">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
+      <header className="sticky top-0 z-20 backdrop-blur-md bg-purple-950/70 border-b border-[var(--v3-chiziq)]">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center gap-4 justify-between">
           <div className="flex items-center gap-4">
             <Link href="/ilmiy/tahlil" className="text-purple-300 hover:text-white transition-colors">
               ← Tahlil usullari
             </Link>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-lime-400">📡 EPR spektroskopiya</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-lime-400"> EPR spektroskopiya</h1>
               <p className="text-sm text-purple-300">Elektron Paramagnit Rezonans • g-tensor • hiperfin • ZFS • CW va pulse EPR</p>
             </div>
           </div>
@@ -971,7 +974,7 @@ export default function EPRSpektroskopiya() {
         </div>
 
         <div className="rounded-3xl border border-lime-500/20 bg-gradient-to-r from-lime-600/10 to-purple-600/10 p-7">
-          <h2 className="text-2xl font-bold text-white mb-4">✅ Ushbu qayta yozilgan sahifaning asosiy yutug'i</h2>
+          <h2 className="text-2xl font-bold text-white mb-4"> Ushbu qayta yozilgan sahifaning asosiy yutug'i</h2>
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
             <div className="rounded-2xl bg-purple-950/45 border border-purple-700/35 p-4 text-purple-100">EPR endi faqat "toq elektron" darajasida emas, balki spin Hamiltonian darajasida tushuntiriladi.</div>
             <div className="rounded-2xl bg-purple-950/45 border border-purple-700/35 p-4 text-purple-100">g, A, D, E, linewidth va relaksatsiya o'zaro bog'liq ilmiy parametrlar sifatida ko'rsatiladi.</div>
@@ -989,6 +992,6 @@ export default function EPRSpektroskopiya() {
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   )
 }
