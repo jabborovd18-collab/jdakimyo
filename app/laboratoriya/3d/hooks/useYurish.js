@@ -33,6 +33,7 @@ function stolKolliziyasi(px, pz, minX, maxX, minZ, maxZ, radius = 0.42) {
  * CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA, MOBIL JOYSTIK VA TUGMASIZ JISMONIY 3D OLAM DVIGATELI.
  */
 export function useYurish({
+  tayyor = false,
   sahnaRef,
   kameraRef,
   rendererRef,
@@ -82,7 +83,7 @@ export function useYurish({
   const analogRef = useRef({ vx: 0, vz: 0, sprint: false });
 
   // Kamera burchaklari (Yaw: Gorizontal, Pitch: Vertikal)
-  const rotationRef = useRef({ yaw: 0, pitch: -0.15 });
+  const rotationRef = useRef({ yaw: 0, pitch: -0.12 });
   const velocityRef = useRef(new THREE.Vector3());
 
   // Sakrash, cho'qqayish va ko'z balandligi
@@ -105,22 +106,22 @@ export function useYurish({
   const prevPromptTextRef = useRef("");
   const prevPromptTypeRef = useRef("oddiy");
   const raycastFrameRef = useRef(0);
-  const cachedHitsRef = useRef({ foundIdish: null, foundStansiya: null, promptText: "", promptType: "oddiy" });
 
   // 1. Initializatsiya: OrbitControls ni to'liq o'chirib, kamerani FPS rejimiga o'rnatish
   useEffect(() => {
+    if (!tayyor || !kameraRef?.current) return;
+
     if (controlsRef?.current) {
       controlsRef.current.enabled = false;
     }
-    if (kameraRef?.current) {
-      kameraRef.current.position.set(0, 1.58, 2.5);
-      const dir = new THREE.Vector3(0, -0.15, -1).normalize();
-      rotationRef.current.yaw = 0;
-      rotationRef.current.pitch = -0.12;
-      eyeHeightRef.current = 1.58;
-      targetEyeHeightRef.current = 1.58;
-    }
-  }, [kameraRef, controlsRef]);
+
+    kameraRef.current.position.set(0, 1.58, 2.5);
+    rotationRef.current.yaw = 0;
+    rotationRef.current.pitch = -0.12;
+    eyeHeightRef.current = 1.58;
+    targetEyeHeightRef.current = 1.58;
+    velocityRef.current.set(0, 0, 0);
+  }, [tayyor, kameraRef, controlsRef]);
 
   // Sezgirlikni localStorage dan o'qish
   useEffect(() => {
@@ -410,7 +411,7 @@ export function useYurish({
 
   // 1. KLAVIATURA HODISALARI (WASD / Cyrillic / E / F / G / C / 1-5)
   useEffect(() => {
-    if (!yurishRejimi) return;
+    if (!tayyor || !yurishRejimi) return;
 
     const handleKeyDown = (e) => {
       if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
@@ -478,13 +479,15 @@ export function useYurish({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [yurishRejimi, qolgaOlYokiQoy, onAniqHajmQuy, fpsQolIdish]);
+  }, [tayyor, yurishRejimi, qolgaOlYokiQoy, onAniqHajmQuy, fpsQolIdish]);
 
   // 2. CS 1.6 USLUBIDAGI 100% ERKIN SICHQONCHA HARAKATI VA KLIK
   useEffect(() => {
-    if (!yurishRejimi || !rendererRef?.current) return;
+    if (!tayyor || !yurishRejimi || !rendererRef?.current) return;
 
     const domElement = rendererRef.current.domElement;
+    if (!domElement) return;
+
     let initialized = false;
     let prevX = 0;
     let prevY = 0;
@@ -563,11 +566,11 @@ export function useYurish({
       window.removeEventListener("mouseup", handleMouseUp);
       domElement.removeEventListener("wheel", handleWheel);
     };
-  }, [yurishRejimi, rendererRef, qolgaOlYokiQoy, onQuyishToxtat, onAniqHajmQuy, fpsQolIdish, fpsQaralganIdish]);
+  }, [tayyor, yurishRejimi, rendererRef, qolgaOlYokiQoy, onQuyishToxtat, onAniqHajmQuy, fpsQolIdish, fpsQaralganIdish]);
 
   // 3. ASOSIY FPS HARAKATLANISH, KOLLIZIYA VA CROSSHAIR SIKLI (60 FPS)
   useEffect(() => {
-    if (!yurishRejimi || !kameraRef?.current || !sahnaRef?.current) return;
+    if (!tayyor || !yurishRejimi || !kameraRef?.current || !sahnaRef?.current) return;
 
     const kamera = kameraRef.current;
     const sahna = sahnaRef.current;
@@ -703,215 +706,218 @@ export function useYurish({
         fpsQolIdish.rotation.copy(kamera.rotation);
       }
 
-      // 4. CROSSHAIR RAYCASTING (Nishondagi idish yoki stansiyani aniqlash)
-      centerRaycasterRef.current.setFromCamera(new THREE.Vector2(0, 0), kamera);
-      const hits = centerRaycasterRef.current.intersectObjects(sahna.children, true);
+      // 4. CROSSHAIR RAYCASTING
+      raycastFrameRef.current++;
+      if (raycastFrameRef.current % 2 === 0) {
+        centerRaycasterRef.current.setFromCamera(new THREE.Vector2(0, 0), kamera);
+        const hits = centerRaycasterRef.current.intersectObjects(sahna.children, true);
 
-      let foundIdish = null;
-      let foundStansiya = null;
-      let promptText = "";
-      let promptType = "oddiy";
+        let foundIdish = null;
+        let foundStansiya = null;
+        let promptText = "";
+        let promptType = "oddiy";
 
-      for (const hit of hits) {
-        if (hit.distance > 3.4) break;
+        for (const hit of hits) {
+          if (hit.distance > 3.4) break;
 
-        const obj = hit.object;
+          const obj = hit.object;
 
-        // Maxsus stansiyalar va tugmalarni tekshirish
-        let ota = obj;
-        while (ota) {
-          if (ota.userData?.kalit === "tarozi_tara") {
-            foundStansiya = "tarozi_tara";
-            foundIdish = ota;
-            promptText = "[E / Klik] Tarozini TARA qilish (Nolga tenglashtirish)";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "tarozi_nol") {
-            foundStansiya = "tarozi_nol";
-            foundIdish = ota;
-            promptText = "[E / Klik] Tarozini NOLGA qaytarish";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "rakovina_kran") {
-            foundStansiya = "rakovina_kran";
-            foundIdish = ota;
-            promptText = "[E / Klik] Distillangan suv kranini burash";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "lab_planshet") {
-            foundStansiya = "lab_planshet";
-            foundIdish = ota;
-            promptText = "[E / Klik] Reaksiya Tahlili va Ilmiy Hisobot";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "titrlash_kran") {
-            foundStansiya = "titrlash_kran";
-            foundIdish = ota;
-            promptText = "[E / Klik] Byuretka kranini burash (Tomchilatish / To'xtatish)";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "elektroliz_tok") {
-            foundStansiya = "elektroliz_tok";
-            foundIdish = ota;
-            promptText = "[E / Klik] DC Tok Manbaini yoqish / o'chirish (Faradey Elektrolizi)";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "xavfsizlik_dushi" || ota.name === "Xavfsizlik_Dushi_Stansiyasi") {
-            foundStansiya = "xavfsizlik_dushi";
-            foundIdish = ota;
-            promptText = "[E / Klik] Favqulodda Xavfsizlik Dushini tortish (Zararsizlantirish)";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "koz_yuvish") {
-            foundStansiya = "koz_yuvish";
-            foundIdish = ota;
-            promptText = "[E / Klik] Ko'z Yuvish Favvorasini ochish";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "himoya_kozoynagi") {
-            foundIdish = ota;
-            promptText = "[E / Klik] Kimyoviy Himoya Ko'zoynagini taqish / yechish";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.userData?.kalit === "gaz_niqobi") {
-            foundIdish = ota;
-            promptText = "[E / Klik] Kimyoviy Gaz Niqobini (Respirator) taqish / yechish";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.name === "Davriy_Jadval_LED_Plakat" || ota.userData?.kalit === "davriy_jadval") {
-            foundStansiya = "davriy_jadval";
-            promptText = "[E / Klik] Mendeleyev Davriy Jadvali (IUPAC)";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.name === "Titrlash_Byuretka_Stansiyasi" || ota.userData?.kalit === "titrlash") {
-            foundStansiya = "titrlash";
-            promptText = "[E / Klik] 50ml Byuretka Titrlash Stendi";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.name === "Elektroliz_Stansiyasi" || ota.userData?.kalit === "elektroliz") {
-            foundStansiya = "elektroliz";
-            promptText = "[E / Klik] Tok Manbai va Elektroliz Stendi";
-            promptType = "urgu";
-            break;
-          }
-          if (ota.name === "Tarozi_Stansiyasi" || ota.userData?.kalit === "tarozi") {
-            foundStansiya = "tarozi";
-            break;
-          }
-          if (ota.name === "Yuvinish_Rakovinasi" || ota.userData?.kalit === "rakovina") {
-            foundStansiya = "yuvinish";
-            break;
-          }
-          if (ota.name === "3D_Devor_Reagent_Shkaflari") {
-            foundStansiya = "devor_javoni";
-          }
-          ota = ota.parent;
-        }
-
-        if (foundStansiya && promptText) break;
-
-        let joriy = obj;
-        while (joriy) {
-          if (joriy.userData && joriy.userData.tanlanadi && joriy.userData.kalit && joriy !== fpsQolIdish) {
-            foundIdish = joriy;
-            break;
-          }
-          joriy = joriy.parent;
-        }
-
-        if (foundIdish) break;
-      }
-
-      // Dinamik Cyber-HUD matnlarini shakllantirish
-      if (fpsQolIdish) {
-        const heldNom = fpsQolIdish.userData?.nom || fpsQolIdish.userData?.kalit || "Idish";
-
-        if (foundIdish && foundIdish !== fpsQolIdish) {
-          const targetNom = foundIdish.userData?.nom || foundIdish.userData?.kalit || "Idish";
-
-          if (fpsQolIdish.userData?.kalit === "shisha-tayoqcha" && (foundIdish.userData?.sigim > 0 || foundIdish.userData?.tanlanadi)) {
-            promptText = `[E / Klik] ${targetNom}ni shisha tayoqcha bilan aralashtirish (Reaksiya jadallashuvi)`;
-            promptType = "urgu";
-          } else if (fpsQolIdish.userData?.kalit === "spatula") {
-            if (foundIdish.userData?.devorShishasi || foundIdish.userData?.kalit?.startsWith("Cu") || foundIdish.userData?.kalit?.startsWith("Ag") || foundIdish.userData?.kalit?.startsWith("KMn") || foundIdish.userData?.kalit?.startsWith("Fe") || foundIdish.userData?.kalit?.startsWith("Ba")) {
-              promptText = `[E / Klik] 1.0g ${targetNom} kukunini spatulaga olish`;
+          // Maxsus stansiyalar va tugmalarni tekshirish
+          let ota = obj;
+          while (ota) {
+            if (ota.userData?.kalit === "tarozi_tara") {
+              foundStansiya = "tarozi_tara";
+              foundIdish = ota;
+              promptText = "[E / Klik] Tarozini TARA qilish (Nolga tenglashtirish)";
               promptType = "urgu";
-            } else if (foundIdish.userData?.sigim > 0) {
-              promptText = `[E / Klik] 1.0g kukunni ${targetNom}ga solish va eritish`;
+              break;
+            }
+            if (ota.userData?.kalit === "tarozi_nol") {
+              foundStansiya = "tarozi_nol";
+              foundIdish = ota;
+              promptText = "[E / Klik] Tarozini NOLGA qaytarish";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.userData?.kalit === "rakovina_kran") {
+              foundStansiya = "rakovina_kran";
+              foundIdish = ota;
+              promptText = "[E / Klik] Distillangan suv kranini burash";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.userData?.kalit === "lab_planshet") {
+              foundStansiya = "lab_planshet";
+              foundIdish = ota;
+              promptText = "[E / Klik] Reaksiya Tahlili va Ilmiy Hisobot";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.userData?.kalit === "titrlash_kran") {
+              foundStansiya = "titrlash_kran";
+              foundIdish = ota;
+              promptText = "[E / Klik] Byuretka kranini burash (Tomchilatish / To'xtatish)";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.userData?.kalit === "elektroliz_tok") {
+              foundStansiya = "elektroliz_tok";
+              foundIdish = ota;
+              promptText = "[E / Klik] DC Tok Manbaini yoqish / o'chirish (Faradey Elektrolizi)";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.userData?.kalit === "xavfsizlik_dushi" || ota.name === "Xavfsizlik_Dushi_Stansiyasi") {
+              foundStansiya = "xavfsizlik_dushi";
+              foundIdish = ota;
+              promptText = "[E / Klik] Favqulodda Xavfsizlik Dushini tortish (Zararsizlantirish)";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.userData?.kalit === "koz_yuvish") {
+              foundStansiya = "koz_yuvish";
+              foundIdish = ota;
+              promptText = "[E / Klik] Ko'z Yuvish Favvorasini ochish";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.userData?.kalit === "himoya_kozoynagi") {
+              foundIdish = ota;
+              promptText = "[E / Klik] Kimyoviy Himoya Ko'zoynagini taqish / yechish";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.userData?.kalit === "gaz_niqobi") {
+              foundIdish = ota;
+              promptText = "[E / Klik] Kimyoviy Gaz Niqobini (Respirator) taqish / yechish";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.name === "Davriy_Jadval_LED_Plakat" || ota.userData?.kalit === "davriy_jadval") {
+              foundStansiya = "davriy_jadval";
+              promptText = "[E / Klik] Mendeleyev Davriy Jadvali (IUPAC)";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.name === "Titrlash_Byuretka_Stansiyasi" || ota.userData?.kalit === "titrlash") {
+              foundStansiya = "titrlash";
+              promptText = "[E / Klik] 50ml Byuretka Titrlash Stendi";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.name === "Elektroliz_Stansiyasi" || ota.userData?.kalit === "elektroliz") {
+              foundStansiya = "elektroliz";
+              promptText = "[E / Klik] Tok Manbai va Elektroliz Stendi";
+              promptType = "urgu";
+              break;
+            }
+            if (ota.name === "Tarozi_Stansiyasi" || ota.userData?.kalit === "tarozi") {
+              foundStansiya = "tarozi";
+              break;
+            }
+            if (ota.name === "Yuvinish_Rakovinasi" || ota.userData?.kalit === "rakovina") {
+              foundStansiya = "yuvinish";
+              break;
+            }
+            if (ota.name === "3D_Devor_Reagent_Shkaflari") {
+              foundStansiya = "devor_javoni";
+            }
+            ota = ota.parent;
+          }
+
+          if (foundStansiya && promptText) break;
+
+          let joriy = obj;
+          while (joriy) {
+            if (joriy.userData && joriy.userData.tanlanadi && joriy.userData.kalit && joriy !== fpsQolIdish) {
+              foundIdish = joriy;
+              break;
+            }
+            joriy = joriy.parent;
+          }
+
+          if (foundIdish) break;
+        }
+
+        // Dinamik Cyber-HUD matnlarini shakllantirish
+        if (fpsQolIdish) {
+          const heldNom = fpsQolIdish.userData?.nom || fpsQolIdish.userData?.kalit || "Idish";
+
+          if (foundIdish && foundIdish !== fpsQolIdish) {
+            const targetNom = foundIdish.userData?.nom || foundIdish.userData?.kalit || "Idish";
+
+            if (fpsQolIdish.userData?.kalit === "shisha-tayoqcha" && (foundIdish.userData?.sigim > 0 || foundIdish.userData?.tanlanadi)) {
+              promptText = `[E / Klik] ${targetNom}ni shisha tayoqcha bilan aralashtirish (Reaksiya jadallashuvi)`;
+              promptType = "urgu";
+            } else if (fpsQolIdish.userData?.kalit === "spatula") {
+              if (foundIdish.userData?.devorShishasi || foundIdish.userData?.kalit?.startsWith("Cu") || foundIdish.userData?.kalit?.startsWith("Ag") || foundIdish.userData?.kalit?.startsWith("KMn") || foundIdish.userData?.kalit?.startsWith("Fe") || foundIdish.userData?.kalit?.startsWith("Ba")) {
+                promptText = `[E / Klik] 1.0g ${targetNom} kukunini spatulaga olish`;
+                promptType = "urgu";
+              } else if (foundIdish.userData?.sigim > 0) {
+                promptText = `[E / Klik] 1.0g kukunni ${targetNom}ga solish va eritish`;
+                promptType = "quyish";
+              }
+            } else if (foundIdish.userData?.kalit === "spirtovka") {
+              promptText = `[E / Klik] ${heldNom}ni spirtovka ustiga qo'yish`;
+              promptType = "urgu";
+            } else if (foundIdish.userData?.kalit === "tarozi" || foundIdish.userData?.kalit === "tarozi_palla" || foundStansiya === "tarozi") {
+              promptText = `[E / Klik] ${heldNom}ni tarozi pallasiga qo'yish`;
+              promptType = "urgu";
+            } else if (foundIdish.userData?.kalit === "rakovina" || foundStansiya === "yuvinish") {
+              promptText = `[E / Klik] ${heldNom}ni rakovinada yuvish va tozalash`;
+              promptType = "yuvish";
+            } else if (foundIdish.userData?.sigim > 0 || foundIdish.userData?.tanlanadi) {
+              promptText = `[E / LMB] ${targetNom}ga quyish | [1-5] Doza | [G] Stolga`;
               promptType = "quyish";
             }
-          } else if (foundIdish.userData?.kalit === "spirtovka") {
-            promptText = `[E / Klik] ${heldNom}ni spirtovka ustiga qo'yish`;
+          } else if (foundStansiya === "devor_javoni" && fpsQolIdish.userData?.devorShishasi) {
+            promptText = `[E / G] ${heldNom}ni o'z devor javoniga qaytarish`;
             promptType = "urgu";
-          } else if (foundIdish.userData?.kalit === "tarozi" || foundIdish.userData?.kalit === "tarozi_palla" || foundStansiya === "tarozi") {
-            promptText = `[E / Klik] ${heldNom}ni tarozi pallasiga qo'yish`;
-            promptType = "urgu";
-          } else if (foundIdish.userData?.kalit === "rakovina" || foundStansiya === "yuvinish") {
-            promptText = `[E / Klik] ${heldNom}ni rakovinada yuvish va tozalash`;
-            promptType = "yuvish";
-          } else if (foundIdish.userData?.sigim > 0 || foundIdish.userData?.tanlanadi) {
-            promptText = `[E / LMB] ${targetNom}ga quyish | [1-5] Doza | [G] Stolga`;
-            promptType = "quyish";
+          } else {
+            promptText = `[E / G] ${heldNom}ni stolga qo'yish`;
+            promptType = "oddiy";
           }
-        } else if (foundStansiya === "devor_javoni" && fpsQolIdish.userData?.devorShishasi) {
-          promptText = `[E / G] ${heldNom}ni o'z devor javoniga qaytarish`;
-          promptType = "urgu";
         } else {
-          promptText = `[E / G] ${heldNom}ni stolga qo'yish`;
-          promptType = "oddiy";
-        }
-      } else {
-        if (foundIdish) {
-          const targetNom = foundIdish.userData?.nom || foundIdish.userData?.kalit || "Jihoz";
+          if (foundIdish) {
+            const targetNom = foundIdish.userData?.nom || foundIdish.userData?.kalit || "Jihoz";
 
-          if (foundIdish.userData?.stendJihozi) {
-            promptText = `[E / Klik] Yangi toza ${targetNom}ni olish`;
-            promptType = "olish";
-          } else if (foundIdish.userData?.devorShishasi) {
-            const joriy = Math.round(foundIdish.userData?.joriyHajm || 500);
-            const sigim = foundIdish.userData?.sigim || 500;
-            promptText = `[E / Klik] ${targetNom} (${joriy}/${sigim}ml) shishasini olish`;
-            promptType = "olish";
-          } else if (foundIdish.userData?.kalit === "spirtovka") {
-            promptText = `[E / Klik] Spirtovkani yoqish / o'chirish (Hozir: ${isitimoda ? "YONMOQDA" : "O'CHIQ"})`;
-            promptType = "urgu";
-          } else if (!promptText) {
-            promptText = `[E / Klik] ${targetNom}ni qo'lga olish`;
-            promptType = "olish";
+            if (foundIdish.userData?.stendJihozi) {
+              promptText = `[E / Klik] Yangi toza ${targetNom}ni olish`;
+              promptType = "olish";
+            } else if (foundIdish.userData?.devorShishasi) {
+              const joriy = Math.round(foundIdish.userData?.joriyHajm || 500);
+              const sigim = foundIdish.userData?.sigim || 500;
+              promptText = `[E / Klik] ${targetNom} (${joriy}/${sigim}ml) shishasini olish`;
+              promptType = "olish";
+            } else if (foundIdish.userData?.kalit === "spirtovka") {
+              promptText = `[E / Klik] Spirtovkani yoqish / o'chirish (Hozir: ${isitimoda ? "YONMOQDA" : "O'CHIQ"})`;
+              promptType = "urgu";
+            } else if (!promptText) {
+              promptText = `[E / Klik] ${targetNom}ni qo'lga olish`;
+              promptType = "olish";
+            }
           }
         }
-      }
 
-      if (foundIdish !== avvalgiFpsYoritilganRef.current) {
-        avvalgiFpsYoritilganRef.current = foundIdish;
-        setFpsQaralganIdish(foundIdish);
-      }
+        if (foundIdish !== avvalgiFpsYoritilganRef.current) {
+          avvalgiFpsYoritilganRef.current = foundIdish;
+          setFpsQaralganIdish(foundIdish);
+        }
 
-      if (foundStansiya !== prevStansiyaRef.current) {
-        prevStansiyaRef.current = foundStansiya;
-        setFpsQaralganStansiya(foundStansiya);
-      }
+        if (foundStansiya !== prevStansiyaRef.current) {
+          prevStansiyaRef.current = foundStansiya;
+          setFpsQaralganStansiya(foundStansiya);
+        }
 
-      if (promptText !== prevPromptTextRef.current) {
-        prevPromptTextRef.current = promptText;
-        setFpsKontekstMatn(promptText);
-      }
+        if (promptText !== prevPromptTextRef.current) {
+          prevPromptTextRef.current = promptText;
+          setFpsKontekstMatn(promptText);
+        }
 
-      if (promptType !== prevPromptTypeRef.current) {
-        prevPromptTypeRef.current = promptType;
-        setFpsKontekstTuri(promptType);
+        if (promptType !== prevPromptTypeRef.current) {
+          prevPromptTypeRef.current = promptType;
+          setFpsKontekstTuri(promptType);
+        }
       }
     };
 
@@ -920,7 +926,7 @@ export function useYurish({
     return () => {
       if (kadrIdRef.current) cancelAnimationFrame(kadrIdRef.current);
     };
-  }, [yurishRejimi, kameraRef, sahnaRef, fpsQolIdish, isitimoda]);
+  }, [tayyor, yurishRejimi, kameraRef, sahnaRef, fpsQolIdish, isitimoda]);
 
   // Mobil Joystik boshqaruvi
   const handleJoystickHarakat = useCallback((vx, vz, isSprint) => {

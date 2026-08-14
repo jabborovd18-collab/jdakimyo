@@ -503,6 +503,7 @@ export default function Korinish() {
     handleJoystickHarakat,
     handleJoystickBurilish,
   } = useYurish({
+    tayyor,
     sahnaRef,
     kameraRef,
     rendererRef,
