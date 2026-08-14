@@ -20,6 +20,7 @@ import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi, oqimBoshla, oqimToxtat, taroziBip, shishaUrilishi, tiqinOchilishi } from "./lib/ovoz.js";
 import { massaHisobla } from "./lib/tarozi.js";
+import { eritmaHisobla } from "./lib/eritma-tayyorlash.js";
 import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat, yoz } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila, qaynashniYangila } from "./lib/jihoz-modellari.js";
@@ -328,16 +329,53 @@ export default function Korinish() {
   const handleSpatulaAmal = useCallback((group) => {
     if (spatulaKukun) {
       const tuz = spatulaKukun;
-      aniqHajmQuy(tuz, group, 5);
+      const qoshilganGramm = 1.0;
+
+      const yangiModdalar = {
+        ...(holatRef.current.moddalar || {}),
+        [tuz]: {
+          ...(holatRef.current.moddalar?.[tuz] || {}),
+          gramm: ((holatRef.current.moddalar?.[tuz]?.gramm || 0) + qoshilganGramm),
+          ml: ((holatRef.current.moddalar?.[tuz]?.ml || 0) + 1.0),
+        },
+      };
+
+      holatRef.current = {
+        ...holatRef.current,
+        idish: group.userData?.kalit || holatRef.current.idish || "probirka",
+        moddalar: yangiModdalar,
+      };
+
+      // Agar idish tarozida bo'lsa -> Tarozining LED ekranini darhol yangilash
+      if (tarozidagiIdish || group.userData?.tarozida) {
+        const idishKaliti = group.userData?.kalit || "probirka";
+        const data = massaHisobla(idishKaliti, yangiModdalar, taraMassa);
+        const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
+        if (taroziMesh?.userData?.ekranniYangila) {
+          taroziBip(2600);
+          taroziMesh.userData.ekranniYangila(data.nettoMassa, taraMassa, idishKaliti, true);
+        }
+      }
+
+      // Agar suv bor bo'lsa, konsentratsiyani hisoblab rangini yangilash
+      const suvMl = yangiModdalar["H₂O"]?.ml || yangiModdalar["suv"]?.ml || 0;
+      if (suvMl > 0) {
+        const eritmaData = eritmaHisobla(tuz, yangiModdalar[tuz].gramm, suvMl);
+        suyuqlikSathiniYangila(group, suvMl + 2, { rang: eritmaData.rang, shaffoflik: eritmaData.shaffoflik });
+        toast.success(`🧂 ${qoshilganGramm.toFixed(3)}g ${tuz} eritildi! Konsentratsiya: ${eritmaData.molyarlik.toFixed(3)} M`);
+      } else {
+        toast.success(`🧂 ${qoshilganGramm.toFixed(3)}g ${tuz} kukuni idishga solindi (Tarozida tortildi)`);
+      }
+
       setSpatulaKukun(null);
-      toast.success(`🧂 1.0g ${tuz} kukuni idishga solindi va eridi!`);
+      setAralashmaOzgarish((s) => s + 1);
     } else {
       const tuzKalit = group.userData?.kalit || "CuSO₄";
       setSpatulaKukun(tuzKalit);
       tiqinOchilishi();
-      toast.success(`🧂 Spatulaga 1.0g ${tuzKalit} kukuni olindi`);
+      toast.success(`🧂 Spatulaga 1.000g ${tuzKalit} kukuni olindi`);
     }
-  }, [spatulaKukun, aniqHajmQuy]);
+  }, [spatulaKukun, tarozidagiIdish, taraMassa, sahnaRef]);
 
   const handleStansiyaOchildi = useCallback((stansiya) => {
     if (stansiya === "davriy_jadval") setDavriyJadvalOchilgan(true);
