@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════
@@ -322,6 +324,7 @@ function getQualityClass(entry) {
 // ASOSIY KOMPONENT
 // ═══════════════════════════════════════════════════════════
 export default function ElementAnaliz() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [selectedElement, setSelectedElement] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [qualityFilter, setQualityFilter] = useState("all")
@@ -371,13 +374,13 @@ export default function ElementAnaliz() {
   }, [selectedElement, searchQuery, qualityFilter])
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
       {/* HEADER */}
-      <header className="border-b border-purple-800/50">
+      <header className="border-b border-[var(--v3-chiziq)]">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <nav className="flex items-center gap-2 text-sm mb-3 text-purple-400" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-purple-300">🏠</Link>
+            <Link href="/" className="hover:text-purple-300"></Link>
             <span className="text-purple-600">›</span>
             <Link href="/ilmiy" className="hover:text-purple-300">Ilmiy</Link>
             <span className="text-purple-600">›</span>
@@ -389,7 +392,7 @@ export default function ElementAnaliz() {
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-stone-400 flex items-center gap-3">
-                <span className="text-3xl">🧪</span>
+                <span className="text-3xl"></span>
                 Element Analiz (EA)
               </h1>
               <p className="text-purple-400 text-sm mt-1">
@@ -398,7 +401,7 @@ export default function ElementAnaliz() {
             </div>
             <Link 
               href="/ilmiy/tahlil"
-              className="text-purple-400 hover:text-purple-300 text-sm flex items-center gap-2 bg-purple-900/40 px-4 py-2 rounded-lg border border-purple-700/50"
+              className="text-purple-400 hover:text-purple-300 text-sm flex items-center gap-2 bg-purple-900/40 px-4 py-2 rounded-lg border border-[var(--v3-chiziq)]"
             >
               ← Tahlil usullari
             </Link>
@@ -410,8 +413,8 @@ export default function ElementAnaliz() {
 
         {/* STATISTIKA */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <div className="bg-purple-900/30 border border-purple-700/50 rounded-xl p-4 text-center">
-            <div className="text-3xl mb-2">📊</div>
+          <div className="bg-purple-900/30 border border-[var(--v3-chiziq)] rounded-xl p-4 text-center">
+            <div className="text-3xl mb-2"></div>
             <div className="text-2xl font-bold text-stone-400">{stats.total}</div>
             <div className="text-xs text-purple-400">Birikmalar</div>
           </div>
@@ -431,7 +434,7 @@ export default function ElementAnaliz() {
             <div className="text-xs text-purple-400">S bor</div>
           </div>
           <div className="bg-green-900/30 border border-green-700/50 rounded-xl p-4 text-center">
-            <div className="text-3xl mb-2">✅</div>
+            <div className="text-3xl mb-2"></div>
             <div className="text-2xl font-bold text-green-400">±{stats.avgError}%</div>
             <div className="text-xs text-purple-400">O'rt. xatolik</div>
           </div>
@@ -443,7 +446,7 @@ export default function ElementAnaliz() {
           className="group block bg-gradient-to-r from-stone-900/40 to-purple-900/40 border border-stone-700/50 rounded-2xl p-6 hover:bg-stone-900/60 hover:border-stone-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">🧪</div>
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-stone-400 group-hover:text-stone-300 transition-colors">
                 Birikmalarning Element Analizi
@@ -472,9 +475,9 @@ export default function ElementAnaliz() {
         </Link>
 
         {/* ASOSIY MA'LUMOT */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8">
+        <div className="v3-panel-karta p-6 md:p-8">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <span>📋</span> Element Analiz haqida
+            <span></span> Element Analiz haqida
           </h2>
           
           <div className="bg-stone-600/10 border border-stone-500/30 rounded-xl p-5 mb-6">
@@ -488,7 +491,7 @@ export default function ElementAnaliz() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-stone-400 font-bold mb-3">Nimani aniqlaydi?</h3>
               <ul className="text-purple-200 space-y-2 text-sm">
                 <li className="flex items-start gap-2">
@@ -509,7 +512,7 @@ export default function ElementAnaliz() {
                 </li>
               </ul>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-stone-400 font-bold mb-3">Qanday ishlaydi?</h3>
               <ul className="text-purple-200 space-y-2 text-sm">
                 <li className="flex items-start gap-2">
@@ -534,9 +537,9 @@ export default function ElementAnaliz() {
         </div>
 
         {/* ELEMENTLAR MA'LUMOTLARI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8">
+        <div className="v3-panel-karta p-6 md:p-8">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <span>⚛️</span> Tahlil qilinadigan elementlar
+            <span></span> Tahlil qilinadigan elementlar
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {elementDatabase.map(el => {
@@ -562,7 +565,7 @@ export default function ElementAnaliz() {
                       <span className="text-purple-400">Gaz:</span>
                       <span className="text-yellow-400 font-mono">{el.gas}</span>
                     </div>
-                    <div className="pt-2 border-t border-purple-700/30">
+                    <div className="pt-2 border-t border-[var(--v3-chiziq)]">
                       <p className="text-purple-400 text-[10px]">{el.absorption}</p>
                     </div>
                   </div>
@@ -573,14 +576,14 @@ export default function ElementAnaliz() {
         </div>
 
         {/* FILTER VA QIDIRUV */}
-        <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 space-y-4">
+        <div className="v3-panel-karta p-5 space-y-4">
           <div className="relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="🔍 Formula, nom yoki ligand bo'yicha qidirish..."
-              className="w-full px-5 py-3 bg-purple-950/60 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:outline-none focus:border-stone-400 transition-colors"
+              placeholder=" Formula, nom yoki ligand bo'yicha qidirish..."
+              className="w-full px-5 py-3 bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl text-white placeholder-purple-500 focus:outline-none focus:border-stone-400 transition-colors"
               aria-label="Birikmalarni qidirish"
             />
             {searchQuery && (
@@ -626,14 +629,14 @@ export default function ElementAnaliz() {
                       : "bg-purple-900/50 text-purple-300 hover:bg-purple-800/50"
                   }`}
                 >
-                  {q === "all" ? "Barchasi" : q === "mukammal" ? "✅ Mukammal (<0.3%)" : "🟡 Yaxshi (0.3-0.5%)"}
+                  {q === "all" ? "Barchasi" : q === "mukammal" ? " Mukammal (<0.3%)" : "🟡 Yaxshi (0.3-0.5%)"}
                 </button>
               ))}
             </div>
           </div>
 
           {(searchQuery || selectedElement !== "all" || qualityFilter !== "all") && (
-            <div className="text-xs text-purple-400 pt-2 border-t border-purple-700/30">
+            <div className="text-xs text-purple-400 pt-2 border-t border-[var(--v3-chiziq)]">
               Topildi: <span className="text-white font-semibold">{filtered.length}</span> ta birikma
             </div>
           )}
@@ -642,8 +645,8 @@ export default function ElementAnaliz() {
         {/* NATIJALAR */}
         <div className="space-y-4">
           {filtered.length === 0 ? (
-            <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-12 text-center">
-              <div className="text-5xl mb-4">🔍</div>
+            <div className="v3-panel-karta p-12 text-center">
+              <div className="text-5xl mb-4"></div>
               <h3 className="text-lg font-bold text-white mb-2">Hech narsa topilmadi</h3>
               <p className="text-purple-400 text-sm">Qidiruv yoki filtrlarni o'zgartirib ko'ring</p>
             </div>
@@ -827,7 +830,7 @@ export default function ElementAnaliz() {
         </div>
 
         {/* HISOBLASH FORMULASI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8">
+        <div className="v3-panel-karta p-6 md:p-8">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <span>🧮</span> Empirik formulani hisoblash
           </h2>
@@ -853,13 +856,13 @@ export default function ElementAnaliz() {
             </div>
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <h3 className="text-yellow-400 font-bold mb-3 text-sm">📝 Masalan: Ferrosen Fe(C₅H₅)₂</h3>
             <div className="font-mono text-xs text-purple-200 space-y-1">
               <p>C: 64.56 / 12.011 = <span className="text-red-400">5.37</span></p>
               <p>H: 5.42 / 1.008 = <span className="text-cyan-400">5.38</span></p>
               <p>Fe: 30.02 / 55.85 = <span className="text-amber-400">0.538</span></p>
-              <p className="pt-2 border-t border-purple-700/30">
+              <p className="pt-2 border-t border-[var(--v3-chiziq)]">
                 Nisbat: C:H:Fe = 5.37:5.38:0.538 = <span className="text-green-400 font-bold">10:10:1</span>
               </p>
               <p className="text-yellow-400">→ <span className="font-bold">C₁₀H₁₀Fe</span> (empirik formula)</p>
@@ -868,14 +871,14 @@ export default function ElementAnaliz() {
         </div>
 
         {/* XATOLIK CHEGARALARI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8">
+        <div className="v3-panel-karta p-6 md:p-8">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <span>📏</span> Qabul qilinadigan xatolik chegaralari
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-green-600/10 border border-green-500/30 rounded-xl p-5">
-              <h3 className="text-green-400 font-bold mb-2 text-sm">✅ Mukammal</h3>
+              <h3 className="text-green-400 font-bold mb-2 text-sm"> Mukammal</h3>
               <div className="text-3xl font-bold text-green-400 font-mono mb-2">±0.3%</div>
               <p className="text-purple-200 text-xs leading-relaxed">
                 Har bir element uchun hisoblangan va topilgan qiymat farqi{" "}
@@ -906,7 +909,7 @@ export default function ElementAnaliz() {
             <span>📜</span> Tarixiy rivojlanish
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-yellow-400 font-bold font-mono">1831</span>
                 <span className="text-white font-bold">Justus von Liebig</span>
@@ -916,7 +919,7 @@ export default function ElementAnaliz() {
                 Yonish mahsulotlari KOH da yutiladi, massa o'sishi o'lchanadi.
               </p>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-yellow-400 font-bold font-mono">1833</span>
                 <span className="text-white font-bold">Jean-Baptiste Dumas</span>
@@ -926,7 +929,7 @@ export default function ElementAnaliz() {
                 N₂ gaz sifatida to'planadi va hajmi o'lchanadi.
               </p>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-yellow-400 font-bold font-mono">1897</span>
                 <span className="text-white font-bold">Fritz Pregl</span>
@@ -936,7 +939,7 @@ export default function ElementAnaliz() {
                 1923-yil Kimyo bo'yicha Nobel mukofoti.
               </p>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-yellow-400 font-bold font-mono">1960+</span>
                 <span className="text-white font-bold">Zamonaviy CHNS analizatorlar</span>
@@ -952,7 +955,7 @@ export default function ElementAnaliz() {
         {/* XULOSA */}
         <div className="bg-gradient-to-r from-stone-600/10 to-purple-600/10 border border-stone-500/20 rounded-2xl p-6 md:p-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span>✅</span> Asosiy xulosalar
+            <span></span> Asosiy xulosalar
           </h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside text-sm">
             <li>EA — yangi komplekslarning <strong className="text-stone-400">empirik formulasini tasdiqlovchi</strong> birinchi usul</li>
@@ -981,6 +984,6 @@ export default function ElementAnaliz() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

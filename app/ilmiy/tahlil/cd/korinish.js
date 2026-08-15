@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ============================================================================
@@ -45,11 +47,11 @@ function CDSpectrumSimulator() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">📊 CD spektr simulyatori</h3>
+      <h3 className="text-white font-semibold"> CD spektr simulyatori</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-rose-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-rose-700/30 space-y-4">
         <div className="bg-rose-600/10 border border-rose-500/30 rounded-lg p-4">
-          <p className="text-rose-400 font-bold mb-2">💎 Interaktiv simulyator:</p>
+          <p className="text-rose-400 font-bold mb-2"> Interaktiv simulyator:</p>
           <p className="text-purple-200 text-xs">
             Enantiomer, kompleks turi va enantiomer tozaligini o'zgartiring.
             CD spektri qanday o'zgarishini real vaqtda kuzating.
@@ -174,7 +176,7 @@ function CDSpectrumSimulator() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Kuzatishlar:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Kuzatishlar:</p>
           <ul className="text-purple-200 space-y-1 list-disc list-inside">
             <li><strong>Δ ↔ Λ</strong> — CD spektri teskari bo'ladi (musbat ↔ manfiy)</li>
             <li><strong>ee = 100%</strong> — toza enantiomer, maksimal CD signal</li>
@@ -197,7 +199,7 @@ function DeltaLambdaVisualization() {
     <div className="space-y-4">
       <h3 className="text-white font-semibold">🔷 Δ va Λ enantiomerlar — 3D vizualizatsiya</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-rose-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-rose-700/30 space-y-4">
         <div>
           <label className="flex justify-between text-xs mb-1">
             <span className="text-yellow-400 font-bold">Aylantirish burchagi:</span>
@@ -281,7 +283,7 @@ function DeltaLambdaVisualization() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Enantiomerlar:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Enantiomerlar:</p>
           <p className="text-purple-200">
             Δ va Λ — bir-birining <strong>ko'zgudagi aksi</strong> (enantiomerlar).
             Ular bir xil fizik-kimyoviy xossalarga ega, lekin <strong>qutblangan nur</strong> bilan 
@@ -347,9 +349,9 @@ function CottonEffectTypes() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">📐 Cotton effekti turlari</h3>
+      <h3 className="text-white font-semibold"> Cotton effekti turlari</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-rose-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-rose-700/30 space-y-4">
         <div className="grid grid-cols-3 gap-2">
           {Object.entries(types).map(([key, val]) => (
             <button key={key} onClick={() => setType(key)}
@@ -412,7 +414,7 @@ function BiotCalculator() {
     <div className="space-y-4">
       <h3 className="text-white font-semibold">🧮 Biot qonuni kalkulyatori</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-rose-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-rose-700/30 space-y-4">
         <div className="bg-purple-950/50 rounded-lg p-4 font-mono text-center">
           <p className="text-purple-400 text-xs mb-2">Biot qonuni:</p>
           <p className="text-rose-400 text-lg">[θ] = 100 · θ / (c · l)</p>
@@ -469,11 +471,11 @@ function ChelateConformationTable() {
     <div className="space-y-4">
       <h3 className="text-white font-semibold">🔗 Xelat halqasi konformatsiyasi — δ va λ</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-rose-700/30">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-rose-700/30">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-purple-700/50">
+              <tr className="border-b border-[var(--v3-chiziq)]">
                 <th className="text-left py-3 px-2 text-yellow-400">Metall</th>
                 <th className="text-center py-3 px-2 text-yellow-400">Xelat</th>
                 <th className="text-center py-3 px-2 text-yellow-400">Atama</th>
@@ -483,9 +485,9 @@ function ChelateConformationTable() {
             </thead>
             <tbody className="text-purple-200">
               {[
-                ["Δ-[M(en)₃]", "λλλ", "lel", "✅ Eng barqaror", "Musbat Cotton"],
+                ["Δ-[M(en)₃]", "λλλ", "lel", " Eng barqaror", "Musbat Cotton"],
                 ["Δ-[M(en)₃]", "δδδ", "ob", "❌ Kam barqaror", "Kuchsiz/teskari"],
-                ["Λ-[M(en)₃]", "δδδ", "lel", "✅ Eng barqaror", "Manfiy Cotton"],
+                ["Λ-[M(en)₃]", "δδδ", "lel", " Eng barqaror", "Manfiy Cotton"],
                 ["Λ-[M(en)₃]", "λλλ", "ob", "❌ Kam barqaror", "Kuchsiz/teskari"],
               ].map((r, i) => (
                 <tr key={i} className="border-b border-purple-800/30 hover:bg-purple-800/20">
@@ -521,7 +523,7 @@ function TarixiyKontekst() {
         <div className="space-y-3">
           <div className="bg-purple-950/50 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <div className="text-3xl">🔬</div>
+              <div className="text-3xl"></div>
               <div>
                 <p className="text-yellow-400 font-bold">1812 — Jean-Baptiste Biot</p>
                 <p className="text-purple-200 text-xs mt-1">
@@ -534,7 +536,7 @@ function TarixiyKontekst() {
 
           <div className="bg-purple-950/50 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <div className="text-3xl">📊</div>
+              <div className="text-3xl"></div>
               <div>
                 <p className="text-yellow-400 font-bold">1950-60 — CD spektroskopiyasi rivojlanishi</p>
                 <p className="text-purple-200 text-xs mt-1">
@@ -547,7 +549,7 @@ function TarixiyKontekst() {
 
           <div className="bg-purple-950/50 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <div className="text-3xl">🧬</div>
+              <div className="text-3xl"></div>
               <div>
                 <p className="text-yellow-400 font-bold">1970-80 — Biologik qo'llanilish</p>
                 <p className="text-purple-200 text-xs mt-1">
@@ -560,7 +562,7 @@ function TarixiyKontekst() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 CD ning ahamiyati:</p>
+          <p className="text-yellow-400 font-bold mb-1"> CD ning ahamiyati:</p>
           <ul className="text-purple-200 space-y-1 list-disc list-inside">
             <li><strong>Xiral komplekslar</strong> — absolyut konfiguratsiya aniqlash</li>
             <li><strong>Enantiomer tozaligi</strong> — ee% aniqlash</li>
@@ -577,13 +579,14 @@ function TarixiyKontekst() {
 // ASOSIY SAHIFA
 // ============================================================================
 export default function CDSpektroskopiya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
+      <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
         <Link href="/ilmiy/tahlil" className="text-purple-400 hover:text-purple-300 text-lg">← Tahlil usullari</Link>
         <div>
-          <h1 className="text-2xl font-bold text-rose-400">🔄 CD spektroskopiya</h1>
+          <h1 className="text-2xl font-bold text-rose-400"> CD spektroskopiya</h1>
           <p className="text-purple-400 text-sm">Circular Dichroism • Xirallik • Δ/Λ enantiomerlar • Cotton effekti</p>
         </div>
       </header>
@@ -596,7 +599,7 @@ export default function CDSpektroskopiya() {
           className="group block bg-gradient-to-r from-rose-900/40 to-purple-900/40 border border-rose-700/50 rounded-2xl p-6 hover:bg-rose-900/60 hover:border-rose-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl hover:shadow-rose-500/10"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">🔄</div>
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-rose-400 group-hover:text-rose-300 transition-colors">
                 Birikmalarning CD spektroskopik tahlili
@@ -616,8 +619,8 @@ export default function CDSpektroskopiya() {
         </Link>
 
         {/* ASOSIY MA'LUMOT */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">📋 CD spektroskopiya haqida</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-4"> CD spektroskopiya haqida</h2>
           <div className="bg-rose-600/10 border border-rose-500/30 rounded-xl p-5 mb-4">
             <p className="text-purple-200 leading-relaxed">
               <strong className="text-rose-400">Circular Dichroism (CD)</strong> — xiral moddalarning 
@@ -644,38 +647,38 @@ export default function CDSpektroskopiya() {
         </div>
 
         {/* CD SPEKTR SIMULYATORI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <CDSpectrumSimulator />
         </div>
 
         {/* Δ vs Λ VIZUALIZATSIYA */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <DeltaLambdaVisualization />
         </div>
 
         {/* COTTON EFFEKTI TURLARI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <CottonEffectTypes />
         </div>
 
         {/* BIOT KALKULYATORI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <BiotCalculator />
         </div>
 
         {/* XELAT KONFORMATSIYA */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <ChelateConformationTable />
         </div>
 
         {/* TARIXIY */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <TarixiyKontekst />
         </div>
 
         {/* XULOSA */}
         <div className="bg-gradient-to-r from-rose-600/10 to-purple-600/10 border border-rose-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside text-sm">
             <li>CD — <strong className="text-rose-400">xiral komplekslarni o'rganishda yagona bevosita usul</strong></li>
             <li>Δ (P-helis) va Λ (M-helis) — Cotton effekti orqali farqlanadi</li>
@@ -694,6 +697,6 @@ export default function CDSpektroskopiya() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ============================================================================
@@ -40,11 +42,11 @@ function JablonskiDiagrammasi() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">📊 Jablonski diagrammasi — lyuminestsensiya mexanizmi</h3>
+      <h3 className="text-white font-semibold"> Jablonski diagrammasi — lyuminestsensiya mexanizmi</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-amber-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-amber-700/30 space-y-4">
         <div className="bg-amber-600/10 border border-amber-500/30 rounded-lg p-4">
-          <p className="text-amber-400 font-bold mb-2">💎 Lyuminestsensiya asoslari:</p>
+          <p className="text-amber-400 font-bold mb-2"> Lyuminestsensiya asoslari:</p>
           <p className="text-purple-200 text-xs">
             <strong>Jablonski diagrammasi</strong> — molekula energetik sathlari va ular orasidagi
             o'tishlarni ko'rsatadi. Fluoressensiya (S₁→S₀) va fosforessensiya (T₁→S₀) —
@@ -163,7 +165,7 @@ function JablonskiDiagrammasi() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Farqlar:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Farqlar:</p>
           <p className="text-purple-200">
             <strong>Fluoressensiya</strong> — S₁→S₀ (spin ruxsat), tez (ns), katta intensivlik
             <br/>
@@ -249,11 +251,11 @@ function EmissionSpectrumSimulator() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">💡 Emission spektr simulyatori</h3>
+      <h3 className="text-white font-semibold"> Emission spektr simulyatori</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-amber-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-amber-700/30 space-y-4">
         <div className="bg-amber-600/10 border border-amber-500/30 rounded-lg p-4">
-          <p className="text-amber-400 font-bold mb-2">💎 Lantanid vs o'tish metallari:</p>
+          <p className="text-amber-400 font-bold mb-2"> Lantanid vs o'tish metallari:</p>
           <p className="text-purple-200 text-xs">
             <strong>Lantanidlar</strong> (Eu³⁺, Tb³⁺) — <strong>tor chiziqli spektr</strong> (f-f o'tishlar).
             <br/>
@@ -352,7 +354,7 @@ function EmissionSpectrumSimulator() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Farq:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Farq:</p>
           <p className="text-purple-200">
             <strong>Eu³⁺/Tb³⁺</strong> — tor chiziqli cho'qqilar (f-f o'tishlar, taqiqlangan)
             <br/>
@@ -375,25 +377,25 @@ function AntennaEffekti() {
       title: "1. Ligand yorug'likni yutadi",
       desc: "Xromofor ligand (masalan, β-diketonat) UV yorug'likni yutadi",
       formula: "L + hν → L* (S₀ → S₁)",
-      icon: "💡"
+      icon: ""
     },
     {
       title: "2. Interkombinatsion konversiya",
       desc: "Singlet → triplet o'tish (og'ir atom effekti tufayli tez)",
       formula: "L* (S₁) → L* (T₁)",
-      icon: "🔄"
+      icon: ""
     },
     {
       title: "3. Energiya uzatilishi",
       desc: "Ligand triplet energiyasi Eu³⁺ ga uzatiladi (rezonans)",
       formula: "L* (T₁) + Eu³⁺ → L + Eu³⁺* (⁵D₀)",
-      icon: "⚡"
+      icon: ""
     },
     {
       title: "4. Eu³⁺ nurlanishi",
       desc: "Eu³⁺ xarakterli qizil nurlanish chiqaradi (⁵D₀ → ⁷F₂)",
       formula: "Eu³⁺* (⁵D₀) → Eu³⁺ + hν' (612 nm)",
-      icon: "✨"
+      icon: ""
     }
   ]
 
@@ -401,11 +403,11 @@ function AntennaEffekti() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">📡 Antenna effekti — lantanid komplekslarida</h3>
+      <h3 className="text-white font-semibold"> Antenna effekti — lantanid komplekslarida</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-amber-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-amber-700/30 space-y-4">
         <div className="bg-amber-600/10 border border-amber-500/30 rounded-lg p-4">
-          <p className="text-amber-400 font-bold mb-2">💎 Nima uchun antenna kerak?</p>
+          <p className="text-amber-400 font-bold mb-2"> Nima uchun antenna kerak?</p>
           <p className="text-purple-200 text-xs">
             Lantanid ionlarining <strong>f-f o'tishlari taqiqlangan</strong> → yorug'likni bevosita kuchsiz yutadi.
             <strong> Xromofor ligandlar</strong> yorug'likni yutib, energiyani metallga uzatadi — bu "antenna effekti".
@@ -475,7 +477,7 @@ function AntennaEffekti() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Rezonans sharti:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Rezonans sharti:</p>
           <p className="text-purple-200">
             Ligand triplet energiyasi <strong>metall qabul qiluvchi sathidan yuqori</strong> bo'lishi kerak:
             <br/>
@@ -508,11 +510,11 @@ function StokesSiljishi() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">📊 Stokes siljishi kalkulyatori</h3>
+      <h3 className="text-white font-semibold"> Stokes siljishi kalkulyatori</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-amber-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-amber-700/30 space-y-4">
         <div className="bg-amber-600/10 border border-amber-500/30 rounded-lg p-4">
-          <p className="text-amber-400 font-bold mb-2">💎 Stokes siljishi nima?</p>
+          <p className="text-amber-400 font-bold mb-2"> Stokes siljishi nima?</p>
           <p className="text-purple-200 text-xs">
             Yutilish va nurlanish maksimumlari orasidagi farq. Qo'zg'algan holatda geometriya
             o'zgarishi va erituvchi relaksatsiyasi tufayli yuzaga keladi.
@@ -556,7 +558,7 @@ function StokesSiljishi() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Katta Stokes siljishi afzalligi:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Katta Stokes siljishi afzalligi:</p>
           <p className="text-purple-200">
             <strong>Lantanid komplekslar</strong> — katta Stokes (150-300 nm) → o'z-o'zini yutish kam
             <br/>
@@ -582,9 +584,9 @@ function KvantUnumi() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-white font-semibold">📊 Kvant unumi (Φ) kalkulyatori</h3>
+      <h3 className="text-white font-semibold"> Kvant unumi (Φ) kalkulyatori</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-amber-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-amber-700/30 space-y-4">
         <div className="bg-purple-950/50 rounded-lg p-4 font-mono text-center">
           <p className="text-purple-400 text-xs mb-2">Kvant unumi formulasi:</p>
           <p className="text-amber-400 text-lg">Φ = k<sub>r</sub> / (k<sub>r</sub> + k<sub>nr</sub>)</p>
@@ -621,7 +623,7 @@ function KvantUnumi() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Φ ni oshirish usullari:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Φ ni oshirish usullari:</p>
           <ul className="text-purple-200 space-y-1 list-disc list-inside">
             <li><strong>k<sub>r</sub> oshirish</strong> — og'ir atom effekti (ISC tezlashadi)</li>
             <li><strong>k<sub>nr</sub> kamaytirish</strong> — qattiq matritsa, past harorat</li>
@@ -654,7 +656,7 @@ function YashashVaqti() {
     <div className="space-y-4">
       <h3 className="text-white font-semibold">⏱️ Yashash vaqti (τ) — eksponensial decay</h3>
 
-      <div className="bg-purple-800/30 rounded-xl p-5 border border-amber-700/30 space-y-4">
+      <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-amber-700/30 space-y-4">
         <div>
           <label className="flex justify-between text-xs mb-1">
             <span className="text-yellow-400 font-bold">τ (ns):</span>
@@ -723,7 +725,7 @@ function YashashVaqti() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Yashash vaqti ahamiyati:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Yashash vaqti ahamiyati:</p>
           <p className="text-purple-200">
             <strong>Katta τ</strong> — vaqt-ajraladigan tahlil (TRF) uchun qulay
             <br/>
@@ -751,7 +753,7 @@ function TarixiyKontekst() {
         <div className="space-y-3">
           <div className="bg-purple-950/50 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <div className="text-3xl">💡</div>
+              <div className="text-3xl"></div>
               <div>
                 <p className="text-yellow-400 font-bold">1852 — G.G. Stokes</p>
                 <p className="text-purple-200 text-xs mt-1">
@@ -764,7 +766,7 @@ function TarixiyKontekst() {
 
           <div className="bg-purple-950/50 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <div className="text-3xl">🔬</div>
+              <div className="text-3xl"></div>
               <div>
                 <p className="text-yellow-400 font-bold">1900-30 — Lantanid lyuminestsensiyasi</p>
                 <p className="text-purple-200 text-xs mt-1">
@@ -803,7 +805,7 @@ function TarixiyKontekst() {
         </div>
 
         <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 text-xs">
-          <p className="text-yellow-400 font-bold mb-1">💡 Fluoressensiya spektroskopiyasining ahamiyati:</p>
+          <p className="text-yellow-400 font-bold mb-1"> Fluoressensiya spektroskopiyasining ahamiyati:</p>
           <ul className="text-purple-200 space-y-1 list-disc list-inside">
             <li><strong>Yuqori sezgirlik</strong> — bitta molekula darajasida</li>
             <li><strong>Vaqt-ajraladigan tahlil</strong> — fon signalini yo'q qilish</li>
@@ -821,13 +823,14 @@ function TarixiyKontekst() {
 // ASOSIY SAHIFA
 // ============================================================================
 export default function FluoressensiyaSpektroskopiya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
+      <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
         <Link href="/ilmiy/tahlil" className="text-purple-400 hover:text-purple-300 text-lg">← Tahlil usullari</Link>
         <div>
-          <h1 className="text-2xl font-bold text-amber-400">💡 Fluoressensiya spektroskopiya</h1>
+          <h1 className="text-2xl font-bold text-amber-400"> Fluoressensiya spektroskopiya</h1>
           <p className="text-purple-400 text-sm">Lyuminestsensiya • Kvant unumi • Antenna effekti • Eu/Tb/Ru/Ir komplekslari</p>
         </div>
       </header>
@@ -840,7 +843,7 @@ export default function FluoressensiyaSpektroskopiya() {
           className="group block bg-gradient-to-r from-amber-900/40 to-purple-900/40 border border-amber-700/50 rounded-2xl p-6 hover:bg-amber-900/60 hover:border-amber-500/60 transition-all transform hover:-translate-y-2 hover:shadow-xl hover:shadow-amber-500/10"
         >
           <div className="flex items-center gap-4">
-            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">💡</div>
+            <div className="text-5xl group-hover:scale-110 transition-transform duration-300"></div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-amber-400 group-hover:text-amber-300 transition-colors">
                 Birikmalarning fluoressensiya spektroskopik tahlili
@@ -862,8 +865,8 @@ export default function FluoressensiyaSpektroskopiya() {
         </Link>
 
         {/* ASOSIY MA'LUMOT */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">📋 Fluoressensiya spektroskopiya haqida</h2>
+        <div className="v3-panel-karta p-8">
+          <h2 className="text-xl font-bold text-white mb-4"> Fluoressensiya spektroskopiya haqida</h2>
           <div className="bg-amber-600/10 border border-amber-500/30 rounded-xl p-5 mb-4">
             <p className="text-purple-200 leading-relaxed">
               <strong className="text-amber-400">Fluoressensiya spektroskopiyasi</strong> — moddaning yorug'likni
@@ -889,43 +892,43 @@ export default function FluoressensiyaSpektroskopiya() {
         </div>
 
         {/* JABLONSKI DIAGRAMMASI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <JablonskiDiagrammasi />
         </div>
 
         {/* EMISSION SPEKTR SIMULYATORI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <EmissionSpectrumSimulator />
         </div>
 
         {/* ANTENNA EFFEKTI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <AntennaEffekti />
         </div>
 
         {/* STOKES SILJISHI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <StokesSiljishi />
         </div>
 
         {/* KVANT UNUMI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <KvantUnumi />
         </div>
 
         {/* YASHASH VAQTI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <YashashVaqti />
         </div>
 
         {/* TARIX */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+        <div className="v3-panel-karta p-8">
           <TarixiyKontekst />
         </div>
 
         {/* XULOSA */}
         <div className="bg-gradient-to-r from-amber-600/10 to-purple-600/10 border border-amber-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside text-sm">
             <li>Fluoressensiya — <strong className="text-amber-400">lyuminestsent komplekslarni o'rganishda asosiy usul</strong></li>
             <li>Jablonski diagrammasi — S₀→S₁ (yutilish), S₁→S₀ (fluoressensiya), T₁→S₀ (fosforessensiya)</li>
@@ -946,6 +949,6 @@ export default function FluoressensiyaSpektroskopiya() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

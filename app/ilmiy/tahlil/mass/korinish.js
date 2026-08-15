@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -302,6 +304,7 @@ const MASS_DATA = {
 }
 
 export default function MassSpektrometriya() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [activeTab, setActiveTab] = useState("nazariya")
   const [selectedIonization, setSelectedIonization] = useState("ESI")
   const [selectedElement, setSelectedElement] = useState("Cl")
@@ -317,17 +320,17 @@ export default function MassSpektrometriya() {
   )
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-slate-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
       {/* ═══ HEADER ═══ */}
-      <header className="sticky top-0 z-40 backdrop-blur-lg bg-purple-950/80 border-b border-purple-800/50">
+      <header className="sticky top-0 z-40 backdrop-blur-lg bg-purple-950/80 border-b border-[var(--v3-chiziq)]">
         <div className="max-w-7xl mx-auto flex items-center gap-4 px-6 py-4">
           <Link href="/ilmiy/tahlil" className="text-purple-400 hover:text-purple-300 text-lg transition-colors">
             ← Tahlil usullari
           </Link>
           <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-pink-400 via-fuchsia-400 to-purple-400 bg-clip-text text-transparent">
-              ⚖️ Mass-spektrometriya
+               Mass-spektrometriya
             </h1>
             <p className="text-purple-400 text-xs md:text-sm">
               Molekulyar massa • Izotopik taqsimot • Fragmentatsiya • HRMS • m/z fizikasi
@@ -346,7 +349,7 @@ export default function MassSpektrometriya() {
           className="group block bg-gradient-to-r from-pink-900/40 via-fuchsia-900/40 to-purple-900/40 border border-pink-700/50 rounded-2xl p-6 hover:border-pink-400/70 transition-all transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-pink-500/20"
         >
           <div className="flex items-center gap-5">
-            <div className="text-6xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">🔍</div>
+            <div className="text-6xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300"></div>
             <div className="flex-1">
               <h3 className="text-2xl font-bold text-pink-400 group-hover:text-pink-300 transition-colors">
                 Birikmalarning mass-spektr tahlili
@@ -372,15 +375,15 @@ export default function MassSpektrometriya() {
 
       {/* ═══ TAB NAVIGATSIYA ═══ */}
       <section className="max-w-7xl mx-auto px-6 mt-10">
-        <div className="flex flex-wrap gap-2 border-b border-purple-800/50 pb-2">
+        <div className="flex flex-wrap gap-2 border-b border-[var(--v3-chiziq)] pb-2">
           {[
             { id: "nazariya",     label: "📖 Nazariy asoslar" },
-            { id: "ionlash",      label: "⚡ Ionlashtirish" },
-            { id: "analizator",   label: "🔬 Mass-analizatorlar" },
-            { id: "izotop",       label: "🧪 Izotopik taqsimot" },
+            { id: "ionlash",      label: " Ionlashtirish" },
+            { id: "analizator",   label: " Mass-analizatorlar" },
+            { id: "izotop",       label: " Izotopik taqsimot" },
             { id: "fragmentatsiya", label: "💥 Fragmentatsiya" },
-            { id: "hrms",         label: "🎯 HRMS aniqligi" },
-            { id: "misollar",     label: "📊 m/z hisoblash" },
+            { id: "hrms",         label: " HRMS aniqligi" },
+            { id: "misollar",     label: " m/z hisoblash" },
           ].map(t => (
             <button
               key={t.id}
@@ -403,7 +406,7 @@ export default function MassSpektrometriya() {
         {/* ─── 1. NAZARIY ASOSLAR ─── */}
         {activeTab === "nazariya" && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-gradient-to-br from-purple-900/50 to-blue-900/40 border border-purple-700/50 rounded-2xl p-8">
+            <div className="bg-gradient-to-br from-purple-900/50 to-blue-900/40 border border-[var(--v3-chiziq)] rounded-2xl p-8">
               <h2 className="text-2xl font-bold text-white mb-4">📖 Mass-spektrometriyaning fizik asosi</h2>
               <p className="text-purple-200 text-lg leading-relaxed mb-6">
                 <strong className="text-pink-400">Mass-spektrometriya</strong> — moddaning atom-molekulyar 
@@ -421,23 +424,23 @@ export default function MassSpektrometriya() {
                 <div className="bg-purple-950/60 border border-purple-700/40 rounded-xl p-5">
                   <h3 className="text-yellow-400 font-bold mb-3">🔑 Asosiy fizik tenglamalar</h3>
                   <div className="space-y-3 font-mono text-sm">
-                    <div className="bg-black/40 p-3 rounded-lg border border-purple-800/50">
+                    <div className="bg-black/40 p-3 rounded-lg border border-[var(--v3-chiziq)]">
                       <p className="text-cyan-400 mb-1">Lorentz kuchi:</p>
                       <p className="text-white">F = q(E + v × B)</p>
                     </div>
-                    <div className="bg-black/40 p-3 rounded-lg border border-purple-800/50">
+                    <div className="bg-black/40 p-3 rounded-lg border border-[var(--v3-chiziq)]">
                       <p className="text-cyan-400 mb-1">Kinetik energiya (tezlashuv):</p>
                       <p className="text-white">½mv² = zeV  →  v = √(2zeV/m)</p>
                     </div>
-                    <div className="bg-black/40 p-3 rounded-lg border border-purple-800/50">
+                    <div className="bg-black/40 p-3 rounded-lg border border-[var(--v3-chiziq)]">
                       <p className="text-cyan-400 mb-1">Magnit sektor m/z:</p>
                       <p className="text-white">m/z = (r²B²e) / (2V)</p>
                     </div>
-                    <div className="bg-black/40 p-3 rounded-lg border border-purple-800/50">
+                    <div className="bg-black/40 p-3 rounded-lg border border-[var(--v3-chiziq)]">
                       <p className="text-cyan-400 mb-1">Rezolyutsiya (FWHM):</p>
                       <p className="text-white">R = m / Δm</p>
                     </div>
-                    <div className="bg-black/40 p-3 rounded-lg border border-purple-800/50">
+                    <div className="bg-black/40 p-3 rounded-lg border border-[var(--v3-chiziq)]">
                       <p className="text-cyan-400 mb-1">ppm xatosi:</p>
                       <p className="text-white">Δppm = (m<sub>obs</sub> − m<sub>calc</sub>)/m<sub>calc</sub> × 10⁶</p>
                     </div>
@@ -445,7 +448,7 @@ export default function MassSpektrometriya() {
                 </div>
 
                 <div className="bg-purple-950/60 border border-purple-700/40 rounded-xl p-5">
-                  <h3 className="text-yellow-400 font-bold mb-3">📐 Massa turlari (aniqliklar iyerarxiyasi)</h3>
+                  <h3 className="text-yellow-400 font-bold mb-3"> Massa turlari (aniqliklar iyerarxiyasi)</h3>
                   <ul className="space-y-3 text-sm">
                     <li className="border-l-4 border-red-400 pl-3">
                       <p className="text-red-300 font-bold">Nominal massa</p>
@@ -501,7 +504,7 @@ export default function MassSpektrometriya() {
 
             {/* Azot qoidasi */}
             <div className="bg-gradient-to-br from-emerald-900/40 to-teal-900/40 border border-emerald-700/50 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-emerald-300 mb-3">🎯 Azot qoidasi (Nitrogen Rule)</h3>
+              <h3 className="text-xl font-bold text-emerald-300 mb-3"> Azot qoidasi (Nitrogen Rule)</h3>
               <p className="text-purple-200 leading-relaxed">
                 Agar organik molekulada <strong className="text-emerald-400">toq sonda N atom</strong> bo'lsa, 
                 uning nominal molekulyar massasi ham <strong className="text-emerald-400">toq son</strong> bo'ladi. 
@@ -516,8 +519,8 @@ export default function MassSpektrometriya() {
         {/* ─── 2. IONLASHTIRISH USULLARI ─── */}
         {activeTab === "ionlash" && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-4">⚡ Ionlashtirish usullari</h2>
+            <div className="v3-panel-karta p-8">
+              <h2 className="text-2xl font-bold text-white mb-4"> Ionlashtirish usullari</h2>
               <p className="text-purple-200 mb-6 leading-relaxed">
                 Ionlashtirish — mass-spektrometriyaning eng muhim bosqichi: neytral molekulani gaz fazasidagi ionga aylantirish.
                 Ikki asosiy toifa: <strong className="text-cyan-400">yumshoq (soft)</strong> — molekulyar ionni saqlaydi (ESI, MALDI, APCI);
@@ -534,7 +537,7 @@ export default function MassSpektrometriya() {
                     className={`px-4 py-2 rounded-lg font-mono font-bold text-sm transition-all ${
                       selectedIonization === m.abbr
                         ? "bg-pink-600 text-white shadow-lg shadow-pink-500/40 scale-105"
-                        : "bg-purple-800/40 text-purple-300 hover:bg-purple-700/60 border border-purple-700/50"
+                        : "bg-purple-800/40 text-purple-300 hover:bg-purple-700/60 border border-[var(--v3-chiziq)]"
                     }`}
                   >
                     {m.abbr}
@@ -579,7 +582,7 @@ export default function MassSpektrometriya() {
                         <p className="text-purple-200">{currentIonization.cons}</p>
                       </div>
                       <div className="bg-blue-900/20 border border-blue-700/40 rounded-lg p-3">
-                        <p className="text-blue-400 font-bold mb-1">🎯 Qo'llanishi</p>
+                        <p className="text-blue-400 font-bold mb-1"> Qo'llanishi</p>
                         <p className="text-purple-200">{currentIonization.applicability}</p>
                       </div>
                     </div>
@@ -612,8 +615,8 @@ export default function MassSpektrometriya() {
         {/* ─── 3. MASS-ANALIZATORLAR ─── */}
         {activeTab === "analizator" && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-4">🔬 Mass-analizatorlar — fizik prinsiplar</h2>
+            <div className="v3-panel-karta p-8">
+              <h2 className="text-2xl font-bold text-white mb-4"> Mass-analizatorlar — fizik prinsiplar</h2>
               <p className="text-purple-200 mb-6 leading-relaxed">
                 Mass-analizator — ionlarni m/z bo'yicha ajratadigan qurilma. Har birining o'ziga xos 
                 <strong className="text-yellow-400"> rezolyutsiyasi (R = m/Δm)</strong>, aniqligi (ppm) va massa diapazoni bor.
@@ -664,8 +667,8 @@ export default function MassSpektrometriya() {
         {/* ─── 4. IZOTOPIK TAQSIMOT ─── */}
         {activeTab === "izotop" && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-4">🧪 Izotopik taqsimot — elementning "barmoq izi"</h2>
+            <div className="v3-panel-karta p-8">
+              <h2 className="text-2xl font-bold text-white mb-4"> Izotopik taqsimot — elementning "barmoq izi"</h2>
               <p className="text-purple-200 mb-4 leading-relaxed">
                 Har bir elementning izotoplari tabiatda ma'lum <strong className="text-yellow-400">nisbatda</strong> uchraydi 
                 (NIST 2021 ma'lumotlari). Kompleks birikmaning mass-spektrida bu nisbatlar <strong className="text-yellow-400">saqlanadi</strong> — 
@@ -690,7 +693,7 @@ export default function MassSpektrometriya() {
                     className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm transition-all ${
                       selectedElement === e.el
                         ? "bg-pink-600 text-white shadow-lg shadow-pink-500/40 scale-110"
-                        : "bg-purple-800/40 text-purple-300 hover:bg-purple-700/60 border border-purple-700/50"
+                        : "bg-purple-800/40 text-purple-300 hover:bg-purple-700/60 border border-[var(--v3-chiziq)]"
                     }`}
                   >
                     {e.el}
@@ -700,7 +703,7 @@ export default function MassSpektrometriya() {
 
               {/* Tanlangan element */}
               {currentElement && (
-                <div className="bg-gradient-to-br from-slate-950 to-purple-950/80 border border-purple-700/50 rounded-xl p-6">
+                <div className="bg-gradient-to-br from-slate-950 to-purple-950/80 border border-[var(--v3-chiziq)] rounded-xl p-6">
                   <h3 className={`text-3xl font-bold mb-4 ${currentElement.color}`}>{currentElement.el}</h3>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
@@ -751,7 +754,7 @@ export default function MassSpektrometriya() {
 
             {/* Diagnostik xulosalar */}
             <div className="bg-gradient-to-br from-pink-900/30 to-purple-900/30 border border-pink-700/40 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-pink-300 mb-4">💎 Klassik diagnostik naqshlar</h3>
+              <h3 className="text-xl font-bold text-pink-300 mb-4"> Klassik diagnostik naqshlar</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div className="bg-purple-950/50 rounded-lg p-3 border-l-4 border-green-500">
                   <p className="text-green-400 font-bold">Cl₁ → 3:1 dublet (M, M+2)</p>
@@ -793,7 +796,7 @@ export default function MassSpektrometriya() {
         {/* ─── 5. FRAGMENTATSIYA ─── */}
         {activeTab === "fragmentatsiya" && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
+            <div className="v3-panel-karta p-8">
               <h2 className="text-2xl font-bold text-white mb-4">💥 Fragmentatsiya qoidalari</h2>
               <p className="text-purple-200 mb-6 leading-relaxed">
                 Molekulyar ion parchalanib, tarkibiy fragmentlar hosil qiladi. <strong className="text-pink-400">McLafferty va Tureček</strong> 
@@ -858,8 +861,8 @@ export default function MassSpektrometriya() {
         {/* ─── 6. HRMS ANIQLIGI ─── */}
         {activeTab === "hrms" && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-4">🎯 HRMS — Yuqori aniqlikdagi mass-spektrometriya</h2>
+            <div className="v3-panel-karta p-8">
+              <h2 className="text-2xl font-bold text-white mb-4"> HRMS — Yuqori aniqlikdagi mass-spektrometriya</h2>
               <p className="text-purple-200 mb-6 leading-relaxed">
                 <strong className="text-cyan-400">HRMS (High-Resolution Mass Spectrometry)</strong> — mass aniqligi 
                 <strong className="text-cyan-400"> &lt; 5 ppm</strong> bo'lgan usullar. Bu darajada <strong className="text-yellow-400">molekulyar formula 
@@ -894,7 +897,7 @@ export default function MassSpektrometriya() {
 
             {/* HRMS misoli */}
             <div className="bg-gradient-to-br from-emerald-900/30 to-cyan-900/30 border border-emerald-700/40 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-emerald-300 mb-3">📊 HRMS misoli: m/z = 300 dagi formulalar</h3>
+              <h3 className="text-xl font-bold text-emerald-300 mb-3"> HRMS misoli: m/z = 300 dagi formulalar</h3>
               <p className="text-purple-200 mb-4 text-sm">
                 Nominal m/z=300 da 500+ dan ortiq molekulyar formula bo'lishi mumkin. HRMS ularni ajratadi:
               </p>
@@ -916,7 +919,7 @@ export default function MassSpektrometriya() {
                 </table>
               </div>
               <p className="text-emerald-300 text-xs mt-3">
-                💡 Orbitrap aniqligi (±0.3 mDa) da bu formulalar bir-biridan minglab mDa masofa bilan ajraladi.
+                 Orbitrap aniqligi (±0.3 mDa) da bu formulalar bir-biridan minglab mDa masofa bilan ajraladi.
               </p>
             </div>
           </div>
@@ -925,8 +928,8 @@ export default function MassSpektrometriya() {
         {/* ─── 7. m/z HISOBLASH MISOLLARI ─── */}
         {activeTab === "misollar" && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-4">📊 m/z hisoblash — amaliy misollar</h2>
+            <div className="v3-panel-karta p-8">
+              <h2 className="text-2xl font-bold text-white mb-4"> m/z hisoblash — amaliy misollar</h2>
               <p className="text-purple-200 mb-6 leading-relaxed">
                 Har bir kompleks birikma uchun uchta massa hisoblanadi: <strong className="text-yellow-400">nominal</strong>, 
                 <strong className="text-yellow-400"> monoizotopik (aniq)</strong> va <strong className="text-yellow-400">o'rtacha (molar)</strong>. 
@@ -1019,6 +1022,6 @@ export default function MassSpektrometriya() {
         .animate-fadeIn { animation: fadeIn 0.4s ease-out; }
       `}</style>
 
-    </main>
+    </div>
   )
 }
