@@ -1983,3 +1983,218 @@ html[data-fon] body {
   .v3-oquv-jadval-qator { min-width: 680px; }
   .v3-oquv-sxema-oyoq span:not(:last-child)::after { width: 12px; margin-left: 7px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ILMIY TAHLIL SAHIFALARI (.v3-ilmiy-*)
+   ═══════════════════════════════════════════════════════════════════
+
+   NEGA ALOHIDA QATLAM. Tahlil bo'limidagi 241 sahifa binafsha rangni
+   to'g'ridan-to'g'ri sinf ichida saqlagan: `bg-purple-900/40
+   border-purple-700/50` bitta shu satr 562 marta yozilgan. Natijada
+   "kunduz" fonida bo'lim o'qilmasdi va rangni o'zgartirish 241 faylni
+   tahrirlashni talab qilardi.
+
+   Bu yerdagi sinflar AGENTS.md ning 3-bandiga muvofiq faqat --v3-*
+   o'zgaruvchilaridan foydalanadi, ya'ni to'rtala fonda ham ishlaydi.
+
+   MA'NOLI RANGLAR — istisno. Spektr chizig'i, oksidlanish darajasi va
+   xavf belgisi ma'no tashiydi, shuning uchun ular o'z rangini saqlaydi.
+   Lekin ular ham yorug' fonda o'qilishi shart: shu sabab to'yinganlik
+   emas, `color-mix` bilan fonga moslashadigan qatlam ishlatiladi.     */
+
+/* ─── Sahifa karkasi ─── */
+.v3-ilmiy { max-width: 1100px; margin: 0 auto; padding: 0 20px 80px; }
+
+.v3-ilmiy-yol {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 7px;
+  padding: 16px 0; font-size: 12.5px; color: var(--v3-xira);
+}
+.v3-ilmiy-yol a { color: var(--v3-xira); transition: color .18s; }
+.v3-ilmiy-yol a:hover { color: var(--v3-urgu); }
+.v3-ilmiy-yol .ajratgich { opacity: .45; }
+.v3-ilmiy-yol .joriy { color: var(--v3-matn); font-weight: 600; }
+
+/* ─── Bo'lim kartasi — eski `bg-purple-900/40 ...` ning o'rnini bosadi ─── */
+.v3-ilmiy-blok {
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+  border-radius: 18px;
+  padding: 26px;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) { .v3-ilmiy-blok { padding: 18px; border-radius: 14px; } }
+
+.v3-ilmiy-blok > h2 {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 18px; font-weight: 700; color: var(--v3-matn);
+  margin-bottom: 18px;
+}
+.v3-ilmiy-blok h3 {
+  font-size: 13.5px; font-weight: 700; color: var(--v3-urgu);
+  margin-bottom: 10px;
+}
+
+/* Ichki panel — blok ichidagi ko'tarilgan yuza */
+.v3-ilmiy-panel {
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza-2);
+  border-radius: 13px;
+  padding: 16px;
+}
+
+.v3-ilmiy-grid { display: grid; gap: 14px; }
+.v3-ilmiy-grid.ikki { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.v3-ilmiy-grid.uch  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.v3-ilmiy-grid.tort { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 860px) {
+  .v3-ilmiy-grid.uch, .v3-ilmiy-grid.tort { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .v3-ilmiy-grid.ikki, .v3-ilmiy-grid.uch, .v3-ilmiy-grid.tort { grid-template-columns: 1fr; }
+}
+
+/* ─── Hero ─── */
+.v3-ilmiy-hero {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--v3-chiziq);
+  background:
+    radial-gradient(120% 140% at 12% 0%, var(--v3-nur-1), transparent 60%),
+    var(--v3-yuza);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 22px;
+}
+@media (max-width: 640px) { .v3-ilmiy-hero { padding: 20px; } }
+
+.v3-ilmiy-formula {
+  font-family: var(--font-syne), ui-monospace, monospace;
+  font-size: clamp(26px, 6vw, 42px);
+  font-weight: 700; line-height: 1.15;
+  color: var(--v3-matn);
+  letter-spacing: -.02em;
+}
+.v3-ilmiy-formula sub { font-size: .62em; }
+.v3-ilmiy-iupac { color: var(--v3-xira); font-size: 14px; margin-top: 6px; }
+
+/* Kalit-qiymat lavhasi (molyar massa, CAS, rang…) */
+.v3-ilmiy-lavha {
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza-2);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.v3-ilmiy-lavha dt {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--v3-xira);
+  margin-bottom: 5px;
+}
+.v3-ilmiy-lavha dd { font-size: 13.5px; font-weight: 650; color: var(--v3-matn); line-height: 1.4; }
+
+/* ─── Jadval ─── */
+.v3-ilmiy-jadval-qobiq { overflow-x: auto; border-radius: 12px; border: 1px solid var(--v3-chiziq); }
+.v3-ilmiy-jadval { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 460px; }
+.v3-ilmiy-jadval th {
+  text-align: left; padding: 11px 13px;
+  font-size: 10px; font-weight: 750; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--v3-urgu); background: var(--v3-yuza-2);
+  border-bottom: 1px solid var(--v3-chiziq);
+  white-space: nowrap;
+}
+.v3-ilmiy-jadval td {
+  padding: 11px 13px; color: var(--v3-matn);
+  border-bottom: 1px solid var(--v3-chiziq);
+  vertical-align: top; line-height: 1.55;
+}
+.v3-ilmiy-jadval tr:last-child td { border-bottom: none; }
+.v3-ilmiy-jadval tbody tr:hover td { background: var(--v3-yuza); }
+.v3-ilmiy-jadval .son { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ─── Ta'rif ro'yxati (kalit → uzun izoh) ─── */
+.v3-ilmiy-tarif { display: flex; flex-direction: column; gap: 12px; }
+.v3-ilmiy-tarif > div { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 14px; }
+.v3-ilmiy-tarif dt { font-size: 12px; font-weight: 700; color: var(--v3-urgu-2); line-height: 1.5; }
+.v3-ilmiy-tarif dd { font-size: 12.5px; color: var(--v3-matn); line-height: 1.6; }
+@media (max-width: 640px) {
+  .v3-ilmiy-tarif > div { grid-template-columns: 1fr; gap: 3px; }
+}
+
+/* ─── Belgi (chip) ─── */
+.v3-ilmiy-belgi {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 650; white-space: nowrap;
+  border: 1px solid var(--v3-chiziq-2);
+  background: var(--v3-yuza-2);
+  color: var(--v3-matn);
+}
+/* Ma'noli variantlar. `color-mix` fon rangi bilan aralashtiradi —
+   shuning uchun ular kunduz fonida ham o'qiladi. */
+.v3-ilmiy-belgi.urgu {
+  border-color: color-mix(in srgb, var(--v3-urgu) 45%, transparent);
+  background: color-mix(in srgb, var(--v3-urgu) 14%, transparent);
+  color: var(--v3-urgu);
+}
+.v3-ilmiy-belgi.ikkinchi {
+  border-color: color-mix(in srgb, var(--v3-urgu-2) 45%, transparent);
+  background: color-mix(in srgb, var(--v3-urgu-2) 14%, transparent);
+  color: var(--v3-urgu-2);
+}
+
+/* ─── Eslatma / ogohlantirish ─── */
+.v3-ilmiy-eslatma {
+  border-left: 3px solid var(--v3-urgu);
+  background: color-mix(in srgb, var(--v3-urgu) 8%, transparent);
+  border-radius: 0 12px 12px 0;
+  padding: 14px 16px;
+  font-size: 12.5px; line-height: 1.65; color: var(--v3-matn);
+}
+.v3-ilmiy-eslatma.xavf {
+  border-left-color: #ef4444;
+  background: color-mix(in srgb, #ef4444 9%, transparent);
+}
+.v3-ilmiy-eslatma strong { color: var(--v3-urgu); }
+.v3-ilmiy-eslatma.xavf strong { color: #ef4444; }
+
+/* ─── Bosqichli ro'yxat (laboratoriya tartibi) ─── */
+.v3-ilmiy-qadamlar { display: flex; flex-direction: column; gap: 12px; counter-reset: qadam; }
+.v3-ilmiy-qadam { display: flex; gap: 13px; align-items: flex-start; }
+.v3-ilmiy-qadam-raqam {
+  counter-increment: qadam;
+  flex-shrink: 0;
+  width: 25px; height: 25px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11.5px; font-weight: 750;
+  background: color-mix(in srgb, var(--v3-urgu) 16%, transparent);
+  color: var(--v3-urgu);
+  border: 1px solid color-mix(in srgb, var(--v3-urgu) 35%, transparent);
+}
+.v3-ilmiy-qadam-raqam::before { content: counter(qadam); }
+.v3-ilmiy-qadam-matn { font-size: 12.5px; line-height: 1.6; color: var(--v3-matn); padding-top: 3px; }
+
+/* ─── Sahifalar orasida yurish ─── */
+.v3-ilmiy-navigatsiya {
+  display: flex; justify-content: space-between; gap: 12px;
+  margin-top: 28px; flex-wrap: wrap;
+}
+.v3-ilmiy-nav-tugma {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border-radius: 12px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: var(--v3-yuza);
+  color: var(--v3-matn);
+  font-size: 13px; font-weight: 600;
+  transition: background .18s, border-color .18s, gap .2s;
+}
+.v3-ilmiy-nav-tugma:hover {
+  background: var(--v3-yuza-2);
+  border-color: var(--v3-urgu);
+  gap: 12px;
+}
+
+/* ─── Spektr chizmasi ─── */
+.v3-ilmiy-spektr { width: 100%; height: auto; display: block; border-radius: 12px; background: var(--v3-yuza-2); }
+.v3-ilmiy-spektr .setka { stroke: var(--v3-chiziq); stroke-width: 1; }
+.v3-ilmiy-spektr .oq { stroke: var(--v3-chiziq-2); stroke-width: 1.5; }
+.v3-ilmiy-spektr .yozuv { fill: var(--v3-xira); font-size: 9px; }
+.v3-ilmiy-spektr .chiziq { fill: none; stroke: var(--v3-urgu-2); stroke-width: 2; }
+.v3-ilmiy-spektr .signal { stroke: var(--v3-urgu); stroke-width: 2; }
