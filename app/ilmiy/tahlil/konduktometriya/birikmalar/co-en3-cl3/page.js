@@ -280,7 +280,7 @@ const COMPOUND = {
 
 export default function CoEn3Cl3ConductometricPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
   const [activeRun, setActiveRun] = useState("COND-24-001")
   const [activeWerner, setActiveWerner] = useState(1)

@@ -327,7 +327,7 @@ const COMPOUND = {
 
 export default function FeCN64SpectrophotometricPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
   const [activeRun, setActiveRun] = useState("SPEC-24-001")
   const [activeWerner, setActiveWerner] = useState(0)

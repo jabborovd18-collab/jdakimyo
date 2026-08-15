@@ -335,7 +335,7 @@ export default function CrCl2H2O4Cl2H2OThermalPage() {
   const [activeStep, setActiveStep] = useState(0)
   const [activeRun, setActiveRun] = useState("TGA-24-001")
   const [tgaTemp, setTgaTemp] = useState(25)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   
   const [calcMass, setCalcMass] = useState(100)
   const [calcMassLoss, setCalcMassLoss] = useState(29.5)

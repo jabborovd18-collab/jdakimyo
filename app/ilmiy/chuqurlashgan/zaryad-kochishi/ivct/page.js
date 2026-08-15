@@ -602,7 +602,7 @@ function IVCTMisollar() {
 // ============================================================================
 export default function IVCTPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950 to-slate-950 text-white">

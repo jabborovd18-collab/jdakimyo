@@ -373,7 +373,7 @@ const COMPOUND = {
 
 export default function ReBpyCO3ClPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeTechnique, setActiveTechnique] = useState(0)
   const [activeInterference, setActiveInterference] = useState(0)
   const [activeLabStep, setActiveLabStep] = useState(0)

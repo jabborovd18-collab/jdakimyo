@@ -322,7 +322,7 @@ export default function FeC5H52ThermalPage() {
   const [activeStep, setActiveStep] = useState(0)
   const [activeRun, setActiveRun] = useState("TGA-24-001")
   const [tgaTemp, setTgaTemp] = useState(25)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   
   const [calcMass, setCalcMass] = useState(100)
   const [calcMassLoss, setCalcMassLoss] = useState(70.0)

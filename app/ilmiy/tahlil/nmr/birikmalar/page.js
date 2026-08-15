@@ -354,7 +354,7 @@ const COMPOUNDS = [
 
 export default function YaMRBirikmalarPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeGroup, setActiveGroup] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState("cards") // "cards" yoki "table"

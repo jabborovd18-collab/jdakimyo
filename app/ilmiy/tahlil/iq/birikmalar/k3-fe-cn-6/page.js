@@ -436,7 +436,7 @@ const COMPOUND = {
 
 export default function K3FeCN6Page() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [freqSlider, setFreqSlider] = useState(2115)
   const [activePeak, setActivePeak] = useState(null)
   const [activeTechnique, setActiveTechnique] = useState(0)

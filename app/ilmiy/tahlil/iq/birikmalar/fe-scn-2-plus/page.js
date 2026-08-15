@@ -310,7 +310,7 @@ const COMPOUND = {
 
 export default function FeSCN2Page() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [freqSlider, setFreqSlider] = useState(2100)
   const [activePeak, setActivePeak] = useState(null)
   const [activeTechnique, setActiveTechnique] = useState(0)

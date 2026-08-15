@@ -476,7 +476,7 @@ const COMPOUND = {
 
 export default function CoNH36Page() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeTechnique, setActiveTechnique] = useState(0)
   const [activeInterference, setActiveInterference] = useState(0)
   const [activeLabStep, setActiveLabStep] = useState(0)

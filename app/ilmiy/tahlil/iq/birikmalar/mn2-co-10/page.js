@@ -439,7 +439,7 @@ const COMPOUND = {
 
 export default function Mn2CO10Page() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [freqSlider, setFreqSlider] = useState(2045)
   const [activePeak, setActivePeak] = useState(null)
   const [activeTechnique, setActiveTechnique] = useState(0)

@@ -409,7 +409,7 @@ const UBVIS_DATA = {
 export default function UBVisSpektroskopiya() {
   const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeTransition, setActiveTransition] = useState(0)
   const [activeGeom, setActiveGeom] = useState(0)
   const [activeSelectionRule, setActiveSelectionRule] = useState(0)

@@ -412,7 +412,7 @@ const LMCT_DATA = {
 
 export default function LMCTPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeMechanismStep, setActiveMechanismStep] = useState(1)
   const [activeExample, setActiveExample] = useState(0)
   const [activeApplication, setActiveApplication] = useState(0)

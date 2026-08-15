@@ -142,7 +142,7 @@ const COMPOUND = {
 
 export default function TransPtNH32Cl2Page() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [freqSlider, setFreqSlider] = useState(2000)
   const [activePeak, setActivePeak] = useState(null)
   const [activeTechnique, setActiveTechnique] = useState(0)

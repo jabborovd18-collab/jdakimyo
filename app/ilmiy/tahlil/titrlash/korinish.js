@@ -50,7 +50,7 @@ const betaValues = [
 export default function SpektrofotometrikTitrlash() {
   const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   
   // Job metodi kalkulyatori
   const [metalConc, setMetalConc] = useState(0.001)

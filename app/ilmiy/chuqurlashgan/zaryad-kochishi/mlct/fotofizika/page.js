@@ -725,7 +725,7 @@ function QuantumYieldCalculator() {
 // ============================================================================
 export default function FotofizikaPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeExample, setActiveExample] = useState(0)
   const [activeApplication, setActiveApplication] = useState(0)
   const [activeMethod, setActiveMethod] = useState(0)

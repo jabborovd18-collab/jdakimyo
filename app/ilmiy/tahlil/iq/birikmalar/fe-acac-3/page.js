@@ -413,7 +413,7 @@ const COMPOUND = {
 
 export default function FeAcac3Page() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [freqSlider, setFreqSlider] = useState(1600)
   const [activePeak, setActivePeak] = useState(null)
   const [activeTechnique, setActiveTechnique] = useState(0)

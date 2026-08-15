@@ -243,7 +243,7 @@ const IQ_DATA = {
 export default function IQSpektroskopiya() {
   const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeAmbidentate, setActiveAmbidentate] = useState(0)
   const [activeCisTrans, setActiveCisTrans] = useState(0)
   const [activeFunctionalGroup, setActiveFunctionalGroup] = useState(0)

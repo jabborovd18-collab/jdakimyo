@@ -616,7 +616,7 @@ function LippertCalculator() {
 // ============================================================================
 export default function SolvatoxromizmPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeType, setActiveType] = useState("positive")
   const [activeExample, setActiveExample] = useState(0)
   const [activeMechanism, setActiveMechanism] = useState(0)

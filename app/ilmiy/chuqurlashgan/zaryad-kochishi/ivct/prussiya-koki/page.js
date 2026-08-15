@@ -300,7 +300,7 @@ const COMPOUND = {
 
 export default function PrussiyaKokiPage() {
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeTechnique, setActiveTechnique] = useState(0)
   const [activeRobinDay, setActiveRobinDay] = useState(1)
   const [activeApplication, setActiveApplication] = useState(0)

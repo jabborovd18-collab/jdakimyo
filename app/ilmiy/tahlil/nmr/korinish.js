@@ -1003,7 +1003,7 @@ const APPLICATIONS = [
 export default function YaMRSpektroskopiya() {
   const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [activeNucleus, setActiveNucleus] = useState(0)
   const [activeTheory, setActiveTheory] = useState(0)
   const [activeTechnique, setActiveTechnique] = useState(0)

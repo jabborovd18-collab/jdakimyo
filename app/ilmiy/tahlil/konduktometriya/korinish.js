@@ -16,7 +16,7 @@ import { useState, useMemo } from "react"
 export default function Konduktometriya() {
   const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
-  const [showWarningModal, setShowWarningModal] = useState(true)
+  const [showWarningModal, setShowWarningModal] = useState(false)
   const [calcConductivity, setCalcConductivity] = useState(0.0015)
   const [calcConcentration, setCalcConcentration] = useState(0.001)
   const [activeElectrolyte, setActiveElectrolyte] = useState(0)
