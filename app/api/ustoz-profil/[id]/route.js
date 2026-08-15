@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { tozala, korinadimi } from '@/lib/maxfiylik'
+import { ustozPaneliOchiqmi } from '@/lib/roles'
 
 // GET - Ommaviy o'qituvchi profili
 export async function GET(request, { params }) {
@@ -34,7 +36,8 @@ export async function GET(request, { params }) {
         isTeacher: true,
         isVerified: true,
         bio: true,
-        email: true
+        email: true,
+        privacySettings: true
       }
     })
 
@@ -47,6 +50,42 @@ export async function GET(request, { params }) {
 
     const session = await getServerSession(authOptions)
     const isOwner = session?.user?.id === user.id
+
+    // Bu yo'l USTOZ profili uchun. Qidiruv `username` bo'yicha ham
+    // ishlagani uchun, tekshiruvsiz istalgan talabaning ismi, fakulteti
+    // va bio'si shu yerdan ochilib ketardi.
+    if (!isOwner && !ustozPaneliOchiqmi(user)) {
+      return NextResponse.json(
+        { error: 'O\'qituvchi profili topilmadi' },
+        { status: 404 }
+      )
+    }
+
+    // Maxfiylik sozlamasi shu yerda ham hurmat qilinishi shart.
+    // `/api/users/[userId]` uni tekshiradi, bu yo'l esa tekshirmasdi —
+    // ya'ni "profilim hech kimga ko'rinmasin" degan ustoz baribir
+    // `/api/ustoz-profil/<username>` orqali ochilardi.
+    const maxfiylik = tozala(user.privacySettings)
+    const isFriend = session && !isOwner
+      ? Boolean(await prisma.friendship.findFirst({
+          where: {
+            OR: [
+              { user1Id: session.user.id, user2Id: user.id },
+              { user1Id: user.id, user2Id: session.user.id }
+            ]
+          }
+        }))
+      : false
+
+    if (!korinadimi(maxfiylik, 'profil', { ozimniki: isOwner, dost: isFriend })) {
+      return NextResponse.json(
+        { error: 'Bu profil maxfiy' },
+        { status: 404 }
+      )
+    }
+
+    // Sozlama javobning o'zida ketmasin — u ichki ma'lumot
+    delete user.privacySettings
 
     // 2. Ustoz profilini bazadan olish
     let profile = await prisma.teacherPublicProfile.findUnique({
@@ -168,6 +207,6 @@ export async function GET(request, { params }) {
     })
   } catch (error) {
     console.error('[Teacher Public Profile GET Error]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Serverda xatolik yuz berdi' }, { status: 500 })
   }
 }

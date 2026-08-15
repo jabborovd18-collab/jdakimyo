@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { tezlikOshdimi, AI_QOIDASI } from "@/lib/tezlik-cheklov.js";
 import {
   masalaMatniniTahlilQil,
   masalaTuriniAniqla,
@@ -10,11 +13,19 @@ import {
   yechAtom,
 } from "@/lib/masala-dvigatel.js";
 
+// Kiritma chegaralari. Bularsiz bitta so'rov bilan Gemini kvotasini
+// yoqib yuborish mumkin edi: matn uzunligi ham, rasm hajmi ham
+// tekshirilmasdi.
+const MATN_CHEGARASI = 4000;
+const RASM_BAYT_CHEGARASI = 4 * 1024 * 1024; // 4 MB — telefon surati bemalol sig'adi
+
 function apiKalitniOl() {
+  // DIQQAT: bu yerga `NEXT_PUBLIC_*` o'zgaruvchi QO'SHILMAYDI. Next.js
+  // `NEXT_PUBLIC_` prefiksli qiymatni client to'plamiga qo'shib yuboradi
+  // — kalit sahifa manbasida ochiq yotib qolardi. Kalit faqat serverda.
   return (
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_AI_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
     process.env.API_KEY ||
     ""
   );
@@ -176,14 +187,55 @@ NATIJANI FAQAT QUYIDAGI SOF JSON FORMATIDA QAYTARING (hech qanday markdown \`\`\
 // POST /api/masala/yech
 export async function POST(request) {
   try {
+    // Kirish talab qilinadi. Bu yo'l har chaqirilganda Gemini kvotasidan
+    // pul yeydi — ochiq qoldirilsa sayt begonalar uchun bepul AI proksiga
+    // aylanadi va prompt ichiga kimyo emas, istalgan matn kiritilardi.
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json(
+        { xato: "Masala yechish uchun tizimga kiring." },
+        { status: 401 }
+      );
+    }
+
+    const tezlik = tezlikOshdimi(`masala:${session.user.id}`, AI_QOIDASI);
+    if (tezlik) {
+      return NextResponse.json({ xato: tezlik }, { status: 429 });
+    }
+
     const body = await request.json();
     const { masalaMatni = "", rejim = "toliq", rasm = null } = body;
+
+    if (typeof masalaMatni !== "string") {
+      return NextResponse.json(
+        { xato: "Masala matni noto'g'ri formatda." },
+        { status: 400 }
+      );
+    }
 
     if (!masalaMatni.trim() && !rasm) {
       return NextResponse.json(
         { xato: "Masala matni yoki rasm kiritilmadi." },
         { status: 400 }
       );
+    }
+
+    if (masalaMatni.length > MATN_CHEGARASI) {
+      return NextResponse.json(
+        { xato: `Masala matni ${MATN_CHEGARASI} belgidan oshmasligi kerak.` },
+        { status: 400 }
+      );
+    }
+
+    if (rasm) {
+      // base64 satri asl fayldan ~4/3 marta uzun — shuni hisobga olamiz
+      const taxminiyBayt = (rasm.length * 3) / 4;
+      if (typeof rasm !== "string" || taxminiyBayt > RASM_BAYT_CHEGARASI) {
+        return NextResponse.json(
+          { xato: "Rasm hajmi 4 MB dan oshmasligi kerak." },
+          { status: 413 }
+        );
+      }
     }
 
     // 1. Birinchi navbatda Google AI (Multimodal) orqali masalani tanlangan rejim bo'yicha chuqur yechish
@@ -223,8 +275,11 @@ export async function POST(request) {
       ...natija,
     });
   } catch (err) {
+    // Xato matni mijozga chiqarilmaydi: Prisma va fetch xatolari jadval
+    // nomlari va ichki manzillarni oshkor qiladi. Batafsili logda qoladi.
+    console.error("[Masala yech]", err);
     return NextResponse.json(
-      { xato: err.message || "Masalani tahlil qilishda xatolik yuz berdi." },
+      { xato: "Masalani tahlil qilishda xatolik yuz berdi." },
       { status: 500 }
     );
   }

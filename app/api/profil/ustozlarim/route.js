@@ -52,7 +52,9 @@ export async function GET() {
     })
   } catch (error) {
     console.error('[Ustozlarim GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // Xom xato matni mijozga chiqarilmaydi — Prisma xabarlari jadval va
+    // maydon nomlarini oshkor qiladi. Batafsili yuqoridagi logda.
+    return NextResponse.json({ error: 'Serverda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -132,7 +134,9 @@ export async function POST(request) {
     })
   } catch (error) {
     console.error('[Ustozlarim POST]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // Xom xato matni mijozga chiqarilmaydi — Prisma xabarlari jadval va
+    // maydon nomlarini oshkor qiladi. Batafsili yuqoridagi logda.
+    return NextResponse.json({ error: 'Serverda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -199,7 +203,9 @@ export async function PUT(request) {
     })
   } catch (error) {
     console.error('[Ustozlarim PUT]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // Xom xato matni mijozga chiqarilmaydi — Prisma xabarlari jadval va
+    // maydon nomlarini oshkor qiladi. Batafsili yuqoridagi logda.
+    return NextResponse.json({ error: 'Serverda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -248,6 +254,8 @@ export async function DELETE(request) {
     return NextResponse.json({ success: true, message: '✓ Guruhdan chiqdingiz' })
   } catch (error) {
     console.error('[Ustozlarim DELETE]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // Xom xato matni mijozga chiqarilmaydi — Prisma xabarlari jadval va
+    // maydon nomlarini oshkor qiladi. Batafsili yuqoridagi logda.
+    return NextResponse.json({ error: 'Serverda xatolik yuz berdi' }, { status: 500 })
   }
 }
