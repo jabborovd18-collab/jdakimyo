@@ -205,11 +205,15 @@ export function Tarif({ bandlar, nomlar = {} }) {
   const juftlar = Array.isArray(bandlar) ? bandlar : Object.entries(bandlar || {})
   const toza = juftlar.filter(([, v]) => v !== undefined && v !== null && v !== '')
   if (!toza.length) return null
+  // Umumiy lug'at har doim asos: chaqiruvchi uni qo'shishni unutsa ham
+  // yorliq o'zbekcha chiqadi. Ilgari buni har chaqiruv o'zi berardi va
+  // unutilgan joylarda "Spin State", "Cc Bond" ko'rinardi.
+  const toliqNomlar = { ...NOMLAR, ...nomlar }
   return (
     <dl className="v3-ilmiy-tarif">
       {toza.map(([k, v]) => (
         <div key={k}>
-          <dt>{nomlar[k] || chiroyliNom(k)}</dt>
+          <dt>{toliqNomlar[k] || chiroyliNom(k)}</dt>
           <dd>
             <Katak qiymat={v} />
           </dd>
@@ -281,21 +285,190 @@ export function Navigatsiya({ oldingi, keyingi }) {
  * `NOMLAR` lug'atida tarjima qilingan, qolgani shu funksiya orqali
  * o'qilarli holga keladi.
  */
-function chiroyliNom(kalit) {
-  return kalit
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/^./, (s) => s.toUpperCase())
+/**
+ * Kimyoviy yorliqni formulaga o'giradi: `coN_NH3_trans` → `Co–N(NH₃) trans`.
+ *
+ * NEGA ALOHIDA QOIDA. Bog' uzunligi va burchak jadvallarida kalit
+ * kimyoviy formulaning o'zi: `coN_NH3_cis`, `nCoN_Angle`, `ptCl`,
+ * `pKa1`. Oddiy so'z ajratgich ularni "Co N NH3 cis", "P Ka1" qilib
+ * buzadi — ya'ni kimyo darsligida atom belgilari so'zga aylanadi.
+ *
+ * Bu funksiya faqat ATOM BELGILARIDAN iborat kalitlarni tanadi va
+ * ularni tire bilan bog'lab, indekslarni pastga tushiradi. Tanimasa
+ * `null` qaytaradi va odatdagi yo'l davom etadi.
+ */
+function kimyoviyYorliq(kalit) {
+  // pKa1 / pKa2 — kislota doimiysi
+  const pka = kalit.match(/^pKa([0-9]?)$/i)
+  if (pka) return `pKa${pastIndeks(pka[1])}`
+
+  // t_half_1 — yarim yemirilish davri
+  const yarim = kalit.match(/^t_?half_?([0-9]?)$/i)
+  if (yarim) return `t½${pastIndeks(yarim[1])}`
+
+  const ATOM = '(?:Co|Cl|Pt|Rh|Al|Ni|Fe|Cu|Cr|Mn|Zn|Ag|Au|Pd|Ir|Ru|Se|Cd|Eu|Tb|Si|[CHNOPSKFBI])'
+  const bolaklar = kalit
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .split('_')
+    .filter(Boolean)
+
+  const oxirgi = bolaklar[bolaklar.length - 1]?.toLowerCase()
+  const QOSHIMCHA = { cis: 'sis', trans: 'trans', angle: 'burchagi', bond: 'bog\'i', terminal: 'terminal', length: 'uzunligi' }
+  const izoh = QOSHIMCHA[oxirgi] ? bolaklar.pop() : null
+
+  // Har bo'lak atom belgisi yoki ligand formulasi bo'lishi shart —
+  // aks holda bu kimyoviy yorliq emas, oddiy so'z.
+  const atomlar = []
+  for (const b of bolaklar) {
+    const n = b[0].toUpperCase() + b.slice(1)
+    if (new RegExp(`^${ATOM}$`).test(n)) atomlar.push(n)
+    else if (/^(NH3|H2O|NO2|ONO|CN|CO|OH|PPh3|NH2|SCN|C2O4|acac|en|phen|bipy)[0-9]*$/i.test(b))
+      atomlar.push(`(${formulaIndeks(b)})`)
+    else return null
+  }
+  if (atomlar.length < 2) return null
+
+  // Qavsli ligand oldingi atomga yopishadi: Co + (NH₃) → Co(NH₃)
+  let matn = ''
+  for (const a of atomlar) matn += a.startsWith('(') ? a : (matn ? '–' + a : a)
+  return izoh ? `${matn} ${QOSHIMCHA[izoh.toLowerCase()]}` : matn
 }
 
-/** Eng ko'p uchraydigan kalitlarning o'zbekcha nomi. */
+const PAST = { 0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄', 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉' }
+const pastIndeks = (s) => String(s).replace(/[0-9]/g, (d) => PAST[d])
+const formulaIndeks = (s) => s.replace(/([A-Za-z])([0-9]+)/g, (_, a, n) => a + pastIndeks(n))
+
+function chiroyliNom(kalit) {
+  // Simmetriya tasviri yoki amali (A1g, T2u, C2v, σh, S4) — bular
+  // atama, so'z emas. Ularni bo'lish "A 1g" kabi axlat yasaydi.
+  if (/^[A-ZΣσ][0-9a-z]?[gu]?(_[a-z]+)?$/.test(kalit) && kalit.length <= 4) return kalit
+
+  const kimyo = kimyoviyYorliq(kalit)
+  if (kimyo) return kimyo
+
+  return kalit
+    // Qisqartmalarni saqlash: pastki chiziq bo'g'in ajratgichi
+    // (co59_CQ, N_Co_N_cis, h1_MAS) — u bo'shliqqa aylanadi, lekin
+    // bo'lakning O'Z harf registri buzilmaydi. Ilgari `capitalize`
+    // "N_co_n_cis" va "Pjt" kabi o'qib bo'lmaydigan narsa chiqarardi.
+    .split('_')
+    .map((b) => b.replace(/([a-z0-9])([A-Z])/g, '$1 $2'))
+    .join(' ')
+    .replace(/^[a-z]/, (x) => x.toUpperCase())
+    .trim()
+}
+
+
+/**
+ * Ma'lumot kalitlarining o'zbekcha nomi.
+ *
+ * NEGA BUNCHA KATTA. YaMR bo'limining ma'lumotida 440 xil kalit bor va
+ * ularning hammasi inglizcha (ilmiy manbalardan ko'chirilgan). Ilgari
+ * bu yerda 88 tasi bor edi, qolgan 350 tasi `chiroyliNom()` ga tushib,
+ * ekranda "Xray Data", "Taube Classification", "Pjt" bo'lib chiqardi —
+ * ya'ni o'zbek tilidagi sahifada yorliqlarning yarmi ingliz tilida
+ * turardi. AGENTS.md 0-bandi: interfeys o'zbek tilida.
+ *
+ * TARTIB: guruhlar bo'yicha, chunki ro'yxat uzun va bir kalitni
+ * qidirish kerak bo'ladi. Yangi kalit qo'shganda o'z guruhiga qo'ying.
+ *
+ * BU YERDA BO'LMAGAN KALIT xato emas: `chiroyliNom()` uni o'qiladigan
+ * holga keltiradi. Lekin natijasi inglizcha bo'ladi, shuning uchun
+ * ko'p uchraydigani shu yerga tushishi kerak.
+ */
 export const NOMLAR = {
+  // ── Umumiy ──
+  name: 'Nomi',
+  nom: 'Nomi',
+  title: 'Sarlavha',
+  desc: 'Tavsifi',
+  description: 'Tavsifi',
+  note: 'Izoh',
+  notes: 'Izoh',
+  theory: 'Nazariy izoh',
+  theoryNote: 'Nazariy izoh',
+  source: 'Manba',
+  sources: 'Manbalar',
+  reference: 'Manba',
+  referenceNote: 'Manba haqida',
+  book: 'Kitob',
+  year: 'Yili',
+  time: 'Vaqti',
+  step: 'Qadam',
+  purpose: 'Maqsadi',
+  method: 'Usuli',
+  technique: 'Texnika',
+  use: 'Qo\'llanilishi',
+  usage: 'Qo\'llanilishi',
+  type: 'Turi',
+  label: 'Belgi',
+  id: 'Kodi',
+  value: 'Qiymati',
+  unit: 'Birligi',
+  result: 'Natija',
+  consequence: 'Natijasi',
+  effect: 'Ta\'siri',
+  impact: 'Ta\'siri',
+  evidence: 'Dalil',
+  observable: 'Kuzatiladigan belgi',
+  significance: 'Ahamiyati',
+  keyPoint: 'Asosiy xulosa',
+  keyDifference: 'Asosiy farq',
+  whyImportant: 'Nega muhim',
+  why: 'Sababi',
+  reason: 'Sababi',
+  reason1: 'Birinchi sabab',
+  reason2: 'Ikkinchi sabab',
+  reason3: 'Uchinchi sabab',
+  reason4: 'To\'rtinchi sabab',
+  solution: 'Yechim',
+  severity: 'Darajasi',
+  advantage: 'Afzalligi',
+  advantages: 'Afzalliklari',
+  advs: 'Afzalliklari',
+  disadvantage: 'Kamchiligi',
+  disadvantages: 'Kamchiliklari',
+  disadvs: 'Kamchiliklari',
+  Disadvs: 'Kamchiliklari',
+  bestFor: 'Qachon qo\'llanadi',
+  example: 'Misol',
+  Example: 'Misol',
+  examples: 'Misollar',
+  application: 'Qo\'llanilishi',
+  applications: 'Qo\'llanilishi',
+  comparison: 'Taqqoslash',
+  compound: 'Birikma',
+  modern: 'Zamonaviy holat',
+  isCurrent: 'Hozir amalda',
+  preferred: 'Afzal ko\'riladi',
+  conventions: 'Kelishuvlar',
+  primary: 'Asosiy',
+  secondary: 'Ikkilamchi',
+
+  // ── Tarix ──
+  scientist: 'Olim',
+  scientists: 'Olimlar',
+  achievement: 'Yutug\'i',
+  contribution: 'Hissasi',
+  discovery: 'Kashf etilishi',
+  nobel: 'Nobel mukofoti',
+  nobelYear: 'Nobel yili',
+  nobelPrize: 'Nobel mukofoti',
+  synthesisRef: 'Sintez manbai',
+  luteoName: 'Luteo nomi',
+
+  // ── Kristall maydon ──
   metalIon: 'Metall ioni',
+  metal: 'Metall',
   electronConfig: 'Elektron konfiguratsiya',
+  electronCount: 'Elektronlar soni',
   dElectrons: 'd-elektronlar soni',
   spinState: 'Spin holati',
+  spin: 'Spin',
   orbitalOccupancy: 'Orbital bandligi',
   unpairedElectrons: 'Juftlashmagan elektronlar',
   magneticMoment: 'Magnit momenti',
+  muEff: 'Effektiv magnit moment',
   crystalFieldSplitting: 'Kristall maydon bo\'linishi',
   racahParameter: 'Rakah parametri',
   nephelauxeticRatio: 'Nefelauksetik nisbat',
@@ -305,76 +478,296 @@ export const NOMLAR = {
   cfseNet: 'CFSE (netto)',
   spectrochemicalSeries: 'Spektrokimyoviy qator',
   whyLowSpin: 'Nega past spinli',
+  whyHighSpin: 'Nega yuqori spinli',
   whySquarePlanar: 'Nega tekis kvadrat',
+  whyOctahedral: 'Nega oktaedrik',
   colorOrigin: 'Rangning kelib chiqishi',
   chargeTransfer: 'Zaryad ko\'chishi',
+  mlct: 'MLCT (metall→ligand)',
+  mlctEffect: 'MLCT ta\'siri',
+  lmct: 'LMCT (ligand→metall)',
   jahnTellerNote: 'Yan-Teller effekti',
+  pjt: 'Psevdo-Yan-Teller',
+  pjtDistortion: 'Psevdo-Yan-Teller buzilishi',
+  pjteStabilization: 'PJT barqarorlashuvi',
+  stabilization: 'Barqarorlashuv',
+  band: 'Yutilish polosasi',
+  epsilon: 'Molyar yutilish (ε)',
+  oxidationState: 'Oksidlanish darajasi',
+  ionicCharacter: 'Ionlik ulushi',
+  piBackbonding: 'π-qaytarma bog\'lanish',
+
+  // ── Simmetriya ──
   pointGroup: 'Nuqta guruhi',
-  order: 'Guruh tartibi',
-  symmetryElements: 'Simmetriya elementlari',
+  actualPointGroup: 'Haqiqiy nuqta guruhi',
+  realSymmetry: 'Haqiqiy simmetriya',
   parentGroup: 'Ona guruh',
+  order: 'Guruh tartibi',
+  symmetry: 'Simmetriya',
+  symmetryElements: 'Simmetriya elementlari',
   descentInSymmetry: 'Simmetriyaning pasayishi',
   dOrbitalReduction: 'd-orbitallarning yoyilishi',
   nmrEquivalence: 'YaMR ekvivalentligi',
   irActive: 'IQ-faol',
   ramanActive: 'Raman-faol',
   mutualExclusion: 'O\'zaro istisno qoidasi',
+  functions: 'Funksiyalar',
+  propellerShape: 'Parrak shakli',
+  chirality: 'Xirallik',
+  absoluteConfiguration: 'Mutlaq konfiguratsiya',
+  opticalRotation: 'Optik burilish',
+
+  // ── YaMR ──
   nucleus: 'Yadro',
-  spin: 'Spin',
+  nmrNucleus: 'O\'lchanadigan yadrolar',
   gamma: 'Gyromagnit nisbat γ',
   naturalAbundance: 'Tabiiy tarqalishi',
   larmor400: 'Larmor chastotasi (9.4 T)',
   shift: 'Kimyoviy siljish',
+  chemicalShift: 'Kimyoviy siljish',
+  nmrShift: 'Kimyoviy siljish',
   referens: 'Referens',
-  referencing: 'Referens',
+  referencing: 'Referens tizimi',
   whyThisShift: 'Nega aynan shunday siljish',
   multiplicity: 'Multipletlik',
+  mult: 'Multipletlik',
   linewidth: 'Chiziq kengligi',
   t1Relaxation: 'T₁ relaksatsiya',
   t2Relaxation: 'T₂ relaksatsiya',
   coupling: 'Bog\'lanish (J)',
+  couplingNotes: 'Bog\'lanish haqida',
+  couplingToCo: 'Ko\'balt bilan bog\'lanish',
+  jCoupling: 'Bog\'lanish doimiysi J',
   integration: 'Integratsiya',
+  integ: 'Integratsiya',
   solvent: 'Erituvchi',
+  solventModel: 'Erituvchi modeli',
   sensitivity: 'Sezgirlik',
+  detection: 'Qayd etish',
   csa: 'Kimyoviy siljish anizotropiyasi',
+  quadrupolar: 'Kvadrupol xossalari',
   quadrupoleMoment: 'Kvadrupol momenti',
   quadrupolarBroadening: 'Kvadrupol kengayish',
-  detection: 'Qayd etish',
-  applications: 'Qo\'llanilishi',
+  satellites: 'Yo\'ldosh signallar',
+  exchangeBroadening: 'Almashinuv kengayishi',
+  coalescenceTemp: 'Birlashish harorati',
+  nmrEffect: 'YaMR ga ta\'siri',
+  nmrConnection: 'YaMR bilan bog\'liqligi',
+  solidStateNMR: 'Qattiq holat YaMR',
+  ppm: 'δ (ppm)',
+  intensity: 'Intensivlik',
+  assignment: 'Tayinlash',
+  field: 'Magnit maydon',
+  linkageDiscrimination: 'Linkage izomerni farqlash',
+  uniqueToNitrito: 'Faqat nitritoda',
+  exclusiveToNitrito: 'Faqat nitritoda',
+
+  // ── Struktura ──
+  structure: 'Tuzilishi',
+  geometry: 'Geometriyasi',
   bondLengths: 'Bog\' uzunliklari',
   bondAngles: 'Bog\' burchaklari',
+  biteAngle: 'Qamrash burchagi',
+  sumAngles: 'Burchaklar yig\'indisi',
   transEffect: 'Trans-effekt',
+  transInfluence: 'Trans-ta\'sir',
+  transEffectEvidence: 'Trans-effekt dalili',
   hydrogenBonding: 'Vodorod bog\'lanishi',
+  firstShell: 'Birinchi qobiq',
+  secondShell: 'Ikkinchi qobiq',
+  xray: 'Rentgen tuzilmasi',
+  xrayData: 'Rentgen ma\'lumoti',
+  nmr: 'YaMR',
+  computational: 'Hisoblash usuli',
   definition: 'Ta\'rifi',
   mechanism: 'Mexanizmi',
-  consequence: 'Natijasi',
-  source: 'Manba',
+  sterics: 'Sterik omillar',
+  selectivity: 'Tanlovchanligi',
+
+  // ── Termodinamika va kinetika ──
+  stability: 'Barqarorligi',
+  thermalStability: 'Termik barqarorligi',
+  overallStability: 'Umumiy barqarorlik',
+  formationConstant: 'Hosil bo\'lish doimiysi',
+  stepwiseConstants: 'Bosqichli doimiylar',
+  stepwise: 'Bosqichma-bosqich',
+  logBeta: 'log β',
+  inertness: 'Inertligi',
+  taubeClassification: 'Taube tasnifi',
+  waterExchange: 'Suv almashinuvi',
+  acidHydrolysis: 'Kislotali gidroliz',
+  hydrolysis: 'Gidroliz',
+  aquation: 'Akvatatsiya',
   reaction: 'Reaksiya',
+  reaction1: 'Birinchi reaksiya',
+  reaction2: 'Ikkinchi reaksiya',
+  reaction3: 'Uchinchi reaksiya',
+  reverseReaction: 'Teskari reaksiya',
   direction: 'Yo\'nalishi',
   deltaH: 'ΔH°',
   deltaS: 'ΔS°',
+  deltaG: 'ΔG°',
   deltaG298: 'ΔG° (298 K)',
+  deltaHf: 'ΔH°(hosil bo\'lish)',
+  deltaGf: 'ΔG°(hosil bo\'lish)',
+  deltaSf: 'ΔS°(hosil bo\'lish)',
   activationEnergy: 'Faollanish energiyasi',
+  activationParameters: 'Faollanish parametrlari',
+  activationVolume: 'Faollanish hajmi',
+  activation: 'Faollanish',
+  barrier: 'Energetik to\'siq',
+  barrierUnit: 'To\'siq birligi',
+  rate: 'Tezligi',
+  rateConstant: 'Tezlik doimiysi',
   rateConstant298: 'Tezlik doimiysi (298 K)',
   halfLife: 'Yarim yemirilish davri',
   eyring: 'Eyring parametrlari',
-  why: 'Sababi',
-  comparison: 'Taqqoslash',
-  waterExchange: 'Suv almashinuvi',
-  inertness: 'Inertlik',
   isomerization: 'Izomerizatsiya',
-  significance: 'Ahamiyati',
-  discovery: 'Kashf etilishi',
-  synthesisRef: 'Sintez manbai',
-  method: 'Usul',
-  clinical: 'Klinik ahamiyati',
-  catalysis: 'Kataliz',
-  kinetics: 'Kinetika',
-  hydrolysis: 'Gidroliz',
-  chirality: 'Xirallik',
-  chelateEffect: 'Xelat effekti',
-  redoxProperties: 'Redoks xossalari',
-  solidStateNMR: 'Qattiq holat YaMR',
-  solventModel: 'Erituvchi modeli',
+  isomerEnergyDiff: 'Izomerlar energiya farqi',
+  metastability: 'Metabarqarorlik',
+  stabilityConditions: 'Saqlash sharoiti',
+  polymerization: 'Polimerlanish',
+  amphoteric: 'Amfoterligi',
+  aluminate: 'Alyuminat shakli',
+  pKa: 'pKa',
+  energy: 'Energiya',
   frequencies: 'Chastotalar',
+  basisSetForCo: 'Ko\'balt uchun bazis to\'plami',
+  quantum: 'Kvant hisobi',
+
+  // ── Bioanorganik va tibbiy ──
+  clinical: 'Klinik ahamiyati',
+  dose: 'Dozasi',
+  toxicity: 'Toksikligi',
+  cancer: 'Saraton turi',
+  cure: 'Davolash samarasi',
+  binding: 'Bog\'lanishi',
+  dnaBinding: 'DNK ga bog\'lanishi',
+  crosslink: 'Ko\'ndalang bog\'lanish',
+  crosslinking: 'Ko\'ndalang bog\'lanish',
+  crosslinkEfficiency: 'Ko\'ndalang bog\' samarasi',
+  adductRatio: 'Adduktlar nisbati',
+  intracellular: 'Hujayra ichida',
+  nephrotoxicity: 'Buyrak toksikligi',
+  neurotoxicity: 'Nerv toksikligi',
+  ototoxicity: 'Eshitishga ta\'siri',
+  myelosuppression: 'Suyak iligi bosilishi',
+  emesis: 'Ko\'ngil aynishi',
+  generation: 'Avlodi',
+  activity: 'Faolligi',
+  whyInactive: 'Nega faol emas',
+  catalysis: 'Kataliz',
+  chelateEffect: 'Xelat effekti',
+  thermodynamicOrigin: 'Termodinamik sababi',
+  redoxProperties: 'Redoks xossalari',
+  interferences: 'Halaqit beruvchi omillar',
+  labProcedure: 'Laboratoriya tartibi',
+
+  // ── Yakka holatlar ──
+  // Bular avtomatik qoidaga tushmaydi: yo qisqartma (MAS, CQ), yo
+  // formulasi nostandart yozilgan. Ro'yxat qisqa bo'lgani uchun
+  // qo'lda yozilgan.
+  co59_CQ: 'Kvadrupol doimiysi C_Q (⁵⁹Co)',
+  co59_eta: 'Asimmetriya η (⁵⁹Co)',
+  h1_MAS: '¹H MAS',
+  nh_Bond: 'N–H bog\'i',
+  ohBond: 'O–H bog\'i',
+  oh_Bond: 'O–H bog\'i',
+  hNH_Angle: 'H–N–H burchagi',
+  hohAngle: 'H–O–H burchagi',
+  hoh_Angle: 'H–O–H burchagi',
+  oN_bond: 'O–N bog\'i',
+  o_N_bond: 'O–N bog\'i',
+  n_O_terminal: 'N–O (terminal)',
+  on_O_terminal: 'O–N–O (terminal)',
+  onO_terminal: 'O–N–O (terminal)',
+  coON_angle: 'Co–O–N burchagi',
+  dihedral_ONO: 'ONO dihedral burchagi',
+  referenceCoN6: 'Solishtirish: Co–N₆',
+  coOBondLength: 'Co–O bog\' uzunligi',
+  coNBondLength: 'Co–N bog\' uzunligi',
+  shift_NH3: 'δ (NH₃)',
+  shift_NO2: 'δ (NO₂)',
+  shift_ONO: 'δ (ONO)',
+  pc_phosphine: 'Fosfin konusi burchagi',
+  ionicRadius: 'Ion radiusi',
+  hydrogenBonds: 'Vodorod bog\'lari',
+  endoExoConformers: 'Endo va ekzo konformerlar',
+  endoExoStructure: 'Endo/ekzo tuzilishi',
+  comparisonWithNitro: 'Nitro izomer bilan taqqoslash',
+  nitroComparison: 'Nitro izomer bilan taqqoslash',
+  step1: '1-bosqich',
+  step2: '2-bosqich',
+  step3: '3-bosqich',
+  step4: '4-bosqich',
+  step5: '5-bosqich',
+  jPtH: 'J(Pt–H)',
+  jRhP: 'J(Rh–P)',
+  nmrP: '³¹P YaMR',
+  nmrPt: '¹⁹⁵Pt YaMR',
+  al27: '²⁷Al',
+  n15: '¹⁵N',
+  co59: '⁵⁹Co',
+  h1: '¹H',
+  o17: '¹⁷O',
+  p31: '³¹P',
+  k1: 'k₁',
+  k2: 'k₂',
+  K: 'Muvozanat doimiysi K',
+  J: 'J',
+  E: 'E',
+
+  // ── Uchinchi to'lqin: 12 sahifani to'liq skanerlash natijasi ──
+  // Bu ro'yxat taxminan emas, o'lchab olingan: render qilingan
+  // 2 004 ta yorliqdan hali inglizcha qolganlari.
+  ligand: 'Ligand',
+  metal: 'Metall',
+  geometry: 'Geometriyasi',
+  spinState: 'Spin holati',
+  waterExchange: 'Suv almashinuvi',
+  resolutionMethod: 'Ajratish usuli',
+  comparisonWithNH3: 'NH₃ kompleksi bilan taqqoslash',
+  conformationalAnalysis: 'Konformatsion tahlil',
+  preferredConformation: 'Afzal konformatsiya',
+  diastereotopicProtons: 'Diastereotop protonlar',
+  cc_Bond: 'C–C bog\'i',
+  cn_Bond: 'C–N bog\'i',
+  ccBond: 'C–C bog\'i',
+  cnBond: 'C–N bog\'i',
+  ringPuckering: 'Halqaning burishishi',
+  ringSize: 'Halqa o\'lchami',
+  chiralRecognition: 'Xiral tanish',
+  chiralInversion: 'Xiral inversiya',
+  macrocyclicEffect: 'Makrosiklik effekt',
+  kineticEffect: 'Kinetik effekt',
+  racemicMixture: 'Rasemik aralashma',
+  historicalNote: 'Tarixiy izoh',
+  nitritoComparison: 'Nitrito izomer bilan taqqoslash',
+  uniqueToNitrito: 'Faqat nitritoda',
+  marcusLimit: 'Markus chegarasi',
+  magneticAnisotropy: 'Magnit anizotropiyasi',
+  rayDuttTwist: 'Rey–Datt burilishi',
+  bailarTwist: 'Beylar burilishi',
+  contactShift: 'Kontakt siljish',
+  pseudoContactShift: 'Psevdokontakt siljish',
+  curieSpin: 'Kyuri spin hissasi',
+  curieConstant: 'Kyuri doimiysi',
+  curieLaw: 'Kyuri qonuni',
+  evansMethod: 'Evans usuli',
+  muEffective: 'Effektiv magnit moment',
+  muEff: 'Effektiv magnit moment',
+  selectionRules: 'Tanlash qoidalari',
+  logBeta: 'log β',
+  logBeta3: 'log β₃',
+  logBeta4: 'log β₄',
+  logBeta6: 'log β₆',
+  whyYellow: 'Nega sariq',
+  mlctBand: 'MLCT polosasi',
+  standardPotential: 'Standart potensial',
+  colorChange: 'Rang o\'zgarishi',
+  hmgRecognition: 'HMG oqsili tanishi',
+  nmrPt: '¹⁹⁵Pt YaMR',
+  xiScale: 'Ξ shkalasi',
+  xiFormula: 'Ξ formulasi',
+  oldConvention: 'Eski kelishuv',
 }

@@ -149,6 +149,7 @@ export default async function TahlilSahifasi({ params }) {
       <Blok sarlavha="Asosiy ma'lumot" ikon="royxat">
         <Tarif
           nomlar={{
+            ...NOMLAR,
             formulaPlain: 'Oddiy yozuvda',
             metalLigand: 'Metall–ligand bog\'i',
             molarConductivity: 'Molyar elektr o\'tkazuvchanligi',
@@ -378,8 +379,15 @@ export default async function TahlilSahifasi({ params }) {
                 {t.description && (
                   <p style={{ fontSize: 12.5, lineHeight: 1.6, marginBottom: 10 }}>{t.description}</p>
                 )}
+                {/*
+                  NOMLAR — umumiy lug'at, ustiga shu blokka xos
+                  qo'shimchalar. Ilgari bu yerda FAQAT to'rtta kalit
+                  bor edi va qolganlari (`Disadvs`, `Example`) ingliz
+                  tilida chiqib qolardi.
+                */}
                 <Tarif
                   nomlar={{
+                    ...NOMLAR,
                     advantages: 'Afzalligi',
                     disadvantages: 'Kamchiligi',
                     bestFor: 'Qachon qo\'llanadi',
@@ -585,14 +593,22 @@ function chiroyli(kalit) {
  * Qattiq yozilsa, ba'zi sahifada bo'sh ustun, boshqasida esa
  * ko'rinmay qolgan ma'lumot paydo bo'lardi.
  */
-function jadvalUstunlari(qatorlar, nomlar) {
+function jadvalUstunlari(qatorlar, nomlar = {}) {
   const kalitlar = []
   for (const q of qatorlar) {
     for (const k of Object.keys(q)) {
       if (!kalitlar.includes(k)) kalitlar.push(k)
     }
   }
-  return kalitlar.map((k) => ({ kalit: k, nom: nomlar[k] || chiroyli(k) }))
+  // NOMLAR — asos, chaqiruvchi bergani ustidan yozadi.
+  //
+  // NEGA SHU YERDA, chaqiruv joyida emas. Avval har chaqiruv o'z
+  // kichik lug'atini berardi va NOMLAR ni qo'shishni unutish oson
+  // edi — natijada jadval sarlavhalari ingliz tilida chiqib qolardi
+  // ("Ligand", "Spin State", "Cc Bond"). Endi umumiy lug'at har doim
+  // ishlaydi, chaqiruvchi esa faqat SHU jadvalga xos nomni beradi.
+  const toliq = { ...NOMLAR, ...nomlar }
+  return kalitlar.map((k) => ({ kalit: k, nom: toliq[k] || chiroyli(k) }))
 }
 
 /** Xarakterlar jadvali — simmetriya guruhining tasvirlari. */
