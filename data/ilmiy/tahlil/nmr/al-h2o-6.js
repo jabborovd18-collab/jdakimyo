@@ -340,7 +340,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak, labor xalat. Al³⁺ tuzlari kislotali (pH < 3). Teri va ko'zga tegmasin.",
       time: "15 daq",
       theoryNote: "AlCl₃·6H₂O eritmalari kislotali (pH ~2-3, gidroliz tufayli). Kislota bilan ishlaganda ehtiyot bo'ling.",

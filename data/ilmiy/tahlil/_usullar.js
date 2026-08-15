@@ -18,7 +18,9 @@ export const USULLAR = {
   nmr: {
     nom: 'YaMR (NMR)',
     toliqNom: 'Yadro magnit rezonansi',
-    ikon: '🧲',
+    // `components/Ikon.jsx` dagi kalit. Emoji emas: u har tizimda
+    // boshqacha chiziladi va sahifa foni o'zgarganda moslashmaydi.
+    ikon: 'atom',
     tavsif:
       "Yadro magnit rezonansi. ¹H, ¹³C, ³¹P va metall yadrolari (⁵⁹Co, ¹⁹⁵Pt) " +
       "orqali ligandlarning muhitini, simmetriyani va almashinuv kinetikasini aniqlaydi.",

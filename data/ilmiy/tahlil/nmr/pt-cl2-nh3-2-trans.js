@@ -283,7 +283,7 @@ export const malumot = {
       geometry: "cis (C₂ᵥ)",
       nmrPt: "−2100 ppm",
       jPtH: "45 Hz",
-      crosslink: "✓ 1,2-GpG intrastrand",
+      crosslink: "bor — 1,2-GpG intrastrand",
       activity: "90%+ (testicular)",
     },
     {
@@ -291,7 +291,7 @@ export const malumot = {
       geometry: "trans (D₂ₕ)",
       nmrPt: "−1850 ppm (+250 ppm)",
       jPtH: "65 Hz (+20 Hz)",
-      crosslink: "✗ Faqat monoadduct",
+      crosslink: "yo'q — Faqat monoadduct",
       activity: "Samarasiz",
     },
     {
@@ -442,7 +442,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak. Transplatin Pt birikmasi — zaharli. Havo almashinuvi yaxshi bo'lgan joyda ishlash.",
       time: "15 daq",
       theoryNote: "Pt birikmalari zaharli, lekin transplatin sisplatindan kamroq kanserojen (DNK crosslink qilmaydi).",

@@ -128,7 +128,7 @@ export const malumot = {
       coupling: "¹J(¹⁵N–¹H) ≈ 73 Hz (¹⁵N-boyitilgan namunada dublet); ²J(H–Co–H) ≈ 0 (¹⁴N kvadrupol yashiradi)",
       integration: "15 H (5 NH₃ × 3 H)",
       solvent: "DMSO-d₆ afzal. D₂O da tez H/D almashinuvi tufayli signal yo'qoladi; qorong'ida saqlash — nitroga aylanmaslik uchun.",
-      keyDifference: "🔍 ¹H NMR nitro/nitrito farqi: 0.0 ppm (aniqlanmagan). Bu — asosiy cheklov: ¹H orqali linkage izomer aniqlanmaydi.",
+      keyDifference: "¹H NMR nitro/nitrito farqi: 0.0 ppm (aniqlanmagan). Bu — asosiy cheklov: ¹H orqali linkage izomer aniqlanmaydi.",
     },
     n15: {
       nucleus: "¹⁵N",
@@ -163,7 +163,7 @@ export const malumot = {
       t1Relaxation: "T₁ ≈ 0.5–5 ms (juda qisqa — tez qayta impuls berish mumkin)",
       csa: "Δσ(¹⁷O) ≈ 400 ppm (Co–O uchun)",
       detection: "¹⁷O-boyitilgan (>10%) namuna ZARUR. Tabiiy tarqalishda 24–48 soat skan yetmaydi. Boyitish variant: sintezni H₂¹⁷O bilan olib borish.",
-      keyPoint: "🌟 ¹⁷O NMR nitrito izomerning yakuniy tasdiqi — chunki faqat nitrito da Co–O bog'i mavjud. Nitroda ¹⁷O signali yo'q (O atomi Co dan uzoq). Bu — 100% aniq farqlash usuli.",
+      keyPoint: "¹⁷O NMR nitrito izomerning yakuniy tasdiqi — chunki faqat nitrito da Co–O bog'i mavjud. Nitroda ¹⁷O signali yo'q (O atomi Co dan uzoq). Bu — 100% aniq farqlash usuli.",
       exclusiveToNitrito: true,
     },
     co59: {
@@ -515,7 +515,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "🔴 KRITIK: Yangi namuna tayyorlash",
+      title: "KRITIK: Yangi namuna tayyorlash",
       time: "1-2 soat",
       desc: "Nitrito noaniq holda saqlanmaydi — har eksperimentdan oldin yangi. Adell (1944) usuli: [Co(NH₃)₅(H₂O)](NO₃)₃ + NaNO₂ (past pH, 0°C) → [Co(NH₃)₅(ONO)](NO₃)₂ (qizil). Cl₂ tuz muzli HCl bilan qayta kristallashdan olinadi. Muzli hammom + qorong'i.",
       theory: "Past T (0°C) — kinetik nazorat: kichik faollik energiyasidagi O ga bog'lanish. 20°C da termodinamik nitro hosil bo'ladi. 30 daq/0°C → 90% nitrito.",

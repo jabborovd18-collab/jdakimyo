@@ -469,7 +469,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak, labor xalat. Sisplatin — KANSEROGEN va MUTAGEN. Havo almashinuvi yaxshi bo'lgan joyda ishlash. Teriga tegmasin.",
       time: "15 daq",
       theoryNote: "Sisplatin DNK bilan bog'lanadi — mutagen va karsinogen. Qo'lqopsiz ishlatmang. Chiqindilarni maxsus idishga tashlang.",

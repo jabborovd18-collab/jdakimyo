@@ -365,7 +365,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak, labor xalat. [Fe(CN)₆]⁴⁻ o'zi xavfsiz, lekin kislota qo'shilsa HCN gazi ajraladi! Hech qanday kislota bilan ishlatmang.",
       time: "15 daq",
       theoryNote: "K₄[Fe(CN)₆] o'zi GRAS (umumiy xavfsiz), chunki CN⁻ ligand mustahkam bog'langan. Lekin kuchli kislota qo'shilsa HCN ajraladi — bu zaharli!",

@@ -519,7 +519,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak, labor xalat. Pt birikmalari zaharli. Havo almashinuvi yaxshi bo'lgan joyda ishlash.",
       time: "15 daq",
       theoryNote: "Pt birikmalari toksik va teri allergiyasiga olib kelishi mumkin. Qo'lqop va himoya ko'zoynaklari majburiy.",

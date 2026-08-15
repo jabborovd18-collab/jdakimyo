@@ -462,7 +462,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak. Co³⁺ zaharli. en (etilendiamin) korroziv, irritant. Yaxshi havalandırılan joyda ishlash.",
       time: "15 daq",
       theoryNote: "Co³⁺ zaharli. en korroziv — teri va ko'zga tegmaslik kerak. Yaxshi havalandırılan joyda ishlash.",

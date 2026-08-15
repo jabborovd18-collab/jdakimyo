@@ -15,7 +15,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { USULLAR } from '@/data/ilmiy/tahlil/_usullar'
 import { MALUMOTLAR } from '@/data/ilmiy/tahlil/indeks'
-import { Yol, Blok, Belgi, Formula } from '@/components/ilmiy/Qobiq'
+import { Blok, Belgi, Formula } from '@/components/ilmiy/Qobiq'
+import IlmiyBoshPanel from '@/components/ilmiy/IlmiyBoshPanel'
+import Ikon from '@/components/Ikon'
 
 export function generateStaticParams() {
   return Object.keys(MALUMOTLAR).map((usul) => ({ usul }))
@@ -45,7 +47,7 @@ export default async function BirikmalarRoyxati({ params }) {
 
   return (
     <main className="v3-ilmiy">
-      <Yol
+      <IlmiyBoshPanel
         bandlar={[
           { nom: 'Ilmiy', havola: '/ilmiy' },
           { nom: 'Tahlil usullari', havola: '/ilmiy/tahlil' },
@@ -55,8 +57,12 @@ export default async function BirikmalarRoyxati({ params }) {
       />
 
       <header className="v3-ilmiy-hero">
-        <div className="v3-ilmiy-formula" style={{ fontSize: 'clamp(22px, 5vw, 34px)' }}>
-          {u.ikon} {u.nom} — birikmalar
+        <div
+          className="v3-ilmiy-formula"
+          style={{ fontSize: 'clamp(22px, 5vw, 34px)', display: 'flex', alignItems: 'center', gap: 12 }}
+        >
+          <Ikon nom={u.ikon} olcham={30} />
+          {u.nom} — birikmalar
         </div>
         <p className="v3-ilmiy-iupac">{u.tavsif}</p>
         <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -67,7 +73,7 @@ export default async function BirikmalarRoyxati({ params }) {
         </div>
       </header>
 
-      <Blok sarlavha="Tahlil qilingan birikmalar" ikon="🧪">
+      <Blok sarlavha="Tahlil qilingan birikmalar" ikon="kolba">
         <div className="v3-ilmiy-grid ikki">
           {tartib.map((slug) => {
             const m = baza[slug]

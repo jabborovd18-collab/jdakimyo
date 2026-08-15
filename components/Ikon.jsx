@@ -255,6 +255,110 @@ const YOLLAR = {
       <path d="m7.5 15.5 3.5-4.5 3 2.5 4.5-6" />
     </>
   ),
+
+  // ─── Ilmiy tahlil sahifalari ───
+  //
+  // Bu guruh `/ilmiy/tahlil` bo'limi uchun qo'shildi. Har biri sahifadagi
+  // aniq bir bo'limni bildiradi va nomi o'sha bo'lim mazmunidan olingan,
+  // shakli emas: `simmetriya` deyiladi, `olti-burchak` emas — chunki
+  // shakl keyin o'zgarishi mumkin, mazmun esa yo'q.
+
+  // Ro'yxat — "Asosiy ma'lumot" bo'limi (kalit-qiymat juftliklari)
+  royxat: (
+    <>
+      <path d="M8 6h12M8 12h12M8 18h12" />
+      <circle cx="4.2" cy="6" r="1.1" />
+      <circle cx="4.2" cy="12" r="1.1" />
+      <circle cx="4.2" cy="18" r="1.1" />
+    </>
+  ),
+  // Jadval — signallar va taqqoslash jadvallari
+  jadval: (
+    <>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+      <path d="M3.5 9.5h17M9.5 9.5v10M15 9.5v10" />
+    </>
+  ),
+  // Kristall maydon — d-orbitallarning bo'linishi (ikki energiya darajasi)
+  kristall: (
+    <>
+      <path d="M12 3 4 8v8l8 5 8-5V8z" />
+      <path d="M12 3v18M4 8l8 5 8-5" />
+    </>
+  ),
+  // Simmetriya — aks ettirish o'qi
+  simmetriya: (
+    <>
+      <path d="M12 3v18" strokeDasharray="2.5 2.5" />
+      <path d="M9 7 4.5 12 9 17z" />
+      <path d="m15 7 4.5 5-4.5 5z" />
+    </>
+  ),
+  // Struktura — bog' uzunligi va burchagi o'lchovi
+  olcham: (
+    <>
+      <path d="M3 16.5 8.5 6l5 7 3-3.5L21 16.5z" />
+      <circle cx="8.5" cy="6" r="1.6" />
+      <circle cx="16.5" cy="9.5" r="1.6" />
+    </>
+  ),
+  // Termodinamika — termometr
+  harorat: (
+    <>
+      <path d="M11 14.8V6a2.5 2.5 0 0 1 5 0v8.8" />
+      <circle cx="13.5" cy="17.5" r="3.2" />
+      <path d="M13.5 14.8V10" />
+    </>
+  ),
+  // Taqqoslash — tarozi
+  tarozi: (
+    <>
+      <path d="M12 4v16M7 20h10" />
+      <path d="M4 8h16M4 8l-2.5 5.5h5zM20 8l2.5 5.5h-5z" />
+    </>
+  ),
+  // Halaqit — diqqat belgisi (uchburchak)
+  ogohlantirish: (
+    <>
+      <path d="M12 4.5 2.8 20h18.4z" />
+      <path d="M12 10v4.2" />
+      <circle cx="12" cy="17.2" r="0.9" />
+    </>
+  ),
+  // Kengaytiruvchi metodlar — mikroskop
+  mikroskop: (
+    <>
+      <path d="M9 4.5h4.2l2.8 7H11.8z" />
+      <path d="M13.4 11.5a5 5 0 1 1-4.4 8" />
+      <path d="M4 20.5h16" />
+      <path d="M7.5 16.5h3" />
+    </>
+  ),
+  // Qattiq holat — kristall panjara tugunlari
+  panjara: (
+    <>
+      <circle cx="6" cy="6" r="1.6" />
+      <circle cx="18" cy="6" r="1.6" />
+      <circle cx="6" cy="18" r="1.6" />
+      <circle cx="18" cy="18" r="1.6" />
+      <circle cx="12" cy="12" r="1.6" />
+      <path d="M7.4 7.1 10.7 10.6M13.3 10.6l3.3-3.5M7.4 16.9l3.3-3.5M13.3 13.4l3.3 3.5" />
+    </>
+  ),
+  // Spektr — cho'qqili chiziq (NMR, IQ, Raman signallari)
+  spektr: (
+    <>
+      <path d="M3 19h18" />
+      <path d="M4 19V7M9 19v-9M12.5 19V4M16 19v-7M19.5 19v-4" />
+    </>
+  ),
+  // Nomsiz qo'shimcha bo'lim (birikmaga xos, oldindan bilinmaydi)
+  bolim: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 8.5v7M8.5 12h7" />
+    </>
+  ),
 }
 
 /**

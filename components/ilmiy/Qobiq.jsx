@@ -18,6 +18,7 @@
 // to'g'ri ko'rinadi.
 
 import Link from 'next/link'
+import Ikon from '@/components/Ikon'
 
 /**
  * HTML formulani chiqaradi ("[Fe(CN)<sub>6</sub>]³⁻").
@@ -69,13 +70,20 @@ export function Yol({ bandlar }) {
   )
 }
 
-/** Sarlavhali bo'lim kartasi. */
+/**
+ * Sarlavhali bo'lim kartasi.
+ *
+ * `ikon` — `components/Ikon.jsx` dagi kalit (masalan "jadval").
+ * Emoji QABUL QILINMAYDI: u har tizimda boshqacha chiziladi, rangi
+ * qattiq yozilgan va fon almashganda moslashmaydi. SVG esa
+ * `currentColor` bilan chiziladi, ya'ni --v3-* tizimiga o'zi ergashadi.
+ */
 export function Blok({ sarlavha, ikon, children, id }) {
   return (
     <section className="v3-ilmiy-blok" id={id}>
       {sarlavha && (
         <h2>
-          {ikon && <span aria-hidden="true">{ikon}</span>}
+          {ikon && <Ikon nom={ikon} olcham={19} className="v3-ilmiy-blok-ikon" />}
           {sarlavha}
         </h2>
       )}

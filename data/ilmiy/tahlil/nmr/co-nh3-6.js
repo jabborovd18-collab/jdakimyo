@@ -454,7 +454,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak. Co³⁺ zaharli. NH₃ uchuvchan, irritant.",
       time: "15 daq",
       theoryNote: "Co³⁺ zaharli. NH₃ uchuvchan — yaxshi havalandırılan joyda ishlash.",

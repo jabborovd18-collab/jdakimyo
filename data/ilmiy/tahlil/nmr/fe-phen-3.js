@@ -413,7 +413,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak, labor xalat. Phen toksik (mutagen). Fe²⁺ zaharli emas, lekin konsentratsiyalangan eritmalar ehtiyotkorlik bilan ishlatiladi.",
       time: "15 daq",
       theoryNote: "1,10-fenantrolin toksik va mutagen. Havo almashinuvi yaxshi bo'lgan joyda ishlash. [Fe(phen)₃]SO₄ o'zi xavfsizroq.",

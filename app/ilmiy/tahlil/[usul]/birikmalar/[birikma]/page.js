@@ -27,8 +27,8 @@
 import { notFound } from 'next/navigation'
 import { USULLAR, USUL_KALITLARI } from '@/data/ilmiy/tahlil/_usullar'
 import { MALUMOTLAR, birikmaniOl } from '@/data/ilmiy/tahlil/indeks'
+import IlmiyBoshPanel from '@/components/ilmiy/IlmiyBoshPanel'
 import {
-  Yol,
   Blok,
   Panel,
   Grid,
@@ -113,7 +113,7 @@ export default async function TahlilSahifasi({ params }) {
 
   return (
     <main className="v3-ilmiy">
-      <Yol
+      <IlmiyBoshPanel
         bandlar={[
           { nom: 'Ilmiy', havola: '/ilmiy' },
           { nom: 'Tahlil usullari', havola: '/ilmiy/tahlil' },
@@ -146,7 +146,7 @@ export default async function TahlilSahifasi({ params }) {
       </header>
 
       {/* ─── Asosiy ko'rsatkichlar ─── */}
-      <Blok sarlavha="Asosiy ma'lumot" ikon="📋">
+      <Blok sarlavha="Asosiy ma'lumot" ikon="royxat">
         <Tarif
           nomlar={{
             formulaPlain: 'Oddiy yozuvda',
@@ -186,7 +186,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Tarix ─── */}
       {m.history && (
-        <Blok sarlavha="Tarixiy kontekst" ikon="📜">
+        <Blok sarlavha="Tarixiy kontekst" ikon="kitob">
           <Grid ustun={Object.keys(m.history).length >= 3 ? 3 : 2}>
             {Object.entries(m.history).map(([kalit, qiymat]) => (
               <Panel key={kalit} sarlavha={chiroyli(kalit)}>
@@ -203,7 +203,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Kristall maydon ─── */}
       {m.crystalField && (
-        <Blok sarlavha="Kristall maydon nazariyasi" ikon="🔷">
+        <Blok sarlavha="Kristall maydon nazariyasi" ikon="kristall">
           <Grid ustun={4} className="mb-4">
             <Lavha nom="Metall ioni" qiymat={m.crystalField.metalIon} />
             <Lavha nom="Konfiguratsiya" qiymat={m.crystalField.electronConfig} />
@@ -219,7 +219,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Simmetriya ─── */}
       {m.symmetry && (
-        <Blok sarlavha="Simmetriya va tanlash qoidalari" ikon="🔶">
+        <Blok sarlavha="Simmetriya va tanlash qoidalari" ikon="simmetriya">
           {m.symmetry.symmetryElements && (
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 16 }}>
               {m.symmetry.symmetryElements.map((e, i) => (
@@ -254,7 +254,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Signal jadvali ─── */}
       {m.nmrSignals?.length > 0 && (
-        <Blok sarlavha="Signallar jadvali" ikon="📊">
+        <Blok sarlavha="Signallar jadvali" ikon="jadval">
           <Jadval
             ustunlar={jadvalUstunlari(m.nmrSignals, {
               nucleus: 'Yadro',
@@ -273,7 +273,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Strukturaviy parametrlar ─── */}
       {(m.structuralData || m.structural) && (
-        <Blok sarlavha="Strukturaviy parametrlar" ikon="📐">
+        <Blok sarlavha="Strukturaviy parametrlar" ikon="olcham">
           {Object.entries(m.structuralData || m.structural).map(([bolim, qiymat]) => (
             <div key={bolim} style={{ marginBottom: 18 }}>
               <h3>{NOMLAR[bolim] || chiroyli(bolim)}</h3>
@@ -289,7 +289,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Termodinamika ─── */}
       {m.thermodynamics && (
-        <Blok sarlavha="Termodinamika va kinetika" ikon="🌡️">
+        <Blok sarlavha="Termodinamika va kinetika" ikon="harorat">
           {Object.entries(m.thermodynamics).map(([bolim, qiymat]) => (
             <div key={bolim} style={{ marginBottom: 18 }}>
               <h3>{NOMLAR[bolim] || chiroyli(bolim)}</h3>
@@ -305,7 +305,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Taqqoslash ─── */}
       {Array.isArray(m.comparison) && m.comparison.length > 0 && (
-        <Blok sarlavha="Boshqa komplekslar bilan taqqoslash" ikon="⚖️">
+        <Blok sarlavha="Boshqa komplekslar bilan taqqoslash" ikon="tarozi">
           <Jadval
             ustunlar={jadvalUstunlari(m.comparison, {
               compound: 'Birikma',
@@ -323,7 +323,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Halaqit beruvchi omillar ─── */}
       {Array.isArray(m.interferences) && m.interferences.length > 0 && (
-        <Blok sarlavha="Halaqit beruvchi omillar" ikon="⚠️">
+        <Blok sarlavha="Halaqit beruvchi omillar" ikon="ogohlantirish">
           <Jadval
             ustunlar={jadvalUstunlari(m.interferences, {
               source: 'Manba',
@@ -339,7 +339,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Laboratoriya tartibi ─── */}
       {Array.isArray(m.labProcedure) && m.labProcedure.length > 0 && (
-        <Blok sarlavha="Laboratoriya tartibi" ikon="🧪">
+        <Blok sarlavha="Laboratoriya tartibi" ikon="kolba">
           <ol className="v3-ilmiy-qadamlar">
             {m.labProcedure.map((q, i) => (
               <li className="v3-ilmiy-qadam" key={i}>
@@ -371,7 +371,7 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Kengaytiruvchi metodlar ─── */}
       {Array.isArray(m.advancedTechniques) && m.advancedTechniques.length > 0 && (
-        <Blok sarlavha="Kengaytiruvchi metodlar" ikon="🔬">
+        <Blok sarlavha="Kengaytiruvchi metodlar" ikon="mikroskop">
           <Grid ustun={2}>
             {m.advancedTechniques.map((t, i) => (
               <Panel key={i} sarlavha={t.name}>
@@ -395,14 +395,14 @@ export default async function TahlilSahifasi({ params }) {
 
       {/* ─── Qattiq holat YaMR ─── */}
       {m.solidStateNMR && (
-        <Blok sarlavha="Qattiq holat YaMR" ikon="🧊">
+        <Blok sarlavha="Qattiq holat YaMR" ikon="panjara">
           <Tarif bandlar={m.solidStateNMR} nomlar={NOMLAR} />
         </Blok>
       )}
 
       {/* ─── Spektr jadvallari ─── */}
       {SPEKTR_KALITLARI.filter((k) => Array.isArray(m[k]) && m[k].length).map((k) => (
-        <Blok key={k} sarlavha={SPEKTR_NOMLARI[k] || chiroyli(k)} ikon="📈">
+        <Blok key={k} sarlavha={SPEKTR_NOMLARI[k] || chiroyli(k)} ikon="spektr">
           <Jadval
             ustunlar={jadvalUstunlari(m[k], {
               ppm: 'δ (ppm)',
@@ -433,7 +433,7 @@ export default async function TahlilSahifasi({ params }) {
         strukturaviy jihatdan mumkin emas.
       */}
       {qolganBolimlar(m).map(([kalit, qiymat]) => (
-        <Blok key={kalit} sarlavha={NOMLAR[kalit] || chiroyli(kalit)} ikon="🔹">
+        <Blok key={kalit} sarlavha={NOMLAR[kalit] || chiroyli(kalit)} ikon="bolim">
           {Array.isArray(qiymat) ? (
             typeof qiymat[0] === 'object' ? (
               <Jadval ustunlar={jadvalUstunlari(qiymat, NOMLAR)} qatorlar={qiymat} />

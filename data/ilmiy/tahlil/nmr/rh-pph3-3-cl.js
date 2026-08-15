@@ -342,7 +342,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak, labor xalat. Wilkinson katalizatori havoga sezgir. Inert muhitda ishlash (Schlenk texnikasi yoki glovebox).",
       time: "15 daq",
       theoryNote: "Wilkinson havo va namlikka sezgir — PPh₃ oksidlanadi, katalizator parchalanadi. Inert muhit (N₂, Ar) kerak.",

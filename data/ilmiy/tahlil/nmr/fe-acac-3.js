@@ -340,7 +340,7 @@ export const malumot = {
   labProcedure: [
     {
       step: 1,
-      title: "⚠️ Xavfsizlik tayyorgarligi",
+      title: "Xavfsizlik tayyorgarligi",
       desc: "Qo'lqop, ko'zoynak, labor xalat. [Fe(acac)₃] zaharli emas, lekin organik erituvchilar (CHCl₃, benzol) zaharli. Havo almashinuvi yaxshi bo'lgan joyda ishlash.",
       time: "15 daq",
       theoryNote: "[Fe(acac)₃] zaharli emas, lekin organik erituvchilar (CDCl₃, C₆D₆) zaharli. Havo almashinuvi va himoya vositalari kerak.",
