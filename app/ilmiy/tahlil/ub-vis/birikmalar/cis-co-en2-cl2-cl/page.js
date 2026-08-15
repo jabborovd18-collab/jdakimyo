@@ -1040,7 +1040,7 @@ export default function CisCoEn2Cl2Page() {
           </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded-full text-xs text-yellow-300">
+            <span className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded-full text-xs text-amber-300 font-bold">
               ⭐ Werner Nobel 1913
             </span>
             <span className="px-3 py-1 bg-pink-500/20 border border-pink-500/50 rounded-full text-xs text-pink-300">
@@ -1093,9 +1093,9 @@ export default function CisCoEn2Cl2Page() {
             </div>
           </div>
           <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
-            <div className="text-xs text-purple-400 mb-1">Optik aylanish [α]D</div>
+            <div className="text-xs text-[var(--v3-xira)] mb-1">Optik aylanish [α]D</div>
             <div className="text-3xl font-black text-white">±{COMPOUND.opticalRotation}°</div>
-            <div className="text-xs text-purple-300 mt-1">Δ / Λ enantiomerlar</div>
+            <div className="text-xs text-[var(--v3-matn)] mt-1">Δ / Λ enantiomerlar</div>
           </div>
         </div>
 
@@ -1676,7 +1676,7 @@ export default function CisCoEn2Cl2Page() {
               {wernerExperiment.map((w, i) => (
                 <div key={i} className="flex gap-4 items-start">
                   <div className="flex-shrink-0 w-20 text-right">
-                    <span className="text-xl font-black text-yellow-300">{w.year}</span>
+                    <span className="text-xl font-black text-amber-300 font-bold">{w.year}</span>
                   </div>
                   <div className="flex-shrink-0 w-3 h-3 rounded-full bg-yellow-400 mt-2" />
                   <div className="flex-1">
@@ -1686,7 +1686,7 @@ export default function CisCoEn2Cl2Page() {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-yellow-300/70 italic mt-4 border-t border-yellow-500/20 pt-3">
+            <p className="text-xs text-amber-300 font-bold/70 italic mt-4 border-t border-yellow-500/20 pt-3">
               Manba: Werner, A. Nobel Lecture (1913); Kauffman, G.B. (1966) “Alfred Werner: Founder
               of Coordination Chemistry”.
             </p>
@@ -1940,9 +1940,9 @@ export default function CisCoEn2Cl2Page() {
                 </div>
 
                 <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
-                  <div className="text-xs text-purple-300 mb-1">Transmittansiya (T%)</div>
+                  <div className="text-xs text-[var(--v3-matn)] mb-1">Transmittansiya (T%)</div>
                   <div className="text-5xl font-black text-white mb-2">{T.toFixed(2)}%</div>
-                  <div className="text-xs text-purple-400">
+                  <div className="text-xs text-[var(--v3-xira)]">
                     {T > 90 ? "Deyarli o‘tuvchan" : T > 10 ? "Yaxshi o‘lchov" : "Kuchli yutilish"}
                   </div>
                 </div>
@@ -2155,14 +2155,14 @@ export default function CisCoEn2Cl2Page() {
                     }`}
                   />
                   <div className="w-16 text-right flex-shrink-0">
-                    <span className={`font-black ${h.nobel ? "text-yellow-300" : "text-violet-300"}`}>
+                    <span className={`font-black ${h.nobel ? "text-amber-300 font-bold" : "text-violet-300"}`}>
                       {h.year}
                     </span>
                   </div>
                   <div className="flex-1 bg-purple-900/30 rounded-lg p-3 border border-violet-500/20 ml-4">
                     <div className="text-sm text-white">
                       {h.event}
-                      {h.nobel && <span className="ml-2 text-yellow-400">🏆 NOBEL</span>}
+                      {h.nobel && <span className="ml-2 text-amber-400 font-bold">🏆 NOBEL</span>}
                     </div>
                   </div>
                 </div>

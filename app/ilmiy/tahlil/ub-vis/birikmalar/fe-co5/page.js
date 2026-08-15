@@ -58,7 +58,7 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#fbbf24" }) {
 
   const hm=(e)=>{const c=canvasRef.current;if(!c)return;const r=c.getBoundingClientRect(),sx=820/r.width,mx=(e.clientX-r.left)*sx,nm=200+((mx-PAD.l)/plotW)*(800-200);let cl=null,md=25;peaks.forEach(p=>{const d=Math.abs(p.nm-nm);if(d<md){md=d;cl=p}});setHoveredPeak(cl)}
 
-  return (<div className="relative"><canvas ref={canvasRef} width={W} height={H} onMouseMove={hm} onClick={()=>{if(hoveredPeak)setSelectedPeak(selectedPeak?.nm===hoveredPeak.nm?null:hoveredPeak)}} onMouseLeave={()=>setHoveredPeak(null)} className="w-full h-auto rounded-xl border border-[var(--v3-chiziq)] cursor-crosshair" />{animProgress<1&&(<div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-[var(--v3-chiziq)]"><div className="flex items-center gap-2"><span className="text-xs text-purple-400">Chizilmoqda...</span><div className="w-24 h-1.5 bg-purple-800/50 rounded-full overflow-hidden"><div className="h-full bg-yellow-400 rounded-full transition-all duration-100" style={{width:`${animProgress*100}%`}}/></div><span className="text-xs text-yellow-400 font-mono">{Math.round(animProgress*100)}%</span></div></div>)}<p className="text-center text-purple-500 text-xs mt-2 italic">Grafik sxematik. Asosiy yutilish UB sohada. Ko'rinadigan sohada yutilish deyarli yo'q — och sariq rang.</p>{selectedPeak&&(<div className="mt-3 bg-purple-800/30 border rounded-xl p-4" style={{borderColor:selectedPeak.color+"40"}}><div className="flex items-center gap-3"><span className="w-3 h-3 rounded-full" style={{background:selectedPeak.color}}/><span className="font-mono font-bold text-lg" style={{color:selectedPeak.color}}>{selectedPeak.nm} nm</span><span className="text-purple-400">—</span><span className="text-white font-semibold" dangerouslySetInnerHTML={{__html:selectedPeak.label}}/></div><p className="text-purple-300 text-sm mt-2">{selectedPeak.desc}</p><button onClick={()=>setSelectedPeak(null)} className="mt-2 text-xs text-purple-400 hover:text-white transition-colors">✕ Yopish</button></div>)}</div>)
+  return (<div className="relative"><canvas ref={canvasRef} width={W} height={H} onMouseMove={hm} onClick={()=>{if(hoveredPeak)setSelectedPeak(selectedPeak?.nm===hoveredPeak.nm?null:hoveredPeak)}} onMouseLeave={()=>setHoveredPeak(null)} className="w-full h-auto rounded-xl border border-[var(--v3-chiziq)] cursor-crosshair" />{animProgress<1&&(<div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-[var(--v3-chiziq)]"><div className="flex items-center gap-2"><span className="text-xs text-[var(--v3-xira)]">Chizilmoqda...</span><div className="w-24 h-1.5 bg-purple-800/50 rounded-full overflow-hidden"><div className="h-full bg-yellow-400 rounded-full transition-all duration-100" style={{width:`${animProgress*100}%`}}/></div><span className="text-xs text-amber-400 font-bold font-mono">{Math.round(animProgress*100)}%</span></div></div>)}<p className="text-center text-purple-500 text-xs mt-2 italic">Grafik sxematik. Asosiy yutilish UB sohada. Ko'rinadigan sohada yutilish deyarli yo'q — och sariq rang.</p>{selectedPeak&&(<div className="mt-3 bg-purple-800/30 border rounded-xl p-4" style={{borderColor:selectedPeak.color+"40"}}><div className="flex items-center gap-3"><span className="w-3 h-3 rounded-full" style={{background:selectedPeak.color}}/><span className="font-mono font-bold text-lg" style={{color:selectedPeak.color}}>{selectedPeak.nm} nm</span><span className="text-[var(--v3-xira)]">—</span><span className="text-white font-semibold" dangerouslySetInnerHTML={{__html:selectedPeak.label}}/></div><p className="text-[var(--v3-matn)] text-sm mt-2">{selectedPeak.desc}</p><button onClick={()=>setSelectedPeak(null)} className="mt-2 text-xs text-[var(--v3-xira)] hover:text-white transition-colors">✕ Yopish</button></div>)}</div>)
 }
 
 // ── ASOSIY SAHIFA ────────────────────────────────────────────────────────────
@@ -85,10 +85,10 @@ export default function FeCO5_UBVis() {
     <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
       <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
-        <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-purple-400 hover:text-purple-300 text-lg">← UB-Vis birikmalar</Link>
+        <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-[var(--v3-xira)] hover:text-[var(--v3-matn)] text-lg">← UB-Vis birikmalar</Link>
         <div>
-          <h1 className="text-2xl font-bold text-yellow-400"> [Fe(CO)₅] — UB-Vis spektri tahlili</h1>
-          <p className="text-purple-400 text-sm">pentakarboniltemir(0) • Trigonal-bipiramidal • MLCT dominant • 18-elektron</p>
+          <h1 className="text-2xl font-bold text-amber-400 font-bold"> [Fe(CO)₅] — UB-Vis spektri tahlili</h1>
+          <p className="text-[var(--v3-xira)] text-sm">pentakarboniltemir(0) • Trigonal-bipiramidal • MLCT dominant • 18-elektron</p>
         </div>
       </header>
 
@@ -99,8 +99,8 @@ export default function FeCO5_UBVis() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
           
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-3 py-1 rounded-full text-xs font-semibold">UB-Vis Tahlil</span>
-            <span className="bg-purple-600/20 text-purple-400 border border-purple-600/30 px-3 py-1 rounded-full text-xs">Trigonal bipiramida (D<sub>3h</sub>)</span>
+            <span className="bg-yellow-600/20 text-amber-400 font-bold border border-yellow-600/30 px-3 py-1 rounded-full text-xs font-semibold">UB-Vis Tahlil</span>
+            <span className="bg-purple-600/20 text-[var(--v3-xira)] border border-purple-600/30 px-3 py-1 rounded-full text-xs">Trigonal bipiramida (D<sub>3h</sub>)</span>
             <span className="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-3 py-1 rounded-full text-xs">18 e⁻</span>
             <span className="bg-green-600/20 text-green-400 border border-green-600/30 px-3 py-1 rounded-full text-xs">Diamagnit</span>
             <span className="bg-red-600/20 text-red-400 border border-red-600/30 px-3 py-1 rounded-full text-xs">MLCT dominant</span>
@@ -111,20 +111,20 @@ export default function FeCO5_UBVis() {
             <h2 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent" style={{ fontFamily: "'Syne', sans-serif" }}>
               [Fe(CO)₅]
             </h2>
-            <span className="text-purple-400 text-lg">195.90 g/mol</span>
+            <span className="text-[var(--v3-xira)] text-lg">195.90 g/mol</span>
           </div>
 
-          <p className="text-purple-300 text-lg mb-4">
-            pentakarboniltemir(0) — <span className="text-yellow-400 italic">suyuq metall karbonil</span>
+          <p className="text-[var(--v3-matn)] text-lg mb-4">
+            pentakarboniltemir(0) — <span className="text-amber-400 font-bold italic">suyuq metall karbonil</span>
           </p>
 
-          <p className="text-purple-200 leading-relaxed mb-6">
-            <strong className="text-yellow-400">UB-Vis spektri</strong>da asosiy yutilish <strong>UB sohada (~280 nm)</strong>.
-            Bu <strong className="text-yellow-400">MLCT (Fe→CO π*)</strong> o'tish — Fe⁰ d-orbitallaridan CO π* orbitallariga.
-            <strong className="text-yellow-400"> ε ≈ 2000</strong> — Laporte va spin ruxsat etilgan.
+          <p className="text-[var(--v3-matn)] leading-relaxed mb-6">
+            <strong className="text-amber-400 font-bold">UB-Vis spektri</strong>da asosiy yutilish <strong>UB sohada (~280 nm)</strong>.
+            Bu <strong className="text-amber-400 font-bold">MLCT (Fe→CO π*)</strong> o'tish — Fe⁰ d-orbitallaridan CO π* orbitallariga.
+            <strong className="text-amber-400 font-bold"> ε ≈ 2000</strong> — Laporte va spin ruxsat etilgan.
             Fe⁰ (d⁸) + 5CO (10e⁻) = <strong>18 valent elektron</strong> — maksimal barqarorlik.
             Ko'rinadigan sohada yutilish deyarli yo'q — <strong>och sariq rang</strong>.
-            <strong className="text-yellow-400"> Berry psevdorotatsiyasi</strong> — aksial va ekvatorial CO almashinuvi.
+            <strong className="text-amber-400 font-bold"> Berry psevdorotatsiyasi</strong> — aksial va ekvatorial CO almashinuvi.
             <strong className="text-red-400"> ️ Juda zaharli!</strong> Uchuvchan, CO ajratadi.
           </p>
 
@@ -135,7 +135,7 @@ export default function FeCO5_UBVis() {
               ["Holati", "Suyuq (25°C)"], ["Qaynash T", "103°C"], ["Suyuqlanish T", "−20°C"], ["Zichlik", "1.45 g/cm³"],
             ].map((r, i) => (
               <div key={i} className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-                <div className="text-purple-400 text-xs mb-1" dangerouslySetInnerHTML={{ __html: r[0] }} />
+                <div className="text-[var(--v3-xira)] text-xs mb-1" dangerouslySetInnerHTML={{ __html: r[0] }} />
                 <div className="text-white font-bold">{r[1]}</div>
               </div>
             ))}
@@ -144,18 +144,18 @@ export default function FeCO5_UBVis() {
 
         {/* ── TAJRIBA SHAROITI ── */}
         <div className="bg-purple-800/20 border border-[var(--v3-chiziq)] rounded-xl p-4">
-          <div className="flex flex-wrap gap-4 text-xs text-purple-400">
-            <span><strong className="text-purple-300">Erituvchi:</strong> Geksan (inert)</span>
-            <span><strong className="text-purple-300">Konsentratsiya:</strong> ~10⁻⁴ M</span>
-            <span><strong className="text-purple-300">Kyuveta:</strong> 1 cm kvars, germetik</span>
-            <span><strong className="text-purple-300">Eslatma:</strong> Yorug'likdan himoya qilingan, havosiz muhit</span>
+          <div className="flex flex-wrap gap-4 text-xs text-[var(--v3-xira)]">
+            <span><strong className="text-[var(--v3-matn)]">Erituvchi:</strong> Geksan (inert)</span>
+            <span><strong className="text-[var(--v3-matn)]">Konsentratsiya:</strong> ~10⁻⁴ M</span>
+            <span><strong className="text-[var(--v3-matn)]">Kyuveta:</strong> 1 cm kvars, germetik</span>
+            <span><strong className="text-[var(--v3-matn)]">Eslatma:</strong> Yorug'likdan himoya qilingan, havosiz muhit</span>
           </div>
         </div>
 
         {/* ── TABS ── */}
         <div className="flex gap-2 overflow-x-auto pb-2">
           {tabs.map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${activeTab === tab.id ? "bg-yellow-600/40 text-white border border-yellow-400/50" : "bg-purple-800/30 text-purple-400 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"}`}>{tab.label}</button>
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${activeTab === tab.id ? "bg-yellow-600/40 text-white border border-yellow-400/50" : "bg-purple-800/30 text-[var(--v3-xira)] border border-[var(--v3-chiziq)] hover:bg-purple-700/40"}`}>{tab.label}</button>
           ))}
         </div>
 
@@ -169,12 +169,12 @@ export default function FeCO5_UBVis() {
                 <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs" style={{ borderColor: p.color + "40", background: p.color + "10" }}>
                   <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
                   <span className="font-mono" style={{ color: p.color }}>{p.nm} nm</span>
-                  <span className="text-purple-400">{p.label}</span>
+                  <span className="text-[var(--v3-xira)]">{p.label}</span>
                 </div>
               ))}
             </div>
             <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-xl p-5">
-              <p className="text-purple-200 text-sm"><strong className="text-yellow-400">Eng muhim xususiyat:</strong> MLCT 280 nm — UB sohada. Ko'rinadigan sohada yutilish deyarli yo'q. Och sariq rang.</p>
+              <p className="text-[var(--v3-matn)] text-sm"><strong className="text-amber-400 font-bold">Eng muhim xususiyat:</strong> MLCT 280 nm — UB sohada. Ko'rinadigan sohada yutilish deyarli yo'q. Och sariq rang.</p>
             </div>
           </div>
         )}
@@ -185,9 +185,9 @@ export default function FeCO5_UBVis() {
             <h2 className="text-xl font-bold text-white"> Polosalar jadvali</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead><tr className="border-b border-purple-700"><th className="py-3 px-4 text-purple-300">λ (nm)</th><th className="py-3 px-4 text-purple-300">To'lqin soni</th><th className="py-3 px-4 text-purple-300">O'tish</th><th className="py-3 px-4 text-purple-300">ε</th><th className="py-3 px-4 text-purple-300">Tavsif</th></tr></thead>
-                <tbody className="text-purple-200">
-                  {[["280","35,710 cm⁻¹","MLCT (Fe→CO π*)","~2000","Asosiy polosa. UB sohada. Laporte+Spin RUXSAT."],["240","41,670 cm⁻¹","σ→σ* (CO ichki)","~800","CO ligand ichidagi o'tish."],["215","46,510 cm⁻¹","Chuqur UB — CT/ligand","~1200","Aniq tayinlash manbaga bog'liq."]].map((r,i)=>(<tr key={i} className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono font-bold text-yellow-400">{r[0]}</td><td className="py-3 px-4 font-mono text-sm text-purple-400">{r[1]}</td><td className="py-3 px-4 text-sm">{r[2]}</td><td className="py-3 px-4 font-bold text-green-400">{r[3]}</td><td className="py-3 px-4 text-sm">{r[4]}</td></tr>))}
+                <thead><tr className="border-b border-[var(--v3-chiziq)]"><th className="py-3 px-4 text-[var(--v3-matn)]">λ (nm)</th><th className="py-3 px-4 text-[var(--v3-matn)]">To'lqin soni</th><th className="py-3 px-4 text-[var(--v3-matn)]">O'tish</th><th className="py-3 px-4 text-[var(--v3-matn)]">ε</th><th className="py-3 px-4 text-[var(--v3-matn)]">Tavsif</th></tr></thead>
+                <tbody className="text-[var(--v3-matn)]">
+                  {[["280","35,710 cm⁻¹","MLCT (Fe→CO π*)","~2000","Asosiy polosa. UB sohada. Laporte+Spin RUXSAT."],["240","41,670 cm⁻¹","σ→σ* (CO ichki)","~800","CO ligand ichidagi o'tish."],["215","46,510 cm⁻¹","Chuqur UB — CT/ligand","~1200","Aniq tayinlash manbaga bog'liq."]].map((r,i)=>(<tr key={i} className="border-b border-[var(--v3-chiziq)] hover:bg-purple-800/20"><td className="py-3 px-4 font-mono font-bold text-amber-400 font-bold">{r[0]}</td><td className="py-3 px-4 font-mono text-sm text-[var(--v3-xira)]">{r[1]}</td><td className="py-3 px-4 text-sm">{r[2]}</td><td className="py-3 px-4 font-bold text-green-400">{r[3]}</td><td className="py-3 px-4 text-sm">{r[4]}</td></tr>))}
                 </tbody>
               </table>
             </div>
@@ -198,8 +198,8 @@ export default function FeCO5_UBVis() {
         {activeTab === "electron18" && (
           <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white"> 18-elektron qoidasi — maksimal barqarorlik</h2>
-            <p className="text-purple-200 leading-relaxed">[Fe(CO)₅] — <strong className="text-yellow-400">18-elektron qoidasining klassik namunasi</strong>. Fe⁰ — 8 ta valent elektron (3d⁸4s²). 5 ta CO — har biri 2 ta elektron beradi = 10 ta. <strong>Jami: 18 ta!</strong></p>
-            <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-xl p-5 text-center"><p className="text-yellow-400 font-bold text-2xl">Fe⁰ (d⁸) + 5×CO (2e⁻) = 18 valent elektron</p><p className="text-purple-300 text-sm mt-2">Barcha bog'lovchi MO lar to'lgan, antibog'lovchilar bo'sh — maksimal barqarorlik</p></div>
+            <p className="text-[var(--v3-matn)] leading-relaxed">[Fe(CO)₅] — <strong className="text-amber-400 font-bold">18-elektron qoidasining klassik namunasi</strong>. Fe⁰ — 8 ta valent elektron (3d⁸4s²). 5 ta CO — har biri 2 ta elektron beradi = 10 ta. <strong>Jami: 18 ta!</strong></p>
+            <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-xl p-5 text-center"><p className="text-amber-400 font-bold font-bold text-2xl">Fe⁰ (d⁸) + 5×CO (2e⁻) = 18 valent elektron</p><p className="text-[var(--v3-matn)] text-sm mt-2">Barcha bog'lovchi MO lar to'lgan, antibog'lovchilar bo'sh — maksimal barqarorlik</p></div>
             <div className="bg-green-600/10 border border-green-500/30 rounded-xl p-5"><p className="text-green-300 text-sm"><strong>UB-Vis bilan bog'liqlik:</strong> 18-elektron konfiguratsiya tufayli spektrda aniq, o'tkir polosalar. Barqarorlik yuqori.</p></div>
           </div>
         )}
@@ -208,8 +208,8 @@ export default function FeCO5_UBVis() {
         {activeTab === "piback" && (
           <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white"> π-Back-donatsiya — MLCT asosi</h2>
-            <p className="text-purple-200 leading-relaxed">CO — <strong className="text-yellow-400">kuchli π-akseptor</strong>. Fe⁰ boy elektron konfiguratsiya (d⁸) — CO ning bo'sh π* orbitallariga kuchli elektron qaytadi. Bu <strong>MLCT o'tish</strong> (~280 nm) ning asosiy sababi.</p>
-            <div className="overflow-x-auto"><table className="w-full text-left"><thead><tr className="border-b border-purple-700"><th className="py-3 px-4 text-purple-300">Birikma</th><th className="py-3 px-4 text-purple-300">ν(C≡O) IQ</th><th className="py-3 px-4 text-purple-300">λ MLCT</th><th className="py-3 px-4 text-purple-300">π-back</th></tr></thead><tbody className="text-purple-200">{[["Erkin CO","2143 cm⁻¹","—","Yo'q"],["[Fe(CO)₅]","2025, 1995 cm⁻¹","~280 nm","JUDA KUCHLI"],["[Ni(CO)₄]","2057 cm⁻¹","~270 nm","Kuchli"],["[Cr(CO)₆]","2000 cm⁻¹","~290 nm","JUDA KUCHLI"]].map((r,i)=>(<tr key={i} className="border-b border-purple-800/30"><td className="py-3 px-4 font-bold text-yellow-400">{r[0]}</td><td className="py-3 px-4 font-mono">{r[1]}</td><td className="py-3 px-4 text-green-400">{r[2]}</td><td className="py-3 px-4 text-sm">{r[3]}</td></tr>))}</tbody></table></div>
+            <p className="text-[var(--v3-matn)] leading-relaxed">CO — <strong className="text-amber-400 font-bold">kuchli π-akseptor</strong>. Fe⁰ boy elektron konfiguratsiya (d⁸) — CO ning bo'sh π* orbitallariga kuchli elektron qaytadi. Bu <strong>MLCT o'tish</strong> (~280 nm) ning asosiy sababi.</p>
+            <div className="overflow-x-auto"><table className="w-full text-left"><thead><tr className="border-b border-[var(--v3-chiziq)]"><th className="py-3 px-4 text-[var(--v3-matn)]">Birikma</th><th className="py-3 px-4 text-[var(--v3-matn)]">ν(C≡O) IQ</th><th className="py-3 px-4 text-[var(--v3-matn)]">λ MLCT</th><th className="py-3 px-4 text-[var(--v3-matn)]">π-back</th></tr></thead><tbody className="text-[var(--v3-matn)]">{[["Erkin CO","2143 cm⁻¹","—","Yo'q"],["[Fe(CO)₅]","2025, 1995 cm⁻¹","~280 nm","JUDA KUCHLI"],["[Ni(CO)₄]","2057 cm⁻¹","~270 nm","Kuchli"],["[Cr(CO)₆]","2000 cm⁻¹","~290 nm","JUDA KUCHLI"]].map((r,i)=>(<tr key={i} className="border-b border-[var(--v3-chiziq)]"><td className="py-3 px-4 font-bold text-amber-400 font-bold">{r[0]}</td><td className="py-3 px-4 font-mono">{r[1]}</td><td className="py-3 px-4 text-green-400">{r[2]}</td><td className="py-3 px-4 text-sm">{r[3]}</td></tr>))}</tbody></table></div>
           </div>
         )}
 
@@ -217,8 +217,8 @@ export default function FeCO5_UBVis() {
         {activeTab === "berry" && (
           <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white"> Berry psevdorotatsiyasi — UB-Vis ga ta'siri</h2>
-            <p className="text-purple-200 leading-relaxed">[Fe(CO)₅] — <strong className="text-yellow-400">Berry psevdorotatsiyasi kuzatiladigan klassik molekula</strong>. Aksial va ekvatorial CO ligandlari <strong>juda tez</strong> o'rin almashadi (k≈10⁵−10⁷ s⁻¹).</p>
-            <div className="grid grid-cols-2 gap-4"><div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]"><h3 className="text-yellow-400 font-bold mb-2">Xona haroratida (298 K)</h3><p className="text-purple-200 text-sm">Berry psevdorotatsiyasi: tez<br/>¹³C YaMR: 1 ta signal<br/>UB-Vis: o'rtacha polosalar</p></div><div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5"><h3 className="text-blue-400 font-bold mb-2">Past haroratda (−100°C)</h3><p className="text-purple-200 text-sm">Berry psevdorotatsiyasi: sekin<br/>¹³C YaMR: 2 ta signal<br/>UB-Vis: aniq polosalar</p></div></div>
+            <p className="text-[var(--v3-matn)] leading-relaxed">[Fe(CO)₅] — <strong className="text-amber-400 font-bold">Berry psevdorotatsiyasi kuzatiladigan klassik molekula</strong>. Aksial va ekvatorial CO ligandlari <strong>juda tez</strong> o'rin almashadi (k≈10⁵−10⁷ s⁻¹).</p>
+            <div className="grid grid-cols-2 gap-4"><div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]"><h3 className="text-amber-400 font-bold font-bold mb-2">Xona haroratida (298 K)</h3><p className="text-[var(--v3-matn)] text-sm">Berry psevdorotatsiyasi: tez<br/>¹³C YaMR: 1 ta signal<br/>UB-Vis: o'rtacha polosalar</p></div><div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5"><h3 className="text-blue-400 font-bold mb-2">Past haroratda (−100°C)</h3><p className="text-[var(--v3-matn)] text-sm">Berry psevdorotatsiyasi: sekin<br/>¹³C YaMR: 2 ta signal<br/>UB-Vis: aniq polosalar</p></div></div>
           </div>
         )}
 
@@ -227,25 +227,25 @@ export default function FeCO5_UBVis() {
           <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">️ Xavfsizlik</h2>
             <div className="bg-red-600/10 border border-red-500/30 rounded-xl p-5"><p className="text-red-300 text-sm"><strong>️ JUDA ZAHARLI!</strong> [Fe(CO)₅] — uchuvchan suyuqlik. Bug'lari nafas yo'llariga zarar yetkazadi. Organizmda CO ajratib, karboksigemoglobin hosil qiladi. LD₅₀≈40 mg/kg. Havoda ruxsat etilgan konsentratsiyasi: 0.1 ppm.</p></div>
-            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]"><h3 className="text-yellow-400 font-bold mb-2">Xavfsizlik qoidalari:</h3><ul className="text-purple-200 text-sm space-y-1"><li>• Faqat tortish shkafida ishlash</li><li>• Qorong'i idishda, germetik saqlash</li><li>• Yorug'lik ta'sirida CO ajratadi</li><li>• Shaxsiy himoya vositalari majburiy</li></ul></div>
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]"><h3 className="text-amber-400 font-bold font-bold mb-2">Xavfsizlik qoidalari:</h3><ul className="text-[var(--v3-matn)] text-sm space-y-1"><li>• Faqat tortish shkafida ishlash</li><li>• Qorong'i idishda, germetik saqlash</li><li>• Yorug'lik ta'sirida CO ajratadi</li><li>• Shaxsiy himoya vositalari majburiy</li></ul></div>
           </div>
         )}
 
         {/* ── XULOSA ── */}
-        <div className="bg-gradient-to-r from-yellow-600/10 to-purple-600/10 border border-yellow-500/20 rounded-2xl p-8">
+        <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30">
           <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li><strong className="text-yellow-400">MLCT dominant:</strong> Fe⁰→CO π*, λ≈280 nm, ε≈2000</li>
-            <li><strong className="text-yellow-400">18-elektron qoidasi</strong> — Fe⁰(d⁸)+5CO(10e⁻)=18e⁻</li>
-            <li><strong className="text-yellow-400">UB sohada yutilish</strong> — och sariq rang</li>
-            <li><strong className="text-yellow-400">Berry psevdorotatsiyasi</strong> — aksial/ekvatorial almashinuv</li>
+          <ol className="space-y-2 text-[var(--v3-matn)] list-decimal list-inside">
+            <li><strong className="text-amber-400 font-bold">MLCT dominant:</strong> Fe⁰→CO π*, λ≈280 nm, ε≈2000</li>
+            <li><strong className="text-amber-400 font-bold">18-elektron qoidasi</strong> — Fe⁰(d⁸)+5CO(10e⁻)=18e⁻</li>
+            <li><strong className="text-amber-400 font-bold">UB sohada yutilish</strong> — och sariq rang</li>
+            <li><strong className="text-amber-400 font-bold">Berry psevdorotatsiyasi</strong> — aksial/ekvatorial almashinuv</li>
             <li><strong className="text-red-400">️ Juda zaharli!</strong> — uchuvchan, CO ajratadi</li>
           </ol>
         </div>
 
         {/* ── NAVIGATSIYA ── */}
         <div className="flex justify-between pt-6">
-          <Link href="/ilmiy/tahlil/ub-vis/birikmalar/co-cl4" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300">← [CoCl₄]²⁻</Link>
+          <Link href="/ilmiy/tahlil/ub-vis/birikmalar/co-cl4" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-[var(--v3-matn)]">← [CoCl₄]²⁻</Link>
           <Link href="/ilmiy/tahlil/ub-vis/birikmalar/cr-h2o6" className="px-6 py-3 bg-yellow-600/80 rounded-xl hover:bg-yellow-500 text-white font-semibold">[Cr(H₂O)₆]³⁺ →</Link>
         </div>
 

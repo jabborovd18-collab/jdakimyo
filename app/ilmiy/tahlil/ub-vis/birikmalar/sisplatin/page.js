@@ -56,13 +56,13 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#fbbf24" }) {
 
   function drawSpectrum(ctx, width, height) {
     ctx.clearRect(0, 0, width, height)
-    ctx.fillStyle = "#0f0a1a"
+    ctx.fillStyle = "rgba(15, 23, 42, 0.95)"
     ctx.fillRect(0, 0, width, height)
 
     ctx.fillStyle = "rgba(255,255,255,0.03)"
     ctx.fillRect(nmToX(400), PAD.t, nmToX(800) - nmToX(400), plotH)
 
-    ctx.strokeStyle = "#2a1f3d"; ctx.lineWidth = 0.5
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.15)"; ctx.lineWidth = 0.5
     ;[300,400,500,600,700].forEach(nm => {
       const x = nmToX(nm)
       ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t + plotH); ctx.stroke()
@@ -147,7 +147,7 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#fbbf24" }) {
       let absorb = 0
       peakDefs.forEach(([nm0, h, w]) => absorb += gauss(p.nm, nm0, h, w))
       const x = nmToX(p.nm), y = absToY(Math.min(0.45, absorb))
-      ctx.fillStyle = "#0f0a1a"; ctx.strokeStyle = p.color; ctx.lineWidth = 1
+      ctx.fillStyle = "rgba(15, 23, 42, 0.95)"; ctx.strokeStyle = p.color; ctx.lineWidth = 1
       const tw = 170, th = 42
       const tx = Math.min(Math.max(x - tw/2, PAD.l + 5), PAD.l + plotW - tw - 5)
       const ty = y - 58
@@ -205,11 +205,11 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#fbbf24" }) {
       {animProgress < 1 && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-[var(--v3-chiziq)]">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-purple-400">Chizilmoqda...</span>
+            <span className="text-xs text-[var(--v3-xira)]">Chizilmoqda...</span>
             <div className="w-24 h-1.5 bg-purple-800/50 rounded-full overflow-hidden">
               <div className="h-full bg-yellow-400 rounded-full transition-all duration-100" style={{ width: `${animProgress * 100}%` }} />
             </div>
-            <span className="text-xs text-yellow-400 font-mono">{Math.round(animProgress * 100)}%</span>
+            <span className="text-xs text-amber-400 font-bold font-mono">{Math.round(animProgress * 100)}%</span>
           </div>
         </div>
       )}
@@ -223,11 +223,11 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#fbbf24" }) {
           <div className="flex items-center gap-3">
             <span className="w-3 h-3 rounded-full" style={{ background: selectedPeak.color }} />
             <span className="font-mono font-bold text-lg" style={{ color: selectedPeak.color }}>{selectedPeak.nm} nm</span>
-            <span className="text-purple-400">—</span>
+            <span className="text-[var(--v3-xira)]">—</span>
             <span className="text-white font-semibold" dangerouslySetInnerHTML={{ __html: selectedPeak.label }} />
           </div>
-          <p className="text-purple-300 text-sm mt-2">{selectedPeak.desc}</p>
-          <button onClick={() => setSelectedPeak(null)} className="mt-2 text-xs text-purple-400 hover:text-white transition-colors">✕ Yopish</button>
+          <p className="text-[var(--v3-matn)] text-sm mt-2">{selectedPeak.desc}</p>
+          <button onClick={() => setSelectedPeak(null)} className="mt-2 text-xs text-[var(--v3-xira)] hover:text-white transition-colors">✕ Yopish</button>
         </div>
       )}
     </div>
@@ -256,10 +256,10 @@ export default function Sisplatin_UBVis() {
     <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
       <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
-        <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-purple-400 hover:text-purple-300 text-lg">← UB-Vis birikmalar</Link>
+        <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-[var(--v3-xira)] hover:text-[var(--v3-matn)] text-lg">← UB-Vis birikmalar</Link>
         <div>
-          <h1 className="text-2xl font-bold text-yellow-400"> sis-[PtCl₂(NH₃)₂] — UB-Vis spektri tahlili</h1>
-          <p className="text-purple-400 text-sm">sis-diammindixloroplatina(II) • SISPLATIN • d⁸ kvadrat-planar • d-d o'tishlar</p>
+          <h1 className="text-2xl font-bold text-amber-400 font-bold"> sis-[PtCl₂(NH₃)₂] — UB-Vis spektri tahlili</h1>
+          <p className="text-[var(--v3-xira)] text-sm">sis-diammindixloroplatina(II) • SISPLATIN • d⁸ kvadrat-planar • d-d o'tishlar</p>
         </div>
       </header>
 
@@ -270,8 +270,8 @@ export default function Sisplatin_UBVis() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
           
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-3 py-1 rounded-full text-xs font-semibold">UB-Vis Tahlil</span>
-            <span className="bg-purple-600/20 text-purple-400 border border-purple-600/30 px-3 py-1 rounded-full text-xs">Tekis kvadrat</span>
+            <span className="bg-yellow-600/20 text-amber-400 font-bold border border-yellow-600/30 px-3 py-1 rounded-full text-xs font-semibold">UB-Vis Tahlil</span>
+            <span className="bg-purple-600/20 text-[var(--v3-xira)] border border-purple-600/30 px-3 py-1 rounded-full text-xs">Tekis kvadrat</span>
             <span className="bg-red-600/20 text-red-400 border border-red-600/30 px-3 py-1 rounded-full text-xs">d⁸</span>
             <span className="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-3 py-1 rounded-full text-xs">Diamagnit</span>
             <span className="bg-green-600/20 text-green-400 border border-green-600/30 px-3 py-1 rounded-full text-xs">C<sub>2v</sub> simmetriya</span>
@@ -282,53 +282,53 @@ export default function Sisplatin_UBVis() {
             <h2 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-green-400 bg-clip-text text-transparent" style={{ fontFamily: "'Syne', sans-serif" }}>
               sis-[PtCl₂(NH₃)₂]
             </h2>
-            <span className="text-purple-400 text-lg">300.05 g/mol</span>
+            <span className="text-[var(--v3-xira)] text-lg">300.05 g/mol</span>
           </div>
 
-          <p className="text-purple-300 text-lg mb-4">
-            sis-diammindixloroplatina(II) — <span className="text-yellow-400 italic font-bold">"SISPLATIN"</span>
+          <p className="text-[var(--v3-matn)] text-lg mb-4">
+            sis-diammindixloroplatina(II) — <span className="text-amber-400 font-bold italic font-bold">"SISPLATIN"</span>
           </p>
 
-          <p className="text-purple-200 leading-relaxed mb-6">
-            <strong className="text-yellow-400">UB-Vis spektri</strong> — asosiy yutilish UB sohada (~305 nm).
-            Pt²⁺ (5d⁸) — <strong className="text-yellow-400">og'ir metall</strong>, kuchli spin-orbit bog'lanish (SOC)
+          <p className="text-[var(--v3-matn)] leading-relaxed mb-6">
+            <strong className="text-amber-400 font-bold">UB-Vis spektri</strong> — asosiy yutilish UB sohada (~305 nm).
+            Pt²⁺ (5d⁸) — <strong className="text-amber-400 font-bold">og'ir metall</strong>, kuchli spin-orbit bog'lanish (SOC)
             tufayli spin-taqiqlangan o'tishlar qisman ruxsat etilgan.
-            <strong className="text-yellow-400"> d-d o'tishlar:</strong> ¹A₁g → ¹E_g (~305 nm, ε≈150).
+            <strong className="text-amber-400 font-bold"> d-d o'tishlar:</strong> ¹A₁g → ¹E_g (~305 nm, ε≈150).
             Sisplatinning UB-Vis spektri <strong>DNK bilan bog'lanish jarayonini kuzatish</strong> uchun ishlatiladi —
             akvatsiya natijasida spektr o'zgaradi.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">λ<sub>max</sub></div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">λ<sub>max</sub></div>
               <div className="text-white font-bold">305 nm</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">ε</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">ε</div>
               <div className="text-white font-bold">~150</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">O'tish turi</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">O'tish turi</div>
               <div className="text-white font-bold">d-d (+ MLCT)</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Rang</div>
-              <div className="text-yellow-400 font-bold">Sariq kristall</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Rang</div>
+              <div className="text-amber-400 font-bold font-bold">Sariq kristall</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Geometriya</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Geometriya</div>
               <div className="text-white font-bold">Tekis kvadrat</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Simmetriya</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Simmetriya</div>
               <div className="text-white font-bold">C<sub>2v</sub></div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Spin-orbit (ζ)</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Spin-orbit (ζ)</div>
               <div className="text-white font-bold">~3000 cm⁻¹</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Konfiguratsiya</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Konfiguratsiya</div>
               <div className="text-white font-bold">5d⁸</div>
             </div>
           </div>
@@ -336,11 +336,11 @@ export default function Sisplatin_UBVis() {
 
         {/* ── TAJRIBA SHAROITI ── */}
         <div className="bg-purple-800/20 border border-[var(--v3-chiziq)] rounded-xl p-4">
-          <div className="flex flex-wrap gap-4 text-xs text-purple-400">
-            <span><strong className="text-purple-300">Erituvchi:</strong> H₂O yoki DMSO</span>
-            <span><strong className="text-purple-300">Konsentratsiya:</strong> ~10⁻⁴ M</span>
-            <span><strong className="text-purple-300">Kyuveta:</strong> 1 cm kvars</span>
-            <span><strong className="text-purple-300">Eslatma:</strong> Suvda sekin gidrolizlanadi — yangi eritma kerak</span>
+          <div className="flex flex-wrap gap-4 text-xs text-[var(--v3-xira)]">
+            <span><strong className="text-[var(--v3-matn)]">Erituvchi:</strong> H₂O yoki DMSO</span>
+            <span><strong className="text-[var(--v3-matn)]">Konsentratsiya:</strong> ~10⁻⁴ M</span>
+            <span><strong className="text-[var(--v3-matn)]">Kyuveta:</strong> 1 cm kvars</span>
+            <span><strong className="text-[var(--v3-matn)]">Eslatma:</strong> Suvda sekin gidrolizlanadi — yangi eritma kerak</span>
           </div>
         </div>
 
@@ -353,7 +353,7 @@ export default function Sisplatin_UBVis() {
               className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
                   ? "bg-yellow-600/40 text-white border border-yellow-400/50"
-                  : "bg-purple-800/30 text-purple-400 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
+                  : "bg-purple-800/30 text-[var(--v3-xira)] border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
               }`}
             >
               {tab.label}
@@ -372,13 +372,13 @@ export default function Sisplatin_UBVis() {
                   style={{ borderColor: p.color + "40", background: p.color + "10" }}>
                   <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
                   <span className="font-mono" style={{ color: p.color }}>{p.nm} nm</span>
-                  <span className="text-purple-400">{p.label}</span>
+                  <span className="text-[var(--v3-xira)]">{p.label}</span>
                 </div>
               ))}
             </div>
             <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-xl p-5">
-              <p className="text-purple-200 text-sm">
-                <strong className="text-yellow-400">5d metall xususiyati:</strong> Kuchli spin-orbit bog'lanish (ζ≈3000 cm⁻¹)
+              <p className="text-[var(--v3-matn)] text-sm">
+                <strong className="text-amber-400 font-bold">5d metall xususiyati:</strong> Kuchli spin-orbit bog'lanish (ζ≈3000 cm⁻¹)
                 tufayli d-d o'tishlar 3d metallarga nisbatan intensivroq. Sisplatin UB sohada yutadi —
                 shuning uchun kristall holatda sariq rangda.
               </p>
@@ -392,17 +392,17 @@ export default function Sisplatin_UBVis() {
             <h2 className="text-xl font-bold text-white"> Polosalar jadvali</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead><tr className="border-b border-purple-700">
-                  <th className="py-3 px-4 text-purple-300">λ (nm)</th><th className="py-3 px-4 text-purple-300">O'tish</th><th className="py-3 px-4 text-purple-300">ε</th><th className="py-3 px-4 text-purple-300">Tavsif</th>
+                <thead><tr className="border-b border-[var(--v3-chiziq)]">
+                  <th className="py-3 px-4 text-[var(--v3-matn)]">λ (nm)</th><th className="py-3 px-4 text-[var(--v3-matn)]">O'tish</th><th className="py-3 px-4 text-[var(--v3-matn)]">ε</th><th className="py-3 px-4 text-[var(--v3-matn)]">Tavsif</th>
                 </tr></thead>
-                <tbody className="text-purple-200">
+                <tbody className="text-[var(--v3-matn)]">
                   {[
                     ["305", "d-d (¹A₁g → ¹E_g) + MLCT", "~150", "Asosiy polosa. UB chegarasida. 5d metall — SOC ta'siri."],
                     ["250", "d-d + MLCT", "~300", "UB sohada."],
                     ["215", "CT/ligand (chuqur UB)", "~800", "Chuqur UB. Aniq tayinlash manbaga bog'liq."],
                   ].map((r, i) => (
-                    <tr key={i} className="border-b border-purple-800/30 hover:bg-purple-800/20">
-                      <td className="py-3 px-4 font-mono font-bold text-yellow-400">{r[0]}</td>
+                    <tr key={i} className="border-b border-[var(--v3-chiziq)] hover:bg-purple-800/20">
+                      <td className="py-3 px-4 font-mono font-bold text-amber-400 font-bold">{r[0]}</td>
                       <td className="py-3 px-4 text-sm">{r[1]}</td>
                       <td className="py-3 px-4 font-bold text-green-400">{r[2]}</td>
                       <td className="py-3 px-4 text-sm">{r[3]}</td>
@@ -418,22 +418,22 @@ export default function Sisplatin_UBVis() {
         {activeTab === "dnk" && (
           <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white"> DNK bilan bog'lanish — UB-Vis monitoring</h2>
-            <p className="text-purple-200 leading-relaxed">
-              Sisplatin DNK bilan bog'langanda UB-Vis spektri <strong className="text-yellow-400">sezilarli o'zgaradi</strong>.
+            <p className="text-[var(--v3-matn)] leading-relaxed">
+              Sisplatin DNK bilan bog'langanda UB-Vis spektri <strong className="text-amber-400 font-bold">sezilarli o'zgaradi</strong>.
               Bu o'zgarish dori ta'sir mexanizmini tushunish va monitoring qilish uchun ishlatiladi.
             </p>
             <div className="grid grid-cols-3 gap-4">
               <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-                <h3 className="text-yellow-400 font-bold mb-2 text-sm">Erkin sisplatin</h3>
-                <p className="text-purple-200 text-xs">λ<sub>max</sub> = 305 nm<br/>ε ≈ 150</p>
+                <h3 className="text-amber-400 font-bold font-bold mb-2 text-sm">Erkin sisplatin</h3>
+                <p className="text-[var(--v3-matn)] text-xs">λ<sub>max</sub> = 305 nm<br/>ε ≈ 150</p>
               </div>
               <div className="bg-blue-600/10 rounded-xl p-4 text-center border border-blue-500/30">
                 <h3 className="text-blue-400 font-bold mb-2 text-sm">Akvatsiyalangan</h3>
-                <p className="text-purple-200 text-xs">λ<sub>max</sub> = 300 nm<br/>ε ≈ 200<br/>Spektr o'zgaradi</p>
+                <p className="text-[var(--v3-matn)] text-xs">λ<sub>max</sub> = 300 nm<br/>ε ≈ 200<br/>Spektr o'zgaradi</p>
               </div>
               <div className="bg-green-600/10 rounded-xl p-4 text-center border border-green-500/30">
                 <h3 className="text-green-400 font-bold mb-2 text-sm">DNK bilan bog'langan</h3>
-                <p className="text-purple-200 text-xs">λ<sub>max</sub> siljiydi<br/>Yangi polosalar<br/>Giperxrom effekt</p>
+                <p className="text-[var(--v3-matn)] text-xs">λ<sub>max</sub> siljiydi<br/>Yangi polosalar<br/>Giperxrom effekt</p>
               </div>
             </div>
             <div className="bg-pink-600/10 border border-pink-500/30 rounded-xl p-5">
@@ -449,15 +449,15 @@ export default function Sisplatin_UBVis() {
         {activeTab === "akvatsiya" && (
           <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">💧 Akvatsiya — UB-Vis orqali kuzatish</h2>
-            <p className="text-purple-200 leading-relaxed">
-              Sisplatin suvda <strong className="text-yellow-400">asta-sekin gidrolizlanadi</strong> (akvatsiya):
+            <p className="text-[var(--v3-matn)] leading-relaxed">
+              Sisplatin suvda <strong className="text-amber-400 font-bold">asta-sekin gidrolizlanadi</strong> (akvatsiya):
               Cl⁻ ligandlari suv molekulalariga almashadi. Bu jarayon UB-Vis spektrida kuzatiladi.
             </p>
             <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <p className="text-green-400 font-mono text-sm mb-2">
                 sis-[PtCl₂(NH₃)₂] + H₂O → sis-[PtCl(H₂O)(NH₃)₂]⁺ + Cl⁻
               </p>
-              <p className="text-purple-200 text-sm">
+              <p className="text-[var(--v3-matn)] text-sm">
                 Akvatsiya natijasida 305 nm polosa <strong>qisqa to'lqinli sohaga siljiydi</strong> (gipsoxrom siljish)
                 va intensivligi ortadi. Bu o'zgarishlarni UB-Vis orqali real vaqt rejimida kuzatish mumkin.
               </p>
@@ -471,10 +471,10 @@ export default function Sisplatin_UBVis() {
             <h2 className="text-xl font-bold text-white"> Sis vs Trans — UB-Vis farqi</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead><tr className="border-b border-purple-700">
-                  <th className="py-3 px-4 text-purple-300">Parametr</th><th className="py-3 px-4 text-purple-300">sis-izomer</th><th className="py-3 px-4 text-purple-300">trans-izomer</th>
+                <thead><tr className="border-b border-[var(--v3-chiziq)]">
+                  <th className="py-3 px-4 text-[var(--v3-matn)]">Parametr</th><th className="py-3 px-4 text-[var(--v3-matn)]">sis-izomer</th><th className="py-3 px-4 text-[var(--v3-matn)]">trans-izomer</th>
                 </tr></thead>
-                <tbody className="text-purple-200">
+                <tbody className="text-[var(--v3-matn)]">
                   {[
                     ["Simmetriya", "C<sub>2v</sub>", "D<sub>2h</sub>"],
                     ["λ<sub>max</sub>", "305 nm", "~310 nm"],
@@ -483,8 +483,8 @@ export default function Sisplatin_UBVis() {
                     ["Dipol moment", "3.2 D (qutbli)", "0 D (qutbsiz)"],
                     ["Biologik faollik", "FAOL (saraton)", "FAOL EMAS"],
                   ].map((r, i) => (
-                    <tr key={i} className="border-b border-purple-800/30 hover:bg-purple-800/20">
-                      <td className="py-3 px-4 font-bold text-yellow-400">{r[0]}</td>
+                    <tr key={i} className="border-b border-[var(--v3-chiziq)] hover:bg-purple-800/20">
+                      <td className="py-3 px-4 font-bold text-amber-400 font-bold">{r[0]}</td>
                       <td className="py-3 px-4 text-blue-300">{r[1]}</td>
                       <td className="py-3 px-4 text-red-300">{r[2]}</td>
                     </tr>
@@ -496,19 +496,19 @@ export default function Sisplatin_UBVis() {
         )}
 
         {/* ── XULOSA ── */}
-        <div className="bg-gradient-to-r from-yellow-600/10 to-purple-600/10 border border-yellow-500/20 rounded-2xl p-8">
+        <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30">
           <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li><strong className="text-yellow-400">Pt²⁺ (5d⁸):</strong> kuchli spin-orbit bog'lanish (ζ≈3000) — d-d o'tishlar intensivroq</li>
-            <li><strong className="text-yellow-400">λ<sub>max</sub> ≈ 305 nm</strong> — UB soha chegarasida, sariq rang</li>
-            <li><strong className="text-yellow-400">Akvatsiya:</strong> spektr o'zgaradi — UB-Vis monitoring imkonini beradi</li>
-            <li><strong className="text-yellow-400">DNK bilan bog'lanish:</strong> yangi polosalar paydo bo'ladi — diagnostik ahamiyatga ega</li>
+          <ol className="space-y-2 text-[var(--v3-matn)] list-decimal list-inside">
+            <li><strong className="text-amber-400 font-bold">Pt²⁺ (5d⁸):</strong> kuchli spin-orbit bog'lanish (ζ≈3000) — d-d o'tishlar intensivroq</li>
+            <li><strong className="text-amber-400 font-bold">λ<sub>max</sub> ≈ 305 nm</strong> — UB soha chegarasida, sariq rang</li>
+            <li><strong className="text-amber-400 font-bold">Akvatsiya:</strong> spektr o'zgaradi — UB-Vis monitoring imkonini beradi</li>
+            <li><strong className="text-amber-400 font-bold">DNK bilan bog'lanish:</strong> yangi polosalar paydo bo'ladi — diagnostik ahamiyatga ega</li>
           </ol>
         </div>
 
         {/* ── NAVIGATSIYA ── */}
         <div className="flex justify-between pt-6">
-          <Link href="/ilmiy/tahlil/ub-vis/birikmalar/co-nh3-6-cl3" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300 transition-all">
+          <Link href="/ilmiy/tahlil/ub-vis/birikmalar/co-nh3-6-cl3" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-[var(--v3-matn)] transition-all">
             ← [Co(NH₃)₆]Cl₃
           </Link>
           <Link href="/ilmiy/tahlil/ub-vis/birikmalar/ferrosen" className="px-6 py-3 bg-yellow-600/80 rounded-xl hover:bg-yellow-500 text-white font-semibold transition-all">

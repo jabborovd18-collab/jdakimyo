@@ -56,13 +56,13 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#60a5fa" }) {
 
   function drawSpectrum(ctx, width, height) {
     ctx.clearRect(0, 0, width, height)
-    ctx.fillStyle = "#0f0a1a"
+    ctx.fillStyle = "rgba(15, 23, 42, 0.95)"
     ctx.fillRect(0, 0, width, height)
 
     ctx.fillStyle = "rgba(255,255,255,0.03)"
     ctx.fillRect(nmToX(400), PAD.t, nmToX(800) - nmToX(400), plotH)
 
-    ctx.strokeStyle = "#2a1f3d"; ctx.lineWidth = 0.5
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.15)"; ctx.lineWidth = 0.5
     ;[500,600,700,800,900].forEach(nm => {
       const x = nmToX(nm)
       ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t + plotH); ctx.stroke()
@@ -147,7 +147,7 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#60a5fa" }) {
       let absorb = 0
       peakDefs.forEach(([nm0, h, w]) => absorb += gauss(p.nm, nm0, h, w))
       const x = nmToX(p.nm), y = absToY(Math.min(0.6, absorb))
-      ctx.fillStyle = "#0f0a1a"; ctx.strokeStyle = p.color; ctx.lineWidth = 1
+      ctx.fillStyle = "rgba(15, 23, 42, 0.95)"; ctx.strokeStyle = p.color; ctx.lineWidth = 1
       const tw = 170, th = 42
       const tx = Math.min(Math.max(x - tw/2, PAD.l + 5), PAD.l + plotW - tw - 5)
       const ty = y - 58
@@ -205,7 +205,7 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#60a5fa" }) {
       {animProgress < 1 && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-[var(--v3-chiziq)]">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-purple-400">Chizilmoqda...</span>
+            <span className="text-xs text-[var(--v3-xira)]">Chizilmoqda...</span>
             <div className="w-24 h-1.5 bg-purple-800/50 rounded-full overflow-hidden">
               <div className="h-full bg-blue-400 rounded-full transition-all duration-100" style={{ width: `${animProgress * 100}%` }} />
             </div>
@@ -223,11 +223,11 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#60a5fa" }) {
           <div className="flex items-center gap-3">
             <span className="w-3 h-3 rounded-full" style={{ background: selectedPeak.color }} />
             <span className="font-mono font-bold text-lg" style={{ color: selectedPeak.color }}>{selectedPeak.nm} nm</span>
-            <span className="text-purple-400">—</span>
+            <span className="text-[var(--v3-xira)]">—</span>
             <span className="text-white font-semibold" dangerouslySetInnerHTML={{ __html: selectedPeak.label }} />
           </div>
-          <p className="text-purple-300 text-sm mt-2">{selectedPeak.desc}</p>
-          <button onClick={() => setSelectedPeak(null)} className="mt-2 text-xs text-purple-400 hover:text-white transition-colors">✕ Yopish</button>
+          <p className="text-[var(--v3-matn)] text-sm mt-2">{selectedPeak.desc}</p>
+          <button onClick={() => setSelectedPeak(null)} className="mt-2 text-xs text-[var(--v3-xira)] hover:text-white transition-colors">✕ Yopish</button>
         </div>
       )}
     </div>
@@ -256,10 +256,10 @@ export default function CoCl4_UBVis() {
     <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
       <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
-        <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-purple-400 hover:text-purple-300 text-lg">← UB-Vis birikmalar</Link>
+        <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-[var(--v3-xira)] hover:text-[var(--v3-matn)] text-lg">← UB-Vis birikmalar</Link>
         <div>
           <h1 className="text-2xl font-bold text-blue-400"> [CoCl₄]²⁻ — UB-Vis spektri tahlili</h1>
-          <p className="text-purple-400 text-sm">tetraxlorokobaltat(II) ioni • Tetraedrik d⁷ • Laport-RUXSAT • ε≈600</p>
+          <p className="text-[var(--v3-xira)] text-sm">tetraxlorokobaltat(II) ioni • Tetraedrik d⁷ • Laport-RUXSAT • ε≈600</p>
         </div>
       </header>
 
@@ -271,10 +271,10 @@ export default function CoCl4_UBVis() {
           
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-3 py-1 rounded-full text-xs font-semibold">UB-Vis Tahlil</span>
-            <span className="bg-purple-600/20 text-purple-400 border border-purple-600/30 px-3 py-1 rounded-full text-xs">Tetraedrik (T<sub>d</sub>)</span>
+            <span className="bg-purple-600/20 text-[var(--v3-xira)] border border-purple-600/30 px-3 py-1 rounded-full text-xs">Tetraedrik (T<sub>d</sub>)</span>
             <span className="bg-red-600/20 text-red-400 border border-red-600/30 px-3 py-1 rounded-full text-xs">d⁷ (YS)</span>
             <span className="bg-green-600/20 text-green-400 border border-green-600/30 px-3 py-1 rounded-full text-xs">Laport-RUXSAT!</span>
-            <span className="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 px-3 py-1 rounded-full text-xs">ε ≈ 600</span>
+            <span className="bg-yellow-600/20 text-amber-400 font-bold border border-yellow-600/30 px-3 py-1 rounded-full text-xs">ε ≈ 600</span>
             <span className="bg-orange-600/20 text-orange-400 border border-orange-600/30 px-3 py-1 rounded-full text-xs">Paramagnit (n=3)</span>
           </div>
 
@@ -282,53 +282,53 @@ export default function CoCl4_UBVis() {
             <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent" style={{ fontFamily: "'Syne', sans-serif" }}>
               [CoCl₄]²⁻
             </h2>
-            <span className="text-purple-400 text-lg">200.75 g/mol</span>
+            <span className="text-[var(--v3-xira)] text-lg">200.75 g/mol</span>
           </div>
 
-          <p className="text-purple-300 text-lg mb-4">
+          <p className="text-[var(--v3-matn)] text-lg mb-4">
             tetraxlorokobaltat(II) ioni — <span className="text-blue-400 italic">Tetraedrik Co²⁺ kompleks</span>
           </p>
 
-          <p className="text-purple-200 leading-relaxed mb-6">
-            <strong className="text-yellow-400">UB-Vis spektri</strong>da <strong>3 ta intensiv d-d polosa</strong> kuzatiladi.
-            Asosiy polosa <strong className="text-yellow-400">660 nm, ε ≈ 600</strong> — bu oktaedrik [Co(H₂O)₆]²⁺ 
+          <p className="text-[var(--v3-matn)] leading-relaxed mb-6">
+            <strong className="text-amber-400 font-bold">UB-Vis spektri</strong>da <strong>3 ta intensiv d-d polosa</strong> kuzatiladi.
+            Asosiy polosa <strong className="text-amber-400 font-bold">660 nm, ε ≈ 600</strong> — bu oktaedrik [Co(H₂O)₆]²⁺ 
             (ε ≈ 5) dan <strong>100 marta kuchli!</strong> Sababi: T<sub>d</sub> simmetriyada 
-            <strong className="text-yellow-400"> inversiya markazi YO'Q</strong> — Laport qoidasi d-d o'tishlarni 
+            <strong className="text-amber-400 font-bold"> inversiya markazi YO'Q</strong> — Laport qoidasi d-d o'tishlarni 
             taqiqlamaydi. Co²⁺ (d⁷, YS) — <strong>3 ta toq elektron</strong>, paramagnit.
-            <strong className="text-yellow-400"> To'q ko'k rang</strong> — sariq-qizil nurlarni kuchli yutadi.
+            <strong className="text-amber-400 font-bold"> To'q ko'k rang</strong> — sariq-qizil nurlarni kuchli yutadi.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">λ<sub>max</sub></div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">λ<sub>max</sub></div>
               <div className="text-white font-bold">660 nm</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">ε</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">ε</div>
               <div className="text-white font-bold">~600</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Δ<sub>t</sub></div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Δ<sub>t</sub></div>
               <div className="text-white font-bold">~3,300 cm⁻¹</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Rang</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Rang</div>
               <div className="text-blue-400 font-bold">To'q ko'k</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Geometriya</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Geometriya</div>
               <div className="text-white font-bold">Tetraedrik</div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Simmetriya</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Simmetriya</div>
               <div className="text-white font-bold">T<sub>d</sub></div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">μ<sub>eff</sub></div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">μ<sub>eff</sub></div>
               <div className="text-white font-bold">4.3−4.8 μ<sub>B</sub></div>
             </div>
             <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
-              <div className="text-purple-400 text-xs mb-1">Inversiya markazi</div>
+              <div className="text-[var(--v3-xira)] text-xs mb-1">Inversiya markazi</div>
               <div className="text-white font-bold">YO'Q</div>
             </div>
           </div>
@@ -336,10 +336,10 @@ export default function CoCl4_UBVis() {
 
         {/* ── TAJRIBA SHAROITI ── */}
         <div className="bg-purple-800/20 border border-[var(--v3-chiziq)] rounded-xl p-4">
-          <div className="flex flex-wrap gap-4 text-xs text-purple-400">
-            <span><strong className="text-purple-300">Erituvchi:</strong> Etanol yoki kons. HCl</span>
-            <span><strong className="text-purple-300">Konsentratsiya:</strong> ~10⁻³ M</span>
-            <span><strong className="text-purple-300">Kyuveta:</strong> 1 cm</span>
+          <div className="flex flex-wrap gap-4 text-xs text-[var(--v3-xira)]">
+            <span><strong className="text-[var(--v3-matn)]">Erituvchi:</strong> Etanol yoki kons. HCl</span>
+            <span><strong className="text-[var(--v3-matn)]">Konsentratsiya:</strong> ~10⁻³ M</span>
+            <span><strong className="text-[var(--v3-matn)]">Kyuveta:</strong> 1 cm</span>
           </div>
         </div>
 
@@ -352,7 +352,7 @@ export default function CoCl4_UBVis() {
               className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
                   ? "bg-blue-600/40 text-white border border-blue-400/50"
-                  : "bg-purple-800/30 text-purple-400 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
+                  : "bg-purple-800/30 text-[var(--v3-xira)] border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
               }`}
             >
               {tab.label}
@@ -371,7 +371,7 @@ export default function CoCl4_UBVis() {
                   style={{ borderColor: p.color + "40", background: p.color + "10" }}>
                   <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
                   <span className="font-mono" style={{ color: p.color }}>{p.nm} nm</span>
-                  <span className="text-purple-400">{p.label}</span>
+                  <span className="text-[var(--v3-xira)]">{p.label}</span>
                 </div>
               ))}
             </div>
@@ -384,17 +384,17 @@ export default function CoCl4_UBVis() {
             <h2 className="text-xl font-bold text-white"> Polosalar jadvali</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead><tr className="border-b border-purple-700">
-                  <th className="py-3 px-4 text-purple-300">λ (nm)</th><th className="py-3 px-4 text-purple-300">O'tish</th><th className="py-3 px-4 text-purple-300">ε</th><th className="py-3 px-4 text-purple-300">Tavsif</th>
+                <thead><tr className="border-b border-[var(--v3-chiziq)]">
+                  <th className="py-3 px-4 text-[var(--v3-matn)]">λ (nm)</th><th className="py-3 px-4 text-[var(--v3-matn)]">O'tish</th><th className="py-3 px-4 text-[var(--v3-matn)]">ε</th><th className="py-3 px-4 text-[var(--v3-matn)]">Tavsif</th>
                 </tr></thead>
-                <tbody className="text-purple-200">
+                <tbody className="text-[var(--v3-matn)]">
                   {[
                     ["660", "⁴A₂ → ⁴T₁(P)", "~600", "Asosiy polosa. Laport-RUXSAT. To'q ko'k rangga sabab."],
                     ["580", "⁴A₂ → ⁴T₁(F)", "~400", "Ikkinchi d-d o'tish."],
                     ["530", "⁴A₂ → ⁴T₂", "~300", "Uchinchi d-d o'tish. Barchasi Laport-ruxsat!"],
                   ].map((r, i) => (
-                    <tr key={i} className="border-b border-purple-800/30 hover:bg-purple-800/20">
-                      <td className="py-3 px-4 font-mono font-bold text-yellow-400">{r[0]}</td>
+                    <tr key={i} className="border-b border-[var(--v3-chiziq)] hover:bg-purple-800/20">
+                      <td className="py-3 px-4 font-mono font-bold text-amber-400 font-bold">{r[0]}</td>
                       <td className="py-3 px-4 text-sm">{r[1]}</td>
                       <td className="py-3 px-4 font-bold text-green-400">{r[2]}</td>
                       <td className="py-3 px-4 text-sm">{r[3]}</td>
@@ -410,15 +410,15 @@ export default function CoCl4_UBVis() {
         {activeTab === "laport" && (
           <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">📏 Nega Laport-RUXSAT? — T<sub>d</sub> da inversiya markazi yo'q</h2>
-            <p className="text-purple-200 leading-relaxed">
-              <strong className="text-yellow-400">Laport qoidasi:</strong> g→g va u→u o'tishlar taqiqlangan, g→u ruxsat.
+            <p className="text-[var(--v3-matn)] leading-relaxed">
+              <strong className="text-amber-400 font-bold">Laport qoidasi:</strong> g→g va u→u o'tishlar taqiqlangan, g→u ruxsat.
               Bu qoida faqat <strong>inversiya markazi bor</strong> molekulalarda amal qiladi.
               T<sub>d</sub> simmetriyada inversiya markazi <strong>YO'Q</strong> — g/u belgilari ma'noga ega emas!
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-red-600/10 border border-red-500/30 rounded-xl p-5">
                 <h3 className="text-red-400 font-bold mb-2">Oktaedrik (O<sub>h</sub>)</h3>
-                <p className="text-purple-200 text-sm">
+                <p className="text-[var(--v3-matn)] text-sm">
                   <strong>Inversiya markazi:</strong> HA<br/>
                   <strong>Laport:</strong> g→g TA'QIQ<br/>
                   <strong>ε:</strong> ~5<br/>
@@ -427,7 +427,7 @@ export default function CoCl4_UBVis() {
               </div>
               <div className="bg-green-600/10 border border-green-500/30 rounded-xl p-5">
                 <h3 className="text-green-400 font-bold mb-2">Tetraedrik (T<sub>d</sub>)</h3>
-                <p className="text-purple-200 text-sm">
+                <p className="text-[var(--v3-matn)] text-sm">
                   <strong>Inversiya markazi:</strong> YO'Q<br/>
                   <strong>Laport:</strong> TA'QIQ YO'Q<br/>
                   <strong>ε:</strong> ~600<br/>
@@ -442,18 +442,18 @@ export default function CoCl4_UBVis() {
         {activeTab === "rang" && (
           <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">🎨 Ko'k ↔ Pushti — rang o'zgarishi</h2>
-            <p className="text-purple-200 leading-relaxed">
-              [CoCl₄]²⁻ + 6H₂O ⇌ [Co(H₂O)₆]²⁺ + 4Cl⁻ — <strong className="text-yellow-400">qaytar reaksiya</strong>.
+            <p className="text-[var(--v3-matn)] leading-relaxed">
+              [CoCl₄]²⁻ + 6H₂O ⇌ [Co(H₂O)₆]²⁺ + 4Cl⁻ — <strong className="text-amber-400 font-bold">qaytar reaksiya</strong>.
               Suv qo'shilsa ko'k rang pushtiga o'tadi. HCl qo'shilsa (Le-Shatele) yana ko'k rang qaytadi.
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5 text-center">
                 <h3 className="text-blue-400 font-bold mb-2">[CoCl₄]²⁻ (Ko'k)</h3>
-                <p className="text-purple-200 text-sm">λ<sub>max</sub>: 660 nm<br/>ε: 600<br/>T<sub>d</sub></p>
+                <p className="text-[var(--v3-matn)] text-sm">λ<sub>max</sub>: 660 nm<br/>ε: 600<br/>T<sub>d</sub></p>
               </div>
               <div className="bg-pink-600/10 border border-pink-500/30 rounded-xl p-5 text-center">
                 <h3 className="text-pink-400 font-bold mb-2">[Co(H₂O)₆]²⁺ (Pushti)</h3>
-                <p className="text-purple-200 text-sm">λ<sub>max</sub>: 510 nm<br/>ε: 5<br/>O<sub>h</sub></p>
+                <p className="text-[var(--v3-matn)] text-sm">λ<sub>max</sub>: 510 nm<br/>ε: 5<br/>O<sub>h</sub></p>
               </div>
             </div>
           </div>
@@ -465,10 +465,10 @@ export default function CoCl4_UBVis() {
             <h2 className="text-xl font-bold text-white"> Oktaedrik vs Tetraedrik Co²⁺</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead><tr className="border-b border-purple-700">
-                  <th className="py-3 px-4 text-purple-300">Parametr</th><th className="py-3 px-4 text-purple-300">[Co(H₂O)₆]²⁺ (O<sub>h</sub>)</th><th className="py-3 px-4 text-purple-300">[CoCl₄]²⁻ (T<sub>d</sub>)</th>
+                <thead><tr className="border-b border-[var(--v3-chiziq)]">
+                  <th className="py-3 px-4 text-[var(--v3-matn)]">Parametr</th><th className="py-3 px-4 text-[var(--v3-matn)]">[Co(H₂O)₆]²⁺ (O<sub>h</sub>)</th><th className="py-3 px-4 text-[var(--v3-matn)]">[CoCl₄]²⁻ (T<sub>d</sub>)</th>
                 </tr></thead>
-                <tbody className="text-purple-200">
+                <tbody className="text-[var(--v3-matn)]">
                   {[
                     ["λ<sub>max</sub>", "510 nm", "660 nm"],
                     ["ε", "~5", "~600"],
@@ -476,8 +476,8 @@ export default function CoCl4_UBVis() {
                     ["Laport", "TA'QIQ", "RUXSAT"],
                     ["Δ", "Δ<sub>o</sub>≈9,300 cm⁻¹", "Δ<sub>t</sub>≈3,300 cm⁻¹"],
                   ].map((r, i) => (
-                    <tr key={i} className="border-b border-purple-800/30 hover:bg-purple-800/20">
-                      <td className="py-3 px-4 font-bold text-yellow-400" dangerouslySetInnerHTML={{ __html: r[0] }} />
+                    <tr key={i} className="border-b border-[var(--v3-chiziq)] hover:bg-purple-800/20">
+                      <td className="py-3 px-4 font-bold text-amber-400 font-bold" dangerouslySetInnerHTML={{ __html: r[0] }} />
                       <td className="py-3 px-4 text-pink-300" dangerouslySetInnerHTML={{ __html: r[1] }} />
                       <td className="py-3 px-4 text-blue-300" dangerouslySetInnerHTML={{ __html: r[2] }} />
                     </tr>
@@ -489,19 +489,19 @@ export default function CoCl4_UBVis() {
         )}
 
         {/* ── XULOSA ── */}
-        <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-2xl p-8">
+        <div className="p-6 rounded-2xl bg-[var(--v3-urgu)]/10 border border-[var(--v3-urgu)]/30">
           <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li><strong className="text-yellow-400">3 ta intensiv d-d polosa:</strong> 660, 580, 530 nm</li>
-            <li><strong className="text-yellow-400">ε ≈ 600</strong> — Laport-RUXSAT (T<sub>d</sub> da inversiya markazi YO'Q)</li>
-            <li><strong className="text-yellow-400">Oktaedrikdan 100 marta kuchli!</strong> (ε=600 vs ε=5)</li>
-            <li><strong className="text-yellow-400">To'q ko'k rang</strong> — sariq-qizil nurlarni kuchli yutadi</li>
+          <ol className="space-y-2 text-[var(--v3-matn)] list-decimal list-inside">
+            <li><strong className="text-amber-400 font-bold">3 ta intensiv d-d polosa:</strong> 660, 580, 530 nm</li>
+            <li><strong className="text-amber-400 font-bold">ε ≈ 600</strong> — Laport-RUXSAT (T<sub>d</sub> da inversiya markazi YO'Q)</li>
+            <li><strong className="text-amber-400 font-bold">Oktaedrikdan 100 marta kuchli!</strong> (ε=600 vs ε=5)</li>
+            <li><strong className="text-amber-400 font-bold">To'q ko'k rang</strong> — sariq-qizil nurlarni kuchli yutadi</li>
           </ol>
         </div>
 
         {/* ── NAVIGATSIYA ── */}
         <div className="flex justify-between pt-6">
-          <Link href="/ilmiy/tahlil/ub-vis/birikmalar/cu-h2o6" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300 transition-all">
+          <Link href="/ilmiy/tahlil/ub-vis/birikmalar/cu-h2o6" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-[var(--v3-matn)] transition-all">
             ← [Cu(H₂O)₆]²⁺
           </Link>
           <Link href="/ilmiy/tahlil/ub-vis/birikmalar/fe-co5" className="px-6 py-3 bg-blue-600/80 rounded-xl hover:bg-blue-500 text-white font-semibold transition-all">
