@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useEffect, useRef } from "react"
 
 // ── UB-Vis SPEKTR GRAFIGI ────────────────────────────────────────────────────
@@ -198,10 +200,10 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#fb923c" }) {
       <canvas ref={canvasRef} width={W} height={H}
         onMouseMove={handleMouseMove} onClick={() => { if (hoveredPeak) setSelectedPeak(selectedPeak?.nm === hoveredPeak.nm ? null : hoveredPeak) }}
         onMouseLeave={() => setHoveredPeak(null)}
-        className="w-full h-auto rounded-xl border border-purple-700/50 cursor-crosshair" />
+        className="w-full h-auto rounded-xl border border-[var(--v3-chiziq)] cursor-crosshair" />
       
       {animProgress < 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-purple-700/50">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-[var(--v3-chiziq)]">
           <div className="flex items-center gap-2">
             <span className="text-xs text-purple-400">Chizilmoqda...</span>
             <div className="w-24 h-1.5 bg-purple-800/50 rounded-full overflow-hidden">
@@ -233,6 +235,7 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#fb923c" }) {
 }
 // ── ASOSIY SAHIFA ────────────────────────────────────────────────────────────
 export default function Ferrosen_UBVis() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [activeTab, setActiveTab] = useState("spektr")
 
   const peaks = [
@@ -243,19 +246,19 @@ export default function Ferrosen_UBVis() {
 
   const tabs = [
     { id: "spektr",    label: "📈 UB-Vis Spektri" },
-    { id: "jadval",    label: "📊 Polosalar jadvali" },
+    { id: "jadval",    label: " Polosalar jadvali" },
     { id: "rang",      label: "🎨 Rang sababi" },
-    { id: "electron18",label: "⚡ 18-elektron qoidasi" },
-    { id: "oksidlanish",label: "🔄 Ferrosen → Ferroseniy" },
+    { id: "electron18",label: " 18-elektron qoidasi" },
+    { id: "oksidlanish",label: " Ferrosen → Ferroseniy" },
   ]
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
+      <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
         <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-purple-400 hover:text-purple-300 text-lg">← UB-Vis birikmalar</Link>
         <div>
-          <h1 className="text-2xl font-bold text-orange-400">🌈 [Fe(C₅H₅)₂] — UB-Vis spektri tahlili</h1>
+          <h1 className="text-2xl font-bold text-orange-400"> [Fe(C₅H₅)₂] — UB-Vis spektri tahlili</h1>
           <p className="text-purple-400 text-sm">ferrosen • bis(siklopentadienil)temir(II) • Sendvich kompleks • d-d + MLCT</p>
         </div>
       </header>
@@ -263,7 +266,7 @@ export default function Ferrosen_UBVis() {
       <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
         {/* ── HERO ── */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 relative overflow-hidden">
+        <div className="v3-panel-karta p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
           
           <div className="flex flex-wrap gap-2 mb-4">
@@ -295,35 +298,35 @@ export default function Ferrosen_UBVis() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">λ<sub>max</sub> (d-d)</div>
               <div className="text-white font-bold">440 nm</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">λ<sub>max</sub> (MLCT)</div>
               <div className="text-white font-bold">325 nm</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">ε (d-d)</div>
               <div className="text-white font-bold">~90</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Rang</div>
               <div className="text-orange-400 font-bold">To'q sariq</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Valent e⁻</div>
               <div className="text-white font-bold">18 ta</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Fe−C masofa</div>
               <div className="text-white font-bold">2.04 Å</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Oksidlanish</div>
               <div className="text-white font-bold">E° = +0.40 V</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Konfiguratsiya</div>
               <div className="text-white font-bold">d⁶ (18e⁻)</div>
             </div>
@@ -331,7 +334,7 @@ export default function Ferrosen_UBVis() {
         </div>
 
         {/* ── TAJRIBA SHAROITI ── */}
-        <div className="bg-purple-800/20 border border-purple-700/30 rounded-xl p-4">
+        <div className="bg-purple-800/20 border border-[var(--v3-chiziq)] rounded-xl p-4">
           <div className="flex flex-wrap gap-4 text-xs text-purple-400">
             <span><strong className="text-purple-300">Erituvchi:</strong> Etanol yoki geksan</span>
             <span><strong className="text-purple-300">Konsentratsiya:</strong> ~10⁻⁴ M</span>
@@ -349,7 +352,7 @@ export default function Ferrosen_UBVis() {
               className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
                   ? "bg-orange-600/40 text-white border border-orange-400/50"
-                  : "bg-purple-800/30 text-purple-400 border border-purple-700/50 hover:bg-purple-700/40"
+                  : "bg-purple-800/30 text-purple-400 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
               }`}
             >
               {tab.label}
@@ -359,7 +362,7 @@ export default function Ferrosen_UBVis() {
 
         {/* ── SPEKTR ── */}
         {activeTab === "spektr" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">📈 UB-Vis Spektri — Ferrosen</h2>
             <UBVisSpektrGrafik peaks={peaks} lineColor="#fb923c" />
             <div className="flex flex-wrap gap-3">
@@ -377,8 +380,8 @@ export default function Ferrosen_UBVis() {
 
         {/* ── JADVAL ── */}
         {activeTab === "jadval" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">📊 Polosalar jadvali</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Polosalar jadvali</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="border-b border-purple-700">
@@ -405,7 +408,7 @@ export default function Ferrosen_UBVis() {
 
         {/* ── RANG ── */}
         {activeTab === "rang" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">🎨 Nega to'q sariq rang?</h2>
             <p className="text-purple-200 leading-relaxed">
               Ferrosen <strong className="text-yellow-400">ko'k-binafsha nurni yutadi</strong> (~440 nm).
@@ -413,7 +416,7 @@ export default function Ferrosen_UBVis() {
               d-d o'tish Laporte-taqiqlangan (D₅d da inversiya markazi bor), lekin ε ≈ 90 —
               vibronik bog'lanish tufayli qisman ruxsat etilgan.
             </p>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold mb-2">Konsentratsiyaga bog'liqlik</h3>
               <p className="text-purple-200 text-sm">
                 Suyultirilgan eritmalarda ferrosen <strong>och sariq</strong>, konsentrlangan eritmalarda 
@@ -425,8 +428,8 @@ export default function Ferrosen_UBVis() {
 
         {/* ── 18-ELEKTRON QOIDASI ── */}
         {activeTab === "electron18" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">⚡ 18-elektron qoidasi — barqarorlik siri</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> 18-elektron qoidasi — barqarorlik siri</h2>
             <p className="text-purple-200 leading-relaxed">
               Ferrosen — <strong className="text-yellow-400">18-elektron qoidasining klassik namunasi</strong>.
               Fe²⁺ (d⁶) — 6 ta d-elektron. Har bir Cp⁻ — 6 ta π-elektron (η⁵). Jami: 18 ta valent elektron!
@@ -445,8 +448,8 @@ export default function Ferrosen_UBVis() {
 
         {/* ── OKSIDLANISH ── */}
         {activeTab === "oksidlanish" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">🔄 Ferrosen → Ferroseniy — UB-Vis o'zgarishi</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Ferrosen → Ferroseniy — UB-Vis o'zgarishi</h2>
             <p className="text-purple-200 leading-relaxed">
               Ferrosen oson va qaytar oksidlanadi: <strong className="text-yellow-400">[Fe(C₅H₅)₂] → [Fe(C₅H₅)₂]⁺ + e⁻</strong> (E° = +0.40 V).
               Oksidlanish natijasida 18e⁻ → 17e⁻ — spektr o'zgaradi.
@@ -471,7 +474,7 @@ export default function Ferrosen_UBVis() {
                 </p>
               </div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <p className="text-purple-200 text-sm">
                 <strong>UB-Vis o'zgarish sababi:</strong> Oksidlanish bilan Fe³⁺ (d⁵) hosil bo'ladi.
                 Yangi LMCT polosa (~620 nm) paydo bo'ladi — bu ferroseniyning ko'k-yashil rangini beradi.
@@ -482,7 +485,7 @@ export default function Ferrosen_UBVis() {
 
         {/* ── XULOSA ── */}
         <div className="bg-gradient-to-r from-orange-600/10 to-purple-600/10 border border-orange-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside">
             <li><strong className="text-yellow-400">d-d (440 nm, ε≈90)</strong> + <strong className="text-yellow-400">MLCT (325 nm, ε≈50)</strong></li>
             <li><strong className="text-yellow-400">18-elektron qoidasi</strong> — maksimal barqarorlik, aniq spektr</li>
@@ -502,6 +505,6 @@ export default function Ferrosen_UBVis() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

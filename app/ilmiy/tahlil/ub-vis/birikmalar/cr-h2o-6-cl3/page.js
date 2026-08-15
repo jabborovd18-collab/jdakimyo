@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo, useRef } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -70,7 +72,7 @@ const uvVisPeaks = [
     selection: "Spin ruxsat (ΔS = 0), Laport taqiq (g → g)",
     vibronicNote: "Vibronik bog'lanish tufayli qisman ruxsat",
     energyKJ: 208,
-    diagnostic: "🎯 Δo qiymati to'g'ridan-to'g'ri: Δo = ν₁ = 17 400 cm⁻¹",
+    diagnostic: " Δo qiymati to'g'ridan-to'g'ri: Δo = ν₁ = 17 400 cm⁻¹",
     theoryNote: "Bu d³ konfiguratsiya uchun eng muhim polosa. Cr³⁺ ning yer holati ⁴A₂g (t₂g³) dan birinchi qo'zg'algan ⁴T₂g (t₂g²eg¹) ga o'tishni ifodalaydi. Bu o'tish davomida faqat bir elektron t₂g dan eg ga sakraydi. Chunki bu bir elektronli o'tish, uning energiyasi to'g'ridan-to'g'ri Δo ga teng (oktaedrik kristall maydon parametri). Bu unikal xususiyat: d³ va d⁸ konfiguratsiyalarda birinchi polosa aynan Δo.",
     lambdaMax_range: "570–580 nm",
     freqRange: "17 200–17 500 cm⁻¹"
@@ -85,7 +87,7 @@ const uvVisPeaks = [
     selection: "Spin ruxsat (ΔS = 0), Laport taqiq (g → g)",
     vibronicNote: "Vibronik bog'lanish tufayli qisman ruxsat",
     energyKJ: 294,
-    diagnostic: "🔬 Racah B parametrini hisoblash uchun asosiy polosa",
+    diagnostic: " Racah B parametrini hisoblash uchun asosiy polosa",
     theoryNote: "Ikkinchi d–d polosa — ⁴A₂g dan ⁴T₁g(F) ga o'tish. Bu ham bir elektronli o'tish, lekin qo'zg'algan holat ⁴T₁g (F termidan kelib chiqadi). ν₂/ν₁ nisbatidan Racah B parametrini hisoblash mumkin: bu holda 24 600/17 400 = 1.41 — Tanabe-Sugano diagrammasidan Δo/B ≈ 24 qiymatini beradi, B ≈ 725 cm⁻¹. Erkin Cr³⁺ ionida B₀ = 918 cm⁻¹, demak nefelauksetik nisbat β = B/B₀ = 0.79 — kovalentlikning aniq isboti.",
     lambdaMax_range: "400–420 nm",
     freqRange: "24 000–25 000 cm⁻¹"
@@ -319,13 +321,14 @@ const historicalTimeline = [
 const applications = [
   { field: "Xrom-kaliy achchig'ida", detail: "KCr(SO₄)₂·12H₂O — [Cr(H₂O)₆]³⁺ konfiguratsiya oshlash, mat sanoati", icon: "🏭" },
   { field: "Rubin lazerlari", detail: "Cr³⁺:Al₂O₃ da — ²Eg → ⁴A₂g emissiyasi (694.3 nm), tibbiy va harbiy lazerlar", icon: "🔴" },
-  { field: "Zargarlik", detail: "Rubin (Cr³⁺:Al₂O₃, qizil), zumrad (Cr³⁺:Be₃Al₂Si₆O₁₈, yashil)", icon: "💎" },
+  { field: "Zargarlik", detail: "Rubin (Cr³⁺:Al₂O₃, qizil), zumrad (Cr³⁺:Be₃Al₂Si₆O₁₈, yashil)", icon: "" },
   { field: "Katalizator", detail: "Xrom-oksid katalizatorlar (polietilen sintezi, Phillips jarayoni)", icon: "⚗️" },
   { field: "O'quv-metodik", detail: "d³ konfiguratsiyaning eng klassik namunasi — Δo va β ni empirik o'rgatish", icon: "🎓" },
-  { field: "Biologik", detail: "Cr³⁺ — insulin faoliyatiga ta'siri; ammo Cr(VI) o'ta zaharli (kanserogen)", icon: "🧬" },
+  { field: "Biologik", detail: "Cr³⁺ — insulin faoliyatiga ta'siri; ammo Cr(VI) o'ta zaharli (kanserogen)", icon: "" },
 ]
 
 export default function CrH2O6Cl3UVVis() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
   const [hoveredPeak, setHoveredPeak] = useState(null)
@@ -749,12 +752,12 @@ export default function CrH2O6Cl3UVVis() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* ═══════════════ PDF MODAL ═══════════════ */}
       {pdfModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-gradient-to-br from-purple-950 to-pink-950 border-2 border-pink-500 rounded-2xl p-6 max-w-2xl w-full">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <h3 className="text-2xl font-bold text-pink-400 mb-4 flex items-center gap-3">
               <span className="text-3xl">📄</span> PDF Ilmiy Hisobot
             </h3>
@@ -788,7 +791,7 @@ export default function CrH2O6Cl3UVVis() {
 
             <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg p-3 mb-4">
               <p className="text-xs text-yellow-200">
-                <strong>⚠ Font talablari:</strong> PDF to'g'ri chiqishi uchun <code className="bg-yellow-950/50 px-1 rounded">public/fonts/</code> papkasida
+                <strong> Font talablari:</strong> PDF to'g'ri chiqishi uchun <code className="bg-yellow-950/50 px-1 rounded">public/fonts/</code> papkasida
                 <code className="bg-yellow-950/50 px-1 rounded ml-1">DejaVuSans.ttf</code>, 
                 <code className="bg-yellow-950/50 px-1 rounded ml-1">DejaVuSans-Bold.ttf</code>, 
                 <code className="bg-yellow-950/50 px-1 rounded ml-1">DejaVuSans-Oblique.ttf</code> bo'lishi shart.
@@ -817,10 +820,10 @@ export default function CrH2O6Cl3UVVis() {
 
       {/* ═══════════════ HEADER ═══════════════ */}
       {showHeader && (
-        <header className="border-b border-purple-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
+        <header className="border-b border-[var(--v3-chiziq)] sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh</Link>
+              <Link href="/" className="hover:text-purple-300"> Bosh</Link>
               <span className="text-purple-600">›</span>
               <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil</Link>
               <span className="text-purple-600">›</span>
@@ -869,7 +872,7 @@ export default function CrH2O6Cl3UVVis() {
       <section className="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
         {/* ═══════════════ 1. UMUMIY MA'LUMOT ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+        <div className="v3-panel-karta p-8 space-y-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
             {/* Rangli namuna */}
             <div className="flex flex-col items-center gap-3">
@@ -920,9 +923,9 @@ export default function CrH2O6Cl3UVVis() {
 
           {/* Xususiyatlar jadvali */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-950/40 border border-purple-700/30 rounded-xl overflow-hidden">
+            <div className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-xl overflow-hidden">
               <div className="bg-pink-900/30 px-4 py-2 border-b border-pink-700/30">
-                <h3 className="text-pink-400 font-bold text-sm">📊 Fizik-kimyoviy xususiyatlar</h3>
+                <h3 className="text-pink-400 font-bold text-sm"> Fizik-kimyoviy xususiyatlar</h3>
               </div>
               <table className="w-full text-xs">
                 <tbody>
@@ -958,7 +961,7 @@ export default function CrH2O6Cl3UVVis() {
               </table>
             </div>
 
-            <div className="bg-purple-950/40 border border-purple-700/30 rounded-xl overflow-hidden">
+            <div className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-xl overflow-hidden">
               <div className="bg-pink-900/30 px-4 py-2 border-b border-pink-700/30">
                 <h3 className="text-pink-400 font-bold text-sm">⚛ Elektron struktura</h3>
               </div>
@@ -999,7 +1002,7 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 2. NAZARIY ASOS ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span>📚</span> UB-Vis spektroskopiyasining d³ ga oid nazariy asosi
           </h2>
@@ -1013,9 +1016,9 @@ export default function CrH2O6Cl3UVVis() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Kvant asos */}
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-cyan-300 font-bold mb-3 flex items-center gap-2">
-                <span>🔬</span> Kvant asosi
+                <span></span> Kvant asosi
               </h3>
               <div className="bg-purple-950/60 rounded-lg p-3 mb-3">
                 <div className="text-yellow-300 text-sm text-center my-2 font-mono">
@@ -1035,13 +1038,13 @@ export default function CrH2O6Cl3UVVis() {
             </div>
 
             {/* Tanlash qoidalari */}
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-cyan-300 font-bold mb-3 flex items-center gap-2">
-                <span>🎯</span> Tanlash qoidalari (d³ da)
+                <span></span> Tanlash qoidalari (d³ da)
               </h3>
               <div className="space-y-2">
                 <div className="bg-green-900/20 border border-green-700/40 rounded-lg p-3">
-                  <p className="text-green-300 font-bold text-xs mb-1">✅ Spin ruxsat (ΔS=0)</p>
+                  <p className="text-green-300 font-bold text-xs mb-1"> Spin ruxsat (ΔS=0)</p>
                   <p className="text-purple-200 text-[11px]">⁴A₂g → ⁴T₂g, ⁴T₁g: hammasi kvartet (S=3/2 → S=3/2). Ruxsat etilgan → ε ~ 10–20</p>
                 </div>
                 <div className="bg-red-900/20 border border-red-700/40 rounded-lg p-3">
@@ -1068,7 +1071,7 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 3. INTERAKTIV UB-VIS SPEKTRI (SVG) ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span>📈</span> Interaktiv UB-Vis yutilish spektri
           </h2>
@@ -1077,7 +1080,7 @@ export default function CrH2O6Cl3UVVis() {
             Cho'qqilar Lorentzian shakli bilan hosil qilingan (real FT-UV-Vis o'lchov shakli).
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 overflow-x-auto">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 overflow-x-auto">
             <svg viewBox="0 0 800 400" className="w-full h-auto" preserveAspectRatio="xMidYMid meet" ref={spectrumRef}>
               <defs>
                 <linearGradient id="visibleSpectrum" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -1175,7 +1178,7 @@ export default function CrH2O6Cl3UVVis() {
                 Spin-taqiqlangan ²Eg polosani ko'rsatish (rubin lazerining kelib chiqishi)
               </label>
               <span className="text-xs text-purple-400">
-                📊 {uvVisPeaks.filter(p => !p.hidden || showSpinForbidden).length} ta polosa ko'rsatilmoqda
+                 {uvVisPeaks.filter(p => !p.hidden || showSpinForbidden).length} ta polosa ko'rsatilmoqda
               </span>
             </div>
           </div>
@@ -1218,12 +1221,12 @@ export default function CrH2O6Cl3UVVis() {
               </div>
 
               <div className="bg-blue-900/20 border border-blue-700/40 rounded-lg p-3 mb-3">
-                <div className="text-xs text-blue-400 font-bold mb-1">🎯 Tanlash qoidasi:</div>
+                <div className="text-xs text-blue-400 font-bold mb-1"> Tanlash qoidasi:</div>
                 <div className="text-sm text-purple-200">{uvVisPeaks[selectedPeak].selection}</div>
               </div>
 
               <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg p-3 mb-3">
-                <div className="text-xs text-yellow-400 font-bold mb-1">💡 Diagnostik:</div>
+                <div className="text-xs text-yellow-400 font-bold mb-1"> Diagnostik:</div>
                 <div className="text-sm text-purple-200">{uvVisPeaks[selectedPeak].diagnostic}</div>
               </div>
 
@@ -1243,9 +1246,9 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 4. CHO'QQILAR JADVALI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📋</span> Yutilish polosalari — ilmiy tayinlash jadvali
+            <span></span> Yutilish polosalari — ilmiy tayinlash jadvali
           </h2>
           
           <div className="overflow-x-auto">
@@ -1293,16 +1296,16 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 5. KRISTALL MAYDON YORILISHI (SVG) ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>💎</span> Kristall maydon yorilishi va elektron o'tishlar
+            <span></span> Kristall maydon yorilishi va elektron o'tishlar
           </h2>
           <p className="text-purple-200 text-sm">
             Cr³⁺ ning d-orbitallari Oₕ simmetriyada yoriladi: t₂g (past, −0.4Δo) va eg (yuqori, +0.6Δo). 
             Uch t₂g³ elektronli konfiguratsiyada d–d o'tishlar quyidagi diagrammada ko'rsatilgan.
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
             <svg viewBox="0 0 700 400" className="w-full h-auto">
               {/* Yer holati chizig'i (past) */}
               <line x1="50" y1="350" x2="200" y2="350" stroke="#a78bfa" strokeWidth="1" strokeDasharray="4 4"/>
@@ -1395,7 +1398,7 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 6. Δo VA RACAH B HISOBI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span>🧮</span> Δo va Racah B parametrini spektrdan hisoblash
           </h2>
@@ -1414,8 +1417,8 @@ export default function CrH2O6Cl3UVVis() {
               { step: 6, task: "Nefelauksetik nisbat", formula: "β = B/B₀ = 725/918 = 0.79", result: "β = 0.79 → kovalentlik!" },
               { step: 7, task: "Energiyani kJ/mol ga o'tkazish", formula: "E(kJ/mol) = 11.96 × ν̃(cm⁻¹)/1000", result: "Δo = 208 kJ/mol" },
             ].map((s, i) => (
-              <div key={i} className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center font-bold text-white flex-shrink-0">
+              <div key={i} className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 flex gap-4 items-start">
+                <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                   {s.step}
                 </div>
                 <div className="flex-1">
@@ -1430,7 +1433,7 @@ export default function CrH2O6Cl3UVVis() {
           </div>
 
           <div className="bg-gradient-to-r from-pink-900/30 to-purple-900/30 border-2 border-pink-500/50 rounded-2xl p-6 mt-4">
-            <h3 className="text-pink-400 font-bold text-lg mb-3">📊 Hisob-kitob natijalari</h3>
+            <h3 className="text-pink-400 font-bold text-lg mb-3"> Hisob-kitob natijalari</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center bg-purple-950/40 rounded-lg p-4">
                 <div className="text-xs text-purple-400 mb-1">Δo</div>
@@ -1457,7 +1460,7 @@ export default function CrH2O6Cl3UVVis() {
 
           <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5">
             <p className="text-blue-200 text-sm">
-              <strong className="text-blue-300">💡 β &lt; 1 nima demakdir?</strong> Nefelauksetik nisbat β = 0.79 
+              <strong className="text-blue-300"> β &lt; 1 nima demakdir?</strong> Nefelauksetik nisbat β = 0.79 
               ekanligi Cr³⁺ va H₂O orasidagi bog'da <strong>19% kovalentlik</strong> mavjud degan xulosaga olib keladi. 
               Erkin Cr³⁺ ionida B₀ = 918 cm⁻¹, kompleksda B = 725 cm⁻¹ — chunki metall d-elektronlari qisman ligandga «tarqaladi» 
               (electron cloud expansion — «bulut kengaytiruvchi» samara, shuning uchun nom «nefelauksetik»).
@@ -1466,7 +1469,7 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 7. TANABE-SUGANO DIAGRAMMASI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span>📈</span> d³ Tanabe-Sugano diagrammasi
           </h2>
@@ -1475,7 +1478,7 @@ export default function CrH2O6Cl3UVVis() {
             electron holatlarini Δo/B ga nisbatan ko'rsatadi. <strong className="text-yellow-400">[Cr(H₂O)₆]³⁺ ning holati</strong> qizil doira bilan belgilangan (Δo/B ≈ 24).
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4">
             <svg viewBox="0 0 700 400" className="w-full h-auto">
               {/* Grid */}
               <line x1="60" y1="370" x2="670" y2="370" stroke="#a78bfa" strokeWidth="1"/>
@@ -1569,7 +1572,7 @@ export default function CrH2O6Cl3UVVis() {
 
           <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5">
             <p className="text-blue-200 text-sm">
-              <strong className="text-blue-300">📊 Diagrammadan foydalanish:</strong> Vertikal chiziq Δo/B = 24 
+              <strong className="text-blue-300"> Diagrammadan foydalanish:</strong> Vertikal chiziq Δo/B = 24 
               da chizilgan — [Cr(H₂O)₆]³⁺ ning holati. Chiziq bilan har bir term chizig'ining kesishishi shu holatning 
               E/B qiymatini beradi. Umumiy energiyani topish uchun E/B × B = E ni hisoblang. 
               Masalan: ⁴T₂g uchun E/B = 24 → E = 24 × 725 = 17 400 cm⁻¹ ✓
@@ -1578,9 +1581,9 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 8. INTERAKTIV BEER-LAMBERT KALKULYATORI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🧪</span> Interaktiv: Beer-Lambert kalkulyatori
+            <span></span> Interaktiv: Beer-Lambert kalkulyatori
           </h2>
           <p className="text-purple-200 text-sm">
             Bu kompleksning haqiqiy ε qiymatlari asosida optik zichlik va transmittansni hisoblang.
@@ -1608,7 +1611,7 @@ export default function CrH2O6Cl3UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">Konsentratsiya (mol/L)</label>
               <input
                 type="range"
@@ -1623,14 +1626,14 @@ export default function CrH2O6Cl3UVVis() {
                 {blConcentration.toExponential(2)} M
               </div>
               <div className="text-xs text-purple-400 mt-2 text-center">
-                {blConcentration < 0.0001 ? "🔬 Juda suyultirilgan (mikroko'lam)" :
-                 blConcentration < 0.001 ? "✅ Standart o'lchov oralig'i" :
-                 blConcentration < 0.01 ? "⚠ Yuqori — chegara" :
+                {blConcentration < 0.0001 ? " Juda suyultirilgan (mikroko'lam)" :
+                 blConcentration < 0.001 ? " Standart o'lchov oralig'i" :
+                 blConcentration < 0.01 ? " Yuqori — chegara" :
                  "❌ Beer qonuni buzilishi mumkin!"}
               </div>
             </div>
 
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">Kyuveta uzunligi (sm)</label>
               <input
                 type="range"
@@ -1645,16 +1648,16 @@ export default function CrH2O6Cl3UVVis() {
                 {blPathLength.toFixed(1)} sm
               </div>
               <div className="text-xs text-purple-400 mt-2 text-center">
-                {blPathLength < 0.5 ? "🔬 Mikrokyuveta" :
-                 blPathLength < 1.5 ? "✅ Standart 1 sm" :
-                 blPathLength < 5 ? "⚠ Uzun kyuveta" :
+                {blPathLength < 0.5 ? " Mikrokyuveta" :
+                 blPathLength < 1.5 ? " Standart 1 sm" :
+                 blPathLength < 5 ? " Uzun kyuveta" :
                  "🌊 NIR uchun ideal"}
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-pink-900/40 to-purple-900/40 border-2 border-pink-500/50 rounded-xl p-6 text-center">
+            <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
               <div className="text-xs text-pink-400 mb-2">Optik zichlik</div>
               <div className="text-yellow-300 text-4xl font-mono font-bold">A = {blResult.A}</div>
               <div className="text-xs text-purple-300 mt-3">
@@ -1662,12 +1665,12 @@ export default function CrH2O6Cl3UVVis() {
               </div>
               <div className="text-xs mt-2">
                 {parseFloat(blResult.A) < 0.1 ? <span className="text-red-400">🔻 Signal juda past — konsentratsiyani oshiring</span> :
-                 parseFloat(blResult.A) < 0.8 ? <span className="text-green-400">✅ Optimal oraliqda!</span> :
-                 parseFloat(blResult.A) < 1.5 ? <span className="text-yellow-400">⚠ Yuqori — chiziqlilik yo'qolishi</span> :
+                 parseFloat(blResult.A) < 0.8 ? <span className="text-green-400"> Optimal oraliqda!</span> :
+                 parseFloat(blResult.A) < 1.5 ? <span className="text-yellow-400"> Yuqori — chiziqlilik yo'qolishi</span> :
                  <span className="text-red-400">🔺 Juda yuqori — suyultiring</span>}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-2 border-blue-500/50 rounded-xl p-6 text-center">
+            <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
               <div className="text-xs text-blue-400 mb-2">Transmittans</div>
               <div className="text-cyan-300 text-4xl font-mono font-bold">T = {blResult.T}%</div>
               <div className="text-xs text-purple-300 mt-3">
@@ -1681,9 +1684,9 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 9. SPEKTROXIMIK QATOR — INTERAKTIV ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📊</span> Spektroximik qatorda Cr³⁺ komplekslari
+            <span></span> Spektroximik qatorda Cr³⁺ komplekslari
           </h2>
           <p className="text-purple-200 text-sm">
             Cr³⁺ metall ioni turli ligandlar bilan komplekslar hosil qilganda Δo va rang o'zgaradi. 
@@ -1728,7 +1731,7 @@ export default function CrH2O6Cl3UVVis() {
 
           <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5">
             <p className="text-blue-200 text-sm">
-              <strong className="text-blue-300">💡 Jorgensen f va g qoidalari:</strong> Δo = f(ligand) × g(metall). 
+              <strong className="text-blue-300"> Jorgensen f va g qoidalari:</strong> Δo = f(ligand) × g(metall). 
               H₂O uchun f = 1.00 (standart), Cr³⁺ uchun g = 17.4 → Δo = 17 400 cm⁻¹. NH₃ uchun f = 1.25 → 21 500 cm⁻¹. 
               Bu empirik qoida keng qo'llaniladi.
             </p>
@@ -1736,7 +1739,7 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 10. RANG NAZARIYASI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span>🎨</span> Rang nazariyasi va inson idroki
           </h2>
@@ -1746,7 +1749,7 @@ export default function CrH2O6Cl3UVVis() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Rang doirasi */}
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <h3 className="text-pink-400 font-bold mb-3">🎡 Rang doirasi</h3>
               <svg viewBox="0 0 300 300" className="w-full h-auto">
                 <defs>
@@ -1811,8 +1814,8 @@ export default function CrH2O6Cl3UVVis() {
             </div>
 
             <div className="space-y-3">
-              <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
-                <h4 className="text-yellow-400 font-bold text-sm mb-2">📐 Rangning mantiq</h4>
+              <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
+                <h4 className="text-yellow-400 font-bold text-sm mb-2"> Rangning mantiq</h4>
                 <ol className="text-xs text-purple-200 space-y-1.5 list-decimal list-inside">
                   <li>Kompleks 575 nm da <strong className="text-yellow-300">sariq-yashil</strong> yutadi (ν₁ = Δo)</li>
                   <li>Ko'z yutilmagan qismini «ko'radi»</li>
@@ -1821,8 +1824,8 @@ export default function CrH2O6Cl3UVVis() {
                 </ol>
               </div>
 
-              <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
-                <h4 className="text-yellow-400 font-bold text-sm mb-2">🔬 Fizik asosi</h4>
+              <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
+                <h4 className="text-yellow-400 font-bold text-sm mb-2"> Fizik asosi</h4>
                 <p className="text-xs text-purple-200 leading-relaxed">
                   Yutilish spektrida <strong>bir necha polosa</strong> bo'lgani uchun aynan bitta emas, 
                   bir necha rang aralashmasi ko'rinadi. 575 nm (asosiy) + 407 nm (qo'shimcha) — 
@@ -1832,7 +1835,7 @@ export default function CrH2O6Cl3UVVis() {
               </div>
 
               <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4">
-                <div className="text-blue-400 font-bold text-sm mb-2">⚡ Amaliy tekshiruv</div>
+                <div className="text-blue-400 font-bold text-sm mb-2"> Amaliy tekshiruv</div>
                 <p className="text-xs text-purple-200">
                   Ligandni H₂O dan NH₃ ga o'zgartirilsa (Δo = 17 400 → 21 500 cm⁻¹), 
                   yutilish 575 nm dan 465 nm ga siljiadi → yutilgan rang <em>ko'k</em>ga o'tadi, 
@@ -1844,9 +1847,9 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 11. NAMUNA TAYYORLASH ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🔬</span> Namuna tayyorlash usullari
+            <span></span> Namuna tayyorlash usullari
           </h2>
 
           <div className="flex flex-wrap gap-2 mb-4">
@@ -1857,7 +1860,7 @@ export default function CrH2O6Cl3UVVis() {
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border ${
                   activeTechnique === i
                     ? "bg-pink-600/60 text-white border-pink-400/50 shadow-lg shadow-pink-500/20"
-                    : "bg-purple-800/30 text-purple-400 border-purple-700/50 hover:bg-purple-700/40"
+                    : "bg-purple-800/30 text-purple-400 border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}
               >
                 {t.name}
@@ -1865,7 +1868,7 @@ export default function CrH2O6Cl3UVVis() {
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <h3 className="text-pink-400 font-bold text-lg mb-2">{techniques[activeTechnique].name}</h3>
             <p className="text-purple-200 text-sm mb-4 italic">{techniques[activeTechnique].description}</p>
 
@@ -1906,9 +1909,9 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 12. HALAQIT BERUVCHI OMILLAR ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>⚠️</span> UB-Vis tahliliga halaqit beruvchi omillar
+            <span>️</span> UB-Vis tahliliga halaqit beruvchi omillar
           </h2>
           <p className="text-purple-200 text-sm">
             Aniq spektr olish uchun quyidagi omillarni nazorat qilish zarur:
@@ -1949,14 +1952,14 @@ export default function CrH2O6Cl3UVVis() {
 
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-5">
             <div className="text-green-400 font-bold text-sm mb-2 flex items-center gap-2">
-              <span>💡</span> Tanlangan omilning yechimi: {interferences[activeInterference].source}
+              <span></span> Tanlangan omilning yechimi: {interferences[activeInterference].source}
             </div>
             <p className="text-xs text-purple-200 leading-relaxed">{interferences[activeInterference].solution}</p>
           </div>
         </div>
 
         {/* ═══════════════ 13. TARIXIY XRONOLOGIYA ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span>📜</span> Tarixiy xronologiya
           </h2>
@@ -1966,7 +1969,7 @@ export default function CrH2O6Cl3UVVis() {
 
           <div className="space-y-2">
             {historicalTimeline.map((h, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-3 flex gap-4 items-center hover:bg-purple-900/40 transition-colors">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-3 flex gap-4 items-center hover:bg-purple-900/40 transition-colors">
                 <div className="text-yellow-300 font-mono font-bold text-sm w-16 flex-shrink-0">{h.year}</div>
                 <div className="text-purple-200 text-xs flex-1">{h.event}</div>
               </div>
@@ -1975,14 +1978,14 @@ export default function CrH2O6Cl3UVVis() {
         </div>
 
         {/* ═══════════════ 14. AMALIY AHAMIYATI ═══════════════ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-4">
+        <div className="v3-panel-karta p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span>💼</span> Amaliy ahamiyati va qo'llanilishi
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {applications.map((app, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-4 flex gap-3 items-start">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-4 flex gap-3 items-start">
                 <div className="text-3xl flex-shrink-0">{app.icon}</div>
                 <div>
                   <div className="text-pink-400 font-bold text-sm mb-1">{app.field}</div>
@@ -1996,7 +1999,7 @@ export default function CrH2O6Cl3UVVis() {
         {/* ═══════════════ 15. XULOSA ═══════════════ */}
         <div className="bg-gradient-to-r from-pink-600/10 to-purple-600/10 border border-pink-500/30 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span>✅</span> Asosiy xulosalar
+            <span></span> Asosiy xulosalar
           </h2>
           <ol className="space-y-3 text-purple-200 list-decimal list-inside">
             <li className="pl-2"><strong className="text-pink-400">λ₁ = 575 nm (ε=13.4)</strong> — ⁴A₂g → ⁴T₂g, birinchi polosa AYNAN Δo qiymatiga teng (d³ ning unikal xususiyati)</li>
@@ -2036,6 +2039,6 @@ export default function CrH2O6Cl3UVVis() {
           </p>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }

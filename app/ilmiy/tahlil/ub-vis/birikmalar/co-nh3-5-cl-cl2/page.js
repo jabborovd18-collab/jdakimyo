@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo, useRef } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -80,7 +82,7 @@ const uvVisPeaks = [
     selection: "Spin ruxsat (ΔS=0), Laport TAQIQ (g→g)",
     vibronicNote: "e vibronik moda orqali qisman ruxsat",
     energyKJ: 226,
-    diagnostic: "🎯 Simmetriya buzilishining tasdig'i — Oh da yagona polosa edi, C₄ᵥ da 2 ga bo'lindi",
+    diagnostic: " Simmetriya buzilishining tasdig'i — Oh da yagona polosa edi, C₄ᵥ da 2 ga bo'lindi",
     theoryNote: "Oh (Luteo) da ¹A₁g → ¹T₁g bir polosa (475 nm) beradi. Cl⁻ ni koordinatsiya qilishi Oh simmetriyasini C₄ᵥ ga buzadi — z o'q Co–Cl bo'ylab yo'nalgan. Bu ta'sirda t₂g va eg orbitallar qo'shimcha yoriladi (tetragonal buzilish): eg → a₁ (dz²) + b₁ (dx²−y²). Shu tufayli Oh dagi yagona ¹T₁g holati C₄ᵥ da ¹E + ¹A₂ ga yoriladi. Bu polosa (530 nm) ¹E qismiga to'g'ri keladi va Luteo (475 nm) dan pastroq energiyada joylashadi, chunki Cl⁻ NH₃ dan zaifroq ligand.",
     lambdaMax_range: "525–540 nm",
     freqRange: "18 500–19 000 cm⁻¹",
@@ -96,7 +98,7 @@ const uvVisPeaks = [
     selection: "Spin ruxsat, Laport taqiq",
     vibronicNote: "Ba'zan yelka sifatida ko'rinadi",
     energyKJ: 244,
-    diagnostic: "🔬 Tetragonal buzilishning ikkinchi qismi (Ds, Dt hisoblash)",
+    diagnostic: " Tetragonal buzilishning ikkinchi qismi (Ds, Dt hisoblash)",
     theoryNote: "¹T₁g ning yuqori qismi — ¹A₂. Bu polosa 490 nm da yelka sifatida ko'rinadi va ba'zan asosiy polosa (530) bilan qo'shilib chiqadi. E(¹E) va E(¹A₂) orasidagi farq bevosita tetragonal maydon parametrlarini (Ds, Dt) beradi: ΔE = 2Ds + 10Dt. Bu holatda ΔE ≈ 1540 cm⁻¹, Ds ≈ 3000, Dt ≈ 800 cm⁻¹. Ba'zi qattiq holat spektrlarida bu ikki polosa yaqqol farqlanadi.",
     lambdaMax_range: "480–495 nm",
     freqRange: "20 200–20 800 cm⁻¹",
@@ -127,7 +129,7 @@ const uvVisPeaks = [
     selection: "Laport RUXSAT + spin ruxsat",
     vibronicNote: "To'liq ruxsat",
     energyKJ: 479,
-    diagnostic: "⚡ LMCT Cl⁻ dan — Purpureo ning binafsha-qizil rangining asosiy manbai",
+    diagnostic: " LMCT Cl⁻ dan — Purpureo ning binafsha-qizil rangining asosiy manbai",
     theoryNote: "Cl⁻ ligandidan Co³⁺ ga zaryad ko'chishi. Cl⁻ NH₃ dan yumshoqroq ligand (β kamayadi) va uning pπ orbitali Co³⁺ ning bo'sh d orbitallariga yaqin — LMCT past energiyada (250 nm) joylashadi. Luteo da ({[Co(NH₃)₆]³⁺}) faqat NH₃ ligandi bor edi, LMCT 210 nm da edi. Cl⁻ qo'shilishi bu polosani 40 nm ga batokromik siljitgan. Bu polosa ε ≈ 12 000 M⁻¹·sm⁻¹ — d–d dan 200 marta kuchli.",
     lambdaMax_range: "240–260 nm",
     freqRange: "38 000–42 000 cm⁻¹"
@@ -354,17 +356,18 @@ const historicalTimeline = [
 // AMALIY AHAMIYATI
 // ═══════════════════════════════════════════════════════════════════════════════
 const applications = [
-  { field: "Sintetik boshlang'ich modda", detail: "Barcha [Co(NH₃)₅X] komplekslar bu birikmadan olinadi (X = H₂O, NO₂, NCS, OH, N₃, ...)", icon: "🧪" },
+  { field: "Sintetik boshlang'ich modda", detail: "Barcha [Co(NH₃)₅X] komplekslar bu birikmadan olinadi (X = H₂O, NO₂, NCS, OH, N₃, ...)", icon: "" },
   { field: "Akvatsiya kinetikasi", detail: "SN1 mexanizmini o'rganishning etaloni (Taube ishlari, Nobel 1983)", icon: "⏱" },
-  { field: "Simmetriya buzilishi tadqiqoti", detail: "Oh → C₄ᵥ buzilishning eng aniq spektroskopik namunasi", icon: "🔬" },
+  { field: "Simmetriya buzilishi tadqiqoti", detail: "Oh → C₄ᵥ buzilishning eng aniq spektroskopik namunasi", icon: "" },
   { field: "Werner ichki sferasi", detail: "Ichki (1 Cl) vs tashqi (2 Cl⁻) ni AgNO₃ bilan ajratish — klassik tajriba", icon: "⚗️" },
   { field: "Fotokimyo", detail: "UV nurlanishda foto-akvatsiya (Cl⁻ → H₂O) mexanizmi", icon: "☀️" },
   { field: "Nazariy hisoblashlar", detail: "DFT/TDDFT uchun C₄ᵥ simmetriyali benchmark", icon: "💻" },
   { field: "Rangning didaktik namuna", detail: "Purpureo → Roseo (akvatsiya) rang o'zgarishi ko'zga ko'rinadi", icon: "🎨" },
-  { field: "Ionli o'tkazuvchanlik", detail: "3-ionli elektrolit sifatida Werner nazariyasining tasdig'i", icon: "⚡" },
+  { field: "Ionli o'tkazuvchanlik", detail: "3-ionli elektrolit sifatida Werner nazariyasining tasdig'i", icon: "" },
 ]
 
 export default function CoNH35ClCl2UVVis() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [hoveredPeak, setHoveredPeak] = useState(null)
   const [selectedPeak, setSelectedPeak] = useState(0)
@@ -765,12 +768,12 @@ export default function CoNH35ClCl2UVVis() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-violet-950/20 to-purple-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* ═══════════════ PDF MODAL ═══════════════ */}
       {pdfModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-gradient-to-br from-purple-950 to-violet-950 border-2 border-violet-500 rounded-2xl p-6 max-w-2xl w-full">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <h3 className="text-2xl font-bold text-violet-400 mb-4 flex items-center gap-3">
               <span className="text-3xl">📄</span> PDF Ilmiy Hisobot
             </h3>
@@ -802,7 +805,7 @@ export default function CoNH35ClCl2UVVis() {
 
             <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg p-3 mb-4">
               <p className="text-xs text-yellow-200">
-                <strong>⚠ Font talablari:</strong> <code className="bg-yellow-950/50 px-1 rounded">public/fonts/</code> papkasida
+                <strong> Font talablari:</strong> <code className="bg-yellow-950/50 px-1 rounded">public/fonts/</code> papkasida
                 <code className="bg-yellow-950/50 px-1 rounded ml-1">DejaVuSans*.ttf</code> 3 ta fayl bo'lishi shart.
               </p>
             </div>
@@ -823,10 +826,10 @@ export default function CoNH35ClCl2UVVis() {
 
       {/* ═══════════════ HEADER ═══════════════ */}
       {showHeader && (
-        <header className="border-b border-violet-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
+        <header className="border-b border-violet-800/50 sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh</Link>
+              <Link href="/" className="hover:text-purple-300"> Bosh</Link>
               <span className="text-purple-600">›</span>
               <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil</Link>
               <span className="text-purple-600">›</span>
@@ -846,7 +849,7 @@ export default function CoNH35ClCl2UVVis() {
                   <p className="text-violet-500/80 text-xs italic">{COMPOUND.commonName} • C₄ᵥ • Δo={COMPOUND.deltaOh.toLocaleString()} cm⁻¹</p>
                   <div className="flex gap-2 mt-1">
                     <span className="inline-block text-[10px] px-2 py-0.5 rounded-full bg-violet-900/40 border border-violet-700/50 text-violet-300">
-                      🔬 Simmetriya buzilishi
+                       Simmetriya buzilishi
                     </span>
                     <span className="inline-block text-[10px] px-2 py-0.5 rounded-full bg-blue-900/40 border border-blue-700/50 text-blue-300">
                       ⏱ Akvatsiya kinetikasi
@@ -896,7 +899,7 @@ export default function CoNH35ClCl2UVVis() {
                   <span dangerouslySetInnerHTML={{ __html: COMPOUND.formulaHTML }} />
                 </h2>
                 <span className="text-xs px-3 py-1 rounded-full bg-violet-900/40 border border-violet-500/50 text-violet-300 font-bold">
-                  🔬 C₄ᵥ simmetriya
+                   C₄ᵥ simmetriya
                 </span>
                 <span className="text-xs px-3 py-1 rounded-full bg-blue-900/40 border border-blue-500/50 text-blue-300 font-bold">
                   ⏱ SN1 kinetika
@@ -933,9 +936,9 @@ export default function CoNH35ClCl2UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-950/40 border border-purple-700/30 rounded-xl overflow-hidden">
+            <div className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-xl overflow-hidden">
               <div className="bg-violet-900/30 px-4 py-2 border-b border-violet-700/30">
-                <h3 className="text-violet-400 font-bold text-sm">📊 Fizik-kimyoviy xususiyatlar</h3>
+                <h3 className="text-violet-400 font-bold text-sm"> Fizik-kimyoviy xususiyatlar</h3>
               </div>
               <table className="w-full text-xs">
                 <tbody>
@@ -951,7 +954,7 @@ export default function CoNH35ClCl2UVVis() {
               </table>
             </div>
 
-            <div className="bg-purple-950/40 border border-purple-700/30 rounded-xl overflow-hidden">
+            <div className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-xl overflow-hidden">
               <div className="bg-violet-900/30 px-4 py-2 border-b border-violet-700/30">
                 <h3 className="text-violet-400 font-bold text-sm">⚛ Spektroskopik parametrlar</h3>
               </div>
@@ -971,7 +974,7 @@ export default function CoNH35ClCl2UVVis() {
           </div>
 
           <div className="bg-violet-900/10 border border-violet-500/30 rounded-xl p-4">
-            <div className="text-violet-400 font-bold text-sm mb-2">🧪 Sintez usuli</div>
+            <div className="text-violet-400 font-bold text-sm mb-2"> Sintez usuli</div>
             <div className="text-xs text-purple-200 font-mono bg-purple-950/40 rounded p-3">{COMPOUND.synthesis}</div>
             <div className="text-xs text-purple-300 mt-2">
               Luteo [Co(NH₃)₆]Cl₃ ni konsentrlangan HCl bilan qizdirilsa, bitta NH₃ ligandi Cl⁻ ga almashadi. Sariq kristallardan
@@ -995,9 +998,9 @@ export default function CoNH35ClCl2UVVis() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-cyan-300 font-bold mb-3 flex items-center gap-2">
-                <span>📐</span> Oh vs C₄ᵥ simmetriyasi
+                <span></span> Oh vs C₄ᵥ simmetriyasi
               </h3>
               <div className="space-y-2 text-xs">
                 <div className="bg-purple-950/60 rounded p-3">
@@ -1014,9 +1017,9 @@ export default function CoNH35ClCl2UVVis() {
               </div>
             </div>
 
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-cyan-300 font-bold mb-3 flex items-center gap-2">
-                <span>🎯</span> Yorilish jadvali
+                <span></span> Yorilish jadvali
               </h3>
               <div className="space-y-2">
                 {splittingDiagram.map((s, i) => (
@@ -1056,7 +1059,7 @@ export default function CoNH35ClCl2UVVis() {
             490 nm</strong> — ¹T₁g ning yorilgan qismlari (bu Purpureo ning eng muhim xususiyati!).
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 overflow-x-auto">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 overflow-x-auto">
             <svg viewBox="0 0 800 400" className="w-full h-auto" preserveAspectRatio="xMidYMid meet" ref={spectrumRef}>
               <defs>
                 <linearGradient id="visSpec3" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -1203,11 +1206,11 @@ export default function CoNH35ClCl2UVVis() {
               </div>
 
               <div className="bg-blue-900/20 border border-blue-700/40 rounded-lg p-3 mb-3">
-                <div className="text-xs text-blue-400 font-bold mb-1">🎯 Tanlash qoidasi:</div>
+                <div className="text-xs text-blue-400 font-bold mb-1"> Tanlash qoidasi:</div>
                 <div className="text-sm text-purple-200">{uvVisPeaks[selectedPeak].selection}</div>
               </div>
               <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg p-3 mb-3">
-                <div className="text-xs text-yellow-400 font-bold mb-1">💡 Diagnostik:</div>
+                <div className="text-xs text-yellow-400 font-bold mb-1"> Diagnostik:</div>
                 <div className="text-sm text-purple-200">{uvVisPeaks[selectedPeak].diagnostic}</div>
               </div>
               <div className="bg-violet-900/20 border border-violet-700/40 rounded-lg p-4">
@@ -1221,7 +1224,7 @@ export default function CoNH35ClCl2UVVis() {
         {/* ═══════════════ 4. CHO'QQILAR JADVALI ═══════════════ */}
         <div className="bg-purple-900/40 border border-violet-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📋</span> Yutilish polosalari — ilmiy tayinlash jadvali
+            <span></span> Yutilish polosalari — ilmiy tayinlash jadvali
           </h2>
 
           <div className="overflow-x-auto">
@@ -1273,7 +1276,7 @@ export default function CoNH35ClCl2UVVis() {
             <strong className="text-yellow-400"> ¹T₁g ning ikkiga yorilishi</strong> Purpureo ning eng aniq spektroskopik xususiyati.
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
             <svg viewBox="0 0 800 450" className="w-full h-auto">
               {/* Chap taraf: Oh (Luteo) */}
               <text x="150" y="30" fill="#fbbf24" fontSize="14" textAnchor="middle" fontWeight="bold">Luteo [Co(NH₃)₆]³⁺ (Oh)</text>
@@ -1383,7 +1386,7 @@ export default function CoNH35ClCl2UVVis() {
         {/* ═══════════════ 6. Ds VA Dt PARAMETRLARI ═══════════════ */}
         <div className="bg-purple-900/40 border border-violet-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📐</span> Tetragonal maydon parametrlari: Ds va Dt
+            <span></span> Tetragonal maydon parametrlari: Ds va Dt
           </h2>
           <p className="text-purple-200 text-sm">
             C₄ᵥ simmetriyasidagi buzilish ikki parametr — <strong className="text-yellow-400">Ds va Dt</strong> —
@@ -1391,7 +1394,7 @@ export default function CoNH35ClCl2UVVis() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold mb-3">Ds parametri</h3>
               <div className="bg-purple-950/60 rounded-lg p-3 mb-3">
                 <div className="text-yellow-300 text-sm text-center my-2 font-mono">
@@ -1406,7 +1409,7 @@ export default function CoNH35ClCl2UVVis() {
               </div>
             </div>
 
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold mb-3">Dt parametri</h3>
               <div className="bg-purple-950/60 rounded-lg p-3 mb-3">
                 <div className="text-yellow-300 text-sm text-center my-2 font-mono">
@@ -1452,7 +1455,7 @@ export default function CoNH35ClCl2UVVis() {
             pH va vaqtni o'zgartirib qoldiq kompleks foizini kuzating.
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
                 <div className="flex justify-between text-xs text-purple-400 mb-2">
@@ -1490,17 +1493,17 @@ export default function CoNH35ClCl2UVVis() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div className="bg-gradient-to-br from-violet-900/40 to-purple-900/40 border-2 border-violet-500/50 rounded-xl p-5 text-center">
+              <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                 <div className="text-xs text-violet-400 mb-2">Purpureo qoldig'i</div>
                 <div className="text-violet-300 text-3xl font-mono font-bold">{aquationSim.fractionRemaining}%</div>
                 <div className="text-[10px] text-purple-500 mt-2">binafsha rang</div>
               </div>
-              <div className="bg-gradient-to-br from-pink-900/40 to-red-900/40 border-2 border-pink-500/50 rounded-xl p-5 text-center">
+              <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                 <div className="text-xs text-pink-400 mb-2">Roseo hosil bo'ldi</div>
                 <div className="text-pink-300 text-3xl font-mono font-bold">{aquationSim.fractionConverted}%</div>
                 <div className="text-[10px] text-purple-500 mt-2">pushti rang</div>
               </div>
-              <div className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/50 rounded-xl p-5 text-center">
+              <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                 <div className="text-xs text-yellow-400 mb-2">Yarim yashash (t½)</div>
                 <div className="text-yellow-300 text-2xl font-mono font-bold">{aquationSim.halfLife}</div>
                 <div className="text-[10px] text-purple-500 mt-2">k = {aquationSim.k.toExponential(1)} s⁻¹</div>
@@ -1508,7 +1511,7 @@ export default function CoNH35ClCl2UVVis() {
             </div>
 
             {/* Visual rang o'zgarishi */}
-            <div className="bg-purple-950/60 rounded-xl p-4">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)]">
               <div className="text-xs text-purple-400 mb-2">Rangning o'zgarishi (progress):</div>
               <div className="w-full h-8 rounded-full overflow-hidden flex">
                 <div className="h-full transition-all duration-300" 
@@ -1579,8 +1582,8 @@ export default function CoNH35ClCl2UVVis() {
               { step: 7, task: "Nefelauksetik β", formula: "β = 590 / 1100 = 0.536", result: "β = 0.54 (Luteo dan biroz kovalentroq)" },
               { step: 8, task: "Ds va Dt", formula: "ΔE(¹E − ¹A₂) = 1 540 = 2Ds + 10Dt", result: "Ds ≈ 3000, Dt ≈ 800 cm⁻¹" },
             ].map((s, i) => (
-              <div key={i} className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-pink-600 flex items-center justify-center font-bold text-white flex-shrink-0">
+              <div key={i} className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 flex gap-4 items-start">
+                <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                   {s.step}
                 </div>
                 <div className="flex-1">
@@ -1593,7 +1596,7 @@ export default function CoNH35ClCl2UVVis() {
           </div>
 
           <div className="bg-gradient-to-r from-violet-900/30 to-pink-900/30 border-2 border-violet-500/50 rounded-2xl p-6 mt-4">
-            <h3 className="text-violet-400 font-bold text-lg mb-3">📊 Purpureo natijalari</h3>
+            <h3 className="text-violet-400 font-bold text-lg mb-3"> Purpureo natijalari</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center bg-purple-950/40 rounded-lg p-4">
                 <div className="text-xs text-purple-400 mb-1">Δo</div>
@@ -1709,7 +1712,7 @@ export default function CoNH35ClCl2UVVis() {
         {/* ═══════════════ 11. INTERAKTIV BEER-LAMBERT ═══════════════ */}
         <div className="bg-purple-900/40 border border-violet-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🧪</span> Interaktiv Beer-Lambert kalkulyatori
+            <span></span> Interaktiv Beer-Lambert kalkulyatori
           </h2>
 
           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-center">
@@ -1729,14 +1732,14 @@ export default function CoNH35ClCl2UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">Konsentratsiya (mol/L)</label>
               <input type="range" min="0.000001" max="0.01" step="0.000001" value={blConcentration}
                 onChange={(e) => setBlConcentration(Number(e.target.value))}
                 className="w-full accent-violet-500"/>
               <div className="text-cyan-300 text-2xl font-mono text-center mt-2">{blConcentration.toExponential(2)} M</div>
             </div>
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">Kyuveta uzunligi (sm)</label>
               <input type="range" min="0.1" max="10" step="0.1" value={blPathLength}
                 onChange={(e) => setBlPathLength(Number(e.target.value))}
@@ -1746,12 +1749,12 @@ export default function CoNH35ClCl2UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-violet-900/40 to-purple-900/40 border-2 border-violet-500/50 rounded-xl p-6 text-center">
+            <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
               <div className="text-xs text-violet-400 mb-2">Optik zichlik</div>
               <div className="text-violet-300 text-4xl font-mono font-bold">A = {blResult.A}</div>
               <div className="text-xs text-purple-300 mt-3">A = {blResult.epsilon} × {blConcentration.toExponential(2)} × {blPathLength}</div>
             </div>
-            <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-2 border-blue-500/50 rounded-xl p-6 text-center">
+            <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
               <div className="text-xs text-blue-400 mb-2">Transmittans</div>
               <div className="text-cyan-300 text-4xl font-mono font-bold">T = {blResult.T}%</div>
               <div className="text-xs text-purple-300 mt-3">T = 10⁻ᴬ × 100%</div>
@@ -1762,7 +1765,7 @@ export default function CoNH35ClCl2UVVis() {
         {/* ═══════════════ 12. NAMUNA TAYYORLASH ═══════════════ */}
         <div className="bg-purple-900/40 border border-violet-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🔬</span> Namuna tayyorlash usullari
+            <span></span> Namuna tayyorlash usullari
           </h2>
 
           <div className="flex flex-wrap gap-2 mb-4">
@@ -1770,14 +1773,14 @@ export default function CoNH35ClCl2UVVis() {
               <button key={i} onClick={() => setActiveTechnique(i)}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border ${
                   activeTechnique === i ? "bg-violet-600/60 text-white border-violet-400/50 shadow-lg shadow-violet-500/20" :
-                  "bg-purple-800/30 text-purple-400 border-purple-700/50 hover:bg-purple-700/40"
+                  "bg-purple-800/30 text-purple-400 border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}>
                 {t.name}
               </button>
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <h3 className="text-violet-400 font-bold text-lg mb-2">{techniques[activeTechnique].name}</h3>
             <p className="text-purple-200 text-sm mb-4 italic">{techniques[activeTechnique].description}</p>
 
@@ -1820,7 +1823,7 @@ export default function CoNH35ClCl2UVVis() {
         {/* ═══════════════ 13. HALAQIT BERUVCHI OMILLAR ═══════════════ */}
         <div className="bg-purple-900/40 border border-violet-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>⚠️</span> UB-Vis tahliliga halaqit beruvchi omillar
+            <span>️</span> UB-Vis tahliliga halaqit beruvchi omillar
           </h2>
 
           <div className="overflow-x-auto">
@@ -1855,7 +1858,7 @@ export default function CoNH35ClCl2UVVis() {
 
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-5">
             <div className="text-green-400 font-bold text-sm mb-2 flex items-center gap-2">
-              <span>💡</span> Yechim: {interferences[activeInterference].source}
+              <span></span> Yechim: {interferences[activeInterference].source}
             </div>
             <p className="text-xs text-purple-200 leading-relaxed">{interferences[activeInterference].solution}</p>
           </div>
@@ -1868,7 +1871,7 @@ export default function CoNH35ClCl2UVVis() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <h3 className="text-violet-400 font-bold mb-3">🎡 Rang aylanasi</h3>
               <svg viewBox="0 0 300 300" className="w-full h-auto">
                 {[
@@ -1909,8 +1912,8 @@ export default function CoNH35ClCl2UVVis() {
             </div>
 
             <div className="space-y-3">
-              <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
-                <h4 className="text-violet-400 font-bold text-sm mb-2">📐 Rangning mantiqi</h4>
+              <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
+                <h4 className="text-violet-400 font-bold text-sm mb-2"> Rangning mantiqi</h4>
                 <ol className="text-xs text-purple-200 space-y-1.5 list-decimal list-inside">
                   <li>Kompleks 530 nm da <strong className="text-green-300">yashil</strong> yutadi</li>
                   <li>Yashilning to'ldiruvchisi — <strong className="text-violet-400">binafsha-qizil</strong></li>
@@ -1920,7 +1923,7 @@ export default function CoNH35ClCl2UVVis() {
               </div>
 
               <div className="bg-violet-900/20 border border-violet-500/30 rounded-xl p-4">
-                <div className="text-violet-400 font-bold text-sm mb-2">🔬 Luteo vs Purpureo rang farqi</div>
+                <div className="text-violet-400 font-bold text-sm mb-2"> Luteo vs Purpureo rang farqi</div>
                 <p className="text-xs text-purple-200 leading-relaxed">
                   <strong>Luteo</strong>: 475 nm (binafsha) yutadi → sariq ko'rinadi.<br/>
                   <strong>Purpureo</strong>: 530 nm (yashil) yutadi → binafsha-qizil ko'rinadi.<br/>
@@ -1948,7 +1951,7 @@ export default function CoNH35ClCl2UVVis() {
 
           <div className="space-y-2">
             {historicalTimeline.map((h, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-3 flex gap-4 items-center hover:bg-purple-900/40 transition-colors">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-3 flex gap-4 items-center hover:bg-purple-900/40 transition-colors">
                 <div className={`font-mono font-bold text-sm w-16 flex-shrink-0 ${h.event.includes("🏆") ? "text-yellow-300" : "text-purple-300"}`}>{h.year}</div>
                 <div className={`text-xs flex-1 ${h.event.includes("🏆") ? "text-yellow-200 font-semibold" : "text-purple-200"}`}>{h.event}</div>
               </div>
@@ -1964,7 +1967,7 @@ export default function CoNH35ClCl2UVVis() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {applications.map((app, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-4 flex gap-3 items-start">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-4 flex gap-3 items-start">
                 <div className="text-3xl flex-shrink-0">{app.icon}</div>
                 <div>
                   <div className="text-violet-400 font-bold text-sm mb-1">{app.field}</div>
@@ -1978,7 +1981,7 @@ export default function CoNH35ClCl2UVVis() {
         {/* ═══════════════ 17. XULOSA ═══════════════ */}
         <div className="bg-gradient-to-r from-violet-600/10 to-pink-600/10 border border-violet-500/30 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span>✅</span> Asosiy xulosalar
+            <span></span> Asosiy xulosalar
           </h2>
           <ol className="space-y-3 text-purple-200 list-decimal list-inside">
             <li className="pl-2"><strong className="text-violet-400">λ₁ = 530 nm (ε=50)</strong>: ¹A₁ → ¹E — Oh dagi ¹T₁g ning past qismi</li>
@@ -2020,6 +2023,6 @@ export default function CoNH35ClCl2UVVis() {
           </p>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }

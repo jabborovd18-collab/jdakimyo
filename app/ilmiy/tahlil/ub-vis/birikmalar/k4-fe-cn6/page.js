@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useEffect, useRef } from "react"
 
 // ── UB-Vis SPEKTR GRAFIGI ────────────────────────────────────────────────────
@@ -198,10 +200,10 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#fbbf24" }) {
       <canvas ref={canvasRef} width={W} height={H}
         onMouseMove={handleMouseMove} onClick={() => { if (hoveredPeak) setSelectedPeak(selectedPeak?.nm === hoveredPeak.nm ? null : hoveredPeak) }}
         onMouseLeave={() => setHoveredPeak(null)}
-        className="w-full h-auto rounded-xl border border-purple-700/50 cursor-crosshair" />
+        className="w-full h-auto rounded-xl border border-[var(--v3-chiziq)] cursor-crosshair" />
       
       {animProgress < 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-purple-700/50">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-[var(--v3-chiziq)]">
           <div className="flex items-center gap-2">
             <span className="text-xs text-purple-400">Chizilmoqda...</span>
             <div className="w-24 h-1.5 bg-purple-800/50 rounded-full overflow-hidden">
@@ -256,6 +258,7 @@ function SelectionRules() {
 }
 // ── ASOSIY SAHIFA ────────────────────────────────────────────────────────────
 export default function K4FeCN6_UBVis() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [activeTab, setActiveTab] = useState("spektr")
 
   const peaks = [
@@ -266,21 +269,21 @@ export default function K4FeCN6_UBVis() {
 
   const tabs = [
     { id: "spektr",    label: "📈 UB-Vis Spektri" },
-    { id: "jadval",    label: "📊 Polosalar jadvali" },
+    { id: "jadval",    label: " Polosalar jadvali" },
     { id: "rang",      label: "🎨 Rang sababi" },
     { id: "qoidalar",  label: "📏 Tanlash qoidalari" },
-    { id: "mlct",      label: "⚡ MLCT mexanizmi" },
-    { id: "energetika",label: "💎 Energetik diagramma" },
-    { id: "taqqos",    label: "⚖️ Qizil qon tuzi bilan" },
+    { id: "mlct",      label: " MLCT mexanizmi" },
+    { id: "energetika",label: " Energetik diagramma" },
+    { id: "taqqos",    label: " Qizil qon tuzi bilan" },
   ]
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
+      <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
         <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-purple-400 hover:text-purple-300 text-lg">← UB-Vis birikmalar</Link>
         <div>
-          <h1 className="text-2xl font-bold text-yellow-400">🌈 K₄[Fe(CN)₆] — UB-Vis spektri tahlili</h1>
+          <h1 className="text-2xl font-bold text-yellow-400"> K₄[Fe(CN)₆] — UB-Vis spektri tahlili</h1>
           <p className="text-purple-400 text-sm">kaliy geksasiyanoferrat(II) • Sariq qon tuzi • MLCT dominant • ε≈500</p>
         </div>
       </header>
@@ -288,7 +291,7 @@ export default function K4FeCN6_UBVis() {
       <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
         {/* ── HERO ── */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 relative overflow-hidden">
+        <div className="v3-panel-karta p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
           
           <div className="flex flex-wrap gap-2 mb-4">
@@ -321,35 +324,35 @@ export default function K4FeCN6_UBVis() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">λ<sub>max</sub> (asosiy)</div>
               <div className="text-white font-bold">~320 nm</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">ε</div>
               <div className="text-white font-bold">~500</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">O'tish turi</div>
               <div className="text-white font-bold">MLCT</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Eritma rangi</div>
               <div className="text-yellow-400 font-bold">Och sariq</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">d-d o'tish</div>
               <div className="text-white font-bold">Yo'q (t₂g⁶ to'lgan)</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Konfiguratsiya</div>
               <div className="text-white font-bold">t₂g⁶ eg⁰</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">μ<sub>eff</sub></div>
               <div className="text-white font-bold">0 (diamagnit)</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">KMBE</div>
               <div className="text-white font-bold">−2.4Δ<sub>o</sub></div>
             </div>
@@ -357,7 +360,7 @@ export default function K4FeCN6_UBVis() {
         </div>
 
         {/* ── TAJRIBA SHAROITI ── */}
-        <div className="bg-purple-800/20 border border-purple-700/30 rounded-xl p-4">
+        <div className="bg-purple-800/20 border border-[var(--v3-chiziq)] rounded-xl p-4">
           <div className="flex flex-wrap gap-4 text-xs text-purple-400">
             <span><strong className="text-purple-300">Erituvchi:</strong> H₂O</span>
             <span><strong className="text-purple-300">Konsentratsiya:</strong> ~10⁻⁴ M</span>
@@ -375,7 +378,7 @@ export default function K4FeCN6_UBVis() {
               className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
                   ? "bg-yellow-600/40 text-white border border-yellow-400/50"
-                  : "bg-purple-800/30 text-purple-400 border border-purple-700/50 hover:bg-purple-700/40"
+                  : "bg-purple-800/30 text-purple-400 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
               }`}
             >
               {tab.label}
@@ -385,7 +388,7 @@ export default function K4FeCN6_UBVis() {
 
         {/* ── SPEKTR ── */}
         {activeTab === "spektr" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">📈 UB-Vis Spektri — K₄[Fe(CN)₆]</h2>
             <UBVisSpektrGrafik peaks={peaks} lineColor="#fbbf24" />
             <div className="flex flex-wrap gap-3">
@@ -405,9 +408,9 @@ export default function K4FeCN6_UBVis() {
                 Qizil qon tuzidan asosiy farq — MLCT vs LMCT.
               </p>
             </div>
-            <div className="bg-purple-800/20 border border-purple-700/30 rounded-xl p-3 text-center">
+            <div className="bg-purple-800/20 border border-[var(--v3-chiziq)] rounded-xl p-3 text-center">
               <p className="text-purple-500 text-xs italic">
-                ⚠️ Grafik sxematik ko'rinish bo'lib, haqiqiy eksperimental spektrni to'liq aks ettirmaydi.
+                ️ Grafik sxematik ko'rinish bo'lib, haqiqiy eksperimental spektrni to'liq aks ettirmaydi.
               </p>
             </div>
           </div>
@@ -415,8 +418,8 @@ export default function K4FeCN6_UBVis() {
 
         {/* ── JADVAL ── */}
         {activeTab === "jadval" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">📊 Polosalar jadvali</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Polosalar jadvali</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="border-b border-purple-700">
@@ -444,7 +447,7 @@ export default function K4FeCN6_UBVis() {
 
         {/* ── RANG ── */}
         {activeTab === "rang" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">🎨 Nega och sariq rang?</h2>
             <p className="text-purple-200 leading-relaxed">
               K₄[Fe(CN)₆] ning <strong className="text-yellow-400">asosiy yutilishi UB sohada</strong> (~320 nm).
@@ -453,7 +456,7 @@ export default function K4FeCN6_UBVis() {
               d⁶ quyi spin (t₂g⁶) — barcha t₂g orbitallar to'lgan, d-d o'tishlar uchun bo'sh joy yo'q.
               Qizil qon tuzidan farqi — bu yerda <strong>MLCT dominant</strong>, LMCT emas.
             </p>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold mb-3">Nima uchun d-d o'tishlar yo'q?</h3>
               <p className="text-purple-200 text-sm">
                 t₂g⁶ eg⁰ — t₂g orbitallar to'liq to'lgan (6 ta elektron), eg orbitallar bo'sh.
@@ -467,10 +470,10 @@ export default function K4FeCN6_UBVis() {
 
         {/* ── TANLASH QOIDALARI ── */}
         {activeTab === "qoidalar" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">📏 Tanlash qoidalari — K₄[Fe(CN)₆] uchun</h2>
             <SelectionRules />
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30 space-y-3">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] space-y-3">
               <div className="flex items-start gap-3">
                 <span className="text-green-400 font-bold text-lg">✓</span>
                 <div>
@@ -491,8 +494,8 @@ export default function K4FeCN6_UBVis() {
 
         {/* ── MLCT MEXANIZMI ── */}
         {activeTab === "mlct" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">⚡ MLCT — Metalldan Ligandga Zaryad Ko'chishi</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> MLCT — Metalldan Ligandga Zaryad Ko'chishi</h2>
             <p className="text-purple-200 leading-relaxed">
               <strong className="text-yellow-400">MLCT (Metal to Ligand Charge Transfer)</strong> — 
               elektron metallning to'lgan d-orbitallaridan ligandning bo'sh π* orbitallariga o'tadi.
@@ -510,13 +513,13 @@ export default function K4FeCN6_UBVis() {
 
         {/* ── ENERGETIK DIAGRAMMA ── */}
         {activeTab === "energetika" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">💎 Energetik diagramma — d⁶ quyi spin</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Energetik diagramma — d⁶ quyi spin</h2>
             <p className="text-purple-200 leading-relaxed">
               Fe²⁺ erkin ioni (d⁶) — <strong className="text-yellow-400">¹A₁g asosiy holat</strong>.
               Oktaedrik maydonda (O<sub>h</sub>) barcha t₂g orbitallar to'lgan, eg orbitallar bo'sh.
             </p>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold mb-3">Soddalashtirilgan energetik sathlar:</h3>
               <div className="space-y-2 text-sm font-mono">
                 <div className="flex items-center gap-3">
@@ -548,8 +551,8 @@ export default function K4FeCN6_UBVis() {
 
         {/* ── TAQQOSLASH ── */}
         {activeTab === "taqqos" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">⚖️ Sariq vs Qizil qon tuzi — UB-Vis taqqoslash</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Sariq vs Qizil qon tuzi — UB-Vis taqqoslash</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="border-b border-purple-700">
@@ -579,7 +582,7 @@ export default function K4FeCN6_UBVis() {
 
         {/* ── XULOSA ── */}
         <div className="bg-gradient-to-r from-yellow-600/10 to-purple-600/10 border border-yellow-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside">
             <li><strong className="text-yellow-400">MLCT dominant:</strong> Fe²⁺(t₂g⁶) → CN⁻(π*), λ≈320 nm, ε≈500</li>
             <li><strong className="text-yellow-400">d⁶ quyi spin (¹A₁g):</strong> t₂g⁶ to'lgan — d-d o'tishlar faqat UB sohada</li>
@@ -599,6 +602,6 @@ export default function K4FeCN6_UBVis() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useEffect, useRef } from "react"
 
 // ── UB-Vis SPEKTR GRAFIGI ────────────────────────────────────────────────────
@@ -198,10 +200,10 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#4ade80" }) {
       <canvas ref={canvasRef} width={W} height={H}
         onMouseMove={handleMouseMove} onClick={() => { if (hoveredPeak) setSelectedPeak(selectedPeak?.nm === hoveredPeak.nm ? null : hoveredPeak) }}
         onMouseLeave={() => setHoveredPeak(null)}
-        className="w-full h-auto rounded-xl border border-purple-700/50 cursor-crosshair" />
+        className="w-full h-auto rounded-xl border border-[var(--v3-chiziq)] cursor-crosshair" />
       
       {animProgress < 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-purple-700/50">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-[var(--v3-chiziq)]">
           <div className="flex items-center gap-2">
             <span className="text-xs text-purple-400">Chizilmoqda...</span>
             <div className="w-24 h-1.5 bg-purple-800/50 rounded-full overflow-hidden">
@@ -233,6 +235,7 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#4ade80" }) {
 }
 // ── ASOSIY SAHIFA ────────────────────────────────────────────────────────────
 export default function NiCN4_UBVis() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [activeTab, setActiveTab] = useState("spektr")
 
   const peaks = [
@@ -243,19 +246,19 @@ export default function NiCN4_UBVis() {
 
   const tabs = [
     { id: "spektr",    label: "📈 UB-Vis Spektri" },
-    { id: "jadval",    label: "📊 Polosalar jadvali" },
+    { id: "jadval",    label: " Polosalar jadvali" },
     { id: "rang",      label: "🎨 Rang sababi" },
     { id: "geometriya",label: "⬛ Kv-planar vs Oktaedrik" },
-    { id: "barqaror",  label: "⚡ Termodinamik vs Kinetik" },
+    { id: "barqaror",  label: " Termodinamik vs Kinetik" },
   ]
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
+      <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
         <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-purple-400 hover:text-purple-300 text-lg">← UB-Vis birikmalar</Link>
         <div>
-          <h1 className="text-2xl font-bold text-green-400">🌈 [Ni(CN)₄]²⁻ — UB-Vis spektri tahlili</h1>
+          <h1 className="text-2xl font-bold text-green-400"> [Ni(CN)₄]²⁻ — UB-Vis spektri tahlili</h1>
           <p className="text-purple-400 text-sm">tetrasiyanonikkolat(II) ioni • Kvadrat-planar d⁸ • d-d + MLCT</p>
         </div>
       </header>
@@ -263,7 +266,7 @@ export default function NiCN4_UBVis() {
       <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
         {/* ── HERO ── */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 relative overflow-hidden">
+        <div className="v3-panel-karta p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
           
           <div className="flex flex-wrap gap-2 mb-4">
@@ -295,35 +298,35 @@ export default function NiCN4_UBVis() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">λ<sub>max</sub> (d-d)</div>
               <div className="text-white font-bold">420 nm</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">ε (d-d)</div>
               <div className="text-white font-bold">~10</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">ε (MLCT)</div>
               <div className="text-white font-bold">~1000</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Rang</div>
               <div className="text-yellow-400 font-bold">Sariq</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Geometriya</div>
               <div className="text-white font-bold">Tekis kvadrat</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Simmetriya</div>
               <div className="text-white font-bold">D<sub>4h</sub></div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">log β₄</div>
               <div className="text-white font-bold">≈30</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">μ<sub>eff</sub></div>
               <div className="text-white font-bold">0 (diamagnit)</div>
             </div>
@@ -339,7 +342,7 @@ export default function NiCN4_UBVis() {
               className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
                   ? "bg-green-600/40 text-white border border-green-400/50"
-                  : "bg-purple-800/30 text-purple-400 border border-purple-700/50 hover:bg-purple-700/40"
+                  : "bg-purple-800/30 text-purple-400 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
               }`}
             >
               {tab.label}
@@ -349,7 +352,7 @@ export default function NiCN4_UBVis() {
 
         {/* ── SPEKTR ── */}
         {activeTab === "spektr" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">📈 UB-Vis Spektri — [Ni(CN)₄]²⁻</h2>
             <UBVisSpektrGrafik peaks={peaks} lineColor="#4ade80" />
             <div className="flex flex-wrap gap-3">
@@ -373,8 +376,8 @@ export default function NiCN4_UBVis() {
 
         {/* ── JADVAL ── */}
         {activeTab === "jadval" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">📊 Polosalar jadvali</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Polosalar jadvali</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="border-b border-purple-700">
@@ -401,7 +404,7 @@ export default function NiCN4_UBVis() {
 
         {/* ── RANG ── */}
         {activeTab === "rang" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">🎨 Nega sariq rang?</h2>
             <p className="text-purple-200 leading-relaxed">
               [Ni(CN)₄]²⁻ <strong className="text-yellow-400">binafsha nurni yutadi</strong> (~420 nm).
@@ -409,7 +412,7 @@ export default function NiCN4_UBVis() {
               d-d o'tish Laporte-taqiqlangan — ε juda kichik (~10), shuning uchun rang och.
               MLCT o'tish UB sohada (320 nm) — ko'rinadigan rangga ta'sir qilmaydi.
             </p>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold mb-2">[Ni(H₂O)₆]²⁺ bilan taqqoslash</h3>
               <p className="text-purple-200 text-sm">
                 Oktaedrik [Ni(H₂O)₆]²⁺ — <strong>yashil</strong> rang (λ≈400, 700, 1100 nm).
@@ -422,7 +425,7 @@ export default function NiCN4_UBVis() {
 
         {/* ── GEOMETRIYA ── */}
         {activeTab === "geometriya" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">⬛ Kvadrat-planar vs Oktaedrik — UB-Vis farqi</h2>
             <p className="text-purple-200 leading-relaxed">
               Ni²⁺ (d⁸) ikki xil geometriyada mavjud bo'la oladi. UB-Vis spektri ularni ishonchli farqlash imkonini beradi.
@@ -454,17 +457,17 @@ export default function NiCN4_UBVis() {
 
         {/* ── BARQARORLIK ── */}
         {activeTab === "barqaror" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">⚡ Termodinamik barqaror, kinetik labil</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Termodinamik barqaror, kinetik labil</h2>
             <p className="text-purple-200 leading-relaxed">
               [Ni(CN)₄]²⁻ — <strong className="text-yellow-400">termodinamik va kinetik barqarorlik farqining klassik namunasi</strong>.
             </p>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <h3 className="text-green-400 font-bold mb-2">Termodinamik barqaror</h3>
                 <p className="text-purple-200 text-sm">log β₄ ≈ 30<br/>ΔG° ≈ −171 kJ/mol<br/>Parchalanishi qiyin</p>
               </div>
-              <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <h3 className="text-yellow-400 font-bold mb-2">Kinetik labil</h3>
                 <p className="text-purple-200 text-sm">CN⁻ almashinuvi: tez<br/>d⁸ — past KMBE<br/>I<sub>d</sub> mexanizm</p>
               </div>
@@ -480,7 +483,7 @@ export default function NiCN4_UBVis() {
 
         {/* ── XULOSA ── */}
         <div className="bg-gradient-to-r from-green-600/10 to-purple-600/10 border border-green-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside">
             <li><strong className="text-yellow-400">Kuchsiz d-d (420 nm, ε≈10)</strong> — Laporte-taqiq (D₄h)</li>
             <li><strong className="text-yellow-400">Kuchli MLCT (320 nm, ε≈1000)</strong> — UB sohada</li>
@@ -500,6 +503,6 @@ export default function NiCN4_UBVis() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

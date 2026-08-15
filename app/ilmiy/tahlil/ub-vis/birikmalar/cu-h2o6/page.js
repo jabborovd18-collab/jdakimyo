@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useEffect, useRef } from "react"
 
 // ── UB-Vis SPEKTR GRAFIGI ────────────────────────────────────────────────────
@@ -198,10 +200,10 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#60a5fa" }) {
       <canvas ref={canvasRef} width={W} height={H}
         onMouseMove={handleMouseMove} onClick={() => { if (hoveredPeak) setSelectedPeak(selectedPeak?.nm === hoveredPeak.nm ? null : hoveredPeak) }}
         onMouseLeave={() => setHoveredPeak(null)}
-        className="w-full h-auto rounded-xl border border-purple-700/50 cursor-crosshair" />
+        className="w-full h-auto rounded-xl border border-[var(--v3-chiziq)] cursor-crosshair" />
       
       {animProgress < 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-purple-700/50">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-950/80 backdrop-blur px-4 py-2 rounded-full border border-[var(--v3-chiziq)]">
           <div className="flex items-center gap-2">
             <span className="text-xs text-purple-400">Chizilmoqda...</span>
             <div className="w-24 h-1.5 bg-purple-800/50 rounded-full overflow-hidden">
@@ -233,6 +235,7 @@ function UBVisSpektrGrafik({ peaks, lineColor = "#60a5fa" }) {
 }
 // ── ASOSIY SAHIFA ────────────────────────────────────────────────────────────
 export default function CuH2O6_UBVis() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [activeTab, setActiveTab] = useState("spektr")
 
   const peaks = [
@@ -243,20 +246,20 @@ export default function CuH2O6_UBVis() {
 
   const tabs = [
     { id: "spektr",    label: "📈 UB-Vis Spektri" },
-    { id: "jadval",    label: "📊 Polosalar jadvali" },
-    { id: "yanteller", label: "⚡ Yan-Teller va UB-Vis" },
+    { id: "jadval",    label: " Polosalar jadvali" },
+    { id: "yanteller", label: " Yan-Teller va UB-Vis" },
     { id: "deltao",    label: "🔢 Δo hisoblash" },
-    { id: "harorat",   label: "🌡️ Past haroratda" },
-    { id: "taqqos",    label: "⚖️ Boshqa Cu²⁺ komplekslari" },
+    { id: "harorat",   label: " Past haroratda" },
+    { id: "taqqos",    label: " Boshqa Cu²⁺ komplekslari" },
   ]
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
+      <header className="flex items-center gap-4 px-6 py-4 border-b border-[var(--v3-chiziq)]">
         <Link href="/ilmiy/tahlil/ub-vis/birikmalar" className="text-purple-400 hover:text-purple-300 text-lg">← UB-Vis birikmalar</Link>
         <div>
-          <h1 className="text-2xl font-bold text-blue-400">🌈 [Cu(H₂O)₆]²⁺ — UB-Vis spektri tahlili</h1>
+          <h1 className="text-2xl font-bold text-blue-400"> [Cu(H₂O)₆]²⁺ — UB-Vis spektri tahlili</h1>
           <p className="text-purple-400 text-sm">geksaakvamis(II) ioni • Yan-Teller effekti • d⁹ • Δo=12,500 cm⁻¹</p>
         </div>
       </header>
@@ -264,7 +267,7 @@ export default function CuH2O6_UBVis() {
       <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
         {/* ── HERO ── */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 relative overflow-hidden">
+        <div className="v3-panel-karta p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
           
           <div className="flex flex-wrap gap-2 mb-4">
@@ -297,35 +300,35 @@ export default function CuH2O6_UBVis() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">λ<sub>max</sub></div>
               <div className="text-white font-bold">~800 nm</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">ε</div>
               <div className="text-white font-bold">~12</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Δo</div>
               <div className="text-white font-bold">12,500 cm⁻¹</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Rang</div>
               <div className="text-blue-400 font-bold">Havorang</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Konfiguratsiya</div>
               <div className="text-white font-bold">t₂g⁶ eg³</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">μ<sub>eff</sub></div>
               <div className="text-white font-bold">1.7−2.2 μ<sub>B</sub></div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Geometriya</div>
               <div className="text-white font-bold">Cho'zilgan oktaedr</div>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-4 text-center border border-purple-700/30">
+            <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center border border-[var(--v3-chiziq)]">
               <div className="text-purple-400 text-xs mb-1">Simmetriya</div>
               <div className="text-white font-bold">D<sub>4h</sub></div>
             </div>
@@ -333,7 +336,7 @@ export default function CuH2O6_UBVis() {
         </div>
 
         {/* ── TAJRIBA SHAROITI ── */}
-        <div className="bg-purple-800/20 border border-purple-700/30 rounded-xl p-4">
+        <div className="bg-purple-800/20 border border-[var(--v3-chiziq)] rounded-xl p-4">
           <div className="flex flex-wrap gap-4 text-xs text-purple-400">
             <span><strong className="text-purple-300">Erituvchi:</strong> H₂O</span>
             <span><strong className="text-purple-300">Konsentratsiya:</strong> ~10⁻² M (ε kichikligi uchun)</span>
@@ -351,7 +354,7 @@ export default function CuH2O6_UBVis() {
               className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
                   ? "bg-blue-600/40 text-white border border-blue-400/50"
-                  : "bg-purple-800/30 text-purple-400 border border-purple-700/50 hover:bg-purple-700/40"
+                  : "bg-purple-800/30 text-purple-400 border border-[var(--v3-chiziq)] hover:bg-purple-700/40"
               }`}
             >
               {tab.label}
@@ -361,7 +364,7 @@ export default function CuH2O6_UBVis() {
 
         {/* ── SPEKTR ── */}
         {activeTab === "spektr" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">📈 UB-Vis Spektri — [Cu(H₂O)₆]²⁺</h2>
             <UBVisSpektrGrafik peaks={peaks} lineColor="#60a5fa" />
             <div className="flex flex-wrap gap-3">
@@ -386,8 +389,8 @@ export default function CuH2O6_UBVis() {
 
         {/* ── JADVAL ── */}
         {activeTab === "jadval" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">📊 Polosalar jadvali</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Polosalar jadvali</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="border-b border-purple-700">
@@ -415,14 +418,14 @@ export default function CuH2O6_UBVis() {
 
         {/* ── YAN-TELLER VA UB-Vis ── */}
         {activeTab === "yanteller" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">⚡ Yan-Teller effekti — UB-Vis da qanday ko'rinadi?</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Yan-Teller effekti — UB-Vis da qanday ko'rinadi?</h2>
             <p className="text-purple-200 leading-relaxed">
               Cu²⁺ (d⁹) — eg³ konfiguratsiya. Yan-Teller teoremasi: degenerat holatli molekula simmetriyani buzadi.
               Oktaedr cho'ziladi — O<sub>h</sub> → D<sub>4h</sub>. UB-Vis da bu <strong className="text-yellow-400">qo'shimcha polosalar</strong> sifatida namoyon bo'ladi.
             </p>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <h3 className="text-yellow-400 font-bold mb-2">Oddiy oktaedr (O<sub>h</sub>)</h3>
                 <p className="text-purple-200 text-sm">
                   <strong>d-d o'tish:</strong> ²E_g → ²T₂g<br/>
@@ -450,7 +453,7 @@ export default function CuH2O6_UBVis() {
 
         {/* ── Δo HISOBLASH ── */}
         {activeTab === "deltao" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
+          <div className="v3-panel-karta p-8 space-y-6">
             <h2 className="text-xl font-bold text-white">🔢 Δo hisoblash — to'g'ridan-to'g'ri spektrdan</h2>
             <p className="text-purple-200 leading-relaxed">
               d⁹ konfiguratsiyada <strong className="text-yellow-400">Δo = ν₁</strong> — to'g'ridan-to'g'ri spektrdan!
@@ -462,7 +465,7 @@ export default function CuH2O6_UBVis() {
                 H₂O — o'rtacha kuchsiz ligand. Spektrokimyoviy qatorda: I⁻ &lt; Br⁻ &lt; Cl⁻ &lt; F⁻ &lt; <strong>H₂O</strong> &lt; NH₃ &lt; CN⁻
               </p>
             </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <p className="text-purple-200 text-sm">
                 <strong>Hisoblash:</strong> Δo = h·c/λ = (6.626×10⁻³⁴)(2.998×10⁸)/(800×10⁻⁹) = 2.48×10⁻¹⁹ J = 12,500 cm⁻¹ = 149 kJ/mol
               </p>
@@ -472,14 +475,14 @@ export default function CuH2O6_UBVis() {
 
         {/* ── PAST HARORAT ── */}
         {activeTab === "harorat" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">🌡️ Past haroratda (77 K) — polosalar ajraladi</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Past haroratda (77 K) — polosalar ajraladi</h2>
             <p className="text-purple-200 leading-relaxed">
               Xona haroratida dinamik Yan-Teller — polosalar keng va birlashgan.
               <strong className="text-yellow-400"> 77 K da statik Yan-Teller</strong> — polosalar torayadi va aniq ajraladi.
             </p>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+              <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
                 <h3 className="text-orange-400 font-bold mb-2">298 K (xona harorati)</h3>
                 <p className="text-purple-200 text-sm">
                   <strong>Dinamik Yan-Teller</strong><br/>
@@ -503,8 +506,8 @@ export default function CuH2O6_UBVis() {
 
         {/* ── TAQQOSLASH ── */}
         {activeTab === "taqqos" && (
-          <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white">⚖️ Boshqa Cu²⁺ komplekslari bilan UB-Vis taqqoslash</h2>
+          <div className="v3-panel-karta p-8 space-y-6">
+            <h2 className="text-xl font-bold text-white"> Boshqa Cu²⁺ komplekslari bilan UB-Vis taqqoslash</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="border-b border-purple-700">
@@ -532,7 +535,7 @@ export default function CuH2O6_UBVis() {
 
         {/* ── XULOSA ── */}
         <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
+          <h2 className="text-xl font-bold text-white mb-4"> Asosiy xulosalar</h2>
           <ol className="space-y-2 text-purple-200 list-decimal list-inside">
             <li><strong className="text-yellow-400">Keng assimmetrik polosa (~800 nm)</strong> — Yan-Teller buzilishi</li>
             <li><strong className="text-yellow-400">Δo = 12,500 cm⁻¹</strong> — to'g'ridan-to'g'ri spektrdan (d⁹)</li>
@@ -552,6 +555,6 @@ export default function CuH2O6_UBVis() {
         </div>
 
       </section>
-    </main>
+    </div>
   )
 }

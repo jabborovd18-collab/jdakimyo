@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon";
 import { useState, useEffect, useMemo, useRef } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -421,7 +423,7 @@ const preparationMethods = [
   },
   {
     name: "Kislotali muhit (HClO₄)",
-    icon: "🧪",
+    icon: "",
     range: "200–800 nm",
     resolution: "0,5 nm",
     ph: "0,5–1,0",
@@ -432,7 +434,7 @@ const preparationMethods = [
   },
   {
     name: "CD spektroskopiya (JASCO)",
-    icon: "🔄",
+    icon: "",
     range: "190–700 nm",
     resolution: "0,1 nm",
     ph: "3–4",
@@ -443,7 +445,7 @@ const preparationMethods = [
   },
   {
     name: "Bir mono-kristall (XRD-UV)",
-    icon: "💎",
+    icon: "",
     range: "300–800 nm",
     resolution: "2 nm",
     ph: "—",
@@ -502,13 +504,13 @@ const applications = [
     example: "Universitet 3-kurs anorganik kimyo laboratoriya ishi",
   },
   {
-    icon: "🧬",
+    icon: "",
     title: "DNK bog‘lanish tadqiqoti",
     desc: "cis-Co(III) komplekslari DNK ga bog‘lanadi (sisplatin analogi)",
     example: "Barton (Caltech) DNK-tan tanish tadqiqotlari",
   },
   {
-    icon: "🔬",
+    icon: "",
     title: "Kiralik CD standarti",
     desc: "Δ-cis-[Co(en)₂Cl₂]⁺ CD kalibrlash uchun standart",
     example: "JASCO CD spektrometrida referens",
@@ -520,7 +522,7 @@ const applications = [
     example: "Jacobsen katalizatorlari uchun asos",
   },
   {
-    icon: "📊",
+    icon: "",
     title: "Bailar mexanizmi tadqiqi",
     desc: "cis ↔ trans izomerlanishining bikvadrat mexanizmi",
     example: "Bailar tvist reaksiyasini o‘rganish",
@@ -538,7 +540,7 @@ const applications = [
     example: "Pt(II) o‘rniga Co(III) prodrug tadqiqotlari",
   },
   {
-    icon: "🌈",
+    icon: "",
     title: "Rang nazariyasi darsi",
     desc: "cis (binafsha) vs trans (yashil) — bir formuladan ikki rang",
     example: "Kompleks rangining shakli-simmetriyasiga bog‘liqligi",
@@ -878,6 +880,7 @@ async function generatePDF(setProgress) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export default function CisCoEn2Cl2Page() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(false);
   const [hoveredPeak, setHoveredPeak] = useState(null);
   const [activeEnantiomer, setActiveEnantiomer] = useState("both"); // Δ, Λ, both
@@ -945,17 +948,17 @@ export default function CisCoEn2Cl2Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-fuchsia-950 to-violet-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
       {/* HEADER (sticky, on hover) */}
       <div
-        className={`fixed top-0 left-0 right-0 z-50 bg-purple-950/95 backdrop-blur-md border-b border-violet-500/30 transition-transform duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 bg-[var(--v3-fon-2)]/90 backdrop-blur-md border-b border-violet-500/30 transition-transform duration-300 ${
           showHeader ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 text-sm">
             <Link href="/" className="text-violet-300 hover:text-white">
-              🏠 Bosh sahifa
+               Bosh sahifa
             </Link>
             <span className="text-violet-500">/</span>
             <Link href="/ilmiy" className="text-violet-300 hover:text-white">
@@ -1041,7 +1044,7 @@ export default function CisCoEn2Cl2Page() {
               ⭐ Werner Nobel 1913
             </span>
             <span className="px-3 py-1 bg-pink-500/20 border border-pink-500/50 rounded-full text-xs text-pink-300">
-              🔄 Δ / Λ optik izomer
+               Δ / Λ optik izomer
             </span>
             <span className="px-3 py-1 bg-violet-500/20 border border-violet-500/50 rounded-full text-xs text-violet-300">
               🎭 cis / trans geometrik
@@ -1069,17 +1072,17 @@ export default function CisCoEn2Cl2Page() {
 
         {/* KARTALAR QATORI */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          <div className="bg-gradient-to-br from-violet-900/50 to-purple-900/50 rounded-2xl border border-violet-500/30 p-5">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <div className="text-xs text-violet-400 mb-1">Molyar massa</div>
             <div className="text-3xl font-black text-white">{COMPOUND.molarMass}</div>
             <div className="text-xs text-violet-300 mt-1">g/mol</div>
           </div>
-          <div className="bg-gradient-to-br from-fuchsia-900/50 to-purple-900/50 rounded-2xl border border-fuchsia-500/30 p-5">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <div className="text-xs text-fuchsia-400 mb-1">Δo (kristall maydon)</div>
             <div className="text-3xl font-black text-white">{COMPOUND.deltaO.toLocaleString()}</div>
             <div className="text-xs text-fuchsia-300 mt-1">cm⁻¹</div>
           </div>
-          <div className="bg-gradient-to-br from-pink-900/50 to-fuchsia-900/50 rounded-2xl border border-pink-500/30 p-5">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <div className="text-xs text-pink-400 mb-1">Rangi</div>
             <div className="flex items-center gap-2">
               <div
@@ -1089,7 +1092,7 @@ export default function CisCoEn2Cl2Page() {
               <div className="text-lg font-bold text-white">{COMPOUND.color}</div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-purple-900/50 to-violet-900/50 rounded-2xl border border-purple-500/30 p-5">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <div className="text-xs text-purple-400 mb-1">Optik aylanish [α]D</div>
             <div className="text-3xl font-black text-white">±{COMPOUND.opticalRotation}°</div>
             <div className="text-xs text-purple-300 mt-1">Δ / Λ enantiomerlar</div>
@@ -1098,7 +1101,7 @@ export default function CisCoEn2Cl2Page() {
 
         {/* PARAMETRLAR JADVALI */}
         <div className="bg-purple-900/30 rounded-2xl border border-violet-500/30 p-6 mb-12">
-          <h3 className="text-xl font-bold mb-4 text-violet-200">📊 Asosiy parametrlar</h3>
+          <h3 className="text-xl font-bold mb-4 text-violet-200"> Asosiy parametrlar</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
             {[
               ["IUPAC nomlanishi", COMPOUND.iupac],
@@ -1155,7 +1158,7 @@ export default function CisCoEn2Cl2Page() {
             </div>
 
             <div className="bg-purple-900/30 rounded-2xl p-6 border border-pink-500/30">
-              <h3 className="text-xl font-bold mb-3 text-pink-200">🔄 Optik izomeriya</h3>
+              <h3 className="text-xl font-bold mb-3 text-pink-200"> Optik izomeriya</h3>
               <p className="text-pink-100 mb-3 leading-relaxed">
                 Faqat <strong>cis</strong>-izomer C₂ simmetriya (yoki C₂ᵥ) ga ega bo‘lgani uchun
                 ko‘zgu bilan simmetriyaga ega emas → <strong>Δ (o‘ng)</strong> va{" "}
@@ -1259,7 +1262,7 @@ export default function CisCoEn2Cl2Page() {
 
           {/* KVANT FORMULA */}
           <div className="bg-gradient-to-r from-violet-900/50 to-fuchsia-900/50 rounded-2xl p-6 border border-violet-500/30">
-            <h3 className="text-xl font-bold mb-4 text-violet-200">📐 Yo‘lakcha bo‘linishi — Ds va Dt parametrlari</h3>
+            <h3 className="text-xl font-bold mb-4 text-violet-200"> Yo‘lakcha bo‘linishi — Ds va Dt parametrlari</h3>
             <p className="text-violet-100 mb-3 leading-relaxed">
               cis-[Co(en)₂Cl₂]⁺ da C₂ᵥ simmetriya tufayli qo‘shimcha maydon parametrlar kiritiladi:
             </p>
@@ -1928,7 +1931,7 @@ export default function CisCoEn2Cl2Page() {
               </div>
 
               <div>
-                <div className="bg-gradient-to-br from-violet-800/50 to-purple-800/50 rounded-2xl p-6 border border-violet-400/30">
+                <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                   <div className="text-xs text-violet-300 mb-1">Absorbansiya (A)</div>
                   <div className="text-5xl font-black text-white mb-2">{A.toFixed(3)}</div>
                   <div className="text-xs text-violet-400">
@@ -1936,7 +1939,7 @@ export default function CisCoEn2Cl2Page() {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-800/50 to-fuchsia-800/50 rounded-2xl p-6 border border-purple-400/30 mt-4">
+                <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                   <div className="text-xs text-purple-300 mb-1">Transmittansiya (T%)</div>
                   <div className="text-5xl font-black text-white mb-2">{T.toFixed(2)}%</div>
                   <div className="text-xs text-purple-400">
@@ -2051,11 +2054,11 @@ export default function CisCoEn2Cl2Page() {
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="bg-green-900/30 rounded-lg p-4 border border-green-500/30">
-                      <div className="text-sm font-bold text-green-300 mb-1">✅ Ustunliklari</div>
+                      <div className="text-sm font-bold text-green-300 mb-1"> Ustunliklari</div>
                       <div className="text-sm text-green-100">{m.advantage}</div>
                     </div>
                     <div className="bg-red-900/30 rounded-lg p-4 border border-red-500/30">
-                      <div className="text-sm font-bold text-red-300 mb-1">⚠️ Kamchiliklari</div>
+                      <div className="text-sm font-bold text-red-300 mb-1">️ Kamchiliklari</div>
                       <div className="text-sm text-red-100">{m.disadvantage}</div>
                     </div>
                   </div>
@@ -2201,7 +2204,7 @@ export default function CisCoEn2Cl2Page() {
             12. Asosiy xulosalar
           </h2>
 
-          <div className="bg-gradient-to-br from-purple-900/50 to-fuchsia-900/30 rounded-2xl p-6 border border-violet-500/30">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <ol className="space-y-3 text-violet-100">
               {[
                 "cis-[Co(en)₂Cl₂]Cl (Violeo) — Werner koordinatsion nazariyasining eng muhim tajribaviy tasdig‘i (1911–1913).",

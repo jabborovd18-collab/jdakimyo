@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo, useRef } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -75,7 +77,7 @@ const uvVisPeaks = [
     selection: "Spin ruxsat (ΔS=0), Laport TAQIQ (g→g) — vibronik ruxsat",
     vibronicNote: "t₁ᵤ tebranish moda bilan qo'shilib qisman ruxsat etilgan",
     energyKJ: 252,
-    diagnostic: "🎯 Birinchi asosiy polosa — d⁶ LS ni tasdiqlaydi",
+    diagnostic: " Birinchi asosiy polosa — d⁶ LS ni tasdiqlaydi",
     theoryNote: "Bu polosa ¹A₁g (yer holati, t₂g⁶ eg⁰) dan ¹T₁g (t₂g⁵ eg¹) ga bir elektronli o'tishni ifodalaydi. d⁶ LS uchun energiyasi 10Dq − C (Racah C parametri hisobiga tuzatilgan). E(¹T₁g) = Δo − 4B − 3C ≈ 21 000 cm⁻¹. Bu polosa Laport taqiqlangan (g→g), lekin oktaedrik Co(III) komplekslarida t₁ᵤ vibronik bog'lanish orqali qisman ruxsat etilgan → ε ≈ 60 M⁻¹·sm⁻¹ (d³ dagi ε=13 dan yuqoriroq). Bu ν₁ polosaning aniq o'lchanishi Δo ni bilvosita hisoblash imkonini beradi.",
     lambdaMax_range: "470–480 nm",
     freqRange: "20 800–21 300 cm⁻¹"
@@ -90,7 +92,7 @@ const uvVisPeaks = [
     selection: "Spin ruxsat (ΔS=0), Laport TAQIQ (g→g) — vibronik ruxsat",
     vibronicNote: "t₁ᵤ tebranish moda bilan qo'shilishi",
     energyKJ: 352,
-    diagnostic: "🔬 Racah B parametrini hisoblash uchun ν₂ polosa",
+    diagnostic: " Racah B parametrini hisoblash uchun ν₂ polosa",
     theoryNote: "Ikkinchi d–d polosa — ¹A₁g dan ¹T₂g ga o'tish. Bu ham bir elektronli o'tish, lekin ¹T₁g dan yuqori energiyada joylashgan. E(¹T₂g) = Δo + 12B − 2C ≈ 29 000 cm⁻¹. ν₂ − ν₁ farqi bevosita 16B − C ga proportsional → Racah B ni hisoblash imkonini beradi: (29 412 − 21 053) = 8359 cm⁻¹, bu 16B − C ga teng. C ≈ 4B (odatiy nisbat) → 12B ≈ 8359 → B ≈ 615 cm⁻¹. Erkin Co³⁺ ionida B₀ = 1100 cm⁻¹, demak β = 615/1100 = 0.56 — juda katta kovalentlik.",
     lambdaMax_range: "335–345 nm",
     freqRange: "29 000–29 900 cm⁻¹"
@@ -105,7 +107,7 @@ const uvVisPeaks = [
     selection: "Laport RUXSAT + spin ruxsat → juda kuchli",
     vibronicNote: "To'liq ruxsat etilgan — vibronikga muhtoj emas",
     energyKJ: 570,
-    diagnostic: "⚡ LMCT — barcha d–d polosalardan minglab marta kuchliroq",
+    diagnostic: " LMCT — barcha d–d polosalardan minglab marta kuchliroq",
     theoryNote: "Bu polosa ligand → metall zaryad ko'chishini (LMCT) ifodalaydi. Ligandning to'ldirilgan π-orbitallaridan (NH₃ va Cl⁻ dan) Co³⁺ ning bo'sh t₂g orbitallariga elektron ko'chadi. Bu o'tish HAM spin, HAM Laport ruxsat etilgan → ε ≈ 20 000 M⁻¹·sm⁻¹ (d–d dan ~300 marta kuchli). Co³⁺ yuqori oksidlanish darajasida bo'lgani uchun LMCT past energiyada joylashadi. Bu polosaning aniqlanishi kompleksning oksidlovchi xususiyatini ko'rsatadi: Co³⁺ + e⁻ → Co²⁺ (E° = +0.108 V).",
     lambdaMax_range: "200–225 nm",
     freqRange: "44 000–50 000 cm⁻¹"
@@ -124,7 +126,7 @@ const uvVisPeaks = [
     theoryNote: "Bu SPIN-TAQIQLANGAN o'tish — singlet yer holatidan (S=0) triplet qo'zg'algan holatga (S=1) o'tish. ΔS = 1 → kvant mexanik jihatdan taqiqlangan. ε ~ 0.02 M⁻¹·sm⁻¹ — deyarli sezilmaydi. Suvli eritmada odatda ko'rilmaydi, lekin qattiq holatda (DRS spektrida) yelka sifatida namoyon bo'ladi (~725 nm). Bu polosaning mavjudligi kompleks LS holatida ekanligini tasdiqlaydi: agar HS bo'lganda, yer holati ⁵T₂g bo'lardi va boshqa polosalar chizmasi kuzatilardi.",
     lambdaMax_range: "710–740 nm",
     freqRange: "13 500–14 100 cm⁻¹",
-    special: "🔬 LS holatining aniq isboti — HS Co(III) bo'lmaganini ko'rsatadi",
+    special: " LS holatining aniq isboti — HS Co(III) bo'lmaganini ko'rsatadi",
     hidden: true
   },
   {
@@ -397,16 +399,17 @@ const historicalTimeline = [
 // ═══════════════════════════════════════════════════════════════════════════════
 const applications = [
   { field: "Koordinatsion kimyoning etaloni", detail: "d⁶ LS, Werner klassikasi, Oh simmetriya — barcha darsliklarda standart namuna", icon: "🎓" },
-  { field: "Inertlik tadqiqoti", detail: "Taube tasnifi bo'yicha eng inert kompleks — ligand almashish t½ ~ yillar (H₂O da)", icon: "🔬" },
+  { field: "Inertlik tadqiqoti", detail: "Taube tasnifi bo'yicha eng inert kompleks — ligand almashish t½ ~ yillar (H₂O da)", icon: "" },
   { field: "Analitik kimyo", detail: "Cl⁻ ni analitik aniqlash uchun AgNO₃ bilan reaksiya (3 Cl⁻ tashqi, ionli)", icon: "⚗️" },
   { field: "Nazariy chekma", detail: "Ab initio, DFT, TDDFT hisoblashlari uchun benchmark (Δo, μ, bond length)", icon: "💻" },
   { field: "Fotokimyo", detail: "UV nurlanishda foto-akvatsiya (foto-substitutsiya) mexanizmini o'rganish", icon: "☀️" },
-  { field: "Rentgen strukturasi", detail: "Fm3̄m fazoviy guruh, [Al(H₂O)₆]³⁺ va [Ir(NH₃)₆]³⁺ bilan izomorf", icon: "💎" },
+  { field: "Rentgen strukturasi", detail: "Fm3̄m fazoviy guruh, [Al(H₂O)₆]³⁺ va [Ir(NH₃)₆]³⁺ bilan izomorf", icon: "" },
   { field: "Bosim spektroskopiyasi", detail: "Yuqori bosim ostida Δo ni o'lchash — kristall panjara elastikligi", icon: "🌐" },
-  { field: "Sintez etalonlari", detail: "Boshqa kobalt komplekslarni sintez qilishning boshlang'ich modda", icon: "🧪" },
+  { field: "Sintez etalonlari", detail: "Boshqa kobalt komplekslarni sintez qilishning boshlang'ich modda", icon: "" },
 ]
 
 export default function CoNH36Cl3UVVis() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [hoveredPeak, setHoveredPeak] = useState(null)
   const [selectedPeak, setSelectedPeak] = useState(0)
@@ -871,12 +874,12 @@ export default function CoNH36Cl3UVVis() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-yellow-950/10 to-purple-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* ═══════════════ PDF MODAL ═══════════════ */}
       {pdfModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-gradient-to-br from-purple-950 to-yellow-950 border-2 border-yellow-500 rounded-2xl p-6 max-w-2xl w-full">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <h3 className="text-2xl font-bold text-yellow-400 mb-4 flex items-center gap-3">
               <span className="text-3xl">📄</span> PDF Ilmiy Hisobot
             </h3>
@@ -907,7 +910,7 @@ export default function CoNH36Cl3UVVis() {
 
             <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg p-3 mb-4">
               <p className="text-xs text-yellow-200">
-                <strong>⚠ Font talablari:</strong> <code className="bg-yellow-950/50 px-1 rounded">public/fonts/</code> papkasida
+                <strong> Font talablari:</strong> <code className="bg-yellow-950/50 px-1 rounded">public/fonts/</code> papkasida
                 <code className="bg-yellow-950/50 px-1 rounded ml-1">DejaVuSans*.ttf</code> 3 ta fayl bo'lishi shart.
               </p>
             </div>
@@ -928,10 +931,10 @@ export default function CoNH36Cl3UVVis() {
 
       {/* ═══════════════ HEADER ═══════════════ */}
       {showHeader && (
-        <header className="border-b border-yellow-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
+        <header className="border-b border-yellow-800/50 sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh</Link>
+              <Link href="/" className="hover:text-purple-300"> Bosh</Link>
               <span className="text-purple-600">›</span>
               <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil</Link>
               <span className="text-purple-600">›</span>
@@ -1030,9 +1033,9 @@ export default function CoNH36Cl3UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-950/40 border border-purple-700/30 rounded-xl overflow-hidden">
+            <div className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-xl overflow-hidden">
               <div className="bg-yellow-900/30 px-4 py-2 border-b border-yellow-700/30">
-                <h3 className="text-yellow-400 font-bold text-sm">📊 Fizik-kimyoviy xususiyatlar</h3>
+                <h3 className="text-yellow-400 font-bold text-sm"> Fizik-kimyoviy xususiyatlar</h3>
               </div>
               <table className="w-full text-xs">
                 <tbody>
@@ -1047,7 +1050,7 @@ export default function CoNH36Cl3UVVis() {
               </table>
             </div>
 
-            <div className="bg-purple-950/40 border border-purple-700/30 rounded-xl overflow-hidden">
+            <div className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-xl overflow-hidden">
               <div className="bg-yellow-900/30 px-4 py-2 border-b border-yellow-700/30">
                 <h3 className="text-yellow-400 font-bold text-sm">⚛ Elektron struktura</h3>
               </div>
@@ -1066,7 +1069,7 @@ export default function CoNH36Cl3UVVis() {
           </div>
 
           <div className="bg-yellow-900/10 border border-yellow-500/30 rounded-xl p-4">
-            <div className="text-yellow-400 font-bold text-sm mb-2">🧪 Sintez usuli</div>
+            <div className="text-yellow-400 font-bold text-sm mb-2"> Sintez usuli</div>
             <div className="text-xs text-purple-200 font-mono bg-purple-950/40 rounded p-3">{COMPOUND.synthesis}</div>
             <div className="text-xs text-purple-300 mt-2">
               Havo O₂ Co²⁺ ni Co³⁺ ga oksidlaydi, NH₃ esa ligand bo'lib bog'lanadi. Sariq kristallar hosil bo'ladi.
@@ -1090,9 +1093,9 @@ export default function CoNH36Cl3UVVis() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-cyan-300 font-bold mb-3 flex items-center gap-2">
-                <span>⚖️</span> Δo vs P — spin holatining shakllanishi
+                <span></span> Δo vs P — spin holatining shakllanishi
               </h3>
               <div className="bg-purple-950/60 rounded-lg p-3 mb-3">
                 <div className="text-yellow-300 text-sm text-center my-2 font-mono">
@@ -1112,13 +1115,13 @@ export default function CoNH36Cl3UVVis() {
               </div>
             </div>
 
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-cyan-300 font-bold mb-3 flex items-center gap-2">
-                <span>🎯</span> Tanlash qoidalari (d⁶ LS da)
+                <span></span> Tanlash qoidalari (d⁶ LS da)
               </h3>
               <div className="space-y-2">
                 <div className="bg-green-900/20 border border-green-700/40 rounded-lg p-3">
-                  <p className="text-green-300 font-bold text-xs mb-1">✅ Spin ruxsat (ΔS=0)</p>
+                  <p className="text-green-300 font-bold text-xs mb-1"> Spin ruxsat (ΔS=0)</p>
                   <p className="text-purple-200 text-[11px]">¹A₁g → ¹T₁g, ¹T₂g: singlet-singlet (S=0 → S=0). Ruxsat → ε ~ 55–60</p>
                 </div>
                 <div className="bg-red-900/20 border border-red-700/40 rounded-lg p-3">
@@ -1154,7 +1157,7 @@ export default function CoNH36Cl3UVVis() {
             LMCT polosa (210 nm) juda kuchli (ε≈20 000) — d–d dan minglab marta ustun.
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 overflow-x-auto">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 overflow-x-auto">
             <svg viewBox="0 0 800 400" className="w-full h-auto" preserveAspectRatio="xMidYMid meet" ref={spectrumRef}>
               <defs>
                 <linearGradient id="visibleSpectrum2" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -1239,7 +1242,7 @@ export default function CoNH36Cl3UVVis() {
                 </label>
               </div>
               <span className="text-xs text-purple-400">
-                📊 {visiblePeaks.filter(p => showLMCT || !p.transitionType.includes("LMCT")).length} ta polosa
+                 {visiblePeaks.filter(p => showLMCT || !p.transitionType.includes("LMCT")).length} ta polosa
               </span>
             </div>
           </div>
@@ -1282,11 +1285,11 @@ export default function CoNH36Cl3UVVis() {
               </div>
 
               <div className="bg-blue-900/20 border border-blue-700/40 rounded-lg p-3 mb-3">
-                <div className="text-xs text-blue-400 font-bold mb-1">🎯 Tanlash qoidasi:</div>
+                <div className="text-xs text-blue-400 font-bold mb-1"> Tanlash qoidasi:</div>
                 <div className="text-sm text-purple-200">{uvVisPeaks[selectedPeak].selection}</div>
               </div>
               <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg p-3 mb-3">
-                <div className="text-xs text-yellow-400 font-bold mb-1">💡 Diagnostik:</div>
+                <div className="text-xs text-yellow-400 font-bold mb-1"> Diagnostik:</div>
                 <div className="text-sm text-purple-200">{uvVisPeaks[selectedPeak].diagnostic}</div>
               </div>
               <div className="bg-purple-900/20 border border-purple-700/40 rounded-lg p-4">
@@ -1306,7 +1309,7 @@ export default function CoNH36Cl3UVVis() {
         {/* ═══════════════ 4. CHO'QQILAR JADVALI ═══════════════ */}
         <div className="bg-purple-900/40 border border-yellow-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📋</span> Yutilish polosalari — ilmiy tayinlash jadvali
+            <span></span> Yutilish polosalari — ilmiy tayinlash jadvali
           </h2>
 
           <div className="overflow-x-auto">
@@ -1353,14 +1356,14 @@ export default function CoNH36Cl3UVVis() {
         {/* ═══════════════ 5. KRISTALL MAYDON DIAGRAMMASI ═══════════════ */}
         <div className="bg-purple-900/40 border border-yellow-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>💎</span> Kristall maydon yorilishi va d⁶ LS konfiguratsiyasi
+            <span></span> Kristall maydon yorilishi va d⁶ LS konfiguratsiyasi
           </h2>
           <p className="text-purple-200 text-sm">
             Co³⁺ ning 6 ta d-elektroni t₂g orbitallarida juftlashib joylashadi (LS). Bu <strong className="text-yellow-400">
             eg orbitallar bo'sh</strong> ekanligini bildiradi. d–d o'tishlar t₂g → eg yo'nalishida boradi.
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
             <svg viewBox="0 0 700 400" className="w-full h-auto">
               {/* Erkin ion */}
               <line x1="50" y1="200" x2="180" y2="200" stroke="#a78bfa" strokeWidth="1.5" strokeDasharray="4 4"/>
@@ -1450,14 +1453,14 @@ export default function CoNH36Cl3UVVis() {
         {/* ═══════════════ 6. INTERAKTIV Δo vs P SIMULYATOR ═══════════════ */}
         <div className="bg-purple-900/40 border border-yellow-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>⚖️</span> Interaktiv: Δo vs P — HS/LS o'tish simulyatori
+            <span></span> Interaktiv: Δo vs P — HS/LS o'tish simulyatori
           </h2>
           <p className="text-purple-200 text-sm">
             Sliderni harakatlantirib Δo qiymatini o'zgartiring va spin holatining qanday almashinuvini kuzating.
             P (juftlanish energiyasi) = <strong className="text-yellow-300">21 000 cm⁻¹</strong> Co³⁺ uchun.
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
             <div className="mb-4">
               <div className="flex justify-between text-xs text-purple-400 mb-2">
                 <span>Δo (Ligand maydon)</span>
@@ -1475,7 +1478,7 @@ export default function CoNH36Cl3UVVis() {
             </div>
 
             {/* Visual */}
-            <div className={`${spinSim.bg} border-2 border-purple-700/50 rounded-xl p-6 mt-4`}>
+            <div className={`${spinSim.bg} border-2 border-[var(--v3-chiziq)] rounded-xl p-6 mt-4`}>
               <div className="flex flex-col md:flex-row items-center gap-6">
                 {/* Spin diagramma */}
                 <svg viewBox="0 0 250 200" className="w-64 h-52">
@@ -1606,8 +1609,8 @@ export default function CoNH36Cl3UVVis() {
               { step: 7, task: "Nefelauksetik β", formula: "β = B/B₀ = 615/1100 = 0.56", result: "β = 0.56 (juda kovalent!)" },
               { step: 8, task: "Δo &gt; P tekshirish", formula: "22 900 &gt; 21 000 ✓ → LS holat tasdiqlangan", result: "LS ✓" },
             ].map((s, i) => (
-              <div key={i} className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center font-bold text-white flex-shrink-0">
+              <div key={i} className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 flex gap-4 items-start">
+                <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                   {s.step}
                 </div>
                 <div className="flex-1">
@@ -1620,7 +1623,7 @@ export default function CoNH36Cl3UVVis() {
           </div>
 
           <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-2 border-yellow-500/50 rounded-2xl p-6 mt-4">
-            <h3 className="text-yellow-400 font-bold text-lg mb-3">📊 Hisob-kitob natijalari</h3>
+            <h3 className="text-yellow-400 font-bold text-lg mb-3"> Hisob-kitob natijalari</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center bg-purple-950/40 rounded-lg p-4">
                 <div className="text-xs text-purple-400 mb-1">Δo</div>
@@ -1647,7 +1650,7 @@ export default function CoNH36Cl3UVVis() {
 
           <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5">
             <p className="text-blue-200 text-sm">
-              <strong className="text-blue-300">💡 β = 0.56 nima demakdir?</strong> Bu Cr³⁺ (β=0.79) yoki Fe³⁺ (β=0.7) dan
+              <strong className="text-blue-300"> β = 0.56 nima demakdir?</strong> Bu Cr³⁺ (β=0.79) yoki Fe³⁺ (β=0.7) dan
               ANCHA past — ya'ni Co³⁺–N bog'ida <strong>44% kovalentlik</strong> mavjud. Bu Werner nazariyasidan farqli o'laroq
               (Werner ionli bog' deb qaragan) — bog' aslida juda kovalent. Van Vleck (1935) ligand maydon nazariyasi
               orqali buni tushuntirgan: metall va ligand orbitallari qisman qo'shilib molekulyar orbital hosil qiladi.
@@ -1665,7 +1668,7 @@ export default function CoNH36Cl3UVVis() {
             HS (⁵T₂g) → LS (¹A₁g). [Co(NH₃)₆]³⁺ ning holati (Δo/B ≈ 37) o'ng tomonda joylashgan (chuqur LS).
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4">
             <svg viewBox="0 0 700 400" className="w-full h-auto">
               {/* Grid */}
               <line x1="60" y1="370" x2="670" y2="370" stroke="#a78bfa" strokeWidth="1"/>
@@ -1828,7 +1831,7 @@ export default function CoNH36Cl3UVVis() {
         {/* ═══════════════ 11. INTERAKTIV BEER-LAMBERT KALKULYATORI ═══════════════ */}
         <div className="bg-purple-900/40 border border-yellow-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🧪</span> Interaktiv Beer-Lambert kalkulyatori
+            <span></span> Interaktiv Beer-Lambert kalkulyatori
           </h2>
 
           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-center">
@@ -1848,20 +1851,20 @@ export default function CoNH36Cl3UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">Konsentratsiya (mol/L)</label>
               <input type="range" min="0.000001" max="0.01" step="0.000001" value={blConcentration}
                 onChange={(e) => setBlConcentration(Number(e.target.value))}
                 className="w-full accent-yellow-500"/>
               <div className="text-cyan-300 text-2xl font-mono text-center mt-2">{blConcentration.toExponential(2)} M</div>
               <div className="text-xs text-purple-400 mt-2 text-center">
-                {blConcentration < 0.00001 ? "🔬 Ultra suyultirilgan" :
-                 blConcentration < 0.0001 ? "✅ LMCT o'lchov uchun ideal" :
-                 blConcentration < 0.001 ? "✅ d–d o'lchovi uchun standart" :
-                 "⚠ Yuqori — LMCT to'yingan!"}
+                {blConcentration < 0.00001 ? " Ultra suyultirilgan" :
+                 blConcentration < 0.0001 ? " LMCT o'lchov uchun ideal" :
+                 blConcentration < 0.001 ? " d–d o'lchovi uchun standart" :
+                 " Yuqori — LMCT to'yingan!"}
               </div>
             </div>
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">Kyuveta uzunligi (sm)</label>
               <input type="range" min="0.1" max="10" step="0.1" value={blPathLength}
                 onChange={(e) => setBlPathLength(Number(e.target.value))}
@@ -1871,18 +1874,18 @@ export default function CoNH36Cl3UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/50 rounded-xl p-6 text-center">
+            <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
               <div className="text-xs text-yellow-400 mb-2">Optik zichlik</div>
               <div className="text-yellow-300 text-4xl font-mono font-bold">A = {blResult.A}</div>
               <div className="text-xs text-purple-300 mt-3">A = {blResult.epsilon} × {blConcentration.toExponential(2)} × {blPathLength}</div>
               <div className="text-xs mt-2">
                 {parseFloat(blResult.A) < 0.1 ? <span className="text-red-400">🔻 Juda past</span> :
-                 parseFloat(blResult.A) < 0.8 ? <span className="text-green-400">✅ Optimal</span> :
-                 parseFloat(blResult.A) < 1.5 ? <span className="text-yellow-400">⚠ Yuqori</span> :
+                 parseFloat(blResult.A) < 0.8 ? <span className="text-green-400"> Optimal</span> :
+                 parseFloat(blResult.A) < 1.5 ? <span className="text-yellow-400"> Yuqori</span> :
                  <span className="text-red-400">🔺 To'yingan!</span>}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-2 border-blue-500/50 rounded-xl p-6 text-center">
+            <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
               <div className="text-xs text-blue-400 mb-2">Transmittans</div>
               <div className="text-cyan-300 text-4xl font-mono font-bold">T = {blResult.T}%</div>
               <div className="text-xs text-purple-300 mt-3">T = 10⁻ᴬ × 100%</div>
@@ -1894,7 +1897,7 @@ export default function CoNH36Cl3UVVis() {
         {/* ═══════════════ 12. SPEKTROXIMIK QATOR — Co³⁺ ═══════════════ */}
         <div className="bg-purple-900/40 border border-yellow-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📊</span> Co³⁺ komplekslari — spektroximik qatorda
+            <span></span> Co³⁺ komplekslari — spektroximik qatorda
           </h2>
           <p className="text-purple-200 text-sm">
             Co³⁺ ni turli ligandlar bilan solishtirilsa, Δo va rang qanday o'zgarishini ko'ramiz. 
@@ -1947,7 +1950,7 @@ export default function CoNH36Cl3UVVis() {
         {/* ═══════════════ 13. NAMUNA TAYYORLASH ═══════════════ */}
         <div className="bg-purple-900/40 border border-yellow-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🔬</span> Namuna tayyorlash usullari
+            <span></span> Namuna tayyorlash usullari
           </h2>
 
           <div className="flex flex-wrap gap-2 mb-4">
@@ -1955,14 +1958,14 @@ export default function CoNH36Cl3UVVis() {
               <button key={i} onClick={() => setActiveTechnique(i)}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border ${
                   activeTechnique === i ? "bg-yellow-600/60 text-white border-yellow-400/50 shadow-lg shadow-yellow-500/20" :
-                  "bg-purple-800/30 text-purple-400 border-purple-700/50 hover:bg-purple-700/40"
+                  "bg-purple-800/30 text-purple-400 border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}>
                 {t.name}
               </button>
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <h3 className="text-yellow-400 font-bold text-lg mb-2">{techniques[activeTechnique].name}</h3>
             <p className="text-purple-200 text-sm mb-4 italic">{techniques[activeTechnique].description}</p>
 
@@ -2005,7 +2008,7 @@ export default function CoNH36Cl3UVVis() {
         {/* ═══════════════ 14. HALAQIT BERUVCHI OMILLAR ═══════════════ */}
         <div className="bg-purple-900/40 border border-yellow-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>⚠️</span> UB-Vis tahliliga halaqit beruvchi omillar
+            <span>️</span> UB-Vis tahliliga halaqit beruvchi omillar
           </h2>
 
           <div className="overflow-x-auto">
@@ -2040,7 +2043,7 @@ export default function CoNH36Cl3UVVis() {
 
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-5">
             <div className="text-green-400 font-bold text-sm mb-2 flex items-center gap-2">
-              <span>💡</span> Tanlangan omilning yechimi: {interferences[activeInterference].source}
+              <span></span> Tanlangan omilning yechimi: {interferences[activeInterference].source}
             </div>
             <p className="text-xs text-purple-200 leading-relaxed">{interferences[activeInterference].solution}</p>
           </div>
@@ -2057,7 +2060,7 @@ export default function CoNH36Cl3UVVis() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <h3 className="text-yellow-400 font-bold mb-3">🎡 Rang aylanasi</h3>
               <svg viewBox="0 0 300 300" className="w-full h-auto">
                 {[
@@ -2107,8 +2110,8 @@ export default function CoNH36Cl3UVVis() {
             </div>
 
             <div className="space-y-3">
-              <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
-                <h4 className="text-yellow-400 font-bold text-sm mb-2">📐 Rangning mantiq</h4>
+              <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
+                <h4 className="text-yellow-400 font-bold text-sm mb-2"> Rangning mantiq</h4>
                 <ol className="text-xs text-purple-200 space-y-1.5 list-decimal list-inside">
                   <li>Kompleks 475 nm da <strong className="text-yellow-300">binafsha-ko'k</strong> yutadi (ν₁ = ¹A₁g → ¹T₁g)</li>
                   <li>Ko'z yutilmagan qismini «ko'radi»</li>
@@ -2117,8 +2120,8 @@ export default function CoNH36Cl3UVVis() {
                 </ol>
               </div>
 
-              <div className="bg-purple-800/30 rounded-xl p-4 border border-purple-700/30">
-                <h4 className="text-yellow-400 font-bold text-sm mb-2">🔬 Fizik asosi</h4>
+              <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
+                <h4 className="text-yellow-400 font-bold text-sm mb-2"> Fizik asosi</h4>
                 <p className="text-xs text-purple-200 leading-relaxed">
                   Ikkita polosa (475 va 340 nm) mavjud → binafsha ham, UB ham qisman yutiladi.
                   Yorug'likda faqat sariq-oltin qism qoladi. Rang chuqurligi konsentratsiyaga bog'liq
@@ -2127,7 +2130,7 @@ export default function CoNH36Cl3UVVis() {
               </div>
 
               <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-xl p-4">
-                <div className="text-yellow-400 font-bold text-sm mb-2">⚡ Ligand almashinuvi effekti</div>
+                <div className="text-yellow-400 font-bold text-sm mb-2"> Ligand almashinuvi effekti</div>
                 <p className="text-xs text-purple-200">
                   NH₃ ni H₂O ga o'zgartirsak: Δo = 22 900 → 18 200 → yutilish 475 → 550 nm ga siljiadi
                   → yutilgan rang binafsha → yashil, ko'ringan rang <strong>sariqdan pushtiga</strong> o'tadi.
@@ -2146,7 +2149,7 @@ export default function CoNH36Cl3UVVis() {
 
           <div className="space-y-2">
             {historicalTimeline.map((h, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-3 flex gap-4 items-center hover:bg-purple-900/40 transition-colors">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-3 flex gap-4 items-center hover:bg-purple-900/40 transition-colors">
                 <div className={`font-mono font-bold text-sm w-16 flex-shrink-0 ${h.event.includes("🏆") ? "text-yellow-300" : "text-purple-300"}`}>{h.year}</div>
                 <div className={`text-xs flex-1 ${h.event.includes("🏆") ? "text-yellow-200 font-semibold" : "text-purple-200"}`}>{h.event}</div>
               </div>
@@ -2162,7 +2165,7 @@ export default function CoNH36Cl3UVVis() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {applications.map((app, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-4 flex gap-3 items-start">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-4 flex gap-3 items-start">
                 <div className="text-3xl flex-shrink-0">{app.icon}</div>
                 <div>
                   <div className="text-yellow-400 font-bold text-sm mb-1">{app.field}</div>
@@ -2176,7 +2179,7 @@ export default function CoNH36Cl3UVVis() {
         {/* ═══════════════ 18. XULOSA ═══════════════ */}
         <div className="bg-gradient-to-r from-yellow-600/10 to-orange-600/10 border border-yellow-500/30 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span>✅</span> Asosiy xulosalar
+            <span></span> Asosiy xulosalar
           </h2>
           <ol className="space-y-3 text-purple-200 list-decimal list-inside">
             <li className="pl-2"><strong className="text-yellow-400">λ₁ = 475 nm (ε=60)</strong> — ¹A₁g → ¹T₁g, birinchi asosiy d–d polosa (t₂g⁶ → t₂g⁵eg¹)</li>
@@ -2216,6 +2219,6 @@ export default function CoNH36Cl3UVVis() {
           </p>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }

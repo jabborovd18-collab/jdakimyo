@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -720,6 +722,7 @@ const birikmalar = [
 ]
 
 export default function UBVisBirikmalarPage() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState("all")
@@ -786,71 +789,64 @@ export default function UBVisBirikmalarPage() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-blue-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* HEADER */}
-      {showHeader && (
-        <header className="border-b border-purple-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh sahifa</Link>
-              <span className="text-purple-600">›</span>
-              <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil usullari</Link>
-              <span className="text-purple-600">›</span>
-              <Link href="/ilmiy/tahlil/ub-vis" className="hover:text-purple-300">UB-Vis spektroskopiya</Link>
-              <span className="text-purple-600">›</span>
-              <span className="text-pink-400 font-semibold">Birikmalar</span>
+      <header className="border-b border-[var(--v3-chiziq)] sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <nav className="flex items-center gap-2 text-xs mb-1.5 text-[var(--v3-xira)] flex-wrap">
+              <Link href="/ilmiy" className="hover:text-[var(--v3-matn)]">Ilmiy Bo{"'"}lim</Link>
+              <span>›</span>
+              <Link href="/ilmiy/tahlil" className="hover:text-[var(--v3-matn)]">Tahlil usullari</Link>
+              <span>›</span>
+              <Link href="/ilmiy/tahlil/ub-vis" className="hover:text-[var(--v3-matn)]">UB-Vis spektroskopiya</Link>
+              <span>›</span>
+              <span className="text-[var(--v3-urgu)] font-semibold">Birikmalar</span>
             </nav>
 
-            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-pink-400 flex items-center gap-2">
-                  <span className="text-3xl">🔍</span>
-                  UB-Vis spektroskopiya — Birikmalar katalogi
-                </h1>
-                <p className="text-purple-400 text-sm mt-1">
-                  {birikmalar.length} ta kompleks • λ<sub>max</sub>, ε, Δo qiymatlari • d–d, LMCT, MLCT tasmalar • Terminlar
-                </p>
-              </div>
-              <Link href="/ilmiy/tahlil/ub-vis" className="text-xs bg-pink-600/80 hover:bg-pink-500 text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
-                ← UB-Vis spektroskopiya
-              </Link>
-            </div>
+            <h1 className="text-xl md:text-2xl font-black text-[var(--v3-matn)] flex items-center gap-2">
+              <Ikon nom="nurlar" olcham={22} className="text-[var(--v3-urgu)]" />
+              <span>UB-Vis Spektroskopiya — Birikmalar Katalogi</span>
+            </h1>
           </div>
-        </header>
-      )}
 
-      <button
-        onClick={() => setShowHeader(!showHeader)}
-        className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-lg bg-pink-600 hover:bg-pink-500 text-white"
-      >
-        {showHeader ? "🔽 Header yashirish" : "🔼 Header ko'rsatish"}
-      </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/ilmiy/tahlil/ub-vis"
+              className="v3-tugma text-xs py-2 px-3.5 font-bold flex items-center gap-1.5"
+            >
+              <Ikon nom="chap" olcham={13} />
+              <span>Nazariya Sahifasi</span>
+            </Link>
+            <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
+          </div>
+        </div>
+      </header>
 
-      <section className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* STATISTIKA KARTALARI */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-gradient-to-br from-pink-900/40 to-purple-900/40 border border-pink-700/50 rounded-xl p-4">
-            <div className="text-xs text-pink-400 mb-1">Jami birikmalar</div>
-            <div className="text-3xl font-bold text-white">{stats.total}</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 font-mono">
+          <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
+            <div className="text-[11px] text-[var(--v3-urgu)] uppercase mb-1">Jami birikmalar</div>
+            <div className="text-2xl font-black text-[var(--v3-matn)]">{stats.total}</div>
           </div>
-          <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-xl p-4">
-            <div className="text-xs text-purple-400 mb-1">d–d o'tishli</div>
-            <div className="text-3xl font-bold text-white">{stats.ddCount}</div>
+          <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
+            <div className="text-[11px] text-purple-400 uppercase mb-1">d–d o{"'"}tishli</div>
+            <div className="text-2xl font-black text-[var(--v3-matn)]">{stats.ddCount}</div>
           </div>
-          <div className="bg-gradient-to-br from-red-900/40 to-orange-900/40 border border-red-700/50 rounded-xl p-4">
-            <div className="text-xs text-red-400 mb-1">CT (LMCT/MLCT)</div>
-            <div className="text-3xl font-bold text-white">{stats.ctCount}</div>
+          <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
+            <div className="text-[11px] text-red-400 uppercase mb-1">CT (LMCT / MLCT)</div>
+            <div className="text-2xl font-black text-[var(--v3-matn)]">{stats.ctCount}</div>
           </div>
-          <div className="bg-gradient-to-br from-gray-800/40 to-gray-700/40 border border-gray-600/50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">Rangsiz</div>
-            <div className="text-3xl font-bold text-white">{stats.colorlessCount}</div>
+          <div className="p-4 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
+            <div className="text-[11px] text-[var(--v3-xira)] uppercase mb-1">Rangsiz (d⁰, d¹⁰)</div>
+            <div className="text-2xl font-black text-[var(--v3-matn)]">{stats.colorlessCount}</div>
           </div>
         </div>
 
         {/* QIDIRUV VA FILTER */}
-        <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 space-y-4">
+        <div className="v3-panel-karta p-5 space-y-4">
           {/* Qidiruv */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -858,8 +854,8 @@ export default function UBVisBirikmalarPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="🔍 Birikma nomi, formula, metall yoki rang bo'yicha..."
-                className="w-full px-5 py-3 bg-purple-950/60 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:outline-none focus:border-pink-500 transition-colors"
+                placeholder=" Birikma nomi, formula, metall yoki rang bo'yicha..."
+                className="w-full px-5 py-3 bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl text-white placeholder-purple-500 focus:outline-none focus:border-pink-500 transition-colors"
               />
               {searchQuery && (
                 <button
@@ -886,7 +882,7 @@ export default function UBVisBirikmalarPage() {
                   viewMode === "table" ? "bg-pink-600 text-white" : "bg-purple-900/50 text-purple-300 hover:bg-purple-800/50"
                 }`}
               >
-                📊 Jadval
+                 Jadval
               </button>
               <button
                 onClick={() => setViewMode("compact")}
@@ -894,7 +890,7 @@ export default function UBVisBirikmalarPage() {
                   viewMode === "compact" ? "bg-pink-600 text-white" : "bg-purple-900/50 text-purple-300 hover:bg-purple-800/50"
                 }`}
               >
-                📋 Ixcham
+                 Ixcham
               </button>
             </div>
           </div>
@@ -918,7 +914,7 @@ export default function UBVisBirikmalarPage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   filterType === f.key
                     ? "bg-pink-600 text-white"
-                    : "bg-purple-900/50 text-purple-300 border border-purple-700/30 hover:border-pink-500"
+                    : "bg-purple-900/50 text-purple-300 border border-[var(--v3-chiziq)] hover:border-pink-500"
                 }`}
               >
                 {f.label}
@@ -934,7 +930,7 @@ export default function UBVisBirikmalarPage() {
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 filterTag === "all"
                   ? "bg-pink-600 text-white"
-                  : "bg-purple-900/50 text-purple-300 border border-purple-700/30 hover:border-pink-500"
+                  : "bg-purple-900/50 text-purple-300 border border-[var(--v3-chiziq)] hover:border-pink-500"
               }`}
             >
               Barchasi
@@ -946,7 +942,7 @@ export default function UBVisBirikmalarPage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   filterTag === tag
                     ? "bg-pink-600 text-white"
-                    : "bg-purple-900/50 text-purple-300 border border-purple-700/30 hover:border-pink-500"
+                    : "bg-purple-900/50 text-purple-300 border border-[var(--v3-chiziq)] hover:border-pink-500"
                 }`}
               >
                 {tag}
@@ -972,7 +968,7 @@ export default function UBVisBirikmalarPage() {
 
         {/* HECH NARSA TOPILMADI */}
         {filteredBirikmalar.length === 0 && (
-          <div className="text-center py-16 bg-purple-900/20 border border-purple-700/30 rounded-2xl">
+          <div className="text-center py-16 bg-purple-900/20 border border-[var(--v3-chiziq)] rounded-2xl">
             <div className="text-7xl mb-4">😔</div>
             <h3 className="text-xl font-bold text-white mb-2">Birikma topilmadi</h3>
             <p className="text-purple-300 text-sm">
@@ -1014,7 +1010,7 @@ export default function UBVisBirikmalarPage() {
                     <div className="text-[10px] text-blue-400 uppercase">Konfiguratsiya</div>
                     <div className="text-sm text-blue-300 font-mono font-bold">{b.dConfig}</div>
                   </div>
-                  <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-2">
+                  <div className="bg-purple-900/20 border border-[var(--v3-chiziq)] rounded-lg p-2">
                     <div className="text-[10px] text-purple-400 uppercase">Yer holati</div>
                     <div className="text-sm text-purple-300 font-mono font-bold">{b.groundTerm}</div>
                   </div>
@@ -1042,7 +1038,7 @@ export default function UBVisBirikmalarPage() {
 
                 {/* Asosiy λmax va ε */}
                 <div className="mb-4">
-                  <p className="text-xs text-purple-400 mb-2 font-semibold">🌈 Asosiy o'tishlar:</p>
+                  <p className="text-xs text-purple-400 mb-2 font-semibold"> Asosiy o'tishlar:</p>
                   <div className="space-y-1.5">
                     {b.transitions.slice(0, 3).map((t, i) => (
                       <div key={i} className="bg-purple-950/40 rounded p-2 text-xs">
@@ -1092,20 +1088,20 @@ export default function UBVisBirikmalarPage() {
 
                 {/* Maxsus xususiyat */}
                 <div className="mb-4 bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-2">
-                  <p className="text-xs text-yellow-300 italic">💡 {b.specialFeature}</p>
+                  <p className="text-xs text-yellow-300 italic"> {b.specialFeature}</p>
                 </div>
 
                 {/* Taglar */}
                 <div className="flex flex-wrap gap-1 mb-4">
                   {b.tags.map(tag => (
-                    <span key={tag} className="px-2 py-0.5 rounded bg-purple-900/50 text-purple-300 text-[10px] border border-purple-700/30">
+                    <span key={tag} className="px-2 py-0.5 rounded bg-purple-900/50 text-purple-300 text-[10px] border border-[var(--v3-chiziq)]">
                       {tag}
                     </span>
                   ))}
                 </div>
 
                 {/* Footer */}
-                <div className="pt-3 border-t border-purple-700/30">
+                <div className="pt-3 border-t border-[var(--v3-chiziq)]">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-purple-400 font-mono">M = {b.molarMass} g/mol</span>
                     <span className="text-pink-400 group-hover:text-pink-300 transition-colors font-semibold">
@@ -1120,7 +1116,7 @@ export default function UBVisBirikmalarPage() {
 
         {/* TABLE VIEW */}
         {viewMode === "table" && filteredBirikmalar.length > 0 && (
-          <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4 overflow-x-auto">
+          <div className="v3-panel-karta p-4 overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="border-b border-purple-700 bg-purple-950/50">
@@ -1218,9 +1214,9 @@ export default function UBVisBirikmalarPage() {
 
         {/* PASTKI KATTA JADVAL — TAQQOSLASH */}
         {filteredBirikmalar.length > 5 && (
-          <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-700/40 rounded-2xl p-6 mt-8">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <h3 className="text-lg font-bold text-blue-300 mb-4 flex items-center gap-2">
-              <span>📊</span> Spektral parametrlarni taqqoslash
+              <span></span> Spektral parametrlarni taqqoslash
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
@@ -1258,14 +1254,14 @@ export default function UBVisBirikmalarPage() {
           </div>
         )}
 
-      </section>
+      </main>
 
-      <footer className="border-t border-purple-800/30 py-6 mt-6">
-        <div className="max-w-7xl mx-auto px-4 text-center text-xs text-purple-500">
+      <footer className="border-t border-[var(--v3-chiziq)] py-6 mt-6">
+        <div className="max-w-7xl mx-auto px-4 text-center text-xs text-[var(--v3-xira)]">
           <p>© 2026 jdakimyo.uz — Koordinatsion birikmalar kimyosi</p>
           <p className="mt-1">Manbalar: Lever (Inorganic Electronic Spectroscopy) • Housecroft & Sharpe • Tanabe-Sugano</p>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }

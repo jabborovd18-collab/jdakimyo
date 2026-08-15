@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import Ikon from "@/components/Ikon"
 import { useState, useMemo, useRef } from "react"
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -78,7 +80,7 @@ const uvVisPeaks = [
     selection: "Spin ruxsat (ΔS=0), Laport TAQIQ — vibronik ruxsat",
     vibronicNote: "D₃ da 'e' vibronik moda orqali qisman ruxsat, xelat halqa hissa qo'shadi",
     energyKJ: 258,
-    diagnostic: "🎯 Birinchi asosiy d–d polosa — Luteo (475 nm) dan biroz batokromik siljigan",
+    diagnostic: " Birinchi asosiy d–d polosa — Luteo (475 nm) dan biroz batokromik siljigan",
     theoryNote: "¹A₁ → ¹T₁g o'tishi Luteo dagiga o'xshash, lekin D₃ simmetriya tufayli ¹T₁g nozik yoriladi (¹A₂ + ¹E). Yorilish juda kichik (~200 cm⁻¹) — chunki 3 ta en xelat ligandi o'zaro simmetrik joylashgan. Δo Luteo (22 900) dan pastroq (21 500) — bu paradoks: en NH₃ dan kuchliroq bo'lishi kerak edi, lekin xelat halqasi 5-a'zoli va bite angle 85° (ideal 90° dan past) — ligand orbitallari to'g'ri joylashmaydi va Δo biroz pasayadi. Bu 'xelat cheklovi' deb ataladi. ε qiymati Luteo (60) dan yuqori (87) — chunki D₃ simmetriyada Laport taqiqi biroz zaifroq (i markazi yo'q).",
     lambdaMax_range: "460–470 nm",
     freqRange: "21 200–21 700 cm⁻¹"
@@ -93,7 +95,7 @@ const uvVisPeaks = [
     selection: "Spin ruxsat, Laport taqiq — vibronik ruxsat",
     vibronicNote: "D₃ yorilishi juda kichik",
     energyKJ: 351,
-    diagnostic: "🔬 Racah B ni hisoblash uchun ν₂ polosa",
+    diagnostic: " Racah B ni hisoblash uchun ν₂ polosa",
     theoryNote: "Ikkinchi d–d polosa ¹A₁ → ¹T₂g o'tishi. Luteo dagi 340 nm ga juda yaqin, chunki bu polosa asosan Δo va Racah B ga bog'liq va xelat halqasi ta'siri kichik. ν₂ − ν₁ = 29 412 − 21 505 = 7907 cm⁻¹ → B = 7907/12 ≈ 659 cm⁻¹ (aniq eksp: 615). β = 615/1100 = 0.56 — Luteo ga o'xshash. Xelat effekti B ni deyarli o'zgartirmaydi, chunki en va NH₃ ikkalasi ham σ-donor. Farq faqat entropiyaviy (xelat effekti: uchta erkin NH₃ o'rniga bitta en → entropiya samarali).",
     lambdaMax_range: "335–345 nm",
     freqRange: "29 000–29 900 cm⁻¹"
@@ -108,7 +110,7 @@ const uvVisPeaks = [
     selection: "Laport RUXSAT + spin ruxsat",
     vibronicNote: "To'liq ruxsat etilgan",
     energyKJ: 570,
-    diagnostic: "⚡ LMCT — Luteo dagiga o'xshash",
+    diagnostic: " LMCT — Luteo dagiga o'xshash",
     theoryNote: "NH₃ dan LMCT — Luteo dagi 210 nm ga o'xshash. Farq: en ligandidagi C–H va C–C bog'lari qo'shimcha ligand ichi (IL) tasmalar beradi (σ→σ*). Ular UB soha (< 210 nm) da joylashadi va odatda H₂O erituvchi bilan qoplanadi (H₂O cutoff 190 nm). Vakuum-UB (VUV) yoki maxsus kvarts kyuveta kerak. ε ≈ 25 000 M⁻¹·sm⁻¹ — d–d dan ~300 marta kuchli.",
     lambdaMax_range: "200–220 nm",
     freqRange: "45 000–50 000 cm⁻¹"
@@ -400,13 +402,14 @@ const applications = [
   { field: "Werner Nobel klassikasi", detail: "Metall markazidagi kirallik dalili — karbon markazsiz optik aktivlik namunasi", icon: "🏆" },
   { field: "Xelat effekti tadqiqoti", detail: "Barcha xelat komplekslar barqarorligining etaloni. log β₃ = 48.7 → 44 marta NH₃ dan yuqori", icon: "🔗" },
   { field: "CD spektroskopiya standarti", detail: "Enantiomer analitikasi uchun benchmark, JASCO va Aviv kompaniyalari sinash uchun ishlatadi", icon: "🌀" },
-  { field: "Biomimetik model", detail: "Fermentlar aktiv markazidagi metall ionni modellashtirish (met-DNA, gemoglobin)", icon: "🧬" },
-  { field: "Kiral tanlash reagent", detail: "Bio molekulalarda (aminokislotalar, DNA) kiral atrofni tekshirish", icon: "🔬" },
+  { field: "Biomimetik model", detail: "Fermentlar aktiv markazidagi metall ionni modellashtirish (met-DNA, gemoglobin)", icon: "" },
+  { field: "Kiral tanlash reagent", detail: "Bio molekulalarda (aminokislotalar, DNA) kiral atrofni tekshirish", icon: "" },
   { field: "DFT/TDDFT benchmark", detail: "D₃ simmetriyali kompleks nazariy hisoblashlar uchun standart", icon: "💻" },
   { field: "Ta'lim namunasi", detail: "Barcha darsliklarda 'metall kirallik' bo'limining boshqi", icon: "🎓" },
 ]
 
 export default function CoEn3Cl3UVVis() {
+  const [fonKaliti, fonniOzgartir] = useFon();
   const [showHeader, setShowHeader] = useState(true)
   const [hoveredPeak, setHoveredPeak] = useState(null)
   const [selectedPeak, setSelectedPeak] = useState(0)
@@ -780,12 +783,12 @@ export default function CoEn3Cl3UVVis() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-pink-950/20 to-purple-950 text-white">
+    <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
 
       {/* PDF MODAL */}
       {pdfModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-gradient-to-br from-purple-950 to-pink-950 border-2 border-pink-500 rounded-2xl p-6 max-w-2xl w-full">
+          <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
             <h3 className="text-2xl font-bold text-pink-400 mb-4 flex items-center gap-3">
               <span className="text-3xl">📄</span> PDF Ilmiy Hisobot
             </h3>
@@ -815,7 +818,7 @@ export default function CoEn3Cl3UVVis() {
             )}
             <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg p-3 mb-4">
               <p className="text-xs text-yellow-200">
-                <strong>⚠ Font talablari:</strong> <code className="bg-yellow-950/50 px-1 rounded">public/fonts/</code> da <code className="bg-yellow-950/50 px-1 rounded">DejaVuSans*.ttf</code> 3 fayl.
+                <strong> Font talablari:</strong> <code className="bg-yellow-950/50 px-1 rounded">public/fonts/</code> da <code className="bg-yellow-950/50 px-1 rounded">DejaVuSans*.ttf</code> 3 fayl.
               </p>
             </div>
             <div className="flex gap-3">
@@ -834,10 +837,10 @@ export default function CoEn3Cl3UVVis() {
 
       {/* HEADER */}
       {showHeader && (
-        <header className="border-b border-pink-800/50 sticky top-0 z-40 bg-purple-950/95 backdrop-blur-md">
+        <header className="border-b border-pink-800/50 sticky top-0 z-40 bg-[var(--v3-fon-2)]/90 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <nav className="flex items-center gap-2 text-xs mb-2 text-purple-400 flex-wrap">
-              <Link href="/" className="hover:text-purple-300">🏠 Bosh</Link>
+              <Link href="/" className="hover:text-purple-300"> Bosh</Link>
               <span className="text-purple-600">›</span>
               <Link href="/ilmiy/tahlil" className="hover:text-purple-300">Tahlil</Link>
               <span className="text-purple-600">›</span>
@@ -947,9 +950,9 @@ export default function CoEn3Cl3UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-950/40 border border-purple-700/30 rounded-xl overflow-hidden">
+            <div className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-xl overflow-hidden">
               <div className="bg-pink-900/30 px-4 py-2 border-b border-pink-700/30">
-                <h3 className="text-pink-400 font-bold text-sm">📊 Fizik-kimyoviy xususiyatlar</h3>
+                <h3 className="text-pink-400 font-bold text-sm"> Fizik-kimyoviy xususiyatlar</h3>
               </div>
               <table className="w-full text-xs">
                 <tbody>
@@ -965,7 +968,7 @@ export default function CoEn3Cl3UVVis() {
               </table>
             </div>
 
-            <div className="bg-purple-950/40 border border-purple-700/30 rounded-xl overflow-hidden">
+            <div className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-xl overflow-hidden">
               <div className="bg-pink-900/30 px-4 py-2 border-b border-pink-700/30">
                 <h3 className="text-pink-400 font-bold text-sm">⚛ Elektron va termodinamik</h3>
               </div>
@@ -985,7 +988,7 @@ export default function CoEn3Cl3UVVis() {
           </div>
 
           <div className="bg-pink-900/10 border border-pink-500/30 rounded-xl p-4">
-            <div className="text-pink-400 font-bold text-sm mb-2">🧬 Etilendiamin (en) ligandining strukturasi</div>
+            <div className="text-pink-400 font-bold text-sm mb-2"> Etilendiamin (en) ligandining strukturasi</div>
             <div className="text-xs text-purple-200 font-mono bg-purple-950/40 rounded p-3">
               H₂N–CH₂–CH₂–NH₂  (bidentat, 2 ta N koordinatsiyalanadi)
             </div>
@@ -1010,7 +1013,7 @@ export default function CoEn3Cl3UVVis() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2">
                 <span>🔗</span> Xelat effekti
               </h3>
@@ -1032,7 +1035,7 @@ export default function CoEn3Cl3UVVis() {
               </div>
             </div>
 
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+            <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
               <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2">
                 <span>🌀</span> D₃ simmetriya va kirallik
               </h3>
@@ -1077,7 +1080,7 @@ export default function CoEn3Cl3UVVis() {
             <strong className="text-yellow-400"> ε qiymati kattaroq</strong> (60 → 87) — D₃ simmetriyada Laport taqiqi zaifroq (i markazi yo'q).
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 overflow-x-auto">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 overflow-x-auto">
             <svg viewBox="0 0 800 400" className="w-full h-auto" preserveAspectRatio="xMidYMid meet" ref={spectrumRef}>
               <defs>
                 <linearGradient id="visSpec4" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -1199,11 +1202,11 @@ export default function CoEn3Cl3UVVis() {
               </div>
 
               <div className="bg-blue-900/20 border border-blue-700/40 rounded-lg p-3 mb-3">
-                <div className="text-xs text-blue-400 font-bold mb-1">🎯 Tanlash qoidasi:</div>
+                <div className="text-xs text-blue-400 font-bold mb-1"> Tanlash qoidasi:</div>
                 <div className="text-sm text-purple-200">{uvVisPeaks[selectedPeak].selection}</div>
               </div>
               <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg p-3 mb-3">
-                <div className="text-xs text-yellow-400 font-bold mb-1">💡 Diagnostik:</div>
+                <div className="text-xs text-yellow-400 font-bold mb-1"> Diagnostik:</div>
                 <div className="text-sm text-purple-200">{uvVisPeaks[selectedPeak].diagnostic}</div>
               </div>
               <div className="bg-pink-900/20 border border-pink-700/40 rounded-lg p-4">
@@ -1233,7 +1236,7 @@ export default function CoEn3Cl3UVVis() {
                     <h3 className={`text-3xl font-bold ${iso.color}`}>{iso.label}</h3>
                     <p className="text-xs text-purple-300 mt-1">{iso.name}</p>
                   </div>
-                  <div className="text-4xl">{iso.label === "Δ (Delta)" ? "🌀" : "🔄"}</div>
+                  <div className="text-4xl">{iso.label === "Δ (Delta)" ? "🌀" : ""}</div>
                 </div>
 
                 {/* SVG oktaedr diagramma */}
@@ -1317,7 +1320,7 @@ export default function CoEn3Cl3UVVis() {
         {/* 5. CD (SIRKULYAR DIXROIZM) SPEKTRI */}
         <div className="bg-purple-900/40 border border-pink-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📊</span> Sirkulyar dixroizm (CD) spektri — Δ va Λ ni ajratish
+            <span></span> Sirkulyar dixroizm (CD) spektri — Δ va Λ ni ajratish
           </h2>
           <p className="text-purple-200 text-sm">
             <strong className="text-pink-400">CD (Circular Dichroism)</strong> — chap va o'ng aylanuvchan yorug'likning turlicha yutilishi. 
@@ -1325,7 +1328,7 @@ export default function CoEn3Cl3UVVis() {
             <strong className="text-yellow-400"> ko'zguviy aksdir</strong> (bir-birining aksi).
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4">
             <div className="flex gap-2 mb-3 flex-wrap">
               <button onClick={() => { setSelectedIsomer("D"); setShowBothIsomers(false) }}
                 className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
@@ -1337,13 +1340,13 @@ export default function CoEn3Cl3UVVis() {
                 className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                   selectedIsomer === "L" && !showBothIsomers ? "bg-blue-600 text-white" : "bg-purple-800/40 text-blue-400"
                 }`}>
-                🔄 Faqat Λ (Lambda)
+                 Faqat Λ (Lambda)
               </button>
               <button onClick={() => setShowBothIsomers(true)}
                 className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                   showBothIsomers ? "bg-purple-600 text-white" : "bg-purple-800/40 text-purple-300"
                 }`}>
-                📊 Ikkalasi (ko'zguviy)
+                 Ikkalasi (ko'zguviy)
               </button>
             </div>
 
@@ -1457,7 +1460,7 @@ export default function CoEn3Cl3UVVis() {
             Har xelat halqasi qanchalik ko'p bo'lsa, kompleks shunchalik barqaror. Sliderni harakatlantirib log β o'zgarishini kuzating:
           </p>
 
-          <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-6">
+          <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-6">
             <div className="mb-4">
               <div className="flex justify-between text-xs text-purple-400 mb-2">
                 <span>Xelat halqalar soni (n)</span>
@@ -1475,19 +1478,19 @@ export default function CoEn3Cl3UVVis() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gradient-to-br from-pink-900/40 to-purple-900/40 border-2 border-pink-500/50 rounded-xl p-5 text-center">
+              <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                 <div className="text-xs text-pink-400 mb-2">log β{chelateSim.ringsCount === 0 ? '₆' : chelateSim.ringsCount === 3 ? '₃' : ''}</div>
                 <div className="text-pink-300 text-3xl font-mono font-bold">{chelateSim.logBeta}</div>
                 <div className="text-[10px] text-purple-500 mt-2">Barqarorlik doimiy</div>
               </div>
-              <div className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/50 rounded-xl p-5 text-center">
+              <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                 <div className="text-xs text-yellow-400 mb-2">Barqarorlik omili</div>
                 <div className="text-yellow-300 text-2xl font-mono font-bold">
                   {chelateSim.ringsCount === 0 ? "1" : `10^${(chelateSim.ringsCount * 14.8).toFixed(0)}`}
                 </div>
                 <div className="text-[10px] text-purple-500 mt-2">marta NH₃ dan yuqori</div>
               </div>
-              <div className="bg-gradient-to-br from-green-900/40 to-teal-900/40 border-2 border-green-500/50 rounded-xl p-5 text-center">
+              <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                 <div className="text-xs text-green-400 mb-2">ΔG (kJ/mol)</div>
                 <div className="text-green-300 text-2xl font-mono font-bold">−{(chelateSim.ringsCount * 84).toFixed(0)}</div>
                 <div className="text-[10px] text-purple-500 mt-2">Termodinamik afzallik</div>
@@ -1558,14 +1561,14 @@ export default function CoEn3Cl3UVVis() {
               <button key={i} onClick={() => setActiveResolution(i)}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border ${
                   activeResolution === i ? "bg-pink-600/60 text-white border-pink-400/50 shadow-lg" :
-                  "bg-purple-800/30 text-purple-400 border-purple-700/50 hover:bg-purple-700/40"
+                  "bg-purple-800/30 text-purple-400 border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}>
                 {m.name.substring(0, 25)}
               </button>
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <div className="flex justify-between items-start mb-4 flex-wrap gap-2">
               <h3 className="text-pink-400 font-bold text-lg">{resolutionMethods[activeResolution].name}</h3>
               <span className="text-xs bg-yellow-900/40 border border-yellow-500/50 rounded-full px-3 py-1 text-yellow-300">
@@ -1586,12 +1589,12 @@ export default function CoEn3Cl3UVVis() {
             </div>
 
             <div className="bg-blue-900/20 border border-blue-700/40 rounded-lg p-3 mb-3">
-              <div className="text-xs text-blue-400 font-bold mb-1">🎯 Prinsip:</div>
+              <div className="text-xs text-blue-400 font-bold mb-1"> Prinsip:</div>
               <div className="text-sm text-purple-200">{resolutionMethods[activeResolution].principle}</div>
             </div>
 
             <div className="bg-green-900/20 border border-green-700/40 rounded-lg p-3">
-              <div className="text-xs text-green-400 font-bold mb-1">📊 Yield / Aniqlik:</div>
+              <div className="text-xs text-green-400 font-bold mb-1"> Yield / Aniqlik:</div>
               <div className="text-sm text-purple-200">{resolutionMethods[activeResolution].yield}</div>
             </div>
           </div>
@@ -1614,8 +1617,8 @@ export default function CoEn3Cl3UVVis() {
               { step: 7, task: "Luteo bilan taqqoslash", formula: "en Δo (21 550) < NH₃ Δo (22 900) — bite angle 85°", result: "Xelat cheklovi" },
               { step: 8, task: "β nefelauksetik", formula: "β = 615 / 1100 = 0.559", result: "Luteo bilan bir xil" },
             ].map((s, i) => (
-              <div key={i} className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-4 flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-yellow-600 flex items-center justify-center font-bold text-white flex-shrink-0">
+              <div key={i} className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-4 flex gap-4 items-start">
+                <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
                   {s.step}
                 </div>
                 <div className="flex-1">
@@ -1628,7 +1631,7 @@ export default function CoEn3Cl3UVVis() {
           </div>
 
           <div className="bg-gradient-to-r from-pink-900/30 to-yellow-900/30 border-2 border-pink-500/50 rounded-2xl p-6 mt-4">
-            <h3 className="text-pink-400 font-bold text-lg mb-3">📊 [Co(en)₃]³⁺ natijalari</h3>
+            <h3 className="text-pink-400 font-bold text-lg mb-3"> [Co(en)₃]³⁺ natijalari</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center bg-purple-950/40 rounded-lg p-4">
                 <div className="text-xs text-purple-400 mb-1">Δo</div>
@@ -1666,7 +1669,7 @@ export default function CoEn3Cl3UVVis() {
         {/* 9. SPEKTROXIMIK QATOR */}
         <div className="bg-purple-900/40 border border-pink-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📊</span> Co³⁺ spektroximik qatorda [Co(en)₃]³⁺
+            <span></span> Co³⁺ spektroximik qatorda [Co(en)₃]³⁺
           </h2>
 
           <div className="overflow-x-auto">
@@ -1710,7 +1713,7 @@ export default function CoEn3Cl3UVVis() {
         {/* 10. INTERAKTIV BEER-LAMBERT */}
         <div className="bg-purple-900/40 border border-pink-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🧪</span> Interaktiv Beer-Lambert kalkulyatori
+            <span></span> Interaktiv Beer-Lambert kalkulyatori
           </h2>
 
           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-center">
@@ -1730,14 +1733,14 @@ export default function CoEn3Cl3UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">Konsentratsiya (mol/L)</label>
               <input type="range" min="0.000001" max="0.01" step="0.000001" value={blConcentration}
                 onChange={(e) => setBlConcentration(Number(e.target.value))}
                 className="w-full accent-pink-500"/>
               <div className="text-cyan-300 text-2xl font-mono text-center mt-2">{blConcentration.toExponential(2)} M</div>
             </div>
-            <div className="bg-purple-950/60 border border-purple-700/50 rounded-xl p-5">
+            <div className="bg-purple-950/60 border border-[var(--v3-chiziq)] rounded-xl p-5">
               <label className="text-xs text-purple-400 block mb-2">Kyuveta uzunligi (sm)</label>
               <input type="range" min="0.1" max="10" step="0.1" value={blPathLength}
                 onChange={(e) => setBlPathLength(Number(e.target.value))}
@@ -1747,12 +1750,12 @@ export default function CoEn3Cl3UVVis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-pink-900/40 to-purple-900/40 border-2 border-pink-500/50 rounded-xl p-6 text-center">
+            <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
               <div className="text-xs text-pink-400 mb-2">Optik zichlik</div>
               <div className="text-pink-300 text-4xl font-mono font-bold">A = {blResult.A}</div>
               <div className="text-xs text-purple-300 mt-3">A = {blResult.epsilon} × {blConcentration.toExponential(2)} × {blPathLength}</div>
             </div>
-            <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-2 border-blue-500/50 rounded-xl p-6 text-center">
+            <div data-fon={fonKaliti} className="v3 min-h-screen flex flex-col text-[var(--v3-matn)] bg-[var(--v3-fon)] transition-colors duration-200">
               <div className="text-xs text-blue-400 mb-2">Transmittans</div>
               <div className="text-cyan-300 text-4xl font-mono font-bold">T = {blResult.T}%</div>
               <div className="text-xs text-purple-300 mt-3">T = 10⁻ᴬ × 100%</div>
@@ -1793,7 +1796,7 @@ export default function CoEn3Cl3UVVis() {
         {/* 12. NAMUNA TAYYORLASH */}
         <div className="bg-purple-900/40 border border-pink-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🔬</span> Namuna tayyorlash usullari
+            <span></span> Namuna tayyorlash usullari
           </h2>
 
           <div className="flex flex-wrap gap-2 mb-4">
@@ -1801,14 +1804,14 @@ export default function CoEn3Cl3UVVis() {
               <button key={i} onClick={() => setActiveTechnique(i)}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border ${
                   activeTechnique === i ? "bg-pink-600/60 text-white border-pink-400/50 shadow-lg" :
-                  "bg-purple-800/30 text-purple-400 border-purple-700/50 hover:bg-purple-700/40"
+                  "bg-purple-800/30 text-purple-400 border-[var(--v3-chiziq)] hover:bg-purple-700/40"
                 }`}>
                 {t.name}
               </button>
             ))}
           </div>
 
-          <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
+          <div className="p-5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] border border-[var(--v3-chiziq)]">
             <h3 className="text-pink-400 font-bold text-lg mb-2">{techniques[activeTechnique].name}</h3>
             <p className="text-purple-200 text-sm mb-4 italic">{techniques[activeTechnique].description}</p>
 
@@ -1851,7 +1854,7 @@ export default function CoEn3Cl3UVVis() {
         {/* 13. HALAQIT OMILLARI */}
         <div className="bg-purple-900/40 border border-pink-700/40 rounded-2xl p-8 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>⚠️</span> UB-Vis/CD tahliliga halaqit beruvchi omillar
+            <span>️</span> UB-Vis/CD tahliliga halaqit beruvchi omillar
           </h2>
 
           <div className="overflow-x-auto">
@@ -1886,7 +1889,7 @@ export default function CoEn3Cl3UVVis() {
 
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-5">
             <div className="text-green-400 font-bold text-sm mb-2 flex items-center gap-2">
-              <span>💡</span> Yechim: {interferences[activeInterference].source}
+              <span></span> Yechim: {interferences[activeInterference].source}
             </div>
             <p className="text-xs text-purple-200 leading-relaxed">{interferences[activeInterference].solution}</p>
           </div>
@@ -1900,7 +1903,7 @@ export default function CoEn3Cl3UVVis() {
 
           <div className="space-y-2">
             {historicalTimeline.map((h, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-3 flex gap-4 items-center hover:bg-purple-900/40 transition-colors">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-3 flex gap-4 items-center hover:bg-purple-900/40 transition-colors">
                 <div className={`font-mono font-bold text-sm w-16 flex-shrink-0 ${h.event.includes("🏆") ? "text-yellow-300" : "text-purple-300"}`}>{h.year}</div>
                 <div className={`text-xs flex-1 ${h.event.includes("🏆") ? "text-yellow-200 font-semibold" : "text-purple-200"}`}>{h.event}</div>
               </div>
@@ -1916,7 +1919,7 @@ export default function CoEn3Cl3UVVis() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {applications.map((app, i) => (
-              <div key={i} className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-4 flex gap-3 items-start">
+              <div key={i} className="bg-purple-950/40 border border-[var(--v3-chiziq)] rounded-lg p-4 flex gap-3 items-start">
                 <div className="text-3xl flex-shrink-0">{app.icon}</div>
                 <div>
                   <div className="text-pink-400 font-bold text-sm mb-1">{app.field}</div>
@@ -1930,7 +1933,7 @@ export default function CoEn3Cl3UVVis() {
         {/* 16. XULOSA */}
         <div className="bg-gradient-to-r from-pink-600/10 to-yellow-600/10 border border-pink-500/30 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span>✅</span> Asosiy xulosalar
+            <span></span> Asosiy xulosalar
           </h2>
           <ol className="space-y-3 text-purple-200 list-decimal list-inside">
             <li className="pl-2"><strong className="text-pink-400">λ₁ = 465 nm (ε=87)</strong>: ¹A₁ → ¹T₁g — Luteo dan biroz batokromik</li>
@@ -1972,6 +1975,6 @@ export default function CoEn3Cl3UVVis() {
           </p>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }
