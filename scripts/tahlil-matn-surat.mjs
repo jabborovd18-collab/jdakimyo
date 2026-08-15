@@ -20,8 +20,13 @@
 //
 // Ishlatish:
 //   node scripts/tahlil-matn-surat.mjs nmr
+//
+// Eski sahifalar allaqachon o'chirilgan bo'lsa, ularni git tarixidan
+// oladi (ko'chirish tugagach ham tekshiruvni qayta yurgizish uchun):
+//   node scripts/tahlil-matn-surat.mjs nmr --commit HEAD~1
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { transform } from 'sucrase'
@@ -62,13 +67,41 @@ require.cache[require.resolve('next/link')] = {
 
 const usul = process.argv[2]
 if (!usul) {
-  console.error('Ishlatish: node scripts/tahlil-matn-surat.mjs <usul>')
+  console.error('Ishlatish: node scripts/tahlil-matn-surat.mjs <usul> [--commit <ref>]')
   process.exit(1)
+}
+
+// Eski sahifalar o'chirilgach ham tekshiruvni qayta yurgizish
+// mumkin bo'lsin: `--commit` berilsa fayllar git tarixidan olinadi.
+const commitBelgisi = process.argv.indexOf('--commit')
+const COMMIT = commitBelgisi !== -1 ? process.argv[commitBelgisi + 1] : null
+
+function git(...arg) {
+  return execFileSync('git', arg, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+}
+
+/** Faylni ish daraxtidan yoki (COMMIT berilgan bo'lsa) git tarixidan o'qiydi. */
+function faylniOqi(yol) {
+  if (COMMIT) return git('show', `${COMMIT}:${yol}`)
+  return readFileSync(yol, 'utf8')
+}
+
+/** Eski birikma papkalarining ro'yxati. */
+function eskiSluglar(papka) {
+  if (COMMIT) {
+    // `-d` — faqat papkalar. Busiz ro'yxatga o'sha darajadagi
+    // fayllar (masalan birikmalar/page.js) ham tushardi.
+    const chiqish = git('ls-tree', '-d', '--name-only', `${COMMIT}:${papka}`)
+    return chiqish.split('\n').filter(Boolean).sort()
+  }
+  return readdirSync(papka)
+    .filter((d) => statSync(path.join(papka, d)).isDirectory())
+    .sort()
 }
 
 /* ── Eski sahifadan COMPOUND ni olish ── */
 function eskiCompound(sahifa) {
-  const src = readFileSync(sahifa, 'utf8')
+  const src = faylniOqi(sahifa)
   const i = src.indexOf('export default')
   const kod = src
     .slice(0, i)
@@ -127,20 +160,25 @@ const sahifaModuli = require(
 )
 const Sahifa = sahifaModuli.default
 
-const eskiPapka = path.join('app', 'ilmiy', 'tahlil', usul, 'birikmalar')
-const sluglar = readdirSync(eskiPapka)
-  .filter((d) => statSync(path.join(eskiPapka, d)).isDirectory())
-  .sort()
+// Git tarixida yo'l har doim "/" bilan yoziladi, shuning uchun
+// path.join emas.
+const eskiPapka = `app/ilmiy/tahlil/${usul}/birikmalar`
+const sluglar = eskiSluglar(eskiPapka)
 
 let jamiBarg = 0
 let jamiYoqolgan = 0
 const yoqolganlar = []
 
 for (const slug of sluglar) {
-  const sahifa = path.join(eskiPapka, slug, 'page.js')
-  if (!existsSync(sahifa)) continue
+  const sahifa = `${eskiPapka}/${slug}/page.js`
+  if (!COMMIT && !existsSync(sahifa)) continue
 
-  const compound = eskiCompound(sahifa)
+  let compound
+  try {
+    compound = eskiCompound(sahifa)
+  } catch {
+    continue // papka bor, lekin page.js yo'q (masalan faqat components/)
+  }
   const barglar = matnliBarglar(compound)
 
   const html = renderToStaticMarkup(
