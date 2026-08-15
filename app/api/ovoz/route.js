@@ -1,10 +1,27 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { tezlikOshdimi, OVOZ_QOIDASI } from "@/lib/tezlik-cheklov.js";
 
 // GET /api/ovoz?matn=...
 // Google Translate TTS (tl=uz) audio oqimini mobil brauzerlar va iOS Safari
 // uchun CORS cheklovlarisiz to'g'ridan-to'g'ri proksi qilib beradi.
+//
+// Kirish talab qilinadi: aks holda sayt begonalar uchun bepul TTS
+// xizmatiga aylanardi va har so'rov Vercel funksiya vaqtini yeydi.
+// Hozircha faqat `/masala` sahifasi chaqiradi, u ham kirishni talab qiladi.
 export async function GET(request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return new NextResponse("Kirish talab qilinadi", { status: 401 });
+    }
+
+    const tezlik = tezlikOshdimi(`ovoz:${session.user.id}`, OVOZ_QOIDASI);
+    if (tezlik) {
+      return new NextResponse(tezlik, { status: 429 });
+    }
+
     const { searchParams } = new URL(request.url);
     const matn = searchParams.get("matn");
 
@@ -34,7 +51,9 @@ export async function GET(request) {
     return new NextResponse(audioBytes, {
       headers: {
         "Content-Type": "audio/mpeg",
-        "Cache-Control": "public, max-age=86400, immutable",
+        // `private`: endi yo'l himoyalangan, umumiy CDN keshi javobni
+        // boshqa foydalanuvchiga qaytarmasligi kerak
+        "Cache-Control": "private, max-age=86400, immutable",
         "Accept-Ranges": "bytes",
       },
     });

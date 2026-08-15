@@ -113,6 +113,6 @@ export async function POST(request) {
     })
   } catch (error) {
     console.error('[Ustoz Eslatma Error]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Serverda xatolik yuz berdi' }, { status: 500 })
   }
 }

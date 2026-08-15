@@ -153,6 +153,6 @@ export async function GET(request) {
     })
   } catch (error) {
     console.error('[Natijalar GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Serverda xatolik yuz berdi' }, { status: 500 })
   }
 }
