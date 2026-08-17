@@ -27,7 +27,13 @@ function kuchsizQurilmaniAniqla() {
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
 // Nega useSahna hook ichida yozildi: barcha imperativ Three.js kodlari bitta joyda yig'iladi
 // va React render siklidan ajralgan holatda 60 FPS ishlashni ta'minlaydi.
-export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FON) {
+//
+// `sahnaTayyor` — sahna qurish uchun ruxsat bayrog'i. Avval bu yerda `yuklanmoqda`
+// ishlatilardi va HAR bir ma'lumot yangilanishida (tajriba, sandiq) sahna butunlay
+// yig'ishtirilib qayta qurilardi — stolga terilgan jihozlar va kamera holati yo'qolardi.
+// Endi bu bayroq faqat birinchi muvaffaqiyatli yuklashda false → true bo'ladi va
+// keyingi yangilanishlarda o'zgarmaydi, ya'ni sahna bir marta qurilib, joyida qoladi.
+export function useSahna(konteynerRef, sahnaTayyor = false, fonKaliti = SUKUT_FON) {
   const [tayyor, setTayyor] = useState(false);
   const [hammaJihozlar, setHammaJihozlar] = useState([]);
   const [kuchsizQurilma, setKuchsizQurilma] = useState(false);
@@ -110,7 +116,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
   }, []);
 
   useEffect(() => {
-    if (yuklanmoqda) return;
+    if (!sahnaTayyor) return;
     if (!konteynerRef || !konteynerRef.current) return;
 
     const arzonRejim = kuchsizQurilmaniAniqla();
@@ -362,7 +368,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       jihozlarMapRef.current.clear();
       fonQismlariRef.current = null;
     };
-  }, [konteynerRef, yuklanmoqda]);
+  }, [konteynerRef, sahnaTayyor]);
 
   // Fon almashganda: sahna saqlanadi, faqat ranglar va yorug'lik yangilanadi.
   // `tayyor` bog'liqlikda turadi — birinchi renderda bu effekt sahnadan

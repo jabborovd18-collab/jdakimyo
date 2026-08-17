@@ -7,10 +7,32 @@ import { shishaUrilishi } from "../lib/ovoz.js";
 // Idish guruhini (THREE.Group) ildizgacha qidirib topuvchi yordamchi funksiya.
 // Nega: Raycaster idishning ichki meshlaridan birini (masalan, silindr yoki yorliqni)
 // topadi; bizga esa uning ota guruhi (userData.kalit bor Group) kerak.
+//
+// `turi === "reagent"` bo'lgan obyektlar (javondagi reagent shishalari) ATLAY O'TILADI:
+// ilgari ular ham `tanlanadi && kalit` shartiga tushib, "idish" deb qabul qilinardi va
+// joriy idish "H₂O" (reagent!) bo'lib yozilardi. Endi idish faqat haqiqiy idish bo'ladi.
 function idishGuruhiniTop(obyekt) {
   let joriy = obyekt;
   while (joriy) {
-    if (joriy.userData && joriy.userData.tanlanadi && joriy.userData.kalit) {
+    if (
+      joriy.userData &&
+      joriy.userData.tanlanadi &&
+      joriy.userData.kalit &&
+      joriy.userData.turi !== "reagent"
+    ) {
+      return joriy;
+    }
+    joriy = joriy.parent;
+  }
+  return null;
+}
+
+// Javondagi reagent shishasini topuvchi yordamchi. Shisha bosilganda joriy idish emas,
+// FAOL REAGENT tanlanadi — reagentni sahnadagi shishadan tanlash imkonini beradi.
+function reagentGuruhiniTop(obyekt) {
+  let joriy = obyekt;
+  while (joriy) {
+    if (joriy.userData && joriy.userData.turi === "reagent" && joriy.userData.kalit) {
       return joriy;
     }
     joriy = joriy.parent;
@@ -22,7 +44,19 @@ function idishGuruhiniTop(obyekt) {
 // ustiga kelganda yoritish (hover emissive) hooki.
 // Nega pointerdown/move/up ishlatildi: mobile touch va sichqoncha hodisalarini bitta
 // yagona API orqali barqaror qayta ishlash imkonini beradi.
-export function useSudrash({ sahnaRef, kameraRef, rendererRef, onIdishTanlandi }) {
+//
+// `tayyor` bog'liqlikda SHART: avval hodisalar faqat ref obyektlariga bog'lanardi (ularning
+// identifikatori hech qachon o'zgarmaydi), shuning uchun sahna birinchi marta qurilganda ham,
+// qayta qurilganda ham tinglovchilar Eski/yo'q canvasga ulanib qolardi va idishni bosish
+// umuman ishlamasdi. `tayyor` o'zgarganda effekt qayta ishga tushib, joriy canvasga ulanadi.
+export function useSudrash({
+  sahnaRef,
+  kameraRef,
+  rendererRef,
+  tayyor,
+  onReagentTanlandi,
+  onIdishTanlandi,
+}) {
   const [tanlanganIdish, setTanlanganIdish] = useState(null);
   const [kursorIdish, setKursorIdish] = useState(null);
 
@@ -64,63 +98,72 @@ export function useSudrash({ sahnaRef, kameraRef, rendererRef, onIdishTanlandi }
       return { x, y };
     };
 
-    const handlePointerMove = (event) => {
-      if (!sahnaRef.current || !kameraRef.current) return;
+    // Raycast natijalaridan idish va reagent shishasini ajratib oluvchi yordamchi
+    const nishonlarniTop = (event) => {
+      if (!sahnaRef.current || !kameraRef.current) return { idish: null, reagent: null };
       const { x, y } = koordinataniHisobla(event);
       mouseRef.current.set(x, y);
 
       raycasterRef.current.setFromCamera(mouseRef.current, kameraRef.current);
       const kesishmalar = raycasterRef.current.intersectObjects(sahnaRef.current.children, true);
 
-      let topilganGroup = null;
+      let idish = null;
+      let reagent = null;
       for (const kesish of kesishmalar) {
-        const group = idishGuruhiniTop(kesish.object);
-        if (group) {
-          topilganGroup = group;
+        const idishTopilgan = idishGuruhiniTop(kesish.object);
+        if (idishTopilgan) {
+          idish = idishTopilgan;
+          break;
+        }
+        const reagentTopilgan = reagentGuruhiniTop(kesish.object);
+        if (reagentTopilgan) {
+          reagent = reagentTopilgan;
           break;
         }
       }
+      return { idish, reagent };
+    };
 
-      if (topilganGroup !== avvalgiYoritilganRef.current) {
+    const handlePointerMove = (event) => {
+      const { idish, reagent } = nishonlarniTop(event);
+
+      if (idish !== avvalgiYoritilganRef.current) {
         if (avvalgiYoritilganRef.current) {
           yoritishniOzgartir(avvalgiYoritilganRef.current, false);
         }
-        if (topilganGroup) {
-          yoritishniOzgartir(topilganGroup, true);
-          rendererElement.style.cursor = "pointer";
-        } else {
-          rendererElement.style.cursor = "default";
+        if (idish) {
+          yoritishniOzgartir(idish, true);
         }
-        avvalgiYoritilganRef.current = topilganGroup;
-        setKursorIdish(topilganGroup);
+        avvalgiYoritilganRef.current = idish;
       }
+
+      // Javon shishasini yoritishni ataylab yoqmaymiz: barcha shishalar bitta umumiy
+      // shisha materialini bo'lishadi (materiallar.js), uni o'zgartirsak butun javon
+      // birga yorishadi. Kursor "pointer" bo'lishi bosish mumkinligini yetarlicha bildiradi.
+      rendererElement.style.cursor = idish || reagent ? "pointer" : "default";
+      setKursorIdish(idish);
     };
 
     // Nega hodisalar window ga emas, renderer.domElement ga qo'yiladi: UI panellar
     // yoki sahifaning boshqa qismlari bosilganda 3D raycaster chaqirib xato tanlov qilmasligi uchun.
     const handlePointerDown = (event) => {
-      if (!sahnaRef.current || !kameraRef.current) return;
-      const { x, y } = koordinataniHisobla(event);
-      mouseRef.current.set(x, y);
+      const { idish, reagent } = nishonlarniTop(event);
 
-      raycasterRef.current.setFromCamera(mouseRef.current, kameraRef.current);
-      const kesishmalar = raycasterRef.current.intersectObjects(sahnaRef.current.children, true);
-
-      let topilganGroup = null;
-      for (const kesish of kesishmalar) {
-        const group = idishGuruhiniTop(kesish.object);
-        if (group) {
-          topilganGroup = group;
-          break;
+      // Reagent shishasi bosildi — joriy idish o'zgarmaydi, faol reagent tanlanadi.
+      if (reagent) {
+        if (typeof onReagentTanlandi === "function") {
+          onReagentTanlandi(reagent.userData.kalit);
         }
+        shishaUrilishi(2200);
+        return;
       }
 
-      setTanlanganIdish(topilganGroup);
-      if (topilganGroup) {
+      setTanlanganIdish(idish);
+      if (idish) {
         shishaUrilishi(2400);
       }
-      if (topilganGroup && typeof onIdishTanlandi === "function") {
-        onIdishTanlandi(topilganGroup);
+      if (idish && typeof onIdishTanlandi === "function") {
+        onIdishTanlandi(idish);
       }
     };
 
@@ -145,7 +188,7 @@ export function useSudrash({ sahnaRef, kameraRef, rendererRef, onIdishTanlandi }
         yoritishniOzgartir(avvalgiYoritilganRef.current, false);
       }
     };
-  }, [sahnaRef, kameraRef, rendererRef, yoritishniOzgartir, onIdishTanlandi]);
+  }, [sahnaRef, kameraRef, rendererRef, tayyor, yoritishniOzgartir, onReagentTanlandi, onIdishTanlandi]);
 
   return {
     tanlanganIdish,

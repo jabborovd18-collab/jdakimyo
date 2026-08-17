@@ -116,6 +116,12 @@ export function javon3dYasa(materiallar, arzonRejim = false) {
     bottleGroup.userData = {
       kalit: item.kalit,
       nom: item.kalit,
+      // `turi: "reagent"` — bu shisha IDISH emas, reagent ekanini bildiradi.
+      // useSudrash shu belgiga qarab idish tanlashdan ajratadi: shisha bosilsa
+      // joriy idish emas, faol REAGENT bo'ladi (reagentni javon shishasidan
+      // tanlash — shu faylning boshida va'da qilingan, lekin ilgari ulanmagan
+      // xatti-harakat).
+      turi: "reagent",
       tanlanadi: true,
       ogizBalandligi: 0.1,
     };

@@ -57,6 +57,25 @@ export function tozala(holat) {
   };
 }
 
+// BARCHA idishlarning holatlari xaritasi. Nega bitta `holat` emas, xarita kerak:
+// avval idish almashtirilganda eski idishning moddalari/hajmi yangi idishga "ergashib"
+// yurardi — foydalanuvchi probirkaga quyib, stakanni bosganda footer stakanda ham
+// o'sha ml ni ko'rsatardi, vizual esa eski idishda qolardi. Endi har bir idish o'z
+// holatini (moddalar, hajm) alohida saqlaydi va idishga qaytilsa, o'zi qaytadi.
+export function holatlarYarat() {
+  return { probirka: idishYarat("probirka", 0) };
+}
+
+// Kalit bo'yicha idish holatini oladi; hali mavjud bo'lmasa yangisini yaratadi.
+// Ref xaritasini (useRef) o'zi mutatsiya qiladi, lekin React'ga signal bermaydi —
+// qayta chizishni chaqiruvchi `setTanlanganIdish` / `onOzgarish` orqali qiladi.
+export function holatniOl(holatlar, kalit) {
+  const k = kalit || "probirka";
+  if (!holatlar) return idishYarat(k, 0);
+  if (!holatlar[k]) holatlar[k] = idishYarat(k, 0);
+  return holatlar[k];
+}
+
 // Idishdagi ma'lum bir reagentning mol miqdorini o'qish: aniq hisob kitoblar uchun
 // xavfsiz o'qish funksiyasi.
 export function molMiqdori(holat, kalit) {

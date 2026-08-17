@@ -7,7 +7,7 @@ import { effektlarniIshgaTushir, aralashishEffekti } from "../lib/effektlar.js";
 import { hisobot, yoz } from "../lib/jurnal.js";
 import { PALITRA } from "@/lib/lab-modda.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
-import { jamiHajm } from "../lib/idish-holati.js";
+import { jamiHajm, holatniOl } from "../lib/idish-holati.js";
 import { pufakchaChiqishi, chokmaTushishi } from "../lib/ovoz.js";
 
 // Reaksiya o'tkazishni, API bilan bog'lanishni va 3D effektlar ketma-ketligini
@@ -15,7 +15,7 @@ import { pufakchaChiqishi, chokmaTushishi } from "../lib/ovoz.js";
 // Nega so'rov darrov yuboriladi va Promise.all ishlatilmaydi: tarmoq so'rovi va 3D
 // animatsiya bir vaqtda parallel o'ynashi kerak; so'rov kutib turilsa, foydalanuvchi
 // ikki karra uzoq vaqt kutadi va interfeys qotib qolgandek ko'rinadi.
-export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
+export function useTajriba({ sahnaRef, holatlarRef, jurnalRef, holatniYangila }) {
   const [otkazilmoqda, setOtkazilmoqda] = useState(false);
   const [natija, setNatija] = useState(null);
   const [tanlov, setTanlov] = useState(null);
@@ -48,7 +48,12 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
     setNisbatBahosi(null);
     setHisobotMatni(null);
 
-    const moddalarObj = holatRef?.current?.moddalar || {};
+    // Tajriba o'tkazilayotgan IDISHNING o'z holati. Ilgari yagona `holatRef` bo'lgani
+    // uchun qaysi idish tanlangan bo'lsa ham bitta holat o'qilardi — endi har idishniki.
+    const dishKalit = tanlanganIdishGroup?.userData?.kalit || "probirka";
+    const holat = holatniOl(holatlarRef?.current, dishKalit);
+
+    const moddalarObj = holat?.moddalar || {};
     const kalitlar = Object.keys(moddalarObj);
 
     // Haqiqatda quyilgan miqdor. Sahnada hamma narsa ml bilan quyiladi,
@@ -95,7 +100,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
           miqdorlar,
           // Qaysi idishda ishlanayotgani. Server sig'imni tekshiradi va
           // reaksiya idishni yaroqsiz qilgan-qilmaganini hal qiladi.
-          idish: holatRef?.current?.idish ?? null,
+          idish: holat?.idish ?? null,
         }),
       });
 
@@ -119,7 +124,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
           setXato("Baza band yoki server band bo'lib qoldi. Qayta urinib ko'ring.");
         } else {
           // 400 va boshqalar: idishdagi suyuqlikni xira kulrang qilamiz
-          const hajm = jamiHajm(holatRef?.current);
+          const hajm = jamiHajm(holatniOl(holatlarRef?.current, dishKalit));
           suyuqlikSathiniYangila(tanlanganIdishGroup, hajm, {
             rang: PALITRA.kulrang,
             shaffoflik: 0.25,
@@ -203,7 +208,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
       setXato("Tarmoq bilan aloqada xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
       setOtkazilmoqda(false);
     }
-  }, [otkazilmoqda, sahnaRef, holatRef, jurnalRef, holatniYangila, animatsiyaniTozala]);
+  }, [otkazilmoqda, sahnaRef, holatlarRef, jurnalRef, holatniYangila, animatsiyaniTozala]);
 
   useEffect(() => {
     return () => {

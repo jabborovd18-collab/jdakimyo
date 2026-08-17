@@ -14,13 +14,12 @@ import SifatAnalizPaneli from "./components/SifatAnalizPaneli.jsx";
 import MolekulaZoomModal from "./components/MolekulaZoomModal.jsx";
 import PHMeterUI from "./components/PHMeterUI.jsx";
 import TaroziUI from "./components/TaroziUI.jsx";
-import SandiqOchishModal from "./components/SandiqOchishModal.jsx";
 import XavfsizlikModal from "./components/XavfsizlikModal.jsx";
 import KristallPanjaraModal from "./components/KristallPanjaraModal.jsx";
 import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi } from "./lib/ovoz.js";
-import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
+import { holatlarYarat, holatniOl, tozala, jamiHajm } from "./lib/idish-holati.js";
 import { jurnalYarat } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila } from "./lib/jihoz-modellari.js";
 import { moddaKorinishi } from "./lib/modda-korinishi.js";
@@ -60,7 +59,6 @@ export default function Korinish() {
   const [harorat, setHarorat] = useState(25);
   const [phMeterOchilgan, setPhMeterOchilgan] = useState(false);
   const [taroziOchilgan, setTaroziOchilgan] = useState(false);
-  const [sandiqOchilgan, setSandiqOchilgan] = useState(false);
   const [portlashMaLumot, setPortlashMaLumot] = useState(null);
   const [kristallPanjaraOchilgan, setKristallPanjaraOchilgan] = useState(false);
 
@@ -100,10 +98,24 @@ export default function Korinish() {
   // qorong'u fonni nazarda tutadi. Atributni qo'lda qo'ymaslik kerak.
   const [fonKaliti, fonniOzgartir] = useFon();
 
-  // Idish holati va Jurnal ref lari (60 FPS kadr renderi bilan ajratilgan)
-  const holatRef = useRef(idishYarat("probirka", 0));
+  // Sahna faqat ma'lumot BIRINCHI marta yuklangach quriladi va keyingi
+  // yangilanishlarda (tajriba, sandiq) qayta qurilmaydi. Ilgari `yuklanmoqda`
+  // ishlatilardi va har yangilanishda stol, jihozlar, kamera yo'qolardi.
+  const sahnaTayyor = Boolean(labMaLumot);
+
+  // Inventar ro'yxati — reagent shishasini tanlashda faqat o'zinikini tanlay
+  // olish uchun sahna qurilishidan oldin ham kerak.
+  const inventar = labMaLumot?.inventar || [];
+  const reagentlar = inventar.filter((i) => i.turi === "reagent");
+  const jihozlar = inventar.filter((i) => i.turi === "jihoz");
+
+  // Idish holatlari xaritasi (har idish O'Z holatini saqlaydi) va Jurnal ref lari.
+  const holatlarRef = useRef(holatlarYarat());
   const jurnalRef = useRef(jurnalYarat());
   const konteynerRef = useRef(null);
+  // Birinchi yuklash tugaganini bildiradi — keyingi `yuklaLab` chaqiruvlari
+  // skelet ko'rsatmasin (sahna yig'ishtirilmasin).
+  const labYuklanganRef = useRef(false);
 
   // 1. 3D Sahna
   const {
@@ -115,12 +127,28 @@ export default function Korinish() {
     jihozOlib,
     hammaJihozlar,
     kuchsizQurilma,
-  } = useSahna(konteynerRef, yuklanmoqda, fonKaliti);
+  } = useSahna(konteynerRef, sahnaTayyor, fonKaliti);
 
-  // 2. Sudrash va tanlash
-  const handleIdishTanlandi = useCallback((group) => {
-    if (group && group.userData?.kalit) {
-      holatRef.current.idish = group.userData.kalit;
+  // 2. Sudrash va tanlash.
+  // Javondagi shisha bosilganda faol REAGENT tanlanadi (faqat inventarda
+  // bor bo'lsa — yo'q moddani tanlash keyinchalik server xatosiga olib kelardi).
+  //
+  // Tekshiruv REF orqali: `reagentlar` har renderda YANGI massiv bo'lgani uchun
+  // uni `useCallback` bog'liqligiga qo'ysak, callback ham har renderda yangilanib,
+  // useSudrash tinglovchilarini har kadrda qayta ulab yuborardi (quyish paytida
+  // 60 FPS). Set ref'da turadi va faqat inventar o'zgarganda yangilanadi.
+  const reagentKalitlariRef = useRef(new Set());
+  useEffect(() => {
+    reagentKalitlariRef.current = new Set(
+      (labMaLumot?.inventar || [])
+        .filter((i) => i.turi === "reagent")
+        .map((i) => i.kalit)
+    );
+  }, [labMaLumot]);
+
+  const handleReagentTanlandi = useCallback((kalit) => {
+    if (reagentKalitlariRef.current.has(kalit)) {
+      setFaolReagent(kalit);
     }
   }, []);
 
@@ -128,7 +156,8 @@ export default function Korinish() {
     sahnaRef,
     kameraRef,
     rendererRef,
-    onIdishTanlandi: handleIdishTanlandi,
+    tayyor,
+    onReagentTanlandi: handleReagentTanlandi,
   });
 
   // Har doim hozirgi mo'ljal idishini topish (tanlangan yoki eng birinchisi)
@@ -141,14 +170,21 @@ export default function Korinish() {
 
   const { quyishBoshla, quyishToxtat, quyilmoqda } = useQuyish({
     sahnaRef,
-    holatRef,
+    holatlarRef,
     jurnalRef,
     onOzgarish: handleHolatOzgardimi,
   });
 
-  // 4. GET /api/laboratoriya dan inventar va balans o'qish
+  // 4. GET /api/laboratoriya dan inventar va balans o'qish.
+  //
+  // Nega `labYuklanganRef`: `setYuklanmoqda(true)` sahifani skeletga o'tkazardi,
+  // skeletda esa canvas konteyneri yo'q — demak HAR tajriba/sandiqdan keyin butun
+  // 3D sahna yig'ishtirilib qayta qurilardi. Endi skelet faqat birinchi yuklashda
+  // ko'rsatiladi; keyingi yangilanishlar jim o'tadi va sahna joyida qoladi.
   const yuklaLab = useCallback(async () => {
-    setYuklanmoqda(true);
+    if (!labYuklanganRef.current) {
+      setYuklanmoqda(true);
+    }
     setKirilmagan(false);
     setYuklashXatosi(false);
 
@@ -166,6 +202,7 @@ export default function Korinish() {
       }
       const data = await res.json();
       setLabMaLumot(data);
+      labYuklanganRef.current = true;
     } catch (e) {
       setYuklashXatosi(true);
     } finally {
@@ -191,7 +228,7 @@ export default function Korinish() {
     setXato,
   } = useTajriba({
     sahnaRef,
-    holatRef,
+    holatlarRef,
     jurnalRef,
     holatniYangila: yuklaLab,
   });
@@ -211,9 +248,11 @@ export default function Korinish() {
     if (res.portladi) setPortlashMaLumot(res);
   }, [natija, harorat]);
 
-  // Idishni tozalash amali
+  // Idishni tozalash amali — FAQAT joriy idishning holati nolga qaytadi,
+  // boshqa idishlardagi suyuqliklar joyida qoladi.
   const handleTozalash = () => {
-    holatRef.current = tozala(holatRef.current);
+    const kalit = nishonIdishGroup?.userData?.kalit || "probirka";
+    holatlarRef.current[kalit] = tozala(holatniOl(holatlarRef.current, kalit));
     jurnalRef.current = jurnalYarat();
     if (nishonIdishGroup) {
       suyuqlikSathiniYangila(nishonIdishGroup, 0, null, 0);
@@ -224,14 +263,11 @@ export default function Korinish() {
     setAralashmaOzgarish((s) => s + 1);
   };
 
-  // Reagent va jihozlarni filtrlash
-  const inventar = labMaLumot?.inventar || [];
-  const reagentlar = inventar.filter((i) => i.turi === "reagent");
-  const jihozlar = inventar.filter((i) => i.turi === "jihoz");
-
-  const quyilganModdalar = holatRef.current?.moddalar || {};
+  // Joriy idishning holati — footer va quyish shu bilan ishlaydi.
+  const joriyHolat = holatniOl(holatlarRef.current, nishonIdishGroup?.userData?.kalit);
+  const quyilganModdalar = joriyHolat?.moddalar || {};
   const quyilganKalitlar = Object.keys(quyilganModdalar);
-  const jamiMl = jamiHajm(holatRef.current);
+  const jamiMl = jamiHajm(joriyHolat);
 
   // --- 1. LOGIN TALABI (401) ---
   if (kirilmagan) {
@@ -268,53 +304,59 @@ export default function Korinish() {
     );
   }
 
-  // --- 2. YUKLASH XATOSI YOKI SKELET ---
-  if (yuklanmoqda) {
-    return (
-      <div
-        className="flex min-h-screen flex-col p-4"
-        style={{ background: "var(--v3-fon)" }}
-      >
-        <div className="mb-4 h-14 w-full animate-pulse rounded-2xl border" style={YUZA} />
-        <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-12">
-          <div className="hidden h-full animate-pulse rounded-2xl border md:col-span-3 md:block" style={YUZA} />
-          <div className="h-[60vh] animate-pulse rounded-2xl border md:col-span-6 md:h-full" style={YUZA} />
-          <div className="hidden h-full animate-pulse rounded-2xl border md:col-span-3 md:block" style={YUZA} />
-        </div>
-      </div>
-    );
-  }
-
-  if (yuklashXatosi) {
-    return (
-      <div
-        className="flex min-h-screen flex-col items-center justify-center p-6"
-        style={{ background: "var(--v3-fon)", color: "var(--v3-matn)" }}
-      >
-        <div className="v3-modal text-center">
-          <div
-            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full text-3xl"
-            style={{ background: "var(--v3-yuza-2)" }}
-          >
-            ⚠️
+  // --- 2. YUKLASH XATOSI YOKI SKELET (FAQAT BIRINCHI YUKLASHDA) ---
+  // Ma'lumot allaqachon yuklangan bo'lsa (labMaLumot !== null), keyingi
+  // yangilanishlarda bu blok TO'XTAMAYDI — sahna va stol joyida qoladi.
+  if (!labMaLumot) {
+    if (yuklanmoqda) {
+      return (
+        <div
+          className="flex min-h-screen flex-col p-4"
+          style={{ background: "var(--v3-fon)" }}
+        >
+          <div className="mb-4 h-14 w-full animate-pulse rounded-2xl border" style={YUZA} />
+          <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-12">
+            <div className="hidden h-full animate-pulse rounded-2xl border md:col-span-3 md:block" style={YUZA} />
+            <div className="h-[60vh] animate-pulse rounded-2xl border md:col-span-6 md:h-full" style={YUZA} />
+            <div className="hidden h-full animate-pulse rounded-2xl border md:col-span-3 md:block" style={YUZA} />
           </div>
-          <h2 className="text-lg font-bold" style={{ color: "var(--v3-urgu)" }}>
-            Ma&apos;lumot Yuklanmadi
-          </h2>
-          <p className="v3-xira mt-3 text-xs">
-            Laboratoriya serveri bilan bog&apos;lanishda xatolik yuz berdi. Iltimos, qayta urinib
-            ko&apos;ring.
-          </p>
-          <button
-            type="button"
-            onClick={yuklaLab}
-            className="v3-tugma-asosiy mt-6 w-full justify-center"
-          >
-            Qayta Urinish
-          </button>
         </div>
-      </div>
-    );
+      );
+    }
+
+    if (yuklashXatosi) {
+      return (
+        <div
+          className="flex min-h-screen flex-col items-center justify-center p-6"
+          style={{ background: "var(--v3-fon)", color: "var(--v3-matn)" }}
+        >
+          <div className="v3-modal text-center">
+            <div
+              className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full text-3xl"
+              style={{ background: "var(--v3-yuza-2)" }}
+            >
+              ⚠️
+            </div>
+            <h2 className="text-lg font-bold" style={{ color: "var(--v3-urgu)" }}>
+              Ma&apos;lumot Yuklanmadi
+            </h2>
+            <p className="v3-xira mt-3 text-xs">
+              Laboratoriya serveri bilan bog&apos;lanishda xatolik yuz berdi. Iltimos, qayta urinib
+              ko&apos;ring.
+            </p>
+            <button
+              type="button"
+              onClick={yuklaLab}
+              className="v3-tugma-asosiy mt-6 w-full justify-center"
+            >
+              Qayta Urinish
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
   }
 
   const balans = labMaLumot?.balans || { coins: 0, gems: 0, stars: 0 };
@@ -379,14 +421,6 @@ export default function Korinish() {
             }`}
           >
             🧊 Kristall Panjara
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSandiqOchilgan(!sandiqOchilgan)}
-            className="v3-tugma text-xs font-bold transition hover:scale-105 border-amber-400 text-amber-400"
-          >
-            🎁 Sandiqlar
           </button>
 
           <button
@@ -698,17 +732,6 @@ export default function Korinish() {
           idishKaliti={nishonIdishGroup?.userData?.kalit || "probirka"}
           moddalar={quyilganModdalar}
           onYop={() => setTaroziOchilgan(false)}
-        />
-      )}
-
-      {/* --- REAGENTLAR SANDIG'I MODALI --- */}
-      {sandiqOchilgan && (
-        <SandiqOchishModal
-          onYop={() => setSandiqOchilgan(false)}
-          // Sandiq ochilgach balans ham, inventar ham o'zgargan bo'ladi —
-          // sahifani serverdan qayta o'qiymiz. Client tomonda "o'zim
-          // qo'shib qo'yaman" degan yo'l yolg'on holat yaratardi.
-          onOchildi={() => yuklaLab()}
         />
       )}
 
