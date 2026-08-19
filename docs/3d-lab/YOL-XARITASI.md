@@ -157,3 +157,52 @@ RectAreaLight, SSAO tayyorlash, per-idish holat). **Funksional tuzatishlari
 to'g'ri va saqlanadi.** Grafik qismi esa 0-qavat sozlanmagani uchun holatni
 yomonlashtirdi — bloom va qo'shimcha nurlar allaqachon oshiq ekspozitsiyani
 kuchaytirdi. Bu kod tashlab yuborilmaydi, 0.1 da qayta kalibrlanadi.
+
+---
+
+## Kelajak g'oyalari — SHARTLI, reja emas
+
+Bu bo'lim rejaga kirmagan, lekin muhokama qilingan g'oyalar uchun.
+Har birida **qachon ma'noli bo'lishi** yozilgan. Shart bajarilmaguncha
+ular ish emas — shu yerda yotadi va unutilmaydi.
+
+### G1. Qo'shimcha domenlar (`oliykimyo.uz`, `chemlab.*`)
+
+**Hozir foydali emas.** Sabab o'lchangan: `app/layout.js:46` dagi
+`metadataBase` butun saytning canonical manzilini `www.jdakimyo.uz`
+ga bog'laydi — ikkinchi domen SEO vazni bermaydi. Sessiya cookie'si
+host'ga bog'langan (NextAuth sukut sozlamasi), ya'ni ikkinchi domen
+tizimga kirilmagan nusxa bo'ladi. Bazaviy manzil 15 faylda 22 marta
+qattiq yozilgan — email, Telegram, sertifikat PDF hammasi bitta
+domenni olib yuradi.
+
+Xavfsiz shakl bugun ham bor: ikkinchi domen 301 bilan asosiysiga
+**yo'naltiriladi**. Bu brend himoyasi beradi, SEO bermaydi.
+
+**Qachon ma'noli bo'ladi:** 3D simulyator alohida MAHSULOTGA
+aylanganda — o'z auditoriyasi, o'z sahifasi, o'z narxi bo'lganda.
+Ya'ni G2 bilan birga.
+
+**Oldindan shart:** bazaviy manzil bitta konstantaga yig'ilsin
+(`lib/sayt.js`). Hozirgi 22 ta nusxa 1-bandning buzilishi va domen
+o'zgarishini xavfli qiladi.
+
+### G2. 3D lab — desktop yoki mobil ilova
+
+**Texnik jihatdan mumkin, ikkalasi ham.**
+
+- **Desktop** (Electron yoki Tauri): oson. Three.js to'g'ridan-to'g'ri
+  ishlaydi, interfeys ham o'sha DOM. Foydasi real: to'liq GPU, katta
+  ekran, offline, `devicePixelRatio` cheklovsiz — 4K maqsadiga eng
+  yaqin yo'l aynan shu.
+- **Mobil**: mumkin, lekin qimmat. Sahnaning o'zi `expo-gl` orqali
+  ko'chadi, ammo interfeys ko'chmaydi — `3d/components/` da **20 ta
+  JSX** komponent Tailwind bilan yozilgan va React Native ularni
+  tushunmaydi. Ya'ni butun UI qatlami qayta yoziladi.
+  Arzon muqobil: mavjud mobil ilovada WebView. Ishlaydi, lekin 3D
+  unumdorligi pastroq va mobil allaqachon "arzon rejim" ga tushadi.
+
+**Qachon ma'noli bo'ladi:** 1-qavat tugagandan keyin. Hozir sahna
+brauzerda ham to'g'ri ko'rinmayapti — uni ikkinchi platformaga
+ko'chirish nuqsonni ikkilantiradi, tuzatmaydi. Desktop birinchi
+navbatda: u sahnani qayta yozishni talab qilmaydi.
