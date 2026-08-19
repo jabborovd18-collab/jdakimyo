@@ -122,3 +122,74 @@ Yangi brif yozganda shu uchtasi borligini tekshiring.
 qavat tugagan bo'lsa keyingisiga o'ting. Reja **faqat o'sha faylda**
 yuritiladi — ikkinchi reja fayli paydo bo'lsa, AGENTS.md 1-band buzilgan
 bo'ladi (`docs/arxiv-promptlar/` shu xatoning qoldig'i).
+
+---
+---
+
+## 7. Rol taqsimoti — arena AI quruvchi, ko'rik darvoza
+
+**Arena AI loyihada erkin ishlaydi. Fayl bo'yicha taqiq yo'q.**
+
+Egasining qarori (2026-08-20): arena AI hech qanday bo'limdan chetlatilmaydi.
+U 3D laboratoriyani — 15 422 qator, stexiometriya, titrlash, elektroliz,
+FPS yurish, PDF hisobot — bir o'zi qurgan. Uni "backendga tegma" deb
+cheklash qilgan ishiga mos kelmaydi.
+
+Chegara boshqa joyda turadi:
+
+```
+arena AI  →  o'z shoxida commit  →  KO'RIK  →  merge  →  deploy
+                                      ↑
+                              darvoza shu yerda
+```
+
+Ya'ni **nima yozishi cheklanmaydi, nima chiqishi cheklanadi.**
+
+### Rollar
+
+| Kim | Nima qiladi |
+|---|---|
+| **Arena AI** | Quradi. Istalgan bo'limda, istalgan faylda. |
+| **Claude** | Ko'rikdan o'tkazadi, brif yozadi, navbat belgilaydi. Bo'lim boshlig'i. |
+| **Egasi** | Oxirgi qaror: merge, deploy, yo'nalish. |
+
+### Ko'rik chuqurligi — fayl sinfiga qarab
+
+Taqiq emas, **e'tibor darajasi**. Ko'rik hamma narsaga qo'llanadi, lekin
+bir xil kuch bilan emas:
+
+| Fayl sinfi | Ko'rik chuqurligi | Nega |
+|---|---|---|
+| `app/**/page.js`, `components/**`, CSS | Yengil — brauzerda ochib ko'rish | Xato darrov ko'rinadi va qaytariladi |
+| 3D sahna, material, geometriya | O'rta — skrinshot + o'lchov | Vizual, lekin sekin seziladi (AGENTS.md 11.1) |
+| `app/api/**` | **Chuqur — qatorma-qator** | Ruxsat, IDOR, kirishni tozalash |
+| `lib/lab-*.js` (server hakami) | **Chuqur** | Balans va stexiometriya haqiqati |
+| `prisma/`, migratsiya | **Chuqur + zaxira** | Orqaga qaytarib bo'lmaydi |
+| Autentifikatsiya, sessiya, rollar | **Chuqur** | Bitta xato — butun sayt ochiq |
+
+### Nega chuqur ko'rik aynan shu joylarda
+
+Frontend xatosi **ko'rinadi** — sahifani ochasan, buzuq joy ko'zga
+tashlanadi. Backend xatosi **ko'rinmaydi**: ruxsat tekshiruvi tushib
+qolgan API huquqli foydalanuvchi uchun mukammal ishlaydi va faqat
+kimdir hujum qilganda bilinadi. Ya'ni u hech qachon sinovda chiqmaydi.
+
+Ikki isbot loyihaning o'zidan:
+
+- **2026-08-15 auditi:** `/api/masala/yech` kirishsiz va cheklovsiz
+  ochiq edi (Gemini kaliti begonalarga), `/api/ustoz-profil/[id]` esa
+  maxfiylikni tekshirmasdan istalgan talabaning ma'lumotini berardi.
+  Ikkalasi ham ishlab turgan, xatosiz ko'ringan kod edi.
+- **2026-08-12, `d2d4120`** — xabari "ustoz profili barqarorlashtirildi"
+  deydi. Aslida `/ustoz/sozlash` va `/ustoz/new-vazifa` ni `Ikon`
+  importisiz qoldirgan va ikkala sahifa **8 kun** "Application error"
+  berib turgan. Build o'tgan, deploy yashil tushgan.
+
+Ikkinchi misol muhim: u **frontend** xatosi. Ya'ni yengil ko'rik ham
+"brauzerda ochib ko'rish" degani — build o'tgani ko'rik emas.
+
+### Amaliy shart
+
+`main` ga to'g'ridan-to'g'ri push bo'lmasin. Har ish shoxdan PR orqali
+kelsin — shunda darvoza o'z-o'zidan ishlaydi va uni unutib qo'yib
+bo'lmaydi. GitHub'da `main` uchun branch protection yoqilsa kifoya.
