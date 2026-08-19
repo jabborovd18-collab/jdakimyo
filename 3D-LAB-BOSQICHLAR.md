@@ -49,6 +49,14 @@
 
 ---
 
+## BOSQICH 6 — Mayda realist detallar
+
+- [x] **6.1 — Stol ustida qog'oz bloknot va ruchka** (Chap stol).
+- [ ] **6.2 — FPS qo'l modeli** — qo'ldagi idish/kolba ko'rinadigan qo'l bilan.
+      Murakkab, jonli sozlash kerak.
+- [ ] **6.3 — Contact Shadows** — ob'ektlar ostida yumshoq kontakt soyasi.
+      SSAO'siz ham bo'ladi, lekin SSAO bilan birga jonli sozlash ma'qul.
+
 ## Joriy holat (2026-08-19)
 
 Bajarilgan va commit qilingan bosqichlar:
@@ -56,6 +64,7 @@ Bajarilgan va commit qilingan bosqichlar:
 - `301db13` — 3.1+3.2 bloom.
 - `450f534` — 4-bosqich protsedural teksturalar.
 - `4775a53` — 5.2 fog + 5.3 RectAreaLight.
+- `98910c7` — 6.1 stol detallari (bloknot + ruchka).
 
 Barchasi dev serverda xatosiz kompilyatsiya qilindi (`GET /laboratoriya/3d → 200`;
 faqat Google Fonts tarmoq ogohlantirishi — sandbox bilan bog'liq, kodga tegishli emas).
@@ -63,4 +72,4 @@ faqat Google Fonts tarmoq ogohlantirishi — sandbox bilan bog'liq, kodga tegish
 Jonli brauzerda vizual sozlashni talab qiladigan (qoldirilgan):
 - **3.3 — SSAO** (kuch/radiusni ko'rib sozlash).
 - **5.1 — real HDR** (tashqi asset).
-- **6-bosqich** — mayda detallar (stolda qog'oz, qo'l modeli, Contact Shadows).
+- **6.2 — FPS qo'l modeli**, **6.3 — Contact Shadows**.
