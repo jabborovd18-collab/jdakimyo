@@ -188,8 +188,20 @@ Ikki isbot loyihaning o'zidan:
 Ikkinchi misol muhim: u **frontend** xatosi. Ya'ni yengil ko'rik ham
 "brauzerda ochib ko'rish" degani — build o'tgani ko'rik emas.
 
-### Amaliy shart
+### Darvoza YOQILGAN (2026-08-20)
 
-`main` ga to'g'ridan-to'g'ri push bo'lmasin. Har ish shoxdan PR orqali
-kelsin — shunda darvoza o'z-o'zidan ishlaydi va uni unutib qo'yib
-bo'lmaydi. GitHub'da `main` uchun branch protection yoqilsa kifoya.
+GitHub'da `main` uchun **"main himoyasi"** ruleset'i faol
+(`id: 21061776`). Endi darvoza kodda emas, platformada turadi va uni
+unutib qo'yib bo'lmaydi:
+
+| Qoida | Ta'siri |
+|---|---|
+| `pull_request` — 1 ta tasdiq | Arena AI **o'zini o'zi merge qila olmaydi** |
+| `non_fast_forward` | Force push bloklangan, tarix qayta yozilmaydi |
+| `deletion` | `main` tasodifan o'chmaydi |
+| Bypass: Repository admin | Egasi shoshilinch holatda to'g'ridan-to'g'ri push qila oladi |
+
+Nega kerak bo'ldi: PR `#1` va `#2` ni `app/arena-ai-coding-agent`
+**o'zi ochib, o'zi merge qilgan** — hech kimning ko'rigisiz jonli
+saytga chiqqan. Bu cheklov emas, darvoza: arena baribir erkin quradi,
+faqat oxirgi qadamda odam tasdiqlaydi.
