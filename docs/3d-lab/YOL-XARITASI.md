@@ -187,22 +187,55 @@ Ya'ni G2 bilan birga.
 (`lib/sayt.js`). Hozirgi 22 ta nusxa 1-bandning buzilishi va domen
 o'zgarishini xavfli qiladi.
 
-### G2. 3D lab — desktop yoki mobil ilova
+### G2. 3D lab — DESKTOP ilova  ⭐ tavsiya etilgan yo'nalish
 
-**Texnik jihatdan mumkin, ikkalasi ham.**
+**Texnik jihatdan mumkin va nisbatan oson.** Three.js to'g'ridan-to'g'ri
+ishlaydi, interfeys ham o'sha DOM — sahna ham, `3d/components/` dagi
+20 ta JSX ham qayta yozilmaydi.
 
-- **Desktop** (Electron yoki Tauri): oson. Three.js to'g'ridan-to'g'ri
-  ishlaydi, interfeys ham o'sha DOM. Foydasi real: to'liq GPU, katta
-  ekran, offline, `devicePixelRatio` cheklovsiz — 4K maqsadiga eng
-  yaqin yo'l aynan shu.
-- **Mobil**: mumkin, lekin qimmat. Sahnaning o'zi `expo-gl` orqali
-  ko'chadi, ammo interfeys ko'chmaydi — `3d/components/` da **20 ta
-  JSX** komponent Tailwind bilan yozilgan va React Native ularni
-  tushunmaydi. Ya'ni butun UI qatlami qayta yoziladi.
-  Arzon muqobil: mavjud mobil ilovada WebView. Ishlaydi, lekin 3D
-  unumdorligi pastroq va mobil allaqachon "arzon rejim" ga tushadi.
+**Nega bu 4K maqsadiga eng yaqin yo'l:**
 
-**Qachon ma'noli bo'ladi:** 1-qavat tugagandan keyin. Hozir sahna
-brauzerda ham to'g'ri ko'rinmayapti — uni ikkinchi platformaga
-ko'chirish nuqsonni ikkilantiradi, tuzatmaydi. Desktop birinchi
-navbatda: u sahnani qayta yozishni talab qilmaydi.
+| Brauzerdagi cheklov | Desktop'da |
+|---|---|
+| Asset hajmi 12 MB (AGENTS.md 11.6) — mobil internet | **Cheklov yo'q** — assetlar ilova ichida keladi |
+| `devicePixelRatio` amalda cheklangan | To'liq 4K, cheklovsiz |
+| GPU brauzer sandbox'i ostida | To'liq GPU, barqaror kadr |
+| Har kirishda tarmoqdan yuklash | Offline ishlaydi |
+| Vercel funksiya vaqti va narxi | Tegishli emas |
+
+Birinchi qator eng muhimi: asset byudjeti yo'qolishi bilan yuqori
+aniqlikdagi tekstura va model ishlatish mumkin bo'ladi. Ya'ni
+"fotosuratdan ajratib bo'lmaydigan" maqsad brauzerda emas, **aynan shu
+yerda** erishiladigan narsa. Brauzer versiyasi esa taklif/namoyish
+bo'lib qoladi.
+
+**Electron yoki Tauri?** Tavsiya — **Electron**, kattaroq hajmiga
+qaramay. Sabab: Tauri tizimning o'z WebView'ini ishlatadi (Windows'da
+WebView2, macOS'da WKWebView, Linux'da WebKitGTK) va ularning WebGL
+xatti-harakati bir xil emas. 3D ilova uchun render barqarorligi —
+mahsulotning o'zi. Electron Chromium'ni o'zi bilan olib yuradi, ya'ni
+har uch tizimda bir xil chiziladi.
+
+**Kirish (auth):** noldan yozilmaydi. Loyihada `app/api/mobile/*`
+allaqachon Bearer token bilan ishlaydi (cookie'siz, CORS ochiq) —
+desktop ilova ham o'shani ishlatadi.
+
+**Oldindan shart:**
+- 1-qavat tugagan bo'lsin. Sahna brauzerda to'g'ri ko'rinmasa, uni
+  ikkinchi platformaga ko'chirish nuqsonni ikkilantiradi.
+- BRIF-02 (asset quvuri) — desktop'ning butun ustunligi shunga tayanadi.
+- BRIF-03 (sifat darajalari) — desktop doim `ultra` pog'onada ishlaydi.
+
+### G3. 3D lab — mobil ilova
+
+**Mumkin, lekin qimmat.** Sahnaning o'zi `expo-gl` orqali ko'chadi,
+interfeys ko'chmaydi: `3d/components/` dagi **20 ta JSX** Tailwind
+bilan yozilgan va React Native ularni tushunmaydi — butun UI qatlami
+qayta yoziladi.
+
+Arzon muqobil: mavjud mobil ilovada WebView. Bugun ham ishlaydi, lekin
+3D unumdorligi pastroq va mobil allaqachon "arzon rejim" ga tushadi
+(`useSahna.kuchsizQurilmaniAniqla`).
+
+**Qachon ma'noli bo'ladi:** G2 dan keyin. Desktop qayta yozishni talab
+qilmaydi, mobil talab qiladi — arzonidan boshlanadi.
