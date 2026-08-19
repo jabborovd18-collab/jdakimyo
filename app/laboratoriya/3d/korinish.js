@@ -23,7 +23,7 @@ import { massaHisobla } from "./lib/tarozi.js";
 import { eritmaHisobla } from "./lib/eritma-tayyorlash.js";
 import { titrlashHolatiniHisobla } from "./lib/titrlash-dvigatel.js";
 import { elektrolizHisobla } from "./lib/elektroliz-dvigatel.js";
-import { idishYarat, tozala, jamiHajm } from "./lib/idish-holati.js";
+import { tozala, jamiHajm, idishHolatiniOl, idishHolatiniYoz } from "./lib/idish-holati.js";
 import { jurnalYarat, yoz } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila, qaynashniYangila } from "./lib/jihoz-modellari.js";
 import { moddaKorinishi } from "./lib/modda-korinishi.js";
@@ -48,6 +48,13 @@ export default function Korinish() {
   const [harorat, setHarorat] = useState(25);
   const [suvOqmoqda, setSuvOqmoqda] = useState(false);
 
+  // Isitish, avtomatik reaksiya va aniq doza qaysi idishga ishlaydi — shu idish.
+  // Ilgari `nishonIdishGroup = hammaJihozlar[0]` edi: foydalanuvchi boshqa
+  // idishga quysa ham, spirtovka doim birinchi qo'yilgan idishni qizdirardi.
+  // Endi bu holat FPS rejimida ko'rsatkich turgan idishga (fpsQaralganIdish)
+  // bog'lanadi — `faolIdish` shu idishni saqlaydi.
+  const [faolIdish, setFaolIdish] = useState(null);
+
   // Modallar va Stansiyalar (Faqat 3D olam orqali ochiladi)
   const [molekulaModalKalit, setMolekulaModalKalit] = useState(null);
   const [davriyJadvalOchilgan, setDavriyJadvalOchilgan] = useState(false);
@@ -63,7 +70,9 @@ export default function Korinish() {
   const [taraMassa, setTaraMassa] = useState(0);
 
   // 2. Reflar
-  const holatRef = useRef(idishYarat("probirka", 0));
+  // Idish holati global ref da EMAS — har bir idish o'z holatini
+  // `group.userData.holat` da saqlaydi (qarang idish-holati.js). Shuning
+  // uchun probirka bilan stakanning tarkibi aralashmaydi.
   const jurnalRef = useRef(jurnalYarat());
   const konteynerRef = useRef(null);
 
@@ -81,12 +90,15 @@ export default function Korinish() {
   } = useSahna(konteynerRef, yuklanmoqda, "zamonaviy");
 
   // 4. Tarozi va Spirtovka Callbacklari
-  const handleHolatOzgardimi = useCallback(() => {
+  // Quyish tugagach chaqiriladi: `group` — tarkibi o'zgargan idish, `holat`
+  // esa uning yangi holati. Tarozida shu idish tursa, LED ekran yangilanadi.
+  const handleHolatOzgardimi = useCallback((group, holat) => {
     setAralashmaOzgarish((s) => s + 1);
 
     if (tarozidagiIdish && tarozidagiIdish.userData?.tarozida) {
-      const idishKaliti = tarozidagiIdish.userData?.kalit || "probirka";
-      const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, taraMassa);
+      const idishKaliti = group?.userData?.kalit || tarozidagiIdish.userData?.kalit || "probirka";
+      const holatData = holat || idishHolatiniOl(tarozidagiIdish, idishKaliti);
+      const data = massaHisobla(idishKaliti, holatData?.moddalar || {}, taraMassa);
       const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
       if (taroziMesh?.userData?.ekranniYangila) {
         taroziMesh.userData.ekranniYangila(data.nettoMassa, taraMassa, idishKaliti, true);
@@ -97,7 +109,8 @@ export default function Korinish() {
   const handleIdishTanlandi = useCallback((group) => {
     if (group && group.userData?.kalit) {
       if (group.userData.sigim > 0 && !group.userData.devorShishasi) {
-        holatRef.current.idish = group.userData.kalit;
+        // Tanlangan idish uchun holat yaratilib, "idish turi" o'rnatiladi.
+        idishHolatiniOl(group, group.userData.kalit);
       } else {
         setFaolReagent(group.userData.kalit);
       }
@@ -111,7 +124,7 @@ export default function Korinish() {
     const taroziMesh = sahnaRef?.current?.getObjectByName("Tarozi_Stansiyasi");
     if (taroziMesh?.userData?.ekranniYangila) {
       const idishKaliti = group.userData?.kalit || "probirka";
-      const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, taraMassa);
+      const data = massaHisobla(idishKaliti, idishHolatiniOl(group, idishKaliti).moddalar || {}, taraMassa);
 
       const jitter = data.nettoMassa + (Math.random() * 0.012 - 0.006);
       taroziMesh.userData.ekranniYangila(jitter, taraMassa, idishKaliti, false);
@@ -138,8 +151,9 @@ export default function Korinish() {
     taroziBip(2800);
     let yangiTara = brutto;
     if (typeof yangiTara !== "number") {
-      const idishKaliti = tarozidagiIdish?.userData?.kalit || holatRef.current?.idish || "probirka";
-      const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, 0);
+      const guruh = tarozidagiIdish || nishonIdishGroup;
+      const idishKaliti = guruh?.userData?.kalit || "probirka";
+      const data = massaHisobla(idishKaliti, idishHolatiniOl(guruh, idishKaliti).moddalar || {}, 0);
       yangiTara = data.bruttoMassa;
     }
     setTaraMassa(yangiTara);
@@ -159,7 +173,7 @@ export default function Korinish() {
     if (taroziMesh?.userData?.ekranniYangila) {
       if (tarozidagiIdish) {
         const idishKaliti = tarozidagiIdish.userData?.kalit || "probirka";
-        const data = massaHisobla(idishKaliti, holatRef.current?.moddalar || {}, 0);
+        const data = massaHisobla(idishKaliti, idishHolatiniOl(tarozidagiIdish, idishKaliti).moddalar || {}, 0);
         taroziMesh.userData.ekranniYangila(data.nettoMassa, 0, idishKaliti, true);
       } else {
         taroziMesh.userData.ekranniYangila(0, 0, "", true);
@@ -221,8 +235,10 @@ export default function Korinish() {
 
     if (group) {
       suyuqlikSathiniYangila(group, 0, null, 0);
+      // Yuvilgan idishning O'Z holati tozalanadi — boshqa idishlarga tegmaydi.
+      const holat = idishHolatiniOl(group, group.userData?.kalit);
+      idishHolatiniYoz(group, tozala(holat));
     }
-    holatRef.current = tozala(holatRef.current);
     jurnalRef.current = jurnalYarat();
 
     toast.success("✓ Idish distillangan suv bilan to'liq yuvildi va tozalandi!");
@@ -253,12 +269,13 @@ export default function Korinish() {
     faolShishaMesh,
   } = useQuyish({
     sahnaRef,
-    holatRef,
     jurnalRef,
     onOzgarish: handleHolatOzgardimi,
   });
 
-  const nishonIdishGroup = hammaJihozlar[0] || null;
+  // Isitish, reaksiya va aniq doza uchun "faol" idish. Birinchi navbatda
+  // foydalanuvchi qarayotgan idish (faolIdish), u bo'lmasa stoldagi birinchi.
+  const nishonIdishGroup = faolIdish || hammaJihozlar[0] || null;
 
   // Stenddan yangi toza jihoz qo'shish
   const handleStenddanJihozOlish = useCallback((kalit) => {
@@ -311,7 +328,6 @@ export default function Korinish() {
     setXato,
   } = useTajriba({
     sahnaRef,
-    holatRef,
     jurnalRef,
     holatniYangila: yuklaLab,
   });
@@ -432,22 +448,28 @@ export default function Korinish() {
   const handleSpatulaAmal = useCallback((group) => {
     if (spatulaKukun) {
       const tuz = spatulaKukun;
+      // Qattiq tuz bir qoshiq — massa gramm bilan o'lchanadi. Modda modeli
+      // suyuqlik sathini `ml` bilan ko'rsatadi, shuning uchun kukunni ham
+      // kichik vizual hajm bilan belgilaymiz (bu suyuqlik emas, ko'rinish).
       const qoshilganGramm = 1.0;
+      const kukunVizualMl = 0.8;
 
+      // Kukun kukun qo'shilgan idishning O'Z holatiga qo'shiladi.
+      const eskiHolat = idishHolatiniOl(group, group.userData?.kalit);
       const yangiModdalar = {
-        ...(holatRef.current.moddalar || {}),
+        ...(eskiHolat.moddalar || {}),
         [tuz]: {
-          ...(holatRef.current.moddalar?.[tuz] || {}),
-          gramm: ((holatRef.current.moddalar?.[tuz]?.gramm || 0) + qoshilganGramm),
-          ml: ((holatRef.current.moddalar?.[tuz]?.ml || 0) + 1.0),
+          ...(eskiHolat.moddalar?.[tuz] || {}),
+          gramm: ((eskiHolat.moddalar?.[tuz]?.gramm || 0) + qoshilganGramm),
+          ml: ((eskiHolat.moddalar?.[tuz]?.ml || 0) + kukunVizualMl),
         },
       };
 
-      holatRef.current = {
-        ...holatRef.current,
-        idish: group.userData?.kalit || holatRef.current.idish || "probirka",
+      idishHolatiniYoz(group, {
+        ...eskiHolat,
+        idish: group.userData?.kalit || eskiHolat.idish || "probirka",
         moddalar: yangiModdalar,
-      };
+      });
 
       // Agar idish tarozida bo'lsa -> Tarozining LED ekranini darhol yangilash
       if (tarozidagiIdish || group.userData?.tarozida) {
@@ -460,13 +482,18 @@ export default function Korinish() {
         }
       }
 
-      // Agar suv bor bo'lsa, konsentratsiyani hisoblab rangini yangilash
+      // Suv bor bo'lsa konsentratsiya hisoblanadi va eritma rangi olinadi.
+      // Suv yo'q bo'lsa ham sath ko'rsatilishi kerak — aks holda qo'shilgan
+      // kukun ko'rinmas edi (ilgari shu joyda sath umuman yangilanmasdi).
       const suvMl = yangiModdalar["H₂O"]?.ml || yangiModdalar["suv"]?.ml || 0;
       if (suvMl > 0) {
         const eritmaData = eritmaHisobla(tuz, yangiModdalar[tuz].gramm, suvMl);
-        suyuqlikSathiniYangila(group, suvMl + 2, { rang: eritmaData.rang, shaffoflik: eritmaData.shaffoflik });
+        const umumiyMl = jamiHajm({ moddalar: yangiModdalar });
+        suyuqlikSathiniYangila(group, umumiyMl, { rang: eritmaData.rang, shaffoflik: eritmaData.shaffoflik });
         toast.success(`🧂 ${qoshilganGramm.toFixed(3)}g ${tuz} eritildi! Konsentratsiya: ${eritmaData.molyarlik.toFixed(3)} M`);
       } else {
+        const korinish = moddaKorinishi(tuz);
+        suyuqlikSathiniYangila(group, kukunVizualMl, { rang: korinish.rang, shaffoflik: korinish.shaffoflik });
         toast.success(`🧂 ${qoshilganGramm.toFixed(3)}g ${tuz} kukuni idishga solindi (Tarozida tortildi)`);
       }
 
@@ -544,6 +571,13 @@ export default function Korinish() {
   });
 
   // ─── BARCHA EFFECTLAR ───
+
+  // FPS rejimida foydalanuvchi qarayotgan idishni "faol idish" deb belgilaymiz.
+  // Ko'rsatkich hech narsaga tegmagan paytlarda fpsQaralganIdish null bo'ladi —
+  // unda avvalgi faol idish saqlanib qoladi (isitish to'xtamaydi).
+  useEffect(() => {
+    if (fpsQaralganIdish) setFaolIdish(fpsQaralganIdish);
+  }, [fpsQaralganIdish]);
 
   // Titrlash jonli simulyatsiya sikli
   useEffect(() => {
@@ -645,12 +679,14 @@ export default function Korinish() {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Spirtovkada isitish va sovish sikli
+  // Spirtovkada isitish va sovish sikli — faol (isitilayotgan) idishning
+  // o'z harorati yangilanadi.
   useEffect(() => {
-    if (holatRef.current) {
-      holatRef.current.harorat = harorat;
+    if (nishonIdishGroup) {
+      const holat = idishHolatiniOl(nishonIdishGroup, nishonIdishGroup.userData?.kalit);
+      holat.harorat = harorat;
     }
-  }, [harorat]);
+  }, [harorat, nishonIdishGroup]);
 
   useEffect(() => {
     let timer = null;
@@ -718,9 +754,11 @@ export default function Korinish() {
     }
   }, [natija, harorat, kinetika, sahnaRef]);
 
-  // Moddalar aralashganda avtomatik reaksiya hisoblash
+  // Moddalar aralashganda avtomatik reaksiya hisoblash — faol idishning
+  // o'z holatiga asoslanadi.
   useEffect(() => {
-    const moddalar = holatRef.current?.moddalar || {};
+    if (!nishonIdishGroup) return;
+    const moddalar = idishHolatiniOl(nishonIdishGroup, nishonIdishGroup.userData?.kalit)?.moddalar || {};
     const moddaKalitlar = Object.keys(moddalar);
 
     if (moddaKalitlar.length >= 2 && !otkazilmoqda && !natija) {
@@ -732,9 +770,13 @@ export default function Korinish() {
     yuklaLab();
   }, [yuklaLab]);
 
-  const quyilganModdalar = holatRef.current?.moddalar || {};
+  // Qo'ldagi (yoki faol) idishning tarkibi HUD'da ko'rsatiladi — global holat
+  // emas, o'sha idishning o'z holati.
+  const hudIdishGroup = fpsQolIdish || faolIdish || null;
+  const hudHolat = hudIdishGroup ? idishHolatiniOl(hudIdishGroup, hudIdishGroup.userData?.kalit) : null;
+  const quyilganModdalar = hudHolat?.moddalar || {};
   const quyilganKalitlar = Object.keys(quyilganModdalar);
-  const jamiMl = jamiHajm(holatRef.current);
+  const jamiMl = jamiHajm(hudHolat || { moddalar: {} });
 
   if (kirilmagan) {
     return (

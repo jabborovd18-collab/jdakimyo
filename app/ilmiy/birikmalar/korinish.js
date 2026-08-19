@@ -440,9 +440,11 @@ const birikmalar = [
   },
 
   // ═══ SANOAT VA KATALIZ ═══
+  // Sahifa papkasi `wilkinson-katalizatori` — slug shu bilan mos bo'lishi
+  // kerak, aks holda kartochka 404 ga borardi (sitemap shuni ko'rsatadi).
   {
     id: "wilkinson",
-    slug: "wilkinson",
+    slug: "wilkinson-katalizatori",
     formulaHTML: "[RhCl(PPh<sub>3</sub>)<sub>3</sub>]",
     formulaPlain: "[RhCl(PPh3)3]",
     iupac: "Xlorotris(trifenilfosfin)rodiy(I)",
@@ -488,7 +490,7 @@ const birikmalar = [
   },
   {
     id: "vaska",
-    slug: "vaska",
+    slug: "vaska-kompleksi",
     formulaHTML: "[IrCl(CO)(PPh<sub>3</sub>)<sub>2</sub>]",
     formulaPlain: "[IrCl(CO)(PPh3)2]",
     iupac: "Karbonilxlorobis(trifenilfosfin)iridiy(I)",
@@ -513,7 +515,7 @@ const birikmalar = [
   // ═══ MAXSUS VA MASHHUR ═══
   {
     id: "zeise",
-    slug: "zeise",
+    slug: "zeise-tuzi",
     formulaHTML: "K[PtCl<sub>3</sub>(η²-C<sub>2</sub>H<sub>4</sub>)]",
     formulaPlain: "K[PtCl3(η2-C2H4)]",
     iupac: "Kaliy trikloro(etilen)platinat(II)",

@@ -20,9 +20,24 @@ import { fonOl, SUKUT_FON } from "../lib/fonlar.js";
 // Nega: mobil GPUlarda transmission va og'ir soyalar kadrlarni 10 FPS ga tushirib qo'yishi mumkin.
 function kuchsizQurilmaniAniqla() {
   if (typeof window === "undefined" || typeof navigator === "undefined") return false;
-  const cpuYadrolar = Number(navigator.hardwareConcurrency || 4);
-  const xotiraGb = Number(navigator.deviceMemory || 4);
-  return cpuYadrolar <= 4 || xotiraGb <= 4;
+
+  // Ilgari `cpuYadrolar <= 4 || xotiraGb <= 4` edi — juda tajovuzkor:
+  // ko'plab oddiy noutbuklar `navigator.deviceMemory` da aynan 4 GB
+  // qaytaradi va shu tufayli soya + antialias + haqiqiy transmission shisha
+  // o'chib, sahna "Minecraft" bo'lib ko'rinardi. Endi arzon rejimga faqat
+  // chinakam past resursli qurilma (mobil yoki 2 yadro + 4 GB dan kam)
+  // tushadi; oddiy noutbuk to'liq grafik bilan ishlaydi.
+  try {
+    const mobil = navigator.userAgentData?.mobile ??
+      /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent || "");
+    if (mobil) return true;
+
+    const cpuYadrolar = Number(navigator.hardwareConcurrency || 4);
+    const xotiraGb = Number(navigator.deviceMemory || 4);
+    return cpuYadrolar <= 2 && xotiraGb <= 4;
+  } catch {
+    return false;
+  }
 }
 
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
@@ -103,6 +118,16 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     group.traverse((child) => {
       if (child.isMesh) {
         if (child.geometry) child.geometry.dispose();
+        // Ilgari faqat geometriya bo'shatilar, material va tekstura GPU da
+        // qolib, ko'p marta idish olib-tashlansa xotira sizib borardi (leak).
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((m) => { if (m?.map) m.map.dispose(); m?.dispose(); });
+          } else {
+            if (child.material.map) child.material.map.dispose();
+            child.material.dispose();
+          }
+        }
       }
     });
 

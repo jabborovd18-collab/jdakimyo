@@ -7,7 +7,7 @@ import { effektlarniIshgaTushir, aralashishEffekti } from "../lib/effektlar.js";
 import { hisobot, yoz } from "../lib/jurnal.js";
 import { PALITRA } from "@/lib/lab-modda.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
-import { jamiHajm } from "../lib/idish-holati.js";
+import { jamiHajm, idishHolatiniOl } from "../lib/idish-holati.js";
 import { pufakchaChiqishi, chokmaTushishi } from "../lib/ovoz.js";
 import { kinetikaniBaho } from "../lib/reaksiya-kinetikasi.js";
 
@@ -16,7 +16,7 @@ import { kinetikaniBaho } from "../lib/reaksiya-kinetikasi.js";
 // Nega so'rov darrov yuboriladi va Promise.all ishlatilmaydi: tarmoq so'rovi va 3D
 // animatsiya bir vaqtda parallel o'ynashi kerak; so'rov kutib turilsa, foydalanuvchi
 // ikki karra uzoq vaqt kutadi va interfeys qotib qolgandek ko'rinadi.
-export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
+export function useTajriba({ sahnaRef, jurnalRef, holatniYangila }) {
   const [otkazilmoqda, setOtkazilmoqda] = useState(false);
   const [natija, setNatija] = useState(null);
   const [tanlov, setTanlov] = useState(null);
@@ -50,7 +50,10 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
     setNisbatBahosi(null);
     setHisobotMatni(null);
 
-    const moddalarObj = holatRef?.current?.moddalar || {};
+    // Reaksiya faqat tanlangan idishning O'Z holatiga asoslanadi — global
+    // holat emas. Shunday qilib boshqa idishdagi tarkib aralashmaydi.
+    const idishHolat = idishHolatiniOl(tanlanganIdishGroup, tanlanganIdishGroup?.userData?.kalit);
+    const moddalarObj = idishHolat?.moddalar || {};
     const kalitlar = Object.keys(moddalarObj);
 
     // Haqiqatda quyilgan miqdor. Sahnada hamma narsa ml bilan quyiladi,
@@ -97,7 +100,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
           miqdorlar,
           // Qaysi idishda ishlanayotgani. Server sig'imni tekshiradi va
           // reaksiya idishni yaroqsiz qilgan-qilmaganini hal qiladi.
-          idish: holatRef?.current?.idish ?? null,
+          idish: idishHolat?.idish ?? null,
         }),
       });
 
@@ -121,7 +124,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
           setXato("Baza band yoki server band bo'lib qoldi. Qayta urinib ko'ring.");
         } else {
           // 400 va boshqalar: idishdagi suyuqlikni xira kulrang qilamiz
-          const hajm = jamiHajm(holatRef?.current);
+          const hajm = jamiHajm(idishHolat);
           suyuqlikSathiniYangila(tanlanganIdishGroup, hajm, {
             rang: PALITRA.kulrang,
             shaffoflik: 0.25,
@@ -148,7 +151,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
         const kin = kinetikaniBaho({
           reaksiya: ma_lumot.reaksiya,
           moddalar: moddalarObj,
-          harorat: holatRef?.current?.harorat || 25,
+          harorat: idishHolat?.harorat || 25,
           nisbatBahosi: baho,
         });
         setKinetika(kin);
@@ -186,7 +189,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
               yoz(jurnalRef.current, {
                 amal: "reaksiya",
                 reagent: ma_lumot.reaksiya.name || "Tajriba",
-                harorat: holatRef?.current?.harorat || 25,
+                harorat: idishHolat?.harorat || 25,
               });
             }
             const yakuniyHisobot = hisobot(jurnalRef?.current, ma_lumot.reaksiya, baho);
@@ -209,7 +212,7 @@ export function useTajriba({ sahnaRef, holatRef, jurnalRef, holatniYangila }) {
       setXato("Tarmoq bilan aloqada xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
       setOtkazilmoqda(false);
     }
-  }, [otkazilmoqda, sahnaRef, holatRef, jurnalRef, holatniYangila, animatsiyaniTozala]);
+  }, [otkazilmoqda, sahnaRef, jurnalRef, holatniYangila, animatsiyaniTozala]);
 
   useEffect(() => {
     return () => {

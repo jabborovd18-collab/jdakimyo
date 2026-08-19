@@ -1184,7 +1184,9 @@ function jihozlarStendiYasa(materiallar) {
   const silMesh = new THREE.Mesh(silGeo, shishaMat);
   silMesh.position.y = 0.07;
   silindrGroup.add(silMesh);
-  const silAsosGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.008, 6);
+  // Silindr asosi ilgari 6 segmentli (oltiburchak) edi — endi 32 segment
+  // bilan dumaloq, FPS yaqinlashuvida qirralar ko'rinmaydi.
+  const silAsosGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.008, 32);
   const silAsos = new THREE.Mesh(silAsosGeo, shishaMat);
   silAsos.position.y = 0.004;
   silindrGroup.add(silAsos);

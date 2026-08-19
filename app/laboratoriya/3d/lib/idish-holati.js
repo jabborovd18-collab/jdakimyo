@@ -11,6 +11,28 @@ export function idishYarat(kalit = "probirka", hajm = 0) {
   };
 }
 
+// Har bir idish O'Z holatini group.userData.holat da saqlaydi. Ilgari holat
+// bitta global obyekt edi: probirkaga HCl quyib, keyin stakanga suv quyilsa,
+// stakan ham HCl bor deb hisoblanardi — idishlar bir-biriga "sizib" o'tardi.
+// Bu funksiya group uchun holatni oladi (yo'q bo'lsa yaratadi va saqlaydi).
+export function idishHolatiniOl(group, sukutKalit = "probirka") {
+  if (!group) return idishYarat(sukutKalit, 0);
+  if (!group.userData) group.userData = {};
+  if (!group.userData.holat) {
+    group.userData.holat = idishYarat(group.userData.kalit || sukutKalit, 0);
+  }
+  return group.userData.holat;
+}
+
+// Idish holatini yangilab qaytaradi (mutatsiya o'rniga yangi obyekt).
+export function idishHolatiniYoz(group, holat) {
+  if (group) {
+    if (!group.userData) group.userData = {};
+    group.userData.holat = holat;
+  }
+  return holat;
+}
+
 // quy() funksiyasi faqat moddani va uning hajmini qo'shadi — rang, cho'kma yoki reaksiya haqida
 // hech narsa bilmaydi. Nega: shu ajratish bo'lmasa, keyinchalik "quyish" ni sinash uchun
 // butun 3D sahnani ishga tushirish va grafik kontekstni chaqirish kerak bo'lardi.
