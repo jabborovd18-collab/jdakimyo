@@ -62,12 +62,18 @@ yuqori qavat xatoni **kuchaytiradi**, yashirmaydi.
 
 ### 0-QAVAT — POYDEVOR  ⬅ HOZIRGI NAVBAT
 
+> **0.0 birinchi bo'lishi shart.** Loyihada ishlaydigan agentlarning
+> bir qismi rasm ko'ra olmaydi, ya'ni grafikani ko'z bilan tekshira
+> olmaydi. O'lchov asbobisiz qolgan hamma grafik ish ko'r-ko'rona
+> bo'ladi — 19-avgustda aynan shunday bo'lgan (AGENTS.md 11.1).
+
 Bu qavat tugagach sahna hali **chiroyli bo'lmaydi**, lekin *to'g'ri*
 bo'ladi: oq kuyish yo'qoladi, shipdan polgacha yorug'lik mantiqiy bo'ladi
 va ustiga qurish mumkin bo'ladi.
 
 | # | Ish | Brif | Holat |
 |---|---|---|---|
+| 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ⬜ |
 | 0.1 | Yorug'lik byudjeti — yagona manba, ekspozitsiya kalibrovkasi | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
@@ -75,8 +81,10 @@ va ustiga qurish mumkin bo'ladi.
 | 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
 
 **Qavat tugadi deb hisoblanadi, qachonki:**
+- `npm run lab3d:olcham` 12 qatorlik jadval chiqarsa va hech bir qator
+  chegaradan chiqmasa.
 - Sahnaning hech bir pikseli ekspozitsiya kalibrovkasidan keyin `1.0` da
-  qotib qolmasa (oq kuyish yo'q) — o'lchov usuli BRIF-01 da.
+  qotib qolmasa (oq kuyish yo'q).
 - Shipdan polgacha yorug'lik uzluksiz bo'lsa (qora ship + oq pol yo'q).
 - Bitta `.glb` va bitta `.hdr` haqiqatan yuklanib, sahnada ko'rinsa.
 - 4K ekranda sifat darajasi "Ultra" da `devicePixelRatio` to'liq ishlatilsa.

@@ -60,6 +60,7 @@ ko'rsatadi:
 
 | Brif | Asosiy fayllar | Parallel bo'ladimi |
 |---|---|---|
+| BRIF-00 o'lchov | `scripts/lab3d-olcham.js`, `3d/olcham/` (yangi) | **BIRINCHI — yolg'iz** |
 | BRIF-01 yorug'lik | `lib/yoruglik.js` (yangi), `useSahna.js`, `xona-modellari.js` | — |
 | BRIF-02 asset | `lib/asset-yuklovchi.js` (yangi), `public/3d/` | ✅ 01 bilan |
 | BRIF-03 sifat | `lib/sifat.js` (yangi), `useSahna.js` | ⚠️ 01 bilan `useSahna.js` da to'qnashadi |
@@ -68,6 +69,8 @@ ko'rsatadi:
 
 **Tavsiya etilgan tartib:**
 
+0. **BRIF-00 yolg'iz va birinchi.** Usiz grafik ishni tekshirib
+   bo'lmaydi — quyidagi izohga qarang.
 1. **BRIF-01 + BRIF-02** — birga yuborish mumkin (turli fayllar).
 2. **BRIF-03** — 01 birlashgandan keyin.
 3. **BRIF-04** — 01 va 03 birlashgandan keyin, yolg'iz.
@@ -205,3 +208,25 @@ Nega kerak bo'ldi: PR `#1` va `#2` ni `app/arena-ai-coding-agent`
 **o'zi ochib, o'zi merge qilgan** — hech kimning ko'rigisiz jonli
 saytga chiqqan. Bu cheklov emas, darvoza: arena baribir erkin quradi,
 faqat oxirgi qadamda odam tasdiqlaydi.
+
+---
+
+## 8. Agent rasm ko'ra olmasligi mumkin — buni oldindan hisobga oling
+
+Arena AI **rasm ko'rmaydi.** Bu 19-avgustdagi grafik falokatning to'g'ridan
+to'g'ri sababi: u sahnani tekshirishning yagona usuli sifatida
+"dev server 200 qaytardi" ni ishlatdi, chunki boshqasi yo'q edi.
+
+Xulosa ikkita:
+
+1. **Topshiriq beshdan oldin so'rang:** bu ishni bajaruvchi natijani
+   qanday tekshiradi? Javob "ko'raman" bo'lsa va u ko'ra olmasa —
+   topshiriq noto'g'ri yozilgan.
+2. **Har grafik brifda o'lchanadigan chegara bo'lsin.** "Chiroyli
+   bo'lsin" tekshirib bo'lmaydi; "kuygan piksel 1% dan kam" tekshiriladi.
+
+Shuning uchun BRIF-00 (`npm run lab3d:olcham`) qolgan hamma grafik
+ishdan oldin turadi. Uning chiqishi — agent uchun dalil; `.olcham/`
+dagi PNG'lar esa **siz** uchun. Ikkalasi bir ishning ikki tomoni:
+son chegarada turgani bilan sahna xunuk bo'lishi mumkin, shuning uchun
+oxirgi qarorni baribir ko'z beradi.

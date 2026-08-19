@@ -186,15 +186,28 @@ ya'ni oltita kommit sahnani yaxshilamadi, buzdi.
 Sabab: sahna allaqachon 3–4 barobar ortiq yoritilgan edi, bloom esa aynan
 ortiqcha yorug'likni kuchaytiradi. Buni `grep` bilan topib bo'lmaydi.
 
-### 11.1 Grafik o'zgarish skrinshotsiz tugallanmagan hisoblanadi
+### 11.1 Grafik o'zgarish O'LCHOVSIZ tugallanmagan hisoblanadi
 
-- "Ishladi" degani — **rasmni ko'rdim** degani. Kompilyatsiya o'tgani,
-  `200` qaytgani va konsol toza bo'lgani grafik uchun **dalil emas**.
-- Ko'rish imkoni bo'lmasa (sandbox, login to'sig'i), ishni **tugallanmagan**
-  deb belgilang va egasidan skrinshot so'rang. "Ehtimol yaxshi bo'ldi" deb
-  commit qilinmaydi.
-- Piksel o'lchash `grep` dan ishonchli: kadrni `readRenderTargetPixels`
-  yoki canvas'dan `toDataURL` orqali olib, kuygan piksel ulushini sanang.
+Bu band avval "skrinshotsiz tugallanmagan" deb yozilgan edi. **Xato
+qoida edi:** loyihada ishlaydigan agentlarning bir qismi rasm ko'ra
+olmaydi, ya'ni qoidani strukturaviy bajara olmaydi. Bajarib bo'lmaydigan
+qoida bajarilmaydi — 19-avgustda aynan shunday bo'ldi.
+
+Dalil **son** bo'lishi kerak, ko'z emas:
+
+- `npm run lab3d:olcham` — 4 mavzu × 3 kamera nuqtasida kuygan piksel
+  ulushi, o'rtacha luma, ship/pol farqi, FPS va `renderer.info`.
+  Asbob va chegaralar: `docs/3d-lab/OLCHOV.md`.
+- **Oldin va keyin o'lchang.** Bitta "keyin" jadvali dalil emas —
+  taqqoslash dalil.
+- Kompilyatsiya o'tgani, `200` qaytgani va konsol toza bo'lgani grafik
+  uchun dalil EMAS. Bu uchtasi 19-avgustdagi olti kommitning hammasida
+  yashil edi.
+- Skrinshot baribir foydali, lekin u **odamning** tekshiruvi: son
+  chegarada turgani bilan sahna xunuk bo'lishi mumkin. Ko'ra oladigan
+  ishtirokchi rasmga qaraydi; ko'ra olmaydigani sonni keltiradi.
+- O'lchov asbobi ishlamasa, ishni **tugallanmagan** deb belgilang.
+  "Ehtimol yaxshi bo'ldi" deb commit qilinmaydi.
 
 ### 11.2 Yorug'likning yagona egasi bor
 

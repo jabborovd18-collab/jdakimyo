@@ -109,9 +109,16 @@ Qo'shimcha:
 
 ## Dalil (ishni topshirishda shart)
 
-1. Kalibrovkadan **oldin** va **keyin** — uch kamera nuqtasidan 6 ta
-   skrinshot.
-2. Gistogramma sonlari jadvali (oldin/keyin).
-3. To'rt mavzuning har birida bittadan skrinshot.
+BRIF-00 dagi asbob bilan:
 
-Skrinshotsiz ish qabul qilinmaydi (AGENTS.md 11.1).
+1. `npm run lab3d:olcham` ning **kalibrovkadan oldingi** to'liq jadvali
+   (12 qator).
+2. Xuddi shu jadvalning **keyingi** holati.
+3. Qaysi qator qaysi chegaradan chiqib ketgani va nima qilinganini
+   qisqa izoh.
+
+`.olcham/` dagi PNG'lar odam ko'rigi uchun avtomatik saqlanadi —
+ularni sen ko'rishing shart emas, sonlar yetarli (AGENTS.md 11.1).
+
+**BRIF-00 bajarilmagan bo'lsa, bu brifni boshlama** — o'lchamasdan
+kalibrlab bo'lmaydi.
