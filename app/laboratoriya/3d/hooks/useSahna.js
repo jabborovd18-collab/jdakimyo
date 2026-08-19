@@ -8,6 +8,16 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
+import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
+
+// SSAO (GTAOPass) — sukut bo'yicha O'CHIRILGAN.
+//
+// Nega o'chiq: kuch, radius va `blendIntensity`ni faqat jonli brauzerda ko'rib
+// sozlash kerak — noto'g'ri qiymat sahni loyqa yoki "chalkash" qilib qo'yishi
+// mumkin. Bu sandboxda ko'z bilan tekshirib bo'lmaydi, shuning uchun avval
+// `true` qilib, mahalliy brauzeringizda sozlab, keyin doimiy qo'yiladi.
+// Yoqilganda ob'ektlar orasidagi kontakt soya chuqurlik beradi (realizm).
+const SSAO_YOQIQ = false;
 import { KAMERA, BOSHQARUV, STOL, SLOTLAR } from "../lib/sozlama.js";
 import {
   materiallarniYarat,
@@ -197,6 +207,24 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     if (!arzonRejim) {
       composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, kamera));
+
+      // SSAO (kontakt soya) — yoqilganda RenderPass dan keyin keladi: u
+      // sahna rasmni o'qib, ustiga chuqurlik soyasini blend qiladi. Keyin
+      // bloom ishlaydi. Konservativ boshlang'ich qiymatlar — ko'rib sozlanadi.
+      if (SSAO_YOQIQ) {
+        const gtao = new GTAOPass(scene, kamera, konteynerRef.current.clientWidth, konteynerRef.current.clientHeight, {
+          radius: 0.2,
+          distanceExponent: 1.0,
+          thickness: 1.0,
+          distanceFallOff: 1.0,
+          scale: 4,
+          samples: 16,
+        }, { samples: 16 });
+        gtao.output = GTAOPass.OUTPUT.Default;
+        gtao.blendIntensity = 0.6;
+        composer.addPass(gtao);
+      }
+
       composer.addPass(new UnrealBloomPass(
         new THREE.Vector2(konteynerRef.current.clientWidth, konteynerRef.current.clientHeight),
         0.55, // kuch
