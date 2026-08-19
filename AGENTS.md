@@ -175,6 +175,96 @@ ularni yangi qo'shilgan matn bo'yicha qidiring. HTML ni qidirish yetmaydi
 - Xato topsangiz, uni **isbotlang** (kichik skript, haqiqiy ma'lumot),
   keyin tuzating.
 
+## 11. 3D grafika — ko'z bilan ko'rmasdan tegilmaydi
+
+Bu band 2026-08-19 dan keyin yozildi. O'sha kuni sahna grafikasini
+yaxshilash uchun 6 ta kommit qilindi: bloom, qo'shimcha `RectAreaLight`,
+protsedural teksturalar. Har biri "dev server 200 qaytardi" deb tasdiqlandi.
+Jonli saytda esa **pol butunlay oq kuyib**, ship qop-qora bo'lib chiqdi —
+ya'ni oltita kommit sahnani yaxshilamadi, buzdi.
+
+Sabab: sahna allaqachon 3–4 barobar ortiq yoritilgan edi, bloom esa aynan
+ortiqcha yorug'likni kuchaytiradi. Buni `grep` bilan topib bo'lmaydi.
+
+### 11.1 Grafik o'zgarish skrinshotsiz tugallanmagan hisoblanadi
+
+- "Ishladi" degani — **rasmni ko'rdim** degani. Kompilyatsiya o'tgani,
+  `200` qaytgani va konsol toza bo'lgani grafik uchun **dalil emas**.
+- Ko'rish imkoni bo'lmasa (sandbox, login to'sig'i), ishni **tugallanmagan**
+  deb belgilang va egasidan skrinshot so'rang. "Ehtimol yaxshi bo'ldi" deb
+  commit qilinmaydi.
+- Piksel o'lchash `grep` dan ishonchli: kadrni `readRenderTargetPixels`
+  yoki canvas'dan `toDataURL` orqali olib, kuygan piksel ulushini sanang.
+
+### 11.2 Yorug'likning yagona egasi bor
+
+Hozir yorug'lik **ikki joydan** qo'shiladi va ikkalasi bir-birini bilmaydi:
+`hooks/useSahna.js` (ambient + 2 directional) va `lib/xona-modellari.js`
+(yana bitta directional 1.4, `RectAreaLight` lar 1.4, `PointLight` 1.0).
+Ustiga `scene.environment` (RoomEnvironment IBL) qo'shiladi. Jami byudjet
+hech qayerda yozilmagan — shuning uchun hech kim uni oshirib yuborganini
+sezmagan. Bu 1-bandning yorug'likka tushirilgan ko'rinishi.
+
+- Yangi yorug'lik manbai **faqat** yorug'lik byudjeti faylidan qo'shiladi.
+- Model yasovchi fayl (`*-modellari.js`) yorug'lik yaratmaydi. U geometriya
+  va material qaytaradi, xolos.
+- Ekspozitsiya (`toneMappingExposure`) — bitta joyda, bitta son.
+- three.js r165 dan beri fizik jihatdan to'g'ri yorug'lik **majburiy**
+  (`useLegacyLights` olib tashlangan). Eski qo'llanmalardan ko'chirilgan
+  `intensity` qiymatlari 3–5 barobar oshiq bo'ladi.
+
+### 11.3 `MeshBasicMaterial` — yoritiladigan sirtga ishlatilmaydi
+
+`MeshBasicMaterial` yorug'likka umuman bo'ysunmaydi: u har doim to'liq
+yorqinlikda turadi. Shift chiroq panellari `0xf8fafc` bilan aynan shunday
+yozilgan va bloom ostonasidan doim yuqori bo'lgani uchun jonli sahnada
+"yonib" ketgan.
+
+- Faqat chinakam nur chiqaradigan narsaga (EXIT belgisi, LED, ekran) va
+  faqat bloom ostonasi bilan kelishilgan holda ishlatiladi.
+- Boshqa hamma joyda `MeshStandardMaterial` + kerak bo'lsa `emissive`.
+
+### 11.4 Postprocessing kalibrlanmagan sahnaga qo'shilmaydi
+
+Bloom, SSAO, SSR — bular sahnaning **kamchiligini yashirmaydi, kattalashtiradi**.
+
+- Bloom ostonasi sahnaning o'rtacha yorqinligidan **yuqori** bo'lishi shart.
+  Sahna o'rtachasi 1.0 bo'lsa, 0.55 ostona butun kadrni yoritadi.
+- Tartib: avval ekspozitsiya kalibrovkasi → keyin material → keyin effekt.
+  `docs/3d-lab/YOL-XARITASI.md` dagi piramida shu tartibni belgilaydi.
+
+### 11.5 Soya qamrovi xona o'lchamiga mos bo'lishi shart
+
+Xona 16 × 12 m, soya kamerasi esa ±2.6 m ni qamragan — ya'ni pol yuzasining
+**14%**. Qolgan hamma narsa (javon, rakovina, deraza) soyasiz qolgan va
+shuning uchun devorga yopishtirilgandek ko'ringan. Bundan tashqari
+`xona-modellari.js` ning 1523 qatorida `castShadow` atigi **bir marta**
+uchraydi: xonadagi hech narsa soya tashlamaydi.
+
+- Soya kamerasining chegarasi xona o'lchamidan hisoblanadi, qo'lda
+  yozilmaydi.
+- Yangi ob'ekt qo'shsangiz, `castShadow` va `receiveShadow` ni ataylab
+  qaror qiling. Sukut bo'yicha `false` — ya'ni yozmaslik "soya yo'q" degani.
+
+### 11.6 Asset qoidalari
+
+- 3D modellar `public/3d/` da, `.glb` (Draco siqilgan). Teksturalar KTX2.
+- Yangi asset qo'shishdan oldin hajmini yozing. Sahifaning 3D yuki
+  jami **12 MB** dan oshmasin — mobil internetda sahifa ochilmay qoladi.
+- Har yuklangan asset uchun `dispose()` yo'li bo'lishi shart. Xotira
+  sizishi 3D da darrov sezilmaydi — u 10 daqiqadan keyin tab'ni yiqitadi.
+- Asset yuklovchi bitta bo'ladi (kesh bilan). Ikkinchi `GLTFLoader`
+  yozilmaydi.
+
+### 11.7 Fayl hajmi — parallel ishlash sharti
+
+`xona-modellari.js` 1523 qator, `korinish.js` 1260, `jihoz-modellari.js`
+1158. Bunday fayllarda ikki agent bir vaqtda ishlay olmaydi — har safar
+konflikt chiqadi.
+
+- 3D fayl **600 qatordan** oshsa, keyingi ish uni bo'lishdan boshlanadi.
+- Bo'lish chegarasi mazmun bo'yicha: bitta fayl — bitta ob'ekt oilasi.
+
 ---
 
 ## Loyiha haqida qisqacha
