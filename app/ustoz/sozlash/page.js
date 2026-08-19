@@ -1,8 +1,9 @@
-// app/ustoz/sozlama/page.js
+// app/ustoz/sozlash/page.js
 "use client"
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import Ikon from '@/components/Ikon'
 import toast from 'react-hot-toast'
 
 const THEME_COLORS = [
