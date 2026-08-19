@@ -4,6 +4,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { KAMERA, BOSHQARUV, STOL, SLOTLAR } from "../lib/sozlama.js";
 import {
   materiallarniYarat,
@@ -54,6 +58,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
   const controlsRef = useRef(null);
   const materiallarRef = useRef(null);
   const kadrIdRef = useRef(null);
+  const composerRef = useRef(null);
   const jihozlarMapRef = useRef(new Map()); // slotIndex -> THREE.Group
 
   // Fon almashganda yangilanadigan obyektlar. Ular ref da saqlanadi, chunki
@@ -180,6 +185,27 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     konteynerRef.current.innerHTML = "";
     konteynerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // 3.6. Postprocessing (bloom) — realizmning eng katta omili.
+    //
+    // Ilgari postprocessing umuman yo'q edi: alanga, neon chiroqlar, LED
+    // ekranlar o'z yorqinligini atrofga "nur" sifatida taratolmasdi va sahna
+    // yassi, "Minecraft" bo'lib ko'rinardi. UnrealBloomPass yorqin pikselni
+    // atrofiga silliq yoyadi (bloom). Arzon rejimda o'chiriladi — kompozitsiya
+    // qo'shimcha GPU yuki beradi, past qurilmalar oddiy render bilan ishlaydi.
+    let composer = null;
+    if (!arzonRejim) {
+      composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, kamera));
+      composer.addPass(new UnrealBloomPass(
+        new THREE.Vector2(konteynerRef.current.clientWidth, konteynerRef.current.clientHeight),
+        0.55, // kuch
+        0.4,  // radius — nur tarqalishi
+        0.55, // threshold — qanday yorqinlik "nur" bo'lishi
+      ));
+      composer.addPass(new OutputPass());
+      composerRef.current = composer;
+    }
 
     // 3.5. Muhit xaritasi (envMap)
     //
@@ -314,6 +340,8 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       kameraRef.current.aspect = w / h;
       kameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(w, h);
+      // Kompozitor o'lchami ham yangilanadi, aks holda bloom yorilib ketadi.
+      if (composer) composer.setSize(w, h);
     };
 
     const resizeObserver = new ResizeObserver(() => {
@@ -367,7 +395,9 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
         }
       });
 
-      renderer.render(scene, kamera);
+      // Bloom yoqilgan bo'lsa kompozitor chizadi, aks holda oddiy render.
+      if (composer) composer.render();
+      else renderer.render(scene, kamera);
     };
     animate();
 
@@ -403,6 +433,10 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       scene.environment = null;
       materiallarniTozala(materiallar);
 
+      if (composerRef.current) {
+        composerRef.current.dispose();
+        composerRef.current = null;
+      }
       if (rendererRef.current) {
         rendererRef.current.dispose();
       }
