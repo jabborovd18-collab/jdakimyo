@@ -4,6 +4,11 @@
 // O'rtadagi to'siq javon butunlay olib tashlangan: zal keng, yorug' va erkin.
 //
 import * as THREE from "three";
+import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
+
+// Shift LED panellari uchun RectAreaLight shaderlarini bir marta yuklaymiz.
+// Nega: ishga tushirilmasa RectAreaLight to'g'ri yoritmaydi (faqat to'q qoladi).
+RectAreaLightUniformsLib.init();
 
 /** Davriy jadval plakatini yaratish — 2048x1024 Yuqori aniqlikdagi keng formatli LED plakat */
 function davriyJadvalPlakati() {
@@ -243,6 +248,15 @@ function xonaQobiginiYasa(materiallar) {
     lamp.rotation.x = Math.PI / 2;
     lamp.position.set(x, XONA_H - 0.01, z);
     roomGroup.add(lamp);
+
+    // Haqiqiy yorug'lik — panel bir tekis, yumshoq sirt manbai sifatida yoritadi.
+    // Ilgari panel faqat yorqin yuz edi, lekin atrofni yoritmasdi; natijada
+    // yopiq xonada pastki sirtlar qorong'i bo'lib qolardi. RectAreaLight panelga
+    // mos o'lchamda pastga (pol tomon) qaraydi.
+    const panelNuri = new THREE.RectAreaLight(0xeef4ff, 1.4, 2.0, 0.8);
+    panelNuri.position.set(x, XONA_H - 0.05, z);
+    panelNuri.lookAt(x, 0.6, z);
+    roomGroup.add(panelNuri);
   });
 
   // 3. CHAP DEVOR VA 4 TA KATTA DERAZALAR (X = -8.0)

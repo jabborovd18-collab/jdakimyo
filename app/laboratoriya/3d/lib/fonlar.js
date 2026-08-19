@@ -29,7 +29,7 @@ export const FONLAR = {
     nom: "Tun",
     izoh: "Eng to'q — yorqin va och rangli eritmalar uchun",
     fon: 0x070a12,
-    tumanZichligi: 0.085,
+    tumanZichligi: 0.032,
     devor: 0x0e1424,
     stol: 0x1c2334,
     pol: 0x090c15,
@@ -46,7 +46,7 @@ export const FONLAR = {
     nom: "Siyohrang",
     izoh: "To'q binafsha — sariq va to'q sariq eritmalar uchun",
     fon: 0x140b28,
-    tumanZichligi: 0.075,
+    tumanZichligi: 0.030,
     devor: 0x1d1138,
     stol: 0x2a1c4a,
     pol: 0x170d2c,
@@ -65,7 +65,7 @@ export const FONLAR = {
     // Ataylab sahifadan (#101114) ancha ochroq: to'q moddalar to'q fonda
     // yo'qoladi va aynan shu mavzu ular uchun mavjud.
     fon: 0x3a3e45,
-    tumanZichligi: 0.055,
+    tumanZichligi: 0.022,
     devor: 0x33373d,
     stol: 0x4b5058,
     pol: 0x2c3036,
@@ -83,7 +83,7 @@ export const FONLAR = {
     izoh: "Yorug' — oq cho'kmalar (AgCl, BaSO₄) uchun",
     fon: 0xeef1f7,
     // Oq fonda quyuq tuman sahnani oqartirib yuboradi — zichlik pasaytirilgan
-    tumanZichligi: 0.04,
+    tumanZichligi: 0.018,
     devor: 0xdbe3ee,
     stol: 0xb9c3d1,
     pol: 0xdfe5ec,
