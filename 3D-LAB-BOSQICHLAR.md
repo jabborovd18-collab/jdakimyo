@@ -32,28 +32,35 @@
       tekshiruv bilan bajariladi — bu sandboxda ko'rib bo'lmagani uchun
       hozircha o'tkazib turilgan.
 
-## BOSQICH 4 — Protsedural teksturalar (o'rta xavf)
+## BOSQICH 4 — Protsedural teksturalar ✅
 
-- [ ] 4.1 — Yog'och gul (Canvas/normal map), `roughnessMap`.
-- [ ] 4.2 — Pol plitka/epoxy, devor beton detali.
+- [x] **4.1+4.2+4.3:** `protsedural-tekstura.js` — yog'och guli, pol plitkasi,
+      devor gips/beton detali. Canvas orqali, tarmoqqa chiqmaydi. Fon
+      almashganda mavzuga mos qayta yaratiladi, `materiallarniTozala` map'larni
+      ham bo'shatadi.
 
 ## BOSQICH 5 — Muhit va yorug'lik
 
-- [ ] 5.1 — `RoomEnvironment` o'rniga real lab HDR (`PMREMGenerator`).
-- [ ] 5.2 — `FogExp2` zichligini kamaytirish.
-- [ ] 5.3 — Ship LED panellariga `RectAreaLight`.
+- [ ] **5.1 — Real lab HDR:** `RoomEnvironment` o'rniga haqiqiy lab HDR
+      kerak (tashqi rasm yuklash). Shuning uchun tashqi asset kerak — hozircha
+      o'tkazib turilgan; xohlasangiz keyin qilamiz.
+- [x] **5.2 — Fog:** tuman zichligi keskin kamaytirildi (0.085→0.018 gacha).
+- [x] **5.3 — RectAreaLight:** shift LED panellari endi atrofni yoritadi.
 
 ---
 
 ## Joriy holat (2026-08-19)
 
-Barcha 1, 2 va 3.1+3.2 (bloom) bosqichlari bajarildi va dev serverda xatosiz
-kompilyatsiya qilindi (`GET /laboratoriya/3d → 200`, faqat Google Fonts
-tarmoq ogohlantirishi — sandbox bilan bog'liq, kodga tegishli emas).
-
-Commitlar:
+Bajarilgan va commit qilingan bosqichlar:
 - `88e7386` — 1-2-bosqich (per-idish holat, isitish qaralgan idishga, grafik).
-- `301db13` — 3-bosqich (bloom).
+- `301db13` — 3.1+3.2 bloom.
+- `450f534` — 4-bosqich protsedural teksturalar.
+- `4775a53` — 5.2 fog + 5.3 RectAreaLight.
 
-Keyingi bosqich: **3.3 — SSAO** (jonli sozlash kerak, keyin) yoki
-**4-bosqich — protsedural teksturalar**.
+Barchasi dev serverda xatosiz kompilyatsiya qilindi (`GET /laboratoriya/3d → 200`;
+faqat Google Fonts tarmoq ogohlantirishi — sandbox bilan bog'liq, kodga tegishli emas).
+
+Jonli brauzerda vizual sozlashni talab qiladigan (qoldirilgan):
+- **3.3 — SSAO** (kuch/radiusni ko'rib sozlash).
+- **5.1 — real HDR** (tashqi asset).
+- **6-bosqich** — mayda detallar (stolda qog'oz, qo'l modeli, Contact Shadows).
