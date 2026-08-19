@@ -21,11 +21,16 @@
 - [x] **2.2 — B5:** Shaffof shisha endi soya tashlamaydi (qora "blob" yo'qoladi).
 - [x] **2.3 — B3:** Oltiburchak (6 segment) idish tagliklari 32 segmentga — silliq.
 
-## BOSQICH 3 — Postprocessing (o'rta xavf) — NAVBATDA
+## BOSQICH 3 — Postprocessing (o'rta xavf)
 
-- [ ] 3.1 — `EffectComposer` + `RenderPass` + `OutputPass` ulash.
-- [ ] 3.2 — Alanga/neonlarga `UnrealBloomPass` (past kuch, arzon rejimda o'chiq).
-- [ ] 3.3 — SSAO yoki Contact Shadows (chuqurlik).
+- [x] **3.1+3.2 — Bloom:** `EffectComposer` + `RenderPass` + `UnrealBloomPass`
+      + `OutputPass` ulandi (kuch 0.55, radius 0.4, threshold 0.55). Arzon
+      rejimda kompozitor o'chiriladi. Resize/cleanup moslashtirildi.
+- [ ] **3.3 — SSAO (GTAOPass):** chuqurlik qo'shadi, lekin vizual sozlashni
+      jonli ko'rib talab qiladi (kuch va radius noto'g'ri bo'lsa sahna loyqa
+      yoki "chalkash" ko'rinishi mumkin). Shuning uchun alohida, jonli
+      tekshiruv bilan bajariladi — bu sandboxda ko'rib bo'lmagani uchun
+      hozircha o'tkazib turilgan.
 
 ## BOSQICH 4 — Protsedural teksturalar (o'rta xavf)
 
@@ -42,8 +47,13 @@
 
 ## Joriy holat (2026-08-19)
 
-Barcha 1 va 2-bosqichlar bajarildi va dev serverda xatosiz kompilyatsiya
-qilindi (`GET /laboratoriya/3d → 200`, faqat Google Fonts tarmoq ogohlantirishi
-— sandbox bilan bog'liq, kodga tegishli emas).
+Barcha 1, 2 va 3.1+3.2 (bloom) bosqichlari bajarildi va dev serverda xatosiz
+kompilyatsiya qilindi (`GET /laboratoriya/3d → 200`, faqat Google Fonts
+tarmoq ogohlantirishi — sandbox bilan bog'liq, kodga tegishli emas).
 
-Keyingi bosqich: **3.1 — postprocessing (bloom)**.
+Commitlar:
+- `88e7386` — 1-2-bosqich (per-idish holat, isitish qaralgan idishga, grafik).
+- `301db13` — 3-bosqich (bloom).
+
+Keyingi bosqich: **3.3 — SSAO** (jonli sozlash kerak, keyin) yoki
+**4-bosqich — protsedural teksturalar**.
