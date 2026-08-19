@@ -26,11 +26,9 @@
 - [x] **3.1+3.2 — Bloom:** `EffectComposer` + `RenderPass` + `UnrealBloomPass`
       + `OutputPass` ulandi (kuch 0.55, radius 0.4, threshold 0.55). Arzon
       rejimda kompozitor o'chiriladi. Resize/cleanup moslashtirildi.
-- [ ] **3.3 — SSAO (GTAOPass):** chuqurlik qo'shadi, lekin vizual sozlashni
-      jonli ko'rib talab qiladi (kuch va radius noto'g'ri bo'lsa sahna loyqa
-      yoki "chalkash" ko'rinishi mumkin). Shuning uchun alohida, jonli
-      tekshiruv bilan bajariladi — bu sandboxda ko'rib bo'lmagani uchun
-      hozircha o'tkazib turilgan.
+- [x] **3.3 — SSAO (GTAOPass):** ulandi (RenderPass dan keyin, bloom dan oldin).
+      Lekin `SSAO_YOQIQ` sukut bo'yicha `false` — kuch/radius/blendIntensityni
+      jonli brauzerda ko'rib sozlash kerak, keyin `true` qilib doimiy yoqiladi.
 
 ## BOSQICH 4 — Protsedural teksturalar ✅
 
@@ -65,11 +63,12 @@ Bajarilgan va commit qilingan bosqichlar:
 - `450f534` — 4-bosqich protsedural teksturalar.
 - `4775a53` — 5.2 fog + 5.3 RectAreaLight.
 - `98910c7` — 6.1 stol detallari (bloknot + ruchka).
+- `9f1abcd` — 3.3 SSAO (GTAOPass, sukut bo'yicha o'chiq, yoqishga tayyor).
 
 Barchasi dev serverda xatosiz kompilyatsiya qilindi (`GET /laboratoriya/3d → 200`;
 faqat Google Fonts tarmoq ogohlantirishi — sandbox bilan bog'liq, kodga tegishli emas).
 
-Jonli brauzerda vizual sozlashni talab qiladigan (qoldirilgan):
-- **3.3 — SSAO** (kuch/radiusni ko'rib sozlash).
+Jonli brauzerda vizual tekshirishni talab qiladigan (faqat sizda qilinadi):
+- **SSAO yoqish** — `useSahna.js` da `SSAO_YOQIQ = true`, kuch/radius sozlash.
 - **5.1 — real HDR** (tashqi asset).
 - **6.2 — FPS qo'l modeli**, **6.3 — Contact Shadows**.
