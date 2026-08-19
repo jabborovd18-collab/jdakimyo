@@ -4,6 +4,20 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
+import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
+
+// SSAO (GTAOPass) — sukut bo'yicha O'CHIRILGAN.
+//
+// Nega o'chiq: kuch, radius va `blendIntensity`ni faqat jonli brauzerda ko'rib
+// sozlash kerak — noto'g'ri qiymat sahni loyqa yoki "chalkash" qilib qo'yishi
+// mumkin. Bu sandboxda ko'z bilan tekshirib bo'lmaydi, shuning uchun avval
+// `true` qilib, mahalliy brauzeringizda sozlab, keyin doimiy qo'yiladi.
+// Yoqilganda ob'ektlar orasidagi kontakt soya chuqurlik beradi (realizm).
+const SSAO_YOQIQ = false;
 import { KAMERA, BOSHQARUV, STOL, SLOTLAR } from "../lib/sozlama.js";
 import {
   materiallarniYarat,
@@ -20,9 +34,24 @@ import { fonOl, SUKUT_FON } from "../lib/fonlar.js";
 // Nega: mobil GPUlarda transmission va og'ir soyalar kadrlarni 10 FPS ga tushirib qo'yishi mumkin.
 function kuchsizQurilmaniAniqla() {
   if (typeof window === "undefined" || typeof navigator === "undefined") return false;
-  const cpuYadrolar = Number(navigator.hardwareConcurrency || 4);
-  const xotiraGb = Number(navigator.deviceMemory || 4);
-  return cpuYadrolar <= 4 || xotiraGb <= 4;
+
+  // Ilgari `cpuYadrolar <= 4 || xotiraGb <= 4` edi — juda tajovuzkor:
+  // ko'plab oddiy noutbuklar `navigator.deviceMemory` da aynan 4 GB
+  // qaytaradi va shu tufayli soya + antialias + haqiqiy transmission shisha
+  // o'chib, sahna "Minecraft" bo'lib ko'rinardi. Endi arzon rejimga faqat
+  // chinakam past resursli qurilma (mobil yoki 2 yadro + 4 GB dan kam)
+  // tushadi; oddiy noutbuk to'liq grafik bilan ishlaydi.
+  try {
+    const mobil = navigator.userAgentData?.mobile ??
+      /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent || "");
+    if (mobil) return true;
+
+    const cpuYadrolar = Number(navigator.hardwareConcurrency || 4);
+    const xotiraGb = Number(navigator.deviceMemory || 4);
+    return cpuYadrolar <= 2 && xotiraGb <= 4;
+  } catch {
+    return false;
+  }
 }
 
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
@@ -39,6 +68,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
   const controlsRef = useRef(null);
   const materiallarRef = useRef(null);
   const kadrIdRef = useRef(null);
+  const composerRef = useRef(null);
   const jihozlarMapRef = useRef(new Map()); // slotIndex -> THREE.Group
 
   // Fon almashganda yangilanadigan obyektlar. Ular ref da saqlanadi, chunki
@@ -103,6 +133,16 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     group.traverse((child) => {
       if (child.isMesh) {
         if (child.geometry) child.geometry.dispose();
+        // Ilgari faqat geometriya bo'shatilar, material va tekstura GPU da
+        // qolib, ko'p marta idish olib-tashlansa xotira sizib borardi (leak).
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((m) => { if (m?.map) m.map.dispose(); m?.dispose(); });
+          } else {
+            if (child.material.map) child.material.map.dispose();
+            child.material.dispose();
+          }
+        }
       }
     });
 
@@ -155,6 +195,45 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     konteynerRef.current.innerHTML = "";
     konteynerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // 3.6. Postprocessing (bloom) — realizmning eng katta omili.
+    //
+    // Ilgari postprocessing umuman yo'q edi: alanga, neon chiroqlar, LED
+    // ekranlar o'z yorqinligini atrofga "nur" sifatida taratolmasdi va sahna
+    // yassi, "Minecraft" bo'lib ko'rinardi. UnrealBloomPass yorqin pikselni
+    // atrofiga silliq yoyadi (bloom). Arzon rejimda o'chiriladi — kompozitsiya
+    // qo'shimcha GPU yuki beradi, past qurilmalar oddiy render bilan ishlaydi.
+    let composer = null;
+    if (!arzonRejim) {
+      composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, kamera));
+
+      // SSAO (kontakt soya) — yoqilganda RenderPass dan keyin keladi: u
+      // sahna rasmni o'qib, ustiga chuqurlik soyasini blend qiladi. Keyin
+      // bloom ishlaydi. Konservativ boshlang'ich qiymatlar — ko'rib sozlanadi.
+      if (SSAO_YOQIQ) {
+        const gtao = new GTAOPass(scene, kamera, konteynerRef.current.clientWidth, konteynerRef.current.clientHeight, {
+          radius: 0.2,
+          distanceExponent: 1.0,
+          thickness: 1.0,
+          distanceFallOff: 1.0,
+          scale: 4,
+          samples: 16,
+        }, { samples: 16 });
+        gtao.output = GTAOPass.OUTPUT.Default;
+        gtao.blendIntensity = 0.6;
+        composer.addPass(gtao);
+      }
+
+      composer.addPass(new UnrealBloomPass(
+        new THREE.Vector2(konteynerRef.current.clientWidth, konteynerRef.current.clientHeight),
+        0.55, // kuch
+        0.4,  // radius — nur tarqalishi
+        0.55, // threshold — qanday yorqinlik "nur" bo'lishi
+      ));
+      composer.addPass(new OutputPass());
+      composerRef.current = composer;
+    }
 
     // 3.5. Muhit xaritasi (envMap)
     //
@@ -289,6 +368,8 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       kameraRef.current.aspect = w / h;
       kameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(w, h);
+      // Kompozitor o'lchami ham yangilanadi, aks holda bloom yorilib ketadi.
+      if (composer) composer.setSize(w, h);
     };
 
     const resizeObserver = new ResizeObserver(() => {
@@ -342,7 +423,9 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
         }
       });
 
-      renderer.render(scene, kamera);
+      // Bloom yoqilgan bo'lsa kompozitor chizadi, aks holda oddiy render.
+      if (composer) composer.render();
+      else renderer.render(scene, kamera);
     };
     animate();
 
@@ -378,6 +461,10 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       scene.environment = null;
       materiallarniTozala(materiallar);
 
+      if (composerRef.current) {
+        composerRef.current.dispose();
+        composerRef.current = null;
+      }
       if (rendererRef.current) {
         rendererRef.current.dispose();
       }

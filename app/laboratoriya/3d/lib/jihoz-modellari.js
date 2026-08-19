@@ -895,7 +895,9 @@ function olchovSilindriYasa(materiallar) {
   const shkalaMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
   // Oltiburchakli mustahkam taglik (Hexagonal Base)
-  const taglikGeo = new THREE.CylinderGeometry(0.055, 0.06, 0.012, 6);
+  // Taglik ilgari 6 segmentli (oltiburchak) edi — FPS rejimida yaqinlashganda
+  // qirrali "Minecraft" ko'rinardi. Endi 32 segment bilan aylana silliq.
+  const taglikGeo = new THREE.CylinderGeometry(0.055, 0.06, 0.012, 32);
   const taglik = new THREE.Mesh(taglikGeo, shishaMat);
   taglik.position.y = 0.006;
   group.add(taglik);
@@ -1068,12 +1070,23 @@ function zaxiraModel(kalit, materiallar) {
 //
 // Suyuqlik va cho'kma chetda qoladi: ular shaffof, lekin soya xaritasi
 // shaffoflikni bilmaydi va ular to'ldirilgan qora dog' tashlardi.
+//
+// Shaffof shisha ham soya tashlamaydi (faqat qabul qiladi): aks holda butun
+// idish shaklidagi qora "blob" soya tushib, idish stol ustida turganini
+// sun'iy va tekis ko'rsatardi. Faqat shaffof bo'lmagan qismlar (metall,
+// tiqin, oyoq) soya tashlaydi.
 function soyalarniYoq(group) {
   group.traverse((child) => {
     if (!child.isMesh) return;
     if (child === group.userData.suyuqlikMesh) return;
     if (child === group.userData.chokmaMesh) return;
-    child.castShadow = true;
+
+    const mat = child.material;
+    const shaffof = Array.isArray(mat)
+      ? mat.some((m) => m?.transparent || (m?.opacity !== undefined && m.opacity < 0.99))
+      : Boolean(mat?.transparent || (mat?.opacity !== undefined && mat.opacity < 0.99));
+
+    child.castShadow = !shaffof;
     child.receiveShadow = true;
   });
 }

@@ -4,6 +4,11 @@
 // O'rtadagi to'siq javon butunlay olib tashlangan: zal keng, yorug' va erkin.
 //
 import * as THREE from "three";
+import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
+
+// Shift LED panellari uchun RectAreaLight shaderlarini bir marta yuklaymiz.
+// Nega: ishga tushirilmasa RectAreaLight to'g'ri yoritmaydi (faqat to'q qoladi).
+RectAreaLightUniformsLib.init();
 
 /** Davriy jadval plakatini yaratish — 2048x1024 Yuqori aniqlikdagi keng formatli LED plakat */
 function davriyJadvalPlakati() {
@@ -243,6 +248,15 @@ function xonaQobiginiYasa(materiallar) {
     lamp.rotation.x = Math.PI / 2;
     lamp.position.set(x, XONA_H - 0.01, z);
     roomGroup.add(lamp);
+
+    // Haqiqiy yorug'lik — panel bir tekis, yumshoq sirt manbai sifatida yoritadi.
+    // Ilgari panel faqat yorqin yuz edi, lekin atrofni yoritmasdi; natijada
+    // yopiq xonada pastki sirtlar qorong'i bo'lib qolardi. RectAreaLight panelga
+    // mos o'lchamda pastga (pol tomon) qaraydi.
+    const panelNuri = new THREE.RectAreaLight(0xeef4ff, 1.4, 2.0, 0.8);
+    panelNuri.position.set(x, XONA_H - 0.05, z);
+    panelNuri.lookAt(x, 0.6, z);
+    roomGroup.add(panelNuri);
   });
 
   // 3. CHAP DEVOR VA 4 TA KATTA DERAZALAR (X = -8.0)
@@ -1184,7 +1198,9 @@ function jihozlarStendiYasa(materiallar) {
   const silMesh = new THREE.Mesh(silGeo, shishaMat);
   silMesh.position.y = 0.07;
   silindrGroup.add(silMesh);
-  const silAsosGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.008, 6);
+  // Silindr asosi ilgari 6 segmentli (oltiburchak) edi — endi 32 segment
+  // bilan dumaloq, FPS yaqinlashuvida qirralar ko'rinmaydi.
+  const silAsosGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.008, 32);
   const silAsos = new THREE.Mesh(silAsosGeo, shishaMat);
   silAsos.position.y = 0.004;
   silindrGroup.add(silAsos);
@@ -1386,6 +1402,88 @@ function yonStollarniYasa(materiallar) {
   return group;
 }
 
+/** Stol ustidagi mayda realist detallar — qog'oz bloknot va ruchka.
+ *
+ * Nega kerak: bo'sh stol "3D o'yin" va haqiqiy lab orasidagi farqni katta
+ * oshiradi. Kichik daftar va ruchka kabi narsalar tomoshabinga xonaning
+ * "yashayotgan" joy ekanini sezdirib, realizmni sezilarli ko'taradi. Hammasi
+ * protsedural (Canvas + asosiy geometriya), tarmoqqa chiqmaydi.
+ */
+function stolDaftarlariYasa() {
+  const group = new THREE.Group();
+  group.name = "Stol_Daftarlari";
+
+  // SSR'da document yo'q — bu funksiya faqat brauzerda chaqiriladi (useEffect
+  // ichida), lekin xavfsizlik uchun bir xil tekshiruv qo'yiladi.
+  if (typeof document === "undefined") return group;
+
+  // Qog'oz bloknot: oq qog'oz + chiziqli satrlar (Canvas tekstura).
+  const pad = new THREE.Group();
+  const padOlcham = 0.28;
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#fbfbf6";
+  ctx.fillRect(0, 0, 256, 256);
+  ctx.strokeStyle = "rgba(59,130,246,0.5)";
+  ctx.lineWidth = 3;
+  for (let y = 30; y < 256; y += 26) {
+    ctx.beginPath();
+    ctx.moveTo(12, y);
+    ctx.lineTo(244, y);
+    ctx.stroke();
+  }
+  const padTex = new THREE.CanvasTexture(canvas);
+  const padYuz = new THREE.Mesh(
+    new THREE.BoxGeometry(padOlcham, 0.006, padOlcham * 1.3),
+    new THREE.MeshStandardMaterial({ map: padTex, roughness: 0.9 }),
+  );
+  padYuz.position.y = 0.003;
+  pad.add(padYuz);
+
+  // Bloknot qopqog'i (ostidagi qalinroq karton).
+  const padQopqoq = new THREE.Mesh(
+    new THREE.BoxGeometry(padOlcham + 0.006, 0.004, padOlcham * 1.3 + 0.006),
+    new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 }),
+  );
+  padQopqoq.position.y = 0.0005;
+  pad.add(padQopqoq);
+
+  // Qog'oz bilan qopqoq orasidagi "kesishma" — yon tomondan ko'ringan qatlam.
+  const qatlam = new THREE.Mesh(
+    new THREE.BoxGeometry(padOlcham + 0.004, 0.012, 0.012),
+    new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 }),
+  );
+  qatlam.position.set(0, 0.006, -padOlcham * 0.65);
+  pad.add(qatlam);
+
+  pad.position.set(-3.9, 0.905, 0.66);
+  group.add(pad);
+
+  // Ruchka: ingichka korpus + qopqoq konusi.
+  const ruchka = new THREE.Group();
+  const korpusMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.3, metalness: 0.2 });
+  const uchMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 });
+  const korpus = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.12, 12), korpusMat);
+  korpus.rotation.z = Math.PI / 2;
+  ruchka.add(korpus);
+  const uch = new THREE.Mesh(new THREE.ConeGeometry(0.005, 0.02, 12), uchMat);
+  uch.rotation.z = Math.PI / 2;
+  uch.position.x = 0.065;
+  ruchka.add(uch);
+  const qopqoq = new THREE.Mesh(new THREE.CylinderGeometry(0.0065, 0.0065, 0.035, 12), uchMat);
+  qopqoq.rotation.z = Math.PI / 2;
+  qopqoq.position.x = -0.06;
+  ruchka.add(qopqoq);
+  // Ruchka bloknotning yoniga, bir oz qiyalatib qo'yiladi.
+  ruchka.position.set(-3.7, 0.908, 0.62);
+  ruchka.rotation.z = -0.12;
+  group.add(ruchka);
+
+  return group;
+}
+
 /** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
 export function xonaInteryeriniYasa(materiallar) {
   const roomGroup = new THREE.Group();
@@ -1417,6 +1515,9 @@ export function xonaInteryeriniYasa(materiallar) {
 
   // 9. Stoldagi 3D Smart Laboratoriya Plansheti (Smart Monitor & Notebook)
   roomGroup.add(smartPlanshetYasa(materiallar));
+
+  // 10. Stol ustidagi mayda realist detallar (qog'oz bloknot, ruchka)
+  roomGroup.add(stolDaftarlariYasa());
 
   return roomGroup;
 }

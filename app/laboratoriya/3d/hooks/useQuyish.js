@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { QUYISH } from "../lib/sozlama.js";
-import { quy, jamiHajm } from "../lib/idish-holati.js";
+import { quy, jamiHajm, idishHolatiniOl, idishHolatiniYoz } from "../lib/idish-holati.js";
 import { aralashmaRangi } from "../lib/rang-aralashtirish.js";
 import { moddaKorinishi } from "../lib/modda-korinishi.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
@@ -72,7 +72,7 @@ function reagentShishasiYasa(kalit, rang) {
  *  - Devordagi shishaning suyuqlik sathi real vaqtda kamayishi (Depletion).
  *  - Tiqin ochilishi ovozi va javondagi o'z joyiga silliq qaytishi.
  */
-export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
+export function useQuyish({ sahnaRef, jurnalRef, onOzgarish }) {
   const [quyilmoqda, setQuyilmoqda] = useState(false);
   const [egishBurchagi, setEgishBurchagi] = useState(0); // 0 dan 80 gradusgacha
   const [hajm, setHajm] = useState(0);
@@ -122,7 +122,10 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     faolReagentRef.current = reagentKaliti || sourceGroup?.userData?.kalit;
     manbaIdishRef.current = sourceGroup;
     nishonIdishRef.current = targetGroup;
-    boshlangichHajmRef.current = jamiHajm(holatRef?.current);
+    // Hajm oldin global holatdan olinardi; endi quyilayotgan idishning
+    // o'z holatidan olinadi (har idish alohida saqlanadi).
+    const boshlangichHolat = idishHolatiniOl(targetGroup, targetGroup.userData?.kalit);
+    boshlangichHajmRef.current = jamiHajm(boshlangichHolat);
     vaqtRef.current = Date.now();
     burchakRef.current = boshlangichBurchak;
     setEgishBurchagi(boshlangichBurchak);
@@ -179,7 +182,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     tiqinOchilishi(); // Tiqin ochilish ovozi
     oqimBoshla();
     setQuyilmoqda(true);
-  }, [sahnaRef, holatRef]);
+  }, [sahnaRef]);
 
   // Quyishni to'xtatish
   const quyishToxtat = useCallback(() => {
@@ -212,7 +215,10 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
       vizualGuruhRef.current = null;
     }
 
-    const hozirgiJami = jamiHajm(holatRef?.current);
+    // Quyilgan hajm quyish tugashi paytidagi nishon idishning o'z holatidan
+    // hisoblanadi — global holat emas.
+    const nishonHolat = idishHolatiniOl(nishonIdishRef.current, nishonIdishRef.current?.userData?.kalit);
+    const hozirgiJami = jamiHajm(nishonHolat);
     const qoshilganMl = Number((hozirgiJami - boshlangichHajmRef.current).toFixed(1));
 
     if (qoshilganMl > 0.05 && jurnalRef?.current && faolReagentRef.current) {
@@ -225,7 +231,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
 
     setQuyilmoqda(false);
     setQuyishTezligiMl(0);
-  }, [quyilmoqda, sahnaRef, holatRef, jurnalRef]);
+  }, [quyilmoqda, sahnaRef, jurnalRef]);
 
   // Shishani o'z javonidagi joyiga silliq qaytarish
   const javongaQaytar = useCallback(() => {
@@ -243,13 +249,15 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
 
   // Aniq millilitr miqdorida darhol silliq quyish (Direct Volumetric Quick Dosage)
   const aniqHajmQuy = useCallback((reagentKaliti, targetGroup, qoshiladiganMl = 10) => {
-    if (!targetGroup || !holatRef?.current || !reagentKaliti) return;
+    if (!targetGroup || !reagentKaliti) return;
 
     oqimBoshla();
     tiqinOchilishi();
 
-    const yangiHolat = quy(holatRef.current, reagentKaliti, qoshiladiganMl);
-    holatRef.current = yangiHolat;
+    // Quyish maqsadli idishning o'z holatiga amalga oshiriladi.
+    const boshlangich = idishHolatiniOl(targetGroup, targetGroup.userData?.kalit);
+    const yangiHolat = quy(boshlangich, reagentKaliti, qoshiladiganMl);
+    idishHolatiniYoz(targetGroup, yangiHolat);
 
     const yangiHajm = jamiHajm(yangiHolat);
     setHajm(yangiHajm);
@@ -273,13 +281,13 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     }
 
     if (typeof onOzgarish === "function") {
-      onOzgarish(yangiHolat);
+      onOzgarish(targetGroup, yangiHolat);
     }
 
     setTimeout(() => {
       oqimToxtat();
     }, 450);
-  }, [sahnaRef, holatRef, jurnalRef, onOzgarish]);
+  }, [sahnaRef, jurnalRef, onOzgarish]);
 
   // Quyish fizikasi animatsiyasi sikli
   useEffect(() => {
@@ -294,7 +302,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
 
       const reagent = faolReagentRef.current;
       const idishGroup = nishonIdishRef.current;
-      if (!reagent || !idishGroup || !holatRef?.current) return;
+      if (!reagent || !idishGroup) return;
 
       const burchak = burchakRef.current;
       
@@ -318,9 +326,10 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
 
       const qoshiladigan = tezlikMlSec * dt;
 
-      // 1. Maqsadli idishga suyuqlik quyish
-      const yangiHolat = quy(holatRef.current, reagent, qoshiladigan);
-      holatRef.current = yangiHolat;
+      // 1. Maqsadli idishga suyuqlik quyish — o'sha idishning o'z holatiga.
+      const boshlangich = idishHolatiniOl(idishGroup, idishGroup.userData?.kalit);
+      const yangiHolat = quy(boshlangich, reagent, qoshiladigan);
+      idishHolatiniYoz(idishGroup, yangiHolat);
 
       const yangiHajm = jamiHajm(yangiHolat);
       setHajm(yangiHajm);
@@ -337,7 +346,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
       }
 
       if (typeof onOzgarish === "function") {
-        onOzgarish(yangiHolat);
+        onOzgarish(idishGroup, yangiHolat);
       }
     };
 
@@ -346,7 +355,7 @@ export function useQuyish({ sahnaRef, holatRef, jurnalRef, onOzgarish }) {
     return () => {
       if (kadrIdRef.current) cancelAnimationFrame(kadrIdRef.current);
     };
-  }, [quyilmoqda, holatRef, onOzgarish]);
+  }, [quyilmoqda, onOzgarish]);
 
   return {
     quyishBoshla,

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { RANGLAR } from "./sozlama.js";
 import { fonOl } from "./fonlar.js";
+import { yogochTeksturasi, polTeksturasi, devorTeksturasi } from "./protsedural-tekstura.js";
 
 // Materiallarni BIR MARTA yaratib, barcha modellarda qayta ishlatamiz.
 // Nega: har bir idish uchun alohida material yasalsa, 20 ta idish bo'lganda GPU xotirasi
@@ -64,11 +65,17 @@ export function materiallarniYarat(fonKaliti, arzonRejim = false) {
   });
 
   const yogoch = new THREE.MeshStandardMaterial({
-    color: fon.stol,
+    color: 0xffffff,
     roughness: 0.65,
     metalness: 0.1,
     envMapIntensity: 0.7,
+    // Yog'och guli protsedural teksturadan (protsedural-tekstura.js) —
+    // `color` oq qoldiriladi, chunki rangni teksturaning o'zi olib keladi.
+    map: yogochTeksturasi(fon.stol),
   });
+  yogoch.map.wrapS = THREE.RepeatWrapping;
+  yogoch.map.wrapT = THREE.RepeatWrapping;
+  yogoch.map.repeat.set(3, 1);
 
   const rezina = new THREE.MeshStandardMaterial({
     color: 0x1e293b,
@@ -77,11 +84,25 @@ export function materiallarniYarat(fonKaliti, arzonRejim = false) {
   });
 
   const pol = new THREE.MeshStandardMaterial({
-    color: fon.pol ?? fon.fon,
+    color: 0xffffff,
     roughness: 0.35,
     metalness: 0.15,
     envMapIntensity: 0.5,
+    map: polTeksturasi(fon.pol ?? fon.fon),
   });
+  pol.map.wrapS = THREE.RepeatWrapping;
+  pol.map.wrapT = THREE.RepeatWrapping;
+  pol.map.repeat.set(4, 3);
+
+  const devor = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.85,
+    metalness: 0.0,
+    map: devorTeksturasi(fon.devor ?? fon.fon),
+  });
+  devor.map.wrapS = THREE.RepeatWrapping;
+  devor.map.wrapT = THREE.RepeatWrapping;
+  devor.map.repeat.set(6, 4);
 
   return {
     shisha,
@@ -90,6 +111,7 @@ export function materiallarniYarat(fonKaliti, arzonRejim = false) {
     yogoch,
     rezina,
     pol,
+    devor,
     arzon: arzonRejim,
   };
 }
@@ -104,8 +126,39 @@ export function materiallarniFongaMoslash(materiallar, fonKaliti) {
   const muhitKuchi = fon.muhitKuchi ?? 0.5;
 
   materiallar.shisha?.color.setHex(fon.shisha);
-  materiallar.yogoch?.color.setHex(fon.stol);
-  materiallar.pol?.color.setHex(fon.pol ?? fon.fon);
+
+  // Teksturali materiallar rangni teksturadan oladi (color oq), shuning uchun
+  // fon almashganda teksturalar qayta yaratiladi — aks holda eski mavzuning
+  // rangi qolib ketardi.
+  if (materiallar.yogoch) {
+    materiallar.yogoch.color.setHex(0xffffff);
+    materiallar.yogoch.map?.dispose();
+    materiallar.yogoch.map = yogochTeksturasi(fon.stol);
+    materiallar.yogoch.map.wrapS = THREE.RepeatWrapping;
+    materiallar.yogoch.map.wrapT = THREE.RepeatWrapping;
+    materiallar.yogoch.map.repeat.set(3, 1);
+    materiallar.yogoch.needsUpdate = true;
+  }
+
+  if (materiallar.pol) {
+    materiallar.pol.color.setHex(0xffffff);
+    materiallar.pol.map?.dispose();
+    materiallar.pol.map = polTeksturasi(fon.pol ?? fon.fon);
+    materiallar.pol.map.wrapS = THREE.RepeatWrapping;
+    materiallar.pol.map.wrapT = THREE.RepeatWrapping;
+    materiallar.pol.map.repeat.set(4, 3);
+    materiallar.pol.needsUpdate = true;
+  }
+
+  if (materiallar.devor) {
+    materiallar.devor.color.setHex(0xffffff);
+    materiallar.devor.map?.dispose();
+    materiallar.devor.map = devorTeksturasi(fon.devor ?? fon.fon);
+    materiallar.devor.map.wrapS = THREE.RepeatWrapping;
+    materiallar.devor.map.wrapT = THREE.RepeatWrapping;
+    materiallar.devor.map.repeat.set(6, 4);
+    materiallar.devor.needsUpdate = true;
+  }
 
   // Muhit xaritasining kuchi ham mavzu bilan birga o'zgaradi: qorong'u
   // sahnada to'liq kuch bersak, idishlar fonda sun'iy yaltirab turadi.
@@ -163,6 +216,11 @@ export function materiallarniTozala(materiallar) {
 
   Object.values(materiallar).forEach((material) => {
     if (material && typeof material.dispose === "function") {
+      // Material ichidagi protsedural teksturalar ham bo'shatiladi — aks holda
+      // GPU xotirasi fon almashganda yoki unmount bo'lganda sizib borardi.
+      if (material.map && typeof material.map.dispose === "function") {
+        material.map.dispose();
+      }
       material.dispose();
     }
   });
