@@ -122,3 +122,63 @@ ularni sen ko'rishing shart emas, sonlar yetarli (AGENTS.md 11.1).
 
 **BRIF-00 bajarilmagan bo'lsa, bu brifni boshlama** — o'lchamasdan
 kalibrlab bo'lmaydi.
+
+---
+
+## Qo'shimcha topilma (2026-08-20) — mobil qurilma cho'kadi
+
+Egasi telefonda sinab ko'rdi: qurilma jiddiy sekinlashdi. Sabab
+o'lchandi va u shu brifning mavzusi — yorug'lik byudjeti faqat
+ekspozitsiya haqida emas, **fragment narxi** haqida ham.
+
+### 8 ta RectAreaLight
+
+`xona-modellari.js:246-260` — `trofferYlar` massivida 8 ta shift
+paneli bor va **har biriga bittadan `RectAreaLight(1.4)`** beriladi.
+
+RectAreaLight three.js'dagi eng qimmat yorug'lik turi: LTC usulida
+ishlaydi va har piksel uchun, har chiroqdan **ikkitadan tekstura
+o'qishi** kerak. Soyani ham qo'llab-quvvatlamaydi. Sakkiztasi mobil
+GPU uchun ko'tarib bo'lmaydigan yuk.
+
+Umumiy hisob — telefon har piksel uchun ~13 manbani hisoblaydi:
+2 Directional + Ambient (`useSahna`), 1 Directional + 8 RectArea +
+1 Point (`xona-modellari`), ustiga `scene.environment` IBL.
+
+### Arzon rejim bularga TA'SIR QILMAYDI
+
+```
+materiallarniYarat(fonKaliti, arzonRejim)   <- biladi
+javon3dYasa(materiallar, arzonRejim)        <- biladi
+xonaInteryeriniYasa(materiallar)            <- BILMAYDI
+```
+
+`xona-modellari.js` arzon rejim borligini umuman eshitmagan. Telefonda
+o'chadigan narsalar — antialias, soya xaritasi, bloom, qimmat shisha.
+**Sakkizta RectAreaLight o'chmaydi.** Ya'ni arzon rejim eng arzon
+narsalarni o'chirib, eng qimmatini qoldiradi.
+
+### Shu brifga qo'shiladigan vazifalar
+
+1. `lib/yoruglik.js` **`arzonRejim` ni argument sifatida qabul qilsin.**
+   Yagona egalik shuning uchun ham kerak: hozir yorug'lik ikki faylda
+   tug'iladi va biri sifat pog'onasini bilmaydi.
+2. Mobilda RectAreaLight **umuman ishlatilmasin**. O'rniga arzon
+   muqobil: panel yuzasi `emissive` + bitta yumshoq umumiy manba.
+   Yoki 8 tadan 2 taga tushirish.
+3. `setPixelRatio` mobilda **1.0** bo'lsin (hozir `min(DPR, 1.5)` —
+   DPR 3 bo'lgan telefonda piksel soni 2.25 barobar ortiq).
+4. Har sifat pog'onasi uchun **yorug'lik soni chegarasi** yozilsin va
+   `OLCHOV.md` da qayd etilsin.
+
+### Sabab EMAS — vaqt sarflamang
+
+Protsedural teksturalar 512x512 va 256x256. Telefon buni bemalol
+ko'taradi. ~193 ta alohida mesh (draw call) ikkinchi darajali —
+yuqoridagi shader yuki ustiga tushadi, lekin asosiy sabab emas.
+
+### Kelib chiqishi
+
+`4775a53` (19-avgust, "muhit yorug'ligi — RectAreaLight") — o'sha
+oltita kommitdan biri. Telefon og'irligi ham, oq kuyish ham bitta
+manbadan: sozlanmagan yorug'lik byudjetidan.
