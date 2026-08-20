@@ -192,7 +192,7 @@ function probirkaYasa(materiallar) {
 
   // Suyuqlik va cho'kma mesh
   const suyuqlikGeo = new THREE.CylinderGeometry(0.041, 0.041, 0.22, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -239,7 +239,7 @@ function stakanYasa(materiallar) {
   group.add(tub);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.076, 0.076, 0.18, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -289,7 +289,7 @@ function konussimonKolbaYasa(materiallar) {
   group.add(kolba);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.05, 0.085, 0.13, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -335,7 +335,7 @@ function dumaloqTubliKolbaYasa(materiallar) {
   group.add(boyin);
 
   const suyuqlikGeo = new THREE.SphereGeometry(0.08, 32, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.position.y = 0.095;
   suyuqlikMesh.visible = false;
@@ -385,7 +385,7 @@ function kolbaYasa(materiallar) {
   group.add(mesh);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.055, 0.08, 0.12, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -431,7 +431,7 @@ function kristallizatorYasa(materiallar) {
   group.add(tub);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.116, 0.116, 0.06, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -483,7 +483,7 @@ function byuretkaYasa(materiallar) {
   group.add(tutqich);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.45, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -858,7 +858,7 @@ function olchovKolbasiYasa(materiallar) {
   group.add(tiqin);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.014, 0.06, 0.20, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.75, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.75, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -917,7 +917,7 @@ function olchovSilindriYasa(materiallar) {
   }
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.026, 0.026, 0.28, 32);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.75, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.75, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -1037,7 +1037,7 @@ function zaxiraModel(kalit, materiallar) {
   group.add(quvur);
 
   const suyuqlikGeo = new THREE.BoxGeometry(0.14, 0.1, 0.12);
-  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.arzon);
+  const suyuqlikMat = suyuqlikYasa(0xffffff, 0.7, materiallar?.profil?.transmission ?? true);
   const suyuqlikMesh = new THREE.Mesh(suyuqlikGeo, suyuqlikMat);
   suyuqlikMesh.visible = false;
   group.add(suyuqlikMesh);
@@ -1094,8 +1094,10 @@ function soyalarniYoq(group) {
 // Jihoz turiga qarab mos protsedural 3D model yaratish dispetcher funksiyasi.
 // Nega: tashqi .glb / .gltf yuklamasdan, barcha geometriya Three.js ichida yasalishi
 // tarmoq trafigini va yuklanish vaqtini 10 barobargacha tejaydi.
-export function jihozYasa(kalit, materiallar) {
+export function jihozYasa(kalit, materiallar, profil) {
+  if (!profil) throw new Error("Jihoz uchun sifat profili berilmadi");
   const group = modelYasa(kalit, materiallar);
+  group.userData.profil = profil;
   soyalarniYoq(group);
 
   // Sig'im `lib/lab-idish.js` dan olinadi, model ichida yozilmaydi.

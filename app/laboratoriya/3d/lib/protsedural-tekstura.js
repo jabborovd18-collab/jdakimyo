@@ -86,10 +86,10 @@ export function yogochTeksturasi(asosRang = 0x8b5a2b, olcham = 512) {
  * Pol teksturasi — plitka (laboratoriya epoksi/vinil).
  * @param {number} asosRang — polning asosiy rangi (fonlar.js `pol`)
  * @param {number} [katak=4] — kataklar soni (qatorda)
+ * @param {number} [olcham=512] — profil belgilagan canvas o'lchami
  */
-export function polTeksturasi(asosRang = 0x2c3036, katak = 4) {
+export function polTeksturasi(asosRang = 0x2c3036, katak = 4, olcham = 512) {
   const canvas = document.createElement("canvas");
-  const olcham = 512;
   canvas.width = olcham;
   canvas.height = olcham;
   const ctx = canvas.getContext("2d");
@@ -135,16 +135,17 @@ export function polTeksturasi(asosRang = 0x2c3036, katak = 4) {
 /**
  * Devor teksturasi — yengil beton/gips to'sig'i.
  * @param {number} asosRang — devor rangi (fonlar.js `devor`)
+ * @param {number} [olcham=256] — profil belgilagan canvas o'lchami
  */
-export function devorTeksturasi(asosRang = 0x1e293b) {
+export function devorTeksturasi(asosRang = 0x1e293b, olcham = 256) {
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
+  canvas.width = olcham;
+  canvas.height = olcham;
   const ctx = canvas.getContext("2d");
 
   const asos = hexRgb(asosRang);
   ctx.fillStyle = rangniSozla(asos, 1.0);
-  ctx.fillRect(0, 0, 256, 256);
+  ctx.fillRect(0, 0, olcham, olcham);
 
   // To'siq (plaster) — katta, yumshoq dog'lar.
   for (let i = 0; i < 160; i++) {
@@ -152,7 +153,7 @@ export function devorTeksturasi(asosRang = 0x1e293b) {
     ctx.fillStyle = rangniSozla(asos, k);
     ctx.globalAlpha = 0.1 + Math.random() * 0.2;
     const s = 6 + Math.random() * 40;
-    ctx.fillRect(Math.random() * 256, Math.random() * 256, s, s);
+    ctx.fillRect(Math.random() * olcham, Math.random() * olcham, s, s);
   }
   ctx.globalAlpha = 1;
 

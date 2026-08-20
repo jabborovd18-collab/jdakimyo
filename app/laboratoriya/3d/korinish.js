@@ -88,7 +88,7 @@ export default function Korinish() {
     jihozOlib,
     hammaJihozlar,
     kuchsizQurilma,
-  } = useSahna(konteynerRef, yuklanmoqda, SUKUT_FON);
+  } = useSahna(konteynerRef, yuklanmoqda);
 
   // 4. Tarozi va Spirtovka Callbacklari
   // Quyish tugagach chaqiriladi: `group` — tarkibi o'zgargan idish, `holat`

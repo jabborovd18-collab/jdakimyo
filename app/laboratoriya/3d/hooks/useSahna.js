@@ -10,61 +10,25 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
 
-// SSAO (GTAOPass) — sukut bo'yicha O'CHIRILGAN.
-//
-// Nega o'chiq: kuch, radius va `blendIntensity`ni faqat jonli brauzerda ko'rib
-// sozlash kerak — noto'g'ri qiymat sahni loyqa yoki "chalkash" qilib qo'yishi
-// mumkin. Bu sandboxda ko'z bilan tekshirib bo'lmaydi, shuning uchun avval
-// `true` qilib, mahalliy brauzeringizda sozlab, keyin doimiy qo'yiladi.
-// Yoqilganda ob'ektlar orasidagi kontakt soya chuqurlik beradi (realizm).
-const SSAO_YOQIQ = false;
 import { KAMERA, BOSHQARUV, STOL, SLOTLAR } from "../lib/sozlama.js";
-import {
-  materiallarniYarat,
-  materiallarniTozala,
-  materiallarniFongaMoslash,
-} from "../lib/materiallar.js";
+import { materiallarniYarat, materiallarniTozala } from "../lib/materiallar.js";
 import { jihozYasa } from "../lib/jihoz-modellari.js";
 import { javon3dYasa } from "../lib/javon-3d.js";
 import { xonaInteryeriniYasa } from "../lib/xona-modellari.js";
-import { fonOl, SUKUT_FON } from "../lib/fonlar.js";
-
-// Kuchsiz qurilmani aniqlash funksiyasi: mobil va past xotirali qurilmalarni aniqlab,
-// shishaArzon materialiga va soyasiz rejimga o'tamiz.
-// Nega: mobil GPUlarda transmission va og'ir soyalar kadrlarni 10 FPS ga tushirib qo'yishi mumkin.
-function kuchsizQurilmaniAniqla() {
-  if (typeof window === "undefined" || typeof navigator === "undefined") return false;
-
-  // Ilgari `cpuYadrolar <= 4 || xotiraGb <= 4` edi — juda tajovuzkor:
-  // ko'plab oddiy noutbuklar `navigator.deviceMemory` da aynan 4 GB
-  // qaytaradi va shu tufayli soya + antialias + haqiqiy transmission shisha
-  // o'chib, sahna "Minecraft" bo'lib ko'rinardi. Endi arzon rejimga faqat
-  // chinakam past resursli qurilma (mobil yoki 2 yadro + 4 GB dan kam)
-  // tushadi; oddiy noutbuk to'liq grafik bilan ishlaydi.
-  try {
-    const mobil = navigator.userAgentData?.mobile ??
-      /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent || "");
-    if (mobil) return true;
-
-    const cpuYadrolar = Number(navigator.hardwareConcurrency || 4);
-    const xotiraGb = Number(navigator.deviceMemory || 4);
-    return cpuYadrolar <= 2 && xotiraGb <= 4;
-  } catch {
-    return false;
-  }
-}
+import { SAHNA_FONI } from "../lib/fonlar.js";
+import { profilniAniqla, profilniOl } from "../lib/sifat-profili.js";
 
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
 // Nega useSahna hook ichida yozildi: barcha imperativ Three.js kodlari bitta joyda yig'iladi
 // va React render siklidan ajralgan holatda 60 FPS ishlashni ta'minlaydi.
-export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FON, sozlama = {}) {
-  // Bu ikki sozlama faqat /laboratoriya/3d/olcham marshrutidan keladi.
-  // Jonli sahifa ularni bermaydi — o'lchagich mobil va desktop yo'lini
-  // tanlay oladi, lekin yorug'lik, material yoki geometriyani almashtirmaydi.
+export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
+  // O'lchagich profilni aniq beradi; jonli sahifa esa qurilmadan aniqlaydi.
+  // Ref ishlatilishining sababi: sozlama obyektini effect bog'liqligiga
+  // qo'shish sahnani har React renderida qayta qurib yuborardi.
   const olchamRef = useRef(!!sozlama.olcham);
-  const olchamSifatRef = useRef(sozlama.sifat === "arzon" ? "arzon" : "toliq");
+  const aniqProfilRef = useRef(sozlama.profil || null);
   olchamRef.current = !!sozlama.olcham;
-  olchamSifatRef.current = sozlama.sifat === "arzon" ? "arzon" : "toliq";
+  aniqProfilRef.current = sozlama.profil || null;
   const [tayyor, setTayyor] = useState(false);
   const [hammaJihozlar, setHammaJihozlar] = useState([]);
   const [kuchsizQurilma, setKuchsizQurilma] = useState(false);
@@ -74,24 +38,16 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
   const rendererRef = useRef(null);
   const controlsRef = useRef(null);
   const materiallarRef = useRef(null);
+  const profilRef = useRef(null);
   const kadrIdRef = useRef(null);
   const composerRef = useRef(null);
   const jihozlarMapRef = useRef(new Map()); // slotIndex -> THREE.Group
-
-  // Fon almashganda yangilanadigan obyektlar. Ular ref da saqlanadi, chunki
-  // sahna bir marta quriladi va keyin faqat rangi o'zgaradi.
-  const fonQismlariRef = useRef(null);
-
-  // Sahna qurilayotgan paytda joriy fonni bilish uchun. State to'g'ridan
-  // ishlatilsa, u useEffect bog'liqligiga aylanib sahnani qayta qurdirardi.
-  const fonKalitiRef = useRef(fonKaliti);
-  fonKalitiRef.current = fonKaliti;
 
   // Jihozni stoldagi bo'sh slotga qo'shish.
   // Nega bo'sh slot tanlanadi: jihozlar bir-birining ustiga chiqib qolmasligi uchun
   // SLOTLAR panjarasidagi eng birinchi bo'sh joy topiladi.
   const jihozQosh = useCallback((kalit) => {
-    if (!sahnaRef.current || !materiallarRef.current) return null;
+    if (!sahnaRef.current || !materiallarRef.current || !profilRef.current) return null;
 
     let boshSlot = -1;
     for (let i = 0; i < SLOTLAR.length; i++) {
@@ -105,7 +61,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       return null; // Stolda 6 ta joy to'ldi
     }
 
-    const group = jihozYasa(kalit, materiallarRef.current);
+    const group = jihozYasa(kalit, materiallarRef.current, profilRef.current);
     group.userData.slotIndex = boshSlot;
 
     const [x, y, z] = SLOTLAR[boshSlot];
@@ -161,15 +117,15 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     if (yuklanmoqda) return;
     if (!konteynerRef || !konteynerRef.current) return;
 
-    // CI qurilmasi avtomatik "arzon" deb topilsa desktop o'lchovi yolg'on
-    // bo'lardi. O'lchagich shu sabab sifatni aniq beradi; jonli sahifa esa
-    // avvalgidek haqiqiy qurilmani o'zi aniqlaydi (olchamRef sukutda false).
-    const arzonRejim = olchamRef.current
-      ? olchamSifatRef.current === "arzon"
-      : kuchsizQurilmaniAniqla();
-    setKuchsizQurilma(arzonRejim);
+    // O'lchagich aniq profilni majburlaydi; jonli sahifa qurilmani o'zi
+    // aniqlaydi. Profil obyektining o'zi barcha quruvchilarga uzatiladi.
+    const profil = aniqProfilRef.current
+      ? profilniOl(aniqProfilRef.current)
+      : profilniAniqla();
+    profilRef.current = profil;
+    setKuchsizQurilma(profil.nom === "telefon");
 
-    const fon = fonOl(fonKalitiRef.current);
+    const fon = SAHNA_FONI;
 
     // 1. Sahna
     const scene = new THREE.Scene();
@@ -190,7 +146,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
 
     // 3. WebGLRenderer
     const renderer = new THREE.WebGLRenderer({
-      antialias: !arzonRejim,
+      antialias: profil.antialias,
       powerPreference: "high-performance",
       // Nega: WebGL kompozitdan keyin buferni tozalaydi. O'lchagich
       // kadr pikselini o'qishi uchun bufer saqlanishi shart. Sukut false —
@@ -198,8 +154,10 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       preserveDrawingBuffer: olchamRef.current,
     });
     renderer.setSize(konteynerRef.current.clientWidth, konteynerRef.current.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    renderer.shadowMap.enabled = !arzonRejim;
+    renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio || 1, profil.pikselNisbati),
+    );
+    renderer.shadowMap.enabled = profil.soya;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     // Tonemapping'siz sahna yassi va "kompyuterda chizilgan" bo'lib ko'rinardi:
     // yorug' joylar oq bo'lib kuyib ketardi, oraliq soyalar esa siqilib turardi.
@@ -212,22 +170,15 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     konteynerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // 3.6. Postprocessing (bloom) — realizmning eng katta omili.
-    //
-    // Ilgari postprocessing umuman yo'q edi: alanga, neon chiroqlar, LED
-    // ekranlar o'z yorqinligini atrofga "nur" sifatida taratolmasdi va sahna
-    // yassi, "Minecraft" bo'lib ko'rinardi. UnrealBloomPass yorqin pikselni
-    // atrofiga silliq yoyadi (bloom). Arzon rejimda o'chiriladi — kompozitsiya
-    // qo'shimcha GPU yuki beradi, past qurilmalar oddiy render bilan ishlaydi.
+    // Postprocessing parametrlari o'zgarmadi; profil faqat eski ikki yo'lni
+    // nomli maydonlarga aylantiradi. Hech bir pass bu brifda qayta sozlanmaydi.
+    const postprocessing = profil.postprocessing;
     let composer = null;
-    if (!arzonRejim) {
+    if (postprocessing.bloom || postprocessing.ssao) {
       composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, kamera));
 
-      // SSAO (kontakt soya) — yoqilganda RenderPass dan keyin keladi: u
-      // sahna rasmni o'qib, ustiga chuqurlik soyasini blend qiladi. Keyin
-      // bloom ishlaydi. Konservativ boshlang'ich qiymatlar — ko'rib sozlanadi.
-      if (SSAO_YOQIQ) {
+      if (postprocessing.ssao) {
         const gtao = new GTAOPass(scene, kamera, konteynerRef.current.clientWidth, konteynerRef.current.clientHeight, {
           radius: 0.2,
           distanceExponent: 1.0,
@@ -241,12 +192,14 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
         composer.addPass(gtao);
       }
 
-      composer.addPass(new UnrealBloomPass(
-        new THREE.Vector2(konteynerRef.current.clientWidth, konteynerRef.current.clientHeight),
-        0.55, // kuch
-        0.4,  // radius — nur tarqalishi
-        0.55, // threshold — qanday yorqinlik "nur" bo'lishi
-      ));
+      if (postprocessing.bloom) {
+        composer.addPass(new UnrealBloomPass(
+          new THREE.Vector2(konteynerRef.current.clientWidth, konteynerRef.current.clientHeight),
+          0.55,
+          0.4,
+          0.55,
+        ));
+      }
       composer.addPass(new OutputPass());
       composerRef.current = composer;
     }
@@ -261,10 +214,13 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     //
     // RoomEnvironment protsedural: rasm yuklanmaydi, tarmoqqa chiqilmaydi.
     // PMREM undan bir marta xarita yasaydi, keyin generator kerak emas.
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const muhitXaritasi = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environment = muhitXaritasi;
-    pmrem.dispose();
+    let muhitXaritasi = null;
+    if (profil.IBL) {
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      muhitXaritasi = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+      scene.environment = muhitXaritasi;
+      pmrem.dispose();
+    }
 
     // 4. OrbitControls (Sukut bo'yicha o'chirilgan, chunki FPS Walk rejimi faol)
     const controls = new OrbitControls(kamera, renderer.domElement);
@@ -290,7 +246,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       fon.yorugliklar.asosiy.kuch,
     );
     mainLight.position.set(2.5, 4.0, 2.0);
-    mainLight.castShadow = !arzonRejim;
+    mainLight.castShadow = profil.soya;
     if (mainLight.castShadow) {
       mainLight.shadow.mapSize.width = 1024;
       mainLight.shadow.mapSize.height = 1024;
@@ -319,15 +275,15 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     scene.add(fillLight);
 
     // 6. Materiallar
-    const materiallar = materiallarniYarat(fonKalitiRef.current, arzonRejim);
+    const materiallar = materiallarniYarat(profil);
     materiallarRef.current = materiallar;
 
     // 7. Asosiy Tajriba Stoli
     const stolGeo = new THREE.BoxGeometry(STOL.eni, STOL.qalinligi, STOL.boyi);
     const stol = new THREE.Mesh(stolGeo, materiallar.yogoch);
     stol.position.set(0, STOL.balandligi - STOL.qalinligi / 2, 0);
-    stol.receiveShadow = !arzonRejim;
-    stol.castShadow = !arzonRejim;
+    stol.receiveShadow = profil.soya;
+    stol.castShadow = profil.soya;
     scene.add(stol);
 
     // To'rtta oyoq
@@ -338,36 +294,33 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     for (const [x, z] of [[-oyoqX, oyoqZ], [oyoqX, oyoqZ], [-oyoqX, -oyoqZ], [oyoqX, -oyoqZ]]) {
       const oyoq = new THREE.Mesh(oyoqGeo, materiallar.yogoch);
       oyoq.position.set(x, oyoqBalandligi / 2, z);
-      oyoq.castShadow = !arzonRejim;
+      oyoq.castShadow = profil.soya;
       scene.add(oyoq);
     }
 
     // 8. Haqiqiy 3D Reagentlar Javoni va 4 Devorli Xona Interyerini sahnaga o'rnatish
-    const javon3d = javon3dYasa(materiallar, arzonRejim);
+    const javon3d = javon3dYasa(materiallar, profil);
     scene.add(javon3d);
 
-    const xonaInteryeri = xonaInteryeriniYasa(materiallar);
+    const xonaInteryeri = xonaInteryeriniYasa(materiallar, profil);
     scene.add(xonaInteryeri);
 
-    // Fon almashganda shu obyektlarning rangi yangilanadi
-    fonQismlariRef.current = { ambientLight, mainLight, fillLight };
-
     // Boshlang'ich holatda 1 ta probirka va 1 ta spirtovkani stolga qo'yamiz
-    const defProbirka = jihozYasa("probirka", materiallar);
+    const defProbirka = jihozYasa("probirka", materiallar, profil);
     defProbirka.userData.slotIndex = 1; // 2-slot: old qator, o'rta-chap
     const [px, py, pz] = SLOTLAR[1];
     defProbirka.position.set(px, py, pz);
     scene.add(defProbirka);
     jihozlarMapRef.current.set(1, defProbirka);
 
-    const defSpirtovka = jihozYasa("spirtovka", materiallar);
+    const defSpirtovka = jihozYasa("spirtovka", materiallar, profil);
     defSpirtovka.userData.slotIndex = 3; // 4-slot: old qator, o'rta-o'ng
     const [sx, sy, sz] = SLOTLAR[3];
     defSpirtovka.position.set(sx, sy, sz);
     scene.add(defSpirtovka);
     jihozlarMapRef.current.set(3, defSpirtovka);
 
-    const defTermometr = jihozYasa("termometr", materiallar);
+    const defTermometr = jihozYasa("termometr", materiallar, profil);
     defTermometr.userData.slotIndex = 8; // 9-slot: o'rta qator, o'rta-o'ng
     const [tx, ty, tz] = SLOTLAR[8];
     defTermometr.position.set(tx, ty, tz);
@@ -473,7 +426,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
       oyoqGeo.dispose();
       // PMREM generatori darrov tozalangan, lekin u yasagan xarita sahna
       // yashaguncha kerak — u shu yerda bo'shatiladi.
-      muhitXaritasi.dispose();
+      muhitXaritasi?.dispose();
       scene.environment = null;
       materiallarniTozala(materiallar);
 
@@ -488,41 +441,9 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
         konteynerRef.current.innerHTML = "";
       }
       jihozlarMapRef.current.clear();
-      fonQismlariRef.current = null;
+      profilRef.current = null;
     };
   }, [konteynerRef, yuklanmoqda]);
-
-  // Fon almashganda: sahna saqlanadi, faqat ranglar va yorug'lik yangilanadi.
-  // `tayyor` bog'liqlikda turadi — birinchi renderda bu effekt sahnadan
-  // oldin ishga tushib, hech nimani topolmasdi.
-  useEffect(() => {
-    const scene = sahnaRef.current;
-    const qismlar = fonQismlariRef.current;
-    if (!scene || !qismlar) return;
-
-    const fon = fonOl(fonKaliti);
-
-    scene.background = new THREE.Color(fon.fon);
-    if (scene.fog) {
-      scene.fog.color.setHex(fon.fon);
-      scene.fog.density = fon.tumanZichligi;
-    }
-
-    if (qismlar.ambientLight) {
-      qismlar.ambientLight.color.setHex(fon.yorugliklar.muhit.rang);
-      qismlar.ambientLight.intensity = fon.yorugliklar.muhit.kuch;
-    }
-    if (qismlar.mainLight) {
-      qismlar.mainLight.color.setHex(fon.yorugliklar.asosiy.rang);
-      qismlar.mainLight.intensity = fon.yorugliklar.asosiy.kuch;
-    }
-    if (qismlar.fillLight) {
-      qismlar.fillLight.color.setHex(fon.yorugliklar.toldiruvchi.rang);
-      qismlar.fillLight.intensity = fon.yorugliklar.toldiruvchi.kuch;
-    }
-
-    materiallarniFongaMoslash(materiallarRef.current, fonKaliti);
-  }, [fonKaliti, tayyor]);
 
   // kameraRef va rendererRef ham qaytariladi: useSudrash Raycaster uchun kamerani,
   // hodisalarni ulash uchun esa renderer.domElement ni talab qiladi. Ular
@@ -534,6 +455,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     kameraRef,
     rendererRef,
     controlsRef,
+    profilRef,
     jihozQosh,
     jihozOlib,
     hammaJihozlar,

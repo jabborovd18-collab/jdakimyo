@@ -1485,9 +1485,13 @@ function stolDaftarlariYasa() {
 }
 
 /** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
-export function xonaInteryeriniYasa(materiallar) {
+export function xonaInteryeriniYasa(materiallar, profil) {
+  if (!profil) throw new Error("Xona uchun sifat profili berilmadi");
   const roomGroup = new THREE.Group();
   roomGroup.name = "3D_Laboratoriya_Interyeri";
+  // BRIF-01 shu profil orqali xona ichidagi chiroq to'plamini kesadi.
+  // Hozir faqat saqlanadi: yorug'lik soni va qiymati o'zgarmaydi.
+  roomGroup.userData.profil = profil;
 
   // 1. To'liq 16x12m Katta Zal Devorlari va Shift LED panellari
   roomGroup.add(xonaQobiginiYasa(materiallar));
