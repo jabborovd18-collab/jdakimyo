@@ -2,10 +2,10 @@
  * 3D laboratoriya grafikasini RAQAM bilan o'lchaydi.
  *
  * Ishga tushirish:
- *   npm run dev                         # boshqa terminalda
- *   npm run lab3d:olcham                # 20 qatorli jadval
- *   npm run lab3d:olcham -- --json
- *   LAB3D_SIFAT=arzon npm run lab3d:olcham
+ *   npm run dev                              # boshqa terminalda
+ *   npm run lab3d:olcham                     # desktop, 5 qator
+ *   LAB3D_PROFIL=telefon npm run lab3d:olcham
+ *   LAB3D_SIFAT=arzon npm run lab3d:olcham   # eski alias
  *
  * Dev server ishlamasa jim qolmaydi — aniq xato va exit 1.
  * Bu skript sahnani o'zgartirmaydi, faqat o'qiydi.
@@ -18,12 +18,33 @@ const https = require("https");
 
 const ASOS = process.env.LAB3D_URL || "http://localhost:3000";
 const CHIQISH_DIR = path.join(__dirname, "..", ".olcham");
-const KUTILGAN_QATOR = 20;
+const KUTILGAN_QATOR = 5;
+const PROFIL_NOMLARI = ["telefon", "desktop", "ilova"];
+const SIFAT_ALIASES = { arzon: "telefon", toliq: "desktop" };
 
-const sifat = process.env.LAB3D_SIFAT || "toliq";
-if (sifat !== "toliq" && sifat !== "arzon") {
+const profilXom = process.env.LAB3D_PROFIL || "";
+const sifatXom = process.env.LAB3D_SIFAT || "";
+if (profilXom && !PROFIL_NOMLARI.includes(profilXom)) {
+  console.error(`XATO: LAB3D_PROFIL faqat ${PROFIL_NOMLARI.join(", ")} bo'lishi mumkin`);
+  process.exit(1);
+}
+if (sifatXom && !SIFAT_ALIASES[sifatXom]) {
   console.error("XATO: LAB3D_SIFAT faqat toliq yoki arzon bo'lishi mumkin");
   process.exit(1);
+}
+
+// Yangi aniq profil eski aliasdan ustun. Qarama-qarshi ikkalasi birga
+// berilsa ham natija yashirin bo'lmasligi uchun stderr'da aytiladi.
+const profil = profilXom || SIFAT_ALIASES[sifatXom] || "desktop";
+const profilManbasi = profilXom
+  ? "LAB3D_PROFIL"
+  : sifatXom
+    ? "LAB3D_SIFAT"
+    : "sukut";
+if (profilXom && sifatXom && SIFAT_ALIASES[sifatXom] !== profilXom) {
+  process.stderr.write(
+    `OGOHLANTIRISH: LAB3D_PROFIL=${profilXom} eski LAB3D_SIFAT=${sifatXom} aliasidan ustun.\n`,
+  );
 }
 
 let urug;
@@ -67,9 +88,8 @@ function sweepJoyniYoz(joy) {
 
 function qatorniJadvalga(q) {
   return {
-    mavzu: q.mavzu,
+    profil: q.profil,
     nuqta: q.nuqta,
-    sifat: q.sifat,
     kuygan: yaxlit(q.kuygan, 2),
     qora: yaxlit(q.qora, 2),
     ortacha: yaxlit(q.ortacha, 4),
@@ -79,6 +99,8 @@ function qatorniJadvalga(q) {
     quyiSoha: yaxlit(q.quyiSoha, 4),
     fps: yaxlit(q.fps, 1),
     chiroqSoni: q.chiroqSoni,
+    chiroqBudjeti: q.chiroqBudjeti,
+    chiroqBudjetiBuzildi: q.chiroqBudjetiBuzildi,
     uchburchak: q.uchburchak,
     chaqiruv: q.chaqiruv,
     teksturaXotira: q.teksturaXotira,
@@ -108,20 +130,15 @@ function chegaradanChiqdimi(q) {
   return sabab;
 }
 
-function shipPolFarqlariniHisobla(olchovlar, mavzular) {
-  return mavzular.map((mavzu) => {
-    const ship = olchovlar.find((q) => q.mavzu === mavzu && q.nuqta === "ship");
-    const pol = olchovlar.find((q) => q.mavzu === mavzu && q.nuqta === "pol");
-    if (!ship || !pol) throw new Error(`${mavzu}: ship yoki pol o'lchovi yo'q`);
-    return {
-      mavzu,
-      shipPolFarq: Math.abs(ship.ortacha - pol.ortacha),
-    };
-  });
+function shipPolFarqniHisobla(olchovlar) {
+  const ship = olchovlar.find((q) => q.nuqta === "ship");
+  const pol = olchovlar.find((q) => q.nuqta === "pol");
+  if (!ship || !pol) throw new Error("ship yoki pol o'lchovi yo'q");
+  return Math.abs(ship.ortacha - pol.ortacha);
 }
 
 function dasturiyRenderer(renderer) {
-  return /swiftshader|llvmpipe|softpipe|software rasterizer|software renderer/i.test(
+  return /swiftshader|llvmpipe|softpipe|lavapipe|software rasterizer|software renderer/i.test(
     renderer || "",
   );
 }
@@ -163,15 +180,13 @@ async function chromiumniOch(chromium) {
   try {
     return await chromium.launch({ headless: true, args: webglArgs });
   } catch (birinchi) {
-    // Playwright o'z Chromiumini cdn.playwright.dev dan oladi — ba'zi
-    // tarmoqlarda u yopiq. @sparticuz/chromium npm orqali keladi va
-    // WebGL uchun SwiftShader ni o'zi chiqaradi.
+    // Playwright Chromium CDN'i yopiq muhitda npm orqali kelgan zaxira
+    // brauzer ishlatiladi; SwiftShader WebGL o'lchovini saqlab qoladi.
     try {
       const lambdaMod = await import("@sparticuz/chromium");
       const lambda = lambdaMod.default;
       lambda.setGraphicsMode = true;
-      // al2023.lib nspr/nss — playwright CDN ishlamasa, shu paketning
-      // o'z kutubxonalari kerak (Debian da libnspr4 bo'lmasligi mumkin).
+      // Paketning nspr/nss kutubxonalari tizimda bo'lmasligi mumkin.
       const binDir = path.join(
         __dirname,
         "..",
@@ -215,8 +230,9 @@ function rasmniSaqlash(dataUrl, fayl) {
   );
 }
 
-function natijaniTekshir(natija, mavzu, nuqta) {
+function natijaniTekshir(natija, nuqta) {
   const kerak = [
+    "profil",
     "kuygan",
     "qora",
     "ortacha",
@@ -229,22 +245,29 @@ function natijaniTekshir(natija, mavzu, nuqta) {
     "chaqiruv",
     "teksturaXotira",
     "renderer",
-    "sifat",
     "chiroqSoni",
+    "chiroqBudjeti",
+    "chiroqBudjetiBuzildi",
   ];
   if (nuqta === "sweep") {
     kerak.push("sweepEngYomon", "sweepJoy", "sweepUrug", "sweepNamunaSoni");
   }
   for (const maydon of kerak) {
     if (natija[maydon] === undefined || natija[maydon] === null) {
-      throw new Error(`${mavzu}/${nuqta}: "${maydon}" yo'q`);
+      throw new Error(`${profil}/${nuqta}: "${maydon}" yo'q`);
     }
   }
-  if (natija.sifat !== sifat) {
-    throw new Error(`${mavzu}/${nuqta}: sifat=${natija.sifat}, ${sifat} kutilgan`);
+  if (natija.profil !== profil) {
+    throw new Error(`${profil}/${nuqta}: profil=${natija.profil}`);
   }
   if (!Number.isInteger(natija.chiroqSoni) || natija.chiroqSoni < 0) {
-    throw new Error(`${mavzu}/${nuqta}: chiroqSoni yaroqsiz`);
+    throw new Error(`${profil}/${nuqta}: chiroqSoni yaroqsiz`);
+  }
+  if (!Number.isInteger(natija.chiroqBudjeti) || natija.chiroqBudjeti < 0) {
+    throw new Error(`${profil}/${nuqta}: chiroqBudjeti yaroqsiz`);
+  }
+  if (natija.chiroqBudjetiBuzildi !== (natija.chiroqSoni > natija.chiroqBudjeti)) {
+    throw new Error(`${profil}/${nuqta}: chiroqBudjetiBuzildi noto'g'ri`);
   }
 }
 
@@ -290,15 +313,13 @@ async function asosiy() {
   });
 
   const olchovlar = [];
-  let mavzular = [];
-  let nuqtalar = [];
   let page;
-
-  const sahifaniOch = async (mavzu) => {
+  try {
+    page = await context.newPage();
     const url = new URL("/laboratoriya/3d/olcham", ASOS);
-    url.searchParams.set("sifat", sifat);
+    url.searchParams.set("profil", profil);
     url.searchParams.set("nuqta", "stol");
-    if (mavzu) url.searchParams.set("mavzu", mavzu);
+    process.stderr.write(`→ ${profil} yuklanmoqda (${profilManbasi})\n`);
     const javob = await page.goto(url.toString(), {
       waitUntil: "domcontentloaded",
       timeout: 60000,
@@ -312,88 +333,71 @@ async function asosiy() {
         && !!window.__olchamSozlama,
       { timeout: 90000 },
     );
-  };
 
-  try {
-    page = await context.newPage();
-    process.stderr.write(`→ sozlama yuklanmoqda (sifat=${sifat})\n`);
-    await sahifaniOch();
-    const birinchiSozlama = await page.evaluate(() => window.__olchamSozlama);
-    mavzular = birinchiSozlama.mavzular;
-    nuqtalar = birinchiSozlama.nuqtalar;
-
-    if (!Array.isArray(mavzular) || !Array.isArray(nuqtalar)) {
-      throw new Error("O'lchagich mavzu yoki nuqta ro'yxatini bermadi");
+    const sahifaSozlamasi = await page.evaluate(() => window.__olchamSozlama);
+    if (!sahifaSozlamasi.profillar.includes(profil)) {
+      throw new Error(`${profil}: sahifa bu profilni bilmaydi`);
     }
-    const kutilgan = mavzular.length * (nuqtalar.length + 1);
-    if (kutilgan !== KUTILGAN_QATOR) {
-      throw new Error(
-        `Nuqta sozlamasi ${kutilgan} qator beradi, ${KUTILGAN_QATOR} bo'lishi shart`,
-      );
+    if (sahifaSozlamasi.joriyProfil !== profil) {
+      throw new Error(`Sahifa ${sahifaSozlamasi.joriyProfil} profilini ochdi, ${profil} kutilgan`);
+    }
+    const nuqtalar = sahifaSozlamasi.nuqtalar;
+    if (!Array.isArray(nuqtalar) || nuqtalar.length + 1 !== KUTILGAN_QATOR) {
+      throw new Error(`Nuqta sozlamasi ${nuqtalar?.length ?? 0} nomli nuqta berdi`);
     }
 
-    for (let mavzuIndeks = 0; mavzuIndeks < mavzular.length; mavzuIndeks += 1) {
-      const mavzu = mavzular[mavzuIndeks];
-      if (mavzuIndeks > 0 || birinchiSozlama.joriyMavzu !== mavzu) {
-        process.stderr.write(`→ ${mavzu} yuklanmoqda (sifat=${sifat})\n`);
-        await sahifaniOch(mavzu);
-      } else {
-        process.stderr.write(`→ ${mavzu} tayyor (sifat=${sifat})\n`);
-      }
-
-      for (const nuqta of nuqtalar) {
-        process.stderr.write(`  ${mavzu}/${nuqta} ...\n`);
-        const natija = await page.evaluate(
-          (nom) => window.__olcham({ nuqta: nom, rasm: true }),
-          nuqta,
-        );
-        const rasm = natija.rasm;
-        delete natija.rasm;
-        natijaniTekshir(natija, mavzu, nuqta);
-        olchovlar.push(natija);
-        rasmniSaqlash(rasm, path.join(CHIQISH_DIR, `${mavzu}-${nuqta}.png`));
-      }
-
-      process.stderr.write(`  ${mavzu}/sweep ...\n`);
-      const sweepNatija = await page.evaluate(
-        (xomUrug) => window.__supurish({ urug: xomUrug }),
-        urug,
+    for (const nuqta of nuqtalar) {
+      process.stderr.write(`  ${profil}/${nuqta} ...\n`);
+      const natija = await page.evaluate(
+        (nom) => window.__olcham({ nuqta: nom, rasm: true }),
+        nuqta,
       );
-      const sweepRasm = sweepNatija.rasm;
-      delete sweepNatija.rasm;
-      natijaniTekshir(sweepNatija, mavzu, "sweep");
-      olchovlar.push(sweepNatija);
-      rasmniSaqlash(
-        sweepRasm,
-        path.join(CHIQISH_DIR, `${mavzu}-sweep-worst.png`),
-      );
+      const rasm = natija.rasm;
+      delete natija.rasm;
+      natijaniTekshir(natija, nuqta);
+      olchovlar.push(natija);
+      rasmniSaqlash(rasm, path.join(CHIQISH_DIR, `${profil}-${nuqta}.png`));
     }
+
+    process.stderr.write(`  ${profil}/sweep ...\n`);
+    const sweepNatija = await page.evaluate(
+      (xomUrug) => window.__supurish({ urug: xomUrug }),
+      urug,
+    );
+    const sweepRasm = sweepNatija.rasm;
+    delete sweepNatija.rasm;
+    natijaniTekshir(sweepNatija, "sweep");
+    olchovlar.push(sweepNatija);
+    rasmniSaqlash(
+      sweepRasm,
+      path.join(CHIQISH_DIR, `${profil}-sweep-worst.png`),
+    );
   } finally {
     if (page) await page.close();
     await browser.close();
   }
 
   if (olchovlar.length !== KUTILGAN_QATOR) {
-    throw new Error(
-      `${olchovlar.length} o'lchov chiqdi, ${KUTILGAN_QATOR} bo'lishi shart`,
-    );
+    throw new Error(`${olchovlar.length} o'lchov chiqdi, ${KUTILGAN_QATOR} bo'lishi shart`);
   }
 
   const jadval = olchovlar.map(qatorniJadvalga);
   const chiqib = [];
   for (const q of olchovlar) {
     const sabab = chegaradanChiqdimi(q);
-    if (sabab.length) chiqib.push({ mavzu: q.mavzu, nuqta: q.nuqta, sabab });
+    if (sabab.length) chiqib.push({ profil: q.profil, nuqta: q.nuqta, sabab });
   }
-  const shipPolFarq = shipPolFarqlariniHisobla(olchovlar, mavzular);
-  const shipPolChiqib = shipPolFarq.filter((q) => q.shipPolFarq >= SHIP_POL_FARQ_MAKS);
+  const shipPolFarq = shipPolFarqniHisobla(olchovlar);
+  const shipPolChiqib = shipPolFarq >= SHIP_POL_FARQ_MAKS;
+  const budjetBuzilgan = olchovlar.filter((q) => q.chiroqBudjetiBuzildi);
   const dasturiy = olchovlar.some((q) => dasturiyRenderer(q.renderer));
   const xulosa = {
     jami: olchovlar.length,
     chiqibKetgan: chiqib.length,
     qatorlar: chiqib,
     shipPolFarq,
-    shipPolChegaradanChiqdi: shipPolChiqib.length,
+    shipPolChegaradanChiqdi: shipPolChiqib,
+    chiroqBudjetiBuzilganQatorlar: budjetBuzilgan.length,
     dasturiyRenderer: dasturiy,
   };
 
@@ -402,7 +406,8 @@ async function asosiy() {
       JSON.stringify(
         {
           sozlama: {
-            sifat,
+            profil,
+            profilManbasi,
             urug: olchovlar.find((q) => q.nuqta === "sweep")?.sweepUrug,
           },
           olchovlar,
@@ -420,27 +425,17 @@ async function asosiy() {
     console.warn("OGOHLANTIRISH: FPS raqamlari dasturiy renderdan — haqiqiy GPU emas.");
   }
 
-  const farqMatni = shipPolFarq
-    .map((q) => `${q.mavzu}=${yaxlit(q.shipPolFarq, 4)}`)
-    .join(", ");
-  if (chiqib.length === 0 && shipPolChiqib.length === 0) {
-    console.log(
-      `XULOSA: ${KUTILGAN_QATOR}/${KUTILGAN_QATOR} o'lchov chegarada; shipPolFarq: ${farqMatni}.`,
-    );
-  } else {
-    console.log(
-      `XULOSA: ${chiqib.length}/${KUTILGAN_QATOR} qator va ` +
-        `${shipPolChiqib.length}/${mavzular.length} shipPolFarq chegaradan chiqdi; ` +
-        `shipPolFarq: ${farqMatni}.`,
-    );
-    for (const q of chiqib) {
-      console.log(`  ${q.mavzu}/${q.nuqta}  ${q.sabab.join("; ")}`);
-    }
-    for (const q of shipPolChiqib) {
-      console.log(
-        `  ${q.mavzu}/ship-pol  farq=${yaxlit(q.shipPolFarq, 4)} (≥${SHIP_POL_FARQ_MAKS})`,
-      );
-    }
+  console.log(
+    `XULOSA: ${chiqib.length}/${KUTILGAN_QATOR} qator` +
+      `${shipPolChiqib ? " va shipPolFarq" : ""} chegaradan chiqdi; ` +
+      `shipPolFarq=${yaxlit(shipPolFarq, 4)}; ` +
+      `chiroqBudjetiBuzildi=${budjetBuzilgan.length}/${KUTILGAN_QATOR}.`,
+  );
+  for (const q of chiqib) {
+    console.log(`  ${q.profil}/${q.nuqta}  ${q.sabab.join("; ")}`);
+  }
+  if (shipPolChiqib) {
+    console.log(`  ${profil}/ship-pol  farq=${yaxlit(shipPolFarq, 4)} (≥${SHIP_POL_FARQ_MAKS})`);
   }
 }
 

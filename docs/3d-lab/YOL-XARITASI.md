@@ -75,6 +75,8 @@ bo'lindi:
 | `desktop` | Kompyuter brauzeri | Yuqori sifat | ✅ bor |
 | `ilova` | Desktop ilova (G2) | **4K fotorealizm** | ✅ bor |
 
+Maydonlar va boshlang'ich qiymatlar: [PROFILLAR.md](PROFILLAR.md).
+
 **Yurish uch pog'onada ham qoladi.** Bir taklif yurishni telefonda
 o'chirish edi — egasi rad etdi va haqli edi: yurish bu mahsulotning
 o'zi, usiz 2D laboratoriyadan farq qolmaydi. Telefon funksiyani emas,
@@ -137,7 +139,7 @@ va ustiga qurish mumkin bo'ladi.
 |---|---|---|---|
 | 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
 | 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ✅ |
-| 0.0C | **Sahna konfiguratsiyasi** — sifat profili + mavzu o'lchami olib tashlanadi | [BRIF-00C](BRIF-00C-sifat-profili.md) | ⬜ |
+| 0.0C | **Sahna konfiguratsiyasi** — sifat profili + mavzu o'lchami olib tashlanadi | [BRIF-00C](BRIF-00C-sifat-profili.md) | ✅ |
 | 0.1 | Yorug'lik byudjeti — **har pog'ona uchun alohida** | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
@@ -147,8 +149,8 @@ va ustiga qurish mumkin bo'ladi.
 | 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | brif yozilmagan | ⬜ |
 
 **Qavat tugadi deb hisoblanadi, qachonki:**
-- `npm run lab3d:olcham` 20 qatorlik jadval chiqarsa va hech bir qator
-  chegaradan chiqmasa.
+- `npm run lab3d:olcham` tanlangan profil uchun 5 qatorlik jadval
+  chiqarsa va hech bir qator chegaradan chiqmasa.
 - Sahnaning hech bir pikseli ekspozitsiya kalibrovkasidan keyin `1.0` da
   qotib qolmasa (oq kuyish yo'q).
 - Shipdan polgacha yorug'lik uzluksiz bo'lsa (qora ship + oq pol yo'q).
@@ -212,39 +214,29 @@ va ustiga qurish mumkin bo'ladi.
 | Davriy jadval devordan chiqib ketgan | Panel joylashuvi xona chegarasidan tashqarida | 0.4 |
 | "Probirka", "Termometr" yorliqlari havoda | DOM/sprite yorliq, chuqurlik testi yo'q | 2.4 |
 | Zal bo'm-bo'sh va juda katta | Xona 16×12 m = 192 m², stol atigi 3.2×1.6 m | 0.4 |
-| `siyoh`/`grafit`/`kunduz` sahnalariga foydalanuvchi yeta olmaydi | To'rtta mavzu kodi bor, lekin 3D laboratoriyada fon almashtirgich UI ulanmagan; hozir `SUKUT_FON` (`tun`) aniq beriladi | Egasi qarori |
-
-> **Fon almashtirgich qarori berilganda:** HUD va sahna **birga**
-> almashishi kerak. `korinish.js` dagi `data-fon` atributi 2D
-> interfeys ranglarini boshqaradi (`globals.css:277-350` da to'rtta
-> mavzu bloki), `useSahna(fonKaliti)` esa 3D sahnani. Hozir ikkalasi
-> ham `SUKUT_FON` ga qotirilgan.
->
-> Nozik joyi: `--v3-fon`/`--v3-matn` faqat mavzu bloklarida
-> aniqlangan, `:root` da yo'q. Ilgari `data-fon="zamonaviy"` hech
-> biriga tushmagani uchun HUD ranglari `<html>` dan (foydalanuvchi
-> tanlagan sayt mavzusidan) meros olardi. `SUKUT_FON` ga o'tgach
-> meros bosib ketildi — ya'ni `kunduz` mavzusini tanlagan
-> foydalanuvchining HUD'i endi majburan qorong'i. Bu 3D sahna bilan
-> mos bo'lgani uchun qabul qilindi (`cb4cfa3`), lekin almashtirgich
-> qo'shilganda ikkalasi bitta manbadan boshqarilishi shart (1-band).
 
 ---
 
 ## Joriy holat
 
-**2026-08-20** — 0.0 bajarildi va merge qilindi (`fe7c050`). Ko'rikda
-asbobning uchta nuqtasi `tun` mavzusidagi kuygan polni topmagani uchun
-0.0B qo'shildi. 0.0B da uchta eski nomli nuqta saqlandi, sof `pol`
-to'rtinchi nuqta bo'ldi va har mavzuga qat'iy urug'li 24 nuqtali supurish
-qo'shildi. Supurish `tun`da avval ko'rinmagan kuyishni topdi
-(`kuygan = 7.33%`); sof ship/pol farqi ham alohida hisoblanadi. Keyingi
-navbat — 0.1 yorug'lik kalibrovkasi.
+**2026-08-20** — 0.0 (`fe7c050`) va 0.0B (`cb4cfa3`) merge qilindi.
+0.0B supurishi qat'iy nuqtalar ko'rmagan kuyishni topdi
+(`kuygan = 7.33%`). 0.0C sahnani bitta qat'iy ko'rinishga tushirdi va
+`telefon`/`desktop`/`ilova` profil obyektini barcha quruvchilarga
+uzatdi. O'lchagich endi har profil uchun 5 qator chiqaradi; telefon
+profilida mavjud nuqson aniq ko'rinadi: `chiroqSoni=13`,
+`chiroqBudjeti=3`, `chiroqBudjetiBuzildi=true`.
 
-3D sahnada `siyoh`, `grafit`, `kunduz` mavzularining kodi mavjud, ammo
-ularni tanlaydigan UI yo'q. 0.0B o'lik `"zamonaviy"` kalitini
-`SUKUT_FON`ga almashtirdi, almashtirgich qurmadi — bu egasining alohida
-mahsulot qarori.
+00C dagi umumiy rang-nomi grepi mavzu mashinasidan tashqari qonuniy
+`cuso4_grafit` elektroliz ID'si va PDF palitrasidagi `siyoh` kalitini ham
+ushlaydi. Ular kimyo/hisobot ma'lumoti bo'lgani uchun qayta nomlanmadi;
+mavzu mashinasining `FONLAR`, `fonOl` va uch eski variantlari esa o'chdi.
+
+Keyingi navbat — 0.1 yorug'lik kalibrovkasi. Lekin uning brifidagi eski
+bo'limlar hali to'rtta 3D mavzu va mavzu almashtirish funksiyasini tilga
+oladi; 0.1 boshlanishidan oldin ular bitta ko'rinish + uch profil qaroriga
+moslashtirilishi kerak. Bu 0.0C da yorug'likni o'zgartirish uchun sabab
+emas — chiroq qiymatlari 0.1 darvozasida qoladi.
 
 19-avgustda arena agenti 11 ta kommit qildi (bloom, protsedural tekstura,
 RectAreaLight, SSAO tayyorlash, per-idish holat). **Funksional tuzatishlari

@@ -242,9 +242,11 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar) {
 }
 
 /** 4 TA ALOHIDA DEVOR REAGENTLAR JAVONINI YARATISH */
-export function javon3dYasa(materiallar, arzonRejim = false) {
+export function javon3dYasa(materiallar, profil) {
+  if (!profil) throw new Error("Javon uchun sifat profili berilmadi");
   const mainCabinetGroup = new THREE.Group();
   mainCabinetGroup.name = "3D_Devor_Reagent_Shkaflari";
+  mainCabinetGroup.userData.profil = profil;
 
   // 1. Orqa Devor - Kislotalar Javoni (Chap qanot: X = -4.5, Z = -5.4)
   mainCabinetGroup.add(devorShkafiYasa(-4.5, 1.8, -5.35, 0, "Kislotalar", materiallar));

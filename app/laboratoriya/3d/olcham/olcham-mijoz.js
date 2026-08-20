@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useSahna } from "../hooks/useSahna.js";
-import { FONLAR, SUKUT_FON } from "../lib/fonlar.js";
+import {
+  PROFIL_NOMLARI,
+  SUKUT_PROFIL,
+  profilniOl,
+} from "../lib/sifat-profili.js";
 import { kadrGistogrammasi, kadrQorami } from "./olcham-hisob.js";
 import {
   NUQTA_NOMLARI,
@@ -13,11 +17,9 @@ import {
 
 function parametrlarniOl() {
   const q = new URLSearchParams(window.location.search);
-  const xomMavzu = q.get("mavzu") || SUKUT_FON;
-  const mavzu = FONLAR[xomMavzu] ? xomMavzu : SUKUT_FON;
+  const profil = profilniOl(q.get("profil") || SUKUT_PROFIL).nom;
   const nuqta = q.get("nuqta") || "stol";
-  const sifat = q.get("sifat") === "arzon" ? "arzon" : "toliq";
-  return { mavzu, nuqta, sifat };
+  return { profil, nuqta };
 }
 
 function kameraniQoy(kamera, controls, nuqta) {
@@ -133,11 +135,11 @@ export default function OlchamMijoz() {
     rendererRef,
     controlsRef,
     composerRef,
+    profilRef,
   } = useSahna(
     konteynerRef,
     !param,
-    param?.mavzu || SUKUT_FON,
-    { olcham: true, sifat: param?.sifat || "toliq" },
+    { olcham: true, profil: param?.profil || SUKUT_PROFIL },
   );
 
   useEffect(() => {
@@ -169,7 +171,8 @@ export default function OlchamMijoz() {
     const renderer = rendererRef.current;
     const kamera = kameraRef.current;
     const scene = sahnaRef.current;
-    if (!renderer || !kamera || !scene || !param) {
+    const profil = profilRef.current;
+    if (!renderer || !kamera || !scene || !profil || !param) {
       throw new Error("Sahna hali tayyor emas");
     }
 
@@ -179,7 +182,7 @@ export default function OlchamMijoz() {
 
     // Birinchi kadr sahna yukini kutadi. Keyingi nomli kamerada ikki kadr
     // matritsa almashganini tasdiqlaydi; supurish esa har namunani o'zi
-    // sinxron render qiladi, aks holda 24×4 tekshiruv asossiz sekinlashadi.
+    // sinxron render qiladi, aks holda 24 nuqta asossiz sekinlashadi.
     if (!ozgartirish.tez) {
       await kadrlarniKut(fpsRef, ilkOlchovRef.current);
       ilkOlchovRef.current = false;
@@ -207,11 +210,13 @@ export default function OlchamMijoz() {
     const fps = namuna.length
       ? namuna.reduce((a, b) => a + b, 0) / namuna.length
       : 0;
+    const chiroqSoni = chiroqlarniSana(scene);
 
     const natija = {
-      mavzu: param.mavzu,
+      profil: profil.nom,
       nuqta: nuqtaNom,
-      sifat: param.sifat,
+      chiroqBudjeti: profil.chiroqBudjeti,
+      chiroqBudjetiBuzildi: chiroqSoni > profil.chiroqBudjeti,
       kuygan: gist.kuygan,
       qora: gist.qora,
       ortacha: gist.ortacha,
@@ -224,13 +229,13 @@ export default function OlchamMijoz() {
       chaqiruv,
       teksturaXotira,
       renderer: rendererNominiOl(gl),
-      chiroqSoni: chiroqlarniSana(scene),
+      chiroqSoni,
     };
     if (ozgartirish.rasm) {
       natija.rasm = kadrRasminiYarat(pixels, w, h);
     }
     return natija;
-  }, [param, rendererRef, sahnaRef, kameraRef, controlsRef, composerRef]);
+  }, [param, rendererRef, sahnaRef, kameraRef, controlsRef, composerRef, profilRef]);
 
   olchamRef.current = olcham;
 
@@ -277,10 +282,9 @@ export default function OlchamMijoz() {
     window.__olcham = (x) => olchamRef.current(x);
     window.__supurish = (x) => supurishRef.current(x);
     window.__olchamSozlama = {
-      // Mavzu kalitlari qayta yozilmaydi: FONLAR ularning mavjud yagona manbai.
-      mavzular: Object.keys(FONLAR),
+      profillar: PROFIL_NOMLARI,
       nuqtalar: NUQTA_NOMLARI,
-      joriyMavzu: param.mavzu,
+      joriyProfil: param.profil,
     };
     return () => {
       if (window.__olcham) delete window.__olcham;
