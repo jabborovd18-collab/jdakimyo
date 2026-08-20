@@ -160,6 +160,47 @@ degan qaror egasiniki, bu brifning ishi emas (10-band). Faqat
 
 ---
 
+## F6 — O'lchagich mobil sahnani hech qachon ko'rmaydi
+
+BRIF-00 da `arzonRejim` o'lchagichda majburan `false` qilingan:
+
+```js
+const arzonRejim = olchamRef.current ? false : kuchsizQurilmaniAniqla();
+```
+
+Sabab to'g'ri edi — 2 yadroli CI'da desktop sifatini o'lchash kerak.
+Lekin oqibati: **asbob telefon ko'radigan sahnani hech qachon
+o'lchamaydi.**
+
+Bu endi amaliy muammo. Egasi telefonda sinab ko'rdi va qurilma jiddiy
+sekinlashdi; sabab `xona-modellari.js:246-260` dagi **8 ta
+RectAreaLight** (batafsil BRIF-01 da). BRIF-01 ga "mobilda
+RectAreaLight ishlatilmasin" vazifasi qo'shildi — lekin uni
+tekshiradigan raqam yo'q.
+
+**Tuzatish — sifat pog'onasi o'lchov o'lchami bo'lsin:**
+
+- `LAB3D_SIFAT=toliq|arzon` muhit o'zgaruvchisi, sukut `toliq`.
+  `arzon` bo'lganda `arzonRejim` majburan `true`.
+- Har o'lchov qatoriga `sifat` maydoni qo'shilsin.
+- Har qatorga `chiroqSoni` qo'shilsin — sahnadagi `THREE.Light`
+  merosxo'rlarini `scene.traverse` bilan sanab. Bu BRIF-01 ning
+  asosiy metrikasi bo'ladi va uni sanash arzon.
+
+**Nima kutiladi:** hozirgi kodda `toliq` va `arzon` da `chiroqSoni`
+BIR XIL chiqadi (~13). Aynan shu nuqson: arzon rejim antialias,
+soya va bloom ni o'chiradi, lekin yorug'likka tegmaydi, chunki
+`xonaInteryeriniYasa(materiallar)` `arzonRejim` ni qabul qilmaydi.
+
+Bu sonni **tuzatma** — bu BRIF-01 ning ishi. Sen faqat o'lchashni
+qo'sh, toki BRIF-01 tuzatganda farq ko'rinadigan bo'lsin.
+
+**Diqqat:** headless dasturiy GL'da `arzon`/`toliq` FPS farqi haqiqiy
+qurilmani ko'rsatmaydi (F5). Lekin `chiroqSoni`, `uchburchak` va
+`chaqiruv` — ko'rsatadi. `OLCHOV.md` da shu farq yozilsin.
+
+---
+
 ## Qabul mezonlari
 
 1. `npm run lab3d:olcham` **20 qator** chiqaradi (16 nomli + 4 supurish),
@@ -173,8 +214,13 @@ degan qaror egasiniki, bu brifning ishi emas (10-band). Faqat
    (`|Δortacha|` < 0.02) — supurish urug'i qat'iy bo'lgani uchun
    supurish qatorlari ham barqaror bo'lishi shart.
 6. `korinish.js` da `"zamonaviy"` yo'q.
-7. Production'da `/laboratoriya/3d/olcham` hamon **404**.
-8. `OLCHOV.md` da: har nuqta uchun oraliq, supurish qanday ishlashi,
+7. `LAB3D_SIFAT=arzon` bilan ham to'liq jadval chiqadi; har qatorda
+   `sifat` va `chiroqSoni` maydonlari bor.
+8. Dalilda `toliq` va `arzon` ning ikkalasidan bittadan chiqish
+   ko'rsatiladi. Hozirgi kodda `chiroqSoni` ikkalasida bir xil
+   chiqishi kutiladi — bu nuqson BRIF-01 da tuzatiladi, sen emas.
+9. Production'da `/laboratoriya/3d/olcham` hamon **404**.
+10. `OLCHOV.md` da: har nuqta uchun oraliq, supurish qanday ishlashi,
    FPS ogohlantirishi.
 
 ---
