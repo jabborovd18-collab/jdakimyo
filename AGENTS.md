@@ -195,9 +195,10 @@ qoida bajarilmaydi — 19-avgustda aynan shunday bo'ldi.
 
 Dalil **son** bo'lishi kerak, ko'z emas:
 
-- `npm run lab3d:olcham` — 4 mavzu × 3 kamera nuqtasida kuygan piksel
-  ulushi, o'rtacha luma, ship/pol farqi, FPS va `renderer.info`.
-  Asbob va chegaralar: `docs/3d-lab/OLCHOV.md`.
+- `npm run lab3d:olcham` — 4 mavzu × 4 nomli kamera nuqtasi va har
+  mavzudagi 24 nuqtali supurishda kuygan piksel ulushi, o'rtacha luma,
+  sof ship/pol farqi, FPS, renderer va `renderer.info`. Asbob va
+  chegaralar: `docs/3d-lab/OLCHOV.md`.
 - **Oldin va keyin o'lchang.** Bitta "keyin" jadvali dalil emas —
   taqqoslash dalil.
 - Kompilyatsiya o'tgani, `200` qaytgani va konsol toza bo'lgani grafik

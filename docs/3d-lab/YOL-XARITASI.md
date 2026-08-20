@@ -74,7 +74,7 @@ va ustiga qurish mumkin bo'ladi.
 | # | Ish | Brif | Holat |
 |---|---|---|---|
 | 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
-| 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ⬜ |
+| 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ✅ |
 | 0.1 | Yorug'lik byudjeti — yagona manba, ekspozitsiya kalibrovkasi | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
@@ -82,7 +82,7 @@ va ustiga qurish mumkin bo'ladi.
 | 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
 
 **Qavat tugadi deb hisoblanadi, qachonki:**
-- `npm run lab3d:olcham` 12 qatorlik jadval chiqarsa va hech bir qator
+- `npm run lab3d:olcham` 20 qatorlik jadval chiqarsa va hech bir qator
   chegaradan chiqmasa.
 - Sahnaning hech bir pikseli ekspozitsiya kalibrovkasidan keyin `1.0` da
   qotib qolmasa (oq kuyish yo'q).
@@ -146,17 +146,24 @@ va ustiga qurish mumkin bo'ladi.
 | Davriy jadval devordan chiqib ketgan | Panel joylashuvi xona chegarasidan tashqarida | 0.4 |
 | "Probirka", "Termometr" yorliqlari havoda | DOM/sprite yorliq, chuqurlik testi yo'q | 2.4 |
 | Zal bo'm-bo'sh va juda katta | Xona 16×12 m = 192 m², stol atigi 3.2×1.6 m | 0.4 |
-| `korinish.js` foni doim `tun` | `useSahna(..., "zamonaviy")` — `FONLAR` da bunday kalit yo'q, `fonOl` sukutga tushadi | 0.1 |
+| `siyoh`/`grafit`/`kunduz` sahnalariga foydalanuvchi yeta olmaydi | To'rtta mavzu kodi bor, lekin 3D laboratoriyada fon almashtirgich UI ulanmagan; hozir `SUKUT_FON` (`tun`) aniq beriladi | Egasi qarori |
 
 ---
 
 ## Joriy holat
 
-**2026-08-20** — 0.0 bajarildi va merge qilindi (`fe7c050`).
-Ko'rikda asbobning halolligi shubha ostiga tushdi: preview deployda
-`tun` mavzusida pol ko'zga tashlanadigan darajada kuygan, o'lchov esa
-`tun` uchun `kuygan = 0.00` dedi — nuqtalar kuyish joyiga qaramaydi.
-**0.0B shu sababdan tug'ildi va 0.1 dan oldin bajariladi.**
+**2026-08-20** — 0.0 bajarildi va merge qilindi (`fe7c050`). Ko'rikda
+asbobning uchta nuqtasi `tun` mavzusidagi kuygan polni topmagani uchun
+0.0B qo'shildi. 0.0B da uchta eski nomli nuqta saqlandi, sof `pol`
+to'rtinchi nuqta bo'ldi va har mavzuga qat'iy urug'li 24 nuqtali supurish
+qo'shildi. Supurish `tun`da avval ko'rinmagan kuyishni topdi
+(`kuygan = 7.33%`); sof ship/pol farqi ham alohida hisoblanadi. Keyingi
+navbat — 0.1 yorug'lik kalibrovkasi.
+
+3D sahnada `siyoh`, `grafit`, `kunduz` mavzularining kodi mavjud, ammo
+ularni tanlaydigan UI yo'q. 0.0B o'lik `"zamonaviy"` kalitini
+`SUKUT_FON`ga almashtirdi, almashtirgich qurmadi — bu egasining alohida
+mahsulot qarori.
 
 19-avgustda arena agenti 11 ta kommit qildi (bloom, protsedural tekstura,
 RectAreaLight, SSAO tayyorlash, per-idish holat). **Funksional tuzatishlari

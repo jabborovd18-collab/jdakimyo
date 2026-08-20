@@ -58,10 +58,13 @@ function kuchsizQurilmaniAniqla() {
 // Nega useSahna hook ichida yozildi: barcha imperativ Three.js kodlari bitta joyda yig'iladi
 // va React render siklidan ajralgan holatda 60 FPS ishlashni ta'minlaydi.
 export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FON, sozlama = {}) {
-  // `olcham` faqat /laboratoriya/3d/olcham marshrutida true. Jonli sahifa
-  // bu argumentni bermaydi — yorug'lik, material, geometriya o'zgarmaydi.
+  // Bu ikki sozlama faqat /laboratoriya/3d/olcham marshrutidan keladi.
+  // Jonli sahifa ularni bermaydi — o'lchagich mobil va desktop yo'lini
+  // tanlay oladi, lekin yorug'lik, material yoki geometriyani almashtirmaydi.
   const olchamRef = useRef(!!sozlama.olcham);
+  const olchamSifatRef = useRef(sozlama.sifat === "arzon" ? "arzon" : "toliq");
   olchamRef.current = !!sozlama.olcham;
+  olchamSifatRef.current = sozlama.sifat === "arzon" ? "arzon" : "toliq";
   const [tayyor, setTayyor] = useState(false);
   const [hammaJihozlar, setHammaJihozlar] = useState([]);
   const [kuchsizQurilma, setKuchsizQurilma] = useState(false);
@@ -158,10 +161,12 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     if (yuklanmoqda) return;
     if (!konteynerRef || !konteynerRef.current) return;
 
-    // O'lchagich 2 yadroli CI/sandboxda ham desktop sifatini o'lchashi kerak:
-    // aks holda bloom o'chiq chiqadi va BRIF-01 kalibrovkasi yolg'on sahnaga
-    // qilinadi. Jonli sahifa bu tarmoqqa kirmaydi (olchamRef sukutda false).
-    const arzonRejim = olchamRef.current ? false : kuchsizQurilmaniAniqla();
+    // CI qurilmasi avtomatik "arzon" deb topilsa desktop o'lchovi yolg'on
+    // bo'lardi. O'lchagich shu sabab sifatni aniq beradi; jonli sahifa esa
+    // avvalgidek haqiqiy qurilmani o'zi aniqlaydi (olchamRef sukutda false).
+    const arzonRejim = olchamRef.current
+      ? olchamSifatRef.current === "arzon"
+      : kuchsizQurilmaniAniqla();
     setKuchsizQurilma(arzonRejim);
 
     const fon = fonOl(fonKalitiRef.current);
