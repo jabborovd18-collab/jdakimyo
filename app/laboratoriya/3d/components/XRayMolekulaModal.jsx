@@ -9,6 +9,7 @@ import {
   xrayProfiliniTop,
 } from "../lib/xray-dvigatel.js";
 import { pufakchaChiqishi, shishaUrilishi } from "../lib/ovoz.js";
+import { muhitNuriniYarat, nuqtaNuriniYarat } from "../lib/yoruglik.js";
 
 export default function XRayMolekulaModal({ reaksiyaTenglamasi, onYop }) {
   const [faolProfil, setFaolProfil] = useState(() =>
@@ -43,14 +44,14 @@ export default function XRayMolekulaModal({ reaksiyaTenglamasi, onYop }) {
     canvasRef.current.replaceChildren(renderer.domElement);
 
     // Chiroqlar
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    const ambientLight = muhitNuriniYarat(0xffffff, 1.4);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0x38bdf8, 2.5, 8);
+    const pointLight = nuqtaNuriniYarat(0x38bdf8, 2.5, 8);
     pointLight.position.set(2, 3, 3);
     scene.add(pointLight);
 
-    const xRayGlow = new THREE.PointLight(0xf43f5e, 2.0, 6);
+    const xRayGlow = nuqtaNuriniYarat(0xf43f5e, 2.0, 6);
     xRayGlow.position.set(-2, -2, 2);
     scene.add(xRayGlow);
 

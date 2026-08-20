@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { suyuqlikYasa } from "./materiallar.js";
 import { EFFEKT_RANGLARI } from "@/lib/lab-modda.js";
 import { idishmi, idishSigimi } from "@/lib/lab-idish.js";
+import { alangaNuriniYarat } from "./yoruglik.js";
 
 // Matn yorlig'i (label) uchun CanvasTexture yordamchisi.
 // Nega: 3D sahnada HTML elementlar o'rniga CanvasTexture dan yasalgan Sprite ishlatish
@@ -586,7 +587,7 @@ function spirtovkaYasa(materiallar) {
   alangaGroup.add(sariqAlanga);
 
   // Alanga nurli chirog'i (Point Light)
-  const alangaNuri = new THREE.PointLight(0xfbbf24, 1.4, 1.2);
+  const alangaNuri = alangaNuriniYarat();
   alangaNuri.position.y = 0.04;
   alangaNuri.visible = false;
   alangaGroup.add(alangaNuri);
@@ -731,7 +732,7 @@ function termometrYasa(materiallar) {
   const group = new THREE.Group();
   const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.35, transparent: true });
   const simobMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.2, metalness: 0.1 });
-  const shkalaMat = new THREE.MeshBasicMaterial({ color: 0x64748b });
+  const shkalaMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5 });
 
   // 1. Shaffof shisha kapillyar quvur
   const tanaGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.32, 16);
@@ -823,7 +824,7 @@ function voronkaYasa(materiallar) {
 function olchovKolbasiYasa(materiallar) {
   const group = new THREE.Group();
   const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.35, transparent: true });
-  const belgiMat = new THREE.MeshBasicMaterial({ color: 0xef4444 }); // Qizil kalibrlash halqasi
+  const belgiMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.45 }); // Qizil kalibrlash halqasi
 
   // Dumaloq tekis tub
   const tubGeo = new THREE.CylinderGeometry(0.065, 0.065, 0.08, 32);
@@ -892,7 +893,7 @@ function olchovKolbasiYasa(materiallar) {
 function olchovSilindriYasa(materiallar) {
   const group = new THREE.Group();
   const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.35, transparent: true });
-  const shkalaMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const shkalaMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
 
   // Oltiburchakli mustahkam taglik (Hexagonal Base)
   // Taglik ilgari 6 segmentli (oltiburchak) edi — FPS rejimida yaqinlashganda

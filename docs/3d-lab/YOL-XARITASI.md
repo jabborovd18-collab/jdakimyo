@@ -21,7 +21,7 @@ O'lchangan holat (2026-08-20):
 | PBR tekstura xaritalari (normal/roughness/AO) | **0** | Sirtlarda mayda relyef yo'q |
 | Protsedural primitivlar | **193** | 79 silindr, 56 quti, 13 shar... |
 | `MeshStandardMaterial` | 100 ta | Har biri qo'lda sozlangan |
-| `MeshBasicMaterial` | 22 ta | Yorug'likka bo'ysunmaydi — doim to'liq yorqin |
+| `MeshBasicMaterial` | 16 ta | Faqat ekran, LED, alanga va effektlarda; qattiq sirtlar Standard |
 | Eng katta fayl | `xona-modellari.js` — 1523 qator | Ikki agent bir vaqtda tega olmaydi |
 
 **Xulosa:** muammo kod sifatida emas. Kod yaxshi yozilgan. Muammo shundaki,
@@ -89,8 +89,8 @@ kamchiligi emas, mobil GPU ning fizik chegarasi. U desktop ilovada
 
 ### Telefonni tejaydigan to'rt harakat
 
-1. **Pishirilgan yorug'lik** (0.6) — xona harakatsiz, uni real vaqtda
-   13 chiroq bilan yoritish isrof. Lightmap → 1–2 real chiroq, fragment
+1. **Pishirilgan yorug'lik** (0.6) — xona harakatsiz; BRIF-01 gacha uni
+   13 chiroq bilan yoritish isrof edi. Lightmap → 1–2 real chiroq, fragment
    narxi ~6 barobar tushadi. Hech qanday funksiya yo'qolmaydi.
 2. **Xona kichrayadi va zichlashadi** (0.4) — hozir 192 m², deyarli
    bo'sh; haqiqiy o'quv laboratoriyasi 60–100 m². Kamroq geometriya,
@@ -140,12 +140,12 @@ va ustiga qurish mumkin bo'ladi.
 | 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
 | 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ✅ |
 | 0.0C | **Sahna konfiguratsiyasi** — sifat profili + mavzu o'lchami olib tashlanadi | [BRIF-00C](BRIF-00C-sifat-profili.md) | ✅ |
-| 0.1 | Yorug'lik byudjeti — **har pog'ona uchun alohida** | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
+| 0.1 | Yorug'lik byudjeti — **har pog'ona uchun alohida** | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ✅ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
 | 0.4 | Xona miqyosi va devor geometriyasi qayta o'lchash | [BRIF-04](BRIF-04-xona-miqyosi.md) | ⬜ |
 | 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
-| 0.6 | **Pishirilgan yorug'lik** — bitta lightmap, 13 chiroq → 1–2 | brif yozilmagan | ⬜ |
+| 0.6 | **Pishirilgan yorug'lik** — bitta lightmap, telefonda 3 real-time → 1–2 | brif yozilmagan | ⬜ |
 | 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | brif yozilmagan | ⬜ |
 
 **Qavat tugadi deb hisoblanadi, qachonki:**
@@ -206,7 +206,8 @@ va ustiga qurish mumkin bo'ladi.
 |---|---|---|
 | Pol butunlay oq, detal yo'qolgan | Yorug'lik byudjeti ~3-4 barobar oshiq | 0.1 |
 | Ship qop-qora, pol oq — bir kadrda | Shipga yorug'lik tushmaydi; `RectAreaLight` bir tomonlama | 0.1 |
-| Rakovina va shift panellari "yonib" turadi | `MeshBasicMaterial` yorug'likka bo'ysunmaydi, doim 1.0 | 0.1 |
+| Rakovina bir tekis oq porlaydi | Materiali allaqachon Standard edi; ortiqcha yorug'lik va ekspozitsiya | 0.1 ✅ |
+| Shift panellari "yonib" turadi | Basic sirt + bloom; Standard emissive'ga o'tdi, bloom o'chiq | 0.1 ✅ |
 | Butun pol oq tumanga aylangan | Bloom ostonasi 0.55, sahna o'rtachasi undan yuqori | 0.1 → 3.1 |
 | Pol o'ng tomoni siyohrang | `tun` mavzusining binafsha to'ldiruvchi nuri (0xa78bfa) | 0.1 |
 | Javon, rakovina, deraza "yopishtirilgan" | Soya xaritasi xonaning 14% ini qoplaydi | 0.4 → 1.2 |
@@ -219,30 +220,23 @@ va ustiga qurish mumkin bo'ladi.
 
 ## Joriy holat
 
-**2026-08-20** — 0.0 (`fe7c050`) va 0.0B (`cb4cfa3`) merge qilindi.
-0.0B supurishi qat'iy nuqtalar ko'rmagan kuyishni topdi
-(`kuygan = 7.33%`). 0.0C sahnani bitta qat'iy ko'rinishga tushirdi va
-`telefon`/`desktop`/`ilova` profil obyektini barcha quruvchilarga
-uzatdi. O'lchagich endi har profil uchun 5 qator chiqaradi; telefon
-profilida mavjud nuqson aniq ko'rinadi: `chiroqSoni=13`,
-`chiroqBudjeti=3`, `chiroqBudjetiBuzildi=true`.
+**2026-08-20** — 0.0 (`fe7c050`), 0.0B (`cb4cfa3`) va 0.0C
+(`950543e`) merge qilindi. 0.1 yorug'lik byudjeti bajarildi:
 
-00C dagi umumiy rang-nomi grepi mavzu mashinasidan tashqari qonuniy
-`cuso4_grafit` elektroliz ID'si va PDF palitrasidagi `siyoh` kalitini ham
-ushlaydi. Ular kimyo/hisobot ma'lumoti bo'lgani uchun qayta nomlanmadi;
-mavzu mashinasining `FONLAR`, `fonOl` va uch eski variantlari esa o'chdi.
+- barcha `Light` va RoomEnvironment IBL egasi — `lib/yoruglik.js`;
+- profil bo'yicha jami chiroq `telefon=3`, `desktop=8`, `ilova=13`;
+- `toneMappingExposure=0.87`, bloom uchalasida ham o'chiq;
+- uch profil × 5 qatorning hammasida kuygan `0%`, qora `<0.7%`,
+  `shipPolFarq <0.39`, byudjet buzilishi yo'q;
+- BRIF-00B topgan supurish kuyishi `7.33% → 0%` bo'ldi.
 
-Keyingi navbat — 0.1 yorug'lik kalibrovkasi. Lekin uning brifidagi eski
-bo'limlar hali to'rtta 3D mavzu va mavzu almashtirish funksiyasini tilga
-oladi; 0.1 boshlanishidan oldin ular bitta ko'rinish + uch profil qaroriga
-moslashtirilishi kerak. Bu 0.0C da yorug'likni o'zgartirish uchun sabab
-emas — chiroq qiymatlari 0.1 darvozasida qoladi.
+Ish paytida uchta eski hisob xatosi aniqlandi: PMREM renderer talab
+qiladi, fume-hood chirog'i sahnaga kirmagan, yashirin spirtovka nuri esa
+kirgan; rakovina materiali allaqachon Standard edi. Jami 13 soni to'g'ri,
+lekin eski ro'yxat tarkibi noto'g'ri bo'lgan. Tuzatish haqiqiy sahna
+grafigi bo'yicha qilindi.
 
-19-avgustda arena agenti 11 ta kommit qildi (bloom, protsedural tekstura,
-RectAreaLight, SSAO tayyorlash, per-idish holat). **Funksional tuzatishlari
-to'g'ri va saqlanadi.** Grafik qismi esa 0-qavat sozlanmagani uchun holatni
-yomonlashtirdi — bloom va qo'shimcha nurlar allaqachon oshiq ekspozitsiyani
-kuchaytirdi. Bu kod tashlab yuborilmaydi, 0.1 da qayta kalibrlanadi.
+Keyingi navbat — 0.2 asset quvuri. Bloom faqat 3.1 da qayta yoqiladi.
 
 ---
 

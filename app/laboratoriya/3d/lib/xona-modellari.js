@@ -4,11 +4,10 @@
 // O'rtadagi to'siq javon butunlay olib tashlangan: zal keng, yorug' va erkin.
 //
 import * as THREE from "three";
-import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
-
-// Shift LED panellari uchun RectAreaLight shaderlarini bir marta yuklaymiz.
-// Nega: ishga tushirilmasa RectAreaLight to'g'ri yoritmaydi (faqat to'q qoladi).
-RectAreaLightUniformsLib.init();
+import {
+  SHIP_PANEL_JOYLARI,
+  tortmaShkafNuriniYarat,
+} from "./yoruglik.js";
 
 /** Davriy jadval plakatini yaratish — 2048x1024 Yuqori aniqlikdagi keng formatli LED plakat */
 function davriyJadvalPlakati() {
@@ -238,25 +237,20 @@ function xonaQobiginiYasa(materiallar) {
   roomGroup.add(shift);
 
   const trofferGeo = new THREE.PlaneGeometry(2.0, 0.8);
-  const trofferMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
-  const trofferYlar = [
-    [-5.0, -3.0], [-1.8, -3.0], [1.8, -3.0], [5.0, -3.0],
-    [-5.0, 2.5],  [-1.8, 2.5],  [1.8, 2.5],  [5.0, 2.5],
-  ];
-  trofferYlar.forEach(([x, z]) => {
+  // Panel yuzasi nur manbaini ko'rsatadi, lekin fragment uchun alohida Light
+  // emas. Standard + emissive atrof yorug'ligiga javob beradi va oq qotmaydi.
+  const trofferMat = new THREE.MeshStandardMaterial({
+    color: 0xe5e7eb,
+    emissive: 0xeef4ff,
+    emissiveIntensity: 0.65,
+    roughness: 0.45,
+    metalness: 0.0,
+  });
+  SHIP_PANEL_JOYLARI.forEach(([x, z]) => {
     const lamp = new THREE.Mesh(trofferGeo, trofferMat);
     lamp.rotation.x = Math.PI / 2;
     lamp.position.set(x, XONA_H - 0.01, z);
     roomGroup.add(lamp);
-
-    // Haqiqiy yorug'lik — panel bir tekis, yumshoq sirt manbai sifatida yoritadi.
-    // Ilgari panel faqat yorqin yuz edi, lekin atrofni yoritmasdi; natijada
-    // yopiq xonada pastki sirtlar qorong'i bo'lib qolardi. RectAreaLight panelga
-    // mos o'lchamda pastga (pol tomon) qaraydi.
-    const panelNuri = new THREE.RectAreaLight(0xeef4ff, 1.4, 2.0, 0.8);
-    panelNuri.position.set(x, XONA_H - 0.05, z);
-    panelNuri.lookAt(x, 0.6, z);
-    roomGroup.add(panelNuri);
   });
 
   // 3. CHAP DEVOR VA 4 TA KATTA DERAZALAR (X = -8.0)
@@ -274,11 +268,6 @@ function xonaQobiginiYasa(materiallar) {
     deraza.position.set(-XONA_W / 2 + 0.02, 2.3, z);
     roomGroup.add(deraza);
   });
-
-  const daylight = new THREE.DirectionalLight(0xe0f2fe, 1.4);
-  daylight.position.set(-12.0, 6.0, 1.0);
-  daylight.target.position.set(0, 1.0, 0);
-  roomGroup.add(daylight);
 
   // 4. O'NG DEVOR (X = +8.0)
   const devorOngGeo = new THREE.PlaneGeometry(XONA_D, XONA_H);
@@ -592,7 +581,7 @@ function tortmaShkafYasa(materiallar) {
   truba.position.set(0, 1.5, 0);
   group.add(truba);
 
-  const ichkiChiroq = new THREE.PointLight(0xffffff, 1.0, 1.8);
+  const ichkiChiroq = tortmaShkafNuriniYarat();
   ichkiChiroq.position.set(0, 0.85, 0);
   group.add(ichkiChiroq);
 
@@ -1022,7 +1011,7 @@ function elektrolizVannasiYasa(materiallar) {
   group.add(katod);
 
   const klemmaKGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.02, 16);
-  const klemmaKMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6 });
+  const klemmaKMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.4 });
   const klemmaK = new THREE.Mesh(klemmaKGeo, klemmaKMat);
   klemmaK.position.set(-0.09, 0.19, 0.05);
   group.add(klemmaK);
@@ -1034,7 +1023,7 @@ function elektrolizVannasiYasa(materiallar) {
   group.add(anod);
 
   const klemmaAGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.02, 16);
-  const klemmaAMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+  const klemmaAMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
   const klemmaA = new THREE.Mesh(klemmaAGeo, klemmaAMat);
   klemmaA.position.set(0.09, 0.19, 0.05);
   group.add(klemmaA);
@@ -1046,6 +1035,7 @@ function elektrolizVannasiYasa(materiallar) {
   group.add(blok);
 
   const ledGeo = new THREE.BoxGeometry(0.04, 0.04, 0.005);
+  // Chinakam nur chiqaruvchi indikator: Basic bu yerda ataylab qoladi.
   const ledMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
   const led = new THREE.Mesh(ledGeo, ledMat);
   led.position.set(-0.06, 0.1, -0.048);

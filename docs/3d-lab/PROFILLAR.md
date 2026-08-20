@@ -19,20 +19,20 @@ app/laboratoriya/3d/lib/sifat-profili.js
 |---|---:|---:|---:|
 | `nom` | `telefon` | `desktop` | `ilova` |
 | `chiroqBudjeti` | 3 | 8 | 16 |
-| `pikselNisbati` | 1.5 | 1.5 | 1.5 |
+| `pikselNisbati` | 1.0 | 1.5 | 1.5 |
 | `soya` | false | true | true |
 | `IBL` | true | true | true |
 | `transmission` | false | true | true |
-| `postprocessing.bloom` | false | true | true |
+| `postprocessing.bloom` | false | false | false |
 | `postprocessing.ssao` | false | false | false |
 | `teksturaOlchami.yogoch` | 512 | 512 | 512 |
 | `teksturaOlchami.pol` | 512 | 512 | 512 |
 | `teksturaOlchami.devor` | 256 | 256 | 256 |
 | `antialias` | false | true | true |
 
-`ilova` kelajakdagi desktop mahsulot profilidir. Hozir render xatti-
-harakati `desktop` bilan bir xil; 4K qiymatlarni oldindan yoqish BRIF-00C
-ning “xatti-harakat o'zgarmasin” shartini buzardi.
+`ilova` kelajakdagi desktop mahsulot profilidir. Renderer va material
+yo'li hozir `desktop` bilan bir xil, lekin yorug'lik byudjeti kengroq:
+ilovada 13, desktopda 8 chiroq. To'liq 4K qiymatlari BRIF-03 da keladi.
 
 ---
 
@@ -41,7 +41,7 @@ ning “xatti-harakat o'zgarmasin” shartini buzardi.
 | Maydon | Iste'molchi | Ma'nosi |
 |---|---|---|
 | `nom` | UI va o'lchagich | Faol profil identifikatori |
-| `chiroqBudjeti` | O'lchagich, keyin BRIF-01 | Maqsad chiroq soni; hozir chiroqni majburan kesmaydi |
+| `chiroqBudjeti` | `yoruglik.js` va o'lchagich | Qurilishda majburlanadigan maksimal chiroq soni |
 | `pikselNisbati` | `WebGLRenderer.setPixelRatio` | Qurilma DPR'i uchun yuqori chegara |
 | `soya` | renderer, asosiy nur, stol va oyoqlar | Eski soya yoqilgan/o'chiq holati |
 | `IBL` | `RoomEnvironment`/PMREM | Muhit aks xaritasi yaratiladimi |
@@ -55,27 +55,23 @@ kalit `profilniOl(kalit)`da jim zaxira profilga tushmaydi, xato beradi.
 
 ---
 
-## Boshlang'ich qiymatlar qayerdan olindi
+## Qiymatlar qayerdan olindi
 
-BRIF-00C optimallashtirish emas, quvur ishi. Shu sabab qiymatlar yangi
-taxminlardan emas, oldingi ikki yo'ldan ko'chirildi:
+BRIF-00C profil quvurini eski ikki yo'ldan aynan ko'chirdi. BRIF-01 esa
+faqat o'lchov bilan tasdiqlangan uchta o'zgarishni kiritdi:
 
-- `telefon` — oldingi `arzonRejim=true`: antialias, soya va bloom o'chiq;
-  transmission o'rniga `MeshStandardMaterial`.
-- `desktop` — oldingi `arzonRejim=false`: antialias, soya, bloom va
-  transmission yoqilgan.
-- `IBL` uchalasida ham `true`, chunki oldingi kod `RoomEnvironment`ni
-  arzon yo'lda ham shartsiz yaratgan. Uni hozir o'chirish tezlashtirish va
-  tasvir o'zgarishi bo'lardi.
-- Piksel nisbati uchalasida ham oldingi `min(devicePixelRatio, 1.5)`.
-- Tekstura o'lchamlari mavjud canvaslardan: yog'och 512, pol 512, devor
-  256. Profilga ko'chirildi, sonlar o'zgarmadi.
-- SSAO oldingi `SSAO_YOQIQ=false` holatidan uchalasida ham o'chiq.
-- `chiroqBudjeti` istisno: `3/8/16` — haqiqiy maqsad. U hozir faqat
-  o'lchanadi; BRIF-01 chiroq to'plamini shu chegaraga moslaydi.
+- `telefon` avvalgidek soyasiz, antialiassiz va transmissionsiz; uning
+  `pikselNisbati` 1.5 dan 1.0 ga tushdi. DPR 3 ekranda bu 2.25 barobar
+  ortiq piksel chizishni to'xtatadi.
+- Bloom uchalasida ham o'chiq. U kalibrlangan sahnaga 3-qavatda qaytadi;
+  SSAO ham avvalgidek o'chiq.
+- `chiroqBudjeti` `3/8/16` endi `yoruglikniQur`da majburlanadi. Joriy
+  boshlang'ich sahna (yashirin spirtovka nuri bilan) `3/8/13` chiroq
+  beradi va barcha profilda `chiroqBudjetiBuzildi=false`.
 
-Natijada bugungi telefon o'lchovi ataylab `chiroqSoni=13`,
-`chiroqBudjeti=3`, `chiroqBudjetiBuzildi=true` ko'rsatadi.
+`IBL` uchalasida ham `true`: RoomEnvironment akslari shisha uchun kerak.
+Tekstura o'lchamlari o'zgarmadi — yog'och 512, pol 512, devor 256.
+Ekspozitsiya `lib/yoruglik.js`da yagona `0.87` qiymatida turadi.
 
 ---
 
@@ -120,8 +116,9 @@ jihozYasa(kalit, materiallar, profil)
 ```
 
 Materiallar profilni `materiallar.profil`da, uchta guruh quruvchisi esa
-`group.userData.profil`da saqlaydi. Xona profilni olsa ham BRIF-00C da
-8 ta `RectAreaLight`ni o'chirmaydi — bu BRIF-01 ning o'lchanadigan ishi.
+`group.userData.profil`da saqlaydi. `lib/yoruglik.js` profil bo'yicha
+statik to'plamni quradi: telefon 2 + spirtovka 1, desktop 7 + 1, ilova
+12 + 1. Barcha `Light` konstruktorlari ham shu yagona faylda.
 
 ---
 

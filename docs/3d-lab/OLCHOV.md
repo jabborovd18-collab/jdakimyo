@@ -133,9 +133,9 @@ luma = 0.2126*R + 0.7152*G + 0.0722*B
 | `chaqiruv` | `renderer.info.render.calls` |
 | `teksturaXotira` | `renderer.info.memory.textures` |
 
-`chiroqBudjeti` hozircha **majburlanmaydi**. Masalan, telefon profilida
-joriy sahna `13 > 3` bo'lib, `chiroqBudjetiBuzildi=true` qaytaradi. Bu
-BRIF-01 tuzatadigan o'lchangan nuqson; o'lchagich chiroqni o'chirmaydi.
+`chiroqBudjeti`ni o'lchagich majburlamaydi — u faqat sahnani o'qiydi.
+Byudjet `lib/yoruglik.js`da qurilish paytida tekshiriladi; joriy sahna
+telefon/desktop/ilovada `3/8/13` chiroq va `false` qaytaradi.
 
 Birinchi o'lchov 60 kadr yoki sekin dasturiy GL uchun kamida 8 kadr va
 2 soniya kutadi. Keyingi nomli kamera ikki kadr kutadi. Supurish sahna
