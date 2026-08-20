@@ -148,6 +148,21 @@ va ustiga qurish mumkin bo'ladi.
 | Zal bo'm-bo'sh va juda katta | Xona 16×12 m = 192 m², stol atigi 3.2×1.6 m | 0.4 |
 | `siyoh`/`grafit`/`kunduz` sahnalariga foydalanuvchi yeta olmaydi | To'rtta mavzu kodi bor, lekin 3D laboratoriyada fon almashtirgich UI ulanmagan; hozir `SUKUT_FON` (`tun`) aniq beriladi | Egasi qarori |
 
+> **Fon almashtirgich qarori berilganda:** HUD va sahna **birga**
+> almashishi kerak. `korinish.js` dagi `data-fon` atributi 2D
+> interfeys ranglarini boshqaradi (`globals.css:277-350` da to'rtta
+> mavzu bloki), `useSahna(fonKaliti)` esa 3D sahnani. Hozir ikkalasi
+> ham `SUKUT_FON` ga qotirilgan.
+>
+> Nozik joyi: `--v3-fon`/`--v3-matn` faqat mavzu bloklarida
+> aniqlangan, `:root` da yo'q. Ilgari `data-fon="zamonaviy"` hech
+> biriga tushmagani uchun HUD ranglari `<html>` dan (foydalanuvchi
+> tanlagan sayt mavzusidan) meros olardi. `SUKUT_FON` ga o'tgach
+> meros bosib ketildi — ya'ni `kunduz` mavzusini tanlagan
+> foydalanuvchining HUD'i endi majburan qorong'i. Bu 3D sahna bilan
+> mos bo'lgani uchun qabul qilindi (`cb4cfa3`), lekin almashtirgich
+> qo'shilganda ikkalasi bitta manbadan boshqarilishi shart (1-band).
+
 ---
 
 ## Joriy holat
