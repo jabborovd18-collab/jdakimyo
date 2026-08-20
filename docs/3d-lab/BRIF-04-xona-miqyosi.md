@@ -98,3 +98,49 @@ Yorug'lik kuchlari (BRIF-01), tekstura va material (1-qavat), jihozlar.
 
 Yurish rejimida xonaning to'rt burchagidan 4 skrinshot + soya ko'rinadigan
 yaqin plan; kolliziya sinovining qadamma-qadam bayoni.
+
+---
+
+## Qo'shimcha topilma (2026-08-20) — xona TOR EMAS, kamera tor
+
+Egasi "xona tor ko'rinadi, kattalashtiraylikmi?" deb so'radi. O'lchandi:
+
+```
+xona-modellari.js:221   XONA_W = 16.0
+xona-modellari.js:222   XONA_H = 4.2      <- ship balandligi
+xona-modellari.js:223   XONA_D = 12.0
+```
+
+192 m², shipi 4.2 m. Haqiqiy universitet laboratoriyasi odatda
+60-100 m², shipi ~3 m. **Xona kichik emas — real hayotdagidan katta.**
+
+Torlik tuyg'usining sababi boshqa joyda:
+
+```
+sozlama.js:5   fov: 45
+```
+
+Three.js'da `fov` VERTIKAL. 16:9 ekranda 45° vertikal ≈ 73° gorizontal.
+FPS o'yinlari 90-103° gorizontal ishlatadi. 45° — mahsulotni suratga
+olish burchagi, ichida yurish burchagi emas: u fazoni siqadi va
+devorlarni yaqin ko'rsatadi.
+
+Qo'shimcha uch sabab: bo'sh xonada masofani chamalaydigan ob'ekt yo'q;
+oq kuygan pol chuqurlik idrokini yo'q qiladi (BRIF-01); tuman uzoq
+devorni yashiradi.
+
+**XONA KATTALASHTIRILMAYDI.** Sabablari:
+
+1. Bo'sh 192 m² kattalashtirilsa laboratoriya emas, ombor bo'ladi.
+   Xonani TO'LDIRISH uni kattaroq ko'rsatadi, kichikroq emas.
+2. Soya qamrovi allaqachon yetishmaydi (soya kamerasi ±2.6 birlik,
+   xona 16x12) — kattalashtirish bu brifning asosiy muammosini
+   og'irlashtiradi.
+3. FOV bitta raqam va u geometriyaga tegmasdan darhol kengaytiradi.
+
+**Bu brifga qo'shiladigan vazifa:** FOV ni 45 dan ~60-65 (vertikal)
+gacha ko'tarish va uch kamera nuqtasida BRIF-00 o'lchovi bilan
+tekshirish. Diqqat: FOV o'zgarishi kadrga ko'proq geometriya
+kiritadi — `renderer.info.render.triangles` va FPS ni oldin/keyin
+solishtiring. FOV ni yurish rejimida va orbit rejimida alohida
+sozlash kerak bo'lishi mumkin.

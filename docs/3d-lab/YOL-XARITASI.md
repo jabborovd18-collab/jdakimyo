@@ -239,3 +239,72 @@ Arzon muqobil: mavjud mobil ilovada WebView. Bugun ham ishlaydi, lekin
 
 **Qachon ma'noli bo'ladi:** G2 dan keyin. Desktop qayta yozishni talab
 qilmaydi, mobil talab qiladi — arzonidan boshlanadi.
+
+### G4. Mehmon rejimi — kirmasdan xonani aylanib ko'rish
+
+**Arxitektura buni allaqachon qo'llab-quvvatlaydi.** Tekshirildi:
+
+| Joy | Holat |
+|---|---|
+| `app/laboratoriya/3d/page.js` | Auth to'sig'i **yo'q** — sahifa ochiq, metadata boy |
+| 5 ta `/api/laboratoriya/*` | Hammasi **server tomonda** himoyalangan (401) |
+| `korinish.js:298` -> `:789` | 401 kelganda mijoz kirish devorini chizadi |
+
+Ya'ni to'siq serverda emas, MIJOZDA — bitta shoxda. Xavfsizlik chegarasi
+to'g'ri joyda: API'lar berkitilgan, sahifa ochiq. Mehmon rejimi qayta
+qurish emas: 401 kelganda kirish devori o'rniga sahnani cheklangan
+holatda yuklash.
+
+**Nega qilishga arziydi:** hozir sahifa 200 qaytaradi va metadata
+"reagentlarni millilitr aniqlik bilan quying" deb va'da qiladi, lekin
+ziyoratchi ham, Google ham faqat kirish devorini ko'radi — va'da bilan
+mazmun mos emas. Bundan tashqari saytning eng kuchli narsasi devor
+ortida turibdi: to'g'ri tartib avval hayratlantirish, keyin ro'yxatga
+olish.
+
+**Muhim dizayn sharti:** bo'sh xonada aylanish zerikarli. Mehmon
+TO'LDIRILGAN, lekin o'zgartirib bo'lmaydigan xona ko'rsin — stolda
+tugagan reaksiyali 2-3 idish, ishlaydigan davriy jadval, X-Ray ko'ruvi,
+xavfsizlik stansiyasi. Sarflanadigan narsa (reagent, sandiq, do'kon,
+sifat-analiz) yopiq. Mehmon muzeyga kiradi, bo'sh omborga emas.
+
+**Brif yozilganda birinchi qatori:** `/api/laboratoriya/*` yo'llarining
+birortasiga TEGILMAYDI. Mehmon rejimi — mijoz kamroq chizadi degani,
+server ko'proq beradi degani emas. (`1e48557` da tuzatilgan nuqsonlar
+aynan shu sinf edi.)
+
+**Qachon:** 1-qavatdan keyin. Ochiq nuqsonni ko'proq odamga ko'rsatish
+uni tuzatmaydi — hozir sahna oq kuygan holatda va birinchi taassurot
+bir marta bo'ladi.
+
+### G5. Laboratoriya yordamchisi — hamroh robot
+
+G'oya egasidan: PUBG Mobile'dagi kabi qahramon yonida yuradigan kichik
+robot.
+
+**Uning "ongi" loyihada ALLAQACHON yozilgan**, faqat modal oynalarda
+beriladi:
+
+| Mavjud tizim | Hozir qanday yetkaziladi |
+|---|---|
+| `lib/amaliy-mashgulotlar.js` | Qalqib chiquvchi oyna |
+| `lib/ekspert-xulosa.js` | Qalqib chiquvchi oyna |
+| `lib/ovoz.js` + `/api/ovoz` | Alohida |
+
+Ya'ni robot bezak emas — mavjud mazmunning **tanasi**: xulosani popup
+emas, yoningizga kelib ovoz bilan aytadi. Va G4 bilan juftlashadi:
+mehmon hech narsaga tegolmaydi, robot unga gid bo'ladi — "bo'sh xona
+zerikarli" muammosini aynan shu hal qiladi.
+
+**Shart: model yasashdan OLDIN uning ishi yozilsin.** Ishi bo'lmagan
+mascot — har kadrda hisoblanadigan, hech narsa bermaydigan yuk.
+Kamida uchta aniq vazifa bo'lsin (masalan: amaliy mashg'ulotni
+bosqichma-bosqich boshqarish, xavfsizlik qoidasi buzilganda
+ogohlantirish, mehmonga xonani tanishtirish).
+
+**Qachon:** 2-qavatdan keyin. Sabab mexanik — robot 3D model talab
+qiladi, loyihada esa hozir 0 ta `.glb` bor (BRIF-02).
+
+**Ehtiyot bo'ling:** har gapini AI dan so'ramang. Gaplarning aksari
+mavjud ma'lumotdan oldindan yozilgan bo'lsin; AI faqat foydalanuvchi
+o'zi savol berganda chaqirilsin. Aks holda har qadam pulga tushadi.
