@@ -182,3 +182,39 @@ yuqoridagi shader yuki ustiga tushadi, lekin asosiy sabab emas.
 `4775a53` (19-avgust, "muhit yorug'ligi — RectAreaLight") — o'sha
 oltita kommitdan biri. Telefon og'irligi ham, oq kuyish ham bitta
 manbadan: sozlanmagan yorug'lik byudjetidan.
+
+---
+
+## Yo'nalish o'zgarishi (2026-08-20) — byudjet HAR POG'ONA uchun
+
+Bu brif dastlab **bitta** sahnani kalibrlash uchun yozilgan edi. Bu
+noto'g'ri: bitta yorug'lik to'plami telefonga ham, 4K ga ham xizmat
+qila olmaydi.
+
+**Oldindan shart: BRIF-00C bajarilgan bo'lsin.** U `arzonRejim`
+boolean ini profil obyektiga almashtiradi va uni har quruvchiga
+uzatadi — shu jumladan `xonaInteryeriniYasa` ga, u hozir hech narsa
+olmaydi. Usiz bu brifni bajarib bo'lmaydi: telefonda chiroqni kesish
+uchun kod telefonda ekanini bilishi kerak.
+
+`lib/yoruglik.js` **profilni argument sifatida qabul qilsin** va
+chiroq to'plamini profil bo'yicha qursin:
+
+| Profil | `chiroqBudjeti` (taklif) | Izoh |
+|---|---|---|
+| `telefon` | 3 | RectAreaLight **umuman ishlatilmasin** — panel yuzasi `emissive` + 1-2 yumshoq manba |
+| `desktop` | 8 | Hozirgi 13 dan kam |
+| `ilova` | 16 | To'liq real vaqt |
+
+**Qabul mezoni qo'shildi:** `LAB3D_PROFIL=telefon` o'lchovida
+`chiroqBudjetiBuzildi = false` bo'lsin (BRIF-00C uni `true` qilib
+ko'rsatadigan qilgan).
+
+Ekspozitsiya kalibrovkasi ham har pog'ona uchun alohida tekshirilsin —
+chiroq soni o'zgargach ekspozitsiya ham o'zgaradi.
+
+**Diqqat:** bu brif chiroq SONINI kesadi. Xona qorong'i bo'lib
+qolmasligi uchun asosiy yechim pishirilgan yorug'lik (0.6), lekin u
+asset quvuriga (0.2) bog'liq. Shuning uchun bu brifda telefon uchun
+vaqtincha `emissive` panel yuzasi yetarli — u tekin va u yerda
+qoladi.

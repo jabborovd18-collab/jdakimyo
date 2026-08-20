@@ -144,3 +144,30 @@ tekshirish. Diqqat: FOV o'zgarishi kadrga ko'proq geometriya
 kiritadi — `renderer.info.render.triangles` va FPS ni oldin/keyin
 solishtiring. FOV ni yurish rejimida va orbit rejimida alohida
 sozlash kerak bo'lishi mumkin.
+
+---
+
+## Yo'nalish aniqlashdi (2026-08-20) — xona KICHRAYADI
+
+Yuqoridagi topilma "kattalashtirmang" deb tugagan edi. Telefon
+unumdorligi masalasi ko'tarilgach yo'nalish aniqlashdi: xona nafaqat
+kattalashtirilmaydi, balki **kichraytiriladi**.
+
+Uchta sabab bir yo'nalishga ishora qiladi:
+
+1. **His-tuyg'u.** 192 m² deyarli bo'sh — bu laboratoriya emas, ombor.
+   Haqiqiy o'quv laboratoriyasi 60-100 m². Kichikroq va to'ldirilgan
+   xonada yurish qiziqroq: har qadamda ko'radigan narsa bor.
+2. **Soya qamrovi.** Soya kamerasi ±2.6 birlik, xona 16x12 — bu
+   brifning asosiy muammosi. Xona kichraysa muammo o'z-o'zidan
+   kichrayadi.
+3. **Telefon.** Kamroq maydon = kamroq geometriya = kamroq draw call.
+
+**Yurish rejimi qoladi** — u uch pog'onada ham saqlanadi
+(`YOL-XARITASI.md`, "Uch pog'ona" bo'limi). Xonani kichraytirish
+yurishga qarshi emas, yurish uchun.
+
+Taklif etilgan yo'nalish (aniq son BRIF-01 va 0.7 dan keyin
+aniqlashadi): ~10x8 m, ship 3.2-3.5 m. FOV o'zgarishi bilan birga
+sinalsin — ikkalasi bir-biriga ta'sir qiladi va faqat BRIF-00
+o'lchovi ularni ajrata oladi.

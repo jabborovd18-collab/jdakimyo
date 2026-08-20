@@ -60,6 +60,60 @@ yuqori qavat xatoni **kuchaytiradi**, yashirmaydi.
 
 ---
 
+## Uch pog'ona — 2026-08-20 qarori
+
+Egasi telefonda sinab ko'rdi va qurilma cho'kdi. Savol tug'ildi: hozirgi
+grafikada ham telefon qotsa, 4K ga o'tganda nima bo'ladi?
+
+Javob: **bitta sahna ta'rifi telefonga ham, 4K ga ham xizmat qila
+olmaydi.** 4K ko'proq talab qiladi, telefon kamroq. Shuning uchun maqsad
+bo'lindi:
+
+| Profil | Muhit | Maqsad | Yurish |
+|---|---|---|---|
+| `telefon` | Mobil brauzer va WebView | **60 FPS, silliqlik** | ✅ bor |
+| `desktop` | Kompyuter brauzeri | Yuqori sifat | ✅ bor |
+| `ilova` | Desktop ilova (G2) | **4K fotorealizm** | ✅ bor |
+
+**Yurish uch pog'onada ham qoladi.** Bir taklif yurishni telefonda
+o'chirish edi — egasi rad etdi va haqli edi: yurish bu mahsulotning
+o'zi, usiz 2D laboratoriyadan farq qolmaydi. Telefon funksiyani emas,
+**ortiqcha yukni** yo'qotadi.
+
+4K fotorealizm telefon brauzerida hech qachon bo'lmaydi — bu three.js
+kamchiligi emas, mobil GPU ning fizik chegarasi. U desktop ilovada
+(G2) amalga oshadi: u yerda 12 MB asset byudjeti yo'qoladi,
+`devicePixelRatio` cheklovsiz, GPU to'liq.
+
+### Telefonni tejaydigan to'rt harakat
+
+1. **Pishirilgan yorug'lik** (0.6) — xona harakatsiz, uni real vaqtda
+   13 chiroq bilan yoritish isrof. Lightmap → 1–2 real chiroq, fragment
+   narxi ~6 barobar tushadi. Hech qanday funksiya yo'qolmaydi.
+2. **Xona kichrayadi va zichlashadi** (0.4) — hozir 192 m², deyarli
+   bo'sh; haqiqiy o'quv laboratoriyasi 60–100 m². Kamroq geometriya,
+   soya qamrovi yetadi va his-tuyg'u yaxshilanadi.
+3. **Zonali birlashtirish + LOD** (0.7) — `xona-zonalari.js` da 9 ta
+   zona allaqachon ta'riflangan. Zona bo'yicha birlashtirilsa draw call
+   ~200 dan ~20 ga tushadi **va** ko'rinmaydigan zona chizilmaydi.
+4. **Dinamik rezolyutsiya** (0.3) — kadr vaqtiga qarab render o'lchamini
+   moslash. Telefon qiynalsa piksel kamayadi, sahna emas.
+
+### Ochiq savol — pishirishdan OLDIN kerak
+
+Lightmap **har mavzu uchun alohida** pishiriladi. Hozir to'rtta mavzu
+bor (`tun`, `siyoh`, `grafit`, `kunduz`) — demak to'rtta lightmap.
+
+- 3D laboratoriyada fon almashtirgich **bo'lmasa** — bitta lightmap,
+  to'rt barobar arzon.
+- **Bo'lsa** — to'rtta, lekin foydalanuvchi tanlay oladi.
+
+Bu egasining mahsulot qarori va u 0.6 dan oldin kerak. Bog'liq:
+`korinish.js` dagi `data-fon` (2D interfeys) va `useSahna(fonKaliti)`
+(3D sahna) — ikkalasi birga almashishi shart.
+
+---
+
 ### 0-QAVAT — POYDEVOR  ⬅ HOZIRGI NAVBAT
 
 > **0.0 birinchi bo'lishi shart.** Loyihada ishlaydigan agentlarning
@@ -75,11 +129,14 @@ va ustiga qurish mumkin bo'ladi.
 |---|---|---|---|
 | 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
 | 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ✅ |
-| 0.1 | Yorug'lik byudjeti — yagona manba, ekspozitsiya kalibrovkasi | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
+| 0.0C | **Sifat profili** — `arzonRejim` boolean o'rniga profil, har quruvchiga | [BRIF-00C](BRIF-00C-sifat-profili.md) | ⬜ |
+| 0.1 | Yorug'lik byudjeti — **har pog'ona uchun alohida** | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
 | 0.4 | Xona miqyosi va devor geometriyasi qayta o'lchash | [BRIF-04](BRIF-04-xona-miqyosi.md) | ⬜ |
 | 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
+| 0.6 | **Pishirilgan yorug'lik** — lightmap, 13 chiroq → 1–2 | brif yozilmagan | ⬜ |
+| 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | brif yozilmagan | ⬜ |
 
 **Qavat tugadi deb hisoblanadi, qachonki:**
 - `npm run lab3d:olcham` 20 qatorlik jadval chiqarsa va hech bir qator
@@ -88,7 +145,8 @@ va ustiga qurish mumkin bo'ladi.
   qotib qolmasa (oq kuyish yo'q).
 - Shipdan polgacha yorug'lik uzluksiz bo'lsa (qora ship + oq pol yo'q).
 - Bitta `.glb` va bitta `.hdr` haqiqatan yuklanib, sahnada ko'rinsa.
-- 4K ekranda sifat darajasi "Ultra" da `devicePixelRatio` to'liq ishlatilsa.
+- 4K ekranda `ilova` profili `devicePixelRatio` ni to'liq ishlatsa.
+- `telefon` profilida **yurish rejimida** 60 FPS ushlansa.
 
 ---
 
