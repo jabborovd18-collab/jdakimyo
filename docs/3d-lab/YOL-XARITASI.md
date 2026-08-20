@@ -73,7 +73,7 @@ va ustiga qurish mumkin bo'ladi.
 
 | # | Ish | Brif | Holat |
 |---|---|---|---|
-| 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ⬜ |
+| 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
 | 0.1 | Yorug'lik byudjeti — yagona manba, ekspozitsiya kalibrovkasi | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
@@ -145,12 +145,13 @@ va ustiga qurish mumkin bo'ladi.
 | Davriy jadval devordan chiqib ketgan | Panel joylashuvi xona chegarasidan tashqarida | 0.4 |
 | "Probirka", "Termometr" yorliqlari havoda | DOM/sprite yorliq, chuqurlik testi yo'q | 2.4 |
 | Zal bo'm-bo'sh va juda katta | Xona 16×12 m = 192 m², stol atigi 3.2×1.6 m | 0.4 |
+| `korinish.js` foni doim `tun` | `useSahna(..., "zamonaviy")` — `FONLAR` da bunday kalit yo'q, `fonOl` sukutga tushadi | 0.1 |
 
 ---
 
 ## Joriy holat
 
-**2026-08-20** — 0-qavat boshlanmagan. Kod `main` da `4333617`.
+**2026-08-20** — 0.0 bajarildi: `npm run lab3d:olcham`. 0.1–0.5 hali ochiq.
 
 19-avgustda arena agenti 11 ta kommit qildi (bloom, protsedural tekstura,
 RectAreaLight, SSAO tayyorlash, per-idish holat). **Funksional tuzatishlari
