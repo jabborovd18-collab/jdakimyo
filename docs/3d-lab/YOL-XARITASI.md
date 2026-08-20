@@ -74,6 +74,7 @@ va ustiga qurish mumkin bo'ladi.
 | # | Ish | Brif | Holat |
 |---|---|---|---|
 | 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
+| 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ⬜ |
 | 0.1 | Yorug'lik byudjeti — yagona manba, ekspozitsiya kalibrovkasi | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
@@ -151,7 +152,11 @@ va ustiga qurish mumkin bo'ladi.
 
 ## Joriy holat
 
-**2026-08-20** — 0.0 bajarildi: `npm run lab3d:olcham`. 0.1–0.5 hali ochiq.
+**2026-08-20** — 0.0 bajarildi va merge qilindi (`fe7c050`).
+Ko'rikda asbobning halolligi shubha ostiga tushdi: preview deployda
+`tun` mavzusida pol ko'zga tashlanadigan darajada kuygan, o'lchov esa
+`tun` uchun `kuygan = 0.00` dedi — nuqtalar kuyish joyiga qaramaydi.
+**0.0B shu sababdan tug'ildi va 0.1 dan oldin bajariladi.**
 
 19-avgustda arena agenti 11 ta kommit qildi (bloom, protsedural tekstura,
 RectAreaLight, SSAO tayyorlash, per-idish holat). **Funksional tuzatishlari
