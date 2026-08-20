@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { muhitNuriniYarat, yonalishNuriniYarat } from "../lib/yoruglik.js";
 
 const KRISTALLAR = {
   NaCl: {
@@ -100,10 +101,10 @@ export default function KristallPanjaraModal({ onYop }) {
     konteynerRef.current.replaceChildren(renderer.domElement);
 
     // Chiroqlar
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = muhitNuriniYarat(0xffffff, 1.2);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    const dirLight = yonalishNuriniYarat(0xffffff, 1.5);
     dirLight.position.set(3, 4, 5);
     scene.add(dirLight);
 

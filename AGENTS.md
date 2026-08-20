@@ -212,17 +212,17 @@ Dalil **son** bo'lishi kerak, ko'z emas:
 
 ### 11.2 Yorug'likning yagona egasi bor
 
-Hozir yorug'lik **ikki joydan** qo'shiladi va ikkalasi bir-birini bilmaydi:
-`hooks/useSahna.js` (ambient + 2 directional) va `lib/xona-modellari.js`
-(yana bitta directional 1.4, `RectAreaLight` lar 1.4, `PointLight` 1.0).
-Ustiga `scene.environment` (RoomEnvironment IBL) qo'shiladi. Jami byudjet
-hech qayerda yozilmagan — shuning uchun hech kim uni oshirib yuborganini
-sezmagan. Bu 1-bandning yorug'likka tushirilgan ko'rinishi.
+BRIF-01 gacha yorug'lik `useSahna.js`, `xona-modellari.js` va jihoz
+effektlarida bir-biridan bexabar tug'ilgan; boshlang'ich sahnada 13 ta
+manba bor edi. Endi yagona egasi `app/laboratoriya/3d/lib/yoruglik.js`:
+statik sahna, vaqtinchalik effekt, modal factory'lari va RoomEnvironment
+IBL shu fayldan chiqadi.
 
-- Yangi yorug'lik manbai **faqat** yorug'lik byudjeti faylidan qo'shiladi.
-- Model yasovchi fayl (`*-modellari.js`) yorug'lik yaratmaydi. U geometriya
-  va material qaytaradi, xolos.
-- Ekspozitsiya (`toneMappingExposure`) — bitta joyda, bitta son.
+- Yangi yorug'lik manbai **faqat** `lib/yoruglik.js` dan qo'shiladi.
+- Model yasovchi fayl (`*-modellari.js`) `new THREE.*Light` yozmaydi.
+- Profil byudjeti boshlang'ich spirtovka nurini ham hisoblaydi:
+  `telefon=3`, `desktop=8`, `ilova=13` (budjet 16).
+- Ekspozitsiya (`toneMappingExposure`) — `lib/yoruglik.js`da bitta son.
 - three.js r165 dan beri fizik jihatdan to'g'ri yorug'lik **majburiy**
   (`useLegacyLights` olib tashlangan). Eski qo'llanmalardan ko'chirilgan
   `intensity` qiymatlari 3–5 barobar oshiq bo'ladi.
@@ -230,9 +230,9 @@ sezmagan. Bu 1-bandning yorug'likka tushirilgan ko'rinishi.
 ### 11.3 `MeshBasicMaterial` — yoritiladigan sirtga ishlatilmaydi
 
 `MeshBasicMaterial` yorug'likka umuman bo'ysunmaydi: u har doim to'liq
-yorqinlikda turadi. Shift chiroq panellari `0xf8fafc` bilan aynan shunday
-yozilgan va bloom ostonasidan doim yuqori bo'lgani uchun jonli sahnada
-"yonib" ketgan.
+yorqinlikda turadi. Shift panellari ilgari `0xf8fafc` Basic bo'lib,
+jonli sahnada "yonib" ketgan; BRIF-01 da ular `MeshStandardMaterial +
+emissive`ga o'tdi. Basic faqat ekran, LED, alanga va effektlarda qoldi.
 
 - Faqat chinakam nur chiqaradigan narsaga (EXIT belgisi, LED, ekran) va
   faqat bloom ostonasi bilan kelishilgan holda ishlatiladi.
@@ -246,6 +246,7 @@ Bloom, SSAO, SSR — bular sahnaning **kamchiligini yashirmaydi, kattalashtiradi
   Sahna o'rtachasi 1.0 bo'lsa, 0.55 ostona butun kadrni yoritadi.
 - Tartib: avval ekspozitsiya kalibrovkasi → keyin material → keyin effekt.
   `docs/3d-lab/YOL-XARITASI.md` dagi piramida shu tartibni belgilaydi.
+- Bloom BRIF-01 dan keyin ham o'chiq; 3-qavatda o'lchov bilan qaytadi.
 
 ### 11.5 Soya qamrovi xona o'lchamiga mos bo'lishi shart
 

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import Ikon from "@/components/Ikon";
+import { muhitNuriniYarat, yonalishNuriniYarat } from "../lib/yoruglik.js";
 
 // CPK Element ranglar standartlari
 const CPK_RANGLAR = {
@@ -230,14 +231,14 @@ export default function MolekulaZoomModal({ kalit = "H₂O", onYop }) {
     konteynerRef.current.replaceChildren(renderer.domElement);
 
     // Chiroqlar
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
+    const ambientLight = muhitNuriniYarat(0xffffff, 1.3);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.6);
+    const dirLight1 = yonalishNuriniYarat(0xffffff, 1.6);
     dirLight1.position.set(3, 4, 4);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 1.0);
+    const dirLight2 = yonalishNuriniYarat(0x38bdf8, 1.0);
     dirLight2.position.set(-3, -3, -2);
     scene.add(dirLight2);
 

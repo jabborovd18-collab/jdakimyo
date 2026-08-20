@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
@@ -17,6 +16,7 @@ import { javon3dYasa } from "../lib/javon-3d.js";
 import { xonaInteryeriniYasa } from "../lib/xona-modellari.js";
 import { SAHNA_FONI } from "../lib/fonlar.js";
 import { profilniAniqla, profilniOl } from "../lib/sifat-profili.js";
+import { yoruglikniQur } from "../lib/yoruglik.js";
 
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
 // Nega useSahna hook ichida yozildi: barcha imperativ Three.js kodlari bitta joyda yig'iladi
@@ -159,10 +159,9 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     );
     renderer.shadowMap.enabled = profil.soya;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    // Tonemapping'siz sahna yassi va "kompyuterda chizilgan" bo'lib ko'rinardi:
-    // yorug' joylar oq bo'lib kuyib ketardi, oraliq soyalar esa siqilib turardi.
+    // Tone mapping turi rendererniki, ekspozitsiya esa yorug'lik byudjeti
+    // bilan birga `yoruglik.js` da o'lchab boshqariladi.
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
     renderer.domElement.style.display = "block";
@@ -170,8 +169,10 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     konteynerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Postprocessing parametrlari o'zgarmadi; profil faqat eski ikki yo'lni
-    // nomli maydonlarga aylantiradi. Hech bir pass bu brifda qayta sozlanmaydi.
+    const yoruglik = yoruglikniQur(scene, profil, renderer);
+
+    // Bloom BRIF-01 da barcha profilda o'chirilgan; pass kodi 3-qavatda
+    // kalibrlangan ostona bilan qaytishi uchun saqlanadi.
     const postprocessing = profil.postprocessing;
     let composer = null;
     if (postprocessing.bloom || postprocessing.ssao) {
@@ -204,24 +205,6 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
       composerRef.current = composer;
     }
 
-    // 3.5. Muhit xaritasi (envMap)
-    //
-    // Bu sahnadagi eng katta o'zgarish. Shishani shisha qiladigan narsa —
-    // uning sirtida aks etgan atrof. Aks etadigan narsa bo'lmasa, qanchalik
-    // to'g'ri `transmission` va `ior` bersak ham, idish rangsiz silindr
-    // bo'lib qolaveradi — probirka bo'sh stolda aynan shuning uchun zo'rg'a
-    // bilinardi.
-    //
-    // RoomEnvironment protsedural: rasm yuklanmaydi, tarmoqqa chiqilmaydi.
-    // PMREM undan bir marta xarita yasaydi, keyin generator kerak emas.
-    let muhitXaritasi = null;
-    if (profil.IBL) {
-      const pmrem = new THREE.PMREMGenerator(renderer);
-      muhitXaritasi = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-      scene.environment = muhitXaritasi;
-      pmrem.dispose();
-    }
-
     // 4. OrbitControls (Sukut bo'yicha o'chirilgan, chunki FPS Walk rejimi faol)
     const controls = new OrbitControls(kamera, renderer.domElement);
     controls.enableDamping = true;
@@ -234,47 +217,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     controls.target.set(KAMERA.nishon[0], KAMERA.nishon[1], KAMERA.nishon[2]);
     controlsRef.current = controls;
 
-    // 5. Yorug'lik (AmbientLight + maksimal 2 ta DirectionalLight, faqat bittasi castShadow)
-    const ambientLight = new THREE.AmbientLight(
-      fon.yorugliklar.muhit.rang,
-      fon.yorugliklar.muhit.kuch,
-    );
-    scene.add(ambientLight);
-
-    const mainLight = new THREE.DirectionalLight(
-      fon.yorugliklar.asosiy.rang,
-      fon.yorugliklar.asosiy.kuch,
-    );
-    mainLight.position.set(2.5, 4.0, 2.0);
-    mainLight.castShadow = profil.soya;
-    if (mainLight.castShadow) {
-      mainLight.shadow.mapSize.width = 1024;
-      mainLight.shadow.mapSize.height = 1024;
-      mainLight.shadow.camera.near = 0.5;
-      mainLight.shadow.camera.far = 15;
-      // Soya kamerasi sukut bo'yicha ±5 ni qamraydi, stol esa atigi 3.2 keng.
-      // Ya'ni 1024px xaritaning yarmidan ko'pi bo'sh joyga sarflanardi va
-      // probirkaning soyasi bir necha pikselga tushib, xarrak bo'lib chiqardi.
-      mainLight.shadow.camera.left = -2.6;
-      mainLight.shadow.camera.right = 2.6;
-      mainLight.shadow.camera.top = 2.6;
-      mainLight.shadow.camera.bottom = -2.6;
-      // Bias'siz yupqa shisha devor o'z-o'ziga soya tashlab, sirtida
-      // chiziqli dog'lar (shadow acne) paydo bo'ladi.
-      mainLight.shadow.bias = -0.0005;
-      mainLight.shadow.normalBias = 0.02;
-    }
-    scene.add(mainLight);
-
-    const fillLight = new THREE.DirectionalLight(
-      fon.yorugliklar.toldiruvchi.rang,
-      fon.yorugliklar.toldiruvchi.kuch,
-    );
-    fillLight.position.set(-2.5, 2.0, -2.0);
-    fillLight.castShadow = false;
-    scene.add(fillLight);
-
-    // 6. Materiallar
+    // 5. Materiallar
     const materiallar = materiallarniYarat(profil);
     materiallarRef.current = materiallar;
 
@@ -424,10 +367,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
 
       stolGeo.dispose();
       oyoqGeo.dispose();
-      // PMREM generatori darrov tozalangan, lekin u yasagan xarita sahna
-      // yashaguncha kerak — u shu yerda bo'shatiladi.
-      muhitXaritasi?.dispose();
-      scene.environment = null;
+      yoruglik.tozala();
       materiallarniTozala(materiallar);
 
       if (composerRef.current) {

@@ -23,7 +23,8 @@ export const PROFILLAR = Object.freeze({
   telefon: profilYarat({
     nom: "telefon",
     chiroqBudjeti: 3,
-    pikselNisbati: 1.5,
+    // DPR 3 telefonda 1.5 cap 2.25 barobar ortiq piksel chizardi.
+    pikselNisbati: 1.0,
     soya: false,
     // Eski arzon yo'l ham RoomEnvironment yaratgan; false qilish bu brifda
     // tezlashtirish bo'lib, oldin/keyin tasvirini o'zgartirib yuborardi.
@@ -40,7 +41,8 @@ export const PROFILLAR = Object.freeze({
     soya: true,
     IBL: true,
     transmission: true,
-    postprocessing: { bloom: true, ssao: false },
+    // Bloom kalibrlangan sahnaga 3-qavatda qaytadi.
+    postprocessing: { bloom: false, ssao: false },
     teksturaOlchami: HOZIRGI_TEKSTURA_OLCHAMI,
     antialias: true,
   }),
@@ -51,7 +53,7 @@ export const PROFILLAR = Object.freeze({
     soya: true,
     IBL: true,
     transmission: true,
-    postprocessing: { bloom: true, ssao: false },
+    postprocessing: { bloom: false, ssao: false },
     teksturaOlchami: HOZIRGI_TEKSTURA_OLCHAMI,
     antialias: true,
   }),

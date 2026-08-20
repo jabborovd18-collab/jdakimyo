@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { EFFEKT_DAVOMIYLIGI, ZARRA_SONI } from "./sozlama.js";
 import { EFFEKT_RANGLARI } from "@/lib/lab-modda.js";
 import { suyuqlikSathiniYangila } from "./jihoz-modellari.js";
+import { qizishNuriniYarat } from "./yoruglik.js";
 
 // 1. PUFAK EFFEKTI — suyuqlik tubidan gaz pufakchalari ko'tarilishi.
 // Nega Points ishlatildi: alohida 60 ta silindr yoki sfera yasalib render qilinsa,
@@ -244,7 +245,7 @@ export function alangaEffekti(sahna, idish, sozlama = {}) {
 // 6. QIZISH EFFEKTI — qizil-to'q sariq PointLight vaqtincha yonishi.
 export function qizishEffekti(sahna, idish, sozlama = {}) {
   const davomiylik = 2.5;
-  const light = new THREE.PointLight(EFFEKT_RANGLARI.qizish, 1.5, 1.8);
+  const light = qizishNuriniYarat(EFFEKT_RANGLARI.qizish);
   if (idish) {
     light.position.set(0, 0.1, 0);
     idish.add(light);
