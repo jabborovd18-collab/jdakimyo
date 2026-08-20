@@ -57,7 +57,11 @@ function kuchsizQurilmaniAniqla() {
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
 // Nega useSahna hook ichida yozildi: barcha imperativ Three.js kodlari bitta joyda yig'iladi
 // va React render siklidan ajralgan holatda 60 FPS ishlashni ta'minlaydi.
-export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FON) {
+export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FON, sozlama = {}) {
+  // `olcham` faqat /laboratoriya/3d/olcham marshrutida true. Jonli sahifa
+  // bu argumentni bermaydi — yorug'lik, material, geometriya o'zgarmaydi.
+  const olchamRef = useRef(!!sozlama.olcham);
+  olchamRef.current = !!sozlama.olcham;
   const [tayyor, setTayyor] = useState(false);
   const [hammaJihozlar, setHammaJihozlar] = useState([]);
   const [kuchsizQurilma, setKuchsizQurilma] = useState(false);
@@ -154,7 +158,10 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     if (yuklanmoqda) return;
     if (!konteynerRef || !konteynerRef.current) return;
 
-    const arzonRejim = kuchsizQurilmaniAniqla();
+    // O'lchagich 2 yadroli CI/sandboxda ham desktop sifatini o'lchashi kerak:
+    // aks holda bloom o'chiq chiqadi va BRIF-01 kalibrovkasi yolg'on sahnaga
+    // qilinadi. Jonli sahifa bu tarmoqqa kirmaydi (olchamRef sukutda false).
+    const arzonRejim = olchamRef.current ? false : kuchsizQurilmaniAniqla();
     setKuchsizQurilma(arzonRejim);
 
     const fon = fonOl(fonKalitiRef.current);
@@ -180,6 +187,10 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     const renderer = new THREE.WebGLRenderer({
       antialias: !arzonRejim,
       powerPreference: "high-performance",
+      // Nega: WebGL kompozitdan keyin buferni tozalaydi. O'lchagich
+      // kadr pikselini o'qishi uchun bufer saqlanishi shart. Sukut false —
+      // jonli sahna yo'liga tegilmaydi.
+      preserveDrawingBuffer: olchamRef.current,
     });
     renderer.setSize(konteynerRef.current.clientWidth, konteynerRef.current.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -522,5 +533,6 @@ export function useSahna(konteynerRef, yuklanmoqda = false, fonKaliti = SUKUT_FO
     jihozOlib,
     hammaJihozlar,
     kuchsizQurilma,
+    composerRef,
   };
 }

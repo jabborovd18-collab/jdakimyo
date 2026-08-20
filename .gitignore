@@ -44,3 +44,6 @@ next-env.d.ts
 
 # scripts/xat-korish.js chizadigan namuna — har safar qayta yasaladi
 .xat-namuna.html
+
+# 3D o'lchagich PNG lari — har safar qayta yasaladi, repo uchun emas
+.olcham/
