@@ -1,220 +1,187 @@
 # BRIF-01 — Yorug'lik byudjeti va ekspozitsiya kalibrovkasi
 
-**Qavat:** 0 (poydevor) · **Navbat:** birinchi · **Xavf:** o'rta
-**Oldindan o'qish:** `AGENTS.md` (ayniqsa 1 va 11-bandlar),
-`docs/3d-lab/YOL-XARITASI.md`
+**Qavat:** 0 · **Navbat: keyingi** · **Xavf:** o'rta (sahnaning ko'rinishi o'zgaradi)
+**Oldingi ishlar:** BRIF-00 (`fe7c050`), BRIF-00B (`cb4cfa3`), BRIF-00C (`950543e`)
+
+> Bu hujjat 2026-08-20 da **qaytadan yozildi**. Eski matn to'rt qatlamdan
+> iborat bo'lib qolgan va o'zi bilan o'zi ziddiyatga kirgan edi: asosiy
+> qismi "to'rt mavzu, mavzu almashganda" deyar, keyingi bo'limlar esa
+> "pog'ona bo'yicha byudjet" der edi. 1-band.
 
 ---
 
-## Muammo
+## Bir jumlada
 
-Jonli saytda (`jdakimyo.uz/laboratoriya/3d`) pol butunlay oq kuyib ketgan,
-ship qop-qora, rakovina va shift panellari "yonib" turadi. Sabab —
-sahnaga tushayotgan yorug'lik miqdorini hech kim hisoblamagan.
+Sahna 13 ta chiroq bilan yoritilgan, ulardan 8 tasi three.js'dagi eng
+qimmat turdan. Shu bitta sabab **ikkita** ko'rinadigan nuqsonni beradi:
+ekran oq kuyadi va telefon cho'kadi.
 
-Hozirgi manbalar (ikki fayldan, bir-biridan bexabar):
+---
 
-| Fayl:qator | Manba | Kuch |
+## O'lchangan holat
+
+### Chiroqlar — jami 13 ta, ikki faylda
+
+| Joy | Tur | Soni |
 |---|---|---|
-| `useSahna.js:266` | `AmbientLight` | 0.9 – 1.5 (mavzuga qarab) |
-| `useSahna.js:272` | `DirectionalLight` (asosiy) | 1.4 – 1.6 |
-| `useSahna.js:297` | `DirectionalLight` (to'ldiruvchi) | 0.5 – 0.6 |
-| `xona-modellari.js:278` | `DirectionalLight` (daylight) | 1.4 |
-| `xona-modellari.js:256` | `RectAreaLight` × N | har biri 1.4 |
-| `xona-modellari.js:595` | `PointLight` | 1.0 |
-| `useSahna.js` (env) | `RoomEnvironment` IBL | `environmentIntensity` = 1.0 |
+| `useSahna.js:238` | `AmbientLight` | 1 |
+| `useSahna.js:244` | `DirectionalLight` (asosiy) | 1 |
+| `useSahna.js:269` | `DirectionalLight` (to'ldiruvchi) | 1 |
+| `xona-modellari.js:256` | **`RectAreaLight`** — `trofferYlar` sikli | **8** |
+| `xona-modellari.js:278` | `DirectionalLight` (`daylight`) | 1 |
+| `xona-modellari.js:595` | `PointLight` (`ichkiChiroq`) | 1 |
 
-`useSahna.js` dagi izohda "maksimal 2 ta DirectionalLight" deb yozilgan —
-aslida uchta. Uchinchisi boshqa faylda tug'ilgan va izoh yolg'onga aylangan.
+Ustiga `scene.environment` — `RoomEnvironment` + PMREM
+(`useSahna.js:215-219`).
 
-Muhim: three.js r165 dan boshlab `useLegacyLights` olib tashlangan, ya'ni
-fizik jihatdan to'g'ri yorug'lik majburiy. Loyihada `three@0.170`. Yuqoridagi
-`intensity` qiymatlari eski (legacy) modelga mo'ljallangan qiymatlarga
-o'xshaydi va shu tufayli 3–5 barobar oshiq.
+**`RectAreaLight` nega qimmat:** u LTC (Linearly Transformed Cosines)
+usulida ishlaydi va har piksel uchun, har chiroqdan **ikkitadan tekstura
+o'qishi** kerak. Soyani qo'llab-quvvatlamaydi. Sakkiztasi mobil GPU
+uchun ko'tarib bo'lmaydigan yuk.
+
+### Nima o'lchandi
+
+BRIF-00B asbobi bilan:
+
+- `kunduz` mavzusi olib tashlanishidan oldin: `stol` nuqtasida kuygan
+  piksel **89.53%**, o'rtacha luma **0.9831**.
+- `tun` (hozirgi yagona ko'rinish): qat'iy nuqtalar `kuygan = 0.00`
+  desa ham, 24 nuqtali supurish **7.33%** kuygan joyni topdi.
+- Barcha o'lchovlarda `qora = 0` — ya'ni **soya tomonida hech narsa
+  kesilmagan**. Muammo faqat yuqori uchida. Bu yaxshi xabar:
+  ekspozitsiyani tushirish yo'qolgan tafsilotni qaytaradi.
+
+### Nega bu hol yuzaga keldi
+
+`three@0.170`. r165 dan beri `useLegacyLights` **olib tashlangan** —
+fizik yorug'lik majburiy. Eski qo'llanmalardan olingan `intensity`
+qiymatlari 3–5 barobar oshiq bo'ladi.
+
+Va 19-avgustda bloom qo'shildi (`301db13`) — bloom aynan ortiqcha
+yorqinlikni kuchaytiradi, ya'ni allaqachon yoritilgan sahnaga ustiga
+qo'yildi.
 
 ---
 
 ## Vazifa
 
-### 1. Yagona yorug'lik byudjeti fayli
+### 1. `lib/yoruglik.js` — yorug'likning yagona egasi
 
-`app/laboratoriya/3d/lib/yoruglik.js` yarating. Unda:
+Hozir yorug'lik **ikki faylda** tug'iladi va ular bir-birini bilmaydi.
+`useSahna.js` dagi izoh "maksimal 2 ta DirectionalLight" deydi —
+aslida uchta, chunki uchinchisi boshqa faylda.
 
-- Barcha yorug'lik manbalarining ta'rifi **bitta ob'ektda**.
-- `yoruglikniQur(scene, mavzu, sifatDarajasi)` — hamma nurni shu yerdan
-  qo'shadi va ro'yxatini qaytaradi.
-- `yoruglikniYangila(...)` — mavzu almashganda faqat qiymatni o'zgartiradi.
-- Faylning boshida jadval izoh: qaysi manba, qancha, **nega shuncha**.
+- Barcha `Light` yaratish `lib/yoruglik.js` ga ko'chadi.
+- Imzo: `yoruglikniQur(scene, profil)`. **Mavzu argumenti yo'q** —
+  sahna bitta ko'rinishga ega (BRIF-00C).
+- `useSahna.js` va `xona-modellari.js` dan chiroq yaratish **butunlay**
+  chiqadi. `xona-modellari.js` faqat panel *yuzasini* (mesh) yasaydi,
+  uning nurini emas.
+- `scene.environment` (IBL) ham shu faylning mas'uliyatida.
 
-`xona-modellari.js` dan `DirectionalLight`, `RectAreaLight`, `PointLight`
-yaratishni **butunlay chiqaring**. U faqat geometriya va material qaytarsin;
-chiroq korpusi (troffer) qolsin, nur manbai yangi faylga ko'chsin.
+### 2. Byudjetni majburlash
 
-### 2. Ekspozitsiya kalibrovkasi
+`lib/sifat-profili.js` da `chiroqBudjeti` allaqachon bor va o'lchanadi:
 
-O'lchash asboblarisiz sozlamang. Kalibrovka tartibi:
+| Profil | Budjet | Hozirgi holat |
+|---|---|---|
+| `telefon` | 3 | 13 — **buzilgan** |
+| `desktop` | 8 | 13 — **buzilgan** |
+| `ilova` | 16 | 13 — joyida |
 
-1. Vaqtinchalik o'lchov qo'shing: har 60 kadrda canvas'dan piksel o'qib,
-   `luma = 0.2126R + 0.7152G + 0.0722B` bo'yicha gistogramma yig'ing va
-   `console.table` ga chiqaring. Kerakli uchta son:
-   - **kuygan ulush** — `luma > 0.98` bo'lgan piksellar %
-   - **qora ulush** — `luma < 0.02` bo'lgan piksellar %
-   - **o'rtacha luma**
-2. Kamerani sahnaning uch nuqtasiga qo'yib o'lchang: stol oldida, xona
-   markazida, shipga qaragan holda.
-3. Nur kuchlarini va `toneMappingExposure` ni shu uch nuqtada quyidagi
-   maqsadga yetguncha kamaytiring.
-4. **O'lchov kodini commit qilmang** (AGENTS.md 6-band). Uni oxirgi
-   kommitdan oldin olib tashlang, faqat topilgan sonlar qolsin.
+BRIF-00C uni faqat **o'lchadi**. Endi **majburlash** kerak:
+`yoruglikniQur` budjetdan oshib ketmasin.
 
-### 3. `MeshBasicMaterial` larni tekshirib chiqing
+Telefonda 8 ta `RectAreaLight` ni qanday almashtirish — sening
+qaroring, lekin taklif: panel yuzasiga `emissive` material berib,
+atrofni bitta yumshoq umumiy manba yoritsin. `emissive` fragment narxi
+nolga teng.
 
-Kod bazasida 22 ta bor. Har biri uchun qaror qiling:
-- Chinakam nur chiqaradimi (EXIT, LED, ekran)? → qoldiring, lekin rangini
-  bloom ostonasi bilan kelishing.
-- Yo'qmi (shift paneli korpusi, davriy jadval, rakovina)? →
-  `MeshStandardMaterial` ga o'tkazing.
+**Yurishga tegma.** Uch pog'onada ham yurish qoladi — bu mahsulotning
+o'zi, egasi buni aniq aytdi.
 
-`xona-modellari.js:241` dagi `trofferMat` (`0xf8fafc`) — birinchi nomzod.
+### 3. Ekspozitsiya kalibrovkasi — TAXMIN BILAN EMAS
+
+`renderer.toneMappingExposure` hozir `1.05`.
+
+Usul: qiymatni o'zgartir → `npm run lab3d:olcham` → jadvalga qara →
+takrorla. Ko'z bilan emas, gistogramma bilan. Sen rasm ko'rmaysan va
+bu ish uchun ko'rish shart emas — asbob shuning uchun qurilgan.
+
+Boshlang'ich nuqta sifatida chiroq kuchlarini ham ko'rib chiq: 13 ta
+manbani 3–8 ga tushirganingdan keyin ekspozitsiya boshqacha talab
+qiladi. Avval **son**, keyin ekspozitsiya.
+
+### 4. `MeshBasicMaterial` — 20 ta
+
+| Fayl | Soni |
+|---|---|
+| `xona-modellari.js` | 13 |
+| `jihoz-modellari.js` | 6 |
+| `effektlar.js` | 1 |
+
+`MeshBasicMaterial` yorug'likka **umuman bo'ysunmaydi** — doim to'liq
+yorqinlikda turadi va bloom ostonasidan doim yuqori bo'ladi.
+
+Eng ko'rinadigan qurboni — **rakovina**: jonli saytdagi skrinshotlarda
+u atrofdagi yorug'likdan qat'i nazar bir tekis oq porlab turadi.
+
+Har birini ko'rib chiq. Ba'zilari o'rinli (HUD sprite, effekt), lekin
+xonaning qattiq sirtlari `MeshStandardMaterial` bo'lishi kerak.
+
+### 5. `pikselNisbati` — telefonda 1.0
+
+Profilda hozir `telefon: pikselNisbati 1.5`. Zamonaviy telefonda DPR 3;
+1.5 da render qilish piksel sonini 2.25 barobar oshiradi.
+
+`telefon` uchun `1.0` qilib, o'lchov bilan tasdiqla.
 
 ---
 
-## Qabul mezonlari (o'lchanadigan)
+## Qabul mezonlari
 
-Uch kamera nuqtasining **har birida**, to'rt mavzuning **har birida**:
+Chegaralar `docs/3d-lab/OLCHOV.md` da nuqta bo'yicha yozilgan. Uch
+profilning **har birida**, barcha nuqtalarda:
 
-| Ko'rsatkich | Talab |
-|---|---|
-| Kuygan piksel (`luma > 0.98`) | **< 1%** |
-| Qora piksel (`luma < 0.02`) | **< 5%** |
-| O'rtacha luma | **0.18 – 0.45** |
-| Ship va pol lumasi farqi | **< 0.5** (hozir ~0.95) |
-
-Qo'shimcha:
-- `xona-modellari.js` da `Light` so'zi qidirilganda **0 natija**.
-- Yorug'lik manbalari soni va kuchi `lib/yoruglik.js` da bitta jadvalda.
-- Bloom hozircha **o'chirilgan** qolsin (`useSahna.js`) — u 3.1 da,
-  kalibrovkadan keyin qayta yoqiladi. Bu brifning ishi emas.
+1. `chiroqBudjetiBuzildi = false` — **hamma qatorda**.
+2. Kuygan piksel: `stol`/`xona`/`pol` da < 1%, `ship` da < 0.5%.
+3. **Supurishning eng yomon nuqtasida kuygan < 2%.** Bu eng muhim
+   mezon — qat'iy nuqtalar 7.33% ni o'tkazib yuborgan edi.
+4. Qora piksel < 5%. Hozir 0 — yomonlashmasin.
+5. O'rtacha luma nuqta oralig'ida (`OLCHOV.md`).
+6. `shipPolFarq` < 0.5 (hozirgi holatda ~0.9).
+7. Yorug'lik yaratish `lib/yoruglik.js` dan tashqarida qolmasin:
+   `grep -rn "new THREE\..*Light(" app/laboratoriya/3d/` — natija
+   faqat `lib/yoruglik.js` da.
 
 ---
 
 ## Tegilmaydi
 
-- Bloom/SSAO parametrlarini sozlash (3-qavat ishi).
-- Yangi tekstura, model yoki HDRI qo'shish (BRIF-02).
-- Xona o'lchamini o'zgartirish (BRIF-04).
+- **Yurish rejimi** — uch pog'onada ham qoladi.
+- Xona o'lchami va joylashuvi — BRIF-04.
+- Yangi asset (`.glb`, HDRI, lightmap) — BRIF-02. Pishirilgan
+  yorug'lik 0.6 da, bu brifda emas.
 - Kimyo mantig'i, `lib/lab-*.js`, server yo'llari.
+- O'lchov asbobining o'zi — u endi ishonchli, unga tegilmaydi.
+
+Bloom hozircha **o'chiq** qolsin. U kalibrovkadan keyin, 3-qavatda
+qayta yoqiladi.
+
+Yo'l-yo'lakay nuqson ko'rsang — tuzatma, `YOL-XARITASI.md` ga yoz
+(10-band).
 
 ---
 
-## Dalil (ishni topshirishda shart)
+## Dalil
 
-BRIF-00 dagi asbob bilan:
-
-1. `npm run lab3d:olcham` ning **kalibrovkadan oldingi** to'liq jadvali
-   (12 qator).
+1. `npm run lab3d:olcham` — **oldingi** to'liq jadval (uch profil).
 2. Xuddi shu jadvalning **keyingi** holati.
-3. Qaysi qator qaysi chegaradan chiqib ketgani va nima qilinganini
-   qisqa izoh.
+3. Har mezon uchun raqam: qaysi qator qaysi chegaradan chiqqan edi va
+   endi qayerda.
+4. Chiroqlar ro'yxati: qaysi profilda nechta va nima turdagi.
+5. `toneMappingExposure` ning oxirgi qiymati va unga qanday
+   kelinganini qisqa izoh (nechta urinish, qaysi son nima berdi).
 
-`.olcham/` dagi PNG'lar odam ko'rigi uchun avtomatik saqlanadi —
-ularni sen ko'rishing shart emas, sonlar yetarli (AGENTS.md 11.1).
-
-**BRIF-00 bajarilmagan bo'lsa, bu brifni boshlama** — o'lchamasdan
-kalibrlab bo'lmaydi.
-
----
-
-## Qo'shimcha topilma (2026-08-20) — mobil qurilma cho'kadi
-
-Egasi telefonda sinab ko'rdi: qurilma jiddiy sekinlashdi. Sabab
-o'lchandi va u shu brifning mavzusi — yorug'lik byudjeti faqat
-ekspozitsiya haqida emas, **fragment narxi** haqida ham.
-
-### 8 ta RectAreaLight
-
-`xona-modellari.js:246-260` — `trofferYlar` massivida 8 ta shift
-paneli bor va **har biriga bittadan `RectAreaLight(1.4)`** beriladi.
-
-RectAreaLight three.js'dagi eng qimmat yorug'lik turi: LTC usulida
-ishlaydi va har piksel uchun, har chiroqdan **ikkitadan tekstura
-o'qishi** kerak. Soyani ham qo'llab-quvvatlamaydi. Sakkiztasi mobil
-GPU uchun ko'tarib bo'lmaydigan yuk.
-
-Umumiy hisob — telefon har piksel uchun ~13 manbani hisoblaydi:
-2 Directional + Ambient (`useSahna`), 1 Directional + 8 RectArea +
-1 Point (`xona-modellari`), ustiga `scene.environment` IBL.
-
-### Arzon rejim bularga TA'SIR QILMAYDI
-
-```
-materiallarniYarat(fonKaliti, arzonRejim)   <- biladi
-javon3dYasa(materiallar, arzonRejim)        <- biladi
-xonaInteryeriniYasa(materiallar)            <- BILMAYDI
-```
-
-`xona-modellari.js` arzon rejim borligini umuman eshitmagan. Telefonda
-o'chadigan narsalar — antialias, soya xaritasi, bloom, qimmat shisha.
-**Sakkizta RectAreaLight o'chmaydi.** Ya'ni arzon rejim eng arzon
-narsalarni o'chirib, eng qimmatini qoldiradi.
-
-### Shu brifga qo'shiladigan vazifalar
-
-1. `lib/yoruglik.js` **`arzonRejim` ni argument sifatida qabul qilsin.**
-   Yagona egalik shuning uchun ham kerak: hozir yorug'lik ikki faylda
-   tug'iladi va biri sifat pog'onasini bilmaydi.
-2. Mobilda RectAreaLight **umuman ishlatilmasin**. O'rniga arzon
-   muqobil: panel yuzasi `emissive` + bitta yumshoq umumiy manba.
-   Yoki 8 tadan 2 taga tushirish.
-3. `setPixelRatio` mobilda **1.0** bo'lsin (hozir `min(DPR, 1.5)` —
-   DPR 3 bo'lgan telefonda piksel soni 2.25 barobar ortiq).
-4. Har sifat pog'onasi uchun **yorug'lik soni chegarasi** yozilsin va
-   `OLCHOV.md` da qayd etilsin.
-
-### Sabab EMAS — vaqt sarflamang
-
-Protsedural teksturalar 512x512 va 256x256. Telefon buni bemalol
-ko'taradi. ~193 ta alohida mesh (draw call) ikkinchi darajali —
-yuqoridagi shader yuki ustiga tushadi, lekin asosiy sabab emas.
-
-### Kelib chiqishi
-
-`4775a53` (19-avgust, "muhit yorug'ligi — RectAreaLight") — o'sha
-oltita kommitdan biri. Telefon og'irligi ham, oq kuyish ham bitta
-manbadan: sozlanmagan yorug'lik byudjetidan.
-
----
-
-## Yo'nalish o'zgarishi (2026-08-20) — byudjet HAR POG'ONA uchun
-
-Bu brif dastlab **bitta** sahnani kalibrlash uchun yozilgan edi. Bu
-noto'g'ri: bitta yorug'lik to'plami telefonga ham, 4K ga ham xizmat
-qila olmaydi.
-
-**Oldindan shart: BRIF-00C bajarilgan bo'lsin.** U `arzonRejim`
-boolean ini profil obyektiga almashtiradi va uni har quruvchiga
-uzatadi — shu jumladan `xonaInteryeriniYasa` ga, u hozir hech narsa
-olmaydi. Usiz bu brifni bajarib bo'lmaydi: telefonda chiroqni kesish
-uchun kod telefonda ekanini bilishi kerak.
-
-`lib/yoruglik.js` **profilni argument sifatida qabul qilsin** va
-chiroq to'plamini profil bo'yicha qursin:
-
-| Profil | `chiroqBudjeti` (taklif) | Izoh |
-|---|---|---|
-| `telefon` | 3 | RectAreaLight **umuman ishlatilmasin** — panel yuzasi `emissive` + 1-2 yumshoq manba |
-| `desktop` | 8 | Hozirgi 13 dan kam |
-| `ilova` | 16 | To'liq real vaqt |
-
-**Qabul mezoni qo'shildi:** `LAB3D_PROFIL=telefon` o'lchovida
-`chiroqBudjetiBuzildi = false` bo'lsin (BRIF-00C uni `true` qilib
-ko'rsatadigan qilgan).
-
-Ekspozitsiya kalibrovkasi ham har pog'ona uchun alohida tekshirilsin —
-chiroq soni o'zgargach ekspozitsiya ham o'zgaradi.
-
-**Diqqat:** bu brif chiroq SONINI kesadi. Xona qorong'i bo'lib
-qolmasligi uchun asosiy yechim pishirilgan yorug'lik (0.6), lekin u
-asset quvuriga (0.2) bog'liq. Shuning uchun bu brifda telefon uchun
-vaqtincha `emissive` panel yuzasi yetarli — u tekin va u yerda
-qoladi.
+Skrinshot kerak emas — sonlar dalil (AGENTS.md 11.1). `.olcham/`
+dagi PNG'lar odam ko'rigi uchun avtomatik saqlanadi.
