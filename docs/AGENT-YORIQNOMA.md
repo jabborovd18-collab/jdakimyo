@@ -230,3 +230,52 @@ ishdan oldin turadi. Uning chiqishi — agent uchun dalil; `.olcham/`
 dagi PNG'lar esa **siz** uchun. Ikkalasi bir ishning ikki tomoni:
 son chegarada turgani bilan sahna xunuk bo'lishi mumkin, shuning uchun
 oxirgi qarorni baribir ko'z beradi.
+
+---
+
+## 9. Arena bilan ish shartnomasi — commit qiladi, deploy QILMAYDI
+
+2026-08-20 da aniqlashtirildi. Rol taqsimoti oddiy:
+
+| Kim | Nima qiladi |
+|---|---|
+| **Arena** | Shoxida ishlaydi, commit qiladi, push qiladi — va **TO'XTAYDI** |
+| **Claude** | Ko'rikdan o'tkazadi, sonlarni tekshiradi, xulosa beradi |
+| **Egasi** | Merge va deploy haqida qaror qabul qiladi |
+
+**Arena `main` ga merge qila olmaydi va bu ATAYLAB shunday.**
+"main himoyasi" ruleset'i (`id 21061776`) PR va 1 ta tasdiq talab
+qiladi; arena GitHub App (`app/arena-ai-coding-agent`), Repository
+admin emas — demak bypass unga tegishli emas.
+
+Sabab tarixiy: PR `#1` va `#2` ni arena **o'zi ochib, o'zi merge
+qilgan** — hech kimning ko'rigisiz jonli saytga chiqqan. `#2` dagi
+oltita grafik kommit ekranni oqartirib yuborgan va buni faqat egasi
+brauzerda ko'rib bilgan.
+
+### Buni har topshiriqda oldindan ayting
+
+Arenaning ish oqimi "merge bilan tugash" ga mo'ljallangan. Oxirgi
+qadam bloklanganda u xato holatiga tushishi va **keyingi commitlarni
+ham bajara olmasligi** kuzatilgan (2026-08-20, egasi xabar berdi).
+
+Shuning uchun har promptda aniq yozilsin:
+
+> Ishingni shoxga commit va push bilan TUGAT. `main` ga merge qilma,
+> PR ni o'zing tasdiqlama, deploy qilma — bu qadamlar sendan
+> kutilmaydi va bloklangan. Push qilganingdan keyin to'xta va nima
+> qilganingni hisobot qil.
+
+### Bitta chat = bitta brif
+
+Bir chatda ikkinchi brifni boshlamang. Sessiya bir shoxga bog'langan
+va u yopilgach kontekst ham yo'qoladi. Har brif uchun yangi chat va
+to'liq kirish prompti (kontekst repoda — `AGENTS.md`,
+`YOL-XARITASI.md`, brifning o'zi).
+
+### Nimalar bloklanmagan
+
+Chalkashmaslik uchun: ruleset faqat `main` ga qo'llanadi.
+`arena/*` shoxlariga commit va push **ochiq** — `01a01c11` shoxi
+muvaffaqiyatli push bo'lgani buni isbotlaydi. Agar arena o'z shoxiga
+push qila olmasa, sabab ruleset emas, boshqa narsa.
