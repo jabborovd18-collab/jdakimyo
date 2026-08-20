@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Ikon from "@/components/Ikon";
 import { useSahna } from "./hooks/useSahna.js";
+import { SUKUT_FON } from "./lib/fonlar.js";
 import { useQuyish } from "./hooks/useQuyish.js";
 import { useTajriba } from "./hooks/useTajriba.js";
 import { useYurish } from "./hooks/useYurish.js";
@@ -87,7 +88,7 @@ export default function Korinish() {
     jihozOlib,
     hammaJihozlar,
     kuchsizQurilma,
-  } = useSahna(konteynerRef, yuklanmoqda, "zamonaviy");
+  } = useSahna(konteynerRef, yuklanmoqda, SUKUT_FON);
 
   // 4. Tarozi va Spirtovka Callbacklari
   // Quyish tugagach chaqiriladi: `group` — tarkibi o'zgargan idish, `holat`
@@ -822,7 +823,7 @@ export default function Korinish() {
 
   return (
     <div
-      data-fon="zamonaviy"
+      data-fon={SUKUT_FON}
       className="v3 flex h-[100dvh] w-screen flex-col overflow-hidden text-[var(--v3-matn)] bg-[#030712] transition-colors duration-200 select-none touch-none overscroll-none fixed inset-0"
     >
       <MobilOgohlantirish />

@@ -24,10 +24,10 @@ export function kadrGistogrammasi(data, width, height, soz = {}) {
   let sum = 0;
   let kuygan = 0;
   let qora = 0;
-  let shipSum = 0;
-  let shipN = 0;
-  let polSum = 0;
-  let polN = 0;
+  let yuqoriSum = 0;
+  let yuqoriN = 0;
+  let quyiSum = 0;
+  let quyiN = 0;
   const hist = new Uint32Array(BINS);
 
   for (let i = 0; i < n; i++) {
@@ -45,12 +45,12 @@ export function kadrGistogrammasi(data, width, height, soz = {}) {
     const yYuqoridan = originBottomLeft ? height - 1 - yXom : yXom;
     const qator = yYuqoridan / height;
     if (qator < 0.15) {
-      shipSum += luma;
-      shipN += 1;
+      yuqoriSum += luma;
+      yuqoriN += 1;
     }
     if (qator >= 0.65) {
-      polSum += luma;
-      polN += 1;
+      quyiSum += luma;
+      quyiN += 1;
     }
   }
 
@@ -70,8 +70,10 @@ export function kadrGistogrammasi(data, width, height, soz = {}) {
     ortacha: sum / n,
     p50: protsentil(0.5),
     p95: protsentil(0.95),
-    shipLuma: shipN ? shipSum / shipN : 0,
-    polLuma: polN ? polSum / polN : 0,
+    // Bu ikki qiymat geometriya emas, faqat ekran qatorlari. Nomlar
+    // ataylab shunday: "ship/pol" deb noto'g'ri talqin qilinmasin.
+    yuqoriSoha: yuqoriN ? yuqoriSum / yuqoriN : 0,
+    quyiSoha: quyiN ? quyiSum / quyiN : 0,
   };
 }
 
