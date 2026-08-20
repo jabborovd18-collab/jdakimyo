@@ -99,18 +99,26 @@ kamchiligi emas, mobil GPU ning fizik chegarasi. U desktop ilovada
 4. **Dinamik rezolyutsiya** (0.3) — kadr vaqtiga qarab render o'lchamini
    moslash. Telefon qiynalsa piksel kamayadi, sahna emas.
 
-### Ochiq savol — pishirishdan OLDIN kerak
+### Fon almashtirgich — YOPILDI (2026-08-20)
 
-Lightmap **har mavzu uchun alohida** pishiriladi. Hozir to'rtta mavzu
-bor (`tun`, `siyoh`, `grafit`, `kunduz`) — demak to'rtta lightmap.
+**Egasi qarori: 3D laboratoriyaga fon almashtirgich kerak emas.**
+Sahna bitta ko'rinishga ega (`tun`).
 
-- 3D laboratoriyada fon almashtirgich **bo'lmasa** — bitta lightmap,
-  to'rt barobar arzon.
-- **Bo'lsa** — to'rtta, lekin foydalanuvchi tanlay oladi.
+Bu uch narsani soddalashtiradi:
 
-Bu egasining mahsulot qarori va u 0.6 dan oldin kerak. Bog'liq:
-`korinish.js` dagi `data-fon` (2D interfeys) va `useSahna(fonKaliti)`
-(3D sahna) — ikkalasi birga almashishi shart.
+1. **Lightmap bitta** (0.6) — to'rtta emas, ya'ni to'rt barobar arzon
+   va asset byudjetiga bemalol sig'adi.
+2. **O'lchov jadvali 4 barobar qisqaradi** — 20 qator o'rniga 5
+   (4 nuqta + 1 supurish). Har keyingi brif tezroq tekshiriladi.
+3. **`data-fon` savoli yopildi** — HUD `SUKUT_FON` da qoladi va bu
+   endi qat'iy qaror, yon ta'sir emas (`cb4cfa3` ko'rigidagi topilma).
+
+Mavzu mashinasini olib tashlash BRIF-00C ning 2-qismiga qo'shildi —
+u baribir `useSahna.js` va `materiallar.js` ni ochadi, ikki marta
+o'tishning ma'nosi yo'q. Tekshirildi: `fonlar.js` faqat
+`app/laboratoriya/3d/` ichida ishlatiladi, saytning umumiy `data-fon`
+mavzu tizimi (`globals.css`, `lib/sahifa-fon.js`) butunlay boshqa
+narsa va unga tegilmaydi.
 
 ---
 
@@ -129,13 +137,13 @@ va ustiga qurish mumkin bo'ladi.
 |---|---|---|---|
 | 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
 | 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ✅ |
-| 0.0C | **Sifat profili** — `arzonRejim` boolean o'rniga profil, har quruvchiga | [BRIF-00C](BRIF-00C-sifat-profili.md) | ⬜ |
+| 0.0C | **Sahna konfiguratsiyasi** — sifat profili + mavzu o'lchami olib tashlanadi | [BRIF-00C](BRIF-00C-sifat-profili.md) | ⬜ |
 | 0.1 | Yorug'lik byudjeti — **har pog'ona uchun alohida** | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ⬜ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
 | 0.4 | Xona miqyosi va devor geometriyasi qayta o'lchash | [BRIF-04](BRIF-04-xona-miqyosi.md) | ⬜ |
 | 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
-| 0.6 | **Pishirilgan yorug'lik** — lightmap, 13 chiroq → 1–2 | brif yozilmagan | ⬜ |
+| 0.6 | **Pishirilgan yorug'lik** — bitta lightmap, 13 chiroq → 1–2 | brif yozilmagan | ⬜ |
 | 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | brif yozilmagan | ⬜ |
 
 **Qavat tugadi deb hisoblanadi, qachonki:**

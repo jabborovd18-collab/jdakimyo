@@ -128,6 +128,72 @@ da tushuntir.
 
 ---
 
+## 2-QISM — mavzu o'lchami olib tashlanadi
+
+**Egasi qarori (2026-08-20): 3D laboratoriyaga fon almashtirgich kerak
+emas.** Sahna bitta ko'rinishga ega bo'ladi.
+
+Bu 1-qism bilan bir xil ishning davomi: ikkalasi ham **sahna
+konfiguratsiya sirtini** tozalaydi. Shuning uchun bitta brifda —
+aks holda `useSahna.js` va `materiallar.js` ustidan ikki marta
+o'tiladi.
+
+### Nima olib tashlanadi
+
+`fonlar.js` faqat `app/laboratoriya/3d/` ichida ishlatiladi (tekshirildi
+— saytning umumiy `data-fon` mavzu tizimi butunlay boshqa narsa,
+`globals.css` va `lib/sahifa-fon.js` da). Ya'ni olib tashlash 3D dan
+tashqariga ta'sir qilmaydi.
+
+- `FONLAR` xaritasidan **faqat `tun` qoladi** — u hozir `SUKUT_FON`
+  va jonli saytda ishlaydigan yagona mavzu. `siyoh`, `grafit`,
+  `kunduz` o'chiriladi.
+- `fonOl(kalit)` — kalit bo'yicha tanlash keraksiz, bitta konstanta
+  eksport qilinsin.
+- `useSahna(konteynerRef, yuklanmoqda, fonKaliti, sozlama)` — uchinchi
+  argument yo'qoladi.
+- `fonQismlariRef` va `materiallarniFongaMoslash` — butunlay o'chadi
+  (mavzu almashmaydi, demak sahnani qayta bo'yash ham kerak emas).
+- `korinish.js` da `data-fon={SUKUT_FON}` **qoladi** — HUD 3D sahna
+  bilan mos bo'lishi kerak, va endi bu qat'iy qaror
+  (`cb4cfa3` ko'rigidagi ochiq savol shu bilan yopiladi).
+
+### O'lchagichga ta'siri — jadval 4 barobar qisqaradi
+
+`olcham-mijoz.js` hozir `FONLAR` bo'ylab yuradi. Mavzu bitta bo'lgach:
+
+```
+oldin:  4 mavzu × 4 nuqta + 4 supurish = 20 qator
+keyin:            4 nuqta + 1 supurish =  5 qator
+```
+
+Bu har keyingi brifni tezlashtiradi — o'lchov endi 4 barobar tez
+tugaydi.
+
+**Diqqat:** o'lchov ustuni sifatida mavzu o'rniga endi **profil**
+keladi (1-qism). Ya'ni jadval `telefon`/`desktop`/`ilova` bo'yicha
+bo'linadi — bu bizga kerak bo'lgan o'lchamning o'zi.
+
+### Qabul mezonlari (2-qism)
+
+- `grep -rn "siyoh\|grafit\|kunduz" app/laboratoriya/3d/` — natija
+  **bo'sh**.
+- `grep -rn "materiallarniFongaMoslash\|fonQismlariRef"
+  app/laboratoriya/3d/` — natija **bo'sh**.
+- O'lchov jadvali 5 qator (yoki profil bo'yicha ko'paytirilgan).
+- Sahnaning **ko'rinishi o'zgarmasin**: `tun` allaqachon yagona
+  ishlaydigan mavzu edi, shuning uchun `kuygan`, `ortacha`,
+  `uchburchak` sonlari BRIF-00B dagidek qolishi shart.
+
+### Ochiq — shoshilinch emas
+
+Qaysi ko'rinish qolishi hozircha `tun` (jonli saytdagi holat). Haqiqiy
+o'quv laboratoriyasi yorug' va oq bo'ladi — bir kun bu ko'rinishni
+qayta ko'rib chiqish mumkin. Lekin bu BRIF-01 ni bloklamaydi:
+ekspozitsiya kalibrovkasi ko'rinishdan qat'i nazar bir xil ishlaydi.
+
+---
+
 ## Qabul mezonlari
 
 1. `grep -rn "arzonRejim" app/laboratoriya/3d/` — natija **bo'sh**.
