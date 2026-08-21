@@ -63,19 +63,39 @@ qo'lda build qilmasin.
 4. `node scripts/check-reactions.js` — loyihadagi mavjud tekshiruv
    skripti (238 reaksiya muvozanatini tekshiradi)
 
-### MUHIM — sir kalit YO'Q
+### DATABASE_URL — TUZATILDI (2026-08-22)
 
-CI da `DATABASE_URL` va boshqa sirlar **mavjud emas** va ularni
-so'rama.
+**Brifning birinchi tahriri xato edi.** U shunday der edi:
+*"next build jonli bazasiz ham ishlaydi"*. Vibe buni shubha ostiga
+oldi va **haq chiqdi**.
 
-`next build` jonli bazasiz ham ishlaydi — statik sahifalar
-generatsiyasida Neon uxlab qolgani haqida **ogohlantirish** chiqadi,
-lekin build tugaydi. Buni sinab ko'r; agar biror qadam sirsiz
-ishlamasa — **o'sha qadamni chiqarib tashla** va sababini yoz.
+Tekshirildi: `app/sitemap.js:82` da `await prisma.channel.findMany(...)`
+bor — sitemap **build paytida bazaga boradi**. Lokalda `.env` mavjud,
+CI da yo'q. Prisma klienti `DATABASE_URL` bo'lmasa ishga tushmaydi.
 
-Yashil bo'lishi uchun sirni "to'qib chiqarish" yoki qadamni
-`continue-on-error` bilan yashirish **taqiqlanadi**. Yashil chiroq
-yolg'on bo'lsa, u chiroqsizdan yomonroq.
+**Yechim: soxta (dummy) `DATABASE_URL`.**
+
+Workflow'da oddiy `env` sifatida bering — **sir emas**:
+
+```yaml
+env:
+  DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci"
+```
+
+Bu yolg'on emas va yashirish ham emas. Sabab:
+
+- Prisma klienti manzilning **mavjud va to'g'ri shaklda** bo'lishini
+  talab qiladi, **ishlashini** emas.
+- `sitemap.js:81-97` da so'rov `try/catch` ichida va izohda aynan shu
+  holat yozilgan: *"Baza javob bermasa sitemap baribir qaytadi"*.
+  So'rov yiqiladi, ushlanadi, sitemap kanalsiz qaytadi.
+- Bu **yagona** build-vaqt baza so'rovi (tekshirildi).
+
+Boshqa hech qanday sir **so'ralmaydi**. `secrets.` ishlatilmaydi.
+
+Agar shunga qaramay biror qadam ishlamasa — **o'sha qadamni chiqarib
+tashla** va sababini yoz. Sirni to'qib chiqarma, `continue-on-error`
+bilan yashirma.
 
 ### Node versiyasi
 
