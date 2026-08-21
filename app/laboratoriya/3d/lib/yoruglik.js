@@ -5,16 +5,20 @@ import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLigh
 RectAreaLightUniformsLib.init();
 
 const ASOSIY_YORUGLIK = Object.freeze({
-  muhit: Object.freeze({ rang: 0x404060, kuch: 0.9 }),
+  // Ambient kamayishi ekspozitsiya qaytganda yassi kulrang pardani ushlab
+  // turmaydi; asosiy directional tabiiy yo'nalish va akslarni saqlaydi.
+  muhit: Object.freeze({ rang: 0x404060, kuch: 0.3 }),
   asosiy: Object.freeze({ rang: 0xfffbeb, kuch: 1.4 }),
-  toldiruvchi: Object.freeze({ rang: 0xa78bfa, kuch: 0.6 }),
+  // Binafsha fill polga sun'iy dog' bergan; salqin neytral oq laboratoriya
+  // metallari va shishaning o'z rangini buzmaydi.
+  toldiruvchi: Object.freeze({ rang: 0xdbeafe, kuch: 0.4 }),
 });
 
 // Profil byudjeti (boshlang'ich yashirin spirtovka PointLight'i bilan):
 //
 // | profil  | statik to'plam                                      | jami |
-// | telefon | ambient 0.9 + asosiy directional 1.4                | 2+1=3 |
-// | desktop | yuqoridagi 2 + fill 0.6 + deraza 1.4 + 3 area 1.4  | 7+1=8 |
+// | telefon | ambient 0.3 + asosiy directional 1.4                | 2+1=3 |
+// | desktop | yuqoridagi 2 + fill 0.4 + deraza 1.4 + 3 area 1.4  | 7+1=8 |
 // | ilova   | ambient + asosiy + fill + deraza + 8 area           | 12+1=13 |
 //
 // Dinamik qizish effekti o'lchov paytida faol emas. Pishirilgan yorug'lik
@@ -46,9 +50,10 @@ const DESKTOP_PANEL_NURLARI = Object.freeze([
 // sanaydi. Statik quruvchi byudjetda shu bitta joyni oldindan zaxiralaydi.
 const DINAMIK_CHIROQ_ZAXIRASI = 1;
 
-// Kalibrovka tarixi: 1.05 -> stol 0.4976; 0.95 -> 0.4704;
-// 0.88 -> 0.4506 (shovqin uchun zaxirasiz). Uchinchi urinish — 0.87.
-export const TONE_MAPPING_EKSPOZITSIYA = 0.87;
+// BRIF-01B: 0.87 oq nuqtasiz xira qoldi; yuqori ekspozitsiya va lokal
+// hotspotlar esa o'rtacha/supurishni buzdi. 0.95 + past ambient sun'iy
+// doirasiz eng yorug' tabiiy variant bo'lib o'lchandi.
+export const TONE_MAPPING_EKSPOZITSIYA = 0.95;
 
 // Quyidagi kichik factory'lar modal, jihoz va vaqtinchalik effektlarda ham
 // Light konstruktorining yagona egasini saqlaydi. Ular qiymatni o'zgartirmaydi.

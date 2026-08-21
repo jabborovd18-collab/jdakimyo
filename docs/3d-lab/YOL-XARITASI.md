@@ -140,7 +140,7 @@ va ustiga qurish mumkin bo'ladi.
 | 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
 | 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ✅ |
 | 0.0C | **Sahna konfiguratsiyasi** — sifat profili + mavzu o'lchami olib tashlanadi | [BRIF-00C](BRIF-00C-sifat-profili.md) | ✅ |
-| 0.1B | **Xiralikni tuzatish** — ekspozitsiya qaytariladi, p95 chegarasi | [BRIF-01B](BRIF-01B-xiralikni-tuzatish.md) | ⬜ |
+| 0.1B | **Xiralikni tuzatish** — ekspozitsiya qaytariladi, p95 chegarasi | [BRIF-01B](BRIF-01B-xiralikni-tuzatish.md) | ⚠️ ko'rik |
 | 0.1 | Yorug'lik byudjeti — **har pog'ona uchun alohida** | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ✅ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
@@ -210,7 +210,7 @@ va ustiga qurish mumkin bo'ladi.
 | Rakovina bir tekis oq porlaydi | Materiali allaqachon Standard edi; ortiqcha yorug'lik va ekspozitsiya | 0.1 ✅ |
 | Shift panellari "yonib" turadi | Basic sirt + bloom; Standard emissive'ga o'tdi, bloom o'chiq | 0.1 ✅ |
 | Butun pol oq tumanga aylangan | Bloom ostonasi 0.55, sahna o'rtachasi undan yuqori | 0.1 → 3.1 |
-| Pol o'ng tomoni siyohrang | `tun` mavzusining binafsha to'ldiruvchi nuri (0xa78bfa) | 0.1 |
+| Pol o'ng tomoni siyohrang | Binafsha fill `0xa78bfa` neytral `0xdbeafe`ga almashtirildi | 0.1B ✅ |
 | Javon, rakovina, deraza "yopishtirilgan" | Soya xaritasi xonaning 14% ini qoplaydi | 0.4 → 1.2 |
 | Derazalar — tekis oq to'rtburchak | Devor bitta `PlaneGeometry`, deraza undan 2 sm oldinda | 1.4 |
 | Davriy jadval devordan chiqib ketgan | Panel joylashuvi xona chegarasidan tashqarida | 0.4 |
@@ -226,7 +226,7 @@ va ustiga qurish mumkin bo'ladi.
 
 - barcha `Light` va RoomEnvironment IBL egasi — `lib/yoruglik.js`;
 - profil bo'yicha jami chiroq `telefon=3`, `desktop=8`, `ilova=13`;
-- `toneMappingExposure=0.87`, bloom uchalasida ham o'chiq;
+- 0.1 yakunida `toneMappingExposure=0.87`, bloom uchalasida ham o'chiq;
 - uch profil × 5 qatorning hammasida kuygan `0%`, qora `<0.7%`,
   `shipPolFarq <0.39`, byudjet buzilishi yo'q;
 - BRIF-00B topgan supurish kuyishi `7.33% → 0%` bo'ldi.
@@ -237,7 +237,17 @@ kirgan; rakovina materiali allaqachon Standard edi. Jami 13 soni to'g'ri,
 lekin eski ro'yxat tarkibi noto'g'ri bo'lgan. Tuzatish haqiqiy sahna
 grafigi bo'yicha qilindi.
 
-Keyingi navbat — 0.2 asset quvuri. Bloom faqat 3.1 da qayta yoqiladi.
+0.1B da sun'iy lokal hotspotlar bilan jadvalni aldash varianti o'lchandi
+va PNG'dagi "fonar doiralari" sabab rad etildi. Tabiiy yakuniy variant:
+`toneMappingExposure=0.95`, ambient `0.3`, asosiy `1.4`, neytral fill
+`0xdbeafe/0.4`. Chiroq soni va materiallar o'zgarmadi. Desktop/ilovada
+p95 qatorlari o'tdi; telefonda `stol p95=0.6372` (minimum 0.65) qoldi.
+Yangi `ortacha` maksimumlari ham tabiiy p95 bilan bir vaqtda bajarilmadi:
+stol `0.4528/0.4709/0.4694`, xona `0.4255/0.4371/0.4366`. Brif ko'rsatmasiga
+ko'ra materialga tegilmadi; bu sonlar egasi ko'rigiga ochiq qoldi.
+
+0.1B ko'rik qaroridan keyingi navbat — 0.2 asset quvuri. Bloom faqat
+3.1 da qayta yoqiladi.
 
 ---
 
