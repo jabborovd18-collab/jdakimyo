@@ -157,13 +157,21 @@ Qiymat `XULOSA`da chiqadi. Boshlang'ich BRIF-01 mezoni `< 0.5`.
 
 ## Har nuqta uchun chegaralar
 
-| Nuqta | `ortacha` | `kuygan` | `qora` |
-|---|---:|---:|---:|
-| `stol` | 0.18–0.45 | < 1% | < 5% |
-| `xona` | 0.18–0.45 | < 1% | < 5% |
-| `pol` | 0.15–0.50 | < 1% | < 5% |
-| `ship` | 0.03–0.25 | < 0.5% | qo'llanmaydi |
-| `sweep` | qo'llanmaydi | < 2% | qo'llanmaydi |
+| Nuqta | `ortacha` | `kuygan` | `p95` | `qora` |
+|---|---:|---:|---:|---:|
+| `stol` | 0.28–0.42 | < 1% | 0.65–0.85 | < 5% |
+| `xona` | 0.28–0.42 | < 1% | 0.55–0.85 | < 5% |
+| `pol` | 0.22–0.45 | < 1% | 0.50–0.85 | < 5% |
+| `ship` | 0.03–0.25 | < 0.5% | qo'llanmaydi | qo'llanmaydi |
+| `sweep` | qo'llanmaydi | < 2% | qo'llanmaydi | qo'llanmaydi |
+
+`p95` — xiralikning yagona mezoni: eng yorqin 5% pikselning pastki
+chegarasi. `kuygan`da pastki chegara yo'q; ACES filmic tone mappingning
+vazifasi luma `>0.98` bo'lgan kesilgan pikselni oldini olish.
+
+BRIF-01B o'lchagich mexanikasiga tegmaydi. Yangi chegaralar `--json`
+chiqishidagi mavjud `ortacha`, `kuygan`, `p95` va `qora` sonlariga shu
+jadval bo'yicha qo'llanadi.
 
 Yoritilmagan ship qorong'i bo'lishi kerak; stol oralig'ini shipga
 majburlash noto'g'ri kalibrovkaga olib keladi.
