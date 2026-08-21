@@ -407,3 +407,46 @@ Ko'rikni boshlama, egasidan so'ra.
 Agar kelajakda to'qnashuvlar tez-tez bo'lsa, `git worktree` bilan
 alohida ko'rik papkasi ochiladi (bir marta sozlanadi, `node_modules`
 talab qiladi).
+
+---
+
+## 12. Brif yozishdan OLDIN agentning imkoniyatini aniqla
+
+Bu qoida ikki marta qimmatga tushgandan keyin yozildi.
+
+**1-holat (2026-08-20).** Arena rasm ko'rmasligini kech bildik.
+AGENTS.md 11.1 "grafik o'zgarish skrinshotsiz tugallanmagan" der edi —
+uni bajaruvchi strukturaviy bajara olmaydi. Oltita kommit "dev server
+200 qaytardi" degan yagona dalil bilan qabul qilingan va ekran oqarib
+ketgan.
+
+**2-holat (2026-08-21).** Qwen Coder uchun elak brifi yozildi va unda
+"o'z shoxingni och: `qwen/sayt-manzili`" deb talab qilindi. Qwen shox
+ocholmaydi — unga mavjud shox **oldindan** berilishi kerak ekan.
+Natijada u ishni bajardi, "vazifa bajarildi" dedi, lekin GitHub'da
+hech narsa paydo bo'lmadi. Elak yaroqsiz chiqdi: agentning kod sifati
+haqida hech narsa bilmadik.
+
+Ikkalasida ham ayb agentda emas — **brifda**.
+
+### Har yangi agent uchun to'rt savol
+
+Topshiriq yozishdan oldin javobini bilib ol:
+
+| Savol | Nega muhim |
+|---|---|
+| **Rasm ko'radimi?** | Yo'q bo'lsa, vizual mezon o'rniga o'lchov kerak |
+| **Shox ocha oladimi?** | Yo'q bo'lsa, shoxni ko'rikchi oldindan ochib beradi |
+| **Push qila oladimi?** | Yo'q bo'lsa, ishi qayerda qoladi va uni qanday olamiz |
+| **Lokal ishlaydimi yoki masofada?** | Lokal bo'lsa, ishchi daraxt navbat talab qiladi (9-bo'lim) |
+
+Javobni **taxmin qilma** — egasidan so'ra yoki bitta kichik sinov
+bilan aniqla.
+
+### Ma'lum imkoniyatlar
+
+| Agent | Rasm | Shox ochadi | Qayerda |
+|---|---|---|---|
+| Arena (GitHub App) | ❌ | ✅ | Masofada |
+| Gemini (Antigravity) | ✅ | ✅ | **Lokal** |
+| Qwen Coder | ❌ | ❌ (oldindan berish kerak) | Masofada |
