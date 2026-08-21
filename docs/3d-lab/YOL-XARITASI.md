@@ -171,6 +171,54 @@ va ustiga qurish mumkin bo'ladi.
 | 1.3 | PBR material kutubxonasi (albedo+normal+roughness+AO) | ⬜ |
 | 1.4 | Deraza — teshikli devor, ram, tokcha, haqiqiy shisha | ⬜ |
 
+### 2.5 — TAJRIBALAR DUNYO ICHIGA QAYTADI  ⬅ egasi topdi (2026-08-20)
+
+**Muammo.** 20 ta komponentdan **12 tasi** to'liq ekranli qoplama
+(`fixed inset-0`). Ular orasida laboratoriyaning ikkita asosiy
+tajribasi bor: `ElektrolizStendiUI` va `TitrlashStendiUI`.
+
+Ya'ni foydalanuvchi 3D xonaga kiradi, stendga yaqinlashadi, `E` bosadi
+— va **3D olamdan butunlay chiqib ketadi**. Qolgani oddiy veb-forma.
+
+`b0c86ba` kommiti "2D tugmalardan to'liq voz kechish va 100% jismoniy
+3D olamga o'tish" degan edi. Eng muhim tajribalar uchun bu da'vo
+to'g'ri emas.
+
+**Bu xonaning bo'shligini ham tushuntiradi.** Elektroliz stendi
+sahnada ustun, konus va shaffof qutidan iborat — chunki tok manbai,
+elektrodlar, ampermetr va stakan HTML da chizilgan. Stollarda turishi
+kerak bo'lgan asboblar panelda yashiringan.
+
+**Yechim — diegetik panel, 2D ni butunlay yo'q qilish emas.**
+
+Faradey qonuni formulasi, hisoblangan massani kiritish, matnli
+tushuntirish — bular haqiqatan matnli vazifalar. Ularni 3D ga majburan
+ko'chirish yomonroq bo'lardi (3D klaviaturada `0.150 g` terishni
+tasavvur qiling).
+
+To'g'ri taqsimot:
+
+| 3D dunyoda | Panelda |
+|---|---|
+| Tok regulyatorini burash | Faradey formulasi |
+| Elektrodlarni ulash | Hisob-kitob va javob kiritish |
+| Katodda mis qoplanishini ko'rish | Nazariy tushuntirish |
+| Anodda gaz pufakchalari | Yakuniy hisobot |
+
+Va panel **dunyo ichida** bo'lsin — stendning o'z ekranida, butun
+xonani yopmasin. Bu naqsh loyihada **allaqachon bor**: stol ustidagi
+"Smart Lab Monitor" aynan shunday ob'ekt. U tajribalar uchun
+ishlatilmayapti, xolos.
+
+**Qachon:** 2-qavatdan keyin. Sabab — diegetik panel o'qilishi uchun
+tekstura aniqligi va material sifati kerak (1-qavat), asbob modellari
+esa asset quvurini talab qiladi (0.2). Hozir qilinsa, o'qib
+bo'lmaydigan ekran chiqadi.
+
+**Diqqat:** bu qayta yozish EMAS. Mavjud mantiq (`lib/elektroliz-dvigatel.js`,
+`lib/lab-*.js`) o'z joyida qoladi — faqat u qanday ko'rsatilishi
+o'zgaradi.
+
 ### 2-QAVAT — MAZMUN
 
 | # | Ish | Holat |
@@ -216,6 +264,9 @@ va ustiga qurish mumkin bo'ladi.
 | Derazalar — tekis oq to'rtburchak | Devor bitta `PlaneGeometry`, deraza undan 2 sm oldinda | 1.4 |
 | Davriy jadval devordan chiqib ketgan | Panel joylashuvi xona chegarasidan tashqarida | 0.4 |
 | "Probirka", "Termometr" yorliqlari havoda | DOM/sprite yorliq, chuqurlik testi yo'q | G6 |
+| **Tajribalar 2D panelda** — 20 komponentdan 12 tasi to'liq ekranli qoplama, jumladan `ElektrolizStendiUI` va `TitrlashStendiUI` | Asboblar 3D da emas, HTML da chizilgan | **2.5** |
+| Yorliqlar bir-birini bosadi (`Termometr` / `Spirtovka`), termometr ko'rsatkichi ko'rinmaydi | Sprite joylashuvi to'qnashuvni hisobga olmaydi | G6 |
+| Elektroliz stendi geometriyasi deyarli yo'q — ustun, konus, shaffof quti | Asbob 2D panelda, 3D da modellanmagan | 2.5 |
 | **Qo'ldagi idish yorlig'i ulkan** | `jihoz-modellari.js:36` — `sprite.scale.set(0.3, 0.075, 1)` jahon fazosida qat'iy 30 sm. Sprite perspektiva bilan kattalashadi: 5 m da kichik, qo'lda (20 sm) ekranni to'ldiradi. Ustiga o'ng pastdagi HUD kartasi allaqachon shu matnni ko'rsatadi — ortiqcha ham | G6 |
 | Zal bo'm-bo'sh va juda katta | Xona 16×12 m = 192 m², stol atigi 3.2×1.6 m | 0.4 |
 
