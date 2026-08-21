@@ -149,7 +149,7 @@ va ustiga qurish mumkin bo'ladi.
 | 0.4 | Xona miqyosi va devor geometriyasi qayta o'lchash | [BRIF-04](BRIF-04-xona-miqyosi.md) | ⬜ |
 | 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
 | 0.6 | **Pishirilgan yorug'lik** — bitta lightmap, telefonda 3 real-time → 1–2 | brif yozilmagan | ⬜ |
-| 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | brif yozilmagan | ⬜ |
+| 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | [BRIF-07](BRIF-07-zonali-birlashtirish.md) | ⬜ |
 
 ### QOIDA — poydevor tugamaguncha yon-brif yozilmaydi
 
