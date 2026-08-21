@@ -379,3 +379,31 @@ Ikki agent bir vaqtda ishlashi mumkin, lekin faqat turli papkalarda:
 "main himoyasi" ruleset'i Repository admin bo'lmagan **hammaga**
 qo'llanadi. Gemini ham PR ochadi va merge qila olmaydi. Bu cheklov
 emas — mas'uliyat faqat ko'rikda mavjud (10-bo'lim).
+
+### Ikki agent bir vaqtda — NAVBAT BILAN
+
+Egasi qarori (2026-08-20). Arena masofada, Gemini esa **shu
+kompyuterdagi** ishchi daraxtda ishlaydi. Ko'rikchi arenani tekshirish
+uchun `git checkout` va `npm run build` qiladi — xuddi shu papkada.
+Ya'ni Gemini ishlayotganda arenani tekshirib bo'lmaydi.
+
+**Qoida: kim birinchi tugatsa, o'shani tekshiramiz. Ikkinchisi
+kutadi.**
+
+Sabab — egasi aytdi: *"gemini juda juda tez ishlaydi"*. Kutish qisqa
+bo'ladi, shuning uchun murakkabroq yechim (alohida `git worktree`)
+hozircha keraksiz.
+
+**Ko'rik boshlanishidan oldin har doim tekshiriladi:**
+
+```
+git rev-parse --abbrev-ref HEAD     # main bo'lishi kerak
+git status --porcelain              # bo'sh bo'lishi kerak
+```
+
+Ikkalasidan biri mos kelmasa — Gemini ishlayotgan bo'lishi mumkin.
+Ko'rikni boshlama, egasidan so'ra.
+
+Agar kelajakda to'qnashuvlar tez-tez bo'lsa, `git worktree` bilan
+alohida ko'rik papkasi ochiladi (bir marta sozlanadi, `node_modules`
+talab qiladi).
