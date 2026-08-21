@@ -173,6 +173,34 @@ BRIF-01B o'lchagich mexanikasiga tegmaydi. Yangi chegaralar `--json`
 chiqishidagi mavjud `ortacha`, `kuygan`, `p95` va `qora` sonlariga shu
 jadval bo'yicha qo'llanadi.
 
+### DIQQAT — bu jadval 1-QAVATNING maqsadi
+
+2026-08-20, BRIF-01B ko'rigida aniqlandi. Chegaralar oxirgi holatni
+tasvirlaydi, oraliq qatlamni emas.
+
+BRIF-01B da `ortacha` maksimumdan yuqori (stol ~0.47), `p95` esa
+minimumdan past (telefon stol 0.6372) chiqdi. Ikkalasi birga bitta
+ma'noni beradi: **gistogramma siqilgan**. Bu "juda yorug'" emas,
+**kontrast yetishmasligi**.
+
+Kontrastni yorug'lik bermaydi — u **soyadan, AO dan va material
+xilma-xilligidan** keladi. 3 ta chiroq bilan, soyasiz, bir xil
+materialli xonada gistogramma har doim siqilgan bo'ladi.
+
+Shuning uchun:
+
+- **0-qavatda** (yorug'lik) faqat `kuygan < 1%`, `sweep < 2%` va
+  `qora < 5%` majburiy. Ular kuyish qorovuli va ular bajarildi.
+- **`ortacha` va `p95`** chegaralari BRIF-04 (soya qamrovi),
+  0.6 (pishirilgan GI) va 1-qavat (PBR materiallar) dan keyin
+  o'lchanadi.
+
+Oraliq qatlamga oxirgi holat mezonini qo'yish agentni erishib
+bo'lmaydigan maqsad ortidan yuguritadi. Bu 2026-08-20 da to'rt marta
+takrorlangan naqshning bir ko'rinishi: "nima yaxshi ko'rinadi" degan
+fikrni raqamga aylantirganda, raqam fikrning faqat bir qismini
+ushlaydi.
+
 Yoritilmagan ship qorong'i bo'lishi kerak; stol oralig'ini shipga
 majburlash noto'g'ri kalibrovkaga olib keladi.
 
