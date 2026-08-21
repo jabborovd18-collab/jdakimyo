@@ -9,6 +9,7 @@ import {
   profilniOl,
 } from "../lib/sifat-profili.js";
 import { kadrGistogrammasi, kadrQorami } from "./olcham-hisob.js";
+import { yorliqlarniYangila } from "../lib/yorliqlar.js";
 import {
   NUQTA_NOMLARI,
   nuqtaniOl,
@@ -136,10 +137,15 @@ export default function OlchamMijoz() {
     controlsRef,
     composerRef,
     profilRef,
+    yorliqHolatiRef,
   } = useSahna(
     konteynerRef,
     !param,
-    { olcham: true, profil: param?.profil || SUKUT_PROFIL },
+    {
+      olcham: true,
+      profil: param?.profil || SUKUT_PROFIL,
+      yorliqlarYoqilgan: true,
+    },
   );
 
   useEffect(() => {
@@ -188,6 +194,11 @@ export default function OlchamMijoz() {
       ilkOlchovRef.current = false;
     }
 
+    // Kamera o'zgargach label siklining navbatdagi 5-kadrini kutmaymiz:
+    // bu qator aynan o'lchanayotgan kamera uchun collision holatini oladi.
+    const yorliqHolati = yorliqlarniYangila(scene, kamera, renderer, true);
+    yorliqHolatiRef.current = yorliqHolati;
+
     // autoReset o'chiq: kompozitor bir necha pass qiladi, oxirgisi
     // fullscreen quad — yig'indini olamiz, so'ng avvalgi holatni qaytaramiz.
     const eskiAutoReset = renderer.info.autoReset;
@@ -230,18 +241,31 @@ export default function OlchamMijoz() {
       teksturaXotira,
       renderer: rendererNominiOl(gl),
       chiroqSoni,
+      yorliqSoni: yorliqHolati.yorliqSoni,
+      yorliqToqnashuvi: yorliqHolati.yorliqToqnashuvi,
     };
     if (ozgartirish.rasm) {
       natija.rasm = kadrRasminiYarat(pixels, w, h);
     }
     return natija;
-  }, [param, rendererRef, sahnaRef, kameraRef, controlsRef, composerRef, profilRef]);
+  }, [
+    param,
+    rendererRef,
+    sahnaRef,
+    kameraRef,
+    controlsRef,
+    composerRef,
+    profilRef,
+    yorliqHolatiRef,
+  ]);
 
   olchamRef.current = olcham;
 
   const supurish = useCallback(async (sozlama = {}) => {
     const { urug, nuqtalar } = supurishNuqtalariniYarat(sozlama.urug);
     let engYomon = null;
+    let engKopYorliq = 0;
+    let engKopToqnashuv = 0;
 
     for (const kameraNuqta of nuqtalar) {
       const natija = await olchamRef.current({
@@ -249,6 +273,11 @@ export default function OlchamMijoz() {
         kameraNuqta,
         tez: true,
       });
+      engKopYorliq = Math.max(engKopYorliq, natija.yorliqSoni);
+      engKopToqnashuv = Math.max(
+        engKopToqnashuv,
+        natija.yorliqToqnashuvi,
+      );
       if (!engYomon || natija.kuygan > engYomon.natija.kuygan) {
         engYomon = { natija, kameraNuqta };
       }
@@ -269,6 +298,10 @@ export default function OlchamMijoz() {
       ...engYomon.natija,
       sweepEngYomon: engYomon.natija.kuygan,
       sweepJoy: engYomon.kameraNuqta.joy,
+      // Sweep satrida label maydonlari 24 nuqtaning maksimumi: kuyish-worst
+      // kamera label-worst kamerani yashirib qo'ymasligi kerak.
+      yorliqSoni: engKopYorliq,
+      yorliqToqnashuvi: engKopToqnashuv,
       sweepUrug: urug,
       sweepNamunaSoni: nuqtalar.length,
       rasm: rasmli.rasm,

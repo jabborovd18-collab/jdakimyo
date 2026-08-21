@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { yorliqniBelgila } from "./yorliqlar.js";
 
 // DEVOR BO'YLAB O'RNATILGAN BIR NECHTA MAXSUS REAGENTLAR JAVONLARI (Wall Cabinets).
 // O'rtadagi to'siq olib tashlandi: xona markazi to'liq ochiq, keng va erkin.
@@ -83,6 +84,7 @@ function shishaYorliginiYasa(item) {
   const sprite = new THREE.Sprite(spriteMat);
   sprite.scale.set(0.13, 0.048, 1);
   sprite.raycast = () => {};
+  yorliqniBelgila(sprite);
 
   const yangila = (yangiHajm) => {
     chizYorliq(yangiHajm, item.sigim);

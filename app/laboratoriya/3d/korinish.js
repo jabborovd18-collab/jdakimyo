@@ -88,6 +88,8 @@ export default function Korinish() {
     jihozOlib,
     hammaJihozlar,
     kuchsizQurilma,
+    yorliqlarYoqilgan,
+    yorliqlarniAlmashtir,
   } = useSahna(konteynerRef, yuklanmoqda);
 
   // 4. Tarozi va Spirtovka Callbacklari
@@ -901,6 +903,22 @@ export default function Korinish() {
             />
             <span className="font-bold text-cyan-400">{sezgirlik.toFixed(1)}x</span>
           </div>
+
+          {/* O'rganuvchi rejimidagi 3D yorliqlar */}
+          <button
+            type="button"
+            onClick={() => yorliqlarniAlmashtir()}
+            aria-pressed={yorliqlarYoqilgan}
+            className={`h-8 px-2.5 rounded-xl flex items-center gap-1.5 border shadow-lg backdrop-blur-md transition-all bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] ${
+              yorliqlarYoqilgan
+                ? "text-[var(--v3-urgu)]"
+                : "text-[var(--v3-xira)] opacity-70"
+            }`}
+            title="3D jihoz yorliqlarini yoqish / o'chirish"
+          >
+            <Ikon nom={yorliqlarYoqilgan ? "belgi" : "taqiq"} olcham={13} />
+            <span className="text-[10px] font-mono font-bold">Yorliqlar</span>
+          </button>
 
           {/* Ovoz tugmasi */}
           <button

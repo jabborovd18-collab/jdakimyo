@@ -101,6 +101,8 @@ function qatorniJadvalga(q) {
     chiroqSoni: q.chiroqSoni,
     chiroqBudjeti: q.chiroqBudjeti,
     chiroqBudjetiBuzildi: q.chiroqBudjetiBuzildi,
+    yorliqSoni: q.yorliqSoni,
+    yorliqToqnashuvi: q.yorliqToqnashuvi,
     uchburchak: q.uchburchak,
     chaqiruv: q.chaqiruv,
     teksturaXotira: q.teksturaXotira,
@@ -126,6 +128,9 @@ function chegaradanChiqdimi(q) {
     if (q.ortacha < min || q.ortacha > maks) {
       sabab.push(`ortacha=${yaxlit(q.ortacha, 4)} (${min}–${maks} emas)`);
     }
+  }
+  if (q.yorliqToqnashuvi > 0) {
+    sabab.push(`yorliqToqnashuvi=${q.yorliqToqnashuvi} (>0)`);
   }
   return sabab;
 }
@@ -248,6 +253,8 @@ function natijaniTekshir(natija, nuqta) {
     "chiroqSoni",
     "chiroqBudjeti",
     "chiroqBudjetiBuzildi",
+    "yorliqSoni",
+    "yorliqToqnashuvi",
   ];
   if (nuqta === "sweep") {
     kerak.push("sweepEngYomon", "sweepJoy", "sweepUrug", "sweepNamunaSoni");
@@ -268,6 +275,12 @@ function natijaniTekshir(natija, nuqta) {
   }
   if (natija.chiroqBudjetiBuzildi !== (natija.chiroqSoni > natija.chiroqBudjeti)) {
     throw new Error(`${profil}/${nuqta}: chiroqBudjetiBuzildi noto'g'ri`);
+  }
+  if (!Number.isInteger(natija.yorliqSoni) || natija.yorliqSoni < 0) {
+    throw new Error(`${profil}/${nuqta}: yorliqSoni yaroqsiz`);
+  }
+  if (!Number.isInteger(natija.yorliqToqnashuvi) || natija.yorliqToqnashuvi < 0) {
+    throw new Error(`${profil}/${nuqta}: yorliqToqnashuvi yaroqsiz`);
   }
 }
 
