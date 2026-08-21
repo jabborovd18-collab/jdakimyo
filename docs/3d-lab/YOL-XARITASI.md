@@ -140,7 +140,7 @@ va ustiga qurish mumkin bo'ladi.
 | 0.0 | **O'lchov asbobi** — grafikani raqam bilan tekshirish | [BRIF-00](BRIF-00-olchov-asboblari.md) | ✅ |
 | 0.0B | **O'lchagichni halol qilish** — supurish, sof pol/ship nuqtasi | [BRIF-00B](BRIF-00B-olchagich-halolligi.md) | ✅ |
 | 0.0C | **Sahna konfiguratsiyasi** — sifat profili + mavzu o'lchami olib tashlanadi | [BRIF-00C](BRIF-00C-sifat-profili.md) | ✅ |
-| 0.1C | **Telefon xira** — chiroq kuchi profilga bog'lanadi | [BRIF-01C](BRIF-01C-profil-yoruglik-darajasi.md) | ⬜ |
+| 0.1C | **Telefon xira** — chiroq kuchi profilga bog'lanadi | [BRIF-01C](BRIF-01C-profil-yoruglik-darajasi.md) | ✅ |
 | 0.1B | **Xiralikni tuzatish** — ekspozitsiya qaytariladi, p95 chegarasi | [BRIF-01B](BRIF-01B-xiralikni-tuzatish.md) | ⚠️ ko'rik |
 | 0.1 | Yorug'lik byudjeti — **har pog'ona uchun alohida** | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ✅ |
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
@@ -339,8 +339,13 @@ Yangi `ortacha` maksimumlari ham tabiiy p95 bilan bir vaqtda bajarilmadi:
 stol `0.4528/0.4709/0.4694`, xona `0.4255/0.4371/0.4366`. Brif ko'rsatmasiga
 ko'ra materialga tegilmadi; bu sonlar egasi ko'rigiga ochiq qoldi.
 
-0.1B ko'rik qaroridan keyingi navbat — 0.2 asset quvuri. Bloom faqat
-3.1 da qayta yoqiladi.
+0.1C da yorug'lik darajasi profilga ajratildi. Faqat telefon
+`ambient=0.9`, `asosiy=2.2` bo'ldi; desktop/ilova qiymatlari o'zgarmadi.
+Telefon-desktop maksimal farqi uch nuqtada `ortacha=0.0145`, `p95=0.0195`;
+chiroq soni `3/8/13`, byudjet va kuyish qorovullari saqlandi.
+
+Keyingi mustaqil ish — K01 sichqoncha/fokus. Bloom faqat 3.1 da qayta
+yoqiladi.
 
 ---
 

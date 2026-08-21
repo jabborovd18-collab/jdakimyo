@@ -72,9 +72,10 @@ faqat o'lchov bilan tasdiqlangan uchta o'zgarishni kiritdi:
 `IBL` uchalasida ham `true`: RoomEnvironment akslari shisha uchun kerak.
 Tekstura o'lchamlari o'zgarmadi — yog'och 512, pol 512, devor 256.
 Ekspozitsiya `lib/yoruglik.js`da yagona `0.95` qiymatida turadi.
-BRIF-01B da ambient `0.9→0.3` kamaytirildi, asosiy directional `1.4`
-saqlandi va binafsha fill `0xa78bfa/0.6` o'rniga neytral salqin
-`0xdbeafe/0.4` tanlandi.
+BRIF-01B da desktop/ilova ambient'i `0.9→0.3` kamaytirildi, asosiy
+`1.4` saqlandi va binafsha fill `0xa78bfa/0.6` o'rniga neytral salqin
+`0xdbeafe/0.4` tanlandi. BRIF-01C da faqat telefon profili darajasi
+`ambient=0.9`, `asosiy=2.2` bo'ldi; desktop/ilova `0.3/1.4`da qoldi.
 
 ---
 
