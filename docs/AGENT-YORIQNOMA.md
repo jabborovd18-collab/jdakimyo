@@ -449,4 +449,24 @@ bilan aniqla.
 |---|---|---|---|
 | Arena (GitHub App) | ❌ | ✅ | Masofada |
 | Gemini (Antigravity) | ✅ | ✅ | **Lokal** |
-| Qwen Coder | ❌ | ❌ (oldindan berish kerak) | Masofada |
+| Qwen Coder | ❌ | ❌ | **RAD ETILDI** |
+| Vibe Code (Mistral) | ? | ? | Masofada, sinovda |
+
+### Qwen Coder — rad etildi (2026-08-21)
+
+Egasi qarori: *"elakdan o'ta olmadi, bizga kerakli AI emas ekan"*.
+
+Ikki urinish ham natijasiz tugadi:
+
+1. Birinchi urinish — brifda "o'z shoxingni och" deb yozilgan edi,
+   u shox ocholmas ekan. **Bu mening xatoim** (12-bo'lim shundan
+   tug'ilgan).
+2. Ikkinchi urinish — shox oldindan ochib berildi
+   (`qwen/sayt-manzili`), lekin unga ham hech narsa tushmadi.
+
+Ikkala holatda ham u ishni "bajarildi" deb hisobot berdi, lekin
+natija GitHub'da paydo bo'lmadi. Ko'rinmagan ish yo'q hisoblanadi.
+
+Shox o'chirildi. `lib/sayt.js` topshirig'i egasiz qoldi —
+`docs/elak/ELAK-Q01-sayt-manzili.md` da turibdi, boshqa agentga
+berilishi mumkin.
