@@ -263,11 +263,11 @@ o'zgaradi.
 | Javon, rakovina, deraza "yopishtirilgan" | Soya xaritasi xonaning 14% ini qoplaydi | 0.4 → 1.2 |
 | Derazalar — tekis oq to'rtburchak | Devor bitta `PlaneGeometry`, deraza undan 2 sm oldinda | 1.4 |
 | Davriy jadval devordan chiqib ketgan | Panel joylashuvi xona chegarasidan tashqarida | 0.4 |
-| "Probirka", "Termometr" yorliqlari havoda | DOM/sprite yorliq, chuqurlik testi yo'q | G6 |
+| "Probirka", "Termometr" yorliqlari havoda | Yaqinlik ustuvorligi, masofa va ekran collision boshqaruvi qo'shildi | G6 ✅ |
 | **Tajribalar 2D panelda** — 20 komponentdan 12 tasi to'liq ekranli qoplama, jumladan `ElektrolizStendiUI` va `TitrlashStendiUI` | Asboblar 3D da emas, HTML da chizilgan | **2.5** |
-| Yorliqlar bir-birini bosadi (`Termometr` / `Spirtovka`), termometr ko'rsatkichi ko'rinmaydi | Sprite joylashuvi to'qnashuvni hisobga olmaydi | G6 |
+| Yorliqlar bir-birini bosadi (`Termometr` / `Spirtovka`), termometr ko'rsatkichi ko'rinmaydi | 25°C to'siq sifatida himoyalandi, uzoq yorliq yashiriladi | G6 ✅ |
 | Elektroliz stendi geometriyasi deyarli yo'q — ustun, konus, shaffof quti | Asbob 2D panelda, 3D da modellanmagan | 2.5 |
-| **Qo'ldagi idish yorlig'i ulkan** | `jihoz-modellari.js:36` — `sprite.scale.set(0.3, 0.075, 1)` jahon fazosida qat'iy 30 sm. Sprite perspektiva bilan kattalashadi: 5 m da kichik, qo'lda (20 sm) ekranni to'ldiradi. Ustiga o'ng pastdagi HUD kartasi allaqachon shu matnni ko'rsatadi — ortiqcha ham | G6 |
+| **Qo'ldagi idish yorlig'i ulkan** | Qo'l holatida nom yorlig'i darhol yashiriladi, HUD kartasi qoladi | G6 ✅ |
 | Zal bo'm-bo'sh va juda katta | Xona 16×12 m = 192 m², stol atigi 3.2×1.6 m | 0.4 |
 
 ---
@@ -453,7 +453,7 @@ qiladi, loyihada esa hozir 0 ta `.glb` bor (BRIF-02).
 mavjud ma'lumotdan oldindan yozilgan bo'lsin; AI faqat foydalanuvchi
 o'zi savol berganda chaqirilsin. Aks holda har qadam pulga tushadi.
 
-### G6. Yorliqlar — "o'rganuvchi rejimi" · [BRIF-G6](BRIF-G6-yorliqlar.md) yozildi
+### G6. Yorliqlar — "o'rganuvchi rejimi" · [BRIF-G6](BRIF-G6-yorliqlar.md) ✅
 
 G'oya egasidan (2026-08-20): 3D dunyodagi `Probirka`, `Termometr`,
 `Spirtovka` yorliqlari alohida funksiya bo'lsin — boshlovchi yoqib
@@ -472,14 +472,9 @@ bir qismi birinchi marta laboratoriya ko'radi.
 YOQIQ bo'lishi kerak — mehmon hech narsaga tegolmaydi, yorliq unga
 xonani tanishtiradi.
 
-**Ish hajmi kichik:** yorliqlar allaqachon bor
-(`jihoz-modellari.js:10` `yorliqYasa`). Kerak bo'lgani — ko'rinishni
-boshqarish, HUD'da tugma va tanlovni eslab qolish.
-
-**Yo'l-yo'lakay tuzatiladi:** qo'ldagi idishning yorlig'i
-umuman ko'rsatilmasin (yuqoridagi nuqson). O'ng pastdagi HUD kartasi
-allaqachon nima ushlab turilganini aytadi — 3D yorliq u yerda
-ortiqcha va ulkan chiqadi.
-
-**Qachon:** kichik va mustaqil. 0-qavat tugagach, 0.2 dan oldin ham
-qilinishi mumkin — u boshqa fayllarga tegmaydi.
+**2026-08-21 bajarildi.** `lib/yorliqlar.js` yaqinlik ustuvorligi va
+ekran collision'ini har 5-kadrda hisoblaydi. Qo'ldagi idish yorlig'i
+darhol yashirinadi; termometrning 25°C ko'rsatkichi to'siq sifatida
+himoyalangan. HUD tugmasi `lab-3d-yorliqlar` tanlovini saqlaydi, sukut
+yoqiq. O'lchagich uch profil × barcha nuqtada
+`yorliqToqnashuvi=0`ni tasdiqladi.

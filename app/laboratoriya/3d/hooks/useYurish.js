@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { qadamTovushi, shishaUrilishi, tiqinOchilishi, taroziBip, oqimBoshla, oqimToxtat } from "../lib/ovoz.js";
+import { idishYorliginiQoldaYangila } from "../lib/yorliqlar.js";
 
 // Qat'iy AABB to'siq kolliziyasi va itarib chiqarish (Push-out separation)
 function stolKolliziyasi(px, pz, minX, maxX, minZ, maxZ, radius = 0.42) {
@@ -98,6 +99,7 @@ export function useYurish({
 
   const centerRaycasterRef = useRef(new THREE.Raycaster());
   const avvalgiFpsYoritilganRef = useRef(null);
+  const avvalgiQolIdishRef = useRef(null);
   const quyishBosilganRef = useRef(false);
 
   // Re-render bostiruvchi ref keshlar (React re-render storm oldini olish)
@@ -147,6 +149,16 @@ export function useYurish({
       localStorage.setItem("lab-3d-sezgirlik", String(val));
     } catch (e) {}
   }, []);
+
+  // Qo'l holati o'zgarganda yorliq 5-kadr collision siklini kutmaydi.
+  useEffect(() => {
+    const avvalgi = avvalgiQolIdishRef.current;
+    if (avvalgi && avvalgi !== fpsQolIdish) {
+      idishYorliginiQoldaYangila(avvalgi, false);
+    }
+    if (fpsQolIdish) idishYorliginiQoldaYangila(fpsQolIdish, true);
+    avvalgiQolIdishRef.current = fpsQolIdish;
+  }, [fpsQolIdish]);
 
   const toggleYurishRejimi = useCallback(() => {
     setYurishRejimi((prev) => {

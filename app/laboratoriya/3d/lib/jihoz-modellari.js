@@ -3,6 +3,10 @@ import { suyuqlikYasa } from "./materiallar.js";
 import { EFFEKT_RANGLARI } from "@/lib/lab-modda.js";
 import { idishmi, idishSigimi } from "@/lib/lab-idish.js";
 import { alangaNuriniYarat } from "./yoruglik.js";
+import {
+  yorliqniBelgila,
+  yorliqTosigiSifatidaBelgila,
+} from "./yorliqlar.js";
 
 // Matn yorlig'i (label) uchun CanvasTexture yordamchisi.
 // Nega: 3D sahnada HTML elementlar o'rniga CanvasTexture dan yasalgan Sprite ishlatish
@@ -38,7 +42,7 @@ function yorliqYasa(matn = "") {
   // Bo'sh raycast qo'yilmasa, idishni bosmoqchi bo'lgan foydalanuvchi
   // aslida yozuvni bosgan bo'lardi.
   sprite.raycast = () => {};
-  return sprite;
+  return yorliqniBelgila(sprite);
 }
 
 // Yorliqni idishning tepasiga qo'yish.
@@ -718,6 +722,7 @@ function termometrYorliginiYasa(boshlangichHarorat = 25) {
   const sprite = new THREE.Sprite(spriteMat);
   sprite.scale.set(0.12, 0.06, 1);
   sprite.raycast = () => {};
+  yorliqTosigiSifatidaBelgila(sprite);
 
   const yangila = (t) => {
     chiz(t);

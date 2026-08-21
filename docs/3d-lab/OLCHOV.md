@@ -129,6 +129,8 @@ luma = 0.2126*R + 0.7152*G + 0.0722*B
 | `chiroqSoni` | `scene.traverse` topgan barcha `THREE.Light` obyektlari |
 | `chiroqBudjeti` | Faol profilning maqsad chegarasi |
 | `chiroqBudjetiBuzildi` | `chiroqSoni > chiroqBudjeti` |
+| `yorliqSoni` | Kadrda ko'rinayotgan boshqariladigan 3D yorliqlar soni |
+| `yorliqToqnashuvi` | Ko'rinayotgan yorliqlarning kesishuvchi juftlari; talab `0` |
 | `uchburchak` | `renderer.info.render.triangles` |
 | `chaqiruv` | `renderer.info.render.calls` |
 | `teksturaXotira` | `renderer.info.memory.textures` |
@@ -140,6 +142,10 @@ telefon/desktop/ilovada `3/8/13` chiroq va `false` qaytaradi.
 Birinchi o'lchov 60 kadr yoki sekin dasturiy GL uchun kamida 8 kadr va
 2 soniya kutadi. Keyingi nomli kamera ikki kadr kutadi. Supurish sahna
 yuklangach har joyni sinxron qayta chizadi.
+
+Supurish qatoridagi `yorliqSoni` va `yorliqToqnashuvi` — 24 nuqtaning
+maksimumi. Kuyishi eng yomon kamera yorliq to'qnashuvi eng yomon kamerani
+yashirib qo'ymasligi uchun yorliq maydonlari alohida jamlanadi.
 
 ---
 

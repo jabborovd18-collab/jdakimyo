@@ -17,6 +17,11 @@ import { xonaInteryeriniYasa } from "../lib/xona-modellari.js";
 import { SAHNA_FONI } from "../lib/fonlar.js";
 import { profilniAniqla, profilniOl } from "../lib/sifat-profili.js";
 import { yoruglikniQur } from "../lib/yoruglik.js";
+import {
+  YORLIQLAR_SAQLASH_KALITI,
+  YORLIQ_TEKSHIRISH_QADAMI,
+  yorliqlarniYangila,
+} from "../lib/yorliqlar.js";
 
 // 3D sahnani (Scene, Camera, Renderer, Controls) boshqaruvchi asosiy React Hook.
 // Nega useSahna hook ichida yozildi: barcha imperativ Three.js kodlari bitta joyda yig'iladi
@@ -27,11 +32,20 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
   // qo'shish sahnani har React renderida qayta qurib yuborardi.
   const olchamRef = useRef(!!sozlama.olcham);
   const aniqProfilRef = useRef(sozlama.profil || null);
+  const aniqYorliqRef = useRef(
+    typeof sozlama.yorliqlarYoqilgan === "boolean"
+      ? sozlama.yorliqlarYoqilgan
+      : null,
+  );
   olchamRef.current = !!sozlama.olcham;
   aniqProfilRef.current = sozlama.profil || null;
+  aniqYorliqRef.current = typeof sozlama.yorliqlarYoqilgan === "boolean"
+    ? sozlama.yorliqlarYoqilgan
+    : null;
   const [tayyor, setTayyor] = useState(false);
   const [hammaJihozlar, setHammaJihozlar] = useState([]);
   const [kuchsizQurilma, setKuchsizQurilma] = useState(false);
+  const [yorliqlarYoqilgan, setYorliqlarYoqilgan] = useState(true);
 
   const sahnaRef = useRef(null);
   const kameraRef = useRef(null);
@@ -39,9 +53,48 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
   const controlsRef = useRef(null);
   const materiallarRef = useRef(null);
   const profilRef = useRef(null);
+  const yorliqlarYoqilganRef = useRef(true);
+  const yorliqHolatiRef = useRef({ yorliqSoni: 0, yorliqToqnashuvi: 0 });
   const kadrIdRef = useRef(null);
   const composerRef = useRef(null);
   const jihozlarMapRef = useRef(new Map()); // slotIndex -> THREE.Group
+
+  useEffect(() => {
+    let yoqilgan = true;
+    if (aniqYorliqRef.current !== null) {
+      yoqilgan = aniqYorliqRef.current;
+    } else {
+      try {
+        const saqlangan = localStorage.getItem(YORLIQLAR_SAQLASH_KALITI);
+        yoqilgan = saqlangan === null ? true : saqlangan !== "0";
+      } catch {
+        yoqilgan = true;
+      }
+    }
+    yorliqlarYoqilganRef.current = yoqilgan;
+    setYorliqlarYoqilgan(yoqilgan);
+  }, []);
+
+  const yorliqlarniAlmashtir = useCallback((aniqQiymat) => {
+    const yoqilgan = typeof aniqQiymat === "boolean"
+      ? aniqQiymat
+      : !yorliqlarYoqilganRef.current;
+    yorliqlarYoqilganRef.current = yoqilgan;
+    setYorliqlarYoqilgan(yoqilgan);
+    if (!olchamRef.current) {
+      try {
+        localStorage.setItem(YORLIQLAR_SAQLASH_KALITI, yoqilgan ? "1" : "0");
+      } catch {}
+    }
+    if (sahnaRef.current && kameraRef.current && rendererRef.current) {
+      yorliqHolatiRef.current = yorliqlarniYangila(
+        sahnaRef.current,
+        kameraRef.current,
+        rendererRef.current,
+        yoqilgan,
+      );
+    }
+  }, []);
 
   // Jihozni stoldagi bo'sh slotga qo'shish.
   // Nega bo'sh slot tanlanadi: jihozlar bir-birining ustiga chiqib qolmasligi uchun
@@ -296,10 +349,29 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     };
     document.addEventListener("visibilitychange", handleVisibility);
 
+    // Yorliq collision hisobi renderdan arzonroq bo'lsa ham har kadrda
+    // takrorlanmaydi. Kamera/idish harakati uchun 5-kadr yetarli.
+    let yorliqKadri = 0;
+    yorliqHolatiRef.current = yorliqlarniYangila(
+      scene,
+      kamera,
+      renderer,
+      yorliqlarYoqilganRef.current,
+    );
+
     // 10. Animatsiya sikli
     const animate = () => {
       kadrIdRef.current = requestAnimationFrame(animate);
       if (!faolRender) return;
+      yorliqKadri += 1;
+      if (yorliqKadri % YORLIQ_TEKSHIRISH_QADAMI === 0) {
+        yorliqHolatiRef.current = yorliqlarniYangila(
+          scene,
+          kamera,
+          renderer,
+          yorliqlarYoqilganRef.current,
+        );
+      }
       if (controls.enabled) {
         controls.update();
       }
@@ -382,6 +454,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
       }
       jihozlarMapRef.current.clear();
       profilRef.current = null;
+      yorliqHolatiRef.current = { yorliqSoni: 0, yorliqToqnashuvi: 0 };
     };
   }, [konteynerRef, yuklanmoqda]);
 
@@ -400,6 +473,9 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     jihozOlib,
     hammaJihozlar,
     kuchsizQurilma,
+    yorliqlarYoqilgan,
+    yorliqlarniAlmashtir,
+    yorliqHolatiRef,
     composerRef,
   };
 }
