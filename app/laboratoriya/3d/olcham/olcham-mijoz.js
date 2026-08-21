@@ -60,6 +60,30 @@ function rendererNominiOl(gl) {
   return String(gl.getParameter(gl.RENDERER) || "Noma'lum WebGL renderer");
 }
 
+// BRIF-07 — nishon tanlay oladigan ob'ektlarni sanaydi.
+//
+// useYurish.js ota-zanjir bo'ylab `userData.kalit` ni qidiradi; ba'zi
+// stansiyalar esa faqat NOM bilan topiladi (masalan
+// `3D_Devor_Reagent_Shkaflari`). Ikkala usul ham sanaladi, chunki
+// geometriya birlashtirilganda ikkalasi ham yo'qolishi mumkin.
+function interaktivlarniSana(scene) {
+  const nomlar = new Set([
+    "Tarozi_Stansiyasi",
+    "Xavfsizlik_Dushi_Stansiyasi",
+    "Davriy_Jadval_LED_Plakat",
+    "Titrlash_Byuretka_Stansiyasi",
+    "Elektroliz_Stansiyasi",
+    "Yuvinish_Rakovinasi",
+    "3D_Devor_Reagent_Shkaflari",
+  ]);
+  let soni = 0;
+  scene.traverse((o) => {
+    if (o.userData?.kalit || o.userData?.tanlanadi) soni += 1;
+    else if (o.name && nomlar.has(o.name)) soni += 1;
+  });
+  return soni;
+}
+
 function chiroqlarniSana(scene) {
   let soni = 0;
   scene.traverse((obyekt) => {
@@ -269,6 +293,11 @@ export default function OlchamMijoz() {
       ? namuna.reduce((a, b) => a + b, 0) / namuna.length
       : 0;
     const chiroqSoni = chiroqlarniSana(scene);
+    // BRIF-07 — nishon (crosshair) tanlay oladigan ob'ektlar soni.
+    // Birlashtirish interaktiv shoxga tegib ketsa, bu son TUSHADI.
+    // useYurish.js ota-zanjirda `userData.kalit` ni qidiradi, ba'zi
+    // stansiyalar esa faqat nom bilan topiladi — ikkalasi sanaladi.
+    const interaktivSoni = interaktivlarniSana(scene);
     const qarashSinovi = qarashSinoviRef.current;
 
     const natija = {
@@ -291,6 +320,7 @@ export default function OlchamMijoz() {
       teksturaXotira,
       renderer: rendererNominiOl(gl),
       chiroqSoni,
+      interaktivSoni,
       yorliqSoni: yorliqHolati.yorliqSoni,
       yorliqToqnashuvi: yorliqHolati.yorliqToqnashuvi,
     };

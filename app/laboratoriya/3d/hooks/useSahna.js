@@ -14,6 +14,7 @@ import { materiallarniYarat, materiallarniTozala } from "../lib/materiallar.js";
 import { jihozYasa } from "../lib/jihoz-modellari.js";
 import { javon3dYasa } from "../lib/javon-3d.js";
 import { xonaInteryeriniYasa } from "../lib/xona-modellari.js";
+import { harakatsizGeometriyaniBirlashtir } from "../lib/geometriya-birlashtirish.js";
 import { SAHNA_FONI } from "../lib/fonlar.js";
 import { profilniAniqla, profilniOl } from "../lib/sifat-profili.js";
 import { yoruglikniQur } from "../lib/yoruglik.js";
@@ -58,6 +59,8 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
   const kadrIdRef = useRef(null);
   const composerRef = useRef(null);
   const jihozlarMapRef = useRef(new Map()); // slotIndex -> THREE.Group
+  // BRIF-07 birlashuv hisoboti — o'lchagich uni o'qiydi.
+  const birlashuvRef = useRef({ birlashdi: 0, guruh: 0, otkazildi: 0 });
 
   useEffect(() => {
     let yoqilgan = true;
@@ -301,6 +304,17 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     const xonaInteryeri = xonaInteryeriniYasa(materiallar, profil);
     scene.add(xonaInteryeri);
 
+    // BRIF-07 — harakatsiz geometriyani material va fazoviy zona bo'yicha
+    // birlashtiramiz. Xona 100% qimirlamaydi, shuning uchun har devor
+    // bo'lagi uchun alohida draw call to'lash isrof.
+    //
+    // Interaktiv shoxlarga TEGILMAYDI: nishon ota-zanjirda
+    // `userData.kalit` ni qidiradi, ba'zi stansiyalar esa faqat NOM
+    // bilan topiladi (masalan `3D_Devor_Reagent_Shkaflari`). Ikkalasi
+    // ham `geometriya-birlashtirish.js` da himoyalangan.
+    const birlashuv = harakatsizGeometriyaniBirlashtir(xonaInteryeri);
+    birlashuvRef.current = birlashuv;
+
     // Boshlang'ich holatda 1 ta probirka va 1 ta spirtovkani stolga qo'yamiz
     const defProbirka = jihozYasa("probirka", materiallar, profil);
     defProbirka.userData.slotIndex = 1; // 2-slot: old qator, o'rta-chap
@@ -476,6 +490,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     yorliqlarYoqilgan,
     yorliqlarniAlmashtir,
     yorliqHolatiRef,
+    birlashuvRef,
     composerRef,
   };
 }
