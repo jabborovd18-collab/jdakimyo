@@ -732,41 +732,62 @@ export default function FazoviyKoruvchi({
         )}
 
         {activePanel === "dorbital" && (
-          <div className="absolute right-4 top-4 z-30 w-80 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl">
+          <div className="absolute right-4 top-4 z-30 w-84 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl">
             <div className="flex justify-between items-center mb-3 pb-2 border-b border-purple-800/60">
-              <h3 className="font-bold text-sm text-purple-200">📊 d-Orbital Ajralishi</h3>
+              <h3 className="font-bold text-sm text-purple-200">📊 Kristall Maydon d-Orbital Ajralishi</h3>
               <button onClick={() => setActivePanel(null)} className="text-purple-400 hover:text-white">✕</button>
             </div>
-            <div className="text-xs text-purple-300 space-y-2">
+            <div className="text-xs text-purple-300 space-y-2.5">
               <p>Kristall maydon nazariyasi (CFT) bo'yicha d-orbitallarning energetik sathlarga bo'linishi:</p>
-              <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50 font-mono text-[11px]">
-                {geometryInfo.ks === 6 ? (
+              <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50 font-mono text-[11px] space-y-1.5">
+                {geometryInfo.ks === 6 || complex.dOrbital?.tg !== undefined ? (
                   <>
-                    <div className="text-yellow-300 mb-1">eg (dx²-y², dz²): +0.6 Δo (Yuqori)</div>
-                    <div className="text-cyan-300">t2g (dxy, dyz, dxz): -0.4 Δo (Pastki)</div>
+                    <div className="text-yellow-300">eg (dx²-y², dz²): +0.6 Δₒ (Yuqori sath)</div>
+                    <div className="text-cyan-300">t₂g (dxy, dyz, dxz): -0.4 Δₒ (Pastki sath)</div>
+                    <div className="text-purple-200 pt-1 border-t border-purple-800/50 flex justify-between">
+                      <span>Δₒ parametri:</span>
+                      <b className="text-yellow-300">{complex.dOrbital?.deltaO?.toLocaleString() || "23 000"} cm⁻¹</b>
+                    </div>
                   </>
                 ) : (
                   <>
-                    <div className="text-yellow-300 mb-1">t2 (dxy, dyz, dxz): +0.4 Δt (Yuqori)</div>
-                    <div className="text-cyan-300">e (dx²-y², dz²): -0.6 Δt (Pastki)</div>
+                    <div className="text-yellow-300">t₂ (dxy, dyz, dxz): +0.4 Δₜ (Yuqori sath)</div>
+                    <div className="text-cyan-300">e (dx²-y², dz²): -0.6 Δₜ (Pastki sath)</div>
+                    <div className="text-purple-200 pt-1 border-t border-purple-800/50 flex justify-between">
+                      <span>Δₜ parametri:</span>
+                      <b className="text-yellow-300">{complex.dOrbital?.deltaT?.toLocaleString() || "4 200"} cm⁻¹</b>
+                    </div>
                   </>
                 )}
+                <div className="text-purple-300 text-[10px] flex justify-between pt-1">
+                  <span>Juftlashuv energiyasi (P):</span>
+                  <span>≈ 20 000 cm⁻¹</span>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {activePanel === "spectra" && (
-          <div className="absolute right-4 top-4 z-30 w-80 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl">
+          <div className="absolute right-4 top-4 z-30 w-84 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl">
             <div className="flex justify-between items-center mb-3 pb-2 border-b border-purple-800/60">
-              <h3 className="font-bold text-sm text-purple-200">🌈 UV-Vis Spektroskopiya</h3>
+              <h3 className="font-bold text-sm text-purple-200">🌈 Spektroskopik Tahlil</h3>
               <button onClick={() => setActivePanel(null)} className="text-purple-400 hover:text-white">✕</button>
             </div>
-            <div className="text-xs text-purple-300 space-y-2">
-              <p>d-d elektron o'tishlar va zaryad ko'chishi (CT) polosasi:</p>
-              <div className="bg-purple-900/50 p-2 rounded text-[11px] font-mono text-cyan-300">
-                λ_max: ~475 nm (Ko'rinadigan soha)<br />
-                Molyar yutilish (ε): ~60 L·mol⁻¹·cm⁻¹
+            <div className="text-xs text-purple-300 space-y-2.5">
+              <p>UV-Vis elektron o'tishlar va IR tebranish modlari:</p>
+              <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50 text-[11px] font-mono space-y-1 text-purple-200">
+                <div className="text-cyan-300">UV-Vis (d–d): {complex.id === "CoNH3" ? "λmax ≈ 475 nm" : complex.id === "CoCl4" ? "λmax ≈ 660 nm" : "λmax ≈ 420 nm"}</div>
+                <div className="text-purple-300 text-[10px]">Molyar yutilish (ε): ~60 L·mol⁻¹·cm⁻¹</div>
+                <div className="pt-1.5 border-t border-purple-800/50 text-yellow-300">
+                  IR (M–L tebranish): {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "400–600 cm⁻¹" : "280–330 cm⁻¹"}
+                </div>
+                <div className="text-purple-300 text-[10px]">
+                  Simmetrik cho'zilish: {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "≈ 500 cm⁻¹" : "≈ 310 cm⁻¹"}
+                </div>
+                <div className="text-purple-300 text-[10px]">
+                  Asimmetrik cho'zilish: {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "≈ 450 cm⁻¹" : "≈ 295 cm⁻¹"}
+                </div>
               </div>
             </div>
           </div>
