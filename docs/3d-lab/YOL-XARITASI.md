@@ -215,7 +215,8 @@ va ustiga qurish mumkin bo'ladi.
 | Javon, rakovina, deraza "yopishtirilgan" | Soya xaritasi xonaning 14% ini qoplaydi | 0.4 → 1.2 |
 | Derazalar — tekis oq to'rtburchak | Devor bitta `PlaneGeometry`, deraza undan 2 sm oldinda | 1.4 |
 | Davriy jadval devordan chiqib ketgan | Panel joylashuvi xona chegarasidan tashqarida | 0.4 |
-| "Probirka", "Termometr" yorliqlari havoda | DOM/sprite yorliq, chuqurlik testi yo'q | 2.4 |
+| "Probirka", "Termometr" yorliqlari havoda | DOM/sprite yorliq, chuqurlik testi yo'q | G6 |
+| **Qo'ldagi idish yorlig'i ulkan** | `jihoz-modellari.js:36` — `sprite.scale.set(0.3, 0.075, 1)` jahon fazosida qat'iy 30 sm. Sprite perspektiva bilan kattalashadi: 5 m da kichik, qo'lda (20 sm) ekranni to'ldiradi. Ustiga o'ng pastdagi HUD kartasi allaqachon shu matnni ko'rsatadi — ortiqcha ham | G6 |
 | Zal bo'm-bo'sh va juda katta | Xona 16×12 m = 192 m², stol atigi 3.2×1.6 m | 0.4 |
 
 ---
@@ -400,3 +401,34 @@ qiladi, loyihada esa hozir 0 ta `.glb` bor (BRIF-02).
 **Ehtiyot bo'ling:** har gapini AI dan so'ramang. Gaplarning aksari
 mavjud ma'lumotdan oldindan yozilgan bo'lsin; AI faqat foydalanuvchi
 o'zi savol berganda chaqirilsin. Aks holda har qadam pulga tushadi.
+
+### G6. Yorliqlar — "o'rganuvchi rejimi" sifatida yoqib-o'chiriladigan
+
+G'oya egasidan (2026-08-20): 3D dunyodagi `Probirka`, `Termometr`,
+`Spirtovka` yorliqlari alohida funksiya bo'lsin — boshlovchi yoqib
+qo'ysa ko'rinadi, bilgan odam o'chiradi.
+
+**Bu men o'ylagandan yaxshiroq yechim.** Men yorliqlarni *olib
+tashlash* kerak deb belgilagandim (yuqoridagi nuqsonlar jadvali).
+Yoqib-o'chirish esa ikkala ehtiyojni ham qondiradi: talaba
+"probirka" qaysi biri ekanini bilmasa — yorliq kerak; bilsa —
+xalaqit.
+
+**Loyihaga mos keladi:** bu ta'lim platformasi, foydalanuvchilarning
+bir qismi birinchi marta laboratoriya ko'radi.
+
+**G4 bilan bog'lanadi:** mehmon rejimida yorliqlar sukut bo'yicha
+YOQIQ bo'lishi kerak — mehmon hech narsaga tegolmaydi, yorliq unga
+xonani tanishtiradi.
+
+**Ish hajmi kichik:** yorliqlar allaqachon bor
+(`jihoz-modellari.js:10` `yorliqYasa`). Kerak bo'lgani — ko'rinishni
+boshqarish, HUD'da tugma va tanlovni eslab qolish.
+
+**Yo'l-yo'lakay tuzatiladi:** qo'ldagi idishning yorlig'i
+umuman ko'rsatilmasin (yuqoridagi nuqson). O'ng pastdagi HUD kartasi
+allaqachon nima ushlab turilganini aytadi — 3D yorliq u yerda
+ortiqcha va ulkan chiqadi.
+
+**Qachon:** kichik va mustaqil. 0-qavat tugagach, 0.2 dan oldin ham
+qilinishi mumkin — u boshqa fayllarga tegmaydi.
