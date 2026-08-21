@@ -150,6 +150,46 @@ va ustiga qurish mumkin bo'ladi.
 | 0.6 | **Pishirilgan yorug'lik** — bitta lightmap, telefonda 3 real-time → 1–2 | brif yozilmagan | ⬜ |
 | 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | brif yozilmagan | ⬜ |
 
+### QOIDA — poydevor tugamaguncha yon-brif yozilmaydi
+
+Egasi 2026-08-21 da aniq qo'ydi: *"maqsad hozir 3d labaratoriyani
+kuchaytirish, poydevori yarim yo'lda to'xtaydigani kerak emas"*.
+
+O'sha kuni poydevordan **tashqarida** to'rtta ish qilingan edi
+(G6 yorliqlar, K01 sichqoncha, fazoviy pilot, F02 regressiya), va shu
+paytda `0.1C` — egasining asosiy shikoyati — ochiq turgan edi.
+
+Ularning hammasi haqiqiy nuqson edi. Muammo ularda emas, **navbatda**.
+
+**Endi:** topilgan nuqson yo'l xaritasiga yoziladi, lekin **brif
+qilinmaydi** — poydevorning 12 bandi tugamaguncha. Istisno: jonli
+saytdagi regressiya yoki xavfsizlik nuqsoni.
+
+Bu qoida ko'rikchiga (Claude) tegishli, agentga emas. Chalg'ish brif
+yozishdan boshlanadi.
+
+### Tartib
+
+| # | Ish | Nega shu joyda |
+|---|---|---|
+| 1 | `0.1C` telefon yorug'ligi | Egasining shikoyati, kichik, mustaqil |
+| 2 | `0.7` zonali birlashtirish + LOD | ~200 → ~20 draw call, asset talab qilmaydi |
+| 3 | `0.4` xona miqyosi + FOV 45→60 | Bitta raqam, darhol kengayadi |
+| 4 | `0.2` asset quvuri | Qolgan hammasini ochadi |
+| 5 | `0.6` pishirilgan yorug'lik | `0.2` ni talab qiladi |
+| 6 | `0.3` sifat darajalari + dinamik rezolyutsiya | 60 FPS kafolati |
+| 7 | `0.5` monolitni bo'lish | `korinish.js` 1523 qator, har brif unga tegadi |
+
+`0.6` va `0.7` uchun brif hali yozilmagan.
+
+### Kutayotgan yon-ishlar (poydevordan keyin)
+
+- **K01** — sichqoncha erkin aylanmaydi, fokus yo'qolganda ishlaydi
+  (brif yozilgan, `BRIF-K01-sichqoncha-va-fokus.md`)
+- **2.5** — tajribalar 2D panelda (12/20 komponent to'liq ekranli)
+- **G4** — mehmon rejimi
+- **G5** — hamroh robot
+
 **Qavat tugadi deb hisoblanadi, qachonki:**
 - `npm run lab3d:olcham` tanlangan profil uchun 5 qatorlik jadval
   chiqarsa va hech bir qator chegaradan chiqmasa.
