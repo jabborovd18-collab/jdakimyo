@@ -453,7 +453,7 @@ qiladi, loyihada esa hozir 0 ta `.glb` bor (BRIF-02).
 mavjud ma'lumotdan oldindan yozilgan bo'lsin; AI faqat foydalanuvchi
 o'zi savol berganda chaqirilsin. Aks holda har qadam pulga tushadi.
 
-### G6. Yorliqlar — "o'rganuvchi rejimi" sifatida yoqib-o'chiriladigan
+### G6. Yorliqlar — "o'rganuvchi rejimi" · [BRIF-G6](BRIF-G6-yorliqlar.md) yozildi
 
 G'oya egasidan (2026-08-20): 3D dunyodagi `Probirka`, `Termometr`,
 `Spirtovka` yorliqlari alohida funksiya bo'lsin — boshlovchi yoqib
