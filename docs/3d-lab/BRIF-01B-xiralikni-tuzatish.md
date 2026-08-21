@@ -59,33 +59,51 @@ atrofida). Bu badiiy qaror — variant tanlab, sababini yoz.
 
 ### 3. `OLCHOV.md` chegaralarini toraytir
 
-Hozirgi chegaralar xira sahnani o'tkazib yuboradi. Yangilari:
+**TUZATILDI (2026-08-20, arena savolidan keyin.)** Bu bo'limning
+birinchi tahriri xato edi — pastki `kuygan` chegarasi qo'yilgandi.
+
+Arena ziddiyatni topdi va kod yozishdan oldin so'radi: `xona` kadrida
+`kuygan ≥ 0.05%` ni faqat yorug'lik bilan bajarish uchun sahnani
+shunchalik yoritish kerakki, supurish 2% dan oshib ketardi. Ikkala
+mezon bir vaqtda bajarilmaydi.
+
+**Xato mening mezonimda edi.** `kuygan` — bu luma > 0.98, ya'ni
+BUTUNLAY KESILGAN piksel. Men "yorqin joy bo'lsin" degan fikrni
+"kesilgan piksel bo'lsin" deb yozganman. Bu ikki xil narsa.
+
+Sahna ACES filmic tone mapping ishlatadi va uning butun maqsadi
+kesishning oldini olish. Ya'ni pastki `kuygan` chegarasi ACES ga
+qarshi talab edi. Bundan tashqari u noto'g'ri xatti-harakatni
+rag'batlantirardi: metrikani bajarish uchun sahnaga sun'iy yorqin
+ob'ekt qo'shish — bu xiralikni tuzatish emas, o'lchovni aldash.
+
+**Xiralikning yagona mezoni — `p95`.** U kadrning eng yorqin 5% i
+qayerda turganini ko'rsatadi va aynan shu narsa "yuvilgan" tuyg'usini
+beradi.
 
 | Nuqta | `ortacha` | `kuygan` | `p95` | `qora` |
 |---|---:|---:|---:|---:|
-| `stol` | **0.28–0.42** | **0.05–1%** | **0.65–0.85** | < 5% |
-| `xona` | **0.28–0.42** | **0.05–1%** | **0.65–0.85** | < 5% |
-| `pol` | 0.22–0.45 | 0.02–1% | 0.55–0.85 | < 5% |
+| `stol` | 0.28–0.42 | < 1% | **0.65–0.85** | < 5% |
+| `xona` | 0.28–0.42 | < 1% | **0.55–0.85** | < 5% |
+| `pol` | 0.22–0.45 | < 1% | **0.50–0.85** | < 5% |
 | `ship` | 0.03–0.25 | < 0.5% | qo'llanmaydi | qo'llanmaydi |
 | `sweep` | qo'llanmaydi | **< 2%** | qo'llanmaydi | qo'llanmaydi |
 
-Ikkita yangilik:
+`p95` chegaralari BRIF-00B o'lchovidan olingan: kalibrovkadan oldingi
+(ortiqcha yoritilgan) sahnada `tun/stol` p95 = 0.7104,
+`tun/xona` = 0.6265. Ya'ni bu qiymatlar erishib bo'ladigan.
 
-- **`kuygan` ning PASTKI chegarasi bor.** 0% endi muvaffaqiyat emas,
-  nuqson. Sahnada yorqin nuqta bo'lishi kerak.
-- **`p95` chegara sifatida qo'shildi.** U "xiralik" ni to'g'ridan-to'g'ri
-  o'lchaydi: kadrning eng yorqin 5% i qayerda turibdi. Past `p95` =
-  yuvilgan tasvir. Asbob uni allaqachon hisoblaydi, faqat chegara
-  yo'q edi.
-
-`sweep < 2%` **o'zgarmaydi** — supurish hamon kuyishning qorovuli.
+Agar biror `p95` chegarasi yorug'lik bilan bajarilmasa — **materialga
+tegma**, sababini yoz va shu holda topshir. Chegara noto'g'ri bo'lsa,
+uni men tuzataman.
 
 ---
 
 ## Qabul mezonlari
 
 1. Uch profil × barcha nuqtalarda yangi chegaralar bajarilsin.
-2. `kuygan` hech bir `stol`/`xona` qatorida **0.00 bo'lmasin**.
+2. `p95` har nuqtada o'z oralig'ida — bu xiralikning yagona mezoni.
+   `kuygan` uchun pastki chegara YO'Q (yuqoriga qarang).
 3. `sweep` eng yomon nuqtasida `kuygan < 2%` — saqlanadi.
 4. `chiroqBudjetiBuzildi = false` — saqlanadi.
 5. `qora < 5%` — saqlanadi (hozir 0.7%, yomonlashmasin).
