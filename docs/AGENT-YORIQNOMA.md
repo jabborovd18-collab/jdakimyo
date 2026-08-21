@@ -314,3 +314,68 @@ ko'rdi.
 
 Ya'ni u — **1-bandning avtomatik tekshiruvchisi.** Agar arena
 hujjatdan chalkashib qolsa, aybdor arena emas, hujjat.
+
+---
+
+## 11. Ikkinchi agent — Gemini (Antigravity, lokal)
+
+2026-08-20 da jamoaga ikkinchi agent qo'shildi: **Gemini 3.7 Flash High**,
+Antigravity muhitida, **lokal papkada** (`Local` rejimi).
+
+U arenadan ikki jihatdan farq qiladi va ikkalasi ham muhim.
+
+### Farq 1 — u RASM KO'RADI
+
+Arena ko'rmaydi (11.1-band, [[jamoa-rollari]]). Gemini ko'radi — egasi
+tasdiqladi. Demak unga **vizual mezon berish mumkin**: "sahifa
+avvalgidek ko'rinsin", "molekula shakli o'zgarmasin".
+
+Bu fazoviy/molekulyar sahifalar uchun ayniqsa qimmatli, chunki u
+yerdagi butun qiymat — ko'rinishda.
+
+Lekin o'lchov mezonlari baribir afzal: ko'z "biroz boshqacha" ni
+kechiradi, son kechirmaydi.
+
+### Farq 2 — u LOKAL PAPKADA ishlaydi
+
+Arena masofada, o'z sandboxida ishlaydi va faqat `arena/*` shoxlarini
+push qiladi. Gemini esa **shu kompyuterdagi ishchi daraxtni
+o'zgartiradi** — ya'ni ko'rikchi (Claude) bilan bir xil papkada.
+
+Bundan ikkita qat'iy qoida kelib chiqadi:
+
+**1. Gemini hech qachon `main` da ishlamaydi.** Ish boshlashdan oldin
+o'z shoxi ochiladi:
+
+```
+git checkout -b gemini/<vazifa>
+```
+
+Sabab: 2026-08-19 falokati aynan lokal `main` da to'plangan va push
+qilinmagan 78 kommitdan kelib chiqqan ([[arena-shox-nuqtasi]],
+9-bo'lim). Lokal ishlaydigan agent bu tuzoqqa eng oson tushadi.
+
+**2. Gemini ishlayotganda ko'rikchi papkaga tegmaydi.** `git checkout`,
+`git merge`, build — hech biri. Ular Geminining saqlanmagan ishini
+yo'q qilishi mumkin.
+
+Navbat: **Gemini quradi → commit + push → TO'XTAYDI → egasi xabar
+beradi → ko'rikchi tekshiradi.**
+
+Ko'rik boshlanishidan oldin ishchi daraxt **toza** bo'lishi shart
+(`git status --porcelain` bo'sh).
+
+### Papkalar kesishmasin
+
+Ikki agent bir vaqtda ishlashi mumkin, lekin faqat turli papkalarda:
+
+| Agent | Hududi |
+|---|---|
+| Arena | `app/laboratoriya/3d/`, `scripts/lab3d-*` |
+| Gemini | `app/oquv/fazoviy/`, `lib/fazoviy/` |
+
+### Darvoza ikkalasiga ham bir xil
+
+"main himoyasi" ruleset'i Repository admin bo'lmagan **hammaga**
+qo'llanadi. Gemini ham PR ochadi va merge qila olmaydi. Bu cheklov
+emas — mas'uliyat faqat ko'rikda mavjud (10-bo'lim).
