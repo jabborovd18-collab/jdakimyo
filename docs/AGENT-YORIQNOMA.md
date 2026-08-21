@@ -279,3 +279,38 @@ Chalkashmaslik uchun: ruleset faqat `main` ga qo'llanadi.
 `arena/*` shoxlariga commit va push **ochiq** — `01a01c11` shoxi
 muvaffaqiyatli push bo'lgani buni isbotlaydi. Agar arena o'z shoxiga
 push qila olmasa, sabab ruleset emas, boshqa narsa.
+
+---
+
+## 10. Arenada kuchli xotira yo'q — repo uning yagona xotirasi
+
+Egasi 2026-08-20 da aniq qo'ydi: **arena vaqtinchalik ishchidek.**
+U mas'uliyatni bo'yniga olmaydi. Mas'uliyat egasida va ko'rikchida.
+
+Chat yopilsa, u bilan kelishilgan hamma narsa yo'qoladi. Arena uchun
+faqat **repoda yozilgani** mavjud: `AGENTS.md`, `YOL-XARITASI.md`,
+briflar.
+
+Bundan uchta amaliy qoida kelib chiqadi:
+
+1. **Har brif o'z-o'zicha to'liq bo'lsin.** "Kelishganimizdek",
+   "avval aytganimdek" — bular arena uchun bo'sh gap.
+2. **Har qaror repoga yoziladi, chatda qolmaydi.** Misol: "3D ga fon
+   almashtirgich kerak emas" qarori. U faqat suhbatda qolganda,
+   keyingi brifda arena almashtirgichni qayta qurishi mumkin edi.
+3. **Ko'rik darvozasi byurokratiya emas.** Eslamaydigan ishtirokchiga
+   mas'uliyat yuklab bo'lmaydi — javobgarlik faqat ko'rikda mavjud.
+   Shuning uchun "main himoyasi" ruleset'i yumshatilmaydi.
+
+### Kutilmagan foyda — xotirasizlik hujjatni sinaydi
+
+2026-08-20 da arena BRIF-01 eskirganini **o'zi topdi**: hujjat to'rt
+qatlamdan iborat bo'lib, asosiy qismi "to'rt mavzu" der, keyingi
+bo'limlar "pog'ona bo'yicha byudjet" der edi.
+
+Xotirasi bo'lgan ishtirokchi "nima demoqchi ekanini biladi" deb
+ustidan o'tib ketardi. Arena faqat yozilganini o'qiydi va ziddiyatni
+ko'rdi.
+
+Ya'ni u — **1-bandning avtomatik tekshiruvchisi.** Agar arena
+hujjatdan chalkashib qolsa, aybdor arena emas, hujjat.
