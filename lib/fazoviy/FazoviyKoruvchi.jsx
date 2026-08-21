@@ -732,38 +732,60 @@ export default function FazoviyKoruvchi({
         )}
 
         {activePanel === "dorbital" && (
-          <div className="absolute right-4 top-4 z-30 w-84 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl">
+          <div className="absolute right-4 top-4 z-30 w-88 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl">
             <div className="flex justify-between items-center mb-3 pb-2 border-b border-purple-800/60">
-              <h3 className="font-bold text-sm text-purple-200">📊 Kristall Maydon d-Orbital Ajralishi</h3>
+              <h3 className="font-bold text-sm text-purple-200">📊 d-Orbital Ajralishi</h3>
               <button onClick={() => setActivePanel(null)} className="text-purple-400 hover:text-white">✕</button>
             </div>
             <div className="text-xs text-purple-300 space-y-2.5">
-              <p>Kristall maydon nazariyasi (CFT) bo'yicha d-orbitallarning energetik sathlarga bo'linishi:</p>
-              <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50 font-mono text-[11px] space-y-1.5">
-                {geometryInfo.ks === 6 || complex.dOrbital?.tg !== undefined ? (
-                  <>
-                    <div className="text-yellow-300">eg (dx²-y², dz²): +0.6 Δₒ (Yuqori sath)</div>
-                    <div className="text-cyan-300">t₂g (dxy, dyz, dxz): -0.4 Δₒ (Pastki sath)</div>
-                    <div className="text-purple-200 pt-1 border-t border-purple-800/50 flex justify-between">
-                      <span>Δₒ parametri:</span>
-                      <b className="text-yellow-300">{complex.dOrbital?.deltaO?.toLocaleString() || "23 000"} cm⁻¹</b>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-yellow-300">t₂ (dxy, dyz, dxz): +0.4 Δₜ (Yuqori sath)</div>
-                    <div className="text-cyan-300">e (dx²-y², dz²): -0.6 Δₜ (Pastki sath)</div>
-                    <div className="text-purple-200 pt-1 border-t border-purple-800/50 flex justify-between">
-                      <span>Δₜ parametri:</span>
-                      <b className="text-yellow-300">{complex.dOrbital?.deltaT?.toLocaleString() || "4 200"} cm⁻¹</b>
-                    </div>
-                  </>
-                )}
-                <div className="text-purple-300 text-[10px] flex justify-between pt-1">
-                  <span>Juftlashuv energiyasi (P):</span>
-                  <span>≈ 20 000 cm⁻¹</span>
+              {geometryInfo.dOrbitalSplitting?.hasSplitting === false || complex.dOrbitalSplitting?.hasSplitting === false ? (
+                <div className="bg-purple-900/40 p-3 rounded-lg border border-purple-800/60 text-purple-300 leading-relaxed text-[11px]">
+                  <div className="font-semibold text-yellow-300 mb-1">ℹ️ d-Orbital ajralishi qo'llanilmaydi</div>
+                  {geometryInfo.dOrbitalSplitting?.reason || complex.dOrbitalSplitting?.reason || "Ushbu molekula (s/p gibridlangan asosiy guruh elementi) uchun klassik d-orbital kristall maydon ajralishi mavjud emas. Molekula geometriyasi VSEPR va MO nazariyasi asosida tushuntiriladi."}
                 </div>
-              </div>
+              ) : (
+                <>
+                  <p>{geometryInfo.dOrbitalSplitting?.theory || complex.dOrbitalSplitting?.theory || "Kristall maydon nazariyasi (CFT) bo'yicha d-orbitallarning energetik sathlarga bo'linishi:"}</p>
+                  <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50 font-mono text-[11px] space-y-1.5">
+                    {/* Agar maxsus sathlar berilgan bo'lsa */}
+                    {(geometryInfo.dOrbitalSplitting?.levels || complex.dOrbitalSplitting?.levels) ? (
+                      (geometryInfo.dOrbitalSplitting?.levels || complex.dOrbitalSplitting?.levels).map((lvl, idx) => (
+                        <div
+                          key={idx}
+                          className={`flex justify-between items-center ${lvl.type === "high" ? "text-yellow-300" : lvl.type === "low" ? "text-cyan-300" : "text-purple-200"}`}
+                        >
+                          <span>{lvl.label}:</span>
+                          <b>{lvl.energy}</b>
+                        </div>
+                      ))
+                    ) : geometryInfo.ks === 6 || complex.dOrbital?.tg !== undefined ? (
+                      <>
+                        <div className="text-yellow-300">eg (dx²-y², dz²): +0.6 Δₒ (Yuqori sath)</div>
+                        <div className="text-cyan-300">t₂g (dxy, dyz, dxz): -0.4 Δₒ (Pastki sath)</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-yellow-300">t₂ (dxy, dyz, dxz): +0.4 Δₜ (Yuqori sath)</div>
+                        <div className="text-cyan-300">e (dx²-y², dz²): -0.6 Δₜ (Pastki sath)</div>
+                      </>
+                    )}
+
+                    <div className="text-purple-200 pt-1.5 border-t border-purple-800/50 flex justify-between">
+                      <span>{geometryInfo.dOrbitalSplitting?.deltaSymbol || complex.dOrbitalSplitting?.deltaSymbol || (geometryInfo.ks === 6 ? "Δₒ" : "Δₜ")} parametri:</span>
+                      <b className="text-yellow-300">
+                        {geometryInfo.dOrbitalSplitting?.deltaValue || complex.dOrbitalSplitting?.deltaValue || (complex.dOrbital?.deltaO ? `${complex.dOrbital.deltaO.toLocaleString()} cm⁻¹` : complex.dOrbital?.deltaT ? `${complex.dOrbital.deltaT.toLocaleString()} cm⁻¹` : "≈ 20 000 cm⁻¹")}
+                      </b>
+                    </div>
+
+                    {(geometryInfo.dOrbitalSplitting?.pairingEnergy || complex.dOrbitalSplitting?.pairingEnergy) && (
+                      <div className="text-purple-300 text-[10px] flex justify-between pt-0.5">
+                        <span>Juftlashuv energiyasi (P):</span>
+                        <span>{geometryInfo.dOrbitalSplitting?.pairingEnergy || complex.dOrbitalSplitting?.pairingEnergy}</span>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
