@@ -4,22 +4,32 @@ import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLigh
 
 RectAreaLightUniformsLib.init();
 
-const ASOSIY_YORUGLIK = Object.freeze({
-  // Ambient kamayishi ekspozitsiya qaytganda yassi kulrang pardani ushlab
-  // turmaydi; asosiy directional tabiiy yo'nalish va akslarni saqlaydi.
-  muhit: Object.freeze({ rang: 0x404060, kuch: 0.3 }),
-  asosiy: Object.freeze({ rang: 0xfffbeb, kuch: 1.4 }),
-  // Binafsha fill polga sun'iy dog' bergan; salqin neytral oq laboratoriya
-  // metallari va shishaning o'z rangini buzmaydi.
-  toldiruvchi: Object.freeze({ rang: 0xdbeafe, kuch: 0.4 }),
+const YORUGLIK_PROFILLARI = Object.freeze({
+  telefon: Object.freeze({
+    // Kamroq chiroq qorong'i sahna degani emas: ambient desktopdagi panel,
+    // deraza va fill yo'qligini qoplaydi, directional esa kontrastni saqlaydi.
+    muhit: Object.freeze({ rang: 0x404060, kuch: 0.9 }),
+    asosiy: Object.freeze({ rang: 0xfffbeb, kuch: 2.2 }),
+    toldiruvchi: Object.freeze({ rang: 0xdbeafe, kuch: 0.4 }),
+  }),
+  desktop: Object.freeze({
+    muhit: Object.freeze({ rang: 0x404060, kuch: 0.3 }),
+    asosiy: Object.freeze({ rang: 0xfffbeb, kuch: 1.4 }),
+    toldiruvchi: Object.freeze({ rang: 0xdbeafe, kuch: 0.4 }),
+  }),
+  ilova: Object.freeze({
+    muhit: Object.freeze({ rang: 0x404060, kuch: 0.3 }),
+    asosiy: Object.freeze({ rang: 0xfffbeb, kuch: 1.4 }),
+    toldiruvchi: Object.freeze({ rang: 0xdbeafe, kuch: 0.4 }),
+  }),
 });
 
 // Profil byudjeti (boshlang'ich yashirin spirtovka PointLight'i bilan):
 //
 // | profil  | statik to'plam                                      | jami |
-// | telefon | ambient 0.3 + asosiy directional 1.4                | 2+1=3 |
-// | desktop | yuqoridagi 2 + fill 0.4 + deraza 1.4 + 3 area 1.4  | 7+1=8 |
-// | ilova   | ambient + asosiy + fill + deraza + 8 area           | 12+1=13 |
+// | telefon | ambient 0.9 + asosiy directional 2.2                | 2+1=3 |
+// | desktop | ambient 0.3 + asosiy 1.4 + fill/deraza + 3 area    | 7+1=8 |
+// | ilova   | desktop asoslari + 8 area                            | 12+1=13 |
 //
 // Dinamik qizish effekti o'lchov paytida faol emas. Pishirilgan yorug'lik
 // keyingi 0.6 bosqich; bu yerda real-time byudjet profil chegarasida.
@@ -101,6 +111,8 @@ export function yoruglikniQur(scene, profil, renderer) {
   if (!scene || !profil || !renderer) {
     throw new Error("Yorug'lik uchun scene, profil va renderer kerak");
   }
+  const daraja = YORUGLIK_PROFILLARI[profil.nom];
+  if (!daraja) throw new Error(`Yorug'lik profili topilmadi: ${profil.nom}`);
 
   renderer.toneMappingExposure = TONE_MAPPING_EKSPOZITSIYA;
   const chiroqlar = [];
@@ -112,12 +124,12 @@ export function yoruglikniQur(scene, profil, renderer) {
   };
 
   const muhit = qosh(
-    muhitNuriniYarat(ASOSIY_YORUGLIK.muhit.rang, ASOSIY_YORUGLIK.muhit.kuch),
+    muhitNuriniYarat(daraja.muhit.rang, daraja.muhit.kuch),
     "Yoruglik_Muhit",
   );
 
   const asosiy = qosh(
-    yonalishNuriniYarat(ASOSIY_YORUGLIK.asosiy.rang, ASOSIY_YORUGLIK.asosiy.kuch),
+    yonalishNuriniYarat(daraja.asosiy.rang, daraja.asosiy.kuch),
     "Yoruglik_Asosiy",
   );
   asosiy.position.set(2.5, 4.0, 2.0);
@@ -139,8 +151,8 @@ export function yoruglikniQur(scene, profil, renderer) {
   if (profil.nom !== "telefon") {
     toldiruvchi = qosh(
       yonalishNuriniYarat(
-        ASOSIY_YORUGLIK.toldiruvchi.rang,
-        ASOSIY_YORUGLIK.toldiruvchi.kuch,
+        daraja.toldiruvchi.rang,
+        daraja.toldiruvchi.kuch,
       ),
       "Yoruglik_Toldiruvchi",
     );

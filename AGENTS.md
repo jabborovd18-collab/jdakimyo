@@ -197,8 +197,9 @@ Dalil **son** bo'lishi kerak, ko'z emas:
 
 - `npm run lab3d:olcham` — tanlangan sifat profilida 4 nomli kamera
   nuqtasi va 24 nuqtali supurish: kuygan piksel ulushi, o'rtacha luma,
-  sof ship/pol farqi, chiroq byudjeti, yorliq to'qnashuvi, FPS, renderer
-  va `renderer.info`. Asbob va chegaralar: `docs/3d-lab/OLCHOV.md`.
+  sof ship/pol farqi, chiroq byudjeti, yorliq to'qnashuvi, qarash rejimi,
+  FPS, renderer va `renderer.info`. Asbob va chegaralar:
+  `docs/3d-lab/OLCHOV.md`.
 - **Oldin va keyin o'lchang.** Bitta "keyin" jadvali dalil emas —
   taqqoslash dalil.
 - Kompilyatsiya o'tgani, `200` qaytgani va konsol toza bo'lgani grafik
