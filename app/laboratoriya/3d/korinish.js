@@ -527,6 +527,8 @@ export default function Korinish() {
     fpsQaralganStansiya,
     fpsKontekstMatn,
     fpsKontekstTuri,
+    qarashRejimi,
+    qarashXabari,
     qolgaOlYokiQoy,
     sezgirlik,
     sezgirlikniOzgartir,
@@ -966,6 +968,13 @@ export default function Korinish() {
                 : "bg-white/80 scale-100 shadow-[0_0_8px_#ffffff]"
             }`}
           />
+
+          {qarashXabari && (
+            <div className="mt-3 px-3 py-1 rounded-lg border border-amber-400/60 bg-slate-950/90 text-amber-200 text-[10px] font-mono font-bold shadow-lg backdrop-blur-md">
+              {qarashXabari}
+              {qarashRejimi === "zaxira" ? " · zaxira" : ""}
+            </div>
+          )}
 
           {/* Dinamik In-World Kontekst Yordamchisi */}
           {fpsKontekstMatn && (

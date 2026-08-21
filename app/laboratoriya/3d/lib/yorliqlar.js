@@ -5,7 +5,9 @@ export const YORLIQ_TEKSHIRISH_QADAMI = 5;
 
 const YORLIQ_BELGISI = "lab3dYorliq";
 const TOSIQ_BELGISI = "lab3dYorliqTosigi";
-const ENG_UZOQ_MASOFA = 8;
+// Boshlang'ich stol yorliqlari 2–3 m da qoladi; 5 m dan naridagi boshqa
+// stol/javon yozuvlari o'qilmaydi va ekranni band qilmaydi.
+export const YORLIQ_ENG_UZOQ_MASOFA = 5;
 const ORALIQ_PX = 3;
 
 /** Faqat o'quv nomi/formulasi bo'lgan Sprite'ni boshqariladigan qiladi. */
@@ -136,7 +138,7 @@ export function yorliqlarniYangila(scene, kamera, renderer, yoqilgan = true) {
     }
 
     const rect = ekranTortburchagi(obyekt, kamera, kenglik, balandlik);
-    const uzoq = !rect || rect.masofa > ENG_UZOQ_MASOFA;
+    const uzoq = !rect || rect.masofa > YORLIQ_ENG_UZOQ_MASOFA;
     obyekt.userData.yorliqMasofada = uzoq;
     if (uzoq) {
       obyekt.visible = false;

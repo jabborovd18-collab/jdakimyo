@@ -10,6 +10,7 @@ import {
 } from "../lib/sifat-profili.js";
 import { kadrGistogrammasi, kadrQorami } from "./olcham-hisob.js";
 import { yorliqlarniYangila } from "../lib/yorliqlar.js";
+import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
 import {
   NUQTA_NOMLARI,
   nuqtaniOl,
@@ -124,6 +125,12 @@ export default function OlchamMijoz() {
   const ilkOlchovRef = useRef(true);
   const olchamRef = useRef(null);
   const supurishRef = useRef(null);
+  const qarashSinoviRef = useRef({
+    rejim: "pointerlock",
+    yaw: 0,
+    yawJami: 0,
+    faol: true,
+  });
 
   useEffect(() => {
     setParam(parametrlarniOl());
@@ -172,6 +179,46 @@ export default function OlchamMijoz() {
     id = requestAnimationFrame(tik);
     return () => cancelAnimationFrame(id);
   }, [tayyor]);
+
+  useEffect(() => {
+    if (!tayyor || !rendererRef.current) return;
+    const sinov = qarashSinoviRef.current;
+    sinov.rejim = pointerLockMavjudmi(rendererRef.current.domElement)
+      ? "pointerlock"
+      : "zaxira";
+    sinov.faol = !document.hidden;
+
+    const fokusYoqotildi = () => { sinov.faol = false; };
+    const fokusQaytdi = () => { sinov.faol = true; };
+    const visibility = () => { sinov.faol = !document.hidden; };
+
+    window.__qarashSinovi = (piksel) => {
+      const oldin = sinov.yaw;
+      let farq = 0;
+      if (sinov.faol) {
+        farq = yawniSiljit(sinov, Number(piksel) || 0, 1);
+        sinov.yawJami += Math.abs(farq);
+      }
+      return {
+        qarashRejimi: sinov.rejim,
+        oldin,
+        keyin: sinov.yaw,
+        farq,
+        yawJami: sinov.yawJami,
+        faol: sinov.faol,
+      };
+    };
+
+    window.addEventListener("blur", fokusYoqotildi);
+    window.addEventListener("focus", fokusQaytdi);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      window.removeEventListener("blur", fokusYoqotildi);
+      window.removeEventListener("focus", fokusQaytdi);
+      document.removeEventListener("visibilitychange", visibility);
+      if (window.__qarashSinovi) delete window.__qarashSinovi;
+    };
+  }, [tayyor, rendererRef]);
 
   const olcham = useCallback(async (ozgartirish = {}) => {
     const renderer = rendererRef.current;
@@ -222,9 +269,12 @@ export default function OlchamMijoz() {
       ? namuna.reduce((a, b) => a + b, 0) / namuna.length
       : 0;
     const chiroqSoni = chiroqlarniSana(scene);
+    const qarashSinovi = qarashSinoviRef.current;
 
     const natija = {
       profil: profil.nom,
+      qarashRejimi: qarashSinovi.rejim,
+      yawJami: qarashSinovi.yawJami,
       nuqta: nuqtaNom,
       chiroqBudjeti: profil.chiroqBudjeti,
       chiroqBudjetiBuzildi: chiroqSoni > profil.chiroqBudjeti,
@@ -257,6 +307,7 @@ export default function OlchamMijoz() {
     composerRef,
     profilRef,
     yorliqHolatiRef,
+    qarashSinoviRef,
   ]);
 
   olchamRef.current = olcham;

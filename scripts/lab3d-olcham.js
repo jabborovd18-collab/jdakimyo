@@ -90,6 +90,8 @@ function qatorniJadvalga(q) {
   return {
     profil: q.profil,
     nuqta: q.nuqta,
+    qarashRejimi: q.qarashRejimi,
+    yawJami: yaxlit(q.yawJami, 4),
     kuygan: yaxlit(q.kuygan, 2),
     qora: yaxlit(q.qora, 2),
     ortacha: yaxlit(q.ortacha, 4),
@@ -238,6 +240,8 @@ function rasmniSaqlash(dataUrl, fayl) {
 function natijaniTekshir(natija, nuqta) {
   const kerak = [
     "profil",
+    "qarashRejimi",
+    "yawJami",
     "kuygan",
     "qora",
     "ortacha",
@@ -266,6 +270,12 @@ function natijaniTekshir(natija, nuqta) {
   }
   if (natija.profil !== profil) {
     throw new Error(`${profil}/${nuqta}: profil=${natija.profil}`);
+  }
+  if (!["pointerlock", "zaxira"].includes(natija.qarashRejimi)) {
+    throw new Error(`${profil}/${nuqta}: qarashRejimi=${natija.qarashRejimi}`);
+  }
+  if (!Number.isFinite(natija.yawJami)) {
+    throw new Error(`${profil}/${nuqta}: yawJami yaroqsiz`);
   }
   if (!Number.isInteger(natija.chiroqSoni) || natija.chiroqSoni < 0) {
     throw new Error(`${profil}/${nuqta}: chiroqSoni yaroqsiz`);

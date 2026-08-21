@@ -118,6 +118,8 @@ luma = 0.2126*R + 0.7152*G + 0.0722*B
 | Maydon | Ma'nosi |
 |---|---|
 | `profil` | Faol `telefon`, `desktop` yoki `ilova` profili |
+| `qarashRejimi` | `pointerlock` yoki API yo'q muhitdagi ko'rinadigan `zaxira` |
+| `yawJami` | Dev sinovida to'plangan mutlaq gorizontal yaw, radian |
 | `kuygan` | `luma > 0.98` piksel ulushi, foiz |
 | `qora` | `luma < 0.02` piksel ulushi, foiz |
 | `ortacha` | Butun kadr o'rtacha lumasi |
@@ -146,6 +148,12 @@ yuklangach har joyni sinxron qayta chizadi.
 Supurish qatoridagi `yorliqSoni` va `yorliqToqnashuvi` — 24 nuqtaning
 maksimumi. Kuyishi eng yomon kamera yorliq to'qnashuvi eng yomon kamerani
 yashirib qo'ymasligi uchun yorliq maydonlari alohida jamlanadi.
+
+Dev-only o'lchagich `window.__qarashSinovi(px)`ni ham beradi. U pointer
+lock yo'lidagi cheksiz yaw matematikasini simulyatsiya qiladi; masalan
+`20000px` natijasi `56 radian`, ya'ni 6 to'liq aylanishdan ko'p. Blur yoki
+`document.hidden` holatida sinov yaw'ni o'zgartirmaydi. Production'da
+butun o'lchagich marshruti 404.
 
 ---
 
