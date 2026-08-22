@@ -11,6 +11,7 @@ import {
 import { kadrGistogrammasi, kadrQorami } from "./olcham-hisob.js";
 import { yorliqlarniYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
+import { HIMOYALANGAN_NOMLAR } from "../lib/geometriya-birlashtirish.js";
 import {
   NUQTA_NOMLARI,
   nuqtaniOl,
@@ -60,28 +61,39 @@ function rendererNominiOl(gl) {
   return String(gl.getParameter(gl.RENDERER) || "Noma'lum WebGL renderer");
 }
 
-// BRIF-07 — nishon tanlay oladigan ob'ektlarni sanaydi.
-//
-// useYurish.js ota-zanjir bo'ylab `userData.kalit` ni qidiradi; ba'zi
-// stansiyalar esa faqat NOM bilan topiladi (masalan
-// `3D_Devor_Reagent_Shkaflari`). Ikkala usul ham sanaladi, chunki
-// geometriya birlashtirilganda ikkalasi ham yo'qolishi mumkin.
+// BRIF-07 — nishon tanlay oladigan ob'ektlar soni.
+// useYurish.js ota-zanjir bo'ylab `userData.kalit`/`tanlanadi` ni qidiradi.
 function interaktivlarniSana(scene) {
-  const nomlar = new Set([
-    "Tarozi_Stansiyasi",
-    "Xavfsizlik_Dushi_Stansiyasi",
-    "Davriy_Jadval_LED_Plakat",
-    "Titrlash_Byuretka_Stansiyasi",
-    "Elektroliz_Stansiyasi",
-    "Yuvinish_Rakovinasi",
-    "3D_Devor_Reagent_Shkaflari",
-  ]);
   let soni = 0;
   scene.traverse((o) => {
     if (o.userData?.kalit || o.userData?.tanlanadi) soni += 1;
-    else if (o.name && nomlar.has(o.name)) soni += 1;
   });
   return soni;
+}
+
+// BRIF-07 — nomli stansiyalar joyidami VA ichida mesh qoldimi.
+//
+// NEGA FAQAT SON YETMAYDI: birlashtirish guruhning O'ZINI qoldirib,
+// ichidagi meshlarni tortib olishi mumkin. Shunda `getObjectByName`
+// baribir tugun qaytaradi va har qanday "bormi?" sanog'i o'tadi —
+// stansiya esa ko'rinmay qoladi. Shuning uchun mesh sanaladi.
+//
+// Ro'yxat `geometriya-birlashtirish.js` dan keladi: birlashtiruvchi
+// himoyalaydi, o'lchagich tekshiradi — ikkalasi bitta manbadan
+// (AGENTS.md 1-band).
+function stansiyaMeshlariniSana(scene) {
+  const natija = {};
+  for (const nom of HIMOYALANGAN_NOMLAR) {
+    const tugun = scene.getObjectByName(nom);
+    let mesh = 0;
+    if (tugun) {
+      tugun.traverse((o) => {
+        if (o.isMesh) mesh += 1;
+      });
+    }
+    natija[nom] = mesh;
+  }
+  return natija;
 }
 
 function chiroqlarniSana(scene) {
@@ -169,6 +181,7 @@ export default function OlchamMijoz() {
     composerRef,
     profilRef,
     yorliqHolatiRef,
+    birlashuvRef,
   } = useSahna(
     konteynerRef,
     !param,
@@ -293,11 +306,11 @@ export default function OlchamMijoz() {
       ? namuna.reduce((a, b) => a + b, 0) / namuna.length
       : 0;
     const chiroqSoni = chiroqlarniSana(scene);
-    // BRIF-07 — nishon (crosshair) tanlay oladigan ob'ektlar soni.
-    // Birlashtirish interaktiv shoxga tegib ketsa, bu son TUSHADI.
-    // useYurish.js ota-zanjirda `userData.kalit` ni qidiradi, ba'zi
-    // stansiyalar esa faqat nom bilan topiladi — ikkalasi sanaladi.
+    // BRIF-07 — birlashtirish interaktivlikni yeb qo'ymaganini ikki
+    // xil tomondan tekshiradi: `userData` bilan tanlanadiganlar soni va
+    // nomli stansiyalarning mesh qoldig'i.
     const interaktivSoni = interaktivlarniSana(scene);
+    const stansiyaMeshlari = stansiyaMeshlariniSana(scene);
     const qarashSinovi = qarashSinoviRef.current;
 
     const natija = {
@@ -321,6 +334,10 @@ export default function OlchamMijoz() {
       renderer: rendererNominiOl(gl),
       chiroqSoni,
       interaktivSoni,
+      stansiyaMeshlari,
+      // BRIF-07 dalili: nechta mesh birlashdi, nechta guruh hosil bo'ldi,
+      // nechta tanlanadigan shox chetlab o'tildi.
+      birlashuv: { ...(birlashuvRef?.current || {}) },
       yorliqSoni: yorliqHolati.yorliqSoni,
       yorliqToqnashuvi: yorliqHolati.yorliqToqnashuvi,
     };

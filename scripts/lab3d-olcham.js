@@ -105,6 +105,7 @@ function qatorniJadvalga(q) {
     chiroqBudjetiBuzildi: q.chiroqBudjetiBuzildi,
     yorliqSoni: q.yorliqSoni,
     yorliqToqnashuvi: q.yorliqToqnashuvi,
+    interaktivSoni: q.interaktivSoni,
     uchburchak: q.uchburchak,
     chaqiruv: q.chaqiruv,
     teksturaXotira: q.teksturaXotira,
@@ -259,6 +260,8 @@ function natijaniTekshir(natija, nuqta) {
     "chiroqBudjetiBuzildi",
     "yorliqSoni",
     "yorliqToqnashuvi",
+    "interaktivSoni",
+    "stansiyaMeshlari",
   ];
   if (nuqta === "sweep") {
     kerak.push("sweepEngYomon", "sweepJoy", "sweepUrug", "sweepNamunaSoni");
@@ -291,6 +294,23 @@ function natijaniTekshir(natija, nuqta) {
   }
   if (!Number.isInteger(natija.yorliqToqnashuvi) || natija.yorliqToqnashuvi < 0) {
     throw new Error(`${profil}/${nuqta}: yorliqToqnashuvi yaroqsiz`);
+  }
+  if (!Number.isInteger(natija.interaktivSoni) || natija.interaktivSoni < 1) {
+    throw new Error(`${profil}/${nuqta}: interaktivSoni yaroqsiz`);
+  }
+  // BRIF-07 qorovuli. Nomli stansiya sahnada turishi VA ichida kamida
+  // bitta mesh qolishi shart. Bo'sh qolgan stansiya "birlashtirish uni
+  // yeb qo'ygan" degani — bu jim buziladi, chunki `getObjectByName`
+  // baribir tugunni qaytaradi. Ro'yxatni sahifa beradi (yagona manba:
+  // lib/geometriya-birlashtirish.js), skript uni takrorlamaydi.
+  const stansiyalar = natija.stansiyaMeshlari;
+  if (typeof stansiyalar !== "object" || !Object.keys(stansiyalar).length) {
+    throw new Error(`${profil}/${nuqta}: stansiyaMeshlari bo'sh`);
+  }
+  for (const [nom, soni] of Object.entries(stansiyalar)) {
+    if (!Number.isInteger(soni) || soni < 1) {
+      throw new Error(`${profil}/${nuqta}: "${nom}" stansiyasida mesh qolmadi (${soni})`);
+    }
   }
 }
 

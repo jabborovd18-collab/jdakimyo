@@ -60,7 +60,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
   const composerRef = useRef(null);
   const jihozlarMapRef = useRef(new Map()); // slotIndex -> THREE.Group
   // BRIF-07 birlashuv hisoboti — o'lchagich uni o'qiydi.
-  const birlashuvRef = useRef({ birlashdi: 0, guruh: 0, otkazildi: 0 });
+  const birlashuvRef = useRef({ birlashdi: 0, guruh: 0, otkazildi: 0, bolali: 0 });
 
   useEffect(() => {
     let yoqilgan = true;
@@ -304,17 +304,6 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     const xonaInteryeri = xonaInteryeriniYasa(materiallar, profil);
     scene.add(xonaInteryeri);
 
-    // BRIF-07 — harakatsiz geometriyani material va fazoviy zona bo'yicha
-    // birlashtiramiz. Xona 100% qimirlamaydi, shuning uchun har devor
-    // bo'lagi uchun alohida draw call to'lash isrof.
-    //
-    // Interaktiv shoxlarga TEGILMAYDI: nishon ota-zanjirda
-    // `userData.kalit` ni qidiradi, ba'zi stansiyalar esa faqat NOM
-    // bilan topiladi (masalan `3D_Devor_Reagent_Shkaflari`). Ikkalasi
-    // ham `geometriya-birlashtirish.js` da himoyalangan.
-    const birlashuv = harakatsizGeometriyaniBirlashtir(xonaInteryeri);
-    birlashuvRef.current = birlashuv;
-
     // Boshlang'ich holatda 1 ta probirka va 1 ta spirtovkani stolga qo'yamiz
     const defProbirka = jihozYasa("probirka", materiallar, profil);
     defProbirka.userData.slotIndex = 1; // 2-slot: old qator, o'rta-chap
@@ -338,6 +327,23 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     jihozlarMapRef.current.set(8, defTermometr);
 
     setHammaJihozlar(Array.from(jihozlarMapRef.current.values()));
+
+    // BRIF-07 — harakatsiz geometriyani material va fazoviy zona bo'yicha
+    // birlashtiramiz. Xona 100% qimirlamaydi, shuning uchun har devor
+    // bo'lagi, javon tokchasi va stol oyog'i uchun alohida draw call
+    // to'lash isrof.
+    //
+    // NEGA SAHNA ILDIZIDAN: birlashtirilishi kerak bo'lgan geometriya
+    // uchta ildizga bo'lingan — xona interyeri, reagentlar javoni va
+    // to'g'ridan-to'g'ri sahnaga qo'yilgan stol. Faqat xona interyerini
+    // bersak, eng katta nishon (bitta materialdagi 53 ta javon karkasi
+    // meshi) tashqarida qolardi.
+    //
+    // Bu qator hamma dastlabki ob'ekt qo'shilgandan KEYIN turadi:
+    // birlashtirish bir marta, sahna to'liq yig'ilganda bajariladi.
+    // Tanlanadigan shoxlarga (`userData.kalit`/`tanlanadi`/`sigim`)
+    // tegilmaydi — himoya `geometriya-birlashtirish.js` da.
+    birlashuvRef.current = harakatsizGeometriyaniBirlashtir(scene);
 
     // 8. ResizeObserver (window.resize emas, chunki panel yig'ilganda ham canvas o'zgaradi)
     const handleResize = () => {
