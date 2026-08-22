@@ -393,6 +393,131 @@ function kristallPanjaraYasa(tur, panjaraMat) {
   return g;
 }
 
+// Tokchalarni to'ldiradigan idishlar.
+//
+// MUAMMO (egasi ko'rsatdi, 2026-08-22): javon qatorlari devorni
+// uzluksiz qopladi, lekin ularning ICHI o'sha 20 ta reagent shishasi
+// bo'lib qoldi. Natijada 24 metrlik tokchada bir hovuch shisha —
+// "bo'sh ombor" tuyg'usi xonadan javonga ko'chdi.
+//
+// NEGA InstancedMesh: to'ldirish uchun yuzlab idish kerak. Oddiy mesh
+// bo'lsa har biri o'z draw call'ini talab qilardi va BRIF-07 da
+// erishilgan hamma narsa yo'qolardi. InstancedMesh esa nechta nusxa
+// bo'lishidan qat'i nazar BITTA chaqiruv. BRIF-07 ning o'zi
+// "javon tokchalari va shishalari" ni aynan shu usulning nomzodi deb
+// sanagan.
+//
+// Ular TANLANMAYDI va o'zgarmaydi — bu ataylab. Tanlanadigan reagent
+// 20 ta va ular `DEVOR_JAVON_REAGENTLARI` da; qolgani muhit.
+
+const TOLDIRGICH = Object.freeze({
+  qadam: 0.19,        // idishlar orasidagi masofa
+  chet: 0.16,         // qator chetidan bo'sh joy
+  radius: 0.036,
+  minBaland: 0.15,
+  maksBaland: 0.25,
+  // Reagent shishalari -0.25 tokchasida turadi; to'ldirgich qolgan
+  // ikkitasini va shkaf tubini egallaydi.
+  sathlar: Object.freeze([-0.62, 0.06, 0.36]),
+});
+
+// Kam sonli, bir-biriga yaqin ranglar: tokcha rang-barang bo'lsa
+// laboratoriya emas, do'kon vitrinasi bo'lib ko'rinadi.
+const TOLDIRGICH_RANGLARI = Object.freeze([
+  0xdbeafe, 0xe2e8f0, 0xcfe8ff, 0xf1f5f9, 0xd9c3a0, 0xc4b5a0,
+]);
+
+function toldirgichTasodifi(urug) {
+  let holat = urug >>> 0;
+  return () => {
+    holat = (Math.imul(1664525, holat) + 1013904223) >>> 0;
+    return holat / 0x100000000;
+  };
+}
+
+/**
+ * Tokchalarni to'ldiruvchi idishlar — ikkita `InstancedMesh`.
+ *
+ * @param {number} eni qator kengligi (lokal X bo'ylab)
+ * @param {number} urug qat'iy urug' — har yuklashda AYNI joylashuv
+ */
+function tokchaToldirgichi(eni, urug, materiallar) {
+  const guruh = new THREE.Group();
+  guruh.name = "Tokcha_Toldirgichi";
+
+  const tasodif = toldirgichTasodifi(urug);
+  const joylar = [];
+  const boshX = -eni / 2 + TOLDIRGICH.chet;
+  const oxirX = eni / 2 - TOLDIRGICH.chet;
+
+  for (const sath of TOLDIRGICH.sathlar) {
+    for (let x = boshX; x <= oxirX; x += TOLDIRGICH.qadam) {
+      // Ba'zi joy ataylab bo'sh: to'la tekis qator sun'iy ko'rinadi.
+      if (tasodif() < 0.18) continue;
+      const baland = TOLDIRGICH.minBaland
+        + tasodif() * (TOLDIRGICH.maksBaland - TOLDIRGICH.minBaland);
+      joylar.push({
+        x: x + (tasodif() - 0.5) * 0.03,
+        y: sath,
+        z: (tasodif() - 0.5) * 0.06,
+        baland,
+        burchak: tasodif() * Math.PI * 2,
+        rang: TOLDIRGICH_RANGLARI[Math.floor(tasodif() * TOLDIRGICH_RANGLARI.length)],
+      });
+    }
+  }
+  if (!joylar.length) return guruh;
+
+  // 6 segment: idish 3.6 sm radiusda va xona bo'ylab ko'riladi.
+  // Ko'proq segment faqat uchburchak, ko'rinishda farq yo'q.
+  const tanaGeo = new THREE.CylinderGeometry(
+    TOLDIRGICH.radius, TOLDIRGICH.radius, 1, 6, 1, false,
+  );
+  const qopqoqGeo = new THREE.CylinderGeometry(
+    TOLDIRGICH.radius * 0.45, TOLDIRGICH.radius * 0.5, 0.035, 6,
+  );
+
+  const tanaMat = new THREE.MeshStandardMaterial({
+    roughness: 0.28, metalness: 0.05, transparent: true, opacity: 0.82,
+  });
+  const qopqoqMat = materiallar?.rezina
+    || new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.75 });
+
+  const tana = new THREE.InstancedMesh(tanaGeo, tanaMat, joylar.length);
+  const qopqoq = new THREE.InstancedMesh(qopqoqGeo, qopqoqMat, joylar.length);
+  const matritsa = new THREE.Matrix4();
+  const oq = new THREE.Vector3(0, 1, 0);
+  const kvat = new THREE.Quaternion();
+  const rang = new THREE.Color();
+
+  joylar.forEach((j, i) => {
+    kvat.setFromAxisAngle(oq, j.burchak);
+    // Silindr balandligi 1 — masshtab bilan beriladi, ya'ni bitta
+    // geometriya barcha o'lchamga xizmat qiladi.
+    matritsa.compose(
+      new THREE.Vector3(j.x, j.y + j.baland / 2, j.z),
+      kvat,
+      new THREE.Vector3(1, j.baland, 1),
+    );
+    tana.setMatrixAt(i, matritsa);
+    tana.setColorAt(i, rang.setHex(j.rang));
+
+    matritsa.compose(
+      new THREE.Vector3(j.x, j.y + j.baland + 0.017, j.z),
+      kvat,
+      new THREE.Vector3(1, 1, 1),
+    );
+    qopqoq.setMatrixAt(i, matritsa);
+  });
+  tana.instanceMatrix.needsUpdate = true;
+  if (tana.instanceColor) tana.instanceColor.needsUpdate = true;
+  qopqoq.instanceMatrix.needsUpdate = true;
+
+  guruh.add(tana);
+  guruh.add(qopqoq);
+  return guruh;
+}
+
 /** Devor Shkaf Karkasini Yaratish (Wall Cabinet Box) */
 function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMat, kenglik) {
   const group = new THREE.Group();
@@ -454,6 +579,10 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMa
     polka.position.set(0, py, 0);
     group.add(polka);
   });
+
+  // Tokchalarni to'ldiramiz. Urug' qator kengligidan hosila —
+  // har qator o'z joylashuvini oladi, lekin har yuklashda AYNI.
+  group.add(tokchaToldirgichi(eni, Math.round(Math.abs(x) * 1000) + Math.round(eni * 100) + 7, materiallar));
 
   // BRIF-04 — poldan tokcha tubigacha yopiq tumba.
   // Balandlik HISOBLANADI: guruh dunyoda `y` da turadi, tokchaning tubi

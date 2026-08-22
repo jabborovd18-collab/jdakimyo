@@ -538,6 +538,41 @@ hozirgi model ikkalasini ham talab qilmaydi, ya'ni tarmoqdan hech
 narsa tushmaydi. 16 KB modelni Draco bilan siqish foydasiz — dekoder
 o'zi 250 KB.
 
+### 2026-08-22 — bo'shlik xonadan JAVONGA ko'chdi
+
+Egasi jonli sahifada ko'rsatdi: javon qatorlari devorni uzluksiz
+qopladi, lekin ularning ICHI o'sha 20 ta reagent shishasi bo'lib
+qoldi. 24 metrlik tokchada bir hovuch shisha.
+
+**Bu men keltirib chiqargan nuqson.** Qatorni uzaytirganda uning
+mazmuni o'smasligini hisobga olmaganman. "Bo'sh ombor" tuyg'usi
+yo'qolmadi — u faqat xonadan javonga ko'chdi.
+
+Yechim — `InstancedMesh`. To'ldirish uchun yuzlab idish kerak; oddiy
+mesh bo'lsa har biri o'z draw call'ini talab qilardi va BRIF-07 da
+erishilgan hamma narsa yo'qolardi. Instancing esa nechta nusxa
+bo'lishidan qat'i nazar bitta chaqiruv beradi. BRIF-07 ning o'zi
+"javon tokchalari va shishalari" ni aynan shu usulning nomzodi deb
+sanagan — endi u ishlatildi.
+
+To'ldirgich TANLANMAYDI va o'zgarmaydi: tanlanadigan reagent 20 ta va
+ular `DEVOR_JAVON_REAGENTLARI` da; qolgani muhit. Joylashuv qat'iy
+urug' bilan — har yuklashda ayni.
+
+Narxi (telefon):
+
+| nuqta | chaqiruv | uchburchak |
+|---|---|---|
+| stol | 190 → **196** | 22 316 → 36 524 |
+| xona | 69 → 74 | 7 602 → 19 122 |
+| sweep | 95 → 97 | 7 706 → 12 122 |
+| ship / pol | o'zgarmadi | o'zgarmadi |
+
+Draw call amalda o'zgarmadi. Uchburchak esa sezilarli o'sdi va buni
+yozib qo'yish kerak: 36 500 uchburchak zamonaviy telefon uchun muammo
+emas, lekin `chaqiruv` bilan bir xil e'tibor talab qiladi — 0.3 sifat
+darajalarida to'ldirgich zichligi profilga bog'lanishi mumkin.
+
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
 1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,
