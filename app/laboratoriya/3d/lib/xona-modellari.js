@@ -4,6 +4,7 @@
 // O'rtadagi to'siq javon butunlay olib tashlangan: zal keng, yorug' va erkin.
 //
 import * as THREE from "three";
+import { XONA } from "./sozlama.js";
 import {
   SHIP_PANEL_JOYLARI,
   tortmaShkafNuriniYarat,
@@ -184,7 +185,9 @@ function davriyJadvalPlakati() {
 
     const group = new THREE.Group();
     group.name = "Davriy_Jadval_LED_Plakat";
-    group.position.set(0, 2.65, -5.55);
+    // Orqa devorga yopishadi: qattiq son yozilsa xona kattalashganda
+    // plakat havoda qolardi (BRIF-04 "DIQQAT" ro'yxati).
+    group.position.set(0, 2.65, -XONA.boyi / 2 + XONA.markazZ + 0.05);
 
     const karkasGeo = new THREE.BoxGeometry(4.2, 2.1, 0.04);
     const karkasMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.2 });
@@ -207,7 +210,93 @@ function davriyJadvalPlakati() {
 }
 
 /** 16x12m KATTA UNIVERSITET LABORATORIYA ZALI ME'MORCHILIGI */
-function xonaQobiginiYasa(materiallar) {
+// Devor qalinligi. Ilgari devor qalinliksiz `PlaneGeometry` edi va
+// deraza uning oldiga 2 sm da yopishtirilgan shisha to'rtburchak edi —
+// ya'ni teshik yo'q, ortida ko'radigan narsa yo'q, ram va tokcha yo'q
+// (BRIF-04, 3-muammo).
+const DEVOR_QALINLIGI = 0.25;
+
+/**
+ * Deraza o'lchamlari xona o'lchamidan hisoblanadi.
+ *
+ * Soni ham hisoblanadi: uzunroq devorga ko'proq deraza tushadi.
+ * Tubi 1.1 m — ish stoli balandligidan yuqori, ya'ni tokcha ostiga
+ * jihoz sig'adi. Tepasi shipdan 0.7 m pastda.
+ */
+function derazaOlchami(boyi, balandligi) {
+  const soni = Math.max(3, Math.round(boyi / 3));
+  const oraliq = boyi / soni;
+  return {
+    soni,
+    oraliq,
+    eni: Math.min(2.4, oraliq - 1.0),
+    tubi: 1.1,
+    tepasi: balandligi - 0.7,
+  };
+}
+
+/**
+ * Chap devor — deraza TESHIKLARI bilan.
+ *
+ * `ExtrudeGeometry` + `Shape.holes` bitta ish bilan uchta narsani
+ * beradi: haqiqiy teshik, devor qalinligi va teshik yon yuzalari
+ * (chuqurlik/reveal). Ular bo'lmasa deraza tekis oq to'rtburchak
+ * bo'lib ko'rinardi.
+ *
+ * UV lar QO'LDA qayta hisoblanadi: `ExtrudeGeometry` UV ni vertex
+ * koordinatasidan oladi, devor teksturasi esa `repeat(6, 4)` bilan
+ * 0..1 UV kutadi. Qayta hisoblamasa tekstura metrga 6 marta
+ * takrorlanib, devor shovqinga aylanardi.
+ */
+function chapDevorniYasa(eni, balandligi, ichkiX, markazZ, devorMat) {
+  const yarim = eni / 2;
+  const shakl = new THREE.Shape();
+  shakl.moveTo(-yarim, 0);
+  shakl.lineTo(yarim, 0);
+  shakl.lineTo(yarim, balandligi);
+  shakl.lineTo(-yarim, balandligi);
+  shakl.lineTo(-yarim, 0);
+
+  const d = derazaOlchami(eni, balandligi);
+  const teshikMarkazlari = [];
+  for (let i = 0; i < d.soni; i += 1) {
+    const siljish = (i + 0.5 - d.soni / 2) * d.oraliq;
+    teshikMarkazlari.push(siljish);
+    const teshik = new THREE.Path();
+    const x1 = siljish - d.eni / 2;
+    const x2 = siljish + d.eni / 2;
+    teshik.moveTo(x1, d.tubi);
+    teshik.lineTo(x2, d.tubi);
+    teshik.lineTo(x2, d.tepasi);
+    teshik.lineTo(x1, d.tepasi);
+    teshik.lineTo(x1, d.tubi);
+    shakl.holes.push(teshik);
+  }
+
+  const geo = new THREE.ExtrudeGeometry(shakl, {
+    depth: DEVOR_QALINLIGI,
+    bevelEnabled: false,
+  });
+
+  const joy = geo.attributes.position;
+  const uv = geo.attributes.uv;
+  for (let i = 0; i < joy.count; i += 1) {
+    uv.setXY(i, (joy.getX(i) + yarim) / eni, joy.getY(i) / balandligi);
+  }
+  uv.needsUpdate = true;
+
+  const devor = new THREE.Mesh(geo, devorMat);
+  // Y bo'yicha +90 gradus: lokal (x, y, z) -> dunyo (z, y, -x).
+  // Ya'ni ekstruziya yo'nalishi dunyo +X ga, shakl kengligi esa -Z ga
+  // o'tadi. Devor xonadan TASHQARIGA qalinlashsin uchun boshlanishi
+  // ichki yuzadan bir qalinlik chapda turadi.
+  devor.rotation.y = Math.PI / 2;
+  devor.position.set(ichkiX - DEVOR_QALINLIGI, 0, markazZ);
+  devor.receiveShadow = true;
+  return { devor, olcham: d, markazlar: teshikMarkazlari };
+}
+
+function xonaQobiginiYasa(materiallar, profil) {
   const roomGroup = new THREE.Group();
   roomGroup.name = "16x12m_Grand_Laboratoriya_Zali";
 
@@ -217,15 +306,19 @@ function xonaQobiginiYasa(materiallar) {
   const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.45 });
   const ramkaMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.2 });
 
-  const XONA_W = 16.0;
-  const XONA_H = 4.2;
-  const XONA_D = 12.0;
+  // O'lcham `sozlama.js` da — bu yerda son yozilmaydi (AGENTS.md 1-band).
+  const XONA_W = XONA.eni;
+  const XONA_H = XONA.balandligi;
+  const XONA_D = XONA.boyi;
+  // Xona z bo'yicha markazdan siljigan; devor va shipning hammasi shunga
+  // bog'lanadi, aks holda kichraytirishda ular bir-biridan ajralib ketadi.
+  const MZ = XONA.markazZ;
 
   // 1. EPOKSI KIMYOVIY POL (Y = 0, 16x12m)
   const polGeo = new THREE.PlaneGeometry(XONA_W, XONA_D);
   const pol = new THREE.Mesh(polGeo, polMat);
   pol.rotation.x = -Math.PI / 2;
-  pol.position.set(0, 0, 0.4);
+  pol.position.set(0, 0, MZ);
   pol.receiveShadow = true;
   roomGroup.add(pol);
 
@@ -233,7 +326,7 @@ function xonaQobiginiYasa(materiallar) {
   const shiftGeo = new THREE.PlaneGeometry(XONA_W, XONA_D);
   const shift = new THREE.Mesh(shiftGeo, shiftMat);
   shift.rotation.x = Math.PI / 2;
-  shift.position.set(0, XONA_H, 0.4);
+  shift.position.set(0, XONA_H, MZ);
   roomGroup.add(shift);
 
   const trofferGeo = new THREE.PlaneGeometry(2.0, 0.8);
@@ -253,34 +346,76 @@ function xonaQobiginiYasa(materiallar) {
     roomGroup.add(lamp);
   });
 
-  // 3. CHAP DEVOR VA 4 TA KATTA DERAZALAR (X = -8.0)
-  const devorChapGeo = new THREE.PlaneGeometry(XONA_D, XONA_H);
-  const devorChap = new THREE.Mesh(devorChapGeo, devorMat);
-  devorChap.rotation.y = Math.PI / 2;
-  devorChap.position.set(-XONA_W / 2, XONA_H / 2, 0.4);
-  devorChap.receiveShadow = true;
-  roomGroup.add(devorChap);
+  // 3. CHAP DEVOR — HAQIQIY DERAZA TESHIKLARI BILAN
+  //
+  // Teshik shart: `scene.background` dagi tungi shahar manzarasi faqat
+  // shu teshiklardan ko'rinadi (lib/manzara.js). Ilgari devor qattiq
+  // edi va deraza uning oldiga yopishtirilgan shisha to'rtburchak edi —
+  // tashqarida hech narsa yo'q edi, chunki qaraydigan joy yo'q edi.
+  const chap = chapDevorniYasa(XONA_D, XONA_H, -XONA_W / 2, MZ, devorMat);
+  roomGroup.add(chap.devor);
 
-  [-3.5, -1.0, 1.5, 4.0].forEach((z) => {
-    const derazaGeo = new THREE.PlaneGeometry(2.0, 2.4);
-    const deraza = new THREE.Mesh(derazaGeo, shishaMat);
-    deraza.rotation.y = Math.PI / 2;
-    deraza.position.set(-XONA_W / 2 + 0.02, 2.3, z);
-    roomGroup.add(deraza);
-  });
+  const dz = chap.olcham;
+  const derazaBalandlik = dz.tepasi - dz.tubi;
+  const derazaMarkazY = (dz.tepasi + dz.tubi) / 2;
+  const devorX = -XONA_W / 2 - DEVOR_QALINLIGI / 2;
+
+  // Ram, tokcha va shisha har teshik uchun. Geometriyalar bir marta
+  // yasaladi va hamma derazaga ulashiladi — BRIF-07 birlashtiruvchisi
+  // ularni material bo'yicha yig'adi.
+  const shishaGeo = new THREE.BoxGeometry(0.018, derazaBalandlik, dz.eni);
+  const ramGorizontalGeo = new THREE.BoxGeometry(DEVOR_QALINLIGI, 0.06, dz.eni + 0.12);
+  const ramVertikalGeo = new THREE.BoxGeometry(DEVOR_QALINLIGI, derazaBalandlik + 0.12, 0.06);
+  const orqaUstunGeo = new THREE.BoxGeometry(0.05, derazaBalandlik, 0.05);
+  const tokchaGeo = new THREE.BoxGeometry(DEVOR_QALINLIGI + 0.12, 0.04, dz.eni + 0.22);
+
+  for (const siljish of chap.markazlar) {
+    // Devor lokal X dunyo -Z ga o'tadi (yuqoridagi burilish).
+    const z = MZ - siljish;
+
+    const shisha = new THREE.Mesh(shishaGeo, shishaMat);
+    shisha.position.set(devorX, derazaMarkazY, z);
+    roomGroup.add(shisha);
+
+    const ramTepa = new THREE.Mesh(ramGorizontalGeo, ramkaMat);
+    ramTepa.position.set(devorX, dz.tepasi + 0.03, z);
+    roomGroup.add(ramTepa);
+
+    const ramTub = new THREE.Mesh(ramGorizontalGeo, ramkaMat);
+    ramTub.position.set(devorX, dz.tubi - 0.03, z);
+    roomGroup.add(ramTub);
+
+    for (const yon of [-1, 1]) {
+      const ramYon = new THREE.Mesh(ramVertikalGeo, ramkaMat);
+      ramYon.position.set(devorX, derazaMarkazY, z + yon * (dz.eni / 2 + 0.03));
+      roomGroup.add(ramYon);
+    }
+
+    // O'rta ustun — derazani ikkiga bo'ladi. Usiz 2.4 m keng oyna
+    // vitrinaga o'xshaydi, laboratoriya derazasiga emas.
+    const ustun = new THREE.Mesh(orqaUstunGeo, ramkaMat);
+    ustun.position.set(devorX, derazaMarkazY, z);
+    roomGroup.add(ustun);
+
+    // Tokcha — xona ichiga chiqadi va soya beradi, ya'ni deraza
+    // devorga chizilgan emas, devorga O'RNATILGAN bo'lib ko'rinadi.
+    const tokcha = new THREE.Mesh(tokchaGeo, devorMat);
+    tokcha.position.set(devorX + 0.06, dz.tubi - 0.02, z);
+    roomGroup.add(tokcha);
+  }
 
   // 4. O'NG DEVOR (X = +8.0)
   const devorOngGeo = new THREE.PlaneGeometry(XONA_D, XONA_H);
   const devorOng = new THREE.Mesh(devorOngGeo, devorMat);
   devorOng.rotation.y = -Math.PI / 2;
-  devorOng.position.set(XONA_W / 2, XONA_H / 2, 0.4);
+  devorOng.position.set(XONA_W / 2, XONA_H / 2, MZ);
   devorOng.receiveShadow = true;
   roomGroup.add(devorOng);
 
   // 5. ORQA DEVOR (Z = -5.6)
   const devorOrqaGeo = new THREE.PlaneGeometry(XONA_W, XONA_H);
   const devorOrqa = new THREE.Mesh(devorOrqaGeo, devorMat);
-  devorOrqa.position.set(0, XONA_H / 2, -XONA_D / 2 + 0.4);
+  devorOrqa.position.set(0, XONA_H / 2, -XONA_D / 2 + MZ);
   devorOrqa.receiveShadow = true;
   roomGroup.add(devorOrqa);
 
@@ -288,13 +423,13 @@ function xonaQobiginiYasa(materiallar) {
   const devorOldGeo = new THREE.PlaneGeometry(XONA_W, XONA_H);
   const devorOld = new THREE.Mesh(devorOldGeo, devorMat);
   devorOld.rotation.y = Math.PI;
-  devorOld.position.set(0, XONA_H / 2, XONA_D / 2 + 0.4);
+  devorOld.position.set(0, XONA_H / 2, XONA_D / 2 + MZ);
   devorOld.receiveShadow = true;
   roomGroup.add(devorOld);
 
   const eshikGeo = new THREE.BoxGeometry(2.0, 2.6, 0.05);
   const eshik = new THREE.Mesh(eshikGeo, ramkaMat);
-  eshik.position.set(0, 1.3, XONA_D / 2 + 0.38);
+  eshik.position.set(0, 1.3, XONA_D / 2 + MZ - 0.02);
   roomGroup.add(eshik);
 
   // Haqiqiy neon nurli EXIT / CHIQISH belgisi (Illuminated Emergency Exit Sign)
@@ -324,7 +459,7 @@ function xonaQobiginiYasa(materiallar) {
       const exitSignMat = new THREE.MeshBasicMaterial({ map: exitTexture });
       const exitSignMesh = new THREE.Mesh(exitSignGeo, exitSignMat);
       exitSignMesh.rotation.y = Math.PI;
-      exitSignMesh.position.set(0, 2.85, XONA_D / 2 + 0.36);
+      exitSignMesh.position.set(0, 2.85, XONA_D / 2 + MZ - 0.04);
       roomGroup.add(exitSignMesh);
     }
   }
@@ -405,7 +540,7 @@ function xonaQobiginiYasa(materiallar) {
   const climateMesh = new THREE.Mesh(climateMeshGeo, climateMeshMat);
   climateMesh.name = "Xona_Iqlim_Stansiyasi";
   climateMesh.rotation.y = Math.PI;
-  climateMesh.position.set(1.8, 1.65, XONA_D / 2 + 0.36);
+  climateMesh.position.set(1.8, 1.65, XONA_D / 2 + MZ - 0.04);
 
   climateMesh.userData = {
     kalit: "xona_iqlimi",
@@ -423,7 +558,7 @@ function xonaQobiginiYasa(materiallar) {
   // 7. Xavfsizlik Dushi va Ko'z Yuvish Stansiyasi (O'ng devorda)
   const dushGroup = new THREE.Group();
   dushGroup.name = "Xavfsizlik_Dushi_Stansiyasi";
-  dushGroup.position.set(XONA_W / 2 - 0.15, 0, 3.5);
+  dushGroup.position.set(XONA_W / 2 - 0.15, 0, MZ + 3.1);
 
   const suvMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 });
   const sariqMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2 });
@@ -489,12 +624,12 @@ function xonaQobiginiYasa(materiallar) {
     dushFaol: false,
     kozFaol: false,
   };
-  roomGroup.add(dushGroup);
+  roomGroup.add(soyaTashlasin(dushGroup, profil));
 
   // 8. Eshik Yonidagi Devor Xavfsizlik Shkafi (Ko'zoynak va Gaz Niqobi)
   const xavfShkafGroup = new THREE.Group();
   xavfShkafGroup.name = "Xavfsizlik_Shkafi";
-  xavfShkafGroup.position.set(-1.8, 1.65, XONA_D / 2 + 0.35);
+  xavfShkafGroup.position.set(-1.8, 1.65, XONA_D / 2 + MZ - 0.05);
   xavfShkafGroup.rotation.y = Math.PI;
 
   const shkafKarkasGeo = new THREE.BoxGeometry(0.65, 0.75, 0.18);
@@ -546,7 +681,7 @@ function xonaQobiginiYasa(materiallar) {
   niqobGroup.userData = { kalit: "gaz_niqobi", nom: "Kimyoviy Gaz Niqobi / Respirator", tanlanadi: true };
   xavfShkafGroup.add(niqobGroup);
 
-  roomGroup.add(xavfShkafGroup);
+  roomGroup.add(soyaTashlasin(xavfShkafGroup, profil));
 
   return roomGroup;
 }
@@ -827,7 +962,8 @@ function rakovinaYasa(materiallar) {
 
   const group = new THREE.Group();
   group.name = "Yuvinish_Rakovinasi";
-  group.position.set(-5.5, 0.9, -4.8); // Chap orqa burchakda
+  // Chap orqa burchakda — burchakdan sanaladi, markazdan emas.
+  group.position.set(-(XONA.eni / 2 - 2.5), 0.9, -XONA.boyi / 2 + XONA.markazZ + 0.8);
 
   const chinniMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.1 });
   const kranMat = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.9, roughness: 0.1 });
@@ -1475,6 +1611,36 @@ function stolDaftarlariYasa() {
 }
 
 /** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
+/**
+ * Guruhdagi QATTIQ sirtlarga soya tashlashni yoqadi.
+ *
+ * Nega kerak: BRIF-04 gacha butun 1523 qatorli faylda `castShadow`
+ * ATIGI BIR MARTA uchrardi — ya'ni soya kamerasi qamrovi to'g'rilangan
+ * bilan ham xonada soya tashlaydigan narsa yo'q edi.
+ *
+ * Nega hammasiga emas:
+ *  - shaffof sirt (shisha, deraza, suyuqlik) CHETLAB O'TILADI. Soya
+ *    xaritasi faqat chuqurlikni yozadi, shaffoflikni bilmaydi — shisha
+ *    o'zidan qora dog' tashlardi.
+ *  - `MeshBasicMaterial` ham chetlab o'tiladi: u nur chiqaradigan sirt
+ *    (ekran, LED, EXIT) uchun qolgan (AGENTS.md 11.3), soya tashlashi
+ *    mantiqsiz.
+ *  - devor, pol va ship bu funksiyaga BERILMAYDI: ular xonaning
+ *    chegarasi, o'zidan soya tashlashi faqat artefakt va narx.
+ */
+function soyaTashlasin(tugun, profil) {
+  if (!profil?.soya) return tugun;
+  tugun.traverse((o) => {
+    if (!o.isMesh) return;
+    const m = o.material;
+    if (!m || Array.isArray(m)) return;
+    if (m.isMeshBasicMaterial) return;
+    if (m.transparent || m.opacity < 1 || m.transmission > 0) return;
+    o.castShadow = true;
+  });
+  return tugun;
+}
+
 export function xonaInteryeriniYasa(materiallar, profil) {
   if (!profil) throw new Error("Xona uchun sifat profili berilmadi");
   const roomGroup = new THREE.Group();
@@ -1484,34 +1650,34 @@ export function xonaInteryeriniYasa(materiallar, profil) {
   roomGroup.userData.profil = profil;
 
   // 1. To'liq 16x12m Katta Zal Devorlari va Shift LED panellari
-  roomGroup.add(xonaQobiginiYasa(materiallar));
+  roomGroup.add(xonaQobiginiYasa(materiallar, profil));
 
   // 2. Orqa Devordagi Keng Formatli Davriy Jadval Plakati
   roomGroup.add(davriyJadvalPlakati());
 
   // 3. Yon Ishchi Tajriba Stollari (Chap & O'ng)
-  roomGroup.add(yonStollarniYasa(materiallar));
+  roomGroup.add(soyaTashlasin(yonStollarniYasa(materiallar), profil));
 
   // 4. Analitik Tarozi Stantsiyasi (Chap stolda)
-  roomGroup.add(taroziStoliYasa(materiallar));
+  roomGroup.add(soyaTashlasin(taroziStoliYasa(materiallar), profil));
 
   // 5. Byuretka va Titrlash Stendi (O'ng stolda)
-  roomGroup.add(titrlashStendiYasa(materiallar));
+  roomGroup.add(soyaTashlasin(titrlashStendiYasa(materiallar), profil));
 
   // 6. Elektroliz va Tok Manbai Stendi (O'ng stolda)
-  roomGroup.add(elektrolizVannasiYasa(materiallar));
+  roomGroup.add(soyaTashlasin(elektrolizVannasiYasa(materiallar), profil));
 
   // 7. Yuvinish Rakovinasi (Chap orqa burchakda)
-  roomGroup.add(rakovinaYasa(materiallar));
+  roomGroup.add(soyaTashlasin(rakovinaYasa(materiallar), profil));
 
   // 8. Stoldagi 3D Jihozlar Stendi (Glassware Rack — Probirkalar, Kolba, Stakan, Silindr, Spatula)
-  roomGroup.add(jihozlarStendiYasa(materiallar));
+  roomGroup.add(soyaTashlasin(jihozlarStendiYasa(materiallar), profil));
 
   // 9. Stoldagi 3D Smart Laboratoriya Plansheti (Smart Monitor & Notebook)
-  roomGroup.add(smartPlanshetYasa(materiallar));
+  roomGroup.add(soyaTashlasin(smartPlanshetYasa(materiallar), profil));
 
   // 10. Stol ustidagi mayda realist detallar (qog'oz bloknot, ruchka)
-  roomGroup.add(stolDaftarlariYasa());
+  roomGroup.add(soyaTashlasin(stolDaftarlariYasa(), profil));
 
   return roomGroup;
 }

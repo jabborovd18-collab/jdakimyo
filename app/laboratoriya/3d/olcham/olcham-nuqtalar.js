@@ -4,13 +4,27 @@
 // sahifa shu yerdagi nomlar va qat'iy urug'li generatorni o'zi beradi.
 // Aks holda "oldin/keyin" taqqoslashda kamera sezdirmay siljishi mumkin.
 //
-// Koordinatalar xona o'lchamidan (16×12×4.2 m, markaz siljishi +0.4 z)
-// va sozlama.js dagi stol kamerasidan keladi. Sahna o'zgarmaydi —
-// faqat mavjud kamerani qo'yamiz.
+// Koordinatalar xona o'lchamidan HISOBLANADI (sozlama.js dagi XONA) va
+// sozlama.js dagi stol kamerasidan keladi. Sahna o'zgarmaydi — faqat
+// mavjud kamerani qo'yamiz.
+//
+// NEGA HISOBLANADI: xona o'lchami o'zgarganda (BRIF-04) qattiq yozilgan
+// koordinata devor ichida qolib ketardi va o'lchagich qamrov o'rniga
+// devor teksturasini o'lchardi. Nisbiy nuqta esa xona o'zgarganda ham
+// AYNI JOYNI (markaz, orqa devor, ochiq yo'lak) o'lchaydi — ya'ni
+// oldin/keyin taqqoslash ma'nosini saqlaydi.
 
-import { KAMERA } from "../lib/sozlama.js";
+import { KAMERA, XONA, xonaChegarasi } from "../lib/sozlama.js";
 
 export const NUQTA_NOMLARI = ["stol", "xona", "ship", "pol"];
+
+const CHEGARA = xonaChegarasi();
+
+// Supurish va nomli nuqtalar devordan shu masofada to'xtaydi. Yurish
+// chetlanishidan farq qiladi va bu ATAYLAB: supurish o'yinchi emas,
+// unga eshik oldida joy kerak emas — u xonaning hamma yog'ini bir xil
+// zichlikda tekshiradi.
+const OLCHOV_CHETLANISHI = 0.8;
 
 export const NUQTALAR = {
   // Stol oldida, jihozlarga qaragan — sahnaning o'z boshlang'ich nigohi.
@@ -21,8 +35,8 @@ export const NUQTALAR = {
   },
   // Xona markazida, gorizontal — orqa devordagi javonlarga qaragan.
   xona: {
-    kamera: [0, 1.7, 0.4],
-    nishon: [0, 1.7, -5.4],
+    kamera: [0, 1.7, XONA.markazZ],
+    nishon: [0, 1.7, CHEGARA.zMin + 0.2],
     up: [0, 1, 0],
   },
   // Xona markazida, yuqoriga qaragan.
@@ -30,16 +44,16 @@ export const NUQTALAR = {
   // parallel), shuning uchun up ni -Z ga buramiz: kadrning "tepa"si
   // xonaning orqa devori tomoni.
   ship: {
-    kamera: [0, 1.7, 0.4],
-    nishon: [0, 4.2, 0.4],
+    kamera: [0, 1.7, XONA.markazZ],
+    nishon: [0, XONA.balandligi, XONA.markazZ],
     up: [0, 0, -1],
   },
   // Markaziy stol polni to'sib qo'yadi. Shu sabab kamera oldingi ochiq
   // yo'lakka surilgan va pastga qaratilgan: kadr geometriya nomini emas,
   // haqiqatan pol materialini o'lchaydi.
   pol: {
-    kamera: [0, 1.6, 3.4],
-    nishon: [0, 0, 3.4],
+    kamera: [0, 1.6, XONA.markazZ + 3.0],
+    nishon: [0, 0, XONA.markazZ + 3.0],
     up: [0, 0, 1],
   },
 };
@@ -50,10 +64,10 @@ const SUPURISH = {
   soni: 24,
   sukutUrugi: 20260820,
   y: 1.6,
-  xMin: -7.2,
-  xMax: 7.2,
-  zMin: -4.8,
-  zMax: 5.6,
+  xMin: CHEGARA.xMin + OLCHOV_CHETLANISHI,
+  xMax: CHEGARA.xMax - OLCHOV_CHETLANISHI,
+  zMin: CHEGARA.zMin + OLCHOV_CHETLANISHI,
+  zMax: CHEGARA.zMax - OLCHOV_CHETLANISHI,
   vertikalMin: -30,
   vertikalMax: 10,
 };

@@ -2,11 +2,71 @@
 // 'sehrli raqamlar' (magic numbers) yozilsa, balansni va dizaynni boshqarish qiyinlashadi.
 
 export const KAMERA = {
-  fov: 45,
+  // Three.js'da fov VERTIKAL. 16:9 ekranda 45° vertikal ≈ 73° gorizontal —
+  // bu mahsulotni suratga olish burchagi, ichida YURISH burchagi emas:
+  // u fazoni siqadi va devorlarni yaqin ko'rsatadi. FPS o'yinlari
+  // 90-103° gorizontal ishlatadi; 60° vertikal ≈ 91° gorizontal.
+  //
+  // NEGA XONA EMAS, KAMERA: xona allaqachon 16x12 m = 192 m², ya'ni
+  // haqiqiy o'quv laboratoriyasidan (60-100 m²) KATTA. "Tor" tuyg'usi
+  // o'lchamdan emas, burchakdan kelgan (BRIF-04, 2026-08-20 topilmasi).
+  fov: 60,
   yaqin: 0.1,
   uzoq: 100,
   boshlangich: [0, 1.6, 3.2],
   nishon: [0, 0.95, 0],
+};
+
+// XONA — o'lchamning YAGONA manbai (AGENTS.md 1-band).
+//
+// Ilgari bu uch son `xona-modellari.js` ichida qattiq yozilgan edi va
+// undan hosila chegaralar yana uch faylda mustaqil takrorlangan:
+// yurish kolliziyasi (`useYurish.js`), o'lchagich supurishi
+// (`olcham/olcham-nuqtalar.js`) va soya kamerasi (`yoruglik.js`).
+// Ular allaqachon bir-biridan uzila boshlagan — masalan yurish z ni
+// 5.2 gacha, supurish esa 5.6 gacha ruxsat berardi.
+//
+// markazZ: xona z bo'yicha markazdan 0.4 m oldinga surilgan — stol
+// markazda tursin, lekin orqa devordagi javonlar oldida yo'lak qolsin.
+export const XONA = {
+  // 2026-08-22, egasi qarori: xona KATTALASHDI.
+  //
+  // BRIF-04 avval "kattalashtirilmaydi, kichraytiriladi" degan edi va
+  // uch sabab keltirgan edi. Ikkitasi shu kunda yopildi:
+  //   - soya qamrovi endi xona o'lchamidan hisoblanadi, ya'ni xona
+  //     bilan birga kattalashadi (avval qattiq +-2.6 edi);
+  //   - "bo'sh ombor" tuyg'usi — devorlar uzluksiz javon qatori bilan
+  //     to'ldirildi, ya'ni kattalashuv bo'shliq qo'shmaydi.
+  // Uchinchisi (telefon unumdorligi) o'lchanadi va yozib boriladi.
+  eni: 20.0,        // X   (16.0 edi)
+  balandligi: 4.6,  // Y   (4.2 edi)
+  boyi: 15.0,       // Z   (12.0 edi)
+  markazZ: 0.4,
+};
+
+/**
+ * Xonaning ichki devor chegaralari (dunyo koordinatasida).
+ * Devorlar shu qiymatlarda turadi; yurish va supurish bundan chetlanish
+ * (margin) bilan hisoblanadi.
+ */
+export function xonaChegarasi() {
+  return {
+    xMin: -XONA.eni / 2,
+    xMax: XONA.eni / 2,
+    zMin: -XONA.boyi / 2 + XONA.markazZ,
+    zMax: XONA.boyi / 2 + XONA.markazZ,
+  };
+}
+
+// Yurish chegarasi devordan qancha ichkarida to'xtaydi.
+// Old tomon kattaroq: eshik va uning ostonasi shu yerda
+// (xona-modellari.js eshikni zMax da qo'yadi). Qiymatlar ilgari
+// `useYurish.js` da `-7.2 / 7.2 / -4.8 / 5.2` bo'lib yozilgan edi —
+// shu chetlanishlar aynan o'sha sonlarni beradi.
+export const YURISH_CHETLANISHI = {
+  yon: 0.8,   // chap va o'ng devor
+  orqa: 0.8,  // orqa devor
+  old: 1.2,   // old devor (eshik)
 };
 
 // Kamera stol ostiga kirib ketmasligi uchun engKattaBurchak Math.PI / 2.05 bilan cheklanadi.

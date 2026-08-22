@@ -16,6 +16,7 @@ import { javon3dYasa } from "../lib/javon-3d.js";
 import { xonaInteryeriniYasa } from "../lib/xona-modellari.js";
 import { harakatsizGeometriyaniBirlashtir } from "../lib/geometriya-birlashtirish.js";
 import { SAHNA_FONI } from "../lib/fonlar.js";
+import { shaharManzarasiniYarat } from "../lib/manzara.js";
 import { profilniAniqla, profilniOl } from "../lib/sifat-profili.js";
 import { yoruglikniQur } from "../lib/yoruglik.js";
 import {
@@ -185,7 +186,11 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
 
     // 1. Sahna
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(fon.fon);
+    // Deraza ortidagi tungi shahar. Xona to'rt devor bilan yopiq, ya'ni
+    // fon FAQAT deraza teshiklaridan ko'rinadi — qo'shimcha mesh ham,
+    // draw call ham sarflanmaydi.
+    const manzara = shaharManzarasiniYarat();
+    scene.background = manzara;
     // Chekka joylar fonga singib e'tibor stolga tushishi uchun FogExp2 ishlatiladi
     scene.fog = new THREE.FogExp2(fon.fon, fon.tumanZichligi);
     sahnaRef.current = scene;
@@ -459,6 +464,8 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
 
       stolGeo.dispose();
       oyoqGeo.dispose();
+      manzara.dispose();
+      scene.background = null;
       yoruglik.tozala();
       materiallarniTozala(materiallar);
 
