@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { XONA, xonaChegarasi } from "./sozlama.js";
 import { yorliqniBelgila } from "./yorliqlar.js";
 
 // DEVOR BO'YLAB O'RNATILGAN BIR NECHTA MAXSUS REAGENTLAR JAVONLARI (Wall Cabinets).
@@ -31,10 +32,10 @@ export const DEVOR_JAVON_REAGENTLARI = [
   { kalit: "KI", nom: "Kaliy yodid", sigim: 100, joriyHajm: 95, rang: 0xfef08a, ghs: "xavfsiz", shishaTuri: "orta", pos: [7.42, 1.25, -1.7], javon: "tuz" },
 
   // ─── 4-JAVON: ERITMALAR VA INDIKATORLAR (Chap devor: X = -7.5, Z = -1.5) ───
-  { kalit: "H₂O", nom: "Distillangan suv", sigim: 1000, joriyHajm: 950, rang: 0x38bdf8, ghs: "xavfsiz", shishaTuri: "bak", pos: [-7.42, 1.65, -2.1], javon: "eritma" },
-  { kalit: "Fenolftalein", nom: "Fenolftalein", sigim: 25, joriyHajm: 20, rang: 0xffffff, ghs: "yonuvchan", shishaTuri: "tomizgich", pos: [-7.42, 1.65, -1.6], javon: "eritma" },
-  { kalit: "Metiloranj", nom: "Metiloranj", sigim: 25, joriyHajm: 22, rang: 0xf97316, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [-7.42, 1.65, -1.2], javon: "eritma" },
-  { kalit: "Lakmus", nom: "Lakmus indikatori", sigim: 25, joriyHajm: 18, rang: 0x8b5cf6, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [-7.42, 1.65, -0.8], javon: "eritma" },
+  { kalit: "H₂O", nom: "Distillangan suv", sigim: 1000, joriyHajm: 950, rang: 0x38bdf8, ghs: "xavfsiz", shishaTuri: "bak", pos: [7.42, 1.65, 0.2], javon: "eritma" },
+  { kalit: "Fenolftalein", nom: "Fenolftalein", sigim: 25, joriyHajm: 20, rang: 0xffffff, ghs: "yonuvchan", shishaTuri: "tomizgich", pos: [7.42, 1.65, 0.6], javon: "eritma" },
+  { kalit: "Metiloranj", nom: "Metiloranj", sigim: 25, joriyHajm: 22, rang: 0xf97316, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [7.42, 1.65, 1.0], javon: "eritma" },
+  { kalit: "Lakmus", nom: "Lakmus indikatori", sigim: 25, joriyHajm: 18, rang: 0x8b5cf6, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [7.42, 1.65, 1.4], javon: "eritma" },
 ];
 
 const GHS_RANGLARI = {
@@ -281,23 +282,31 @@ function pastkiShkafYasa(eni, balandlik, orqaZ, materiallar) {
     0, tanaMarkazY, markazZ,
   );
 
-  // Ikki eshik — SHAFFOF EMAS. Sabab funksional: bo'sh idish va xavfli
+  // Eshiklar — SHAFFOF EMAS. Sabab funksional: bo'sh idish va xavfli
   // reagent yorug'likdan berkitiladi.
-  const eshikEni = (eni - K.eshikOraligi * 3) / 2;
+  //
+  // Eshik soni kenglikdan hisoblanadi: bitta eshik ~0.9 m dan
+  // kengaymaydi. Aks holda 5.5 m li qatorda 2.7 m li eshik chiqardi va
+  // u mebelga emas, devorga o'xshardi.
+  const juftSoni = Math.max(1, Math.round(eni / 1.8));
+  const bolimEni = eni / juftSoni;
+  const eshikEni = (bolimEni - K.eshikOraligi * 3) / 2;
   const eshikBalandlik = tanaBalandlik - K.eshikOraligi * 2;
   const eshikGeo = new THREE.BoxGeometry(eshikEni, eshikBalandlik, 0.022);
   const eshikZ = orqaZ + chukur - 0.011;
   const tutqichGeo = new THREE.CylinderGeometry(K.tutqichR, K.tutqichR, 0.26, 8);
 
-  for (const yon of [-1, 1]) {
-    const x = yon * (eshikEni / 2 + K.eshikOraligi / 2);
-    qosh(eshikGeo, korpusMat, x, tanaMarkazY, eshikZ);
-    // Tutqichlar ichkariga qaragan: ikki eshik o'rtasida juft bo'lib turadi.
-    const tutqich = qosh(
-      tutqichGeo, metallMat,
-      x - yon * (eshikEni / 2 - 0.05), tanaMarkazY, eshikZ + 0.03,
-    );
-    tutqich.rotation.x = 0;
+  for (let i = 0; i < juftSoni; i += 1) {
+    const bolimMarkaz = -eni / 2 + bolimEni * (i + 0.5);
+    for (const yon of [-1, 1]) {
+      const x = bolimMarkaz + yon * (eshikEni / 2 + K.eshikOraligi / 2);
+      qosh(eshikGeo, korpusMat, x, tanaMarkazY, eshikZ);
+      // Tutqichlar juft eshikning o'rtasida yonma-yon turadi.
+      qosh(
+        tutqichGeo, metallMat,
+        x - yon * (eshikEni / 2 - 0.05), tanaMarkazY, eshikZ + 0.03,
+      );
+    }
   }
 
   return g;
@@ -385,7 +394,7 @@ function kristallPanjaraYasa(tur, panjaraMat) {
 }
 
 /** Devor Shkaf Karkasini Yaratish (Wall Cabinet Box) */
-function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMat) {
+function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMat, kenglik) {
   const group = new THREE.Group();
   group.position.set(x, y, z);
   group.rotation.y = rotY;
@@ -393,10 +402,17 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMa
   const yogochMat = materiallar?.yogoch || new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 });
   const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.35 });
 
-  const eni = 1.8;
+  // Kenglik endi tashqaridan beriladi: javon devorni UZLUKSIZ qoplaydi.
+  // Ilgari har javon 1.8 m edi va ular orasida bo'sh devor qolardi —
+  // egasi aynan shu bo'shliqni ko'rsatdi (2026-08-22).
+  const eni = kenglik || 1.8;
   const balandlik = 1.3;
   const chukur = 0.35;
   const qalinlik = 0.04;
+  // Uzun qator bitta ulkan quti bo'lib ko'rinmasligi uchun har ~1.8 m da
+  // vertikal bo'luvchi qo'yiladi. Usiz 5.5 m javon mebel emas, devor
+  // bo'lib ko'rinadi.
+  const bolinmaSoni = Math.max(1, Math.round(eni / 1.8));
 
   // Yon devorlar
   const yonGeo = new THREE.BoxGeometry(qalinlik, balandlik, chukur);
@@ -407,6 +423,13 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMa
   const yonOng = new THREE.Mesh(yonGeo, yogochMat);
   yonOng.position.set(eni / 2, 0, 0);
   group.add(yonOng);
+
+  // Ichki vertikal bo'luvchilar
+  for (let i = 1; i < bolinmaSoni; i += 1) {
+    const bolgich = new THREE.Mesh(yonGeo, yogochMat);
+    bolgich.position.set(-eni / 2 + (eni / bolinmaSoni) * i, 0, 0);
+    group.add(bolgich);
+  }
 
   // Tepa va Tubi
   const qopqoqGeo = new THREE.BoxGeometry(eni + qalinlik, qalinlik, chukur);
@@ -443,16 +466,20 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMa
     group.add(tumba);
   }
 
-  // BRIF-04 — tokcha ustida elementar yacheyka maketi.
+  // BRIF-04 — tokcha ustida elementar yacheyka maketlari.
+  // Uzun qatorga bir nechta: har bo'linmaning o'rtasiga bittadan.
   if (panjaraTuri && panjaraMat) {
     const tagGeo = new THREE.BoxGeometry(0.24, 0.012, 0.24);
-    const tag = new THREE.Mesh(tagGeo, yogochMat);
-    tag.position.set(0, balandlik / 2 + 0.006, 0);
-    group.add(tag);
+    for (let i = 0; i < bolinmaSoni; i += 1) {
+      const px = -eni / 2 + (eni / bolinmaSoni) * (i + 0.5);
+      const tag = new THREE.Mesh(tagGeo, yogochMat);
+      tag.position.set(px, balandlik / 2 + 0.006, 0);
+      group.add(tag);
 
-    const panjara = kristallPanjaraYasa(panjaraTuri, panjaraMat);
-    panjara.position.set(0, balandlik / 2 + 0.012 + 0.107, 0);
-    group.add(panjara);
+      const panjara = kristallPanjaraYasa(panjaraTuri, panjaraMat);
+      panjara.position.set(px, balandlik / 2 + 0.012 + 0.107, 0);
+      group.add(panjara);
+    }
   }
 
   return group;
@@ -475,17 +502,57 @@ export function javon3dYasa(materiallar, profil) {
     bog: new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.35, metalness: 0.6 }),
   };
 
-  // 1. Orqa Devor - Kislotalar Javoni (Chap qanot: X = -4.5, Z = -5.4)
-  mainCabinetGroup.add(devorShkafiYasa(-4.5, 1.8, -5.35, 0, "Kislotalar", materiallar, "oddiy", panjaraMat));
+  // JAVONLAR DEVORNI UZLUKSIZ QOPLAYDI (egasi so'rovi, 2026-08-22).
+  //
+  // Ilgari to'rtta 1.8 m li javon devorlarda alohida-alohida turardi va
+  // ular orasida bo'sh devor qolardi. Endi har devor uchun QATOR
+  // hisoblanadi va bo'shliq qolmaydi.
+  //
+  // Koordinatalar xona o'lchamidan keladi — kattalashtirilganda qatorlar
+  // o'zi cho'ziladi va devorda yana bo'shliq paydo bo'lmaydi.
+  const chegara = xonaChegarasi();
+  const chetlanish = 0.2;                 // burchakdan bo'sh joy
+  const jadvalYarim = 2.3;                // davriy jadval egallagan zona
+  const orqaZ = chegara.zMin + 0.25;
 
-  // 2. Orqa Devor - Ishqorlar Javoni (O'ng qanot: X = 4.5, Z = -5.4)
-  mainCabinetGroup.add(devorShkafiYasa(4.5, 1.8, -5.35, 0, "Ishqorlar", materiallar, "hajm", panjaraMat));
+  // Orqa devor — davriy jadvalning ikki yonida ikki qator.
+  const orqaKenglik = (XONA.eni / 2 - chetlanish) - jadvalYarim;
+  const orqaMarkaz = jadvalYarim + orqaKenglik / 2;
+  mainCabinetGroup.add(devorShkafiYasa(
+    -orqaMarkaz, 1.8, orqaZ, 0, "Kislotalar", materiallar, "oddiy", panjaraMat, orqaKenglik,
+  ));
+  mainCabinetGroup.add(devorShkafiYasa(
+    orqaMarkaz, 1.8, orqaZ, 0, "Ishqorlar", materiallar, "hajm", panjaraMat, orqaKenglik,
+  ));
 
-  // 3. O'ng Devor - Tuzlar va Reaktivlar Javoni (X = 7.6, Z = -1.5)
-  mainCabinetGroup.add(devorShkafiYasa(7.6, 1.8, -1.5, -Math.PI / 2, "Tuzlar", materiallar, "tuz", panjaraMat));
+  // O'ng devor — orqa qator tugagan joydan xavfsizlik dushigacha.
+  // Dush x = eni/2 - 0.15, z = 3.5 da turadi, shuning uchun qator
+  // undan oldin to'xtaydi.
+  const ongBoshi = orqaZ + 0.25;
+  const ongOxiri = 2.6;
+  const ongKenglik = ongOxiri - ongBoshi;
+  mainCabinetGroup.add(devorShkafiYasa(
+    XONA.eni / 2 - 0.4, 1.8, (ongBoshi + ongOxiri) / 2, -Math.PI / 2,
+    "Tuzlar va Eritmalar", materiallar, "tuz", panjaraMat, ongKenglik,
+  ));
 
-  // 4. Chap Devor - Eritmalar va Indikatorlar Javoni (X = -7.6, Z = -1.5)
-  mainCabinetGroup.add(devorShkafiYasa(-7.6, 1.8, -1.5, Math.PI / 2, "Eritmalar", materiallar, "yoq", panjaraMat));
+  // Chap devor — DERAZALAR TAGIDA past javon qatori.
+  //
+  // Chap devorda endi deraza bor (xona-modellari.js), shuning uchun u
+  // yerga baland javon qo'yib bo'lmaydi — u derazani yopib qo'yardi.
+  // Lekin deraza tokchasi 1.1 m da, ya'ni tagida butun devor bo'yi
+  // bo'sh joy qoladi. Haqiqiy laboratoriyada aynan o'sha joyda ish
+  // yuzasi va tumba turadi.
+  //
+  // "Eritmalar" reagentlari shu sababli o'ng qatorga ko'chirildi.
+  const chapBalandlik = 1.05;             // deraza tokchasi 1.1 m da
+  const chapBoshi = orqaZ + 0.25;
+  const chapOxiri = 5.4;
+  const chapGuruh = new THREE.Group();
+  chapGuruh.position.set(-XONA.eni / 2, chapBalandlik / 2, (chapBoshi + chapOxiri) / 2);
+  chapGuruh.rotation.y = Math.PI / 2;
+  chapGuruh.add(pastkiShkafYasa(chapOxiri - chapBoshi, chapBalandlik, 0, materiallar));
+  mainCabinetGroup.add(chapGuruh);
 
   // BRIF-04 — javon KARKASI soya tashlaydi. Shishalar bu paytda hali
   // qo'shilmagan va bu ATAYLAB: shisha soya xaritasida qora dog' beradi

@@ -45,10 +45,10 @@ export const XONA_ZONALARI = {
   eritma_javon: {
     kalit: "eritma_javon",
     nom: "Eritmalar & Indikatorlar",
-    tavsif: "Chap devordagi standart eritmalar va indikatorlar javoni",
+    tavsif: "O'ng devordagi standart eritmalar va indikatorlar javoni",
     ikon: "kitob",
-    kamera: [-5.8, 1.85, -1.5],
-    nishon: [-7.6, 1.65, -1.5],
+    kamera: [5.8, 1.85, 0.8],
+    nishon: [7.6, 1.65, 0.8],
     fov: 46,
   },
   tarozi: {
