@@ -644,6 +644,43 @@ vaqt ishonchli ko'rinib turdi.
 **0.6 endi ochiq.** Uning mezoni: chiroq soni kamayganda
 `fragmentUlushi` tushishi shart — chiroq har piksel uchun to'lanadi.
 
+### Asbob desktopda fragmentni ajrata olmadi — va buni o'zi aytdi
+
+Yangi asbob uch profilda yugurtirildi. Telefonda ajratish ishladi,
+desktopda esa `narxIshonchli = false` chiqdi. Sabab jadvalda:
+
+| nuqta | 1x, ms | 4x, ms | 4x/1x | ajratish |
+|---|---:|---:|---:|---|
+| `stol` | 6.87 | 8.03 | 1.17 | — |
+| `xona` | 2.80 | 1.98 | 0.71 | — |
+| `ship` | 0.98 | 1.03 | 1.05 | — |
+| `pol` | 1.77 | 2.45 | 1.38 | 0.128 |
+
+Piksel nisbati uchala holatda ham aynan 4.00 — ya'ni bufer haqiqatan
+kattalashgan. Demak natija shovqin emas, MA'NO: **desktopda 4 barobar
+piksel kadr narxiga deyarli hech narsa qo'shmaydi.**
+
+Sabab desktop profilida soya yoqilgani: `stol` nuqtasida 461 chaqiruv
+va 111 142 uchburchak (telefonda 192 va 39 556). Soya xaritasi
+geometriyani ikkinchi marta chizadi va SwiftShader — CPU rasterizatori
+— aynan shunga to'laydi. Fragment ulushi shovqin ostida qoladi.
+
+**Bu 0.6 haqida muhim xabar:** pishirilgan yorug'lik fragment narxiga
+ta'sir qiladi, lekin bu muhitda uning foydasini KO'RSATIB ham
+bo'lmaydi. Chiroq soni telefonda allaqachon 3 ta, ya'ni pishirishdan
+foyda faqat desktop va ilovada — aynan o'lchab bo'lmaydigan joyda.
+
+Egasi shu asosda 0.6 dan oldin 0.3 (dinamik rezolyutsiya) ni tanladi.
+
+**Yo'l-yo'lakay topilgan kamchilik (10-band):** 4x zondi qimmat
+profillarda o'zini oqlamaydi — desktopda u baribir "—" berdi, lekin
+o'lchov vaqtining katta qismini yedi. "Kadr allaqachon qimmat bo'lsa
+zond o'tkazib yuborilsin" degan shart qo'shilishi kerak.
+
+**Ochiq qoldi:** desktop `stol` da `ortacha = 0.4588`, chegara 0.45.
+Bu 1-qavat mezoni (`OLCHOV.md` dagi DIQQAT bo'limi) va poydevorda
+tuzatilmaydi.
+
 ### O'lchagichdagi FPS ishlatib bo'lmaydi
 
 2026-08-22 da aniqlandi. Telefon profilida yuk ikki baravar oshdi
