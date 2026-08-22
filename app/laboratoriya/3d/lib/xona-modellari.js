@@ -208,7 +208,7 @@ function davriyJadvalPlakati() {
 }
 
 /** 16x12m KATTA UNIVERSITET LABORATORIYA ZALI ME'MORCHILIGI */
-function xonaQobiginiYasa(materiallar) {
+function xonaQobiginiYasa(materiallar, profil) {
   const roomGroup = new THREE.Group();
   roomGroup.name = "16x12m_Grand_Laboratoriya_Zali";
 
@@ -494,7 +494,7 @@ function xonaQobiginiYasa(materiallar) {
     dushFaol: false,
     kozFaol: false,
   };
-  roomGroup.add(dushGroup);
+  roomGroup.add(soyaTashlasin(dushGroup, profil));
 
   // 8. Eshik Yonidagi Devor Xavfsizlik Shkafi (Ko'zoynak va Gaz Niqobi)
   const xavfShkafGroup = new THREE.Group();
@@ -551,7 +551,7 @@ function xonaQobiginiYasa(materiallar) {
   niqobGroup.userData = { kalit: "gaz_niqobi", nom: "Kimyoviy Gaz Niqobi / Respirator", tanlanadi: true };
   xavfShkafGroup.add(niqobGroup);
 
-  roomGroup.add(xavfShkafGroup);
+  roomGroup.add(soyaTashlasin(xavfShkafGroup, profil));
 
   return roomGroup;
 }
@@ -1480,6 +1480,36 @@ function stolDaftarlariYasa() {
 }
 
 /** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
+/**
+ * Guruhdagi QATTIQ sirtlarga soya tashlashni yoqadi.
+ *
+ * Nega kerak: BRIF-04 gacha butun 1523 qatorli faylda `castShadow`
+ * ATIGI BIR MARTA uchrardi — ya'ni soya kamerasi qamrovi to'g'rilangan
+ * bilan ham xonada soya tashlaydigan narsa yo'q edi.
+ *
+ * Nega hammasiga emas:
+ *  - shaffof sirt (shisha, deraza, suyuqlik) CHETLAB O'TILADI. Soya
+ *    xaritasi faqat chuqurlikni yozadi, shaffoflikni bilmaydi — shisha
+ *    o'zidan qora dog' tashlardi.
+ *  - `MeshBasicMaterial` ham chetlab o'tiladi: u nur chiqaradigan sirt
+ *    (ekran, LED, EXIT) uchun qolgan (AGENTS.md 11.3), soya tashlashi
+ *    mantiqsiz.
+ *  - devor, pol va ship bu funksiyaga BERILMAYDI: ular xonaning
+ *    chegarasi, o'zidan soya tashlashi faqat artefakt va narx.
+ */
+function soyaTashlasin(tugun, profil) {
+  if (!profil?.soya) return tugun;
+  tugun.traverse((o) => {
+    if (!o.isMesh) return;
+    const m = o.material;
+    if (!m || Array.isArray(m)) return;
+    if (m.isMeshBasicMaterial) return;
+    if (m.transparent || m.opacity < 1 || m.transmission > 0) return;
+    o.castShadow = true;
+  });
+  return tugun;
+}
+
 export function xonaInteryeriniYasa(materiallar, profil) {
   if (!profil) throw new Error("Xona uchun sifat profili berilmadi");
   const roomGroup = new THREE.Group();
@@ -1489,34 +1519,34 @@ export function xonaInteryeriniYasa(materiallar, profil) {
   roomGroup.userData.profil = profil;
 
   // 1. To'liq 16x12m Katta Zal Devorlari va Shift LED panellari
-  roomGroup.add(xonaQobiginiYasa(materiallar));
+  roomGroup.add(xonaQobiginiYasa(materiallar, profil));
 
   // 2. Orqa Devordagi Keng Formatli Davriy Jadval Plakati
   roomGroup.add(davriyJadvalPlakati());
 
   // 3. Yon Ishchi Tajriba Stollari (Chap & O'ng)
-  roomGroup.add(yonStollarniYasa(materiallar));
+  roomGroup.add(soyaTashlasin(yonStollarniYasa(materiallar), profil));
 
   // 4. Analitik Tarozi Stantsiyasi (Chap stolda)
-  roomGroup.add(taroziStoliYasa(materiallar));
+  roomGroup.add(soyaTashlasin(taroziStoliYasa(materiallar), profil));
 
   // 5. Byuretka va Titrlash Stendi (O'ng stolda)
-  roomGroup.add(titrlashStendiYasa(materiallar));
+  roomGroup.add(soyaTashlasin(titrlashStendiYasa(materiallar), profil));
 
   // 6. Elektroliz va Tok Manbai Stendi (O'ng stolda)
-  roomGroup.add(elektrolizVannasiYasa(materiallar));
+  roomGroup.add(soyaTashlasin(elektrolizVannasiYasa(materiallar), profil));
 
   // 7. Yuvinish Rakovinasi (Chap orqa burchakda)
-  roomGroup.add(rakovinaYasa(materiallar));
+  roomGroup.add(soyaTashlasin(rakovinaYasa(materiallar), profil));
 
   // 8. Stoldagi 3D Jihozlar Stendi (Glassware Rack — Probirkalar, Kolba, Stakan, Silindr, Spatula)
-  roomGroup.add(jihozlarStendiYasa(materiallar));
+  roomGroup.add(soyaTashlasin(jihozlarStendiYasa(materiallar), profil));
 
   // 9. Stoldagi 3D Smart Laboratoriya Plansheti (Smart Monitor & Notebook)
-  roomGroup.add(smartPlanshetYasa(materiallar));
+  roomGroup.add(soyaTashlasin(smartPlanshetYasa(materiallar), profil));
 
   // 10. Stol ustidagi mayda realist detallar (qog'oz bloknot, ruchka)
-  roomGroup.add(stolDaftarlariYasa());
+  roomGroup.add(soyaTashlasin(stolDaftarlariYasa(), profil));
 
   return roomGroup;
 }

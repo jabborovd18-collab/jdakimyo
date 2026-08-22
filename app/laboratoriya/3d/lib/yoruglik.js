@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
+import { XONA } from "./sozlama.js";
 
 RectAreaLightUniformsLib.init();
 
@@ -101,6 +102,96 @@ export function tortmaShkafNuriniYarat() {
   return nur;
 }
 
+// Asosiy nurning yo'nalishi. Ilgari u `position.set(2.5, 4.0, 2.0)` va
+// sukut nishon (0,0,0) bilan berilgan edi; shu ikkisining ayirmasi —
+// aynan shu vektor. Normallashtirilgan, ya'ni masofani alohida beramiz.
+const ASOSIY_YONALISH = new THREE.Vector3(2.5, 4.0, 2.0).normalize();
+
+// Soya kamerasi xonaning BARCHA burchagini qamrashi shart.
+//
+// Ilgari bu yerda `left/right/top/bottom = +-2.6`, `far = 15` turardi —
+// ya'ni 5.2 x 5.2 m maydon, 16 x 12 m xonaning 14% i. Javon, rakovina,
+// deraza va davriy jadval soya zonasidan tashqarida qolgan va shuning
+// uchun devorga yopishtirilgan qog'ozdek ko'ringan (BRIF-04).
+//
+// Qamrov qattiq yozilmaydi — xona o'lchamidan hisoblanadi va pastda
+// TEKSHIRILADI. Yarim o'lcham xonaning koordinata boshiga nisbatan eng
+// uzoq burchagidan olinadi: shunda nur yo'nalishi o'zgarsa ham qamrov
+// buzilmaydi.
+//
+// NARXI — aniqlik. 1024 xarita 5.2 m ga 197 teksel/m berardi; 22 m ga
+// esa 46 teksel/m. Shuning uchun xarita 2048 ga ko'tarildi (92 teksel/m).
+// Bu soya sifatining yakuniy yechimi EMAS: kaskadli soya (CSM) 1-qavatning
+// 1.2 ishi. Hozirgi maqsad — soyaning umuman BO'LISHI.
+const SOYA = Object.freeze({
+  xarita: 2048,
+  masofa: 20,
+  chetlanish: 0.6,
+});
+
+/** Xonaning 8 ta burchagi (dunyo koordinatasida). */
+function xonaBurchaklari() {
+  const yx = XONA.eni / 2;
+  const yz = XONA.boyi / 2;
+  const burchaklar = [];
+  for (const x of [-yx, yx]) {
+    for (const y of [0, XONA.balandligi]) {
+      for (const z of [-yz + XONA.markazZ, yz + XONA.markazZ]) {
+        burchaklar.push(new THREE.Vector3(x, y, z));
+      }
+    }
+  }
+  return burchaklar;
+}
+
+/**
+ * Soya kamerasini xona o'lchamidan qurib, qamrovni TEKSHIRADI.
+ *
+ * Tekshiruv ataylab `throw` qiladi: soya qamrovi jim yetishmasa, sahna
+ * "ishlaydi" va faqat ko'z bilan sezilardi — bu esa loyihada bir marta
+ * allaqachon sodir bo'lgan (AGENTS.md 11.1).
+ */
+function soyaKamerasiniQur(nur) {
+  const burchaklar = xonaBurchaklari();
+  const engUzoq = Math.max(...burchaklar.map((v) => v.length()));
+  const yarim = engUzoq + SOYA.chetlanish;
+
+  nur.shadow.mapSize.width = SOYA.xarita;
+  nur.shadow.mapSize.height = SOYA.xarita;
+  nur.shadow.camera.left = -yarim;
+  nur.shadow.camera.right = yarim;
+  nur.shadow.camera.top = yarim;
+  nur.shadow.camera.bottom = -yarim;
+  nur.shadow.camera.near = Math.max(0.5, SOYA.masofa - yarim);
+  nur.shadow.camera.far = SOYA.masofa + yarim;
+  nur.shadow.bias = -0.0005;
+  nur.shadow.normalBias = 0.02;
+  nur.shadow.camera.updateProjectionMatrix();
+
+  // Nishon sukut bo'yicha (0,0,0) va u sahnaga qo'shilmagan, ya'ni
+  // matrixWorld birlik matritsa. Tekshiruv aynan shu holatni takrorlaydi.
+  const sinov = new THREE.OrthographicCamera(-yarim, yarim, yarim, -yarim,
+    nur.shadow.camera.near, nur.shadow.camera.far);
+  sinov.position.copy(nur.position);
+  sinov.lookAt(0, 0, 0);
+  sinov.updateMatrixWorld(true);
+
+  const chetda = [];
+  for (const v of burchaklar) {
+    const k = v.clone().applyMatrix4(sinov.matrixWorldInverse);
+    const chuqurlik = -k.z;
+    if (Math.abs(k.x) > yarim || Math.abs(k.y) > yarim
+      || chuqurlik < nur.shadow.camera.near || chuqurlik > nur.shadow.camera.far) {
+      chetda.push(`(${v.x}, ${v.y}, ${v.z})`);
+    }
+  }
+  if (chetda.length) {
+    throw new Error(
+      `Soya kamerasi xonani qoplamaydi. Tashqarida qolgan burchaklar: ${chetda.join(" ")}`,
+    );
+  }
+}
+
 /**
  * Asosiy laboratoriya sahnasining barcha statik nuri va IBL muhiti.
  *
@@ -132,19 +223,16 @@ export function yoruglikniQur(scene, profil, renderer) {
     yonalishNuriniYarat(daraja.asosiy.rang, daraja.asosiy.kuch),
     "Yoruglik_Asosiy",
   );
-  asosiy.position.set(2.5, 4.0, 2.0);
+  // Nur YO'NALISHI o'zgarmaydi (BRIF-01 hududi). DirectionalLight uchun
+  // faqat `position - target` yo'nalishi shading'ga ta'sir qiladi; masofa
+  // esa yo'q — u faqat soya kamerasi qayerda turishini belgilaydi.
+  // Shuning uchun nurni AYNI yo'nalish bo'ylab uzoqroqqa suramiz:
+  // yorug'lik bir zarra ham o'zgarmaydi, soya kamerasi esa butun xonani
+  // old tomondan ko'radi.
+  asosiy.position.copy(ASOSIY_YONALISH).multiplyScalar(SOYA.masofa);
   asosiy.castShadow = profil.soya;
   if (asosiy.castShadow) {
-    asosiy.shadow.mapSize.width = 1024;
-    asosiy.shadow.mapSize.height = 1024;
-    asosiy.shadow.camera.near = 0.5;
-    asosiy.shadow.camera.far = 15;
-    asosiy.shadow.camera.left = -2.6;
-    asosiy.shadow.camera.right = 2.6;
-    asosiy.shadow.camera.top = 2.6;
-    asosiy.shadow.camera.bottom = -2.6;
-    asosiy.shadow.bias = -0.0005;
-    asosiy.shadow.normalBias = 0.02;
+    soyaKamerasiniQur(asosiy);
   }
 
   let toldiruvchi = null;

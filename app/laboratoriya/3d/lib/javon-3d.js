@@ -262,6 +262,23 @@ export function javon3dYasa(materiallar, profil) {
   // 4. Chap Devor - Eritmalar va Indikatorlar Javoni (X = -7.6, Z = -1.5)
   mainCabinetGroup.add(devorShkafiYasa(-7.6, 1.8, -1.5, Math.PI / 2, "Eritmalar", materiallar));
 
+  // BRIF-04 — javon KARKASI soya tashlaydi. Shishalar bu paytda hali
+  // qo'shilmagan va bu ATAYLAB: shisha soya xaritasida qora dog' beradi
+  // (chuqurlik o'tishi shaffoflikni bilmaydi).
+  //
+  // Javon devorga yopishtirilgan qog'ozdek ko'rinishining sababi aynan
+  // shu edi — u soya zonasidan ham tashqarida, o'zi ham soya tashlamas
+  // edi (BRIF-04 skrinshot tahlili).
+  if (profil.soya) {
+    mainCabinetGroup.traverse((o) => {
+      if (!o.isMesh) return;
+      const m = o.material;
+      if (!m || Array.isArray(m) || m.isMeshBasicMaterial) return;
+      if (m.transparent || m.opacity < 1 || m.transmission > 0) return;
+      o.castShadow = true;
+    });
+  }
+
   // Shishalarni tegishli javonlarga joylashtirish
   DEVOR_JAVON_REAGENTLARI.forEach((item) => {
     const bottle = reagentShishasiModel(item, materiallar);
