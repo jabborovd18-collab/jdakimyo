@@ -45,6 +45,28 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // *.vercel.app — SAYTNING UCHINCHI NUSXASI.
+        //
+        // `jdakimyo.vercel.app` production domeni ham xuddi shu 700
+        // sahifani 200 bilan qaytaradi. Ya'ni Google uchun sayt uch
+        // xil hostda turibdi: apex, www va vercel.app. Kraul byudjeti
+        // uchga bo'linadi, holbuki Search Console'da 101 sahifa
+        // "topilgan, lekin indekslanmagan" bo'lib turibdi — ya'ni
+        // byudjet allaqachon yetishmayapti.
+        //
+        // Canonical teg www ga ishora qiladi va bu takroriy hujjatdan
+        // saqlaydi, LEKIN u sahifa YUKLANGANDAN keyin o'qiladi: robot
+        // baribir har bir manzilni so'raydi. `X-Robots-Tag` esa
+        // sarlavhada keladi — robot sahifani ochmasdanoq indeksga
+        // olmasligini biladi.
+        //
+        // Preview deploylari ham shu qoidaga tushadi va bu ATAYLAB:
+        // tugallanmagan sahifa qidiruvga chiqmasligi kerak.
+        source: '/:path*',
+        has: [{ type: 'host', value: '.*\.vercel\.app' }],
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+      {
         // Mobil ilova (Expo) saytdan boshqa origin'da ishlaydi, shuning uchun
         // /api/mobile/* uchun CORS ochiladi.
         //

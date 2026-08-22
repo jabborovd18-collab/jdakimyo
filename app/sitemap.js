@@ -64,14 +64,22 @@ export default async function sitemap() {
 
   // Mavzu sahifalari. ASOSIY da allaqachon bori qayta qo'shilmasin —
   // bir manzil ikki marta turgan sitemap xato hisoblanadi.
+  //
+  // `lastModified` HAR BIR SAHIFA UCHUN O'ZINIKI: sana git tarixidan
+  // olinadi (`scripts/gen-sitemap-royxat.js`). Ilgari bu yerda ham
+  // `hozir` turardi, ya'ni Google har so'rovda "yuzta sahifa hozirgina
+  // o'zgardi" degan javob olardi. Bunday yolg'on signaldan keyin
+  // Google `lastmod` ni butunlay e'tiborsiz qoldiradi va haqiqatan
+  // yangilangan sahifa ham navbatda qolib ketadi.
   const bor = new Set(royxat.map((s) => s.url))
-  for (const yol of mavzular) {
-    const url = `${SAYT}${yol}`
+  for (const mavzu of mavzular) {
+    const url = `${SAYT}${mavzu.yol}`
     if (bor.has(url)) continue
     bor.add(url)
     royxat.push({
       url,
-      lastModified: hozir,
+      // Sana yo'q bo'lsa (git tarixsiz nusxa) yig'ilish vaqti qoladi.
+      lastModified: mavzu.sana ? new Date(mavzu.sana) : hozir,
       // Mavzu matni kamdan-kam o'zgaradi, lekin butunlay qotib
       // qolgan ham emas — oyiga bir marta so'rash haqiqatga yaqin.
       changeFrequency: 'monthly',
