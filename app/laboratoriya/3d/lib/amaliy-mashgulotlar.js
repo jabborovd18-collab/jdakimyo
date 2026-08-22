@@ -108,4 +108,86 @@ export const AMALIY_MASHGULOTLAR = [
     ],
     xulosa: "Sink gidroksidning amfoter xossasi va gidroksokompleks hosil bo'lishi isbotlandi.",
   },
+  {
+    id: "mashgulot_6",
+    raqam: 6,
+    nomi: "Mis(II) Gidroksid Sintezi va Termik Parchalanishi",
+    fan: "Anorganik Kimyo",
+    daraja: "O'rta",
+    qiyinlik: "O'rta",
+    xp: 90,
+    tanga: 35,
+    maqsad:
+      "CuSO₄ eritmasidan Cu(OH)₂ cho'kmasini olish, uni yuvib qizdirish va " +
+      "CuO ga aylantirish. Reagentlar nisbati unumga qanday ta'sir qilishini " +
+      "o'z ko'zingiz bilan ko'rish.",
+    reagentlar: ["CuSO₄", "NaOH", "H₂O"],
+    jihozlar: ["stakan", "shisha-tayoqcha", "spirtovka", "termometr"],
+    tenglama: "CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄  ➔ (80–100 °C) CuO + H₂O",
+    // STEXIOMETRIK NISBAT BU YERDA YOZILMAYDI.
+    //
+    // Birinchi qoralamada men uni `nisbat: [{CuSO₄:1},{NaOH:2}]` deb
+    // qo'shgandim. Bu IKKINCHI MANBA bo'lardi: server allaqachon
+    // `talabniHisobla(reaksiya, ...)` orqali nisbatni MUVOZANATLI
+    // TENGLAMANING O'ZIDAN chiqaradi (`lib/tajriba.js`), keyin uni
+    // `nisbatniBaho` ga beradi.
+    //
+    // Ya'ni koeffitsient o'zgarsa (yoki tenglama tuzatilsa) mening
+    // nusxam eskirib qolardi va ikkalasi ajralib ketardi — AGENTS.md
+    // 1-bandi.
+    //
+    // Mashg'ulotdan talab qilinadigan yagona narsa: `tenglama` bazadagi
+    // haqiqiy tenglamaga mos bo'lsin.
+    qadamlar: [
+      {
+        id: 1,
+        matn: "Himoya ko'zoynagini taqing — NaOH korroziy modda",
+        kalit: "kozoynak",
+        kutilganNatija: "Ko'zoynak taqilgach xavfsizlik chizig'i yashil bo'ladi.",
+      },
+      {
+        id: 2,
+        matn: "Stakanga CuSO₄ eritmasidan 20 ml quying",
+        kalit: "CuSO₄",
+        minMl: 15,
+        kutilganNatija: "Tiniq ko'k eritma.",
+      },
+      {
+        id: 3,
+        matn: "Tomchilatib NaOH qo'shing va cho'kma tushishini kuzating",
+        kalit: "NaOH",
+        minMl: 10,
+        // Matn kimyo bazasidan: chokma.js -> observations.
+        kutilganNatija: "Och ko'k jelesimon cho'kma.",
+      },
+      {
+        id: 4,
+        matn: "Shisha tayoqcha bilan sekin aralashtiring",
+        kalit: "aralashtirish",
+        kutilganNatija: "Cho'kma tekis taqsimlanadi, keyin tubiga o'tiradi.",
+      },
+      {
+        id: 5,
+        matn: "Cho'kma o'tirgach ustidagi suyuqlikni to'kib, cho'kmani yuving",
+        kalit: "yuvish",
+        kutilganNatija: "Yuvilmagan cho'kmada Na₂SO₄ qoladi va unum noto'g'ri chiqadi.",
+      },
+      {
+        id: 6,
+        matn: "Cho'kmani spirtovkada 80–100 °C gacha qizdiring",
+        kalit: "isitish",
+        // Harorat va kuzatuv termik-parchalanish.js dan.
+        kutilganNatija: "Och ko'k cho'kma qora kukunga aylanadi.",
+      },
+      {
+        id: 7,
+        matn: "Planshetda nisbat, cheklovchi reagent va unumni tekshiring",
+        kalit: "hisob",
+        kutilganNatija: "Nisbat 1:2 dan uzoqlashsa unum tushadi.",
+      },
+    ],
+    xulosa:
+      "Cu(OH)₂ cho'kmasi olindi va qizdirilib CuO ga aylantirildi. " +
+      "Nisbat qanchalik 1:2 ga yaqin bo'lsa, unum shuncha yuqori.",
+  },
 ];

@@ -168,8 +168,19 @@ export default function AmaliyMashgulotModal({ onYop, onMashgulotBoshlandi }) {
                       {isBajarildi ? "✓" : idx + 1}
                     </span>
 
-                    <span className={`leading-relaxed ${isBajarildi ? "line-through opacity-85" : ""}`}>
-                      {q.matn}
+                    <span className="flex-1 min-w-0">
+                      <span className={`block leading-relaxed ${isBajarildi ? "line-through opacity-85" : ""}`}>
+                        {q.matn}
+                      </span>
+                      {/* Nima ko'rinishi kerak. Manba — kimyo bazasidagi
+                          `observations`, bu yerda qayta yozilmaydi.
+                          G5 (hamroh robot) kelganda AYNAN shu matnni
+                          gapiradi: bosqich ma'lumot, interfeys emas. */}
+                      {q.kutilganNatija && (
+                        <span className="block mt-0.5 text-[10px] text-[var(--v3-xira)] italic">
+                          {q.kutilganNatija}
+                        </span>
+                      )}
                     </span>
                   </button>
                 );
