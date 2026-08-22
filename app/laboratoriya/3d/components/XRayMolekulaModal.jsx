@@ -216,6 +216,18 @@ export default function XRayMolekulaModal({ reaksiyaTenglamasi, onYop }) {
     }
   }, [faza, faolProfil]);
 
+  // Joriy fazada ko'rsatilayotgan tuzilishning izohi.
+  //
+  // 1 va 2-faza boshlang'ich molekulalarni, 3 oraliq kompleksni,
+  // 4 mahsulotlarni ko'rsatadi — izoh ham shunga ergashadi.
+  const joriyIzoh = (() => {
+    if (faza === 3) return faolProfil.oraliqKompleks?.izoh || "";
+    const guruhlar = faza === 4
+      ? faolProfil.mahsulotlar
+      : faolProfil.boshlangichMolekulalar;
+    return (guruhlar || []).map((g) => g.izoh).filter(Boolean).join(" ");
+  })();
+
   // Avtomatik Slow-Mo ijrosi
   useEffect(() => {
     let timer = null;
@@ -289,6 +301,13 @@ export default function XRayMolekulaModal({ reaksiyaTenglamasi, onYop }) {
                 : "✓ 4. Yangi Mahsulot Molekulalari"}
             </div>
             <div className="font-bold text-white text-sm">{faolProfil.tenglama}</div>
+            {/* Shu fazadagi tuzilishning ILMIY izohi. Manbasi profil
+                ma'lumoti; bu yerda matn yozilmaydi. */}
+            {joriyIzoh && (
+              <p className="max-w-sm text-[11px] leading-relaxed text-slate-300 font-sans pt-1 border-t border-white/10">
+                {joriyIzoh}
+              </p>
+            )}
           </div>
 
           {/* Energetik Koordinata Diagrammasi (Kichik Grafik) */}
@@ -356,6 +375,16 @@ export default function XRayMolekulaModal({ reaksiyaTenglamasi, onYop }) {
             <span>X-Ray Kinetik Mexanizm Tahlili:</span>
           </div>
           <p className="text-[var(--v3-matn)] leading-relaxed">{faolProfil.tavsif}</p>
+
+          {/* MANBA. Loyiha qoidasi: ilmiy son manbasiz yozilmaydi
+              (data/reactions/_umumiy.js 2-qoida). Profilda manba
+              bo'lsa u ko'rsatiladi — o'quvchi qayerdan kelganini
+              bilsin va tekshira olsin. */}
+          {faolProfil.manba && (
+            <p className="text-[10px] leading-relaxed text-[var(--v3-xira)] italic border-l-2 border-[var(--v3-chiziq)] pl-2">
+              Manba: {faolProfil.manba}
+            </p>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 font-mono text-[11px]">
             <div className="p-2.5 rounded-lg border border-red-500/30 bg-red-500/10 space-y-0.5">
