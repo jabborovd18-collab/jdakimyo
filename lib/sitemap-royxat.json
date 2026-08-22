@@ -1,118 +1,474 @@
 [
-  "/fan/koordinatsion-kimyo",
-  "/ilmiy",
-  "/ilmiy/birikmalar",
-  "/ilmiy/birikmalar/ag-nh3-2",
-  "/ilmiy/birikmalar/ca-edta",
-  "/ilmiy/birikmalar/cis-pt-nh3-2-cl2",
-  "/ilmiy/birikmalar/co-cl4",
-  "/ilmiy/birikmalar/co-en2-cl2-cl",
-  "/ilmiy/birikmalar/co-en3-cl3",
-  "/ilmiy/birikmalar/co-nh3-4-cl2-cl",
-  "/ilmiy/birikmalar/co-nh3-5-cl-cl2",
-  "/ilmiy/birikmalar/co-nh3-5-no2-cl2",
-  "/ilmiy/birikmalar/co-nh3-5-ono-cl2",
-  "/ilmiy/birikmalar/co-nh3-6-cl3",
-  "/ilmiy/birikmalar/cr-h2o6",
-  "/ilmiy/birikmalar/creutz-taube",
-  "/ilmiy/birikmalar/cu-h2o6",
-  "/ilmiy/birikmalar/fe-co-5",
-  "/ilmiy/birikmalar/ferrosen",
-  "/ilmiy/birikmalar/gemoglobin",
-  "/ilmiy/birikmalar/k3-fe-cn-6",
-  "/ilmiy/birikmalar/k4-fe-cn-6",
-  "/ilmiy/birikmalar/krown-efir",
-  "/ilmiy/birikmalar/ni-cn4",
-  "/ilmiy/birikmalar/ni-co-4",
-  "/ilmiy/birikmalar/prussian-blue",
-  "/ilmiy/birikmalar/trans-pt-nh3-2-cl2",
-  "/ilmiy/birikmalar/vaska-kompleksi",
-  "/ilmiy/birikmalar/vitamin-b12",
-  "/ilmiy/birikmalar/wilkinson-katalizatori",
-  "/ilmiy/birikmalar/xlorofill",
-  "/ilmiy/birikmalar/zeise-tuzi",
-  "/ilmiy/birikmalar/zn-oh4",
-  "/ilmiy/chuqurlashgan",
-  "/ilmiy/chuqurlashgan/atom-tuzilishi",
-  "/ilmiy/chuqurlashgan/bioanorganik",
-  "/ilmiy/chuqurlashgan/biorganometallik",
-  "/ilmiy/chuqurlashgan/elektron-konfiguratsiya",
-  "/ilmiy/chuqurlashgan/elektron-spektr",
-  "/ilmiy/chuqurlashgan/fotokimyo",
-  "/ilmiy/chuqurlashgan/izomeriya",
-  "/ilmiy/chuqurlashgan/kimyoviy-boglanish",
-  "/ilmiy/chuqurlashgan/kinetika",
-  "/ilmiy/chuqurlashgan/koordinator-son",
-  "/ilmiy/chuqurlashgan/kop-yadroli",
-  "/ilmiy/chuqurlashgan/kristall-maydon",
-  "/ilmiy/chuqurlashgan/ligand-maydon",
-  "/ilmiy/chuqurlashgan/magnit",
-  "/ilmiy/chuqurlashgan/metall-dorilar",
-  "/ilmiy/chuqurlashgan/reaksiyalar",
-  "/ilmiy/chuqurlashgan/simmetriya",
-  "/ilmiy/chuqurlashgan/supramolekulyar",
-  "/ilmiy/chuqurlashgan/termodinamika",
-  "/ilmiy/chuqurlashgan/yan-teller",
-  "/ilmiy/chuqurlashgan/zaryad-kochishi",
-  "/ilmiy/tahlil",
-  "/ilmiy/tahlil/aas",
-  "/ilmiy/tahlil/cd",
-  "/ilmiy/tahlil/elektrokimyo",
-  "/ilmiy/tahlil/element-analiz",
-  "/ilmiy/tahlil/epr",
-  "/ilmiy/tahlil/exafs",
-  "/ilmiy/tahlil/fluoressensiya",
-  "/ilmiy/tahlil/icp",
-  "/ilmiy/tahlil/iq",
-  "/ilmiy/tahlil/konduktometriya",
-  "/ilmiy/tahlil/magnit",
-  "/ilmiy/tahlil/mass",
-  "/ilmiy/tahlil/mossbauer",
-  "/ilmiy/tahlil/nmr",
-  "/ilmiy/tahlil/raman",
-  "/ilmiy/tahlil/rentgen",
-  "/ilmiy/tahlil/termik",
-  "/ilmiy/tahlil/titrlash",
-  "/ilmiy/tahlil/ub-vis",
-  "/ilmiy/tahlil/xps",
-  "/ishlashi",
-  "/laboratoriya/3d",
-  "/oquv",
-  "/oquv/fazoviy",
-  "/oquv/fazoviy/chiziqli",
-  "/oquv/fazoviy/cpk-ranglar",
-  "/oquv/fazoviy/dodekaedrik",
-  "/oquv/fazoviy/ikki-yoqli-antiprizma",
-  "/oquv/fazoviy/ikosaedrik",
-  "/oquv/fazoviy/kubsimon",
-  "/oquv/fazoviy/kvadrat-antiprizma",
-  "/oquv/fazoviy/kvadrat-piramida",
-  "/oquv/fazoviy/monoyopiq-prizma",
-  "/oquv/fazoviy/oktaedrik",
-  "/oquv/fazoviy/pentagonal-bipiramida",
-  "/oquv/fazoviy/sendvich",
-  "/oquv/fazoviy/tekis-kvadrat",
-  "/oquv/fazoviy/tetraedrik",
-  "/oquv/fazoviy/trigonal-bipiramida",
-  "/oquv/fazoviy/trigonal-prizma",
-  "/oquv/fazoviy/uch-yoqli-prizma",
-  "/oquv/fazoviy/uchburchak",
-  "/oquv/izomeriyasi",
-  "/oquv/izomeriyasi/stereo",
-  "/oquv/izomeriyasi/tuzilish",
-  "/oquv/kimyoviy-boglanish",
-  "/oquv/kimyoviy-boglanish/kristall-maydon",
-  "/oquv/kimyoviy-boglanish/ligand-maydon",
-  "/oquv/kimyoviy-boglanish/vb-nazariyasi",
-  "/oquv/kimyoviy-boglanish/yan-teller",
-  "/oquv/klassifikatsiyasi",
-  "/oquv/klassifikatsiyasi/ligand",
-  "/oquv/klassifikatsiyasi/sinf",
-  "/oquv/klassifikatsiyasi/zaryad",
-  "/oquv/nomlanishi",
-  "/oquv/nomlanishi/anion",
-  "/oquv/nomlanishi/formula",
-  "/oquv/nomlanishi/iupac",
-  "/oquv/nomlanishi/ligandlar",
-  "/oquv/nomlanishi/verner"
+  {
+    "yol": "/fan/koordinatsion-kimyo",
+    "sana": "2026-08-09"
+  },
+  {
+    "yol": "/ilmiy",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/ag-nh3-2",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/ca-edta",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/cis-pt-nh3-2-cl2",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/co-cl4",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/co-en2-cl2-cl",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/co-en3-cl3",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/co-nh3-4-cl2-cl",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/co-nh3-5-cl-cl2",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/co-nh3-5-no2-cl2",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/co-nh3-5-ono-cl2",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/co-nh3-6-cl3",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/cr-h2o6",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/creutz-taube",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/cu-h2o6",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/fe-co-5",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/ferrosen",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/gemoglobin",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/k3-fe-cn-6",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/k4-fe-cn-6",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/krown-efir",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/ni-cn4",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/ni-co-4",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/prussian-blue",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/trans-pt-nh3-2-cl2",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/vaska-kompleksi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/vitamin-b12",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/wilkinson-katalizatori",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/xlorofill",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/zeise-tuzi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/birikmalar/zn-oh4",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/atom-tuzilishi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/bioanorganik",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/biorganometallik",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/elektron-konfiguratsiya",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/elektron-spektr",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/fotokimyo",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/izomeriya",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/kimyoviy-boglanish",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/kinetika",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/koordinator-son",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/kop-yadroli",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/kristall-maydon",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/ligand-maydon",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/magnit",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/metall-dorilar",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/reaksiyalar",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/simmetriya",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/supramolekulyar",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/termodinamika",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/yan-teller",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/chuqurlashgan/zaryad-kochishi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/aas",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/cd",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/elektrokimyo",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/element-analiz",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/epr",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/exafs",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/fluoressensiya",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/icp",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/iq",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/konduktometriya",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/magnit",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/mass",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/mossbauer",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/nmr",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/raman",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/rentgen",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/termik",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/titrlash",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/ub-vis",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ilmiy/tahlil/xps",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/ishlashi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/jda-kimyo",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/laboratoriya/3d",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/laboratoriya/3d/olcham",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/chiziqli",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/cpk-ranglar",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/dodekaedrik",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/ikki-yoqli-antiprizma",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/ikosaedrik",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/kubsimon",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/kvadrat-antiprizma",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/kvadrat-piramida",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/monoyopiq-prizma",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/oktaedrik",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/pentagonal-bipiramida",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/sendvich",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/tekis-kvadrat",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/tetraedrik",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/trigonal-bipiramida",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/trigonal-prizma",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/uch-yoqli-prizma",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/fazoviy/uchburchak",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/izomeriyasi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/izomeriyasi/stereo",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/izomeriyasi/tuzilish",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/kimyoviy-boglanish",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/kimyoviy-boglanish/kristall-maydon",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/kimyoviy-boglanish/ligand-maydon",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/kimyoviy-boglanish/vb-nazariyasi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/kimyoviy-boglanish/yan-teller",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/klassifikatsiyasi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/klassifikatsiyasi/ligand",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/klassifikatsiyasi/sinf",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/klassifikatsiyasi/zaryad",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/nomlanishi",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/nomlanishi/anion",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/nomlanishi/formula",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/nomlanishi/iupac",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/nomlanishi/ligandlar",
+    "sana": "2026-08-22"
+  },
+  {
+    "yol": "/oquv/nomlanishi/verner",
+    "sana": "2026-08-22"
+  }
 ]

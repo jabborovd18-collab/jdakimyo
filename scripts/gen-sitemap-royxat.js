@@ -19,6 +19,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const { execFileSync } = require('child_process')
 const esmRequire = require('./_esm-require')
 
 const ROOT = path.join(__dirname, '..')
@@ -92,6 +93,36 @@ function manzil(bolaklar) {
 
 const royxat = []
 
+/**
+ * Sahifa oxirgi marta qachon o'zgargani — git tarixidan.
+ *
+ * NEGA KERAK. Sitemap ilgari HAR BIR manzilga `lastModified: hozir` deb
+ * yozardi, ya'ni Google har safar so'raganda "hamma 600 sahifa hozirgina
+ * o'zgardi" degan javob olardi. Bu yolg'on signal: Google bir necha marta
+ * tekshirib ko'radi, o'zgarish topmaydi va shundan keyin `lastmod` ni
+ * BUTUNLAY e'tiborsiz qoldiradi. Natijada haqiqatan yangilangan sahifa
+ * ham navbatda turaveradi.
+ *
+ * Git sanasi — sahifa matni oxirgi marta o'zgargan kun. Uni o'ylab
+ * topish shart emas, u allaqachon tarixda yozilgan.
+ *
+ * Git javob bermasa (masalan repo nusxasi tarixsiz klonlangan bo'lsa)
+ * `null` qaytadi va sitemap o'sha manzil uchun yig'ilish sanasini
+ * ishlatadi — bu xato emas, shunchaki aniqroq ma'lumot yo'q.
+ */
+function oxirgiOzgarish(faylYoli) {
+  try {
+    const sana = execFileSync(
+      'git',
+      ['log', '-1', '--format=%cs', '--', faylYoli],
+      { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
+    ).trim()
+    return sana || null
+  } catch {
+    return null
+  }
+}
+
 function yur(joriy, bolaklar) {
   for (const d of fs.readdirSync(joriy, { withFileTypes: true })) {
     const toliq = path.join(joriy, d.name)
@@ -113,7 +144,18 @@ function yur(joriy, bolaklar) {
     const yol = m === '' ? '/' : m
     if (canonicalBoshqami(kod, yol)) continue
 
-    royxat.push(yol)
+    // Sahifaning o'zi bilan bir qatorda ko'rinish fayli ham hisobga
+    // olinadi: matnning katta qismi `korinish.js` da yashaydi va
+    // ko'pincha faqat o'sha o'zgaradi.
+    const papka = path.dirname(toliq)
+    const sanalar = [oxirgiOzgarish(toliq)]
+    for (const qoshni of ['korinish.js', 'korinish.jsx', 'malumot.js']) {
+      const q = path.join(papka, qoshni)
+      if (fs.existsSync(q)) sanalar.push(oxirgiOzgarish(q))
+    }
+    const sana = sanalar.filter(Boolean).sort().pop() || null
+
+    royxat.push({ yol, sana })
   }
 }
 
@@ -134,10 +176,12 @@ yur(APP, [])
  */
 const { FANLAR } = esmRequire('lib/fanlar.js', ['FANLAR'])
 for (const fan of FANLAR) {
-  if (fan.holat === 'ochiq') royxat.push(`/fan/${fan.slug}`)
+  if (fan.holat !== 'ochiq') continue
+  const fayl = path.join(APP, 'fan', '[slug]', 'page.js')
+  royxat.push({ yol: `/fan/${fan.slug}`, sana: oxirgiOzgarish(fayl) })
 }
 
-royxat.sort()
+royxat.sort((a, b) => (a.yol < b.yol ? -1 : a.yol > b.yol ? 1 : 0))
 
 fs.writeFileSync(CHIQISH, JSON.stringify(royxat, null, 2) + '\n', 'utf8')
 console.log(`lib/sitemap-royxat.json — ${royxat.length} ta manzil yozildi`)
