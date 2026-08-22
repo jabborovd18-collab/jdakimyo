@@ -87,3 +87,51 @@ export function kadrQorami(data) {
   }
   return true;
 }
+
+/**
+ * Kadrning YUQORI CHASTOTALI ENERGIYASI — qo'shni piksellar orasidagi
+ * o'rtacha luma farqi.
+ *
+ * BU SON TINIQLIKNI O'LCHAMAYDI. Nomi avval `tiniqlik` edi va bu
+ * XATO edi — quyidagi o'lchov buni ko'rsatdi (2026-08-23).
+ *
+ * Anizotropiya va mipmap qo'shilganda kutilgan natija "tiniqroq"
+ * bo'lishi edi. Aslida son PASAYDI:
+ *
+ *   1280x720   0.00923 -> 0.00909   (-1.5%)
+ *   2560x1440  0.00567 -> 0.00560   (-1.2%)
+ *
+ * Sabab: filtrlashning butun vazifasi ALIASINGNI (miltillashni)
+ * kamaytirish, aliasing esa yuqori chastotali shovqin. Ya'ni
+ * filtrlash yaxshilanganda bu son TUSHADI.
+ *
+ * NIMANI KO'RSATA OLADI:
+ *   - teksturaning umuman yo'qolishi yoki qattiq loyqalanishi
+ *     (son keskin tushadi);
+ *   - shovqin yoki artefakt qo'shilishi (son keskin ko'tariladi).
+ *
+ * NIMANI KO'RSATA OLMAYDI:
+ *   - "tiniqroq bo'ldimi" — o'sish ham, tushish ham yaxshi bo'lishi
+ *     mumkin. Filtrlash o'zgarishini BU SON BILAN BAHOLAMANG.
+ *
+ * Shuning uchun u standart jadvalda ko'rsatilmaydi va majburiy
+ * maydonlar ro'yxatiga kirmaydi — faqat `--json` da qoladi.
+ *
+ * Saboq: "nima yaxshi ko'rinadi" degan fikrni raqamga aylantirganda,
+ * raqam fikrning faqat bir qismini ushlaydi.
+ */
+export function kadrYuqoriChastotasi(data, width, height) {
+  const luma = (i) =>
+    (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+  let jami = 0;
+  let soni = 0;
+  for (let y = 0; y < height - 1; y += 1) {
+    for (let x = 0; x < width - 1; x += 1) {
+      const i = (y * width + x) * 4;
+      const l = luma(i);
+      jami += Math.abs(luma(i + 4) - l) + Math.abs(luma(i + width * 4) - l);
+      soni += 1;
+    }
+  }
+  return soni ? jami / soni : 0;
+}

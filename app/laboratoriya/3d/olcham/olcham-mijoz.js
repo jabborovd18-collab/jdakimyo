@@ -8,7 +8,7 @@ import {
   SUKUT_PROFIL,
   profilniOl,
 } from "../lib/sifat-profili.js";
-import { kadrGistogrammasi, kadrQorami } from "./olcham-hisob.js";
+import { kadrGistogrammasi, kadrQorami, kadrYuqoriChastotasi } from "./olcham-hisob.js";
 import { yorliqlarniYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
 import { HIMOYALANGAN_NOMLAR } from "../lib/geometriya-birlashtirish.js";
@@ -500,6 +500,9 @@ export default function OlchamMijoz() {
     }
 
     const gist = kadrGistogrammasi(pixels, w, h, { origin: "bottom-left" });
+    // Yuqori chastotali energiya. DIQQAT: bu tiniqlik EMAS —
+    // olcham-hisob.js dagi izohga qarang.
+    const yuqoriChastota = kadrYuqoriChastotasi(pixels, w, h);
 
     // Kadr narxi — piksel o'qilgandan KEYIN, chunki o'lchov vaqtincha
     // bufer o'lchamini o'zgartiradi. Supurishda o'tkazib yuboriladi:
@@ -533,6 +536,7 @@ export default function OlchamMijoz() {
       ortacha: gist.ortacha,
       p50: gist.p50,
       p95: gist.p95,
+      yuqoriChastota,
       yuqoriSoha: gist.yuqoriSoha,
       quyiSoha: gist.quyiSoha,
       // FPS SAQLANADI, lekin unga tayanilmaydi — u sahna og'irligini

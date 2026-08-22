@@ -78,7 +78,10 @@ export function yogochTeksturasi(asosRang = 0x8b5a2b, olcham = 512) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.anisotropy = 4;
+  // Filtrlash va anizotropiya bu yerda BELGILANMAYDI — ularning yagona
+  // egasi `tekstura-sifati.js`. Ilgari bu yerda qattiq `anisotropy = 4`
+  // turardi va u faqat yog'ochga tegishli edi; pol bilan devor esa
+  // umuman anizotropiyasiz qolgan edi.
   return texture;
 }
 

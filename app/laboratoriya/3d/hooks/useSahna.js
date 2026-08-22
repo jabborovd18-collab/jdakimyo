@@ -304,7 +304,13 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     controlsRef.current = controls;
 
     // 5. Materiallar
-    const materiallar = materiallarniYarat(profil);
+    // Anizotropiya darajasi QURILMADAN so'raladi, qattiq yozilmaydi:
+    // kuchli GPU da imkoniyat behuda qolmasin, kuchsizida esa jim
+    // pastga tushirilmasin (`tekstura-sifati.js`).
+    const materiallar = materiallarniYarat(
+      profil,
+      renderer.capabilities.getMaxAnisotropy(),
+    );
     materiallarRef.current = materiallar;
 
     // 7. Asosiy Tajriba Stoli

@@ -292,6 +292,34 @@ piksel uchun to'lanadi, ya'ni lightmap aynan shu songa ta'sir qiladi.
 Supurishda narx umuman o'lchanmaydi: 24 nuqtaning har biriga ~1
 soniya qo'shilardi va supurishning vazifasi qamrov, narx emas.
 
+## `yuqoriChastota` — bu son TINIQLIKNI o'lchamaydi
+
+2026-08-23 da qo'shildi va o'sha kuni uning chegarasi ham topildi.
+
+Son qo'shni piksellar orasidagi o'rtacha luma farqini beradi. Men uni
+"tiniqlik" deb nomlab, teksturaga anizotropiya va mipmap qo'shganda
+o'sishini kutgandim. Aslida u PASAYDI:
+
+| Rezolyutsiya | eski tekstura | yangi tekstura | farq |
+|---|---:|---:|---:|
+| 1280×720 | 0.00923 | 0.00909 | −1.5% |
+| 2560×1440 | 0.00567 | 0.00560 | −1.2% |
+
+Sabab: filtrlashning butun vazifasi **aliasingni kamaytirish**,
+aliasing esa yuqori chastotali shovqin. Ya'ni filtrlash
+yaxshilanganda bu son tushadi.
+
+**Nimani ko'rsata oladi:** tekstura umuman yo'qolishi yoki qattiq
+loyqalanishi (keskin tushish); shovqin yoki artefakt qo'shilishi
+(keskin ko'tarilish).
+
+**Nimani ko'rsata olmaydi:** "tiniqroq bo'ldimi". O'sish ham, tushish
+ham yaxshi bo'lishi mumkin. **Filtrlash o'zgarishini bu son bilan
+baholamang.**
+
+Shuning uchun u standart jadvalda YO'Q va majburiy maydonlar
+ro'yxatiga kirmaydi — faqat `--json` da qoladi.
+
 ## Renderer va barqarorlik
 
 SwiftShader, llvmpipe, softpipe yoki lavapipe aniqlansa jadval tagida:

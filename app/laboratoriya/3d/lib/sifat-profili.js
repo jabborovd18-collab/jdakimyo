@@ -14,11 +14,17 @@ function profilYarat(sozlama) {
   });
 }
 
-const HOZIRGI_TEKSTURA_OLCHAMI = {
-  yogoch: 512,
-  pol: 512,
-  devor: 256,
-};
+// Tekstura o'lchami endi profilga bog'liq.
+//
+// BRIF-00C da uchala profil AYNAN BITTA obyektni ulashardi va faylning
+// o'z izohi buni ataylab deb yozgan: "haqiqiy optimallashtirish BRIF-01
+// va BRIF-03 da o'lchov bilan qilinadi". Mana o'sha joy.
+//
+// POL eng katta ulushni oladi: u xonaning eng katta yuzasi va qiya
+// burchakda ko'riladi. 20x15 m polga 512 piksel — 4K ekranda har
+// tekselga o'nlab ekran pikseli to'g'ri keladi.
+const TEKSTURA_TELEFON = { yogoch: 512, pol: 512, devor: 256 };
+const TEKSTURA_KATTA = { yogoch: 1024, pol: 1024, devor: 512 };
 
 export const PROFILLAR = Object.freeze({
   telefon: profilYarat({
@@ -31,13 +37,16 @@ export const PROFILLAR = Object.freeze({
     // turardi va rasm behuda buzilardi.
     pikselOraligi: { past: 0.6, yuqori: 1.0 },
     nishonKadrVaqti: 33.3,
+    // Telefonda anizotropiya 4 — undan yuqorisi mobil GPU da sezilarli
+    // fragment narxi qo'shadi va kichik ekranda farqi ko'rinmaydi.
+    anizotrop: 4,
     soya: false,
     // Eski arzon yo'l ham RoomEnvironment yaratgan; false qilish bu brifda
     // tezlashtirish bo'lib, oldin/keyin tasvirini o'zgartirib yuborardi.
     IBL: true,
     transmission: false,
     postprocessing: { bloom: false, ssao: false },
-    teksturaOlchami: HOZIRGI_TEKSTURA_OLCHAMI,
+    teksturaOlchami: TEKSTURA_TELEFON,
     antialias: false,
   }),
   desktop: profilYarat({
@@ -50,12 +59,16 @@ export const PROFILLAR = Object.freeze({
     // majburlardi.
     pikselOraligi: { past: 0.8, yuqori: 2.0 },
     nishonKadrVaqti: 16.7,
+    // 16 — deyarli barcha desktop GPU qo'llab-quvvatlaydigan eng yuqori
+    // daraja. Qurilma kamrog'ini bersa, `tekstura-sifati.js` uni
+    // imkoniyat darajasiga tushiradi.
+    anizotrop: 16,
     soya: true,
     IBL: true,
     transmission: true,
     // Bloom kalibrlangan sahnaga 3-qavatda qaytadi.
     postprocessing: { bloom: false, ssao: false },
-    teksturaOlchami: HOZIRGI_TEKSTURA_OLCHAMI,
+    teksturaOlchami: TEKSTURA_KATTA,
     antialias: true,
   }),
   ilova: profilYarat({
@@ -64,11 +77,12 @@ export const PROFILLAR = Object.freeze({
     pikselNisbati: 1.5,
     pikselOraligi: { past: 0.8, yuqori: 2.0 },
     nishonKadrVaqti: 16.7,
+    anizotrop: 16,
     soya: true,
     IBL: true,
     transmission: true,
     postprocessing: { bloom: false, ssao: false },
-    teksturaOlchami: HOZIRGI_TEKSTURA_OLCHAMI,
+    teksturaOlchami: TEKSTURA_KATTA,
     antialias: true,
   }),
 });

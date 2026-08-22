@@ -644,6 +644,55 @@ vaqt ishonchli ko'rinib turdi.
 **0.6 endi ochiq.** Uning mezoni: chiroq soni kamayganda
 `fragmentUlushi` tushishi shart — chiroq har piksel uchun to'lanadi.
 
+### 4K tiniqligi — o'zgarish qilindi, foydasi ISBOTLANMADI
+
+Egasi 4K da tiniqlashtirishni so'radi. Uch to'siq topildi va
+uchalasi ham tuzatildi:
+
+| To'siq | Holati edi |
+|---|---|
+| Anizotropiya | Butun 3D da bitta joyda, qattiq `4` — pol va devorda UMUMAN yo'q |
+| Mipmap | Katta yuzalarda o'chirilgan (`LinearFilter`) |
+| Tekstura o'lchami | Uchala profil AYNAN bitta obyektni ulashardi |
+
+Endi `lib/tekstura-sifati.js` yagona ega, anizotropiya qurilmadan
+so'raladi (`getMaxAnisotropy`), desktop teksturasi 1024/1024/512.
+
+**LEKIN FOYDASI O'LCHANMADI va buni yashirmayman.**
+
+O'zgarish BEPUL ekani isbotlandi: `chaqiruv`, `uchburchak`,
+`ortacha`, `p95` va tekstura soni oldin/keyin AYNAN bir xil.
+
+Foydasining o'zi esa ko'rsatilmadi. Men buning uchun `tiniqlik`
+metrikasini o'ylab topgandim va u NOTO'G'RI CHIQDI — pastdagi
+yozuvga qarang. 1280×720 va 2560×1440 da olingan ikki juft rasm
+egasiga berildi: to'liq o'lchamda faqat odam ko'zi hal qiladi.
+
+**Ochiq savol:** anizotropiya va mipmapning foydasi statik kadrda
+deyarli ko'rinmaydi — u HARAKATDA (kamera yurganda miltillash
+yo'qolishi) sezilada. Bizning o'lchagich esa faqat statik kadrni
+oladi. Buni o'lchash uchun ketma-ket kadrlar orasidagi farqni
+(temporal aliasing) o'lchaydigan asbob kerak.
+
+### O'ylab topgan metrikam noto'g'ri chiqdi
+
+`tiniqlik` deb nomlagan son aslida yuqori chastotali energiyani
+o'lchaydi. Filtrlash yaxshilanganda u O'SMAYDI, balki TUSHADI —
+chunki aliasing ham yuqori chastotali shovqin.
+
+  1280×720   0.00923 -> 0.00909
+  2560×1440  0.00567 -> 0.00560
+
+Nom o'zgartirildi (`yuqoriChastota`), standart jadvaldan olib
+tashlandi va majburiy maydonlar ro'yxatidan chiqarildi. Kodda va
+`OLCHOV.md` da "bu son nimani ko'rsata OLMAYDI" bo'limi yozildi.
+
+**Saboq — egasining o'z saboqi, endi menda ham:** "nima yaxshi
+ko'rinadi" degan fikrni raqamga aylantirganda, raqam fikrning
+faqat bir qismini ushlaydi. Men buni bilib turib, ogohlantirishni
+kodga oldindan yozib qo'yib, baribir shu tuzoqqa tushdim. Farqi
+shundaki, ogohlantirish tufayli uni bir yugurishda ko'rdim.
+
 ### BRIF-R01 boshlandi — va uch marta to'xtab tuzatdim
 
 Reaksiya simulyatsiyasi (`CuSO₄ + 2NaOH → Cu(OH)₂ → CuO`) ustida

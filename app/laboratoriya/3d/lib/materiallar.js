@@ -5,17 +5,21 @@ import {
   polTeksturasi,
   devorTeksturasi,
 } from "./protsedural-tekstura.js";
+import { kattaYuzaniSozla } from "./tekstura-sifati.js";
 
 // Materiallarni BIR MARTA yaratib, barcha modellarda qayta ishlatamiz.
 // Nega: har bir idish uchun alohida material yasalsa, 20 ta idishda GPU
 // xotirasi va draw-call sarfi ortadi. Profil shu umumiy to'plamda saqlanadi,
 // shunda ichki jihozlar ham ikkinchi sifat booleanini yaratmaydi.
-export function materiallarniYarat(profil) {
+export function materiallarniYarat(profil, maksAnizotrop = 1) {
   if (!profil) throw new Error("Materiallar uchun sifat profili berilmadi");
 
   const fon = SAHNA_FONI;
   const muhitKuchi = fon.muhitKuchi;
   const tekstura = profil.teksturaOlchami;
+  // Katta statik yuzalarga (stol usti, pol, devor) bir xil filtr
+  // qo'llanadi — `tekstura-sifati.js` yagona egasi.
+  const kattaYuza = (t) => kattaYuzaniSozla(t, profil.anizotrop, maksAnizotrop);
 
   // Profilning `transmission` maydoni eski arzon/to'liq shisha tanlovining
   // aynan o'zi. Qiymatlar bu brifda o'zgarmaydi.
@@ -72,6 +76,7 @@ export function materiallarniYarat(profil) {
   yogoch.map.wrapS = THREE.RepeatWrapping;
   yogoch.map.wrapT = THREE.RepeatWrapping;
   yogoch.map.repeat.set(3, 1);
+  kattaYuza(yogoch.map);
 
   const rezina = new THREE.MeshStandardMaterial({
     color: 0x1e293b,
@@ -89,6 +94,7 @@ export function materiallarniYarat(profil) {
   pol.map.wrapS = THREE.RepeatWrapping;
   pol.map.wrapT = THREE.RepeatWrapping;
   pol.map.repeat.set(4, 3);
+  kattaYuza(pol.map);
 
   const devor = new THREE.MeshStandardMaterial({
     color: 0xffffff,
@@ -99,6 +105,7 @@ export function materiallarniYarat(profil) {
   devor.map.wrapS = THREE.RepeatWrapping;
   devor.map.wrapT = THREE.RepeatWrapping;
   devor.map.repeat.set(6, 4);
+  kattaYuza(devor.map);
 
   // Eski mavzu effekti sahna tayyor bo'lgach aynan shu qiymatlarni
   // o'rnatardi. Endi ko'rinish qat'iy, shuning uchun o'sha yakuniy holat
