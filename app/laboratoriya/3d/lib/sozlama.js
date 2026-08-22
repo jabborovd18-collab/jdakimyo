@@ -2,7 +2,15 @@
 // 'sehrli raqamlar' (magic numbers) yozilsa, balansni va dizaynni boshqarish qiyinlashadi.
 
 export const KAMERA = {
-  fov: 45,
+  // Three.js'da fov VERTIKAL. 16:9 ekranda 45° vertikal ≈ 73° gorizontal —
+  // bu mahsulotni suratga olish burchagi, ichida YURISH burchagi emas:
+  // u fazoni siqadi va devorlarni yaqin ko'rsatadi. FPS o'yinlari
+  // 90-103° gorizontal ishlatadi; 60° vertikal ≈ 91° gorizontal.
+  //
+  // NEGA XONA EMAS, KAMERA: xona allaqachon 16x12 m = 192 m², ya'ni
+  // haqiqiy o'quv laboratoriyasidan (60-100 m²) KATTA. "Tor" tuyg'usi
+  // o'lchamdan emas, burchakdan kelgan (BRIF-04, 2026-08-20 topilmasi).
+  fov: 60,
   yaqin: 0.1,
   uzoq: 100,
   boshlangich: [0, 1.6, 3.2],
