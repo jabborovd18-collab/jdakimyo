@@ -64,7 +64,7 @@ solinadi, keyin quyidagilar birga qilinadi. Tartib foydaga qarab:
 
 | # | Manba | Nega aynan shu | Holat |
 |---|---|---|---|
-| 1 | Bing Webmaster + IndexNow | ChatGPT Search Bing indeksiga ham suyanadi; yangi sahifa soatlarda tushadi | navbatda |
+| 1 | Bing Webmaster + IndexNow | ChatGPT Search Bing indeksiga ham suyanadi; yangi sahifa soatlarda tushadi | IndexNow tayyor (`npm run indexnow`), Bing hisobi egasida |
 | 2 | YouTube | subtitr matni indekslanadi, AI iqtibos oladi | navbatda |
 | 3 | Wikidata | entity'ning o'zi — "bu nima" savoliga javob shu yerdan olinadi | navbatda |
 | 4 | Reddit | ChatGPT ham, Google ham katta vazn beradi; qoidalar qattiq, sekin ish | navbatda |
@@ -78,6 +78,23 @@ Har bir hisob ochilganda ikki ish qilinadi:
    bo'ladi.
 2. Profil tavsifiga `TARIF` dagi AYNAN o'sha jumla yoziladi. Har joyda
    boshqacha yozilgan ta'rif AI uchun ikki xil narsa bo'lib ko'rinadi.
+
+## IndexNow
+
+`npm run indexnow` — jonli sitemapdagi manzillarni Bing va Yandex
+indeksiga xabar qiladi. Faqat o'zgargan manzillar uchun ham ishlaydi:
+
+```bash
+node scripts/indexnow.js /jda-kimyo /ishlashi
+```
+
+Kalit `public/<kalit>.txt` da; fayl nomi kalitning o'zi va ichida ham
+xuddi shu satr turadi. Skript kalitni fayl nomidan o'qiydi — kod ichida
+takrorlanmaydi. Fayl o'chsa yoki ichi mos kelmasa, skript ishlamaydi va
+sababini aytadi.
+
+Google IndexNow'ni qo'llamaydi — u yerda Search Console'dagi
+"Запросить индексирование" qoladi (kuniga ~10 ta).
 
 ## Sinov so'rovlari
 
