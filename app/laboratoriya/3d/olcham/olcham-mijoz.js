@@ -12,6 +12,7 @@ import { kadrGistogrammasi, kadrQorami } from "./olcham-hisob.js";
 import { yorliqlarniYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
 import { HIMOYALANGAN_NOMLAR } from "../lib/geometriya-birlashtirish.js";
+import { rezolyutsiyaSinovi } from "../lib/dinamik-rezolyutsiya.js";
 import { assetHolati } from "../lib/asset-yuklovchi.js";
 import {
   NUQTA_NOMLARI,
@@ -23,7 +24,15 @@ function parametrlarniOl() {
   const q = new URLSearchParams(window.location.search);
   const profil = profilniOl(q.get("profil") || SUKUT_PROFIL).nom;
   const nuqta = q.get("nuqta") || "stol";
-  return { profil, nuqta };
+  // BRIF-03 2-mezon. O'lchov paytida DRS o'chiq bo'lishi SHART, lekin
+  // ulash haqiqatan ishlashini ham ko'rsatish kerak. `?drs=1` uni
+  // ataylab yoqadi va shu sahifa ideal sinov maydoni: dasturiy
+  // renderer sekin, ya'ni kadr nishondan ancha uzoq va boshqaruvchi
+  // rezolyutsiyani pastki chegaraga tushirishi SHART.
+  //
+  // Oddiy o'lchov yo'liga tegmaydi: parametr berilmasa DRS o'chiq.
+  const drs = q.get("drs") === "1";
+  return { profil, nuqta, drs };
 }
 
 function kameraniQoy(kamera, controls, nuqta) {
@@ -192,6 +201,30 @@ function narxTaqsimoti(renderer, scene, kamera, composer) {
   const bir = kadrVaqtiniOlch(renderer, scene, kamera, composer, 7, 10);
   const piksel1x = renderer.domElement.width * renderer.domElement.height;
 
+  // QIMMAT KADRDA 4x ZOND O'TKAZIB YUBORILADI.
+  //
+  // Zond kadrni 4 barobar qimmatlashtiradi va 20 marta chizadi. Kadr
+  // allaqachon 12 ms bo'lsa, bu bitta kamera nuqtasiga bir daqiqagacha
+  // qo'shadi. `ilova` profilida o'lchov shu sababdan tugamay qoldi
+  // (2026-08-22).
+  //
+  // Bundan tashqari qimmat profilda zond baribir foyda bermadi:
+  // desktopda 4x/1x nisbati 1.17 chiqdi va ajratish rad etildi. Ya'ni
+  // biz vaqtni "—" natijaga sarflardik.
+  if (bir.qiymat > 12) {
+    return {
+      kadrVaqti: bir.qiymat,
+      kadrVaqtiTarqoq: bir.tarqoqlik,
+      kadrVaqti4x: 0,
+      fragment: 0,
+      geometriya: 0,
+      fragmentUlushi: 0,
+      ishonchli: false,
+      narxSababi: "kadr qimmat (>12 ms) — 4x zond o'tkazib yuborildi",
+      pikselNisbati: 0,
+    };
+  }
+
   renderer.setPixelRatio(eskiNisbat * 2);
   renderer.setSize(olcham.x, olcham.y, false);
   if (composer) composer.setSize(olcham.x * eskiNisbat * 2, olcham.y * eskiNisbat * 2);
@@ -225,6 +258,15 @@ function narxTaqsimoti(renderer, scene, kamera, composer) {
   const olchashgaArziydi = bir.qiymat >= 0.5;
   const ishonchli = rezolyutsiyaOzgardi && olchashgaArziydi
     && tort.qiymat > bir.qiymat * 1.2;
+  // Asbob nima uchun rad etganini AYTADI. "—" ning sababsizi keyingi
+  // o'quvchini taxmin qilishga majbur qilardi.
+  const sabab = ishonchli
+    ? ""
+    : !rezolyutsiyaOzgardi
+      ? `bufer 4 barobar kattalashmadi (nisbat ${nisbat.toFixed(2)})`
+      : !olchashgaArziydi
+        ? `kadr arzon (${bir.qiymat.toFixed(2)} ms < 0.5) — taymer aniqligi yetmaydi`
+        : `4x kadr 1x dan atigi ${(tort.qiymat / bir.qiymat).toFixed(2)} barobar qimmat`;
   const fragment = ishonchli ? (tort.qiymat - bir.qiymat) / 3 : 0;
   const geometriya = ishonchli ? Math.max(0, bir.qiymat - fragment) : 0;
   return {
@@ -245,6 +287,7 @@ function narxTaqsimoti(renderer, scene, kamera, composer) {
     // kerak: chiroq soni kamayganda fragment ULUSHI tushishi shart.
     fragmentUlushi: ishonchli && bir.qiymat > 0 ? fragment / bir.qiymat : 0,
     ishonchli,
+    narxSababi: sabab,
     pikselNisbati: nisbat,
   };
 }
@@ -344,6 +387,7 @@ export default function OlchamMijoz() {
       olcham: true,
       profil: param?.profil || SUKUT_PROFIL,
       yorliqlarYoqilgan: true,
+      drsMajburiy: !!param?.drs,
     },
   );
 
@@ -462,7 +506,7 @@ export default function OlchamMijoz() {
     // 24 nuqtaning har birida ~1 soniya qo'shilardi va supurishning
     // vazifasi qamrov, narx emas.
     const narx = ozgartirish.tez
-      ? { kadrVaqti: 0, kadrVaqtiTarqoq: 0, kadrVaqti4x: 0, fragment: 0, geometriya: 0, fragmentUlushi: 0, ishonchli: false, pikselNisbati: 0 }
+      ? { kadrVaqti: 0, kadrVaqtiTarqoq: 0, kadrVaqti4x: 0, fragment: 0, geometriya: 0, fragmentUlushi: 0, ishonchli: false, narxSababi: "supurish", pikselNisbati: 0 }
       : narxTaqsimoti(renderer, scene, kamera, composerRef.current);
 
     const namuna = fpsRef.current.namuna;
@@ -501,12 +545,18 @@ export default function OlchamMijoz() {
       geometriyaNarxi: narx.geometriya,
       fragmentUlushi: narx.fragmentUlushi,
       narxIshonchli: narx.ishonchli,
+      narxSababi: narx.narxSababi,
       narxPikselNisbati: narx.pikselNisbati,
       uchburchak,
       chaqiruv,
       teksturaXotira,
       renderer: rendererNominiOl(gl),
       chiroqSoni,
+      // BRIF-03 — o'lchov paytida rezolyutsiya qotib turishi shart.
+      // `kutilgan` profil va ekran zichligidan hisoblanadi; ikkisi teng
+      // bo'lmasa DRS o'lchagichda ishlab ketgan degani.
+      pikselNisbati: renderer.getPixelRatio(),
+      pikselNisbatiKutilgan: Math.min(window.devicePixelRatio || 1, profil.pikselNisbati),
       interaktivSoni,
       stansiyaMeshlari,
       // BRIF-07 dalili: nechta mesh birlashdi, nechta guruh hosil bo'ldi,
@@ -640,6 +690,12 @@ export default function OlchamMijoz() {
         teksturaOsdi: keyin.tekstura - oldin.tekstura,
       };
     };
+    // BRIF-03 — boshqaruvchining sun'iy sinovi. GPU siz ishlaydi,
+    // shuning uchun uni o'lchagich har yugurishda chaqiradi va
+    // yiqilsa butun o'lchov exit 1 beradi.
+    window.__rezolyutsiyaSinovi = () => rezolyutsiyaSinovi();
+    // Boshqaruvchi qarori rendererga haqiqatan yetib borganini o'qish.
+    window.__pikselNisbati = () => rendererRef.current?.getPixelRatio() ?? 0;
     window.__olcham = (x) => olchamRef.current(x);
     window.__supurish = (x) => supurishRef.current(x);
     window.__olchamSozlama = {
@@ -649,6 +705,8 @@ export default function OlchamMijoz() {
     };
     return () => {
       if (window.__assetSinovi) delete window.__assetSinovi;
+      if (window.__rezolyutsiyaSinovi) delete window.__rezolyutsiyaSinovi;
+      if (window.__pikselNisbati) delete window.__pikselNisbati;
       if (window.__olcham) delete window.__olcham;
       if (window.__supurish) delete window.__supurish;
       if (window.__olchamSozlama) delete window.__olchamSozlama;

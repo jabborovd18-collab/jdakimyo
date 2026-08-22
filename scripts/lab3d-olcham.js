@@ -100,6 +100,7 @@ function qatorniJadvalga(q) {
     yuqoriSoha: yaxlit(q.yuqoriSoha, 4),
     quyiSoha: yaxlit(q.quyiSoha, 4),
     fps: yaxlit(q.fps, 1),
+    pikselNisbati: q.pikselNisbati,
     kadrVaqti: yaxlit(q.kadrVaqti, 2),
     tarqoq: yaxlit(q.kadrVaqtiTarqoq, 2),
     fragmentUlushi: q.narxIshonchli ? yaxlit(q.fragmentUlushi, 3) : "—",
@@ -265,12 +266,15 @@ function natijaniTekshir(natija, nuqta) {
     "yorliqToqnashuvi",
     "interaktivSoni",
     "stansiyaMeshlari",
+    "pikselNisbati",
+    "pikselNisbatiKutilgan",
     "kadrVaqti",
     "kadrVaqtiTarqoq",
     "fragmentNarxi",
     "geometriyaNarxi",
     "fragmentUlushi",
     "narxIshonchli",
+    "narxSababi",
   ];
   if (nuqta === "sweep") {
     kerak.push("sweepEngYomon", "sweepJoy", "sweepUrug", "sweepNamunaSoni");
@@ -314,6 +318,13 @@ function natijaniTekshir(natija, nuqta) {
     if (nuqta !== "sweep" && maydon === "kadrVaqti" && qiymat <= 0) {
       throw new Error(`${profil}/${nuqta}: kadrVaqti o'lchanmadi`);
     }
+  }
+  // BRIF-03 qorovuli — o'lchov paytida rezolyutsiya o'zgarmasin.
+  if (natija.pikselNisbati !== natija.pikselNisbatiKutilgan) {
+    throw new Error(
+      `${profil}/${nuqta}: pikselNisbati ${natija.pikselNisbati}, ` +
+        `kutilgan ${natija.pikselNisbatiKutilgan} — DRS o'lchagichda ishlab ketdi`,
+    );
   }
   if (!Number.isInteger(natija.interaktivSoni) || natija.interaktivSoni < 1) {
     throw new Error(`${profil}/${nuqta}: interaktivSoni yaroqsiz`);
@@ -376,6 +387,7 @@ async function asosiy() {
   });
 
   const olchovlar = [];
+  let drsSinovNatijasi = null;
   let page;
   try {
     page = await context.newPage();
@@ -395,6 +407,28 @@ async function asosiy() {
         && typeof window.__supurish === "function"
         && !!window.__olchamSozlama,
       { timeout: 90000 },
+    );
+
+    // BRIF-03 — dinamik rezolyutsiya boshqaruvchisining sun'iy sinovi.
+    //
+    // U GPU siz, sof funksiya ustida ishlaydi va bir necha millisekund
+    // oladi. Shuning uchun har o'lchovda yugurtiriladi: buzilgan
+    // boshqaruvchi jim o'tib ketmasin.
+    const drsSinov = await page.evaluate(() => window.__rezolyutsiyaSinovi());
+    if (!drsSinov || !Array.isArray(drsSinov.sinovlar) || !drsSinov.sinovlar.length) {
+      throw new Error("__rezolyutsiyaSinovi() natija bermadi");
+    }
+    if (drsSinov.yiqilgan > 0) {
+      const yomon = drsSinov.sinovlar.filter((x) => !x.otdi)
+        .map((x) => `${x.nom}: kutilgan ${x.kutilgan}, olingan ${x.olingan} (${x.izoh})`)
+        .join("\n  ");
+      throw new Error(
+        `Dinamik rezolyutsiya sinovi yiqildi (${drsSinov.yiqilgan}/${drsSinov.jami}):\n  ${yomon}`,
+      );
+    }
+    drsSinovNatijasi = drsSinov;
+    process.stderr.write(
+      `  DRS sinovi: ${drsSinov.jami}/${drsSinov.jami} o'tdi\n`,
     );
 
     const sahifaSozlamasi = await page.evaluate(() => window.__olchamSozlama);
@@ -474,6 +508,7 @@ async function asosiy() {
             urug: olchovlar.find((q) => q.nuqta === "sweep")?.sweepUrug,
           },
           olchovlar,
+          drsSinovi: drsSinovNatijasi,
           xulosa,
         },
         null,
@@ -488,6 +523,12 @@ async function asosiy() {
     console.warn("OGOHLANTIRISH: FPS raqamlari dasturiy renderdan — haqiqiy GPU emas.");
   }
 
+  if (drsSinovNatijasi) {
+    console.log(
+      `DRS sinovi: ${drsSinovNatijasi.jami - drsSinovNatijasi.yiqilgan}` +
+        `/${drsSinovNatijasi.jami} o'tdi.`,
+    );
+  }
   console.log(
     `XULOSA: ${chiqib.length}/${KUTILGAN_QATOR} qator` +
       `${shipPolChiqib ? " va shipPolFarq" : ""} chegaradan chiqdi; ` +

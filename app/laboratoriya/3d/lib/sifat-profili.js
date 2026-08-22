@@ -10,6 +10,7 @@ function profilYarat(sozlama) {
     ...sozlama,
     postprocessing: Object.freeze({ ...sozlama.postprocessing }),
     teksturaOlchami: Object.freeze({ ...sozlama.teksturaOlchami }),
+    pikselOraligi: Object.freeze({ ...sozlama.pikselOraligi }),
   });
 }
 
@@ -25,6 +26,11 @@ export const PROFILLAR = Object.freeze({
     chiroqBudjeti: 3,
     // DPR 3 telefonda 1.5 cap 2.25 barobar ortiq piksel chizardi.
     pikselNisbati: 1.0,
+    // BRIF-03 — dinamik rezolyutsiya chegarasi. Telefonda nishon 30 FPS:
+    // 60 ni talab qilish rezolyutsiyani doim pastki chegarada ushlab
+    // turardi va rasm behuda buzilardi.
+    pikselOraligi: { past: 0.6, yuqori: 1.0 },
+    nishonKadrVaqti: 33.3,
     soya: false,
     // Eski arzon yo'l ham RoomEnvironment yaratgan; false qilish bu brifda
     // tezlashtirish bo'lib, oldin/keyin tasvirini o'zgartirib yuborardi.
@@ -38,6 +44,12 @@ export const PROFILLAR = Object.freeze({
     nom: "desktop",
     chiroqBudjeti: 8,
     pikselNisbati: 1.5,
+    // Yuqori chegara 2.0: 4K ekranda rezolyutsiya ko'tarilishi mumkin,
+    // lekin FAQAT kadr arzon bo'lsa. Eski BRIF-03 chegarani butunlay
+    // olib tashlamoqchi edi — bu 4K da 4 barobar pikselni shartsiz
+    // majburlardi.
+    pikselOraligi: { past: 0.8, yuqori: 2.0 },
+    nishonKadrVaqti: 16.7,
     soya: true,
     IBL: true,
     transmission: true,
@@ -50,6 +62,8 @@ export const PROFILLAR = Object.freeze({
     nom: "ilova",
     chiroqBudjeti: 16,
     pikselNisbati: 1.5,
+    pikselOraligi: { past: 0.8, yuqori: 2.0 },
+    nishonKadrVaqti: 16.7,
     soya: true,
     IBL: true,
     transmission: true,

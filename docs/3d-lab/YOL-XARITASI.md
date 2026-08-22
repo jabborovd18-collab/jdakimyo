@@ -644,6 +644,49 @@ vaqt ishonchli ko'rinib turdi.
 **0.6 endi ochiq.** Uning mezoni: chiroq soni kamayganda
 `fragmentUlushi` tushishi shart — chiroq har piksel uchun to'lanadi.
 
+### 0.3 — dinamik rezolyutsiya: ikki nuqson GPU ga yetmasdan topildi
+
+Boshqaruvchi ATAYLAB sof funksiya qilib yozildi (`keyingiNisbat`):
+kirgan holatni o'zgartirmaydi, tashqi hech narsaga tegmaydi. Shu
+tufayli uni brauzersiz, GPU siz, sun'iy sonlar bilan yugurtirish
+mumkin — va aynan shu ikkita nuqsonni topdi.
+
+**1-nuqson — vsync tuzog'i (ko'tarilish yo'li o'lik edi).**
+
+Dastlab "tez" sharti *kadr nishonning 0.7 barobaridan tez bo'lsin*
+deb yozilgan edi. Lekin 60 Hz ekranda vsync kadrni 16.7 ms dan tez
+qilishga YO'L QO'YMAYDI. Ya'ni nishon 16.7 bo'lganda shart hech
+qachon rost bo'lmasdi va boshqaruvchi bir tomonlama ishlardi: bir
+marta tushgan rezolyutsiya abadiy past qolardi. Bitta tasodifiy
+sekinlashuv sifatni doimiy buzardi.
+
+Endi "tez" = *nishonni ushlab turibmiz* (1.05 barobar). Boshqaruvchi
+eng yuqori ushlab turiladigan rezolyutsiyaga yaqinlashadi.
+
+**2-nuqson — sekin qurilma sekin yordam olardi.**
+
+Oyna 30 ta KADR bilan o'lchanardi. 60 FPS da bu yarim soniya, 10 FPS
+da esa uch soniya. Ya'ni qurilma qanchalik qiynalsa, boshqaruvchi
+shunchalik sekin javob berardi — aynan teskarisi kerak.
+
+O'lchandi (telefon profili, 10 soniya):
+
+| kadr | FPS | oldin | keyin |
+|---|---:|---:|---:|
+| 50 ms | 20 | 0.6 | 0.6 |
+| 66.7 ms | 15 | 0.6 | 0.6 |
+| 100 ms | 10 | **0.7** | 0.6 |
+| 200 ms | 5 | — | 0.6 |
+
+10 FPS li qurilma 15 FPS likidan YOMONROQ natija olardi. Endi oyna
+30 kadr YOKI 500 ms — qaysi biri oldin kelsa.
+
+**Saboq:** grafik kodni GPU siz sinash mumkin bo'lgan qismga ajratish
+o'zini oqladi. Ikkala nuqson ham jonli sahifada ko'z bilan deyarli
+sezilmasdi (biri "vaqt o'tib sifat pasayib qoladi", ikkinchisi "juda
+sekin telefonda sekin tuzatiladi"), lekin sonli simulyatsiya ularni
+darhol ko'rsatdi.
+
 ### Asbob desktopda fragmentni ajrata olmadi — va buni o'zi aytdi
 
 Yangi asbob uch profilda yugurtirildi. Telefonda ajratish ishladi,
