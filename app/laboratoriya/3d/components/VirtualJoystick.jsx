@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { KIRISH, useKirishUsuli } from "../lib/kirish-usuli.js";
 import Ikon from "@/components/Ikon";
 
 /**
@@ -16,7 +17,11 @@ export default function VirtualJoystick({
   onQolgaOlYokiQoy,
   onQuyish,
 }) {
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  // Sensorli qurilma aniqlash `lib/kirish-usuli.js` da — u yagona ega.
+  // Ilgari shart shu faylning ICHIDA yashardi va nishon matnlari uni
+  // ko'ra olmasdi: joystik ko'rinardi, matn esa "[E / Klik]" derdi.
+  const kirishUsuli = useKirishUsuli();
+  const isTouchDevice = kirishUsuli === KIRISH.SENSOR;
   const [sprintAktiv, setSprintAktiv] = useState(false);
 
   const baseRef = useRef(null);
@@ -26,13 +31,6 @@ export default function VirtualJoystick({
   const rightLastPosRef = useRef({ x: 0, y: 0 });
 
   const RADIUS = 46; // Joystik maksimal harakat radiusi px
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0 || window.innerWidth < 1024;
-      setIsTouchDevice(isTouch);
-    }
-  }, []);
 
   // 1. CHAP TOMON: ANALOG JOYSTIK HODISALARI (ZERO REACT RE-RENDER)
   const handleJoystickTouchStart = (e) => {

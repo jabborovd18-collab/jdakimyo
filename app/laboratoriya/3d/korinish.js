@@ -21,6 +21,13 @@ import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi, oqimBoshla, oqimToxtat, taroziBip, shishaUrilishi, tiqinOchilishi } from "./lib/ovoz.js";
 import { massaHisobla } from "./lib/tarozi.js";
+import {
+  KIRISH,
+  KLAVIATURA_AMALLARI,
+  ishoralarniOl,
+  muqobilsizAmallar,
+  useKirishUsuli,
+} from "./lib/kirish-usuli.js";
 import { eritmaHisobla } from "./lib/eritma-tayyorlash.js";
 import { titrlashHolatiniHisobla } from "./lib/titrlash-dvigatel.js";
 import { elektrolizHisobla } from "./lib/elektroliz-dvigatel.js";
@@ -64,6 +71,10 @@ export default function Korinish() {
   const [ekspertModalOchilgan, setEkspertModalOchilgan] = useState(false);
   const [xrayModalOchilgan, setXrayModalOchilgan] = useState(false);
   const [yordamOchilgan, setYordamOchilgan] = useState(false);
+  // Kirish usuli — HUD tugmalari va qo'llanma matni shunga moslanadi.
+  const kirishUsuli = useKirishUsuli();
+  const ISH = ishoralarniOl(kirishUsuli);
+  const sensorli = kirishUsuli === KIRISH.SENSOR;
   const [ovozYoqilgan, setOvozYoqilgan] = useState(true);
 
   // Tarozi holati
@@ -941,10 +952,10 @@ export default function Korinish() {
             type="button"
             onClick={() => setYordamOchilgan(true)}
             className="px-2.5 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 shadow-lg text-[11px] font-mono font-bold text-emerald-400 hover:border-emerald-400 backdrop-blur-md flex items-center gap-1.5 transition-all"
-            title="Klaviatura va Boshqaruv Qo'llanmasi (H)"
+            title={ISH.qollanmaSarlavha}
           >
             <Ikon nom="kitob" olcham={13} />
-            <span>[H] Qo{"'"}llanma</span>
+            <span>{ISH.qollanma}</span>
           </button>
 
           {/* 2D Labga qaytish / Chiqish */}
@@ -1204,72 +1215,87 @@ export default function Korinish() {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-              <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-cyan-400 font-bold flex items-center gap-1.5">
-                  <Ikon nom="odam" olcham={13} />
-                  <span>WASD / Joystik</span>
-                </div>
-                <div className="text-slate-400 text-[11px]">16x12m xona bo{"'"}ylab erkin yurish</div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-cyan-400 font-bold flex items-center gap-1.5">
-                  <Ikon nom="qidiruv" olcham={13} />
-                  <span>Erkin Sichqoncha</span>
-                </div>
-                <div className="text-slate-400 text-[11px]">CS 1.6 uslubidagi 360° ko{"'"}rish (Tugmasiz)</div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-emerald-400 font-bold flex items-center gap-1.5">
-                  <Ikon nom="kolba" olcham={13} />
-                  <span>[E] / Chap Klik</span>
-                </div>
-                <div className="text-slate-400 text-[11px]">Idishni olish, quyish, kran/tarozini bosish</div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-amber-400 font-bold flex items-center gap-1.5">
-                  <Ikon nom="past" olcham={13} />
-                  <span>[G] Klavishi</span>
-                </div>
-                <div className="text-slate-400 text-[11px]">Idishni stolga qo{"'"}yish / Shkafga qaytarish</div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-purple-400 font-bold flex items-center gap-1.5">
-                  <Ikon nom="atom" olcham={13} />
-                  <span>[1, 2, 3, 4, 5]</span>
-                </div>
-                <div className="text-slate-400 text-[11px]">1ml, 5ml, 10ml, 25ml, 50ml aniq doza quyish</div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div className="text-sky-400 font-bold flex items-center gap-1.5">
-                  <Ikon nom="ochiq" olcham={13} />
-                  <span>[C / Ctrl]</span>
-                </div>
-                <div className="text-slate-400 text-[11px]">Cho{"'"}qqayish (Pastki javonlarni tekshirish)</div>
-              </div>
+            {/* Boshqaruv jadvali `lib/kirish-usuli.js` dagi ro'yxatdan
+                yasaladi. Ilgari u shu yerda qo'lda yozilgan va faqat
+                klaviaturani ko'rsatardi; telefonda o'quvchi "E" ni
+                qayerdan bosishini bilmasdi. */}
+            <div className="space-y-1.5 text-xs font-mono">
+              {KLAVIATURA_AMALLARI.map((a) => {
+                const yoq = sensorli && !a.sensorda;
+                return (
+                  <div
+                    key={a.tugma}
+                    className={`flex items-start gap-2.5 rounded-xl border p-2 ${
+                      yoq
+                        ? "border-amber-500/40 bg-amber-500/5"
+                        : "border-slate-800 bg-slate-900/70"
+                    }`}
+                  >
+                    <span
+                      className={`shrink-0 rounded-lg px-2 py-0.5 text-[11px] font-bold ${
+                        yoq ? "bg-amber-500/15 text-amber-300" : "bg-slate-800 text-cyan-300"
+                      }`}
+                    >
+                      {sensorli ? a.sensorda || "yo'q" : a.tugma}
+                    </span>
+                    <span className="flex-1 text-[11px] text-slate-300 leading-relaxed">
+                      {a.amal}
+                      {yoq && a.izoh && (
+                        <span className="block text-amber-300/80 mt-0.5">{a.izoh}</span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
+            {/* Sensorli qurilmada bajarib bo'lmaydigan amallar ochiq
+                aytiladi. Jim qoldirilsa, o'quvchi nima qilishni bilmay
+                tajribani tashlab ketardi. */}
+            {sensorli && muqobilsizAmallar().length > 0 && (
+              <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-amber-300 font-bold font-mono text-[11px]">
+                  <Ikon nom="bayroq" olcham={13} />
+                  <span>BU QURILMADA BAJARIB BO{"'"}LMAYDI</span>
+                </div>
+                <p className="text-[11px] text-amber-100/80 leading-relaxed">
+                  Quyidagi amallar klaviatura talab qiladi. Ularni bajarish uchun
+                  kompyuterdan kiring — laboratoriyaning qolgan hamma qismi bu
+                  qurilmada to{"'"}liq ishlaydi.
+                </p>
+                <ul className="space-y-0.5 pl-1">
+                  {muqobilsizAmallar().map((a) => (
+                    <li key={a.tugma} className="text-[11px] text-amber-200/90">
+                      • <strong>{a.amal}</strong>
+                      {a.izoh ? ` — ${a.izoh}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-[11px] text-slate-300 space-y-1">
-              <strong className="text-white block font-mono text-cyan-400">100% Tugmasiz Jismoniy Olam:</strong>
+              <strong className="text-white block font-mono text-cyan-400">Nimadan boshlash kerak:</strong>
               <p>
-                • <strong>Reagentlar:</strong> Devordagi 4 ta shkaf oldiga borib shishaga qarang va <code>[E]</code> bosing.
+                • <strong>Reagentlar:</strong> devordagi shkaf oldiga borib shishaga qarang va{" "}
+                <code className="text-cyan-300">{ISH.amal}</code> qiling.
               </p>
               <p>
-                • <strong>Jihozlar:</strong> Stoldagi Jihozlar Stendi oldiga borib bo{"'"}sh probirka/kolbani <code>[E]</code> bilan oling.
+                • <strong>Jihozlar:</strong> stoldagi jihozlar stendidan bo{"'"}sh probirka yoki
+                kolbani <code className="text-cyan-300">{ISH.amal}</code> bilan oling.
               </p>
               <p>
-                • <strong>Tarozi:</strong> Stoldagi 3D tarozi oldiga kelib <code>[TARA]</code> yoki <code>[ZERO]</code> tugmasini bosing.
+                • <strong>Tarozi:</strong> stoldagi tarozi oldiga kelib{" "}
+                <code className="text-cyan-300">[TARA]</code> yoki{" "}
+                <code className="text-cyan-300">[ZERO]</code> tugmasini bosing.
               </p>
               <p>
-                • <strong>Yuvish:</strong> Rakovina oldiga borib kran jo{"'"}mragini buring yoki idishni yuving.
+                • <strong>Yuvish:</strong> rakovina oldiga borib kran jo{"'"}mragini buring
+                yoki idishni yuving.
               </p>
               <p>
-                • <strong>Reaksiya Tahlili:</strong> Stoldagi Smart Planshet oldiga kelib <code>[E]</code> bosing.
+                • <strong>Tahlil:</strong> stoldagi smart planshet oldiga kelib{" "}
+                <code className="text-cyan-300">{ISH.amal}</code> qiling.
               </p>
             </div>
 

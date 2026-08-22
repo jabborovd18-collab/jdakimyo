@@ -6,6 +6,7 @@ import { qadamTovushi, shishaUrilishi, tiqinOchilishi, taroziBip, oqimBoshla, oq
 import { idishYorliginiQoldaYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
 import { YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
+import { ishorasiniMosla, useKirishUsuli } from "../lib/kirish-usuli.js";
 
 // Yurish chegarasi — xona o'lchamidan hosila, modul yuklanganda bir marta.
 // Old tomon kattaroq chetlanadi: eshik va ostona shu yerda.
@@ -81,6 +82,13 @@ export function useYurish({
   tarozidagiIdish = null,
   taraMassa = 0,
 }) {
+  // Kirish usuli — nishon matnlarini moslash uchun. Ref ishlatiladi,
+  // chunki matn rAF sikli ichida hosil bo'ladi va u React render
+  // siklidan tashqarida.
+  const kirishUsuli = useKirishUsuli();
+  const kirishUsuliRef = useRef(kirishUsuli);
+  kirishUsuliRef.current = kirishUsuli;
+
   const [yurishRejimi, setYurishRejimi] = useState(true); // Sukut bo'yicha doimo FPS yurish faol
   const [yurmoqda, setYurmoqda] = useState(false);
   const [fpsQaralganIdish, setFpsQaralganIdish] = useState(null);
@@ -1077,7 +1085,11 @@ export function useYurish({
 
         if (promptText !== prevPromptTextRef.current) {
           prevPromptTextRef.current = promptText;
-          setFpsKontekstMatn(promptText);
+          // Nishon matnlari klaviatura ishorasi bilan yozilgan va ular
+          // 25 ta joyda. Hammasi shu yagona nuqtadan o'tadi, shuning
+          // uchun sensorli qurilmaga moslash shu yerda bir marta
+          // bajariladi (`lib/kirish-usuli.js`).
+          setFpsKontekstMatn(ishorasiniMosla(promptText, kirishUsuliRef.current));
         }
 
         if (promptType !== prevPromptTypeRef.current) {
