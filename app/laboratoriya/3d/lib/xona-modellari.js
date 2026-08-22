@@ -962,16 +962,29 @@ function rakovinaYasa(materiallar) {
 
   const group = new THREE.Group();
   group.name = "Yuvinish_Rakovinasi";
-  // Chap devordagi ish yuzasiga O'RNATILGAN.
+  // Chap devordagi ish yuzasi USTIDA.
   //
-  // Ilgari u devordan 2.5 m narida, hech qanday tayanchsiz havoda
-  // turardi. Xona kattalashganda bu ochiq ko'rinib qoldi (egasi
-  // 2026-08-22 da ko'rsatdi). Endi u chap devordagi past javon
-  // qatorining ustida: kosa yuzaga botirilgan (kosa jiyagi 1.03,
-  // yuza 1.05), jo'mrak esa devor tomonda.
+  // Ikki marta tuzatildi va ikkinchisining sababi yozib qo'yilsin:
+  //
+  // 1. Ilgari rakovina devordan 2.5 m narida, tayanchsiz havoda
+  //    turardi. Xona kattalashganda bu ochiq ko'rinib qoldi.
+  // 2. Birinchi tuzatishda u yuzaga ko'chirildi, lekin BALANDLIK
+  //    noto'g'ri hisoblandi: kosa guruh markazida (+-0.13) va guruh
+  //    y = 0.9 da edi, ya'ni kosa 0.77..1.03 oralig'ida — yuza esa
+  //    1.05 da. Natijada kosa shkaf ICHIDA qoldi va faqat old
+  //    eshikdan chiqib turdi (egasi rasmda ko'rsatdi).
+  //
+  // Endi kosaning TUBI yuza sirtida turadi: guruh markazi
+  // 1.05 + 0.13 = 1.18.
+  //
+  // Burilish +90°: lokal -z (jo'mrak tomoni) dunyo -x ga, ya'ni
+  // devorga qaraydi. Kosa chuqurligi 0.45, yuza chuqurligi 0.42 —
+  // shuning uchun markaz devorga 2 sm suriladi.
+  const YUZA_BALANDLIGI = 1.05;   // pastkiShkafYasa chapBalandlik
+  const KOSA_YARIM = 0.13;        // botiqGeo balandligining yarmi
   group.position.set(
-    -(XONA.eni / 2 - 0.21),
-    0.9,
+    -(XONA.eni / 2 - 0.19),
+    YUZA_BALANDLIGI + KOSA_YARIM,
     -XONA.boyi / 2 + XONA.markazZ + 1.6,
   );
   group.rotation.y = Math.PI / 2;
