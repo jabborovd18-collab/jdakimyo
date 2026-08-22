@@ -185,7 +185,9 @@ function davriyJadvalPlakati() {
 
     const group = new THREE.Group();
     group.name = "Davriy_Jadval_LED_Plakat";
-    group.position.set(0, 2.65, -5.55);
+    // Orqa devorga yopishadi: qattiq son yozilsa xona kattalashganda
+    // plakat havoda qolardi (BRIF-04 "DIQQAT" ro'yxati).
+    group.position.set(0, 2.65, -XONA.boyi / 2 + XONA.markazZ + 0.05);
 
     const karkasGeo = new THREE.BoxGeometry(4.2, 2.1, 0.04);
     const karkasMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.2 });
@@ -556,7 +558,7 @@ function xonaQobiginiYasa(materiallar, profil) {
   // 7. Xavfsizlik Dushi va Ko'z Yuvish Stansiyasi (O'ng devorda)
   const dushGroup = new THREE.Group();
   dushGroup.name = "Xavfsizlik_Dushi_Stansiyasi";
-  dushGroup.position.set(XONA_W / 2 - 0.15, 0, 3.5);
+  dushGroup.position.set(XONA_W / 2 - 0.15, 0, MZ + 3.1);
 
   const suvMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 });
   const sariqMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2 });
@@ -960,7 +962,8 @@ function rakovinaYasa(materiallar) {
 
   const group = new THREE.Group();
   group.name = "Yuvinish_Rakovinasi";
-  group.position.set(-5.5, 0.9, -4.8); // Chap orqa burchakda
+  // Chap orqa burchakda — burchakdan sanaladi, markazdan emas.
+  group.position.set(-(XONA.eni / 2 - 2.5), 0.9, -XONA.boyi / 2 + XONA.markazZ + 0.8);
 
   const chinniMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.1 });
   const kranMat = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.9, roughness: 0.1 });

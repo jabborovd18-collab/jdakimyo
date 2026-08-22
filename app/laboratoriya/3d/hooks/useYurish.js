@@ -5,10 +5,19 @@ import * as THREE from "three";
 import { qadamTovushi, shishaUrilishi, tiqinOchilishi, taroziBip, oqimBoshla, oqimToxtat } from "../lib/ovoz.js";
 import { idishYorliginiQoldaYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
-import { YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
+import { XONA, YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
 
 // Yurish chegarasi — xona o'lchamidan hosila, modul yuklanganda bir marta.
 // Old tomon kattaroq chetlanadi: eshik va ostona shu yerda.
+// Rakovina to'sig'i — uning modeldagi joyidan hosila
+// (xona-modellari.js: x = -(eni/2 - 2.5), z = zMin + 0.8).
+const RAKOVINA = (() => {
+  const d = xonaChegarasi();
+  const x = -(XONA.eni / 2 - 2.5);
+  const z = d.zMin + 0.8;
+  return { xMin: x - 0.5, xMax: x + 0.5, zMin: z - 0.5, zMax: z + 0.5 };
+})();
+
 const YURISH = (() => {
   const d = xonaChegarasi();
   return {
@@ -808,8 +817,9 @@ export function useYurish({
       nextX = cRight.x;
       nextZ = cRight.z;
 
-      // 4. Chap orqa rakovina to'sig'i (X: [-6.0, -5.0], Z: [-5.3, -4.3])
-      const cSink = stolKolliziyasi(nextX, nextZ, -6.0, -5.0, -5.3, -4.3, 0.45);
+      // 4. Chap orqa rakovina to'sig'i — rakovina joyi xona o'lchamidan
+      // hisoblanadi (xona-modellari.js), shuning uchun to'siq ham.
+      const cSink = stolKolliziyasi(nextX, nextZ, RAKOVINA.xMin, RAKOVINA.xMax, RAKOVINA.zMin, RAKOVINA.zMax, 0.45);
       nextX = cSink.x;
       nextZ = cSink.z;
 

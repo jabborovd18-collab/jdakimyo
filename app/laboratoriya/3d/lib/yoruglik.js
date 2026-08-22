@@ -37,24 +37,30 @@ const YORUGLIK_PROFILLARI = Object.freeze({
 
 // Panel mesh va uning nuri bir joyga qarashi kerak. Koordinata shu faylda
 // bitta marta turadi; xona modeli faqat yuzalarni shu ro'yxatdan yasaydi.
-export const SHIP_PANEL_JOYLARI = Object.freeze([
-  Object.freeze([-5.0, -3.0]),
-  Object.freeze([-1.8, -3.0]),
-  Object.freeze([1.8, -3.0]),
-  Object.freeze([5.0, -3.0]),
-  Object.freeze([-5.0, 2.5]),
-  Object.freeze([-1.8, 2.5]),
-  Object.freeze([1.8, 2.5]),
-  Object.freeze([5.0, 2.5]),
-]);
+//
+// Joylar xona o'lchamining ULUSHI sifatida beriladi, mutlaq metrda emas:
+// xona kattalashganda panellar ham yoyiladi, aks holda ship chekkalari
+// qorong'i qolardi. Ulushlar hozirgi qiymatlarni AYNAN qaytaradi
+// (W=16 -> +-5.0 va +-1.8; D=12, markazZ=0.4 -> -3.0 va 2.5).
+const PANEL_X_ULUSHI = Object.freeze([-0.625, -0.225, 0.225, 0.625]);
+const PANEL_Z_ULUSHI = Object.freeze([-0.5666666666666667, 0.35]);
+
+export const SHIP_PANEL_JOYLARI = Object.freeze(
+  PANEL_Z_ULUSHI.flatMap((uz) =>
+    PANEL_X_ULUSHI.map((ux) => Object.freeze([
+      (XONA.eni / 2) * ux,
+      XONA.markazZ + (XONA.boyi / 2) * uz,
+    ])),
+  ),
+);
 
 // Desktopda sakkiz panel nuri uchta keng zonaga birlashtiriladi. Panel
 // meshlarining o'zi sakkiztaligicha qoladi; faqat fragmentga tushadigan
 // qimmat LTC manbalari kamayadi.
 const DESKTOP_PANEL_NURLARI = Object.freeze([
-  Object.freeze([-3.4, -3.0, 4.5, 0.8]),
-  Object.freeze([3.4, -3.0, 4.5, 0.8]),
-  Object.freeze([0, 2.5, 8.0, 0.8]),
+  Object.freeze([-(XONA.eni / 2) * 0.425, XONA.markazZ + (XONA.boyi / 2) * PANEL_Z_ULUSHI[0], (XONA.eni / 2) * 0.5625, 0.8]),
+  Object.freeze([(XONA.eni / 2) * 0.425, XONA.markazZ + (XONA.boyi / 2) * PANEL_Z_ULUSHI[0], (XONA.eni / 2) * 0.5625, 0.8]),
+  Object.freeze([0, XONA.markazZ + (XONA.boyi / 2) * PANEL_Z_ULUSHI[1], XONA.eni / 2, 0.8]),
 ]);
 
 // Boshlang'ich spirtovka yashirin PointLight saqlaydi va scene.traverse uni
@@ -258,7 +264,7 @@ export function yoruglikniQur(scene, profil, renderer) {
       maydonNuriniYarat(0xeef4ff, 1.4, eni, boyi),
       `Yoruglik_Panel_${indeks + 1}`,
     );
-    panel.position.set(x, 4.15, z);
+    panel.position.set(x, XONA.balandligi - 0.05, z);
     panel.lookAt(x, 0.6, z);
   }
 
