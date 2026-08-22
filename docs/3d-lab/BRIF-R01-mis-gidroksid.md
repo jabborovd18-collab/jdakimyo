@@ -28,10 +28,37 @@ Egasi tanlovni menga qoldirdi. Beshta sabab, har biri tekshirilgan:
    (isitish), termometr (harorat), rakovina (yuvish), planshet
    (tahlil). Ya'ni xona bekor turmaydi.
 
-5. **Xatosi ham o'rgatadi.** NaOH ortiqcha qo'shilsa cho'kma ERIB
-   KETADI va to'q ko'k eritma hosil bo'ladi. Bu haqiqiy kimyo, va
-   aynan shu tufayli stexiometriya o'yinda ahamiyatga ega bo'ladi —
-   "ko'proq quysam yaxshiroq" ishlamaydi.
+5. **Mavjud mashg'ulotning DAVOMI.** `AMALIY_MASHGULOTLAR` da
+   `mashgulot_2` allaqachon bor: "Mis kuporosidan standart 0.1 M
+   eritma tayyorlash". Ya'ni CuSO₄ eritmasini tayyorlash bosqichlari
+   yozilgan. Bizning ishimiz o'sha eritmadan boshlanadi va zanjir
+   hosil bo'ladi.
+
+---
+
+## TUZATISH — birinchi qoralamadagi xatom
+
+Birinchi qoralamada "xatosi ham o'rgatadi" degan asosiy dalil sifatida
+NaOH ortiqcha bo'lganda cho'kmaning erishini yozgandim. Kod yozishdan
+oldin `AMALIY_MASHGULOTLAR` ni o'qib ikkita narsa aniqlandi:
+
+**1. Bu mexanika allaqachon bor.** `mashgulot_5` — "Amfoter Metall
+Gidroksidlarining Sintezi va Erishi":
+`ZnSO₄ + 2NaOH → Zn(OH)₂↓ ➔ (ortiqcha NaOH) → Na₂[Zn(OH)₄]`.
+Ya'ni men "yangi g'oya" deb taklif qilgan narsa loyihada yozilgan.
+
+**2. Kimyoviy jihatdan ham men kuchaytirib yuborganman.**
+Zn(OH)₂ — klassik amfoter gidroksid va u suyultirilgan ishqorda ham
+eriydi. Cu(OH)₂ esa faqat **quyuq** ishqorda, sekin eriydi va
+[Cu(OH)₄]²⁻ beradi. Uni "asosiy o'rgatuvchi xato" qilib ko'rsatish
+o'quvchiga noto'g'ri taassurot berardi: amfoterlik darsligi — rux,
+mis emas.
+
+**Shuning uchun bu reaksiyaning haqiqiy xato yo'llari boshqacha va
+ular quyida 4, 5, 6-bosqichlarda yozilgan:** stexiometriya xatosi
+(to'liq cho'kmaslik), yuvilmagan cho'kma (unum noto'g'ri), va isitish
+xatosi (sachrash yoki chala aylanish). Amfoterlik esa `mashgulot_5`
+ning ishi va u yerda qoladi.
 
 **Nima rad etildi va nega:**
 
@@ -111,14 +138,16 @@ CuSO₄·5H₂O ni tarozida tortish. 0.02 mol = **4.99 g**
 - Server tekshiruvi: `lib/lab-nisbat.js` stexiometrik bahoni beradi.
 - Belgi: har tomchida moviy jelatinsimon cho'kma paydo bo'ladi va
   ko'payadi.
-- **Xato yo'li (bu bandning qiymati):** NaOH ortiqcha bo'lsa cho'kma
-  ERIY boshlaydi va eritma to'q ko'k tus oladi —
-  `Cu(OH)₂ + 2OH⁻ → [Cu(OH)₄]²⁻`. O'quvchi buni KO'RADI va nima
-  bo'lganini planshet tushuntiradi.
+- **Xato yo'li — stexiometriya.** NaOH kam bo'lsa Cu²⁺ ning bir
+  qismi eritmada qoladi va cho'kma kam chiqadi; ko'p bo'lsa ortiqcha
+  ishqor cho'kma bilan qolib, keyingi yuvishda unum hisobini buzadi.
+  Ikkalasi ham hisobotda ko'rinadi.
 
-  Bu tenglama bazada bormi — TEKSHIRILSIN. Yo'q bo'lsa,
-  `data/reactions/kompleks.js` ga qo'shiladi va balans tekshiruvidan
-  o'tkaziladi. **O'ylab topilmaydi: manba ko'rsatiladi.**
+- Quyuq ishqorda Cu(OH)₂ sekin erib [Cu(OH)₄]²⁻ berishi mumkin. Bu
+  ESLATMA sifatida planshetda aytiladi, lekin bu mashg'ulotning
+  o'rgatuvchi mexanikasi EMAS — amfoterlik `mashgulot_5` da rux
+  misolida o'rgatiladi. Agar bu tenglama ko'rsatilsa, u avval bazada
+  bo'lishi va balans tekshiruvidan o'tishi shart.
 
 ### 5. Cho'ktirish va yuvish
 
@@ -222,6 +251,43 @@ Grafik va mazmun — ikkalasi ham.
    yetsin. Hozir bu MUMKIN EMAS: aniq hajm quyish faqat klaviaturada
    (`lib/kirish-usuli.js`). **Shuning uchun bu brifning shartlaridan
    biri — sensorli aniq doza kiritish.**
+
+---
+
+## Bosqichlar QAYERGA yoziladi — yangi tuzilma YARATILMAYDI
+
+`AMALIY_MASHGULOTLAR` (`3d/lib/amaliy-mashgulotlar.js`) allaqachon
+kerakli shaklga ega:
+
+```js
+{ id, raqam, nomi, fan, daraja, qiyinlik, xp, tanga, maqsad,
+  reagentlar, jihozlar, tenglama, qadamlar: [{ id, matn, kalit, minMl }],
+  xulosa }
+```
+
+Bizning tajribamiz shu ro'yxatga **`mashgulot_6`** bo'lib qo'shiladi.
+Yangi bosqich tizimi yaratilmaydi.
+
+**Nega bu muhim — G5 (hamroh robot) uchun.** Yo'l xaritasidagi G5
+robotning uchta vazifasidan biri: "amaliy mashg'ulotni bosqichma-
+bosqich boshqarish". Robot aynan `qadamlar` ni o'qiydi. Agar biz
+bosqichlarni 3D interfeysga qotirib yozsak, robot kelganda ularni
+qayta yozish kerak bo'lardi — ya'ni egasi so'ragan "kelajakda halaqit
+bermasin" sharti buzilardi.
+
+Shuning uchun qat'iy qoida: **bosqich MA'LUMOT, interfeys emas.**
+Bugun uni panel ko'rsatadi, ertaga robot gapiradi — manba bitta.
+
+Buning uchun mavjud shaklga ikkita maydon YETISHMAYDI va ular
+qo'shiladi:
+
+| Maydon | Nima uchun |
+|---|---|
+| `tekshir` | Qadam bajarilganini SERVER qanday aniqlaydi (AGENTS.md 2) |
+| `kutilganNatija` | Nima ko'rinishi kerak — robot shuni aytadi, panel shuni yozadi |
+
+Mavjud besh mashg'ulotga bu maydonlar QO'SHILMAYDI — ular hozirgicha
+ishlaydi. Yangi maydon ixtiyoriy bo'ladi.
 
 ---
 
