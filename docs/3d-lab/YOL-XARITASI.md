@@ -644,6 +644,56 @@ vaqt ishonchli ko'rinib turdi.
 **0.6 endi ochiq.** Uning mezoni: chiroq soni kamayganda
 `fragmentUlushi` tushishi shart — chiroq har piksel uchun to'lanadi.
 
+### BRIF-R01 boshlandi — va uch marta to'xtab tuzatdim
+
+Reaksiya simulyatsiyasi (`CuSO₄ + 2NaOH → Cu(OH)₂ → CuO`) ustida
+ish boshlandi. Uch marta kod yozishni to'xtatib, o'zimni tuzatishga
+to'g'ri keldi — uchalasi ham AGENTS.md 1-bandi.
+
+**1. "Yangi g'oyam" allaqachon bor edi.** Brifda "ortiqcha ishqor
+cho'kmani eritadi" mexanikasini asosiy dalil qilgandim. Keyin
+`AMALIY_MASHGULOTLAR` ni o'qidim: `mashgulot_5` aynan shu —
+`ZnSO₄ + 2NaOH → Zn(OH)₂↓ → (ortiqcha) Na₂[Zn(OH)₄]`. Kimyoviy
+jihatdan ham men kuchaytirib yuborgan edim: amfoterlik darsligi
+rux, mis emas.
+
+**2. Stexiometrik nisbatni ikkinchi manba qilib yozdim.**
+Mashg'ulotga `nisbat: [{CuSO₄:1},{NaOH:2}]` qo'shgandim. Server esa
+allaqachon `talabniHisobla(reaksiya, ...)` orqali nisbatni
+MUVOZANATLI TENGLAMANING O'ZIDAN chiqaradi (`lib/tajriba.js`).
+Koeffitsient o'zgarsa nusxam eskirardi. Olib tashlandi.
+
+**3. X-ray profillari INDEKS bilan qidirilardi.**
+`xrayProfiliniTop` `XRAY_REAKSIYALAR[4]` qaytarardi. Ro'yxatga
+yangi profil qo'shilsa indekslar siljib, reaksiya JIM boshqa
+molekulani ko'rsatardi — xato bermasdan, noto'g'ri kimyo o'rgatib.
+`id` bo'yicha qidirishga o'tkazildi va topilmasa ogohlantiradi.
+O'sha ogohlantirish darhol foyda berdi: men id ni noto'g'ri
+yozgandim.
+
+**Naqsh:** uchala holatda ham "yangi narsa qo'shaman" degan qadam
+aslida "mavjud narsani takrorlayman" edi. Loyihada bir ish
+boshlashdan oldin uni kim allaqachon qilganini qidirish — eng arzon
+tekshiruv.
+
+### X-ray dagi ilmiy tuzatish
+
+Cu²⁺ yalang'och ion sifatida chizilgan edi. Suvli eritmada bunday
+zarracha yo'q — u `[Cu(H₂O)₆]²⁺`. Matn akva-kompleksni eslatardi,
+chizma esa uni ko'rsatmasdi: o'quvchi ko'rgan narsa matn aytgan
+narsaga zid edi.
+
+Endi Yan-Teller cho'zilgan oktaedr chiziladi va u keyingi qadamni
+tushuntiradi: OH⁻ eng bo'sh bog'langan AKSIAL suvni almashtiradi.
+
+Cu(OH)₂ ham diskret molekula emas, qatlamli polimer bo'lib
+ko'rsatiladi — aynan shu uning nega jelesimon ekanini tushuntiradi.
+
+**Masofa haqida halollik:** koordinatalar angstremda emas, lekin
+NISBAT saqlangan (aksial/ekvatorial ≈ 1.19, haqiqiyga mos). Aniq
+sonlar matnda, `~` bilan, va `manba` maydonida ular tuzga qarab
+o'zgarishi aytilgan. Chizma o'zini aniq masshtab deb da'vo qilmaydi.
+
 ### 3D qahramon uchun poydevor — ikki jim to'siq olib tashlandi
 
 Egasi so'radi: qahramonning o'zi hozir kerak emas, lekin kelajakda
