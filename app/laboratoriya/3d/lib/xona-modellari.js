@@ -4,6 +4,7 @@
 // O'rtadagi to'siq javon butunlay olib tashlangan: zal keng, yorug' va erkin.
 //
 import * as THREE from "three";
+import { XONA } from "./sozlama.js";
 import {
   SHIP_PANEL_JOYLARI,
   tortmaShkafNuriniYarat,
@@ -217,15 +218,19 @@ function xonaQobiginiYasa(materiallar) {
   const shishaMat = materiallar?.shisha || new THREE.MeshPhysicalMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.45 });
   const ramkaMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.2 });
 
-  const XONA_W = 16.0;
-  const XONA_H = 4.2;
-  const XONA_D = 12.0;
+  // O'lcham `sozlama.js` da — bu yerda son yozilmaydi (AGENTS.md 1-band).
+  const XONA_W = XONA.eni;
+  const XONA_H = XONA.balandligi;
+  const XONA_D = XONA.boyi;
+  // Xona z bo'yicha markazdan siljigan; devor va shipning hammasi shunga
+  // bog'lanadi, aks holda kichraytirishda ular bir-biridan ajralib ketadi.
+  const MZ = XONA.markazZ;
 
   // 1. EPOKSI KIMYOVIY POL (Y = 0, 16x12m)
   const polGeo = new THREE.PlaneGeometry(XONA_W, XONA_D);
   const pol = new THREE.Mesh(polGeo, polMat);
   pol.rotation.x = -Math.PI / 2;
-  pol.position.set(0, 0, 0.4);
+  pol.position.set(0, 0, MZ);
   pol.receiveShadow = true;
   roomGroup.add(pol);
 
@@ -233,7 +238,7 @@ function xonaQobiginiYasa(materiallar) {
   const shiftGeo = new THREE.PlaneGeometry(XONA_W, XONA_D);
   const shift = new THREE.Mesh(shiftGeo, shiftMat);
   shift.rotation.x = Math.PI / 2;
-  shift.position.set(0, XONA_H, 0.4);
+  shift.position.set(0, XONA_H, MZ);
   roomGroup.add(shift);
 
   const trofferGeo = new THREE.PlaneGeometry(2.0, 0.8);
@@ -257,7 +262,7 @@ function xonaQobiginiYasa(materiallar) {
   const devorChapGeo = new THREE.PlaneGeometry(XONA_D, XONA_H);
   const devorChap = new THREE.Mesh(devorChapGeo, devorMat);
   devorChap.rotation.y = Math.PI / 2;
-  devorChap.position.set(-XONA_W / 2, XONA_H / 2, 0.4);
+  devorChap.position.set(-XONA_W / 2, XONA_H / 2, MZ);
   devorChap.receiveShadow = true;
   roomGroup.add(devorChap);
 
@@ -273,14 +278,14 @@ function xonaQobiginiYasa(materiallar) {
   const devorOngGeo = new THREE.PlaneGeometry(XONA_D, XONA_H);
   const devorOng = new THREE.Mesh(devorOngGeo, devorMat);
   devorOng.rotation.y = -Math.PI / 2;
-  devorOng.position.set(XONA_W / 2, XONA_H / 2, 0.4);
+  devorOng.position.set(XONA_W / 2, XONA_H / 2, MZ);
   devorOng.receiveShadow = true;
   roomGroup.add(devorOng);
 
   // 5. ORQA DEVOR (Z = -5.6)
   const devorOrqaGeo = new THREE.PlaneGeometry(XONA_W, XONA_H);
   const devorOrqa = new THREE.Mesh(devorOrqaGeo, devorMat);
-  devorOrqa.position.set(0, XONA_H / 2, -XONA_D / 2 + 0.4);
+  devorOrqa.position.set(0, XONA_H / 2, -XONA_D / 2 + MZ);
   devorOrqa.receiveShadow = true;
   roomGroup.add(devorOrqa);
 
@@ -288,13 +293,13 @@ function xonaQobiginiYasa(materiallar) {
   const devorOldGeo = new THREE.PlaneGeometry(XONA_W, XONA_H);
   const devorOld = new THREE.Mesh(devorOldGeo, devorMat);
   devorOld.rotation.y = Math.PI;
-  devorOld.position.set(0, XONA_H / 2, XONA_D / 2 + 0.4);
+  devorOld.position.set(0, XONA_H / 2, XONA_D / 2 + MZ);
   devorOld.receiveShadow = true;
   roomGroup.add(devorOld);
 
   const eshikGeo = new THREE.BoxGeometry(2.0, 2.6, 0.05);
   const eshik = new THREE.Mesh(eshikGeo, ramkaMat);
-  eshik.position.set(0, 1.3, XONA_D / 2 + 0.38);
+  eshik.position.set(0, 1.3, XONA_D / 2 + MZ - 0.02);
   roomGroup.add(eshik);
 
   // Haqiqiy neon nurli EXIT / CHIQISH belgisi (Illuminated Emergency Exit Sign)
@@ -324,7 +329,7 @@ function xonaQobiginiYasa(materiallar) {
       const exitSignMat = new THREE.MeshBasicMaterial({ map: exitTexture });
       const exitSignMesh = new THREE.Mesh(exitSignGeo, exitSignMat);
       exitSignMesh.rotation.y = Math.PI;
-      exitSignMesh.position.set(0, 2.85, XONA_D / 2 + 0.36);
+      exitSignMesh.position.set(0, 2.85, XONA_D / 2 + MZ - 0.04);
       roomGroup.add(exitSignMesh);
     }
   }
@@ -405,7 +410,7 @@ function xonaQobiginiYasa(materiallar) {
   const climateMesh = new THREE.Mesh(climateMeshGeo, climateMeshMat);
   climateMesh.name = "Xona_Iqlim_Stansiyasi";
   climateMesh.rotation.y = Math.PI;
-  climateMesh.position.set(1.8, 1.65, XONA_D / 2 + 0.36);
+  climateMesh.position.set(1.8, 1.65, XONA_D / 2 + MZ - 0.04);
 
   climateMesh.userData = {
     kalit: "xona_iqlimi",
@@ -494,7 +499,7 @@ function xonaQobiginiYasa(materiallar) {
   // 8. Eshik Yonidagi Devor Xavfsizlik Shkafi (Ko'zoynak va Gaz Niqobi)
   const xavfShkafGroup = new THREE.Group();
   xavfShkafGroup.name = "Xavfsizlik_Shkafi";
-  xavfShkafGroup.position.set(-1.8, 1.65, XONA_D / 2 + 0.35);
+  xavfShkafGroup.position.set(-1.8, 1.65, XONA_D / 2 + MZ - 0.05);
   xavfShkafGroup.rotation.y = Math.PI;
 
   const shkafKarkasGeo = new THREE.BoxGeometry(0.65, 0.75, 0.18);

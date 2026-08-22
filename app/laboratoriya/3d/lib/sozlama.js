@@ -17,6 +17,49 @@ export const KAMERA = {
   nishon: [0, 0.95, 0],
 };
 
+// XONA — o'lchamning YAGONA manbai (AGENTS.md 1-band).
+//
+// Ilgari bu uch son `xona-modellari.js` ichida qattiq yozilgan edi va
+// undan hosila chegaralar yana uch faylda mustaqil takrorlangan:
+// yurish kolliziyasi (`useYurish.js`), o'lchagich supurishi
+// (`olcham/olcham-nuqtalar.js`) va soya kamerasi (`yoruglik.js`).
+// Ular allaqachon bir-biridan uzila boshlagan — masalan yurish z ni
+// 5.2 gacha, supurish esa 5.6 gacha ruxsat berardi.
+//
+// markazZ: xona z bo'yicha markazdan 0.4 m oldinga surilgan — stol
+// markazda tursin, lekin orqa devordagi javonlar oldida yo'lak qolsin.
+export const XONA = {
+  eni: 16.0,        // X
+  balandligi: 4.2,  // Y
+  boyi: 12.0,       // Z
+  markazZ: 0.4,
+};
+
+/**
+ * Xonaning ichki devor chegaralari (dunyo koordinatasida).
+ * Devorlar shu qiymatlarda turadi; yurish va supurish bundan chetlanish
+ * (margin) bilan hisoblanadi.
+ */
+export function xonaChegarasi() {
+  return {
+    xMin: -XONA.eni / 2,
+    xMax: XONA.eni / 2,
+    zMin: -XONA.boyi / 2 + XONA.markazZ,
+    zMax: XONA.boyi / 2 + XONA.markazZ,
+  };
+}
+
+// Yurish chegarasi devordan qancha ichkarida to'xtaydi.
+// Old tomon kattaroq: eshik va uning ostonasi shu yerda
+// (xona-modellari.js eshikni zMax da qo'yadi). Qiymatlar ilgari
+// `useYurish.js` da `-7.2 / 7.2 / -4.8 / 5.2` bo'lib yozilgan edi —
+// shu chetlanishlar aynan o'sha sonlarni beradi.
+export const YURISH_CHETLANISHI = {
+  yon: 0.8,   // chap va o'ng devor
+  orqa: 0.8,  // orqa devor
+  old: 1.2,   // old devor (eshik)
+};
+
 // Kamera stol ostiga kirib ketmasligi uchun engKattaBurchak Math.PI / 2.05 bilan cheklanadi.
 export const BOSHQARUV = {
   engYaqin: 1.2,

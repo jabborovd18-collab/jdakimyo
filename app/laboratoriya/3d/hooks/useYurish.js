@@ -5,6 +5,19 @@ import * as THREE from "three";
 import { qadamTovushi, shishaUrilishi, tiqinOchilishi, taroziBip, oqimBoshla, oqimToxtat } from "../lib/ovoz.js";
 import { idishYorliginiQoldaYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
+import { YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
+
+// Yurish chegarasi — xona o'lchamidan hosila, modul yuklanganda bir marta.
+// Old tomon kattaroq chetlanadi: eshik va ostona shu yerda.
+const YURISH = (() => {
+  const d = xonaChegarasi();
+  return {
+    xMin: d.xMin + YURISH_CHETLANISHI.yon,
+    xMax: d.xMax - YURISH_CHETLANISHI.yon,
+    zMin: d.zMin + YURISH_CHETLANISHI.orqa,
+    zMax: d.zMax - YURISH_CHETLANISHI.old,
+  };
+})();
 
 // Qat'iy AABB to'siq kolliziyasi va itarib chiqarish (Push-out separation)
 function stolKolliziyasi(px, pz, minX, maxX, minZ, maxZ, radius = 0.42) {
@@ -800,9 +813,13 @@ export function useYurish({
       nextX = cSink.x;
       nextZ = cSink.z;
 
-      // 5. Qat'iy xona devorlari va eshik chegarasi
-      kamera.position.x = Math.max(-7.2, Math.min(7.2, nextX));
-      kamera.position.z = Math.max(-4.8, Math.min(5.2, nextZ));
+      // 5. Qat'iy xona devorlari va eshik chegarasi.
+      // Sonlar QO'LDA YOZILMAYDI: ular xona o'lchamidan hisoblanadi
+      // (sozlama.js). Ilgari bu yerda -7.2/7.2/-4.8/5.2 turardi va xona
+      // o'lchami o'zgarsa foydalanuvchi devordan o'tib ketardi yoki
+      // ko'rinmas to'siqqa urilardi.
+      kamera.position.x = Math.max(YURISH.xMin, Math.min(YURISH.xMax, nextX));
+      kamera.position.z = Math.max(YURISH.zMin, Math.min(YURISH.zMax, nextZ));
 
       // Ko'z balandligi va cho'qqayish lerp
       eyeHeightRef.current = THREE.MathUtils.lerp(eyeHeightRef.current, targetEyeHeightRef.current, dt * 10);
