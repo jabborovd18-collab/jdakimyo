@@ -22,7 +22,8 @@ import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi, oqimBoshla, oqimToxtat, taroziBip, shishaUrilishi, tiqinOchilishi } from "./lib/ovoz.js";
 import { massaHisobla } from "./lib/tarozi.js";
-import { amalQoshi } from "./lib/mashgulot-kuzatuvi.js";
+import { amalQoshi, jurnaldanAmallar } from "./lib/mashgulot-kuzatuvi.js";
+import { INDIKATORLAR } from "./lib/javon-3d.js";
 import {
   KIRISH,
   KLAVIATURA_AMALLARI,
@@ -98,6 +99,12 @@ export default function Korinish() {
   useEffect(() => {
     if (ekspertModalOchilgan) amalYoz({ turi: "amal", kalit: "hisob" });
   }, [ekspertModalOchilgan, amalYoz]);
+
+  // "Faradey" qadami — elektroliz paneli ochilganda. U yerda Faradey
+  // qonuni bo'yicha hisob ko'rsatiladi.
+  useEffect(() => {
+    if (elektrolizOchilgan) amalYoz({ turi: "amal", kalit: "faradey" });
+  }, [elektrolizOchilgan, amalYoz]);
   // Kirish usuli — HUD tugmalari va qo'llanma matni shunga moslanadi.
   const kirishUsuli = useKirishUsuli();
   const ISH = ishoralarniOl(kirishUsuli);
@@ -323,18 +330,6 @@ export default function Korinish() {
     onOzgarish: handleHolatOzgardimi,
   });
 
-  // `aniqHajmQuy` uch joydan chaqiriladi (klaviatura, sensor doza
-  // tugmalari, HUD). Har biriga alohida amal yozuvi qo'shish
-  // uchinchisini unutishga olib kelardi — shuning uchun bitta o'ram.
-  //
-  // DIQQAT: bu e'lon quyish hookidan KEYIN turishi SHART. Ilgari uni
-  // yuqoriga qo'ygandim va build "Cannot access 'aniqHajmQuy' before
-  // initialization" bilan yiqildi — `useCallback` bog'liqlik ro'yxati
-  // o'sha zahoti hisoblanadi.
-  const aniqHajmQuyVaYoz = useCallback((kalit, nishon, ml) => {
-    aniqHajmQuy(kalit, nishon, ml);
-    amalYoz({ turi: "quyish", kalit, ml });
-  }, [aniqHajmQuy, amalYoz]);
 
   // Isitish, reaksiya va aniq doza uchun "faol" idish. Birinchi navbatda
   // foydalanuvchi qarayotgan idish (faolIdish), u bo'lmasa stoldagi birinchi.
@@ -404,6 +399,19 @@ export default function Korinish() {
   const [titrlashHajmi, setTitrlashHajmi] = useState(0);
   const [elektrolizFaol, setElektrolizFaol] = useState(false);
   const [elektrolizVaqt, setElektrolizVaqt] = useState(0);
+
+  // "Katod" qadami — katodda mis qoplana boshlaganda.
+  //
+  // Chegara TAXMINIY EMAS: elektroliz taymeri ishga tushishi bilan
+  // `elektrolizHisobla` katodda ajralgan massani beradi, ya'ni vaqt
+  // noldan oshgani mis paydo bo'lgani demak (elektroliz-dvigatel.js).
+  //
+  // Bayroq alohida o'zgaruvchida: `elektrolizVaqt` har soniyada
+  // o'zgaradi va effektni har safar qayta ishga tushirardi.
+  const katodQoplanmoqda = elektrolizVaqt > 0;
+  useEffect(() => {
+    if (katodQoplanmoqda) amalYoz({ turi: "amal", kalit: "katod" });
+  }, [katodQoplanmoqda, amalYoz]);
 
   // 6-BOSQICH: Xavfsizlik Dushi, Ko'z Yuvish va HazMat jihozlari
   const [dushOqmoqda, setDushOqmoqda] = useState(false);
@@ -481,6 +489,7 @@ export default function Korinish() {
       const yangi = !prev;
       if (yangi) {
         oqimBoshla();
+        amalYoz({ turi: "amal", kalit: "titrlash" });
         toast.success("💧 Byuretka krani ochildi: Titrant tomchilamoqda");
       } else {
         oqimToxtat();
@@ -488,20 +497,21 @@ export default function Korinish() {
       }
       return yangi;
     });
-  }, []);
+  }, [amalYoz]);
 
   const handleElektrolizTok = useCallback(() => {
     setElektrolizFaol((prev) => {
       const yangi = !prev;
       if (yangi) {
         pufakchaChiqishi();
+        amalYoz({ turi: "amal", kalit: "tok" });
         toast.success("⚡ DC Tok Manbai faollashdi (2.5 A). Elektroliz jarayoni boshlandi!");
       } else {
         toast("⚡ Tok manbai o'chirildi", { icon: "🔌" });
       }
       return yangi;
     });
-  }, []);
+  }, [amalYoz]);
 
   const handleAralashtirish = useCallback((targetGroup) => {
     pufakchaChiqishi();
@@ -609,7 +619,7 @@ export default function Korinish() {
     onQuyishToxtat: quyishToxtat,
     onAniqHajmQuy: (ml) => {
       if (nishonIdishGroup) {
-        aniqHajmQuyVaYoz(faolReagent || fpsQolIdish?.userData?.kalit || "H₂O", nishonIdishGroup, ml);
+        aniqHajmQuy(faolReagent || fpsQolIdish?.userData?.kalit || "H₂O", nishonIdishGroup, ml);
       }
     },
     onTaroziTushdi: handleTaroziTushdi,
@@ -1089,7 +1099,7 @@ export default function Korinish() {
           // stexiometriya ikkalasida ham bir xil ishlaydi.
           onAniqDoza={(ml) => {
             if (fpsQolIdish && fpsQaralganIdish) {
-              aniqHajmQuyVaYoz(fpsQolIdish.userData?.kalit, fpsQaralganIdish, ml);
+              aniqHajmQuy(fpsQolIdish.userData?.kalit, fpsQaralganIdish, ml);
             }
           }}
         />
@@ -1177,7 +1187,7 @@ export default function Korinish() {
                       type="button"
                       onClick={() => {
                         if (nishonIdishGroup) {
-                          aniqHajmQuyVaYoz(fpsQolIdish.userData?.kalit, nishonIdishGroup, ml);
+                          aniqHajmQuy(fpsQolIdish.userData?.kalit, nishonIdishGroup, ml);
                         }
                       }}
                       className="py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 hover:border-cyan-400 hover:text-cyan-300 transition-all"
@@ -1267,7 +1277,14 @@ export default function Korinish() {
       {/* --- AMALIY MASHG'ULOT MODALI --- */}
       {mashgulotOchilgan && (
         <AmaliyMashgulotModal
-          amallar={amallar}
+          // Quyish amallari JURNALDAN keladi (u ikkala quyish yo'lini
+          // ham yozadi), qolgan harakatlar esa `amallar` holatidan.
+          // Ikkalasi birlashtiriladi — har biri o'z sohasida yagona
+          // manba.
+          amallar={[
+            ...jurnaldanAmallar(jurnalRef?.current, INDIKATORLAR),
+            ...amallar,
+          ]}
           onYop={() => setMashgulotOchilgan(false)}
         />
       )}

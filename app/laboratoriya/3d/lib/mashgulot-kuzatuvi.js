@@ -56,6 +56,38 @@ export function qadamBajarildimi(qadam, amallar = []) {
   return amallar.some((a) => a.turi === "amal" && a.kalit === qadam.kalit);
 }
 
+/**
+ * Laboratoriya JURNALIDAN quyish amallarini chiqaradi.
+ *
+ * NEGA JURNALDAN. Avval men quyishni `korinish.js` da o'ram bilan
+ * yozgandim (`aniqHajmQuyVaYoz`). Bu IKKI JIHATDAN xato edi:
+ *
+ *   1. Ikkinchi manba — jurnal (`lib/jurnal.js`) har quyishni
+ *      allaqachon `{ amal, reagent, ml }` bilan yozadi;
+ *   2. To'liq emas — o'ram faqat ANIQ DOZA yo'lini ushlardi, uzluksiz
+ *      quyish (`quyishBoshla` -> `quyishToxtat`) esa ko'rinmasdi.
+ *      Ya'ni o'quvchi shishani egib quysa, qadam belgilanmasdi.
+ *
+ * Jurnal ikkala yo'lni ham yozadi (useQuyish.js:225 va :276), shuning
+ * uchun manba o'sha.
+ *
+ * @param {{yozuvlar: Array}} jurnal
+ * @param {string[]} indikatorlar indikator hisoblangan reagent kalitlari
+ */
+export function jurnaldanAmallar(jurnal, indikatorlar = []) {
+  const natija = [];
+  let indikatorQuyildi = false;
+  for (const y of jurnal?.yozuvlar || []) {
+    if (y.amal !== "quyish" || !y.reagent) continue;
+    natija.push({ turi: "quyish", kalit: y.reagent, ml: Number(y.ml) || 0 });
+    if (indikatorlar.includes(y.reagent)) indikatorQuyildi = true;
+  }
+  // Mashg'ulotlarda "indikator" umumiy kalit sifatida ishlatilgan
+  // (mashgulot_1): qaysi indikator ekani muhim emas, tomizilgani muhim.
+  if (indikatorQuyildi) natija.push({ turi: "amal", kalit: "indikator" });
+  return natija;
+}
+
 /** Butun mashg'ulot uchun `{ qadamId: true }` xaritasi. */
 export function bajarilganlar(mashgulot, amallar = []) {
   const natija = {};
@@ -194,6 +226,51 @@ export function kuzatuvSinovi() {
       kutilgan: ENG_KOP_AMAL,
       olingan: a.length,
       otdi: a.length === ENG_KOP_AMAL,
+    });
+  }
+
+  // 9. Jurnaldan quyish amallari chiqariladi.
+  {
+    const jurnal = { yozuvlar: [
+      { amal: "quyish", reagent: "CuSO₄", ml: 20 },
+      { amal: "aralashtirish", reagent: "", ml: 0 },
+      { amal: "quyish", reagent: "NaOH", ml: 12 },
+    ] };
+    const a = jurnaldanAmallar(jurnal);
+    sinovlar.push({
+      nom: "jurnal_quyish",
+      izoh: "3 yozuvdan 2 ta quyish chiqadi (aralashtirish quyish emas)",
+      kutilgan: 2,
+      olingan: a.length,
+      otdi: a.length === 2,
+    });
+  }
+
+  // 10. Indikator umumiy kaliti jurnaldan chiqadi.
+  {
+    const jurnal = { yozuvlar: [{ amal: "quyish", reagent: "Fenolftalein", ml: 0.5 }] };
+    const a = jurnaldanAmallar(jurnal, ["Fenolftalein", "Metiloranj", "Lakmus"]);
+    const bor = a.some((x) => x.turi === "amal" && x.kalit === "indikator");
+    sinovlar.push({
+      nom: "jurnal_indikator",
+      izoh: "fenolftalein quyilsa umumiy 'indikator' amali ham chiqadi",
+      kutilgan: true,
+      olingan: bor,
+      otdi: bor === true,
+    });
+  }
+
+  // 11. Indikator bo'lmagan reagent umumiy kalitni BERMAYDI.
+  {
+    const jurnal = { yozuvlar: [{ amal: "quyish", reagent: "NaOH", ml: 10 }] };
+    const a = jurnaldanAmallar(jurnal, ["Fenolftalein"]);
+    const bor = a.some((x) => x.turi === "amal" && x.kalit === "indikator");
+    sinovlar.push({
+      nom: "jurnal_indikator_yoq",
+      izoh: "NaOH indikator emas => umumiy kalit chiqmasin",
+      kutilgan: false,
+      olingan: bor,
+      otdi: bor === false,
     });
   }
 

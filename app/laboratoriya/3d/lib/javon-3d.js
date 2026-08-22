@@ -44,9 +44,9 @@ export const DEVOR_JAVON_REAGENTLARI = [
 
   // ─── 4-JAVON: ERITMALAR VA INDIKATORLAR (Chap devor: X = -7.5, Z = -1.5) ───
   { kalit: "H₂O", nom: "Distillangan suv", sigim: 1000, joriyHajm: 950, rang: 0x38bdf8, ghs: "xavfsiz", shishaTuri: "bak", pos: [7.42, 1.65, 0.2], javon: "eritma" },
-  { kalit: "Fenolftalein", nom: "Fenolftalein", sigim: 25, joriyHajm: 20, rang: 0xffffff, ghs: "yonuvchan", shishaTuri: "tomizgich", pos: [7.42, 1.65, 0.6], javon: "eritma" },
-  { kalit: "Metiloranj", nom: "Metiloranj", sigim: 25, joriyHajm: 22, rang: 0xf97316, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [7.42, 1.65, 1.0], javon: "eritma" },
-  { kalit: "Lakmus", nom: "Lakmus indikatori", sigim: 25, joriyHajm: 18, rang: 0x8b5cf6, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [7.42, 1.65, 1.4], javon: "eritma" },
+  { kalit: "Fenolftalein", indikator: true, nom: "Fenolftalein", sigim: 25, joriyHajm: 20, rang: 0xffffff, ghs: "yonuvchan", shishaTuri: "tomizgich", pos: [7.42, 1.65, 0.6], javon: "eritma" },
+  { kalit: "Metiloranj", indikator: true, nom: "Metiloranj", sigim: 25, joriyHajm: 22, rang: 0xf97316, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [7.42, 1.65, 1.0], javon: "eritma" },
+  { kalit: "Lakmus", indikator: true, nom: "Lakmus indikatori", sigim: 25, joriyHajm: 18, rang: 0x8b5cf6, ghs: "xavfsiz", shishaTuri: "tomizgich", pos: [7.42, 1.65, 1.4], javon: "eritma" },
 ];
 
 const GHS_RANGLARI = {
@@ -440,6 +440,15 @@ const TOLDIRGICH = Object.freeze({
 const TOLDIRGICH_RANGLARI = Object.freeze([
   0xdbeafe, 0xe2e8f0, 0xcfe8ff, 0xf1f5f9, 0xd9c3a0, 0xc4b5a0,
 ]);
+
+// Indikator hisoblangan reagentlar — ro'yxatdan HOSILA.
+//
+// `mashgulot_1` da qadam kaliti umumiy "indikator": qaysi indikator
+// tomizilgani muhim emas, tomizilgani muhim. Ro'yxatni qo'lda
+// takrorlamaymiz — yangi indikator qo'shilsa u avtomatik qo'shiladi.
+export const INDIKATORLAR = Object.freeze(
+  DEVOR_JAVON_REAGENTLARI.filter((r) => r.indikator).map((r) => r.kalit),
+);
 
 function toldirgichTasodifi(urug) {
   let holat = urug >>> 0;
