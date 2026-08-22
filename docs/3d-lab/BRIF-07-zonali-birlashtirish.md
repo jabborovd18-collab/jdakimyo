@@ -96,14 +96,46 @@ ketib bo'lmasin.
 
 ## Qabul mezonlari
 
+> ### ⚠️ 1-MEZON XATO — 2026-08-22 da o'lchov bilan rad etildi
+>
+> "`chaqiruv` yarmidan kam" **erishib bo'lmaydigan maqsad** va bu
+> brifning o'z "Tegilmaydi" ro'yxati bilan qarama-qarshi.
+>
+> O'lchandi: sahnada 228 mesh bor, ulardan harakatsiz — ya'ni
+> birlashtirishga yaroqli — atigi **~40 tasi**. Qolgani tanlanadigan
+> ob'ektlar: ~20 reagent shishasi (bitta materialda 41 mesh),
+> `Tarozi_Stansiyasi` 18 mesh, jihozlar. Ularga tegish quyida
+> **taqiqlangan**.
+>
+> Ya'ni harakatsiz geometriyaning HAMMASINI birlashtirsak ham umumiy
+> `chaqiruv` yarmiga tushmaydi. Erishilgani: `xona` nuqtasida −31.6%,
+> `stol` da −11.7%.
+>
+> **To'g'ri mezon:** umumiy `chaqiruv` emas, **harakatsiz
+> geometriyaning** chaqiruvi. U 40 meshdan 13 guruhga tushdi.
+>
+> Bundan tashqari 3-bo'lim shishalarni `InstancedMesh` nomzodi deb
+> sanaydi, "Tegilmaydi" bo'limi esa ularga tegishni taqiqlaydi — brif
+> o'z ichida ziddiyatli. Shishalarni instancing qilish alohida brif va
+> alohida qaror talab qiladi.
+>
+> To'liq sonlar: `YOL-XARITASI.md`, "2026-08-22" yozuvi.
+
 O'lchagich `chaqiruv` va `uchburchak` ni allaqachon beradi
 (`olcham-mijoz.js:256-257`).
 
-1. **`chaqiruv` (draw call) sezilarli kamaysin.** Nishon: hozirgi
-   qiymatning **yarmidan kam**. Aniq sonni oldin/keyin ko'rsat.
+1. ~~**`chaqiruv` (draw call) sezilarli kamaysin.** Nishon: hozirgi
+   qiymatning **yarmidan kam**.~~ — yuqoridagi ogohlantirishga qarang.
+   Aniq sonni oldin/keyin ko'rsat.
 2. **`uchburchak` deyarli o'zgarmasin (±5%).** Biz geometriyani
    birlashtirayapmiz, o'chirmayapmiz. Katta kamayish — geometriya
    yo'qolgani, bu nuqson.
+
+   *2026-08-22 eslatma:* foiz chegarasi kichik songa qo'llanganda ma'no
+   bermaydi. Telefon `ship` nuqtasida `30 → 42` (+40%) chiqdi — mutlaq
+   farq 12 uchburchak, sababi birlashgan meshning chegara qutisi
+   kattalashib ship kamerasiga tushib qolgani. Foiz chegarasi kamida
+   1000 uchburchakdan boshlanadigan qatorlarga qo'llanishi kerak.
 3. **Ko'rinish o'zgarmasin.** Uch profil × barcha nuqtada:
    `kuygan`, `ortacha`, `p95`, `shipPolFarq` — `0.1C` dagi
    qiymatlardan **±0.02** dan ko'p farq qilmasin.

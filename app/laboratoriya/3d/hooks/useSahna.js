@@ -14,6 +14,7 @@ import { materiallarniYarat, materiallarniTozala } from "../lib/materiallar.js";
 import { jihozYasa } from "../lib/jihoz-modellari.js";
 import { javon3dYasa } from "../lib/javon-3d.js";
 import { xonaInteryeriniYasa } from "../lib/xona-modellari.js";
+import { harakatsizGeometriyaniBirlashtir } from "../lib/geometriya-birlashtirish.js";
 import { SAHNA_FONI } from "../lib/fonlar.js";
 import { profilniAniqla, profilniOl } from "../lib/sifat-profili.js";
 import { yoruglikniQur } from "../lib/yoruglik.js";
@@ -58,6 +59,8 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
   const kadrIdRef = useRef(null);
   const composerRef = useRef(null);
   const jihozlarMapRef = useRef(new Map()); // slotIndex -> THREE.Group
+  // BRIF-07 birlashuv hisoboti — o'lchagich uni o'qiydi.
+  const birlashuvRef = useRef({ birlashdi: 0, guruh: 0, otkazildi: 0, bolali: 0 });
 
   useEffect(() => {
     let yoqilgan = true;
@@ -325,6 +328,23 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
 
     setHammaJihozlar(Array.from(jihozlarMapRef.current.values()));
 
+    // BRIF-07 — harakatsiz geometriyani material va fazoviy zona bo'yicha
+    // birlashtiramiz. Xona 100% qimirlamaydi, shuning uchun har devor
+    // bo'lagi, javon tokchasi va stol oyog'i uchun alohida draw call
+    // to'lash isrof.
+    //
+    // NEGA SAHNA ILDIZIDAN: birlashtirilishi kerak bo'lgan geometriya
+    // uchta ildizga bo'lingan — xona interyeri, reagentlar javoni va
+    // to'g'ridan-to'g'ri sahnaga qo'yilgan stol. Faqat xona interyerini
+    // bersak, eng katta nishon (bitta materialdagi 53 ta javon karkasi
+    // meshi) tashqarida qolardi.
+    //
+    // Bu qator hamma dastlabki ob'ekt qo'shilgandan KEYIN turadi:
+    // birlashtirish bir marta, sahna to'liq yig'ilganda bajariladi.
+    // Tanlanadigan shoxlarga (`userData.kalit`/`tanlanadi`/`sigim`)
+    // tegilmaydi — himoya `geometriya-birlashtirish.js` da.
+    birlashuvRef.current = harakatsizGeometriyaniBirlashtir(scene);
+
     // 8. ResizeObserver (window.resize emas, chunki panel yig'ilganda ham canvas o'zgaradi)
     const handleResize = () => {
       if (!konteynerRef.current || !rendererRef.current || !kameraRef.current) return;
@@ -476,6 +496,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     yorliqlarYoqilgan,
     yorliqlarniAlmashtir,
     yorliqHolatiRef,
+    birlashuvRef,
     composerRef,
   };
 }

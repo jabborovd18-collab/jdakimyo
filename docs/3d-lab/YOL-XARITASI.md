@@ -149,7 +149,7 @@ va ustiga qurish mumkin bo'ladi.
 | 0.4 | Xona miqyosi va devor geometriyasi qayta o'lchash | [BRIF-04](BRIF-04-xona-miqyosi.md) | ⬜ |
 | 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
 | 0.6 | **Pishirilgan yorug'lik** — bitta lightmap, telefonda 3 real-time → 1–2 | brif yozilmagan | ⬜ |
-| 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | [BRIF-07](BRIF-07-zonali-birlashtirish.md) | ⬜ |
+| 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | [BRIF-07](BRIF-07-zonali-birlashtirish.md) | ⚠️ ko'rik — 1-mezon erishib bo'lmaydigan |
 
 ### QOIDA — poydevor tugamaguncha yon-brif yozilmaydi
 
@@ -350,6 +350,74 @@ K01 da pointer lock API bor brauzer clientX zaxirasiga jim tushmaydi;
 `20000px → 56 radian`, blur/hidden holatida yaw farqi `0`. Yorliq masofasi
 `8→5 m`: `xona 2→0`, sweep maksimumi `6→4`, collision `0`. Keyingi navbat
 — 0.2 asset quvuri; bloom faqat 3.1 da qayta yoqiladi.
+
+### 2026-08-22 — 0.7 o'lchandi, 1-mezon erishib bo'lmaydigan chiqdi
+
+Birlashtirish ishlaydi va ko'rinishga tegmaydi, lekin BRIF-07 ning
+1-mezoni (`chaqiruv` yarmidan kam) **bajarilmaydi va bajarilishi
+mumkin emas** — brifning o'z "TEGMA" ro'yxati bilan qarama-qarshi.
+
+Sabab o'lchandi. Sahnada 228 mesh bor; ulardan birlashtirishga
+yaroqlisi — harakatsiz geometriya — atigi ~40 tasi. Qolgani
+**tanlanadigan** ob'ektlar: 20 ga yaqin reagent shishasi (bitta
+materialda 41 mesh), `Tarozi_Stansiyasi` 18 mesh, jihozlar. Ularning
+har biri `userData.kalit` bilan nishonga javob beradi va brifda
+"alohida qolishi shart" deb yozilgan.
+
+Ya'ni harakatsiz geometriyaning **hammasini** birlashtirsak ham
+`chaqiruv` yarmiga tushmaydi. Yarmi shishalarda.
+
+Erishilgani (asosiy shox `179c8bf` ga nisbatan, uch profil × 5 nuqta):
+
+| nuqta | telefon | desktop / ilova |
+|---|---|---|
+| `stol` | 137 → 121 (−11.7%) | 252 → 226 (−10.3%) |
+| `xona` | 38 → 26 (−31.6%) | 86 → 66 (−23.3%) |
+| `sweep` | 39 → 32 (−17.9%) | 83 → 71 (−14.5%) |
+| `ship` | 10 → 10 | 31 → 31 |
+| `pol` | 3 → 3 | 24 → 24 |
+
+Ko'rinish o'zgarmadi: `kuygan` Δ=0, `ortacha`/`p95` Δ ≤ 0.001
+(chegara 0.02), `shipPolFarq` Δ ≤ 0.0002, `chiroqBudjetiBuzildi=false`,
+`yorliqToqnashuvi=0`. `interaktivSoni` uch profilda ham `49 → 49`.
+
+`uchburchak` bir nuqtada chegaradan chiqdi: telefon `ship` `30 → 42`
+(+40%). Mutlaq son 12 uchburchak — birlashgan meshning chegara qutisi
+kattalashgani uchun ship kamerasiga tushib qolgan. Bu 2-mezonning
+o'zi haqida ham gapiradi: ±5% chegarasi 30 dan boshlanadigan songa
+qo'llanganda ma'no bermaydi.
+
+**Nima o'lchash kerak edi:** umumiy `chaqiruv` emas, **harakatsiz
+geometriyaning** chaqiruvi. U 40 meshdan 13 guruhga tushdi — ya'ni
+o'z sohasida mezon bajarilgan. Bu BRIF-07 ni yozishdagi xato:
+maqsad "harakatsiz geometriya arzonlashsin" edi, raqam esa butun
+sahnani o'lchagan.
+
+**Keyingi chinakam nishon — shishalar.** 20 ta shisha bitta materialda
+41 mesh beradi va ular xonadagi eng katta qolgan blok. Ularni
+`InstancedMesh` ga o'tkazish mumkin (three.js raycast `instanceId`
+qaytaradi), lekin bu interaktiv ob'ektlarning tuzilishini o'zgartiradi
+— alohida brif va alohida qaror talab qiladi. BRIF-07 ning o'zida ham
+bu ziddiyat bor: 2-bo'lim shishalarni `InstancedMesh` nomzodi deb
+sanaydi, "Tegilmaydi" bo'limi esa ularga tegishni taqiqlaydi.
+
+**LOD qilinmadi.** Brifning 3-bo'limi (uzoqdagi mayda ob'ektlarga
+`THREE.LOD`) bajarilmadi: LOD har ob'ekt uchun ikkinchi, soddaroq
+geometriya talab qiladi, loyihada esa `.glb` yo'q (0.2). Protsedural
+primitivning "soddaroq" varianti qo'lda yoziladi va bu 0.2 dan keyin
+arzonroq bo'ladi.
+
+### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
+
+1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,
+   `Fume_Hood` nomli tortma shkaf modeli — ta'riflangan, lekin hech
+   qayerdan chaqirilmagan. 4 mesh, ~37 qator. Xona rejasida tortma
+   shkaf bormi degan savol 0.4 da hal qilinadi.
+2. **Chegaralar ikki xil joyda va mos emas** (AGENTS.md 1-band).
+   `OLCHOV.md` jadvali `stol/xona ortacha 0.28–0.42`, `pol 0.22–0.45`
+   va `p95` ustunini yozadi; `scripts/lab3d-olcham.js:61` esa
+   `stol/xona [0.18, 0.45]`, `pol [0.15, 0.50]` va `p95` ni umuman
+   tekshirmaydi. Qaysi biri haqiqat ekani hujjatdan bilinmaydi.
 
 ---
 
