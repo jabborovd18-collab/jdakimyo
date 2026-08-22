@@ -3,22 +3,22 @@
 import { useState } from "react";
 import Ikon from "@/components/Ikon";
 import { AMALIY_MASHGULOTLAR } from "../lib/amaliy-mashgulotlar.js";
-import { shishaUrilishi } from "../lib/ovoz.js";
+import { bajarilganlar, keyingiQadam } from "../lib/mashgulot-kuzatuvi.js";
 import toast from "react-hot-toast";
 
-export default function AmaliyMashgulotModal({ onYop, onMashgulotBoshlandi }) {
+export default function AmaliyMashgulotModal({ onYop, onMashgulotBoshlandi, amallar = [] }) {
   const [tanlanganId, setTanlanganId] = useState(AMALIY_MASHGULOTLAR[0].id);
-  const [bajarilganQadamlar, setBajarilganQadamlar] = useState({});
 
   const mashgulot = AMALIY_MASHGULOTLAR.find((m) => m.id === tanlanganId) || AMALIY_MASHGULOTLAR[0];
 
-  const handleQadamToggle = (qid) => {
-    setBajarilganQadamlar((prev) => {
-      const yangi = { ...prev, [qid]: !prev[qid] };
-      shishaUrilishi(2200);
-      return yangi;
-    });
-  };
+  // QADAMLAR QO'LDA BELGILANMAYDI.
+  //
+  // Ilgari har qadam tugma edi va o'quvchi hech narsa qilmasdan
+  // hammasini "bajarildi" deb ura olardi — ro'yxat tekshiruv emas,
+  // bezak edi. Endi u laboratoriyada haqiqatan bajarilgan amallardan
+  // hisoblanadi (`lib/mashgulot-kuzatuvi.js`).
+  const bajarilganQadamlar = bajarilganlar(mashgulot, amallar);
+  const navbatdagi = keyingiQadam(mashgulot, amallar);
 
   const bajarilganSoni = mashgulot.qadamlar.filter((q) => bajarilganQadamlar[q.id]).length;
   const foiz = Math.round((bajarilganSoni / mashgulot.qadamlar.length) * 100);
@@ -146,20 +146,33 @@ export default function AmaliyMashgulotModal({ onYop, onMashgulotBoshlandi }) {
               />
             </div>
 
+            <p className="text-[10px] text-[var(--v3-xira)] italic">
+              Qadamlar laboratoriyada bajarganingizda o{"'"}zi belgilanadi —
+              bu yerda bosish shart emas.
+            </p>
+
             {/* Qadamlar ro'yxati */}
             <div className="space-y-2">
               {mashgulot.qadamlar.map((q, idx) => {
                 const isBajarildi = Boolean(bajarilganQadamlar[q.id]);
 
+                // Navbatdagi qadam ajratib ko'rsatiladi — "endi nima qilay"
+                // degan savolga javob. G5 (hamroh robot) kelganda AYNAN
+                // shu qadamni gapiradi.
+                const isNavbat = navbatdagi?.id === q.id;
+
                 return (
-                  <button
+                  // DIV, tugma EMAS: qadam endi bosilmaydi. Bosiladigan
+                  // ko'rinishdagi, lekin hech narsa qilmaydigan element
+                  // foydalanuvchini chalg'itadi.
+                  <div
                     key={q.id}
-                    type="button"
-                    onClick={() => handleQadamToggle(q.id)}
                     className={`w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-3 ${
                       isBajarildi
                         ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                        : "border-[var(--v3-chiziq)] bg-[var(--v3-fon)] text-[var(--v3-matn)] hover:border-[var(--v3-urgu)]"
+                        : isNavbat
+                        ? "border-[var(--v3-urgu)] bg-[var(--v3-fon)] text-[var(--v3-matn)]"
+                        : "border-[var(--v3-chiziq)] bg-[var(--v3-fon)] text-[var(--v3-matn)] opacity-70"
                     }`}
                   >
                     <span className={`w-5 h-5 rounded-lg border flex items-center justify-center font-bold text-xs shrink-0 ${
@@ -182,7 +195,7 @@ export default function AmaliyMashgulotModal({ onYop, onMashgulotBoshlandi }) {
                         </span>
                       )}
                     </span>
-                  </button>
+                  </div>
                 );
               })}
             </div>

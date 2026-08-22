@@ -14,6 +14,7 @@ import TaroziUI from "./components/TaroziUI.jsx";
 import TitrlashStendiUI from "./components/TitrlashStendiUI.jsx";
 import ElektrolizStendiUI from "./components/ElektrolizStendiUI.jsx";
 import EkspertXulosaModal from "./components/EkspertXulosaModal.jsx";
+import AmaliyMashgulotModal from "./components/AmaliyMashgulotModal.jsx";
 import DavriyJadvalModal from "./components/DavriyJadvalModal.jsx";
 import XRayMolekulaModal from "./components/XRayMolekulaModal.jsx";
 import VirtualJoystick from "./components/VirtualJoystick.jsx";
@@ -21,6 +22,7 @@ import { portlashniAniqla } from "./lib/portlash.js";
 import { labDaftariPdfYukla } from "./lib/pdf-hisobot.js";
 import { pufakchaChiqishi, oqimBoshla, oqimToxtat, taroziBip, shishaUrilishi, tiqinOchilishi } from "./lib/ovoz.js";
 import { massaHisobla } from "./lib/tarozi.js";
+import { amalQoshi } from "./lib/mashgulot-kuzatuvi.js";
 import {
   KIRISH,
   KLAVIATURA_AMALLARI,
@@ -71,6 +73,18 @@ export default function Korinish() {
   const [ekspertModalOchilgan, setEkspertModalOchilgan] = useState(false);
   const [xrayModalOchilgan, setXrayModalOchilgan] = useState(false);
   const [yordamOchilgan, setYordamOchilgan] = useState(false);
+  const [mashgulotOchilgan, setMashgulotOchilgan] = useState(false);
+
+  // Bajarilgan amallar ro'yxati — amaliy mashg'ulot qadamlari shundan
+  // belgilanadi. Ilgari qadamlar QO'LDA bosib belgilanardi: o'quvchi
+  // hech narsa qilmasdan hammasini "bajarildi" deb ura olardi.
+  //
+  // Bu XAVFSIZLIK emas, ANIQLIK: ball, XP va tanga baribir serverda
+  // hisoblanadi (AGENTS.md 2-band).
+  const [amallar, setAmallar] = useState([]);
+  const amalYoz = useCallback((amal) => {
+    setAmallar((oldingi) => amalQoshi(oldingi, amal));
+  }, []);
   // Kirish usuli — HUD tugmalari va qo'llanma matni shunga moslanadi.
   const kirishUsuli = useKirishUsuli();
   const ISH = ishoralarniOl(kirishUsuli);
@@ -201,18 +215,20 @@ export default function Korinish() {
       const yangi = !prev;
       if (yangi) {
         pufakchaChiqishi();
+        amalYoz({ turi: "amal", kalit: "isitish" });
         toast.success("🔥 Spirtovka alangalantirildi!");
       } else {
         toast("❄️ Spirtovka o'chirildi", { icon: "🔥" });
       }
       return yangi;
     });
-  }, []);
+  }, [amalYoz]);
 
   const handleSpirtovkagaQoyildi = useCallback((group) => {
     setIsitimoda(true);
+    amalYoz({ turi: "amal", kalit: "isitish" });
     toast.success("🔥 Idish spirtovka shtativiga qo'yildi va qizdirilmoqda");
-  }, []);
+  }, [amalYoz]);
 
   const handleRakovinaKraniBosildi = useCallback(() => {
     setSuvOqmoqda((prev) => {
@@ -286,6 +302,19 @@ export default function Korinish() {
     jurnalRef,
     onOzgarish: handleHolatOzgardimi,
   });
+
+  // `aniqHajmQuy` uch joydan chaqiriladi (klaviatura, sensor doza
+  // tugmalari, HUD). Har biriga alohida amal yozuvi qo'shish
+  // uchinchisini unutishga olib kelardi — shuning uchun bitta o'ram.
+  //
+  // DIQQAT: bu e'lon quyish hookidan KEYIN turishi SHART. Ilgari uni
+  // yuqoriga qo'ygandim va build "Cannot access 'aniqHajmQuy' before
+  // initialization" bilan yiqildi — `useCallback` bog'liqlik ro'yxati
+  // o'sha zahoti hisoblanadi.
+  const aniqHajmQuyVaYoz = useCallback((kalit, nishon, ml) => {
+    aniqHajmQuy(kalit, nishon, ml);
+    amalYoz({ turi: "quyish", kalit, ml });
+  }, [aniqHajmQuy, amalYoz]);
 
   // Isitish, reaksiya va aniq doza uchun "faol" idish. Birinchi navbatda
   // foydalanuvchi qarayotgan idish (faolIdish), u bo'lmasa stoldagi birinchi.
@@ -405,13 +434,14 @@ export default function Korinish() {
       const yangi = !prev;
       shishaUrilishi(2600);
       if (yangi) {
+        amalYoz({ turi: "amal", kalit: "kozoynak" });
         toast.success("🥽 Kimyoviy himoya ko'zoynagi taqildi!");
       } else {
         toast("🥽 Himoya ko'zoynagi yechildi", { icon: "👓" });
       }
       return yangi;
     });
-  }, []);
+  }, [amalYoz]);
 
   const handleGazNiqobiTaqish = useCallback(() => {
     setGazNiqobiTaqilgan((prev) => {
@@ -455,9 +485,10 @@ export default function Korinish() {
 
   const handleAralashtirish = useCallback((targetGroup) => {
     pufakchaChiqishi();
+    amalYoz({ turi: "amal", kalit: "aralashtirish" });
     toast.success("🌀 Shisha tayoqcha bilan aralashtirildi! Reaksiya kinetikasi tezlashdi.");
     otkaz(null, targetGroup);
-  }, [otkaz]);
+  }, [otkaz, amalYoz]);
 
   const handleSpatulaAmal = useCallback((group) => {
     if (spatulaKukun) {
@@ -558,7 +589,7 @@ export default function Korinish() {
     onQuyishToxtat: quyishToxtat,
     onAniqHajmQuy: (ml) => {
       if (nishonIdishGroup) {
-        aniqHajmQuy(faolReagent || fpsQolIdish?.userData?.kalit || "H₂O", nishonIdishGroup, ml);
+        aniqHajmQuyVaYoz(faolReagent || fpsQolIdish?.userData?.kalit || "H₂O", nishonIdishGroup, ml);
       }
     },
     onTaroziTushdi: handleTaroziTushdi,
@@ -947,6 +978,20 @@ export default function Korinish() {
             <Ikon nom={ovozYoqilgan ? "kanal" : "taqiq"} olcham={14} />
           </button>
 
+          {/* Amaliy mashg'ulot tugmasi.
+              ILGARI BU TUGMA YO'Q EDI: `AmaliyMashgulotModal` yozilgan,
+              lekin uni hech kim chaqirmasdi — ya'ni butun amaliy
+              mashg'ulotlar tizimi ochib bo'lmaydigan holatda edi. */}
+          <button
+            type="button"
+            onClick={() => setMashgulotOchilgan(true)}
+            className="px-2.5 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 shadow-lg text-[11px] font-mono font-bold text-amber-400 hover:border-amber-400 backdrop-blur-md flex items-center gap-1.5 transition-all"
+            title="Amaliy mashg'ulotlar"
+          >
+            <Ikon nom="quiz" olcham={13} />
+            <span>Mashg{"'"}ulot</span>
+          </button>
+
           {/* Yordam & Boshqaruv qo'llanmasi tugmasi */}
           <button
             type="button"
@@ -1024,7 +1069,7 @@ export default function Korinish() {
           // stexiometriya ikkalasida ham bir xil ishlaydi.
           onAniqDoza={(ml) => {
             if (fpsQolIdish && fpsQaralganIdish) {
-              aniqHajmQuy(fpsQolIdish.userData?.kalit, fpsQaralganIdish, ml);
+              aniqHajmQuyVaYoz(fpsQolIdish.userData?.kalit, fpsQaralganIdish, ml);
             }
           }}
         />
@@ -1112,7 +1157,7 @@ export default function Korinish() {
                       type="button"
                       onClick={() => {
                         if (nishonIdishGroup) {
-                          aniqHajmQuy(fpsQolIdish.userData?.kalit, nishonIdishGroup, ml);
+                          aniqHajmQuyVaYoz(fpsQolIdish.userData?.kalit, nishonIdishGroup, ml);
                         }
                       }}
                       className="py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 hover:border-cyan-400 hover:text-cyan-300 transition-all"
@@ -1196,6 +1241,14 @@ export default function Korinish() {
         <MolekulaZoomModal
           kalit={molekulaModalKalit}
           onYop={() => setMolekulaModalKalit(null)}
+        />
+      )}
+
+      {/* --- AMALIY MASHG'ULOT MODALI --- */}
+      {mashgulotOchilgan && (
+        <AmaliyMashgulotModal
+          amallar={amallar}
+          onYop={() => setMashgulotOchilgan(false)}
         />
       )}
 
