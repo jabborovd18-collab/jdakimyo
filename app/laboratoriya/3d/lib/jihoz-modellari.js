@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { assetlarniQollash } from "./asset-yuklovchi.js";
 import { suyuqlikYasa } from "./materiallar.js";
 import { EFFEKT_RANGLARI } from "@/lib/lab-modda.js";
 import { idishmi, idishSigimi } from "@/lib/lab-idish.js";
@@ -233,14 +234,23 @@ function stakanYasa(materiallar) {
   const group = new THREE.Group();
   const shishaMat = materiallar?.shisha || new THREE.MeshStandardMaterial({ color: 0xcfe8ff, opacity: 0.3, transparent: true });
 
+  // BRIF-02 — shisha qobiq ZAXIRA. Model kelganda `assetlarniQollash`
+  // shu ikkisini `stakan.glb` bilan almashtiradi.
+  //
+  // Nega zaxira umuman qoladi: `jihozYasa` sinxron va uni asinxron
+  // qilish butun tajriba mantig'iga tarqalardi. Shuning uchun stakan
+  // avval har doim protsedural yasaladi va sahna hech qachon bo'sh
+  // qolmaydi — model kechiksa ham, umuman kelmasa ham.
   const silindrGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.22, 32, 1, true);
   const silindr = new THREE.Mesh(silindrGeo, shishaMat);
   silindr.position.y = 0.11;
+  silindr.userData.zaxiraShisha = true;
   group.add(silindr);
 
   const tubGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.008, 32);
   const tub = new THREE.Mesh(tubGeo, shishaMat);
   tub.position.y = 0.004;
+  tub.userData.zaxiraShisha = true;
   group.add(tub);
 
   const suyuqlikGeo = new THREE.CylinderGeometry(0.076, 0.076, 0.18, 32);
@@ -261,6 +271,8 @@ function stakanYasa(materiallar) {
 
   group.userData = {
     kalit: "stakan",
+    // BRIF-02 — `assetlarniQollash` shu kalit bo'yicha topadi.
+    assetKaliti: "stakan",
     suyuqlikMesh,
     chokmaMesh,
     qaynashEffekti: qaynash,
@@ -1118,6 +1130,12 @@ export function jihozYasa(kalit, materiallar, profil) {
   // `idishSigimi` noma'lum kalitga zaxira qiymat qaytaradi, u esa bu
   // yerda noto'g'ri bo'lardi.
   group.userData.sigim = idishmi(kalit) ? idishSigimi(kalit) : 0;
+
+  // BRIF-02 — model allaqachon keshda bo'lsa shu yerda almashadi.
+  // Keshda bo'lmasa hech narsa qilmaydi va jihoz protsedural qoladi;
+  // model keyinroq kelganda `useSahna` butun sahnani bir marta
+  // qaytadan o'tkazadi.
+  assetlarniQollash(group);
 
   return group;
 }

@@ -17,6 +17,7 @@ import { xonaInteryeriniYasa } from "../lib/xona-modellari.js";
 import { harakatsizGeometriyaniBirlashtir } from "../lib/geometriya-birlashtirish.js";
 import { SAHNA_FONI } from "../lib/fonlar.js";
 import { shaharManzarasiniYarat } from "../lib/manzara.js";
+import { modelOl, assetlarniQollash, assetlarniTozala } from "../lib/asset-yuklovchi.js";
 import { profilniAniqla, profilniOl } from "../lib/sifat-profili.js";
 import { yoruglikniQur } from "../lib/yoruglik.js";
 import {
@@ -151,7 +152,21 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
 
     sahnaRef.current.remove(group);
     group.traverse((child) => {
+      // Yorliq — Sprite, Mesh EMAS. Shuning uchun u quyidagi `isMesh`
+      // shartiga tushmasdi va uning kanvas teksturasi HECH QACHON
+      // bo'shatilmasdi. BRIF-02 ning 20 martalik sinovi buni topdi:
+      // har qo'yib-olishda tekstura soni bittaga o'sardi.
+      if (child.isSprite) {
+        child.material?.map?.dispose();
+        child.material?.dispose();
+        return;
+      }
       if (child.isMesh) {
+        // BRIF-02 — asset geometriyasi va materiali KESHDAN keladi va
+        // barcha nusxalar orasida ulashiladi. Uni shu yerda bo'shatsak,
+        // bitta stakanni olib tashlash qolgan hammasini ko'rinmas
+        // qilardi. Kesh `assetlarniTozala` bilan bir marta bo'shaydi.
+        if (child.userData?.assetdan) return;
         if (child.geometry) child.geometry.dispose();
         // Ilgari faqat geometriya bo'shatilar, material va tekstura GPU da
         // qolib, ko'p marta idish olib-tashlansa xotira sizib borardi (leak).
@@ -173,6 +188,11 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
   useEffect(() => {
     if (yuklanmoqda) return;
     if (!konteynerRef || !konteynerRef.current) return;
+
+    // Asinxron ish (asset yuklash) sahna tozalangandan keyin qaytishi
+    // mumkin. Bu bayroq shuni ushlaydi: tozalangan sahnaga tegish
+    // React'da jim xato beradi va uni topish qiyin.
+    let sahnaTirik = true;
 
     // O'lchagich aniq profilni majburlaydi; jonli sahifa qurilmani o'zi
     // aniqlaydi. Profil obyektining o'zi barcha quruvchilarga uzatiladi.
@@ -324,6 +344,19 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     scene.add(defSpirtovka);
     jihozlarMapRef.current.set(3, defSpirtovka);
 
+    // BRIF-02 — stakan sukut bo'yicha stolda turadi.
+    //
+    // Sabab quvurga bog'liq: `.glb` almashtiriladigan yagona idish shu.
+    // U faqat foydalanuvchi qo'shganda paydo bo'lsa, asset quvuri
+    // o'lchanadigan kadrda umuman ko'rinmasdi — ya'ni "model sahnada
+    // ko'rinadi" mezonini hech qachon tekshirib bo'lmasdi.
+    const defStakan = jihozYasa("stakan", materiallar, profil);
+    defStakan.userData.slotIndex = 6; // 7-slot: o'rta qator, chap
+    const [kx, ky, kz] = SLOTLAR[6];
+    defStakan.position.set(kx, ky, kz);
+    scene.add(defStakan);
+    jihozlarMapRef.current.set(6, defStakan);
+
     const defTermometr = jihozYasa("termometr", materiallar, profil);
     defTermometr.userData.slotIndex = 8; // 9-slot: o'rta qator, o'rta-o'ng
     const [tx, ty, tz] = SLOTLAR[8];
@@ -349,6 +382,19 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
     // Tanlanadigan shoxlarga (`userData.kalit`/`tanlanadi`/`sigim`)
     // tegilmaydi — himoya `geometriya-birlashtirish.js` da.
     birlashuvRef.current = harakatsizGeometriyaniBirlashtir(scene);
+
+    // BRIF-02 — asset quvuri. Sahna allaqachon qurilgan va ishlayapti;
+    // model kelganda jihozlar JOYIDA yaxshilanadi.
+    //
+    // Nega qurilishni kutmaymiz: `useSahna` effekti sinxron va uni
+    // `await` bilan bo'lish butun sahna qurilishini qayta yozishni
+    // talab qilardi. Bu yo'l esa qo'shimcha foyda beradi — sahna
+    // birinchi kadrdayoq ko'rinadi, model esa kelganda qo'shiladi
+    // (va umuman kelmasa ham hech narsa buzilmaydi).
+    modelOl("stakan", renderer).then((model) => {
+      if (!sahnaTirik || !model) return;
+      assetlarniQollash(scene);
+    });
 
     // 8. ResizeObserver (window.resize emas, chunki panel yig'ilganda ham canvas o'zgaradi)
     const handleResize = () => {
@@ -442,6 +488,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
 
     // 11. Xotira tozalanadi (cleanup)
     return () => {
+      sahnaTirik = false;
       if (kadrIdRef.current) {
         cancelAnimationFrame(kadrIdRef.current);
       }
@@ -466,6 +513,7 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
       oyoqGeo.dispose();
       manzara.dispose();
       scene.background = null;
+      assetlarniTozala();
       yoruglik.tozala();
       materiallarniTozala(materiallar);
 

@@ -144,7 +144,7 @@ va ustiga qurish mumkin bo'ladi.
 | K01 | **Erkin qarash va fokus** — pointer lock, blur/hidden | [BRIF-K01](BRIF-K01-sichqoncha-va-fokus.md) | ✅ |
 | 0.1B | **Xiralikni tuzatish** — ekspozitsiya qaytariladi, p95 chegarasi | [BRIF-01B](BRIF-01B-xiralikni-tuzatish.md) | ⚠️ ko'rik |
 | 0.1 | Yorug'lik byudjeti — **har pog'ona uchun alohida** | [BRIF-01](BRIF-01-yoruglik-byudjeti.md) | ✅ |
-| 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ⬜ |
+| 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ✅ (HDRI qolmadi) |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
 | 0.4 | Xona miqyosi va devor geometriyasi qayta o'lchash | [BRIF-04](BRIF-04-xona-miqyosi.md) | ✅ |
 | 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
@@ -176,8 +176,8 @@ yozishdan boshlanadi.
 | 1 | `0.1C` telefon yorug'ligi | Egasining shikoyati, kichik, mustaqil | ✅ |
 | 2 | `0.7` zonali birlashtirish + LOD | ~200 → ~20 draw call, asset talab qilmaydi | ✅ |
 | 3 | `0.4` xona miqyosi + FOV 45→60 | Bitta raqam, darhol kengayadi | ✅ |
-| 4 | `0.2` asset quvuri | Qolgan hammasini ochadi | ⬅ NAVBAT |
-| 5 | `0.6` pishirilgan yorug'lik | `0.2` ni talab qiladi | ⬜ |
+| 4 | `0.2` asset quvuri | Qolgan hammasini ochadi | ✅ |
+| 5 | `0.6` pishirilgan yorug'lik | `0.2` ni talab qiladi | ⬅ NAVBAT |
 | 6 | `0.3` sifat darajalari + dinamik rezolyutsiya | 60 FPS kafolati | ⬜ |
 | 7 | `0.5` monolitni bo'lish | `korinish.js` 1523 qator, har brif unga tegadi | ⬜ |
 
@@ -486,6 +486,57 @@ narx +144 bo'lardi.
 soya bor-yo'qligini o'lchamaydi — u faqat kuyish qorovuli. Bu
 11.1 bandning ikkinchi yarmi: son chegarani ushlaydi, ko'rinishni
 odam tekshiradi.
+
+### 2026-08-22 — 0.2 asset quvuri qurildi
+
+Loyihada 3D asset **umuman yo'q** edi: 0 ta `.glb`, 0 ta `.hdr`,
+0 ta KTX2. Endi quvur bor va u bitta namuna bilan isbotlangan.
+
+**Model tashqaridan olinmadi, o'zimiz yasadik.** Brif CC0 kutubxonadan
+olishni taklif qilgan edi, lekin quvurni isbotlash uchun tashqi fayl
+shart emas — kerak bo'lgani formatning haqiqiy `.glb` bo'lishi.
+`npm run lab3d:model` stakanning shisha qobig'ini yozadi: 294 vertex,
+480 uchburchak, 16 KB. Litsenziya savoli ham shu bilan yopiladi.
+
+**Farq ko'rinadi.** Eski stakan ikkita alohida silindr edi — devor va
+tub, bir-biriga ulanmagan. Shisha qalinligi yo'q, jiyak yo'q; chetdan
+qaralganda idish qog'oz stakanga o'xshardi. Yangi profil haqiqiy
+kesim: tashqi devor → jiyak → ichki devor → tub.
+`npm run lab3d:asset-taqqos` ikkala variantni bir xil kameradan
+suratga oladi (`.olcham/stakan-glb.png` va `stakan-zaxira.png`).
+Narxi: +864 uchburchak.
+
+**Sahna model kelmasa YIQILMAYDI.** Jihoz avval har doim protsedural
+yasaladi; model kelganda `assetlarniQollash` uni joyida almashtiradi.
+Ya'ni sahna birinchi kadrdayoq ko'rinadi va model kechiksa ham,
+umuman kelmasa ham hech narsa buzilmaydi. Sinov buni majburlaydi:
+`.glb` so'rovi to'sib qo'yilganda `chaqiruv`, `uchburchak` va
+`interaktivSoni` normal qiymatda qoladi.
+
+**`npm run lab3d:asset-sinov` — uchta qabul mezoni.** U yozilgan
+zahoti ikkita HAQIQIY nuqson topdi:
+
+1. `useSahna` dagi asinxron `.then()` boshqa effektning `yoqilgan`
+   o'zgaruvchisiga murojaat qilardi — u qamrovda yo'q edi va sahifa
+   `yoqilgan is not defined` bilan yiqilardi. Endi effektning o'z
+   `sahnaTirik` bayrog'i bor.
+2. **Tekstura sizishi — eski, quvurga aloqasi yo'q.** `jihozOlib`
+   faqat `child.isMesh` ni bo'shatardi, idish yorlig'i esa `Sprite`.
+   Ya'ni har qo'yib-olishda bitta kanvas teksturasi GPU da qolardi.
+   20 martalik sinov buni `tekstura +20` deb ko'rsatdi. Bunday sizish
+   3D da darrov sezilmaydi — u 10 daqiqadan keyin tab'ni yiqitadi.
+
+**HDRI qilinmadi.** U tashqi manbadan (Poly Haven, CC0) yuklab olishni
+talab qiladi va bu egasining ruxsati bilan qilinadi. Sahna hozircha
+`RoomEnvironment` da qoladi. HDRI kelganda `environmentIntensity`
+qayta o'lchanishi shart — BRIF-01 byudjeti shunga bog'liq.
+
+**Draco va KTX2 tayyor, lekin ishlatilmayapti.** Dekoderlar
+`public/3d/dekoder/` da o'z-o'zidan turadi (CDN emas — offline va
+G2 desktop ilovasi uchun). Ular faqat mos asset kelganda yuklanadi;
+hozirgi model ikkalasini ham talab qilmaydi, ya'ni tarmoqdan hech
+narsa tushmaydi. 16 KB modelni Draco bilan siqish foydasiz — dekoder
+o'zi 250 KB.
 
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
