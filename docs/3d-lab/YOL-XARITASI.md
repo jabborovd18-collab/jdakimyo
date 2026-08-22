@@ -668,6 +668,12 @@ metrikasini o'ylab topgandim va u NOTO'G'RI CHIQDI — pastdagi
 yozuvga qarang. 1280×720 va 2560×1440 da olingan ikki juft rasm
 egasiga berildi: to'liq o'lchamda faqat odam ko'zi hal qiladi.
 
+**EGASI TASDIQLADI (2026-08-23):** "farq bor". Ya'ni o'zgarish
+ishladi va uni FAQAT KO'Z ko'rdi — asbob emas. Bu AGENTS.md 11.1
+ning aynan o'zi: "ko'ra oladigan ishtirokchi rasmga qaraydi,
+ko'ra olmaydigani sonni keltiradi". Bu safar son yolg'on gapirdi,
+ko'z esa to'g'ri.
+
 **Ochiq savol:** anizotropiya va mipmapning foydasi statik kadrda
 deyarli ko'rinmaydi — u HARAKATDA (kamera yurganda miltillash
 yo'qolishi) sezilada. Bizning o'lchagich esa faqat statik kadrni
