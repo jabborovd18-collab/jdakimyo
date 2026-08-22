@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/sendvich' },
   title: "Sendvich tuzilish — ferrosen (KS = 10)",
   description:
     "Metallosenlar: metall atomi ikkita siklopentadienil halqasi orasida. [Fe(C₅H₅)₂] va 1973-yil Nobel mukofoti, 3D modeli bilan.",

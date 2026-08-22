@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/fotokimyo' },
   title: "Fotokimyo va fotofizika",
   description:
     "Jablonski diagrammasi, MLCT qo'zg'algan holat, lantanoidlar lyuminestsensiyasi, OLED va fotokataliz qo'llanilishi.",

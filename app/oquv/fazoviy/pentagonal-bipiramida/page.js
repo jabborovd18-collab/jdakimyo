@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/pentagonal-bipiramida' },
   title: "Pentagonal bipiramida (KS = 7)",
   description:
     "sp³d³ gibridlanish, 72° va 90° valent burchaklar, D₅h simmetriya — yettikoordinatali komplekslarning asosiy shakli, 3D modeli bilan.",

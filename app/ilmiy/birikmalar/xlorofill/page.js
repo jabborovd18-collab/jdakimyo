@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/xlorofill' },
   title: "Xlorofill — magniy porfirin kompleksi",
   description:
     "Fotosintezning asosiy pigmenti: Mg²⁺ markazi, porfirin halqasi, yorug'lik yutilishi va yashil rangning sababi.",

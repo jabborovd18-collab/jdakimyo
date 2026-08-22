@@ -1,12 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
 import { useSession } from "next-auth/react"
 import Ikon from "@/components/Ikon"
 import FonTanlagich, { useFon } from "@/components/FonTanlagich"
 import HAJM from "@/lib/ilmiy-hajm.json"
+import { BAZA } from "@/lib/sayt-malumot"
 import { FANLAR, ochiqFanlarSoni } from "@/lib/fanlar"
+import { FAQ } from "./faq"
 
 /* ─────────────────────────────────────────────────────────────────────
    SONLAR
@@ -14,22 +15,11 @@ import { FANLAR, ochiqFanlarSoni } from "@/lib/fanlar"
    Fayldan keladiganlar `HAJM` orqali — ular sahifa qo'shilganda o'zi
    yangilanadi (`scripts/count-ilmiy.js`).
 
-   Bazadan keladiganlar bu yerda qo'lda yozilgan, chunki sahifa mijoz
-   tomonida chiziladi va bazaga murojaat qila olmaydi. Ular 2026-08-09
-   da o'lchangan va ATAYLAB PASTGA yaxlitlangan: kontent faqat o'sadi,
-   ya'ni kam aytilgan son vaqt o'tishi bilan ham to'g'ri bo'lib qoladi.
-   O'lchangan qiymatlar: 445 savol, 249 reaksiya, 312 katalog yozuvi,
-   16 yutuq ta'rifi.
+   Bazadan o'lchanganlar `BAZA` orqali (`lib/sayt-malumot.js`). Ilgari
+   ular shu faylda qo'lda yozilardi; "JDA KIMYO nima?" sahifasi ham
+   aynan shu sonlarni ko'rsatgani uchun ikkinchi nusxa paydo bo'lardi
+   va ikkalasi ajralib ketardi (AGENTS.md 1-band).
    ──────────────────────────────────────────────────────────────────── */
-const BAZA = {
-  savollar: "440+",
-  // Bazada 249 reaksiya bor, LEKIN laboratoriyada o'tkazsa bo'ladigani
-  // 207 ta — qolganlari katalog uchun. Laboratoriya haqida gapirganda
-  // kichik sonni aytish shart, aks holda odam sinab ko'rib topa olmaydi.
-  reaksiyalar: "200+",
-  katalog: "300+",
-  yutuqlar: "16",
-}
 
 /* Platformaning xaritasi. Har bir blok — sayt haqiqatan nima qila
    olishini aytadi, va'da emas. `tayyor: false` bo'lgan qatorlar ochiq
@@ -238,49 +228,10 @@ const CHEKLOVLAR = [
   },
 ]
 
-const FAQ = [
-  {
-    q: "Sayt pullikmi?",
-    a: "Yo'q. Barcha mavzular, birikmalar, testlar va laboratoriya bepul. Kelajakda tasdiq belgisi (galochka) va unga bog'liq profil bezaklari pullik obuna bilan beriladi — lekin ular hech qanday o'quv materialini yopmaydi.",
-  },
-  {
-    q: "Ro'yxatdan o'tish shartmi?",
-    a: "O'qish uchun shart emas: mavzular, birikmalar va tahlil usullari hammaga ochiq. Hisob quyidagilar uchun kerak — test natijalarini saqlash, laboratoriya, sertifikat, do'stlar va chat, ustoz guruhiga qo'shilish.",
-  },
-  {
-    q: "Sertifikatni qanday olaman?",
-    a: "Sertifikatni JDA KIMYO administratsiyasi beradi — avtomatik berilmaydi va uni test topshirib \"yutib\" bo'lmaydi. Berilgan sertifikat bazada saqlanadi, noyob raqamga ega bo'ladi, QR kod orqali istalgan vaqtda tekshiriladi va PDF shaklida yuklab olinadi.",
-  },
-  {
-    q: "Nega ba'zi fanlarda qulf turibdi?",
-    a: "Chunki ular hali yozilmagan. Bo'sh sahifa ochib qo'yishdan ko'ra, ochiq \"tayyor emas\" deb ko'rsatishni to'g'ri deb bildik. Fan tayyor bo'lgach qulf ochiladi.",
-  },
-  {
-    q: "Telefonda ishlaydimi?",
-    a: "Matnli bo'limlar — ha. 3D modellar va laboratoriya xonasi esa kompyuter uchun yozilgan; telefonda ular sekin ishlashi yoki ochilmasligi mumkin. Shuning uchun telefonda kirganingizda ogohlantirish chiqadi.",
-  },
-  {
-    q: "Ma'lumotlar qayerdan olingan?",
-    a: "Ilmiy qism nufuzli darsliklar va bazalarga tayanadi: Cotton–Wilkinson, Miessler–Tarr, Greenwood–Earnshaw, SDBS va CSD. Laboratoriya reaksiyalari esa hali tasdiqlanmagan — buni sahifaning o'zi ham aytadi.",
-  },
-  {
-    q: "Xato topsam nima qilay?",
-    a: "Telegramda @diyorbek_jabborov ga yozing yoki jabborovd18@gmail.com ga xat yuboring. Qaysi sahifada, nima noto'g'ri ekanini yozsangiz — tezroq tuzatiladi.",
-  },
-  {
-    q: "O'z maqolamni joylay olamanmi?",
-    a: "Ha. Ilmiy bo'limda maqolani DOCX shaklida yuklaysiz, admin ko'rib chiqadi va tasdiqlangach bazada chiqadi.",
-  },
-  {
-    q: "Ustoz huquqini qanday olaman?",
-    a: "Ustozlik ro'yxatdan o'tishda tanlanmaydi — uni administratsiya beradi. Telegram yoki email orqali murojaat qiling: qayerda dars berishingizni yozing.",
-  },
-]
 
 export default function Korinish() {
   const { data: session } = useSession()
   const [fon, fonTanla] = useFon()
-  const [ochiqSavol, setOchiqSavol] = useState(0)
 
   const yopiqFanlar = FANLAR.length - ochiqFanlarSoni()
 
@@ -342,9 +293,10 @@ export default function Korinish() {
           </h1>
 
           <p className="v3-lid">
-            JDA KIMYO — o{"'"}zbek tilidagi oliy kimyo platformasi. Quyida
-            saytning to{"'"}liq xaritasi: qaysi bo{"'"}lim nima qiladi, kim
-            qayerdan boshlashi kerak va <strong style={{ color: "var(--v3-matn)" }}>hozircha
+            JDA KIMYO — o{"'"}zbek tilidagi oliy kimyo platformasi
+            (<Link href="/jda-kimyo">platforma haqida to{"'"}liqroq</Link>).
+            Quyida saytning to{"'"}liq xaritasi: qaysi bo{"'"}lim nima qiladi,
+            kim qayerdan boshlashi kerak va <strong style={{ color: "var(--v3-matn)" }}>hozircha
             nima tayyor emas</strong>.
           </p>
 
@@ -494,24 +446,20 @@ export default function Korinish() {
           </div>
         </div>
 
+        {/* `<details>` — javob matni HAR DOIM hujjatda turadi.
+            Ilgari javob faqat tugma bosilganda DOM ga qo'shilardi va
+            2026-08-22 da tekshirilganda serverdan kelgan HTML ichida
+            bironta javob yo'q edi: qidiruv roboti ham, ChatGPT ham
+            ularni ko'rmagan. */}
         <div className="flex flex-col gap-2">
           {FAQ.map((item, i) => (
-            <div key={item.q} className={`v3-savol ${ochiqSavol === i ? "is-ochiq" : ""}`}>
-              <button
-                type="button"
-                onClick={() => setOchiqSavol(ochiqSavol === i ? -1 : i)}
-                aria-expanded={ochiqSavol === i}
-                className="v3-savol-tugma"
-              >
+            <details key={item.q} className="v3-savol" open={i === 0}>
+              <summary>
                 <span>{item.q}</span>
-                <Ikon
-                  nom="past"
-                  olcham={17}
-                  className={ochiqSavol === i ? "rotate-180 transition-transform" : "transition-transform"}
-                />
-              </button>
-              {ochiqSavol === i && <p className="v3-javob">{item.a}</p>}
-            </div>
+                <Ikon nom="past" olcham={17} />
+              </summary>
+              <p className="v3-javob">{item.a}</p>
+            </details>
           ))}
         </div>
       </section>

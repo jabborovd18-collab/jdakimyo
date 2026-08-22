@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/ferrosen' },
   title: "[Fe(C₅H₅)₂] — ferrosen",
   description:
     "Birinchi sendvich kompleks: η⁵-siklopentadienil halqalari, 18 elektron qoidasi, aromatik xossalari va 1973-yil Nobel mukofoti.",

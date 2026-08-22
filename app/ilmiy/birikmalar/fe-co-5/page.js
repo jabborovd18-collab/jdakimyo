@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/fe-co-5' },
   title: "[Fe(CO)₅] — temir pentakarbonil",
   description:
     "Trigonal-bipiramidal karbonil kompleks: 18 elektron qoidasi, π-qaytarma bog'lanish, Berri psevdoaylanishi va sanoatdagi ahamiyati.",

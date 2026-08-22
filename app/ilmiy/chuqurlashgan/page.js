@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan' },
   title: "Chuqurlashgan mavzular",
   description:
     "Koordinatsion kimyoning OTM darajasidagi fundamental asoslari: atom tuzilishi, nazariyalar, kinetika, termodinamika, magnit va spektral xossalar.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/dodekaedrik' },
   title: "Dodekaedrik geometriya (KS = 8)",
   description:
     "sp³d⁴ gibridlanish, D₂d simmetriya — koordinatsion soni 8 bo'lgan komplekslar uchun eng barqaror shakl, 3D modeli bilan.",

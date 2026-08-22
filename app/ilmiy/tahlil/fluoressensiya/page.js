@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/fluoressensiya' },
   title: "Fluoressensiya spektroskopiya",
   description:
     "Lyuminestsensiya, kvant unumi va antenna effekti: Eu, Tb, Ru va Ir komplekslarining nur chiqarish xossalari.",

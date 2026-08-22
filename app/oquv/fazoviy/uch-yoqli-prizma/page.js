@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/uch-yoqli-prizma' },
   title: "Uch yoqli trigonal prizma (KS = 9)",
   description:
     "sp³d⁵ gibridlanish — prizmaning uchta yon yuzi yopilgan to'qqizkoordinatali shakl, lantanoidlarga xos, 3D modeli bilan.",

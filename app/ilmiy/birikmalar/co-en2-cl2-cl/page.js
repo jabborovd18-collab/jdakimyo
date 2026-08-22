@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/co-en2-cl2-cl' },
   title: "[Co(en)₂Cl₂]Cl — bis(etilendiamin)dixlorokobalt(III)",
   description:
     "Geometrik va optik izomeriyaning klassik namunasi: sis va trans shakllari, Δ/Λ enantiomerlar va rang farqi.",

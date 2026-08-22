@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/k3-fe-cn-6' },
   title: "K₃[Fe(CN)₆] — qizil qon tuzi",
   description:
     "Kaliy geksatsianoferrat(III): quyi spinli d⁵ kompleks, Turnbull ko'ki reaksiyasi, redoks xossalari va spektrlari.",

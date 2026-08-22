@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/bioanorganik' },
   title: "Bioanorganik kimyo",
   description:
     "Metalloproteinlar, metallofermentlar, metall asosidagi dorilar va tirik organizmda ion tashish — biologiyadagi kompleks birikmalar.",

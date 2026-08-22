@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy' },
   title: "Komplekslarning fazoviy tuzilishi",
   description:
     "Koordinatsion soni 2 dan 12 gacha bo'lgan geometrik shakllar — oktaedr, tetraedr, tekis kvadrat va boshqalar. Ko'pchiligi 3D model bilan.",

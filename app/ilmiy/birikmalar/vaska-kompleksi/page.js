@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/vaska-kompleksi' },
   title: "trans-[IrCl(CO)(PPh₃)₂] — Vaska kompleksi",
   description:
     "Oksidlanish-qo'shilish reaksiyasining model birikmasi: kvadrat-planar Ir(I), O₂ va H₂ ni qaytar biriktirishi.",

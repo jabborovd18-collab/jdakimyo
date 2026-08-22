@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/co-cl4' },
   title: "[CoCl₄]²⁻ — tetraxlorokobaltat(II)",
   description:
     "Tetraedrik d⁷ kompleks: ko'k rangining sababi, [Co(H₂O)₆]²⁺ bilan muvozanati va kristall maydon ajralishi.",

@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/krown-efir' },
   title: "[K(18-kraun-6)]⁺ — kraun-efir kompleksi",
   description:
     "Supramolekulyar kimyoning asosi: makrosiklik efir kaliy ionini tanlab ushlashi, host-guest ta'siri va 1987-yil Nobel mukofoti.",

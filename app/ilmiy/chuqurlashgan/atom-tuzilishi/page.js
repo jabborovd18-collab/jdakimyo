@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/atom-tuzilishi' },
   title: "Atom tuzilishi va d-orbitallar",
   description:
     "Kompleks birikmalarning elektron asoslari: d-orbitallarning shakli va yo'nalishi, ekranlash, effektiv zaryad — OTM darajasidagi qo'llanma.",

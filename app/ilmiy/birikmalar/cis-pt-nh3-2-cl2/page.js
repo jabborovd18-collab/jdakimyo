@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/cis-pt-nh3-2-cl2' },
   title: "sis-[Pt(NH₃)₂Cl₂] — sisplatin",
   description:
     "Saratonga qarshi eng mashhur metall dori: kvadrat-planar Pt(II) kompleksi, DNK bilan bog'lanish mexanizmi, sintezi va xossalari.",

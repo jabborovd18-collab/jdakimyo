@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/trigonal-prizma' },
   title: "Trigonal prizma geometriya (KS = 6)",
   description:
     "sd⁵ gibridlanish, D₃h simmetriya — oktaedrga kam uchraydigan muqobil oltikoordinatali shakl, 3D modeli bilan.",

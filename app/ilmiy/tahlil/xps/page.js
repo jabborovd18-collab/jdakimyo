@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/xps' },
   title: "XPS — rentgen fotoelektron spektroskopiya",
   description:
     "Sirt tarkibi va metallning oksidlanish darajasini aniqlash: bog'lanish energiyasi, kimyoviy siljish va satellit chiziqlar.",

@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/wilkinson-katalizatori' },
   title: "[RhCl(PPh₃)₃] — Wilkinson katalizatori",
   description:
     "Gomogen gidrogenlash katalizatori: kvadrat-planar Rh(I), katalitik sikl bosqichlari va 1973-yil Nobel mukofoti.",

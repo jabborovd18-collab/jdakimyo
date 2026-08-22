@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/ligand-maydon' },
   title: "Ligand maydon nazariyasi — chuqurlashgan",
   description:
     "Kristall maydon va molekulyar orbital nazariyalarining birlashmasi: σ va π bog'lanishning ajralish kattaligiga ta'siri, besh bo'limda.",

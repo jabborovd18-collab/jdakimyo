@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/ikosaedrik' },
   title: "Ikosaedrik geometriya (KS = 12)",
   description:
     "20 ta uchburchak yuzli eng yuqori simmetriyali ko'pyoq, Ih simmetriya — o'n ikki koordinatali komplekslar, 3D modeli bilan.",

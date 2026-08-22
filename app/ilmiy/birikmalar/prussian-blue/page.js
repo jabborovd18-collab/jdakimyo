@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/prussian-blue' },
   title: "Fe₄[Fe(CN)₆]₃ — Berlin ko'ki",
   description:
     "Prussian Blue: kubik panjara tuzilishi, aralash valentli Fe(II)/Fe(III) markazlari, ko'k rangning IVCT bilan izohi hamda pigment va tibbiyotdagi qo'llanilishi.",

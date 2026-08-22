@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/cpk-ranglar' },
   title: "CPK ranglar jadvali",
   description:
     "Corey-Pauling-Koltun xalqaro rang standarti: molekulyar modellarda har bir element qaysi rang bilan ko'rsatiladi va nima uchun.",

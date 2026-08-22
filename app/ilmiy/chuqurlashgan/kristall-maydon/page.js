@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/kristall-maydon' },
   title: "Kristall maydon nazariyasi — chuqurlashgan",
   description:
     "d-orbitallar ajralishi, Δ₀, kristall maydon barqarorlik energiyasi, yuqori va quyi spin, spektrokimyoviy qator va rang — OTM darajasida.",

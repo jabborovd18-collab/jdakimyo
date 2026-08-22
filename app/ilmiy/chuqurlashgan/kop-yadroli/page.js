@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/kop-yadroli' },
   title: "Ko'p yadroli komplekslar",
   description:
     "Metall-metall bog'lar, karbonil klasterlar, bir molekulali magnitlar (SMM), aralash valentli va bioilhomlantirilgan tizimlar.",

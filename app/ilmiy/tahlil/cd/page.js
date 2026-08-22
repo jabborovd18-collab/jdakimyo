@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/cd' },
   title: "CD — sirkulyar dixroizm",
   description:
     "Xiral komplekslarni o'rganish: Δ va Λ enantiomerlarni ajratish, Kotton effekti va absolyut konfiguratsiyani aniqlash.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/metall-dorilar' },
   title: "Metall dori vositalari",
   description:
     "Pt, Ru, Au, Fe, Ga, Bi, V va Cu komplekslari tibbiyotda: saratonga qarshi preparatlar, diagnostika vositalari va ta'sir mexanizmlari.",

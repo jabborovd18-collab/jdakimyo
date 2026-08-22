@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/cu-h2o6' },
   title: "[Cu(H₂O)₆]²⁺ — geksaakvamis(II)",
   description:
     "Yan-Teller effektining klassik namunasi: d⁹ konfiguratsiyada oktaedrning cho'zilishi, ko'k rang va bog' uzunliklaridagi farq.",

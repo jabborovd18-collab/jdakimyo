@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/gemoglobin' },
   title: "Gemoglobin — [Fe(Por)(His)(O₂)]",
   description:
     "Qonda kislorod tashiydigan temir kompleksi: porfirin halqasi, kooperativ bog'lanish va spin holatining o'zgarishi.",

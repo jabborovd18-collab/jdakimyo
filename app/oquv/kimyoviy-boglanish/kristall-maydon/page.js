@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/kimyoviy-boglanish/kristall-maydon' },
   title: "Kristall maydon nazariyasi (KMN)",
   description:
     "d-orbitallarning ajralishi, Δo va Δt, spektrokimyoviy qator, kristall maydon barqarorlik energiyasi hamda yuqori va quyi spin holatlar.",

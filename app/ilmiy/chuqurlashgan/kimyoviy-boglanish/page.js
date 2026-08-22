@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/kimyoviy-boglanish' },
   title: "Kimyoviy bog'lanish: VB va MO nazariyalari",
   description:
     "Valent bog'lanish va molekulyar orbital nazariyalari, gibridlanish, 18 elektron qoidasi va ligand maydon yondashuvi bir joyda.",

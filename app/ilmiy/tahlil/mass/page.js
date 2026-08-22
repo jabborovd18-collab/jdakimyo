@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/mass' },
   title: "Mass-spektrometriya",
   description:
     "Molekulyar massani aniqlash, izotopik taqsimot, fragmentatsiya va yuqori aniqlikdagi HRMS — m/z nisbatining fizikasi bilan.",

@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/co-nh3-4-cl2-cl' },
   title: "[Co(NH₃)₄Cl₂]Cl — tetraammindixlorokobalt(III)",
   description:
     "Sis (violeo) va trans (praseo) izomerlari: rang farqi, sintezi va Verner nazariyasini isbotlashdagi ahamiyati.",

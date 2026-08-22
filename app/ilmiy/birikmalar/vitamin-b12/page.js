@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/vitamin-b12' },
   title: "Vitamin B₁₂ — kobalamin",
   description:
     "Tabiatdagi yagona metall-uglerod bog'i: kobalt markazli korrin halqasi, koferment shakllari va biologik vazifasi.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/zn-oh4' },
   title: "[Zn(OH)₄]²⁻ — tetragidroksosinkat(II)",
   description:
     "Ruxning amfoter xossasi: Zn(OH)₂ ning ishqorda erishi, tetraedrik d¹⁰ kompleks va rangsizligining sababi.",

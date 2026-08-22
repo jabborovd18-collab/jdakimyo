@@ -1,5 +1,6 @@
 import Link from "next/link"
 export const metadata = {
+  alternates: { canonical: '/oquv/izomeriyasi/tuzilish' },
   title: "Tuzilish (struktura) izomeriyasi",
   description:
     "Formulalari har xil yoziladigan izomerlarning 10 ta turi: ionlanish, gidrat, koordinatsion va bog'lanish izomeriyasi.",

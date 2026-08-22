@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar' },
   title: "Kompleks birikmalar bazasi",
   description:
     "Klassik, tibbiy, biologik va sanoat komplekslari katalogi: har bir birikmaning tuzilishi, xossalari, spektrlari va 3D modeli.",

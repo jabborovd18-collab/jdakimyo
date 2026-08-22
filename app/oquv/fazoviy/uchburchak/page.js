@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/uchburchak' },
   title: "Uchburchak geometriya (KS = 3)",
   description:
     "sp² gibridlanish, 120° valent burchak, D₃h simmetriya — koordinatsion soni 3 bo'lgan kam uchraydigan komplekslar, 3D modeli bilan.",

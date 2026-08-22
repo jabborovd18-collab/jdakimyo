@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/trans-pt-nh3-2-cl2' },
   title: "trans-[Pt(NH₃)₂Cl₂] — transplatin",
   description:
     "Sisplatinning trans-izomeri: nega geometriya o'zgarishi bilan dorivorlik faolligi yo'qoladi — trans-ta'sir va DNK bilan bog'lanish farqi.",

@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/simmetriya' },
   title: "Molekulalar simmetriyasi",
   description:
     "Nuqtali guruhlar, xarakterlar jadvali va simmetriyaning IQ hamda Raman spektrlariga ta'siri — 3D vizualizatsiya bilan.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/reaksiyalar' },
   title: "Komplekslar reaksiyalari",
   description:
     "Ligand almashinish, redoks reaksiyalari, kataliz, fotokimyoviy jarayonlar va templat sintez — kompleks birikmalar kimyosining reaksiya turlari.",

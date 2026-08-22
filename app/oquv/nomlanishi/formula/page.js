@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/oquv/nomlanishi/formula' },
   title: "Kompleks birikma formulasini yozish",
   description:
     "IUPAC 2005 tavsiyalari bo'yicha formula yozish tartibi: kvadrat qavs, markaziy atom, ligandlar ketma-ketligi va zaryadning ko'rsatilishi.",

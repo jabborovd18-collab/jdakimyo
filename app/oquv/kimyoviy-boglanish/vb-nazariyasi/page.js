@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/kimyoviy-boglanish/vb-nazariyasi' },
   title: "Valent bog'lanishlar nazariyasi (VB)",
   description:
     "Gibridlanish va donor-akseptor bog': sp, sp³, dsp² va d²sp³ turlari kompleksning geometriyasini qanday belgilaydi.",

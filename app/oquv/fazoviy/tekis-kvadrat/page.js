@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/tekis-kvadrat' },
   title: "Tekis kvadrat geometriya (KS = 4)",
   description:
     "dsp² gibridlanish, 90° valent burchak, D₄h simmetriya — d⁸ metallar uchun xarakterli geometriya, 3D modeli bilan.",
