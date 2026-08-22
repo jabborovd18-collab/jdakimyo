@@ -30,6 +30,17 @@ export const DEVOR_JAVON_REAGENTLARI = [
   { kalit: "FeCl₃", nom: "Temir(III) xlorid", sigim: 100, joriyHajm: 75, rang: 0xc2410c, ghs: "korroziy", shishaTuri: "orta", pos: [7.42, 1.65, -0.9], javon: "tuz" },
   { kalit: "BaCl₂", nom: "Bariy xlorid", sigim: 100, joriyHajm: 80, rang: 0xf1f5f9, ghs: "toksik", shishaTuri: "orta", pos: [7.42, 1.25, -2.1], javon: "tuz" },
   { kalit: "KI", nom: "Kaliy yodid", sigim: 100, joriyHajm: 95, rang: 0xfef08a, ghs: "xavfsiz", shishaTuri: "orta", pos: [7.42, 1.25, -1.7], javon: "tuz" },
+  // ZnSO₄ mashg'ulot_5 (amfoter gidroksidlar) uchun SHART, lekin javonda
+  // yo'q edi — ya'ni o'sha mashg'ulotni bajarib bo'lmasdi. 2026-08-22 da
+  // qamrov tekshiruvi buni topdi.
+  //
+  // `rang` moddalar bazasiga mos: lab-modda.js da ZnSO₄ = "rangsiz",
+  // shuning uchun BaCl₂ bilan bir xil oq-kulrang tus.
+  //
+  // `ghs: "toksik"` — ZnSO₄ yutilganda zararli va suv organizmlari uchun
+  // juda toksik. Mavjud beshta toifadan eng yaqini shu; xavfsizlik
+  // yorlig'i shubhali holatda ehtiyot tomonga og'ishi kerak.
+  { kalit: "ZnSO₄", nom: "Rux sulfat", sigim: 100, joriyHajm: 80, rang: 0xf1f5f9, ghs: "toksik", shishaTuri: "orta", pos: [7.42, 1.25, -1.3], javon: "tuz" },
 
   // ─── 4-JAVON: ERITMALAR VA INDIKATORLAR (Chap devor: X = -7.5, Z = -1.5) ───
   { kalit: "H₂O", nom: "Distillangan suv", sigim: 1000, joriyHajm: 950, rang: 0x38bdf8, ghs: "xavfsiz", shishaTuri: "bak", pos: [7.42, 1.65, 0.2], javon: "eritma" },
