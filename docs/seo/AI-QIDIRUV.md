@@ -116,5 +116,17 @@ xato bo'lsa qanday xato.
 |---|---|---|---|---|---|---|
 | 2026-08-22 | — | — | — | — | — | O'zgarishlar hali deploy qilinmagan; birinchi o'lchov deploydan 1–2 hafta keyin ma'noli bo'ladi |
 
+## Bajarilgan qadamlar jurnali
+
+| Sana | Ish | Natija |
+|---|---|---|
+| 2026-08-22 | `/jda-kimyo`, schema, FAQ `<details>`, canonical 121 sahifada | deploy qilindi, jonli tekshirildi |
+| 2026-08-22 | Search Console eksporti tahlil qilindi | 37 indeks / 101 "topilgan, indekslanmagan" |
+| 2026-08-23 | `*.vercel.app` → `X-Robots-Tag: noindex` | uchinchi nusxa kraul byudjetini yeyishdan to'xtadi |
+| 2026-08-23 | sitemap `lastmod` git tarixidan | yolg'on "hozir o'zgardi" signali olib tashlandi |
+| 2026-08-23 | apex 307 → **308** (Vercel, egasi qildi) | bitta qadamli doimiy yo'naltirish |
+| 2026-08-23 | Search Console: 10 ta asosiy manzil qo'lda navbatga qo'yildi | egasi qildi |
+| 2026-08-23 | IndexNow: 129 manzil yuborildi | `202 Accepted` |
+
 Yangi qatorni **ustiga emas, pastiga** qo'shing: jurnalning qiymati
 o'zgarish tarixida.
