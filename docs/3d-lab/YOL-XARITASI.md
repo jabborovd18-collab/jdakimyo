@@ -644,6 +644,38 @@ vaqt ishonchli ko'rinib turdi.
 **0.6 endi ochiq.** Uning mezoni: chiroq soni kamayganda
 `fragmentUlushi` tushishi shart — chiroq har piksel uchun to'lanadi.
 
+### 3D qahramon uchun poydevor — ikki jim to'siq olib tashlandi
+
+Egasi so'radi: qahramonning o'zi hozir kerak emas, lekin kelajakda
+to'sqinlik qiladigan narsa bo'lmasin. To'siqlar TAXMIN QILINMADI,
+koddan topildi.
+
+**To'siq 1 — animatsiya tashlanardi.** `asset-yuklovchi.js` faqat
+`gltf.scene` ni keshlar, `gltf.animations` esa yo'qolardi. Qahramon
+yuklanardi, lekin yurish va turish animatsiyasi bo'lmasdi — va sababi
+ko'rinmasdi, chunki model o'zi to'g'ri chiqardi.
+
+**To'siq 2 — `clone()` skeletni buzadi.** Nusxa `asl.clone(true)` bilan
+olinardi. `Object3D.clone()` suyak havolalarini qayta bog'lamaydi:
+nusxa ASL skeletga ishora qilib qoladi. Ikkita qahramon bir pozada
+qotib turardi yoki model buzilib ko'rinardi. three.js buning uchun
+`SkeletonUtils.clone` beradi.
+
+Ikkalasi ham hozirgi jihozlarning xulqiga tegmaydi (ularda skelet va
+animatsiya yo'q) — shart faqat skeletli model kelganda ishlaydi.
+
+**Yo'l-yo'lakay ushlangan nuqson:** kesh yozuvi shakli o'zgargach
+`assetlarniTozala` buzilardi — u `Group` kutardi va endi obyekt
+oladi. Bu JIM xotira sizishi bo'lardi: 3D da u darrov sezilmaydi va
+10 daqiqadan keyin tab'ni yiqitadi (AGENTS.md 11.6). Tuzatildi.
+
+**Hali qilinmagan va u ATAYLAB:** o'yinchining joyi hozir
+`kamera.position` da. Qahramon uchun alohida "o'yinchi tuguni" kerak
+bo'ladi va kamera undan hosila bo'ladi. Bu `useYurish.js` (1127 qator)
+ga tegadi — yurish, kolliziya, nishon va qo'ldagi idish hammasi
+kameradan o'qiydi. Qahramonsiz bu refaktor foydasiz risk. Qahramon
+brifi yozilganda birinchi qadam shu bo'ladi.
+
 ### 0.3 — dinamik rezolyutsiya: ikki nuqson GPU ga yetmasdan topildi
 
 Boshqaruvchi ATAYLAB sof funksiya qilib yozildi (`keyingiNisbat`):

@@ -17,6 +17,7 @@
 //   3. Yangi asset qo'shishdan oldin hajmi yoziladi (LITSENZIYA.md).
 
 import * as THREE from "three";
+import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
@@ -92,7 +93,19 @@ export function modelOl(kalit, renderer) {
     yuklovchi.load(
       yol,
       (gltf) => {
-        kesh.set(kalit, gltf.scene);
+        // Animatsiyalar HAM saqlanadi.
+        //
+        // Ilgari faqat `gltf.scene` keshlanardi va `gltf.animations`
+        // tashlab yuborilardi. Bu kelajakdagi 3D qahramon uchun jim
+        // to'siq edi: model yuklanardi, lekin yurish va turish
+        // animatsiyasi yo'qolardi va sababi ko'rinmasdi.
+        //
+        // Hozirgi jihozlarda animatsiya yo'q, ya'ni bu o'zgarish
+        // ularning xulqiga tegmaydi.
+        kesh.set(kalit, {
+          sahna: gltf.scene,
+          animatsiyalar: gltf.animations || [],
+        });
         holat.yuklandi += 1;
         jarayonda.delete(kalit);
         bajar(true);
@@ -112,14 +125,47 @@ export function modelOl(kalit, renderer) {
   return va.then(() => nusxaOl(kalit));
 }
 
+function skeletlimi(ildiz) {
+  let bor = false;
+  ildiz.traverse((o) => {
+    if (o.isSkinnedMesh || o.isBone) bor = true;
+  });
+  return bor;
+}
+
 function nusxaOl(kalit) {
-  const asl = kesh.get(kalit);
-  if (!asl) return null;
-  const nusxa = asl.clone(true);
+  const yozuv = kesh.get(kalit);
+  if (!yozuv) return null;
+  const asl = yozuv.sahna;
+
+  // SKELETLI MODEL UCHUN `clone()` YARAMAYDI.
+  //
+  // `Object3D.clone()` suyak havolalarini qayta bog'lamaydi: nusxa
+  // ASL skeletga ishora qilib qoladi va ikkita qahramon bir xil
+  // pozada qotib turadi yoki model buzilib ko'rinadi. three.js buning
+  // uchun `SkeletonUtils.clone` beradi.
+  //
+  // Hozirgi assetlarda skelet yo'q, shuning uchun ular eski yo'ldan
+  // ketadi va xulqi o'zgarmaydi. Shart kelajakdagi qahramon uchun
+  // OLDINDAN qo'yildi — u kelganda bu nuqson jim buzilish bo'lib
+  // chiqardi (model ko'rinadi, lekin qimirlamaydi).
+  const nusxa = skeletlimi(asl) ? SkeletonUtils.clone(asl) : asl.clone(true);
+
   nusxa.traverse((o) => {
     if (o.isMesh) o.userData.assetdan = true;
   });
   return nusxa;
+}
+
+/**
+ * Modelning animatsiya klipilari (`THREE.AnimationClip[]`).
+ *
+ * Model hali kelmagan bo'lsa bo'sh massiv. Klip nusxalanmaydi —
+ * `AnimationMixer` uni o'zgartirmaydi, shuning uchun bir klipni bir
+ * necha qahramon baham ko'rishi mumkin.
+ */
+export function animatsiyalarniOl(kalit) {
+  return kesh.get(kalit)?.animatsiyalar || [];
 }
 
 /**
@@ -188,8 +234,11 @@ export function assetHolati() {
  * (AGENTS.md 11.6).
  */
 export function assetlarniTozala() {
-  for (const asl of kesh.values()) {
-    asl.traverse((o) => {
+  for (const yozuv of kesh.values()) {
+    // Kesh yozuvi endi `{ sahna, animatsiyalar }`. Animatsiya klipi
+    // GPU resursi emas — u faqat sonlar massivi, `dispose` talab
+    // qilmaydi va Map tozalanganda yo'qoladi.
+    yozuv.sahna.traverse((o) => {
       if (!o.isMesh) return;
       o.geometry?.dispose();
       const materiallar = Array.isArray(o.material) ? o.material : [o.material];
