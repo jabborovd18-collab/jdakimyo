@@ -111,6 +111,17 @@ export const RANGLAR = {
 
 // Standart konsentratsiya 0.5 M qilib olindi: bazada aniq molyar massalar va konsentratsiyalar yo'qligi
 // sababli animatsiya va nisbatni o'quv maqsadida muvofiqlashtirish uchun shartli standart ishlatiladi.
+// Aniq doza hajmlari (ml).
+//
+// YAGONA MANBA. Ilgari bu ro'yxat `useYurish.js` dagi klaviatura
+// ishlovchisiga qotirib yozilgan edi (Digit1..Digit5) va sensorli
+// qurilma uni ko'ra olmasdi — telefonda faqat 45 ml quyish mumkin
+// edi, ya'ni STEXIOMETRIK HISOB QILIB BO'LMASDI.
+//
+// Endi klaviatura ham, sensor tugmalari ham shu ro'yxatdan oziqlanadi.
+// Yangi hajm qo'shilsa ikkalasida ham paydo bo'ladi.
+export const ANIQ_DOZALAR = Object.freeze([1, 5, 10, 25, 50]);
+
 export const QUYISH = {
   oqim: 0.8, // ml/s (standart oqim tezligi)
   engKopHajm: 150, // ml (maksimal sig'im chegarasi)

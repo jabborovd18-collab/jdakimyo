@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { KIRISH, useKirishUsuli } from "../lib/kirish-usuli.js";
+import { ANIQ_DOZALAR } from "../lib/sozlama.js";
 import Ikon from "@/components/Ikon";
 
 /**
@@ -16,6 +17,7 @@ export default function VirtualJoystick({
   qolIdish,
   onQolgaOlYokiQoy,
   onQuyish,
+  onAniqDoza,
 }) {
   // Sensorli qurilma aniqlash `lib/kirish-usuli.js` da — u yagona ega.
   // Ilgari shart shu faylning ICHIDA yashardi va nishon matnlari uni
@@ -196,14 +198,40 @@ export default function VirtualJoystick({
           </button>
 
           {qolIdish && qaralganIdish && qaralganIdish !== qolIdish && (
-            <button
-              type="button"
-              onClick={() => typeof onQuyish === "function" && onQuyish()}
-              className="px-4 py-2.5 rounded-2xl border border-emerald-400 bg-emerald-500/30 text-emerald-300 backdrop-blur-xl text-xs font-mono font-black shadow-2xl flex items-center gap-2 active:scale-95"
-            >
-              <Ikon nom="atom" olcham={14} />
-              <span>{qaralganIdish.userData?.nom || qaralganIdish.userData?.kalit || "Idish"}ga quyish</span>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => typeof onQuyish === "function" && onQuyish()}
+                className="px-4 py-2.5 rounded-2xl border border-emerald-400 bg-emerald-500/30 text-emerald-300 backdrop-blur-xl text-xs font-mono font-black shadow-2xl flex items-center gap-2 active:scale-95"
+              >
+                <Ikon nom="atom" olcham={14} />
+                <span>{qaralganIdish.userData?.nom || qaralganIdish.userData?.kalit || "Idish"}ga quyish</span>
+              </button>
+
+              {/* ANIQ DOZA — sensorli qurilmada stexiometriya uchun.
+                  Klaviaturada bu 1..5 raqamlari; telefonda esa ilgari
+                  UMUMAN yo'q edi va faqat 45 ml quyish mumkin bo'lgani
+                  uchun stexiometrik hisob bajarib bo'lmasdi.
+                  Ro'yxat `sozlama.js` dagi ANIQ_DOZALAR dan — klaviatura
+                  ham o'sha manbadan oziqlanadi. */}
+              {typeof onAniqDoza === "function" && (
+                <div className="flex items-center gap-1.5 rounded-2xl border border-sky-400/70 bg-slate-950/85 px-2 py-1.5 backdrop-blur-xl shadow-2xl">
+                  <span className="text-[10px] font-mono font-bold text-sky-300 pl-0.5">Aniq</span>
+                  {ANIQ_DOZALAR.map((ml) => (
+                    <button
+                      key={ml}
+                      type="button"
+                      onClick={() => onAniqDoza(ml)}
+                      // 44px — barmoq uchun eng kichik ishonchli o'lcham.
+                      className="min-w-[44px] min-h-[38px] rounded-xl border border-sky-400/60 bg-sky-500/20 text-sky-200 text-[11px] font-mono font-black active:scale-90 active:bg-sky-400/40"
+                    >
+                      {ml}
+                    </button>
+                  ))}
+                  <span className="text-[10px] font-mono text-slate-400 pr-0.5">ml</span>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

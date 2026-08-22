@@ -62,8 +62,7 @@ const ISHORALAR = Object.freeze({
     qarash: "Atrofga qarash uchun ekranni suring",
     qollanmaSarlavha: "Boshqaruv Qo'llanmasi",
     qoyQisqa: "[Qo'yish]",
-    // Sensorda aniq doza yo'q — quyish tugmasi 45 ml quyadi.
-    doza: "45 ml",
+    doza: "Aniq doza",
   }),
 });
 
@@ -130,13 +129,14 @@ export const KLAVIATURA_AMALLARI = Object.freeze([
   { tugma: "G", amal: "Qo'ldagini qo'yish", sensorda: "Markazdagi tugma" },
   { tugma: "M", amal: "Ovozni yoqish / o'chirish", sensorda: "Ovoz tugmasi" },
   { tugma: "H", amal: "Shu qo'llanma", sensorda: "Qo'llanma tugmasi" },
-  // Quyidagi uchtasining sensorda muqobili YO'Q.
+  // Hajmlar `sozlama.js` dagi ANIQ_DOZALAR dan keladi — bu qatorda
+  // takrorlanmaydi, aks holda ro'yxat o'zgarganda matn eskirardi.
   {
     tugma: "1 2 3 4 5",
-    amal: "Aniq hajm quyish — 1, 5, 10, 25, 50 ml",
-    sensorda: null,
-    izoh: "Sensorli qurilmada quyish tugmasi 45 ml quyadi. Aniq hajm — masalan stexiometrik hisob uchun — hozircha faqat klaviaturada.",
+    amal: "Aniq hajm quyish",
+    sensorda: "Aniq doza tugmalari",
   },
+  // Quyidagi ikkitasining sensorda muqobili YO'Q.
   { tugma: "C yoki Ctrl", amal: "Cho'kkalash", sensorda: null },
   { tugma: "Bo'sh joy", amal: "Sakrash", sensorda: null },
 ]);

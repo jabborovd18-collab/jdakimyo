@@ -1019,6 +1019,14 @@ export default function Korinish() {
               quyishBoshla(fpsQolIdish.userData?.kalit, fpsQaralganIdish, fpsQolIdish, 45);
             }
           }}
+          // Aniq doza — klaviaturadagi 1..5 bilan AYNI yo'ldan ketadi
+          // (`aniqHajmQuy`), shuning uchun server tekshiruvi va
+          // stexiometriya ikkalasida ham bir xil ishlaydi.
+          onAniqDoza={(ml) => {
+            if (fpsQolIdish && fpsQaralganIdish) {
+              aniqHajmQuy(fpsQolIdish.userData?.kalit, fpsQaralganIdish, ml);
+            }
+          }}
         />
 
         {/* --- O'NG PASTKI BURCHAK: QO'LDAGI IDISH HUD KARTASI --- */}

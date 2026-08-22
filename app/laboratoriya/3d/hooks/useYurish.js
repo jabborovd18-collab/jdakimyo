@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { qadamTovushi, shishaUrilishi, tiqinOchilishi, taroziBip, oqimBoshla, oqimToxtat } from "../lib/ovoz.js";
 import { idishYorliginiQoldaYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
-import { YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
+import { ANIQ_DOZALAR, YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
 import { ishorasiniMosla, useKirishUsuli } from "../lib/kirish-usuli.js";
 
 // Yurish chegarasi — xona o'lchamidan hosila, modul yuklanganda bir marta.
@@ -487,11 +487,14 @@ export function useYurish({
       }
 
       // 1, 2, 3, 4, 5 — Tezkor aniq hajmlar
-      if ((k === "Digit1" || key === "1") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(1);
-      if ((k === "Digit2" || key === "2") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(5);
-      if ((k === "Digit3" || key === "3") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(10);
-      if ((k === "Digit4" || key === "4") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(25);
-      if ((k === "Digit5" || key === "5") && typeof onAniqHajmQuy === "function") onAniqHajmQuy(50);
+      // 1..5 raqamlari `ANIQ_DOZALAR` ro'yxatidan oziqlanadi — sensor
+      // tugmalari ham o'sha ro'yxatni ishlatadi (sozlama.js).
+      ANIQ_DOZALAR.forEach((ml, i) => {
+        const raqam = String(i + 1);
+        if ((k === `Digit${raqam}` || key === raqam) && typeof onAniqHajmQuy === "function") {
+          onAniqHajmQuy(ml);
+        }
+      });
 
       if (k === "Space") {
         if (eyeHeightRef.current <= 1.62 && !keysRef.current.crouch) {
