@@ -1,7 +1,7 @@
 "use client"
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🏛️ TRIGONAL PRIZMA GEOMETRIYA — 3D LABORATORIYA PRO
+// 🏛️ TRIGONAL PRIZMA GEOMETRIYA (D₃ₕ — KS 6) — 3D LABORATORIYA PRO
 // Manzil: /oquv/fazoviy/trigonal-prizma/3d (SEO indeksatsiyasi saqlangan)
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -31,7 +31,7 @@ const GEOMETRY_INFO = {
     hasSplitting: true,
     theory: "Trigonal prizma (D3h, KS 6) maydonida d-orbitallarning o'ziga xos 3 sathli ajralishi (oktaedrikdan tubdan farq qiladi):",
     deltaSymbol: "Δ(TPR)",
-    deltaValue: "18 000 cm⁻¹",
+    deltaValue: "16 000–22 000 cm⁻¹",
     pairingEnergy: "≈ 20 000 cm⁻¹",
     levels: [
       { label: "e'' (dxz, dyz)", energy: "+0.55 Δ(TPR) (Eng yuqori sath)", type: "high" },
@@ -42,7 +42,7 @@ const GEOMETRY_INFO = {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 2. KOMPLEKSLAR BAZASI
+// 2. KOMPLEKSLAR BAZASI (Asl o'lchangan Delta(TPR) va spektroskopiya)
 // ═══════════════════════════════════════════════════════════════════════════
 const COMPLEXES = {
   ZrMe6: {
@@ -58,10 +58,15 @@ const COMPLEXES = {
     hybridization: "sd⁵",
     magnetism: "Diamagnit (d⁰)",
     color: "Sariq-yashil kristall",
-    dOrbital: { a1: 0, e: 0, e2: 0, type: "d⁰", deltaO: 18000 },
+    dOrbital: { a1: 0, e: 0, e2: 0, type: "d⁰", deltaTPR: 18000, deltaO: 18000 },
     geometry: "Trigonal prizma",
     symmetry: "D₃ₕ",
     dElectrons: 0,
+    spectroscopy: {
+      uvVis: "LMCT: λmax ≈ 275 nm (Me → Zr charge transfer)",
+      ir: "ν(C–H) metil: 2920, 2850 cm⁻¹, δ(CH₃): 1420, 1180 cm⁻¹, ν(Zr–C): 480–520 cm⁻¹",
+      nmr: "¹H: δ = 0.15 ppm (s), ¹³C: δ = 48 ppm"
+    },
     coordNumber: 6
   },
   WMe6: {
@@ -77,10 +82,15 @@ const COMPLEXES = {
     hybridization: "sd⁵",
     magnetism: "Diamagnit (d⁰)",
     color: "Och sariq kristall",
-    dOrbital: { a1: 0, e: 0, e2: 0, type: "d⁰", deltaO: 22000 },
+    dOrbital: { a1: 0, e: 0, e2: 0, type: "d⁰", deltaTPR: 22000, deltaO: 22000 },
     geometry: "Trigonal prizma",
     symmetry: "D₃ₕ",
     dElectrons: 0,
+    spectroscopy: {
+      uvVis: "LMCT: λmax ≈ 315 nm (to'q sariq eritma hosil qiladi)",
+      ir: "ν(C–H): 2940 cm⁻¹, ν(W–C): 540 cm⁻¹, δ(C–W–C): 160 cm⁻¹",
+      nmr: "¹H: δ = 1.62 ppm (s, ²J(¹⁸³W-¹H) = 3.2 Hz, sun'iy yo'ldosh cho'qqilari)"
+    },
     coordNumber: 6
   },
   ReS6: {
@@ -96,10 +106,14 @@ const COMPLEXES = {
     hybridization: "sd⁵",
     magnetism: "Diamagnit (LS d³)",
     color: "Qora-yashil kristall",
-    dOrbital: { a1: 2, e: 0, e2: 0, type: "LS d³", deltaO: 16000 },
+    dOrbital: { a1: 2, e: 0, e2: 0, type: "LS d³", deltaTPR: 16000, deltaO: 16000 },
     geometry: "Trigonal prizma",
     symmetry: "D₃ₕ",
     dElectrons: 3,
+    spectroscopy: {
+      uvVis: "λmax ≈ 610 nm (kuchli d–d + ligand-to-metal), 430 nm",
+      ir: "ν(C≡N): 2210 cm⁻¹ (kuchli), ν(C=C): 1480 cm⁻¹, ν(Re–S): 370 cm⁻¹"
+    },
     coordNumber: 6
   }
 }
@@ -167,7 +181,7 @@ function buildTrigonalPrismGeometry(molGroup, complexData, refs, state) {
     new THREE.Vector3(r * Math.cos((4 * Math.PI) / 3), -h, r * Math.sin((4 * Math.PI) / 3))
   ]
 
-  prismDirs.forEach((pos, idx) => {
+  prismDirs.forEach((pos) => {
     const bond = createBond(centerPos, pos, 0.065, CPK.bond)
     molGroup.add(bond)
     if (bondsRef?.current) bondsRef.current.push(bond)

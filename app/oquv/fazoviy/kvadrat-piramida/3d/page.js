@@ -1,7 +1,7 @@
 "use client"
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🔺 KVADRAT PIRAMIDA GEOMETRIYA — 3D LABORATORIYA PRO
+// 🔺 KVADRAT PIRAMIDA GEOMETRIYA (C₄ᵥ — KS 5) — 3D LABORATORIYA PRO
 // Manzil: /oquv/fazoviy/kvadrat-piramida/3d (SEO indeksatsiyasi saqlangan)
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -32,7 +32,7 @@ const GEOMETRY_INFO = {
     hasSplitting: true,
     theory: "Kvadrat piramida (C4v) maydonida d-orbitallarning 4 energetik sathga ajralishi:",
     deltaSymbol: "Δ₁ / Δ₂",
-    deltaValue: "18 000 cm⁻¹",
+    deltaValue: "12 000–18 000 cm⁻¹",
     pairingEnergy: "≈ 20 000 cm⁻¹",
     levels: [
       { label: "dx²-y² (b₁)", energy: "+0.91 Δ (Eng yuqori, ekvatorial ligandlar)", type: "high" },
@@ -44,7 +44,7 @@ const GEOMETRY_INFO = {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 2. KOMPLEKSLAR BAZASI
+// 2. KOMPLEKSLAR BAZASI (Asl o'lchangan Delta va IR qiymatlari)
 // ═══════════════════════════════════════════════════════════════════════════
 const COMPLEXES = {
   VOacac: {
@@ -58,37 +58,46 @@ const COMPLEXES = {
     bondLength: 2.0,
     bondLengthApical: 1.5,
     bondLengthReal: "1.97 Å",
-    bondLengthApicalReal: "1.58 Å (V=O)",
+    bondLengthApicalReal: "1.58 Å (V=O qisqa qo'shbog')",
     outerIon: null,
     hybridization: "dsp³",
     magnetism: "Paramagnit (d¹, μ ≈ 1.73 μB)",
     color: "Ko'k-yashil kristall",
-    dOrbital: { e: 1, b2: 0, a1: 0, b1: 0, type: "Paramagnit", deltaO: 18000 },
+    dOrbital: { e: 1, b2: 0, a1: 0, b1: 0, type: "Paramagnit (d¹)", delta1: 12000, delta2: 8000, deltaO: 12000 },
     geometry: "Kvadrat piramida",
     symmetry: "C₄ᵥ",
     dElectrons: 1,
+    spectroscopy: {
+      uvVis: "λmax ≈ 580 nm, 770 nm (d–d o'tishlar: e → b₂ va e → a₁)",
+      ir: "ν(V=O) apikal: 985 cm⁻¹  (juda o'ziga xos!), ν(C=O) acac: 1520–1570 cm⁻¹, ν(V–O) ekvatorial: 480–580 cm⁻¹",
+      epr: "g ≈ 1.98, A ≈ 170 G (⁵¹V izotopi, I = 7/2, 8 chiziqli gipernozik oktet)"
+    },
     coordNumber: 5
   },
   NiCN5: {
     id: "NiCN5",
     formula: "[Ni(CN)₅]³⁻",
-    fullSalt: "K₃[Ni(CN)₅]",
-    name: "Kaliy pentatsianonikelat(II)",
+    fullSalt: "[Cr(en)₃][Ni(CN)₅] · 1.5H₂O",
+    name: "Pentatsianonikelat(II)",
     center: { element: "Ni", color: CPK.Ni, radius: 0.45, charge: "+2" },
     ligand: { type: "CN", donor: "C", donorColor: CPK.C, donorRadius: 0.25 },
     apicalLigand: { type: "CN", donor: "C", donorColor: CPK.C, donorRadius: 0.25, label: "CN⁻" },
-    bondLength: 1.95,
+    bondLength: 2.0,
     bondLengthApical: 2.15,
-    bondLengthReal: "1.86 Å",
-    bondLengthApicalReal: "2.17 Å",
+    bondLengthReal: "1.86 Å (ekvatorial Ni-C)",
+    bondLengthApicalReal: "2.17 Å (apikal Ni-C)",
     outerIon: { element: "K", color: CPK.K, radius: 0.40, charge: "+1", count: 3 },
     hybridization: "dsp³",
-    magnetism: "Diamagnit (d⁸ past spin)",
-    color: "To'q qizil kristall",
-    dOrbital: { e: 4, b2: 2, a1: 2, b1: 0, type: "LS", deltaO: 22000 },
+    magnetism: "Diamagnit (d⁸ past-spin)",
+    color: "To'q-qizil kristall",
+    dOrbital: { e: 4, b2: 2, a1: 2, b1: 0, type: "LS d⁸", delta1: 18000, delta2: 14000, deltaO: 18000 },
     geometry: "Kvadrat piramida",
     symmetry: "C₄ᵥ",
     dElectrons: 8,
+    spectroscopy: {
+      uvVis: "λmax ≈ 480 nm (d–d past-spin), 310 nm (MLCT)",
+      ir: "ν(C≡N) apikal: 2110 cm⁻¹, ν(C≡N) ekvatorial: 2120–2140 cm⁻¹, ν(Ni–C) ekvatorial: ≈ 490 cm⁻¹, ν(Ni–C) apikal: ≈ 420 cm⁻¹"
+    },
     coordNumber: 5
   }
 }
@@ -183,7 +192,7 @@ function buildSquarePyramidGeometry(molGroup, complexData, refs, state) {
     new THREE.Vector3(0, -0.2, -dEq)
   ]
 
-  eqDirs.forEach((pos, idx) => {
+  eqDirs.forEach((pos) => {
     const bond = createBond(centerPos, pos, 0.065, CPK.bond)
     molGroup.add(bond)
     if (bondsRef?.current) bondsRef.current.push(bond)
@@ -192,7 +201,6 @@ function buildSquarePyramidGeometry(molGroup, complexData, refs, state) {
     if (complexData.ligand.type === "CN") {
       ligandGroup = createCNLigand(pos, centerPos, refs, state.scale)
     } else {
-      // acac yoki O donori
       const oGeo = new THREE.SphereGeometry(complexData.ligand.donorRadius || 0.30, 32, 32)
       const oMat = new THREE.MeshStandardMaterial({ color: complexData.ligand.donorColor || CPK.O, roughness: 0.3 })
       const oMesh = new THREE.Mesh(oGeo, oMat)

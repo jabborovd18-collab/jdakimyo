@@ -1,7 +1,7 @@
 "use client"
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🟩 TEKIS KVADRAT GEOMETRIYA — 3D LABORATORIYA PRO
+// 🟩 TEKIS KVADRAT GEOMETRIYA (D₄ₕ — KS 4) — 3D LABORATORIYA PRO
 // Manzil: /oquv/fazoviy/tekis-kvadrat/3d (SEO indeksatsiyasi saqlangan)
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -34,7 +34,7 @@ const GEOMETRY_INFO = {
     hasSplitting: true,
     theory: "Tekis kvadrat (D4h) maydonida d-orbitallarning 4 energetik sathga ajralishi:",
     deltaSymbol: "Δₛₚ",
-    deltaValue: "29 000–34 000 cm⁻¹",
+    deltaValue: "23 000–34 000 cm⁻¹",
     pairingEnergy: "≈ 20 000 cm⁻¹",
     levels: [
       { label: "dx²-y² (b₁g)", energy: "+1.23 Δₛₚ (Juda yuqori, liganda tekisligida)", type: "high" },
@@ -46,7 +46,7 @@ const GEOMETRY_INFO = {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 2. KOMPLEKSLAR BAZASI
+// 2. KOMPLEKSLAR BAZASI (Asl o'lchangan DeltaO/Delta1 va spektroskopiya)
 // ═══════════════════════════════════════════════════════════════════════════
 const COMPLEXES = {
   PtCl4: {
@@ -56,16 +56,20 @@ const COMPLEXES = {
     name: "Kaliy tetrakloroplatinat(II)",
     center: { element: "Pt", color: 0xE0C0A0, radius: 0.50, charge: "+2" },
     ligand: { type: "Cl", donor: "Cl", donorColor: CPK.Cl, donorRadius: 0.38 },
-    bondLength: 2.3,
+    bondLength: 2.30,
     bondLengthReal: "2.31 Å",
     outerIon: { element: "K", color: CPK.K, radius: 0.40, charge: "+1", count: 2 },
     hybridization: "dsp²",
     magnetism: "Diamagnit (d⁸, quyi 4 sath to'liq to'lgan)",
     color: "To'q qizil-jigarrang kristall",
-    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 0, type: "LS", deltaO: 29000 },
+    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 0, type: "LS", deltaO: 29000, delta1: 29000 },
     geometry: "Tekis kvadrat",
     symmetry: "D4h",
     dElectrons: 8,
+    spectroscopy: {
+      uvVis: "d–d o'tishlar: λmax ≈ 390 nm (¹A₁g → ¹A₂g), 335 nm (¹A₁g → ¹Eg), LMCT: 230 nm",
+      ir: "ν(Pt–Cl) a₁g: 335 cm⁻¹ (Raman-faol), ν(Pt–Cl) eᵤ: 310 cm⁻¹ (IR-faol), δ(Cl–Pt–Cl): 165 cm⁻¹"
+    },
     coordNumber: 4
   },
   NiCN4: {
@@ -81,10 +85,14 @@ const COMPLEXES = {
     hybridization: "dsp²",
     magnetism: "Diamagnit (kuchli maydon)",
     color: "Sariq kristall",
-    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 0, type: "LS", deltaO: 34000 },
+    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 0, type: "LS", deltaO: 34000, delta1: 34000 },
     geometry: "Tekis kvadrat",
     symmetry: "D4h",
     dElectrons: 8,
+    spectroscopy: {
+      uvVis: "λmax ≈ 267 nm (MLCT), 310 nm (d–d past-spin)",
+      ir: "ν(C≡N) a₁g: 2160 cm⁻¹ (Raman), ν(C≡N) eᵤ: 2124 cm⁻¹ (IR), ν(Ni–C): 415 cm⁻¹"
+    },
     coordNumber: 4
   },
   CuNH3: {
@@ -100,10 +108,14 @@ const COMPLEXES = {
     hybridization: "dsp²",
     magnetism: "Paramagnit (1 ta toq elektron)",
     color: "To'q ko'k-binafsha",
-    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 1, type: "HS", deltaO: 18000 },
+    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 1, type: "HS (d⁹)", deltaO: 18000, delta1: 18000 },
     geometry: "Tekis kvadrat",
     symmetry: "D4h (Jahn-Teller)",
     dElectrons: 9,
+    spectroscopy: {
+      uvVis: "λmax ≈ 610 nm (to'q ko'k rang beruvchi d–d o'tish), 250 nm (LMCT)",
+      ir: "ν(N–H) sim: 3320 cm⁻¹, ν(N–H) asim: 3400 cm⁻¹, ν(Cu–N): 420 cm⁻¹, δ(HNH): 1610 cm⁻¹"
+    },
     coordNumber: 4
   },
   PdCl4: {
@@ -119,10 +131,14 @@ const COMPLEXES = {
     hybridization: "dsp²",
     magnetism: "Diamagnit",
     color: "To'q sariq-jigarrang",
-    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 0, type: "LS", deltaO: 27000 },
+    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 0, type: "LS", deltaO: 27000, delta1: 27000 },
     geometry: "Tekis kvadrat",
     symmetry: "D4h",
     dElectrons: 8,
+    spectroscopy: {
+      uvVis: "λmax ≈ 470 nm, 280 nm (LMCT)",
+      ir: "ν(Pd–Cl) a₁g: 305 cm⁻¹, ν(Pd–Cl) eᵤ: 336 cm⁻¹"
+    },
     coordNumber: 4
   },
   AuCl4: {
@@ -138,10 +154,14 @@ const COMPLEXES = {
     hybridization: "dsp²",
     magnetism: "Diamagnit",
     color: "Sariq kristall (gigroskopik)",
-    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 0, type: "LS", deltaO: 23000 },
+    dOrbital: { dxy: 2, dxz: 2, dyz: 2, dz2: 2, dx2y2: 0, type: "LS", deltaO: 23000, delta1: 23000 },
     geometry: "Tekis kvadrat",
     symmetry: "D4h",
     dElectrons: 8,
+    spectroscopy: {
+      uvVis: "λmax ≈ 318 nm (LMCT Cl → Au(III))",
+      ir: "ν(Au–Cl) a₁g: 347 cm⁻¹ (Raman), ν(Au–Cl) eᵤ: 356 cm⁻¹ (IR)"
+    },
     coordNumber: 4
   }
 }
@@ -203,7 +223,7 @@ function buildSquarePlanarGeometry(molGroup, complexData, refs, state) {
     new THREE.Vector3(0, 0, -d)
   ]
 
-  ligandDirs.forEach((dir, idx) => {
+  ligandDirs.forEach((dir) => {
     const lPos = dir.clone()
 
     // Bog'

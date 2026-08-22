@@ -30,7 +30,7 @@ const GEOMETRY_INFO = {
     hasSplitting: true,
     theory: "Sendvich / Metallotsen (D5d) maydonida d-orbitallarning MO ajralishi:",
     deltaSymbol: "Δ₁ / Δ₂",
-    deltaValue: "21 000–26 000 cm⁻¹",
+    deltaValue: "17 000–26 000 cm⁻¹",
     pairingEnergy: "≈ 20 000 cm⁻¹",
     levels: [
       { label: "e₁g* (dxz, dyz)", energy: "+1.15 Δ (Eng yuqori, antibog'lovchi)", type: "high" },
@@ -41,49 +41,72 @@ const GEOMETRY_INFO = {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 2. KOMPLEKSLAR BAZASI
+// 2. KOMPLEKSLAR BAZASI (Asl o'lchangan Delta1, Delta2 va spektroskopiya)
 // ═══════════════════════════════════════════════════════════════════════════
 const COMPLEXES = {
   Ferrocene: {
     id: "Ferrocene",
     formula: "[Fe(η⁵-C₅H₅)₂]",
-    fullSalt: "Fe(C₅H₅)₂ (Ferrotsen)",
+    fullSalt: "Fe(C₅H₅)₂ (‘ferrotsen’)",
     name: "Bis(η⁵-siklopentadienil)temir(II)",
-    center: { element: "Fe", color: 0xE06633, radius: 0.45, charge: "+2" },
-    ligand: { type: "Cp", donor: "C", donorColor: CPK.C, donorRadius: 0.22 },
+    center: { element: "Fe", color: 0xE06633, radius: 0.42, charge: "+2" },
+    ligand: { type: "Cp", donor: "C", donorColor: CPK.C, donorRadius: 0.22, label: "Cp⁻" },
     ringCentroidDist: 1.66,
     ringRadius: 1.21,
+    ccBond: 1.44,
+    chBond: 1.09,
     bondLength: 2.04,
-    bondLengthReal: "2.04 Å (Fe-C) / 1.66 Å (Fe-centroid)",
+    bondLengthReal: "2.04 Å (Fe-C)",
+    ringCentroidReal: "1.66 Å (Fe-centroid)",
+    ccBondReal: "1.44 Å (C-C)",
+    chBondReal: "1.09 Å (C-H)",
     outerIon: null,
-    hybridization: "d²sp³ + η⁵-π",
-    magnetism: "Diamagnit (18 elektronli barqaror qobiq)",
-    color: "To'q sariq kristall",
-    dOrbital: { e2g: 4, a1g: 2, e1gStar: 0, type: "LS d⁶", deltaO: 21000 },
-    geometry: "Sendvich",
+    hybridization: "d²sp³ (σ skelet) + η⁵-π kovalent",
+    magnetism: "Diamagnit",
+    color: "To'q-sariq kristall (t.p. 172°C)",
+    dOrbital: { e2g: 4, a1g: 2, e1gStar: 0, type: "LS d⁶", delta1: 21000, delta2: 26000, deltaO: 21000 },
+    geometry: "Sendvich (metallotsen)",
     symmetry: "D₅d (staggered)",
     dElectrons: 6,
+    valenceElectrons: 18,
+    spectroscopy: {
+      uvVis: "λmax ≈ 440 nm (ε ≈ 90 M⁻¹cm⁻¹, d–d taqiqlangan), 325 nm (MLCT)",
+      ir: "ν(C–H) aromatik: 3085 cm⁻¹, ν(C=C) halqa: 1411 cm⁻¹, δ(C–H) tekislikdan tashqari: 1002 cm⁻¹, 811 cm⁻¹, ν(Fe–Cp) asimmetrik: 478 cm⁻¹, 492 cm⁻¹",
+      mossbauer: "δ = 0.52 mm/s, ΔEq = 2.40 mm/s (Fe(II) past spin xarakterli)",
+      nmr: "¹H: δ = 4.15 ppm (s, 10H), ¹³C: δ = 68.2 ppm (s)"
+    },
     coordNumber: 10
   },
   Nickelocene: {
     id: "Nickelocene",
     formula: "[Ni(η⁵-C₅H₅)₂]",
-    fullSalt: "Ni(C₅H₅)₂ (Nikelotsen)",
+    fullSalt: "Ni(C₅H₅)₂ (‘nikelotsen’)",
     name: "Bis(η⁵-siklopentadienil)nikel(II)",
-    center: { element: "Ni", color: CPK.Ni, radius: 0.46, charge: "+2" },
-    ligand: { type: "Cp", donor: "C", donorColor: CPK.C, donorRadius: 0.22 },
+    center: { element: "Ni", color: CPK.Ni, radius: 0.44, charge: "+2" },
+    ligand: { type: "Cp", donor: "C", donorColor: CPK.C, donorRadius: 0.22, label: "Cp⁻" },
     ringCentroidDist: 1.82,
     ringRadius: 1.21,
+    ccBond: 1.43,
+    chBond: 1.09,
     bondLength: 2.20,
-    bondLengthReal: "2.20 Å (Ni-C) / 1.82 Å (Ni-centroid)",
+    bondLengthReal: "2.20 Å (Ni-C)",
+    ringCentroidReal: "1.82 Å (Ni-centroid)",
+    ccBondReal: "1.43 Å",
+    chBondReal: "1.09 Å",
     outerIon: null,
-    hybridization: "d²sp³ + η⁵-π",
-    magnetism: "Paramagnit (20 elektron, e₁g* da 2 ta toq e⁻)",
-    color: "To'q yashil kristall",
-    dOrbital: { e2g: 4, a1g: 2, e1gStar: 2, type: "HS d⁸", deltaO: 17000 },
-    geometry: "Sendvich",
+    hybridization: "d²sp³ (σ skelet) + η⁵-π",
+    magnetism: "Paramagnit (2 juftlashmagan e⁻, μₑff ≈ 2.86 μB)",
+    color: "To'q-yashil kristall",
+    dOrbital: { e2g: 4, a1g: 2, e1gStar: 2, type: "HS d⁸", delta1: 17000, delta2: 22000, deltaO: 17000 },
+    geometry: "Sendvich (metallotsen)",
     symmetry: "D₅d",
     dElectrons: 8,
+    valenceElectrons: 20,
+    spectroscopy: {
+      uvVis: "λmax ≈ 660 nm (yashil rang beruvchi d–d), 310 nm (MLCT)",
+      ir: "ν(C–H): 3060 cm⁻¹, ν(C=C): 1420 cm⁻¹, ν(Ni–Cp): 355 cm⁻¹, 410 cm⁻¹",
+      nmr: "Paramagnit kengayish tufayli noaniq (¹H kengaytirilgan)"
+    },
     coordNumber: 10
   }
 }

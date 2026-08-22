@@ -1,7 +1,7 @@
 "use client"
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 💎 DODEKAEDRIK GEOMETRIYA (D2d, KS 8) — 3D LABORATORIYA PRO
+// 💎 DODEKAEDRIK GEOMETRIYA (D₂d — KS 8) — 3D LABORATORIYA PRO
 // Manzil: /oquv/fazoviy/dodekaedrik/3d (SEO indeksatsiyasi saqlangan)
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -32,7 +32,7 @@ const GEOMETRY_INFO = {
     hasSplitting: true,
     theory: "Dodekaedrik (D2d, KS 8) maydonida d-orbitallarning Hoard-Nordsieck bo'yicha ajralishi:",
     deltaSymbol: "Δ₁ / Δ₂ / Δ₃",
-    deltaValue: "15 000 cm⁻¹",
+    deltaValue: "15 000–18 000 cm⁻¹",
     pairingEnergy: "≈ 20 000 cm⁻¹",
     levels: [
       { label: "e (dxz, dyz)", energy: "+0.75 Δ (Eng yuqori sath)", type: "high" },
@@ -44,7 +44,7 @@ const GEOMETRY_INFO = {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 2. KOMPLEKSLAR BAZASI
+// 2. KOMPLEKSLAR BAZASI (Asl o'lchangan Delta1, Delta2, Delta3 va IR qiymatlari)
 // ═══════════════════════════════════════════════════════════════════════════
 const COMPLEXES = {
   MoCN8: {
@@ -57,13 +57,18 @@ const COMPLEXES = {
     bondLength: 2.15,
     bondLengthReal: "2.15 Å (A) / 2.20 Å (B)",
     outerIon: { element: "K", color: CPK.K, radius: 0.40, charge: "+1", count: 4 },
-    hybridization: "d⁴sp³",
-    magnetism: "Diamagnit (d², a₁² konfiguratsiya)",
+    hybridization: "d⁴sp³ (yoki sp³d⁴)",
+    magnetism: "Diamagnit",
     color: "Och sariq kristall",
-    dOrbital: { a1: 2, b1: 0, b2: 0, e: 0, type: "LS d²", deltaO: 15000 },
+    dOrbital: { a1: 2, b1: 0, b2: 0, e: 0, type: "LS d²", delta1: 15000, delta2: 8000, delta3: 6000, deltaO: 15000 },
     geometry: "Dodekaedrik",
     symmetry: "D₂d",
     dElectrons: 2,
+    spectroscopy: {
+      uvVis: "λmax ≈ 370 nm (d–d a₁ → e), 240 nm (LMCT CN → Mo)",
+      ir: "ν(C≡N): 2110–2135 cm⁻¹ (bir necha bo'lingan), ν(Mo–C) A pozit.: ≈ 490 cm⁻¹, ν(Mo–C) B pozit.: ≈ 460 cm⁻¹",
+      nmr: "¹³C: 152 ppm (A) / 148 ppm (B) — ikkita xos rezonans signali"
+    },
     coordNumber: 8
   },
   WCN8: {
@@ -77,12 +82,17 @@ const COMPLEXES = {
     bondLengthReal: "2.16 Å (A) / 2.22 Å (B)",
     outerIon: { element: "K", color: CPK.K, radius: 0.40, charge: "+1", count: 4 },
     hybridization: "d⁴sp³",
-    magnetism: "Diamagnit (d²)",
+    magnetism: "Diamagnit",
     color: "Sariq-yashil kristall",
-    dOrbital: { a1: 2, b1: 0, b2: 0, e: 0, type: "LS d²", deltaO: 18000 },
+    dOrbital: { a1: 2, b1: 0, b2: 0, e: 0, type: "LS d²", delta1: 18000, delta2: 9000, delta3: 7000, deltaO: 18000 },
     geometry: "Dodekaedrik",
     symmetry: "D₂d",
     dElectrons: 2,
+    spectroscopy: {
+      uvVis: "λmax ≈ 360 nm (d–d), 235 nm (LMCT)",
+      ir: "ν(C≡N): 2115–2140 cm⁻¹ (bir necha bo'lingan), ν(W–C) A pozit.: ≈ 495 cm⁻¹, ν(W–C) B pozit.: ≈ 465 cm⁻¹",
+      nmr: "¹⁸³W: δ ≈ −1780 ppm, ¹³C: 154 ppm (A) / 150 ppm (B)"
+    },
     coordNumber: 8
   }
 }

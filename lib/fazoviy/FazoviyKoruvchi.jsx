@@ -732,7 +732,7 @@ export default function FazoviyKoruvchi({
         )}
 
         {activePanel === "dorbital" && (
-          <div className="absolute right-4 top-4 z-30 w-88 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl">
+          <div className="absolute right-4 top-4 z-30 w-88 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-3 pb-2 border-b border-purple-800/60">
               <h3 className="font-bold text-sm text-purple-200">📊 d-Orbital Ajralishi</h3>
               <button onClick={() => setActivePanel(null)} className="text-purple-400 hover:text-white">✕</button>
@@ -747,7 +747,6 @@ export default function FazoviyKoruvchi({
                 <>
                   <p>{geometryInfo.dOrbitalSplitting?.theory || complex.dOrbitalSplitting?.theory || "Kristall maydon nazariyasi (CFT) bo'yicha d-orbitallarning energetik sathlarga bo'linishi:"}</p>
                   <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50 font-mono text-[11px] space-y-1.5">
-                    {/* Agar maxsus sathlar berilgan bo'lsa */}
                     {(geometryInfo.dOrbitalSplitting?.levels || complex.dOrbitalSplitting?.levels) ? (
                       (geometryInfo.dOrbitalSplitting?.levels || complex.dOrbitalSplitting?.levels).map((lvl, idx) => (
                         <div
@@ -770,15 +769,66 @@ export default function FazoviyKoruvchi({
                       </>
                     )}
 
-                    <div className="text-purple-200 pt-1.5 border-t border-purple-800/50 flex justify-between">
-                      <span>{geometryInfo.dOrbitalSplitting?.deltaSymbol || complex.dOrbitalSplitting?.deltaSymbol || (geometryInfo.ks === 6 ? "Δₒ" : "Δₜ")} parametri:</span>
-                      <b className="text-yellow-300">
-                        {geometryInfo.dOrbitalSplitting?.deltaValue || complex.dOrbitalSplitting?.deltaValue || (complex.dOrbital?.deltaO ? `${complex.dOrbital.deltaO.toLocaleString()} cm⁻¹` : complex.dOrbital?.deltaT ? `${complex.dOrbital.deltaT.toLocaleString()} cm⁻¹` : "≈ 20 000 cm⁻¹")}
-                      </b>
+                    {/* Kompleksning o'ziga xos o'lchangan Delta parametrlari */}
+                    <div className="pt-2 border-t border-purple-800/50 space-y-1">
+                      {complex.dOrbital?.delta1 !== undefined && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>Δ1:</span>
+                          <b>{complex.dOrbital.delta1.toLocaleString()} cm⁻¹</b>
+                        </div>
+                      )}
+                      {complex.dOrbital?.delta2 !== undefined && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>Δ2:</span>
+                          <b>{complex.dOrbital.delta2.toLocaleString()} cm⁻¹</b>
+                        </div>
+                      )}
+                      {complex.dOrbital?.delta3 !== undefined && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>Δ3:</span>
+                          <b>{complex.dOrbital.delta3.toLocaleString()} cm⁻¹</b>
+                        </div>
+                      )}
+                      {complex.dOrbital?.delta1_cm !== undefined && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>Δ₁ (δg → πg):</span>
+                          <b>{complex.dOrbital.delta1_cm.toLocaleString()} cm⁻¹</b>
+                        </div>
+                      )}
+                      {complex.dOrbital?.delta2_cm !== undefined && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>Δ₂ (πg → σg*):</span>
+                          <b>{complex.dOrbital.delta2_cm.toLocaleString()} cm⁻¹</b>
+                        </div>
+                      )}
+                      {complex.dOrbital?.deltaTPR !== undefined && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>Δ(TPR):</span>
+                          <b>{complex.dOrbital.deltaTPR.toLocaleString()} cm⁻¹</b>
+                        </div>
+                      )}
+                      {complex.dOrbital?.deltaO !== undefined && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>Δₒ:</span>
+                          <b>{complex.dOrbital.deltaO.toLocaleString()} cm⁻¹</b>
+                        </div>
+                      )}
+                      {complex.dOrbital?.deltaT !== undefined && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>Δₜ:</span>
+                          <b>{complex.dOrbital.deltaT.toLocaleString()} cm⁻¹</b>
+                        </div>
+                      )}
+                      {!complex.dOrbital?.delta1 && !complex.dOrbital?.delta1_cm && !complex.dOrbital?.deltaTPR && !complex.dOrbital?.deltaO && !complex.dOrbital?.deltaT && (
+                        <div className="flex justify-between text-yellow-300">
+                          <span>{geometryInfo.dOrbitalSplitting?.deltaSymbol || "Δ"}:</span>
+                          <b>{geometryInfo.dOrbitalSplitting?.deltaValue || "≈ 20 000 cm⁻¹"}</b>
+                        </div>
+                      )}
                     </div>
 
                     {(geometryInfo.dOrbitalSplitting?.pairingEnergy || complex.dOrbitalSplitting?.pairingEnergy) && (
-                      <div className="text-purple-300 text-[10px] flex justify-between pt-0.5">
+                      <div className="text-purple-300 text-[10px] flex justify-between pt-1 border-t border-purple-800/30">
                         <span>Juftlashuv energiyasi (P):</span>
                         <span>{geometryInfo.dOrbitalSplitting?.pairingEnergy || complex.dOrbitalSplitting?.pairingEnergy}</span>
                       </div>
@@ -791,26 +841,87 @@ export default function FazoviyKoruvchi({
         )}
 
         {activePanel === "spectra" && (
-          <div className="absolute right-4 top-4 z-30 w-84 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl">
+          <div className="absolute right-4 top-4 z-30 w-96 bg-purple-950/95 backdrop-blur-md p-4 rounded-xl border border-purple-700/60 shadow-2xl max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-3 pb-2 border-b border-purple-800/60">
-              <h3 className="font-bold text-sm text-purple-200">🌈 Spektroskopik Tahlil</h3>
+              <h3 className="font-bold text-sm text-purple-200">🌈 Spektroskopik Ma'lumotlar</h3>
               <button onClick={() => setActivePanel(null)} className="text-purple-400 hover:text-white">✕</button>
             </div>
             <div className="text-xs text-purple-300 space-y-2.5">
-              <p>UV-Vis elektron o'tishlar va IR tebranish modlari:</p>
-              <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50 text-[11px] font-mono space-y-1 text-purple-200">
-                <div className="text-cyan-300">UV-Vis (d–d): {complex.id === "CoNH3" ? "λmax ≈ 475 nm" : complex.id === "CoCl4" ? "λmax ≈ 660 nm" : "λmax ≈ 420 nm"}</div>
-                <div className="text-purple-300 text-[10px]">Molyar yutilish (ε): ~60 L·mol⁻¹·cm⁻¹</div>
-                <div className="pt-1.5 border-t border-purple-800/50 text-yellow-300">
-                  IR (M–L tebranish): {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "400–600 cm⁻¹" : "280–330 cm⁻¹"}
+              {complex.spectroscopy ? (
+                <div className="space-y-2">
+                  {complex.spectroscopy.uvVis && (
+                    <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50">
+                      <div className="text-[10px] text-cyan-300 font-semibold uppercase">UV-Vis Elektron Spektri</div>
+                      <div className="text-[11px] text-purple-100 mt-0.5">{complex.spectroscopy.uvVis}</div>
+                    </div>
+                  )}
+                  {complex.spectroscopy.ir && (
+                    <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50">
+                      <div className="text-[10px] text-yellow-300 font-semibold uppercase">IR Tebranish Spektri</div>
+                      <div className="text-[11px] text-yellow-100 mt-0.5 font-mono leading-relaxed">{complex.spectroscopy.ir}</div>
+                    </div>
+                  )}
+                  {complex.spectroscopy.raman && (
+                    <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50">
+                      <div className="text-[10px] text-emerald-300 font-semibold uppercase">Raman Spektri</div>
+                      <div className="text-[11px] text-emerald-100 mt-0.5 font-mono">{complex.spectroscopy.raman}</div>
+                    </div>
+                  )}
+                  {complex.spectroscopy.nmr && (
+                    <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50">
+                      <div className="text-[10px] text-pink-300 font-semibold uppercase">Yadro Magnit Rezonansi (YMR / NMR)</div>
+                      <div className="text-[11px] text-pink-100 mt-0.5 font-mono">{complex.spectroscopy.nmr}</div>
+                    </div>
+                  )}
+                  {complex.spectroscopy.xray && (
+                    <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50">
+                      <div className="text-[10px] text-blue-300 font-semibold uppercase">Rentgen Tuzilishi (X-ray)</div>
+                      <div className="text-[11px] text-blue-100 mt-0.5">{complex.spectroscopy.xray}</div>
+                    </div>
+                  )}
                 </div>
-                <div className="text-purple-300 text-[10px]">
-                  Simmetrik cho'zilish: {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "≈ 500 cm⁻¹" : "≈ 310 cm⁻¹"}
+              ) : complex.IR ? (
+                <div className="space-y-2">
+                  <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50">
+                    <div className="text-[10px] text-yellow-300 font-semibold uppercase mb-1.5">Eksperimental IR Tebranish Modlari (CSD)</div>
+                    <div className="space-y-1 font-mono text-[11px]">
+                      {complex.IR.map((item, idx) => (
+                        <div key={idx} className="flex justify-between border-b border-purple-800/40 pb-0.5">
+                          <span className="text-yellow-200">{item.mode}:</span>
+                          <span className="text-white font-bold">{item.freq} cm⁻¹</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {complex.UV && (
+                    <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50">
+                      <div className="text-[10px] text-cyan-300 font-semibold uppercase mb-1.5">UV-Vis Elektron O'tishlar</div>
+                      <div className="space-y-1 font-mono text-[11px]">
+                        {complex.UV.map((item, idx) => (
+                          <div key={idx} className="flex justify-between border-b border-purple-800/40 pb-0.5">
+                            <span className="text-cyan-200">{item.assignment}:</span>
+                            <span className="text-white font-bold">λ = {item.wl} nm</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="text-purple-300 text-[10px]">
-                  Asimmetrik cho'zilish: {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "≈ 450 cm⁻¹" : "≈ 295 cm⁻¹"}
+              ) : (
+                <div className="bg-purple-900/50 p-2.5 rounded border border-purple-700/50 text-[11px] font-mono space-y-1 text-purple-200">
+                  <div className="text-cyan-300">UV-Vis (d–d): {complex.id === "CoNH3" ? "λmax ≈ 475 nm" : complex.id === "CoCl4" ? "λmax ≈ 660 nm" : "λmax ≈ 420 nm"}</div>
+                  <div className="text-purple-300 text-[10px]">Molyar yutilish (ε): ~60 L·mol⁻¹·cm⁻¹</div>
+                  <div className="pt-1.5 border-t border-purple-800/50 text-yellow-300">
+                    IR (M–L tebranish): {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "400–600 cm⁻¹" : "280–330 cm⁻¹"}
+                  </div>
+                  <div className="text-purple-300 text-[10px]">
+                    Simmetrik cho'zilish: {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "≈ 500 cm⁻¹" : "≈ 310 cm⁻¹"}
+                  </div>
+                  <div className="text-purple-300 text-[10px]">
+                    Asimmetrik cho'zilish: {(geometryInfo.ks === 6 || complex.coordNumber === 6) ? "≈ 450 cm⁻¹" : "≈ 295 cm⁻¹"}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
