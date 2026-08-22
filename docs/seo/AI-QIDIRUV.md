@@ -57,6 +57,28 @@ curl -s -A "OAI-SearchBot/1.0" https://www.jdakimyo.uz/ishlashi | grep -c "Serti
   `RASMIY_HISOBLAR` ga qo'shiladi (`lib/sayt-malumot.js`) — ochilmasidan
   oldin emas.
 
+## Keyingi bosqich — tashqi manbalar yo'l xaritasi
+
+Egasi bilan kelishildi (2026-08-22): avval Google indeksi tartibga
+solinadi, keyin quyidagilar birga qilinadi. Tartib foydaga qarab:
+
+| # | Manba | Nega aynan shu | Holat |
+|---|---|---|---|
+| 1 | Bing Webmaster + IndexNow | ChatGPT Search Bing indeksiga ham suyanadi; yangi sahifa soatlarda tushadi | navbatda |
+| 2 | YouTube | subtitr matni indekslanadi, AI iqtibos oladi | navbatda |
+| 3 | Wikidata | entity'ning o'zi — "bu nima" savoliga javob shu yerdan olinadi | navbatda |
+| 4 | Reddit | ChatGPT ham, Google ham katta vazn beradi; qoidalar qattiq, sekin ish | navbatda |
+| 5 | GitHub | ochiq repo README indekslanadi | navbatda |
+| 6 | Quora / Medium / Telegraph | savol-javob shakli AI uchun qulay format | navbatda |
+| 7 | Instagram, Pinterest | AI qidiruvi uchun kuchsiz, lekin entity nomini mustahkamlaydi | hisob ochilyapti |
+
+Har bir hisob ochilganda ikki ish qilinadi:
+1. Havolasi `RASMIY_HISOBLAR` ga qo'shiladi (`lib/sayt-malumot.js`) —
+   shundagina schema'da "bu hisob ham JDA KIMYO" degan da'vo paydo
+   bo'ladi.
+2. Profil tavsifiga `TARIF` dagi AYNAN o'sha jumla yoziladi. Har joyda
+   boshqacha yozilgan ta'rif AI uchun ikki xil narsa bo'lib ko'rinadi.
+
 ## Sinov so'rovlari
 
 Har safar bir xil so'rovlar, turli hisoblarda va turli kunlarda:
