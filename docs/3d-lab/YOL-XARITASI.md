@@ -407,12 +407,67 @@ geometriya talab qiladi, loyihada esa `.glb` yo'q (0.2). Protsedural
 primitivning "soddaroq" varianti qo'lda yoziladi va bu 0.2 dan keyin
 arzonroq bo'ladi.
 
+### 2026-08-22 — 0.4 bosqichma-bosqich
+
+Brif katta va xavfli (kolliziya, yurish, barcha ob'ekt joylashuvi),
+shuning uchun har qadam alohida o'lchandi:
+
+| # | Ish | Natija |
+|---|---|---|
+| 1 | FOV 45 → 60 | Chegaradan chiqqan qator **1 → 0**, uch profilda ham |
+| 2 | Xona o'lchami yagona manbaga | Qiymat o'zgarmadi (isbot: chaqiruv/uchburchak bit-aniqlikda bir xil) |
+| 3 | Soya qamrovi + soya tashlovchilar | Javon, rakovina, jadval devorga soya tashlaydi |
+| 4 | Javon to'ldirildi (egasi so'rovi) | 144 mesh qo'shildi, telefonda atigi **+7 draw call** |
+| 5 | Xonani kichraytirish | ⬜ qolgan eng katta va eng xavfli qism |
+
+**FOV kutilmagan foyda berdi.** BRIF-01B dan beri ochiq turgan yagona
+buzilish (`stol ortacha` telefonda 0.4677, chegara 0.45) FOV 60 da
+`0.4323` bo'ldi. Sabab mantiqiy: kengroq burchak kadrga ko'proq
+qorong'i ship va devor kiritadi, ya'ni siqilgan gistogramma yoyiladi.
+OLCHOV.md "kontrast yetishmasligi" deb yozgan muammoning bir qismi
+material va yorug'likka tegmasdan yechildi.
+
+**Narxi bor va u yozib qo'yilishi kerak.** FOV 0.7 tejagan narsadan
+ko'proq sarfladi:
+
+| telefon `sweep` chaqiruv | qiymat |
+|---|---|
+| `179bc8bf` (0.7 dan oldin) | 39 |
+| 0.7 dan keyin | 32 |
+| FOV 60 dan keyin | 90 |
+| soya + javon dan keyin | 97 |
+
+Javobi rejada bor: xonani kichraytirish, pishirilgan yorug'lik (0.6)
+va dinamik rezolyutsiya (0.3).
+
+**BRIF-07 o'zini oqladi.** Javonga 144 ta yangi harakatsiz mesh
+qo'shilganda telefonda `chaqiruv` atigi 7 ga oshdi — chunki
+birlashtiruvchi ularni material va zona bo'yicha yig'di
+(`birlashdi` 40 → 184, `guruh` 13 → 29). Birlashtirish bo'lmaganda
+narx +144 bo'lardi.
+
+**Son soyani deyarli sezmadi.** Soya qo'shilganda `ortacha` atigi
+0.0018 ga o'zgardi, skrinshotda esa farq aniq. Ya'ni luma o'rtachasi
+soya bor-yo'qligini o'lchamaydi — u faqat kuyish qorovuli. Bu
+11.1 bandning ikkinchi yarmi: son chegarani ushlaydi, ko'rinishni
+odam tekshiradi.
+
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
 1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,
    `Fume_Hood` nomli tortma shkaf modeli — ta'riflangan, lekin hech
    qayerdan chaqirilmagan. 4 mesh, ~37 qator. Xona rejasida tortma
    shkaf bormi degan savol 0.4 da hal qilinadi.
+
+1b. **Rakovina havoda turibdi.** `rakovinaYasa` faqat kosa (0.6×0.26×0.45),
+   jo'mrak va quvurdan iborat; hech qanday tayanch, tumba yoki devor
+   kronshteyni yo'q. Guruh `y = 0.9` da, ostida bo'shliq. Javonlarga
+   tumba qo'shilgandan keyin bu yanada ko'zga tashlanadi.
+1c. **Zona kameralaridagi `fov` o'qilmaydi.** `xona-zonalari.js` dagi
+   9 zonaning har birida `fov: 45/46` yozilgan, lekin butun loyihada
+   `KAMERA.fov` dan boshqa hech qayerda `fov` o'qilmaydi. Ya'ni bu
+   9 ta qiymat hech narsa qilmaydi va o'quvchini chalg'itadi.
+
 2. **Chegaralar ikki xil joyda va mos emas** (AGENTS.md 1-band).
    `OLCHOV.md` jadvali `stol/xona ortacha 0.28–0.42`, `pol 0.22–0.45`
    va `p95` ustunini yozadi; `scripts/lab3d-olcham.js:61` esa

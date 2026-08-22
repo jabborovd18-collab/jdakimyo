@@ -192,8 +192,200 @@ function reagentShishasiModel(item, materiallar) {
   return bottleGroup;
 }
 
+// ---- BRIF-04 — javonning yetishmagan ikki qismi ----
+//
+// Javon faqat OCHIQ o'rta qismdan iborat edi: 1.15 m dan 2.45 m gacha.
+// Ostida bo'shliq, ustida bo'shliq — shuning uchun u devorga
+// yopishtirilgan tokchaga o'xshardi, laboratoriya jihoziga emas.
+//
+// Qo'shiladi:
+//   1. Poldan tokchagacha YOPIQ eshikli javon. Ochiq emasligi funksional:
+//      bo'sh idish va xavfli reagentga quyosh nuri tushmasligi kerak.
+//   2. Tepasida kristall panjara maketi — bezak, lekin bo'sh emas: u
+//      elementar yacheyka, ya'ni haqiqiy kimyoviy tushuncha.
+//
+// Ikkalasi ham TANLANMAYDI (userData yo'q): shuning uchun BRIF-07
+// birlashtiruvchisi ularni yig'adi va draw call narxi mesh soniga emas,
+// material soniga bog'liq bo'ladi.
+
+const PASTKI_SHKAF = Object.freeze({
+  chukur: 0.42,          // tokchadan chuqurroq — haqiqiy tumba shakli
+  poyabzal: 0.09,        // pastki chekinma balandligi
+  poyabzalChekinma: 0.06,
+  qalinlik: 0.04,
+  eshikOraligi: 0.012,
+  tutqichR: 0.011,
+});
+
+/**
+ * Poldan tokchagacha yopiq, ikki eshikli tumba.
+ *
+ * @param {number} eni      tokcha bilan bir xil kenglik
+ * @param {number} balandlik  pol bilan tokcha tubi orasidagi masofa
+ * @param {number} orqaZ    tokchaning orqa yuzasi (lokal z)
+ */
+function pastkiShkafYasa(eni, balandlik, orqaZ, materiallar) {
+  const g = new THREE.Group();
+  const K = PASTKI_SHKAF;
+  const chukur = K.chukur;
+  const markazZ = orqaZ + chukur / 2;
+
+  const korpusMat = materiallar?.yogoch
+    || new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 });
+  const metallMat = materiallar?.metall
+    || new THREE.MeshStandardMaterial({ color: 0x9aa4b2, metalness: 0.9, roughness: 0.25 });
+
+  const qosh = (geo, mat, x, y, z) => {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z);
+    g.add(m);
+    return m;
+  };
+
+  // Poyabzal (toe kick) — oldinga chekingan, shuning uchun tumba polda
+  // "suzib" turgandek emas, o'tirgandek ko'rinadi.
+  qosh(
+    new THREE.BoxGeometry(eni, K.poyabzal, chukur - K.poyabzalChekinma),
+    korpusMat,
+    0, -balandlik / 2 + K.poyabzal / 2, markazZ - K.poyabzalChekinma / 2,
+  );
+
+  const tanaBalandlik = balandlik - K.poyabzal;
+  const tanaMarkazY = -balandlik / 2 + K.poyabzal + tanaBalandlik / 2;
+
+  // Yon devorlar
+  const yonGeo = new THREE.BoxGeometry(K.qalinlik, tanaBalandlik, chukur);
+  qosh(yonGeo, korpusMat, -eni / 2 + K.qalinlik / 2, tanaMarkazY, markazZ);
+  qosh(yonGeo, korpusMat, eni / 2 - K.qalinlik / 2, tanaMarkazY, markazZ);
+
+  // Orqa panel — devor tomonda, yupqa
+  qosh(
+    new THREE.BoxGeometry(eni, tanaBalandlik, 0.02),
+    korpusMat,
+    0, tanaMarkazY, orqaZ + 0.01,
+  );
+
+  // Ustki taxta (ish yuzasi) — tokcha tubi bilan bir tekisda va biroz
+  // oldinga chiqadi: chekka soya beradi va qatlam ajralib ko'rinadi.
+  qosh(
+    new THREE.BoxGeometry(eni + 0.03, K.qalinlik, chukur + 0.03),
+    korpusMat,
+    0, balandlik / 2 - K.qalinlik / 2, markazZ + 0.015,
+  );
+
+  // O'rta polka (ichkarida, eshik yopiq bo'lgani uchun deyarli ko'rinmaydi,
+  // lekin eshik ochilganda joyida bo'lishi kerak)
+  qosh(
+    new THREE.BoxGeometry(eni - K.qalinlik * 2, 0.02, chukur - 0.04),
+    korpusMat,
+    0, tanaMarkazY, markazZ,
+  );
+
+  // Ikki eshik — SHAFFOF EMAS. Sabab funksional: bo'sh idish va xavfli
+  // reagent yorug'likdan berkitiladi.
+  const eshikEni = (eni - K.eshikOraligi * 3) / 2;
+  const eshikBalandlik = tanaBalandlik - K.eshikOraligi * 2;
+  const eshikGeo = new THREE.BoxGeometry(eshikEni, eshikBalandlik, 0.022);
+  const eshikZ = orqaZ + chukur - 0.011;
+  const tutqichGeo = new THREE.CylinderGeometry(K.tutqichR, K.tutqichR, 0.26, 8);
+
+  for (const yon of [-1, 1]) {
+    const x = yon * (eshikEni / 2 + K.eshikOraligi / 2);
+    qosh(eshikGeo, korpusMat, x, tanaMarkazY, eshikZ);
+    // Tutqichlar ichkariga qaragan: ikki eshik o'rtasida juft bo'lib turadi.
+    const tutqich = qosh(
+      tutqichGeo, metallMat,
+      x - yon * (eshikEni / 2 - 0.05), tanaMarkazY, eshikZ + 0.03,
+    );
+    tutqich.rotation.x = 0;
+  }
+
+  return g;
+}
+
+// Kristall panjara maketlari. Har javonga boshqa tur — bir xil material,
+// boshqa geometriya. Nega bir xil material: BRIF-07 birlashtiruvchisi
+// material bo'yicha yig'adi, ya'ni 14 ta shar bitta draw call bo'lib
+// qoladi. Rang bilan farqlash chiroyliroq bo'lardi, lekin har javonga
+// alohida material qo'shilardi.
+const PANJARA_TURLARI = Object.freeze({
+  // Oddiy kub — 8 ta burchak
+  oddiy: Object.freeze([]),
+  // Hajm-markazlashgan — burchaklar + markaz
+  hajm: Object.freeze([[0, 0, 0]]),
+  // Yoq-markazlashgan — burchaklar + 6 yoq markazi
+  yoq: Object.freeze([
+    [0, 0, -1], [0, 0, 1], [0, -1, 0], [0, 1, 0], [-1, 0, 0], [1, 0, 0],
+  ]),
+  // NaCl motifi — burchaklar + qirra o'rtalari (ikkinchi ion)
+  tuz: Object.freeze([
+    [-1, 0, -1], [1, 0, -1], [-1, 0, 1], [1, 0, 1],
+    [0, -1, -1], [0, 1, -1], [0, -1, 1], [0, 1, 1],
+    [-1, -1, 0], [1, -1, 0], [-1, 1, 0], [1, 1, 0],
+  ]),
+});
+
+/**
+ * Elementar yacheyka maketi — javon ustida turadigan bezak.
+ *
+ * Bezak, lekin bo'sh emas: bu haqiqiy kimyoviy tushuncha va o'quvchi
+ * uni darslikda ko'radi. Tanlanmaydi, harakatlanmaydi — ya'ni
+ * birlashtirishga to'liq yaroqli.
+ */
+function kristallPanjaraYasa(tur, panjaraMat) {
+  const g = new THREE.Group();
+  const qadam = 0.075;        // yarim qirra uzunligi
+  const sharR = 0.032;
+  const bogR = 0.007;
+
+  // 8x5 segment: 3 sm radiusdagi shar butun xona bo'ylab ko'riladi, undan
+  // ortig'i faqat uchburchak. 10x6 dan 8x5 ga tushirish har sharda 100 ->
+  // 64 uchburchak beradi va farqi kadrda sezilmaydi.
+  const sharGeo = new THREE.SphereGeometry(sharR, 8, 5);
+  const kichikGeo = new THREE.SphereGeometry(sharR * 0.72, 8, 5);
+  const burchaklar = [];
+  for (const x of [-1, 1]) for (const y of [-1, 1]) for (const z of [-1, 1]) {
+    burchaklar.push([x, y, z]);
+  }
+
+  for (const [x, y, z] of burchaklar) {
+    const m = new THREE.Mesh(sharGeo, panjaraMat.kation);
+    m.position.set(x * qadam, y * qadam, z * qadam);
+    g.add(m);
+  }
+  for (const [x, y, z] of (PANJARA_TURLARI[tur] || [])) {
+    const m = new THREE.Mesh(kichikGeo, panjaraMat.anion);
+    m.position.set(x * qadam, y * qadam, z * qadam);
+    g.add(m);
+  }
+
+  // 12 qirra — kubning har yog'ida 4 tadan, takrorlanmasin uchun
+  // faqat bitta o'q bo'ylab yuriladi.
+  const bogGeo = new THREE.CylinderGeometry(bogR, bogR, qadam * 2, 6, 1, true);
+  const qirralar = [];
+  for (const oq of [0, 1, 2]) {
+    for (const a of [-1, 1]) for (const b of [-1, 1]) {
+      const joy = [0, 0, 0];
+      const boshqa = [0, 1, 2].filter((i) => i !== oq);
+      joy[boshqa[0]] = a * qadam;
+      joy[boshqa[1]] = b * qadam;
+      qirralar.push({ oq, joy });
+    }
+  }
+  for (const { oq, joy } of qirralar) {
+    const m = new THREE.Mesh(bogGeo, panjaraMat.bog);
+    m.position.set(joy[0], joy[1], joy[2]);
+    // Silindr sukut bo'yicha Y o'qi bo'ylab; X va Z uchun buramiz.
+    if (oq === 0) m.rotation.z = Math.PI / 2;
+    else if (oq === 2) m.rotation.x = Math.PI / 2;
+    g.add(m);
+  }
+
+  return g;
+}
+
 /** Devor Shkaf Karkasini Yaratish (Wall Cabinet Box) */
-function devorShkafiYasa(x, y, z, rotY, nom, materiallar) {
+function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMat) {
   const group = new THREE.Group();
   group.position.set(x, y, z);
   group.rotation.y = rotY;
@@ -240,6 +432,29 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar) {
     group.add(polka);
   });
 
+  // BRIF-04 — poldan tokcha tubigacha yopiq tumba.
+  // Balandlik HISOBLANADI: guruh dunyoda `y` da turadi, tokchaning tubi
+  // esa undan `balandlik/2` pastda. Ya'ni tumba aynan qolgan bo'shliqni
+  // to'ldiradi va javon balandligi o'zgarsa o'zi moslashadi.
+  const tumbaBalandlik = y - balandlik / 2;
+  if (tumbaBalandlik > 0.3) {
+    const tumba = pastkiShkafYasa(eni, tumbaBalandlik, -chukur / 2, materiallar);
+    tumba.position.set(0, -balandlik / 2 - tumbaBalandlik / 2, 0);
+    group.add(tumba);
+  }
+
+  // BRIF-04 — tokcha ustida elementar yacheyka maketi.
+  if (panjaraTuri && panjaraMat) {
+    const tagGeo = new THREE.BoxGeometry(0.24, 0.012, 0.24);
+    const tag = new THREE.Mesh(tagGeo, yogochMat);
+    tag.position.set(0, balandlik / 2 + 0.006, 0);
+    group.add(tag);
+
+    const panjara = kristallPanjaraYasa(panjaraTuri, panjaraMat);
+    panjara.position.set(0, balandlik / 2 + 0.012 + 0.107, 0);
+    group.add(panjara);
+  }
+
   return group;
 }
 
@@ -250,17 +465,27 @@ export function javon3dYasa(materiallar, profil) {
   mainCabinetGroup.name = "3D_Devor_Reagent_Shkaflari";
   mainCabinetGroup.userData.profil = profil;
 
+  // Panjara materiallari SAHNA bilan bir umr ko'radi va to'rt javonga
+  // ulashiladi. Modul darajasida yaratilmaydi: `useSahna` tozalashda
+  // sahnadagi har materialni dispose qiladi, ya'ni modul singleton
+  // ikkinchi montajda o'lik bo'lib qolardi.
+  const panjaraMat = {
+    kation: new THREE.MeshStandardMaterial({ color: 0x7dd3fc, roughness: 0.35, metalness: 0.1 }),
+    anion: new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.4, metalness: 0.1 }),
+    bog: new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.35, metalness: 0.6 }),
+  };
+
   // 1. Orqa Devor - Kislotalar Javoni (Chap qanot: X = -4.5, Z = -5.4)
-  mainCabinetGroup.add(devorShkafiYasa(-4.5, 1.8, -5.35, 0, "Kislotalar", materiallar));
+  mainCabinetGroup.add(devorShkafiYasa(-4.5, 1.8, -5.35, 0, "Kislotalar", materiallar, "oddiy", panjaraMat));
 
   // 2. Orqa Devor - Ishqorlar Javoni (O'ng qanot: X = 4.5, Z = -5.4)
-  mainCabinetGroup.add(devorShkafiYasa(4.5, 1.8, -5.35, 0, "Ishqorlar", materiallar));
+  mainCabinetGroup.add(devorShkafiYasa(4.5, 1.8, -5.35, 0, "Ishqorlar", materiallar, "hajm", panjaraMat));
 
   // 3. O'ng Devor - Tuzlar va Reaktivlar Javoni (X = 7.6, Z = -1.5)
-  mainCabinetGroup.add(devorShkafiYasa(7.6, 1.8, -1.5, -Math.PI / 2, "Tuzlar", materiallar));
+  mainCabinetGroup.add(devorShkafiYasa(7.6, 1.8, -1.5, -Math.PI / 2, "Tuzlar", materiallar, "tuz", panjaraMat));
 
   // 4. Chap Devor - Eritmalar va Indikatorlar Javoni (X = -7.6, Z = -1.5)
-  mainCabinetGroup.add(devorShkafiYasa(-7.6, 1.8, -1.5, Math.PI / 2, "Eritmalar", materiallar));
+  mainCabinetGroup.add(devorShkafiYasa(-7.6, 1.8, -1.5, Math.PI / 2, "Eritmalar", materiallar, "yoq", panjaraMat));
 
   // BRIF-04 — javon KARKASI soya tashlaydi. Shishalar bu paytda hali
   // qo'shilmagan va bu ATAYLAB: shisha soya xaritasida qora dog' beradi
