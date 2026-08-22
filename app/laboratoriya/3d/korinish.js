@@ -71,6 +71,7 @@ export default function Korinish() {
   const [titrlashOchilgan, setTitrlashOchilgan] = useState(false);
   const [elektrolizOchilgan, setElektrolizOchilgan] = useState(false);
   const [ekspertModalOchilgan, setEkspertModalOchilgan] = useState(false);
+
   const [xrayModalOchilgan, setXrayModalOchilgan] = useState(false);
   const [yordamOchilgan, setYordamOchilgan] = useState(false);
   const [mashgulotOchilgan, setMashgulotOchilgan] = useState(false);
@@ -85,6 +86,18 @@ export default function Korinish() {
   const amalYoz = useCallback((amal) => {
     setAmallar((oldingi) => amalQoshi(oldingi, amal));
   }, []);
+
+  // "Hisob" qadami — ekspert tahlili ochilganda belgilanadi.
+  //
+  // Modal IKKI joydan ochiladi (planshet stansiyasi va natija paneli),
+  // shuning uchun amal har chaqiruv joyida emas, HOLAT o'zgarishida
+  // yoziladi. Kelajakda uchinchi joy qo'shilsa ham avtomatik qamraladi.
+  //
+  // E'lon `amalYoz` DAN KEYIN turishi shart — bog'liqlik ro'yxati o'sha
+  // zahoti hisoblanadi (shu faylda bir marta shundan build yiqilgan).
+  useEffect(() => {
+    if (ekspertModalOchilgan) amalYoz({ turi: "amal", kalit: "hisob" });
+  }, [ekspertModalOchilgan, amalYoz]);
   // Kirish usuli — HUD tugmalari va qo'llanma matni shunga moslanadi.
   const kirishUsuli = useKirishUsuli();
   const ISH = ishoralarniOl(kirishUsuli);
@@ -136,6 +149,11 @@ export default function Korinish() {
 
   const handleIdishTanlandi = useCallback((group) => {
     if (group && group.userData?.kalit) {
+      // Jihoz qo'lga olinishi ham amaliy mashg'ulot qadami bo'lishi
+      // mumkin ("kolba", "konussimon-kolba", "byuretka" kabi). Reagent
+      // shishasi ham shu yerdan o'tadi, lekin uning qadami QUYISH
+      // bilan belgilanadi — shisha ushlash hali quyish emas.
+      amalYoz({ turi: "amal", kalit: group.userData.kalit });
       if (group.userData.sigim > 0 && !group.userData.devorShishasi) {
         // Tanlangan idish uchun holat yaratilib, "idish turi" o'rnatiladi.
         idishHolatiniOl(group, group.userData.kalit);
@@ -143,7 +161,7 @@ export default function Korinish() {
         setFaolReagent(group.userData.kalit);
       }
     }
-  }, []);
+  }, [amalYoz]);
 
   const handleTaroziTushdi = useCallback((group) => {
     setTarozidagiIdish(group);
@@ -162,8 +180,9 @@ export default function Korinish() {
         taroziBip(3200);
       }, 160);
     }
+    amalYoz({ turi: "amal", kalit: "tarozi" });
     toast.success(`⚖️ Idish tarozi pallasiga qo'yildi: ${group.userData?.kalit || "Idish"}`);
-  }, [sahnaRef, taraMassa]);
+  }, [sahnaRef, taraMassa, amalYoz]);
 
   const handleTarozidanOlingan = useCallback((group) => {
     setTarozidagiIdish(null);
@@ -271,6 +290,7 @@ export default function Korinish() {
     }
     jurnalRef.current = jurnalYarat();
 
+    amalYoz({ turi: "amal", kalit: "yuvish" });
     toast.success("✓ Idish distillangan suv bilan to'liq yuvildi va tozalandi!");
     setAralashmaOzgarish((s) => s + 1);
 
@@ -283,7 +303,7 @@ export default function Korinish() {
         }
       }
     }, 2000);
-  }, [sahnaRef]);
+  }, [sahnaRef, amalYoz]);
 
   // 5. Quyish Hooki
   const {
