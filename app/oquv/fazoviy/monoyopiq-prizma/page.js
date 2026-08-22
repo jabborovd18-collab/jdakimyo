@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/monoyopiq-prizma' },
   title: "Monoyopiq trigonal prizma (KS = 7)",
   description:
     "sp³d³ gibridlanish, C₂v simmetriya — bir yuzi yopilgan trigonal prizma, yettikoordinatali komplekslar uchun, 3D modeli bilan.",

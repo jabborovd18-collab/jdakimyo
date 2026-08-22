@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil' },
   title: "Tahlil usullari — 20 ta zamonaviy metod",
   description:
     "Kompleks birikmalarni o'rganishning fizik-kimyoviy usullari: YaMR, IQ, UB-Vis, Mössbauer, EPR, rentgen difraksiyasi va boshqalar, birikma misollari bilan.",

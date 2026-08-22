@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/koordinator-son' },
   title: "Koordinatsion son va geometriya",
   description:
     "Koordinatsion son 2 dan 12 gacha: poliedr modellari, VSEPR va Kepert yondashuvlari — yetti qismdan iborat chuqurlashgan mavzu.",

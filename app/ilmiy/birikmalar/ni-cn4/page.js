@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/ni-cn4' },
   title: "[Ni(CN)₄]²⁻ — tetrasianonikkolat(II)",
   description:
     "Kvadrat-planar d⁸ kompleks: kuchli maydon ligandi CN⁻ ta'sirida spin juftlashishi va diamagnitlik.",

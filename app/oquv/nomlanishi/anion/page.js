@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/nomlanishi/anion' },
   title: "Anion komplekslar markazi",
   description:
     "Anion kompleksda markaziy metall lotincha nomi bilan ataladi: ferrat, kuprat, aurat, plumbat. To'liq jadval va nomlash misollari.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/tetraedrik' },
   title: "Tetraedrik geometriya (KS = 4)",
   description:
     "sp³ gibridlanish, 109.5° valent burchak, Td simmetriya. Koordinatsion soni 4 bo'lgan eng keng tarqalgan shakllardan biri, 3D modeli bilan.",

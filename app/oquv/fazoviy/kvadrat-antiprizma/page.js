@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/kvadrat-antiprizma' },
   title: "Kvadrat antiprizma (KS = 8)",
   description:
     "sp³d⁴ gibridlanish, D₄d simmetriya — 45° ga burilgan ikkita parallel kvadratdan iborat shakl, 3D modeli bilan.",

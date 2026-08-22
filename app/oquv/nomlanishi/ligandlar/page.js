@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/nomlanishi/ligandlar' },
   title: "Ligandlar nomlanishi",
   description:
     "Eng keng tarqalgan ligandlar jadvali — akva, ammin, karbonil, siano, xloro va boshqalar. Har biri formulasi va koordinatsiyadagi nomi bilan.",

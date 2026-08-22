@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/mossbauer' },
   title: "Mössbauer spektroskopiyasi",
   description:
     "⁵⁷Fe yadrosi asosida: izomer siljish, kvadrupol bo'linishi, magnit o'ta nozik tuzilish va recoil-free rezonans. Temir komplekslari misolida.",

@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/ca-edta' },
   title: "[Ca(EDTA)]²⁻ — kalsiy etilendiamintetraasetat",
   description:
     "Geksadentat xelat ligandning klassik namunasi: EDTA kompleksining tuzilishi, xelat effekti va komplekson titrlashdagi ahamiyati.",

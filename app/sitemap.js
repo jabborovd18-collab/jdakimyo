@@ -30,6 +30,11 @@ const SAYT = 'https://www.jdakimyo.uz'
 /** Qo'lda kiritiladigan asosiy bo'limlar */
 const ASOSIY = [
   { yol: '', muhimlik: 1.0, yangilanish: 'daily' },
+  // "JDA KIMYO nima?" — platformaning rasmiy ta'rif sahifasi. Muhimligi
+  // bosh sahifadan keyingi o'rinda: sun'iy intellekt qidiruvi saytni
+  // aynan shu sahifadan tanishi kerak.
+  { yol: '/jda-kimyo', muhimlik: 0.9, yangilanish: 'monthly' },
+  { yol: '/ishlashi', muhimlik: 0.6, yangilanish: 'monthly' },
   { yol: '/oquv', muhimlik: 0.9, yangilanish: 'weekly' },
   { yol: '/ilmiy', muhimlik: 0.9, yangilanish: 'weekly' },
   // `/birikmalar` olib tashlandi: u endi /ilmiy/birikmalar ga 301
@@ -43,7 +48,6 @@ const ASOSIY = [
   { yol: '/hamkorlik/faq', muhimlik: 0.5, yangilanish: 'monthly' },
   { yol: '/hamkorlik/yangiliklar', muhimlik: 0.5, yangilanish: 'weekly' },
   { yol: '/qidiruv', muhimlik: 0.4, yangilanish: 'monthly' },
-  { yol: '/ishlashi', muhimlik: 0.4, yangilanish: 'monthly' },
   { yol: '/login', muhimlik: 0.3, yangilanish: 'yearly' },
   { yol: '/register', muhimlik: 0.4, yangilanish: 'yearly' },
 ]

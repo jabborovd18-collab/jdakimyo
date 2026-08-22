@@ -1,4 +1,6 @@
 import Korinish from './korinish'
+import { FAQ } from './faq'
+import { faqGrafi, yolGrafi, ldJsonProps } from '@/lib/tuzilgan-malumot'
 
 /**
  * SAYT QANDAY ISHLAYDI — v3.0.0 da to'liq qayta yozildi.
@@ -37,5 +39,18 @@ export const metadata = {
 }
 
 export default function IshlashiSahifasi() {
-  return <Korinish />
+  return (
+    <>
+      {/* FAQ va non ushoqlari — matn `faq.js` dan keladi, ya'ni
+          schema'dagi javob ekrandagi javob bilan doim bir xil. */}
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        {...ldJsonProps(
+          yolGrafi([{ nom: 'Sayt qanday ishlaydi' }]),
+          faqGrafi(FAQ),
+        )}
+      />
+      <Korinish />
+    </>
+  )
 }

@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/ni-co-4' },
   title: "[Ni(CO)₄] — nikel tetrakarbonil",
   description:
     "Tetraedrik d¹⁰ karbonil: Mond usulida nikelni tozalash, 18 elektron qoidasi va yuqori zaharliligi.",

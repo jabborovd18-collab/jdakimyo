@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/kubsimon' },
   title: "Kubsimon geometriya (KS = 8)",
   description:
     "sp³d³f gibridlanish, Oh simmetriya — aktinoidlar uchun xarakterli sakkizkoordinatali shakl, 3D modeli bilan.",

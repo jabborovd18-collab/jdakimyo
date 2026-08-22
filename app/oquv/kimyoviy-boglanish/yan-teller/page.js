@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/kimyoviy-boglanish/yan-teller' },
   title: "Yan-Teller effekti",
   description:
     "Oktaedrik komplekslarda simmetriyaning buzilishi: nega d⁴ va d⁹ konfiguratsiyalar cho'ziladi, statik va dinamik effekt, Cu²⁺ misoli.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/izomeriya' },
   title: "Komplekslar izomeriyasi — chuqurlashgan",
   description:
     "Geometrik, optik, ionlanish, bog'lanish, koordinatsion, gidrat va konformatsion izomeriya — barcha turlar bir joyda, OTM darajasida.",

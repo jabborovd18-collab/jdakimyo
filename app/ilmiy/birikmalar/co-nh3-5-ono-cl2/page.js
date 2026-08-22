@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/co-nh3-5-ono-cl2' },
   title: "[Co(NH₃)₅ONO]Cl₂ — pentaamminnitritokobalt(III)",
   description:
     "Bog'lanish izomeriyasining nitrito shakli: ambidentat NO₂⁻ kislorod orqali bog'langanda va nitro shaklga o'tishi.",

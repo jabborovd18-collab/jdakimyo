@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/raman' },
   title: "Raman spektroskopiya",
   description:
     "Noelastik yorug'lik sochilishiga asoslangan tebranish spektroskopiyasi: metall-ligand dinamikasi va IQ bilan o'zaro to'ldiruvchanlik.",

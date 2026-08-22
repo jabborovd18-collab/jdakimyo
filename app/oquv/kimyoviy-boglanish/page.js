@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/kimyoviy-boglanish' },
   title: "Komplekslarda kimyoviy bog'lanish",
   description:
     "Kompleks birikmalarda bog'lanishning to'rt nazariyasi: valent bog'lanish, kristall maydon, ligand maydon va Yan-Teller effekti.",

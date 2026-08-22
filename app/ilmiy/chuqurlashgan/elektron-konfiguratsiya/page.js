@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/elektron-konfiguratsiya' },
   title: "Elektron konfiguratsiya va termlar",
   description:
     "dⁿ konfiguratsiyalar, mikroholatlar va Rassel-Sonders term belgilari — komplekslarning elektron holatini aniqlashning OTM darajasidagi usuli.",

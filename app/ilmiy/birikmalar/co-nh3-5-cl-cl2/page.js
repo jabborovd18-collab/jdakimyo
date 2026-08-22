@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/co-nh3-5-cl-cl2' },
   title: "[Co(NH₃)₅Cl]Cl₂ — pentaamminxlorokobalt(III)",
   description:
     "Purpureo tuzi: tuzilishi, akvatatsiya kinetikasi va ionlanish izomeriyasining klassik misoli.",

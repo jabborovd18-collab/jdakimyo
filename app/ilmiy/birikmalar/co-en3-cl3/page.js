@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/co-en3-cl3' },
   title: "[Co(en)₃]Cl₃ — tris(etilendiamin)kobalt(III)",
   description:
     "Verner ajratgan xiral kompleks: uchta xelat halqa, Δ va Λ enantiomerlar, optik faollik va koordinatsion kimyo tarixidagi o'rni.",

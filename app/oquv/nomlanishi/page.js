@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/oquv/nomlanishi' },
   title: "Kompleks birikmalar nomlanishi",
   description:
     "IUPAC qoidalari asosida kompleks birikmalarni nomlash: Verner nazariyasi, ligandlar nomlari, anion komplekslar markazi va formula yozish tartibi.",

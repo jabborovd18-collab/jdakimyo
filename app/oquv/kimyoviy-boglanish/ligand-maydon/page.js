@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/kimyoviy-boglanish/ligand-maydon' },
   title: "Ligand maydon nazariyasi (LMN)",
   description:
     "Molekulyar orbitallar asosida metall-ligand bog'lanishi: σ-donor va π-akseptor ta'sir hamda KMN dan LMN ga o'tish sababi.",

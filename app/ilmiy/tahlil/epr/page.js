@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/epr' },
   title: "EPR (elektron paramagnit rezonans)",
   description:
     "Toq elektronli komplekslarni o'rganish: g-tensor, hiperfin bo'linish, nol maydon ajralishi (ZFS), CW va impulsli EPR usullari.",

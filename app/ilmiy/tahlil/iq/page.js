@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/iq' },
   title: "IQ (infraqizil) spektroskopiya",
   description:
     "Molekulyar tebranish spektroskopiyasi: guruh nazariyasi, metall–ligand tebranishlari, FT-IR, ATR va FIR usullari. 22 ta birikma misoli bilan.",

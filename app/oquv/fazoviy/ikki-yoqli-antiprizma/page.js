@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/ikki-yoqli-antiprizma' },
   title: "Ikki yoqli kvadrat antiprizma (KS = 10)",
   description:
     "Ikkala kvadrat yuzi ham yopilgan antiprizma — juda kam uchraydigan o'nkoordinatali geometriya, 3D modeli bilan.",

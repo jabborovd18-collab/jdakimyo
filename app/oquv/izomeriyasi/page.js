@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/izomeriyasi' },
   title: "Kompleks birikmalar izomeriyasi",
   description:
     "Koordinatsion kimyoda tuzilish va stereoizomeriya turlari: geometrik, optik, ionlanish, bog'lanish va gidrat izomeriyasi — misollar bilan.",

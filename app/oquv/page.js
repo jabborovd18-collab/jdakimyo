@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/oquv' },
   title: "Kompleks birikmalar — o'quv bo'limi",
   description:
     "Nomlanish, klassifikatsiya, izomeriya, kimyoviy bog'lanish va fazoviy tuzilish. Beshta bosqichdan iborat kurs, 3D modellar va testlar bilan.",

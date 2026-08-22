@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/yan-teller' },
   title: "Yan-Teller effekti — chuqurlashgan",
   description:
     "Oktaedrik komplekslarda simmetriya buzilishining nazariy asosi: d⁴ va d⁹ konfiguratsiyalarda cho'zilish va siqilish.",

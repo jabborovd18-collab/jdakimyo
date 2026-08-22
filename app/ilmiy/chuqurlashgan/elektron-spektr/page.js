@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/elektron-spektr' },
   title: "Elektron spektrlari va rang",
   description:
     "Term belgilar, tanlash qoidalari, Orgel va Tanabe-Sugano diagrammalari — kompleks birikmalar nega rangli ekanining nazariy izohi.",

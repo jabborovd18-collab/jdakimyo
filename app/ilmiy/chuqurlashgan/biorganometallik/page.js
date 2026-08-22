@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/biorganometallik' },
   title: "Biorganometallik kimyo",
   description:
     "Tabiiy metalloenzimlar, sun'iy fermentlar, terapevtik komplekslar va metall asosidagi sensorlar.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/klassifikatsiyasi/zaryad' },
   title: "Kompleks zaryadiga ko'ra tasnifi",
   description:
     "Kation, anion va neytral komplekslar: kompleks zaryadi qanday hisoblanadi va har bir turga xos misollar.",

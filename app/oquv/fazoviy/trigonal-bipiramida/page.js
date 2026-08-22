@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/trigonal-bipiramida' },
   title: "Trigonal bipiramida (KS = 5)",
   description:
     "sp³d gibridlanish, 90° va 120° valent burchaklar, D₃h simmetriya — aksial va ekvatorial holatlar, 3D modeli bilan.",

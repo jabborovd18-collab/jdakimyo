@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/zeise-tuzi' },
   title: "K[PtCl₃(C₂H₄)] — Zeise tuzi",
   description:
     "Birinchi organometall birikma (1827): etilenning π-koordinatsiyasi, Dyuar-Chatt-Dunkanson modeli va organometall kimyo boshlanishi.",

@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/termik' },
   title: "Termik tahlil — TGA, DTG, DTA va DSC",
   description:
     "Qizdirishda massa va issiqlik o'zgarishi: kristallizatsion suvni yo'qotish, parchalanish bosqichlari va termik barqarorlik.",

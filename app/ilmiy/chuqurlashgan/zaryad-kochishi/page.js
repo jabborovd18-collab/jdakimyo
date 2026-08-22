@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/zaryad-kochishi' },
   title: "Zaryad ko'chishi spektrlari (CT)",
   description:
     "MLCT, LMCT, MMCT, IVCT va XLCT o'tishlari hamda solvatoxromizm — zaryad ko'chishi qanday qilib juda intensiv rang beradi.",

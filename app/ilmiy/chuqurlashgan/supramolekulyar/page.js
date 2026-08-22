@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/supramolekulyar' },
   title: "Supramolekulyar komplekslar",
   description:
     "Host-guest kimyosi, metall-organik karkaslar (MOF), metallosupramolekulyar tuzilmalar va molekulyar mashinalar.",

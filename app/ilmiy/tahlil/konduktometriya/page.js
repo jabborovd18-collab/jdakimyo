@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/konduktometriya' },
   title: "Konduktometriya",
   description:
     "Eritmaning elektr o'tkazuvchanligi bo'yicha ionlar sonini aniqlash — Verner nazariyasini tasdiqlagan klassik usul.",

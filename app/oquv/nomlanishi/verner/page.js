@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/oquv/nomlanishi/verner' },
   title: "Verner nazariyasi",
   description:
     "Alfred Verner (1866–1919) koordinatsion nazariyasi: asosiy va qo'shimcha valentlik, koordinatsion son, ichki va tashqi sfera. Nobel mukofoti, 1913.",

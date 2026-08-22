@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/chiziqli' },
   title: "Chiziqli geometriya (KS = 2)",
   description:
     "Koordinatsion soni 2 bo'lgan komplekslar: sp gibridlanish, 180° valent burchak, D∞h simmetriya. d¹⁰ metallarga xos shakl.",

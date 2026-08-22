@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/ub-vis' },
   title: "UB-Vis (ultrabinafsha–ko'rinadigan) spektroskopiya",
   description:
     "Elektron spektroskopiya: d–d va zaryad ko'chishi o'tishlari, Tanabe-Sugano diagrammalari, Ber-Lambert qonuni. 17 ta birikma misoli bilan.",

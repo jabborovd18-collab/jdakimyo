@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/chuqurlashgan/magnit' },
   title: "Komplekslarning magnit xossalari",
   description:
     "Effektiv magnit moment μeff formulasi, magnit sezgirlikni o'lchash, spin-orbit bog'lanish va ko'p yadroli komplekslardagi almashinish.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/klassifikatsiyasi/ligand' },
   title: "Ligandlar tabiatiga ko'ra tasnifi",
   description:
     "Ligandlarning 12 ta guruhi — mono-, bi- va polidentat, xelat, ambidentat hamda ko'prikli ligandlar, tuzilishi va misollari bilan.",

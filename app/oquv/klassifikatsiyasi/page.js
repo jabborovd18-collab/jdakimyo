@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/klassifikatsiyasi' },
   title: "Kompleks birikmalar klassifikatsiyasi",
   description:
     "Kompleks birikmalarni tasniflashning uchta usuli: kompleks zaryadiga ko'ra, ligandlar tabiatiga ko'ra va birikmalar sinfiga ko'ra.",

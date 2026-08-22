@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/nmr' },
   title: "YaMR (NMR) spektroskopiya",
   description:
     "Yadro magnit rezonansi: Zeeman effektidan Larmor chastotasigacha, kimyoviy siljish va dinamik jarayonlar. 13 ta kompleks birikma misoli bilan.",

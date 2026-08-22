@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import OlchamMijoz from "./olcham-mijoz";
 
 export const metadata = {
+  alternates: { canonical: '/laboratoriya/3d/olcham' },
   title: "3D o'lchagich",
   robots: { index: false, follow: false },
 };

@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/element-analiz' },
   title: "Element analiz (CHNS)",
   description:
     "Uglerod, vodorod, azot va oltingugurt miqdorini aniqlash, empirik formulani hisoblash — Libix-Dyuma usuli asosida.",

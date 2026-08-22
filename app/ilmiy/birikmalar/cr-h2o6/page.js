@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/cr-h2o6' },
   title: "[Cr(H₂O)₆]³⁺ — geksaakvaxrom(III)",
   description:
     "d³ inert kompleks: binafsha rangi, ligand almashinishning sekinligi va kristall maydon barqarorlik energiyasi.",

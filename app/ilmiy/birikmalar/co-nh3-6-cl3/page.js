@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/co-nh3-6-cl3' },
   title: "[Co(NH₃)₆]Cl₃ — geksaamminkobalt(III) xlorid",
   description:
     "Luteo-kobalt: oktaedrik quyi spinli d⁶ kompleks, Verner nazariyasining asosiy dalili, sintezi va inertligi.",

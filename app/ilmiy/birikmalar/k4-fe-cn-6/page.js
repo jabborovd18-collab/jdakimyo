@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/k4-fe-cn-6' },
   title: "K₄[Fe(CN)₆] — sariq qon tuzi",
   description:
     "Kaliy geksatsianoferrat(II): quyi spinli d⁶ kompleks, Berlin ko'kini hosil qilishi, barqarorligi va qo'llanilishi.",

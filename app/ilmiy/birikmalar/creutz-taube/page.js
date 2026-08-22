@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/creutz-taube' },
   title: "Creutz-Taube ioni — aralash valentli kompleks",
   description:
     "Pirazin ko'prigi bilan bog'langan ikkita ruteniy markazi: valentlar orasidagi elektron ko'chishi (IVCT) va Robin-Day tasnifi.",

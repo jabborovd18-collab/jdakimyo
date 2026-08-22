@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/birikmalar/ag-nh3-2' },
   title: "[Ag(NH₃)₂]⁺ — diamminkumush(I)",
   description:
     "Tollens reaktivining faol zarrasi: chiziqli d¹⁰ kompleks, sp gibridlanish, kumush ko'zgu reaksiyasidagi roli va barqarorligi.",

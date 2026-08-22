@@ -8,6 +8,7 @@
 import Korinish from './korinish'
 
 export const metadata = {
+  alternates: { canonical: '/ilmiy/tahlil/titrlash' },
   title: "Spektrofotometrik titrlash",
   description:
     "Barqarorlik konstantalari βn ni aniqlash, Job usuli bilan metall-ligand stoxiometriyasini topish.",

@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react"
 import { useSession, signOut } from "next-auth/react"
 import { ustozPaneliOchiqmi, isPartnerRole } from "@/lib/roles"
 import HAJM from "@/lib/ilmiy-hajm.json"
+import { BAZA } from "@/lib/sayt-malumot"
 import { FANLAR, fanHavolasi, ochiqFanlarSoni } from "@/lib/fanlar"
 import TasdiqBelgisi from "@/components/TasdiqBelgisi"
 import Ikon from "@/components/Ikon"
@@ -605,6 +606,14 @@ export default function Home() {
                   <Ikon nom="kitob" olcham={17} />
                   Sayt qanday ishlaydi
                 </Link>
+                {/* "JDA KIMYO nima?" sahifasiga bosh sahifadan havola
+                    BO'LISHI SHART: qidiruv roboti sayt bo'ylab havola
+                    bo'yicha yuradi va eng ko'p vaznni bosh sahifadan
+                    chiqqan havolaga beradi. */}
+                <Link href="/jda-kimyo" className="v3-tugma v3-katta">
+                  <Ikon nom="atom" olcham={17} />
+                  JDA KIMYO nima?
+                </Link>
               </div>
 
               {/* Sonlar `lib/ilmiy-hajm.json` dan — sahifa qo'shilganda
@@ -616,7 +625,7 @@ export default function Home() {
                   { son: String(HAJM.birikmalar), nom: "Birikma" },
                   { son: String(HAJM.usullar), nom: "Tahlil usuli" },
                   { son: String(HAJM.mavzular), nom: "Chuqur mavzu" },
-                  { son: "400+", nom: "Test savoli" },
+                  { son: BAZA.savollar, nom: "Test savoli" },
                 ].map((s) => (
                   <div key={s.nom} className="v3-son">
                     <div className="v3-son-qiymat"><CountUp value={s.son} /></div>
@@ -805,6 +814,10 @@ export default function Home() {
                   <span className="v3-nuqta" />
                   v3.0.0
                 </span>
+                <Link href="/jda-kimyo" className="v3-oyoq-havola">
+                  <Ikon nom="atom" olcham={15} />
+                  JDA KIMYO nima?
+                </Link>
                 <p className="v3-xira text-xs">© 2026 JDA KIMYO</p>
                 <p className="v3-xira text-[11px]">Oliy kimyo platformasi</p>
               </div>

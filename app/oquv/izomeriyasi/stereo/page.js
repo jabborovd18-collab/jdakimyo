@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/izomeriyasi/stereo' },
   title: "Stereoizomeriya: geometrik va optik",
   description:
     "Formulasi bir xil, fazoviy tuzilishi har xil izomerlar: sis-trans va fas-mer joylashuvi, xirallik, Δ/Λ enantiomerlar va optik faollik.",

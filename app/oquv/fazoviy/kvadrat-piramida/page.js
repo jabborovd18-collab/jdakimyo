@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/kvadrat-piramida' },
   title: "Kvadrat piramida geometriya (KS = 5)",
   description:
     "sp³d gibridlanish, ~90° valent burchak, C₄v simmetriya — beshkoordinatali komplekslarning ikkinchi asosiy shakli, 3D modeli bilan.",

@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 export const metadata = {
+  alternates: { canonical: '/oquv/fazoviy/oktaedrik' },
   title: "Oktaedrik geometriya (KS = 6)",
   description:
     "Kompleks birikmalarda eng ko'p tarqalgan geometriya: d²sp³ yoki sp³d² gibridlanish, 90° burchak, Oh simmetriya. 3D modeli bilan.",
