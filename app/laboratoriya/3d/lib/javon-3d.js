@@ -485,6 +485,45 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMa
   return group;
 }
 
+/**
+ * Devor javon qatorlarining joylashuvi — YAGONA MANBA.
+ *
+ * Modelni ham, `xona-zonalari.js` dagi zona kameralarini ham shu
+ * funksiya boqadi. Ikki joyda alohida hisoblansa, xona o'lchami
+ * o'zgarganda kamera javonga emas, bo'sh devorga qarab qolardi
+ * (AGENTS.md 1-band).
+ */
+export function JAVON_QATORLARI() {
+  const chegara = xonaChegarasi();
+  const chetlanish = 0.2;      // burchakdan bo'sh joy
+  const jadvalYarim = 2.3;     // davriy jadval egallagan zona (4.12 m plakat)
+  const orqaZ = chegara.zMin + 0.25;
+
+  const orqaKenglik = (XONA.eni / 2 - chetlanish) - jadvalYarim;
+  const orqaMarkaz = jadvalYarim + orqaKenglik / 2;
+
+  // O'ng qator xavfsizlik dushidan oldin to'xtaydi.
+  // Dush: xona-modellari.js -> z = markazZ + 3.1, yarim eni ~0.9.
+  const ongBoshi = orqaZ + 0.25;
+  const ongOxiri = XONA.markazZ + 3.1 - 0.9;
+
+  // Chap qator deraza tokchasi ostida, old devorgacha.
+  const chapBoshi = orqaZ + 0.25;
+  const chapOxiri = chegara.zMax - 1.0;
+
+  return {
+    orqaZ,
+    orqaKenglik,
+    orqaMarkaz,
+    ongX: XONA.eni / 2 - 0.4,
+    ongKenglik: ongOxiri - ongBoshi,
+    ongMarkazZ: (ongBoshi + ongOxiri) / 2,
+    chapBalandlik: 1.05,       // deraza tokchasi 1.1 m da
+    chapKenglik: chapOxiri - chapBoshi,
+    chapMarkazZ: (chapBoshi + chapOxiri) / 2,
+  };
+}
+
 /** 4 TA ALOHIDA DEVOR REAGENTLAR JAVONINI YARATISH */
 export function javon3dYasa(materiallar, profil) {
   if (!profil) throw new Error("Javon uchun sifat profili berilmadi");
@@ -510,30 +549,20 @@ export function javon3dYasa(materiallar, profil) {
   //
   // Koordinatalar xona o'lchamidan keladi — kattalashtirilganda qatorlar
   // o'zi cho'ziladi va devorda yana bo'shliq paydo bo'lmaydi.
-  const chegara = xonaChegarasi();
-  const chetlanish = 0.2;                 // burchakdan bo'sh joy
-  const jadvalYarim = 2.3;                // davriy jadval egallagan zona
-  const orqaZ = chegara.zMin + 0.25;
+  const Q = JAVON_QATORLARI();
 
   // Orqa devor — davriy jadvalning ikki yonida ikki qator.
-  const orqaKenglik = (XONA.eni / 2 - chetlanish) - jadvalYarim;
-  const orqaMarkaz = jadvalYarim + orqaKenglik / 2;
   mainCabinetGroup.add(devorShkafiYasa(
-    -orqaMarkaz, 1.8, orqaZ, 0, "Kislotalar", materiallar, "oddiy", panjaraMat, orqaKenglik,
+    -Q.orqaMarkaz, 1.8, Q.orqaZ, 0, "Kislotalar", materiallar, "oddiy", panjaraMat, Q.orqaKenglik,
   ));
   mainCabinetGroup.add(devorShkafiYasa(
-    orqaMarkaz, 1.8, orqaZ, 0, "Ishqorlar", materiallar, "hajm", panjaraMat, orqaKenglik,
+    Q.orqaMarkaz, 1.8, Q.orqaZ, 0, "Ishqorlar", materiallar, "hajm", panjaraMat, Q.orqaKenglik,
   ));
 
   // O'ng devor — orqa qator tugagan joydan xavfsizlik dushigacha.
-  // Dush x = eni/2 - 0.15, z = 3.5 da turadi, shuning uchun qator
-  // undan oldin to'xtaydi.
-  const ongBoshi = orqaZ + 0.25;
-  const ongOxiri = 2.6;
-  const ongKenglik = ongOxiri - ongBoshi;
   mainCabinetGroup.add(devorShkafiYasa(
-    XONA.eni / 2 - 0.4, 1.8, (ongBoshi + ongOxiri) / 2, -Math.PI / 2,
-    "Tuzlar va Eritmalar", materiallar, "tuz", panjaraMat, ongKenglik,
+    Q.ongX, 1.8, Q.ongMarkazZ, -Math.PI / 2,
+    "Tuzlar va Eritmalar", materiallar, "tuz", panjaraMat, Q.ongKenglik,
   ));
 
   // Chap devor — DERAZALAR TAGIDA past javon qatori.
@@ -545,13 +574,10 @@ export function javon3dYasa(materiallar, profil) {
   // yuzasi va tumba turadi.
   //
   // "Eritmalar" reagentlari shu sababli o'ng qatorga ko'chirildi.
-  const chapBalandlik = 1.05;             // deraza tokchasi 1.1 m da
-  const chapBoshi = orqaZ + 0.25;
-  const chapOxiri = 5.4;
   const chapGuruh = new THREE.Group();
-  chapGuruh.position.set(-XONA.eni / 2, chapBalandlik / 2, (chapBoshi + chapOxiri) / 2);
+  chapGuruh.position.set(-XONA.eni / 2, Q.chapBalandlik / 2, Q.chapMarkazZ);
   chapGuruh.rotation.y = Math.PI / 2;
-  chapGuruh.add(pastkiShkafYasa(chapOxiri - chapBoshi, chapBalandlik, 0, materiallar));
+  chapGuruh.add(pastkiShkafYasa(Q.chapKenglik, Q.chapBalandlik, 0, materiallar));
   mainCabinetGroup.add(chapGuruh);
 
   // BRIF-04 — javon KARKASI soya tashlaydi. Shishalar bu paytda hali

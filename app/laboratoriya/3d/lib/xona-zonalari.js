@@ -3,6 +3,14 @@
 // 4-BOSQICH: Laboratoriya xonasi zonalari va kinematik kamera navigatsiyasi.
 //
 import * as THREE from "three";
+import { XONA, xonaChegarasi } from "./sozlama.js";
+import { JAVON_QATORLARI } from "./javon-3d.js";
+
+// Zona kameralari xona o'lchamiga bog'liq. Qattiq yozilganda xona
+// kattalashishi bilan ular javonga emas, bo'sh devorga qarab qolardi.
+// Javon qatorlarining joyi `javon-3d.js` dan keladi — yagona manba.
+const CHEGARA = xonaChegarasi();
+const QATOR = JAVON_QATORLARI();
 
 /** 9 ta asosiy laboratoriya zonalari konfiguratsiyasi */
 export const XONA_ZONALARI = {
@@ -20,8 +28,8 @@ export const XONA_ZONALARI = {
     nom: "Kislotalar Shkafi",
     tavsif: "Orqa devordagi 500ml kislotalar va oksidlovchilar shkafi",
     ikon: "chaqmoq",
-    kamera: [-4.5, 1.85, -3.6],
-    nishon: [-4.5, 1.65, -5.35],
+    kamera: [-QATOR.orqaMarkaz, 1.85, QATOR.orqaZ + 1.75],
+    nishon: [-QATOR.orqaMarkaz, 1.65, QATOR.orqaZ],
     fov: 46,
   },
   ishqor_javon: {
@@ -29,8 +37,8 @@ export const XONA_ZONALARI = {
     nom: "Ishqorlar Shkafi",
     tavsif: "Orqa devordagi 500ml ishqorlar va asoslar shkafi",
     ikon: "kolba",
-    kamera: [4.5, 1.85, -3.6],
-    nishon: [4.5, 1.65, -5.35],
+    kamera: [QATOR.orqaMarkaz, 1.85, QATOR.orqaZ + 1.75],
+    nishon: [QATOR.orqaMarkaz, 1.65, QATOR.orqaZ],
     fov: 46,
   },
   tuz_javon: {
@@ -38,8 +46,8 @@ export const XONA_ZONALARI = {
     nom: "Tuzlar Shkafi",
     tavsif: "O'ng devordagi qattiq tuzlar va reaktivlar javoni",
     ikon: "doska",
-    kamera: [5.8, 1.85, -1.5],
-    nishon: [7.6, 1.65, -1.5],
+    kamera: [QATOR.ongX - 1.8, 1.85, -1.5],
+    nishon: [QATOR.ongX, 1.65, -1.5],
     fov: 46,
   },
   eritma_javon: {
@@ -47,8 +55,8 @@ export const XONA_ZONALARI = {
     nom: "Eritmalar & Indikatorlar",
     tavsif: "O'ng devordagi standart eritmalar va indikatorlar javoni",
     ikon: "kitob",
-    kamera: [5.8, 1.85, 0.8],
-    nishon: [7.6, 1.65, 0.8],
+    kamera: [QATOR.ongX - 1.8, 1.85, 0.8],
+    nishon: [QATOR.ongX, 1.65, 0.8],
     fov: 46,
   },
   tarozi: {
@@ -83,8 +91,8 @@ export const XONA_ZONALARI = {
     nom: "Yuvinish Rakovinasi",
     tavsif: "Distillangan suv krani va idishlarni 100% yuvib tozalash stansiyasi",
     ikon: "ochiq",
-    kamera: [-5.5, 1.55, -3.4],
-    nishon: [-5.5, 0.98, -4.8],
+    kamera: [-(XONA.eni / 2 - 2.5), 1.55, CHEGARA.zMin + 2.2],
+    nishon: [-(XONA.eni / 2 - 2.5), 0.98, CHEGARA.zMin + 0.8],
     fov: 44,
   },
   davriy_jadval: {
@@ -92,8 +100,8 @@ export const XONA_ZONALARI = {
     nom: "Davriy Jadval (IUPAC)",
     tavsif: "Devordagi yuqori aniqlikdagi D.I. Mendeleyev Davriy Sistemasi",
     ikon: "atom",
-    kamera: [0, 2.3, -3.2],
-    nishon: [0, 2.45, -5.4],
+    kamera: [0, 2.3, CHEGARA.zMin + 2.4],
+    nishon: [0, 2.45, CHEGARA.zMin + 0.2],
     fov: 50,
   },
 };

@@ -29,9 +29,18 @@ export const KAMERA = {
 // markazZ: xona z bo'yicha markazdan 0.4 m oldinga surilgan — stol
 // markazda tursin, lekin orqa devordagi javonlar oldida yo'lak qolsin.
 export const XONA = {
-  eni: 16.0,        // X
-  balandligi: 4.2,  // Y
-  boyi: 12.0,       // Z
+  // 2026-08-22, egasi qarori: xona KATTALASHDI.
+  //
+  // BRIF-04 avval "kattalashtirilmaydi, kichraytiriladi" degan edi va
+  // uch sabab keltirgan edi. Ikkitasi shu kunda yopildi:
+  //   - soya qamrovi endi xona o'lchamidan hisoblanadi, ya'ni xona
+  //     bilan birga kattalashadi (avval qattiq +-2.6 edi);
+  //   - "bo'sh ombor" tuyg'usi — devorlar uzluksiz javon qatori bilan
+  //     to'ldirildi, ya'ni kattalashuv bo'shliq qo'shmaydi.
+  // Uchinchisi (telefon unumdorligi) o'lchanadi va yozib boriladi.
+  eni: 20.0,        // X   (16.0 edi)
+  balandligi: 4.6,  // Y   (4.2 edi)
+  boyi: 15.0,       // Z   (12.0 edi)
   markazZ: 0.4,
 };
 

@@ -418,7 +418,42 @@ shuning uchun har qadam alohida o'lchandi:
 | 2 | Xona o'lchami yagona manbaga | Qiymat o'zgarmadi (isbot: chaqiruv/uchburchak bit-aniqlikda bir xil) |
 | 3 | Soya qamrovi + soya tashlovchilar | Javon, rakovina, jadval devorga soya tashlaydi |
 | 4 | Javon to'ldirildi (egasi so'rovi) | 144 mesh qo'shildi, telefonda atigi **+7 draw call** |
-| 5 | Xonani kichraytirish | ⬜ qolgan eng katta va eng xavfli qism |
+| 5 | Xona **kattalashdi** (egasi qarori) | 192 → 300 m², telefonda deyarli tekin |
+
+### Xona kattalashdi — 2026-08-22 da qaror O'ZGARDI
+
+Yuqorida (2026-08-20) "xona KICHRAYADI" deb yozilgan edi. **Egasi
+2026-08-22 da teskarisini so'radi va uchta sababdan ikkitasi o'sha
+kunning ishi bilan yopilgan edi:**
+
+| Eski sabab | Holati |
+|---|---|
+| Soya qamrovi yetmaydi | ✅ Yopildi — qamrov endi xona o'lchamidan hisoblanadi va u bilan birga kattalashadi |
+| Bo'sh 192 m² ombor bo'lib ko'rinadi | ✅ Yopildi — devorlar uzluksiz javon qatori bilan to'ldirildi |
+| Telefon unumdorligi | O'lchandi — quyida |
+
+Xona `20 × 15 × 4.6` (300 m²) bo'ldi. Bu `sozlama.js` dagi **uch
+raqam** — chunki undan oldin xonaga bog'liq hamma narsa yagona
+manbaga yig'ilgan edi.
+
+**Telefonda kattalashtirish deyarli tekin chiqdi:**
+
+| nuqta | chaqiruv | uchburchak | ortacha |
+|---|---|---|---|
+| stol | 180 → 188 | 19 640 → 21 324 | 0.4479 → 0.4458 |
+| xona | 73 → **68** | 9 446 → **7 494** | 0.4096 → 0.3946 |
+| sweep | 94 → 95 | 6 698 → 7 618 | 0.4206 → 0.4013 |
+
+Sabab qarshi-intuitiv, lekin mantiqiy: kattaroq xonada geometriya
+UZOQROQ. Ko'proq qismi frustumdan chiqadi, qolgani tumanga singadi.
+`qora` ham kamaydi (0.06 → 0.03), `chiqib` 0 da qoldi.
+
+**Desktop/ilovada narx bor:** `stol` chaqiruv 423 → 448, uchburchak
+50 766 → 57 358. Sabab — soya o'tishi: soya kamerasi butun xonani
+qoplaydi, ya'ni xona kattalashsa soya o'tishi ham kattalashadi.
+
+Soya aniqligi 88 → ~70 teksel/m ga tushdi. Bu kutilgan va yozib
+qo'yilgan: kaskadli soya (CSM) 1-qavatning 1.2 ishi.
 
 **FOV kutilmagan foyda berdi.** BRIF-01B dan beri ochiq turgan yagona
 buzilish (`stol ortacha` telefonda 0.4677, chegara 0.45) FOV 60 da
