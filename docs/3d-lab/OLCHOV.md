@@ -126,7 +126,12 @@ luma = 0.2126*R + 0.7152*G + 0.0722*B
 | `p50`, `p95` | Median va 95-protsentil luma |
 | `yuqoriSoha` | Ekranning yuqori 15%; ship geometriyasi degani emas |
 | `quyiSoha` | Ekranning quyi 35%; pol geometriyasi degani emas |
-| `fps` | Oxirgi 120 tagacha brauzer kadrining o'rtachasi |
+| `fps` | ⚠️ ISHLATILMAYDI — pastdagi ogohlantirishga qarang |
+| `kadrVaqti` | Bitta kadrni chizishga ketgan vaqt, ms (eng past namuna) |
+| `kadrVaqtiTarqoq` | O'lchov namunalarining tarqoqligi — muhit shovqini ko'rsatkichi |
+| `kadrVaqti4x` | O'sha kadr 4 barobar pikselda, ms |
+| `fragmentUlushi` | Kadr vaqtining piksel ishiga ketgan ulushi (0..1) |
+| `narxIshonchli` | Ajratish shartlari bajarildimi; `false` bo'lsa ulush ishlatilmaydi |
 | `renderer` | `WEBGL_debug_renderer_info` bergan GL renderer satri |
 | `chiroqSoni` | `scene.traverse` topgan barcha `THREE.Light` obyektlari |
 | `chiroqBudjeti` | Faol profilning maqsad chegarasi |
@@ -219,6 +224,73 @@ Yoritilmagan ship qorong'i bo'lishi kerak; stol oralig'ini shipga
 majburlash noto'g'ri kalibrovkaga olib keladi.
 
 ---
+
+## FPS ni ishlatmang — u yolg'on gapiradi
+
+2026-08-22 da o'lchandi. Telefon profilida sahna yuki ikki baravar
+oshdi:
+
+| holat | `chaqiruv` | `uchburchak` | `fps` |
+|---|---:|---:|---:|
+| boshlang'ich | 137 | 10 686 | 44.3 |
+| javon qatorlari | 180 | 19 640 | 30.7 |
+| asset quvuri | 190 | 22 316 | **45.9** |
+
+Bir xil nuqtadagi o'lchovlar tarqoqligi **49%** va son yuk bilan
+teskari yo'nalishda harakatlandi.
+
+Sabab: `fps` `requestAnimationFrame` oralig'idan hisoblanadi, u esa
+vsync, brauzer rejalashtiruvchisi va fon yukiga bog'liq — sahnaning
+og'irligiga emas. Ya'ni FPS haqiqiy qurilma bilan taqqoslanmasligi
+yetmagandek, u **o'zi bilan ham taqqoslanmaydi**.
+
+`fps` maydoni tarixiy uzluksizlik uchun qoldirilgan. Unga tayanib
+xulosa chiqarilmaydi.
+
+## `kadrVaqti` va `fragmentUlushi` — narxni o'lchash
+
+Kadr qo'lda chiziladi va `gl.finish()` bilan GPU tugashi kutiladi.
+Kadrlar **guruh bilan** o'lchanadi (10 tadan), chunki bittalab
+o'lchashda taymer yaxlitlanishi natijani yeb qo'yadi.
+
+Asosiy qiymat — **eng past namuna**, median emas. Vaqt o'lchovida
+shovqin faqat vaqt QO'SHADI; hech qanday shovqin kadrni haqiqiy
+narxidan tez qila olmaydi.
+
+### Fragment va geometriya ajratish
+
+Bir xil kadr ikki rezolyutsiyada chiziladi. Geometriya narxi piksel
+soniga bog'liq emas, fragment narxi esa to'g'ri proporsional:
+
+```text
+vaqt(1x)  = G + F
+vaqt(4x piksel) = G + 4F
+=>  F = (vaqt4 - vaqt1) / 3
+```
+
+**`fragmentUlushi = F / vaqt(1x)` — asosiy son.** Mutlaq millisekund
+mashina tezligiga bog'liq: bir xil sahna band mashinada ikki barobar
+sekin o'lchanadi (uch ketma-ket yugurishda `kadrVaqti` 66-118% farq
+berdi). Ulush esa bo'linma bo'lgani uchun mashina tezligi qisqaradi —
+o'sha yugurishlarda u `stol` da 7%, `xona` da 19% ichida qoldi.
+
+**0.6 (pishirilgan yorug'lik) ning mezoni aynan shu bo'lishi kerak:**
+chiroq soni kamayganda `fragmentUlushi` tushishi shart. Chiroq har
+piksel uchun to'lanadi, ya'ni lightmap aynan shu songa ta'sir qiladi.
+
+### Qachon ishlatilmaydi
+
+`narxIshonchli = false` bo'lsa ulush berilmaydi. Uch shart:
+
+1. 4x o'lchovda bufer haqiqatan 4 barobar kattalashgan bo'lsin
+   (aks holda ikkala o'lchov bir xil kadrni o'lchagan);
+2. kadr 0.5 ms dan qimmat bo'lsin — arzon kadrda `performance.now()`
+   yaxlitlanishi (~0.1 ms) natijaning katta qismi bo'ladi. `pol` va
+   `ship` nuqtalarida ulush 39-229% sakradi;
+3. 4x kadr 1x dan kamida 20% qimmat bo'lsin.
+
+Supurishda narx umuman o'lchanmaydi: 24 nuqtaning har biriga ~1
+soniya qo'shilardi va supurishning vazifasi qamrov, narx emas.
 
 ## Renderer va barqarorlik
 

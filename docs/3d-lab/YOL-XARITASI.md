@@ -611,6 +611,39 @@ mobil GPU ning ma'lum xossasiga tayanadi, o'lchovga emas — va aynan
 shu sabab o'lchagichga fragment narxini o'lchaydigan asbob kerak
 (pastdagi yozuvga qarang).
 
+### O'lchagich tuzatildi — FPS o'rniga kadr narxi
+
+Quyidagi nuqson topilgach asbob tuzatildi (poydevorni mustahkamlash,
+2026-08-22). Yangi maydonlar: `kadrVaqti`, `kadrVaqtiTarqoq`,
+`kadrVaqti4x`, `fragmentUlushi`, `narxIshonchli`.
+
+**Kadr qo'lda chiziladi va `gl.finish()` bilan kutiladi**, guruh
+bo'lib (10 tadan) — bittalab o'lchashda taymer yaxlitlanishi
+natijani yeb qo'yardi. Asosiy qiymat **eng past namuna**: shovqin
+faqat vaqt qo'shadi, hech qachon kamaytirmaydi.
+
+**Fragment va geometriya ajratiladi.** Bir xil kadr 1x va 4x
+pikselda chiziladi; geometriya narxi piksel soniga bog'liq emas,
+fragment narxi esa proporsional. `fragmentUlushi = F / vaqt(1x)` —
+mashina tezligiga bog'liq bo'lmagan son.
+
+Nega ulush, mutlaq millisekund emas: uch ketma-ket yugurishda
+`kadrVaqti` 66–118% farq berdi (mashina band), `fragmentUlushi` esa
+`stol` da 7%, `xona` da 19% ichida qoldi.
+
+**Asbob o'z ishonchini o'zi baholaydi.** `narxIshonchli = false`
+bo'lsa ulush berilmaydi. Uch shart: bufer haqiqatan 4 barobar
+kattalashgan bo'lsin; kadr 0.5 ms dan qimmat bo'lsin (arzon kadrda
+`performance.now()` yaxlitlanishi natijani yutadi — `pol` va `ship`
+da ulush 39–229% sakragan); 4x kadr 1x dan kamida 20% qimmat bo'lsin.
+
+Bu bugungi eng muhim saboqning davomi: **son o'zining
+ishonchsizligini o'zi aytishi kerak.** FPS aytmagani uchun u uzoq
+vaqt ishonchli ko'rinib turdi.
+
+**0.6 endi ochiq.** Uning mezoni: chiroq soni kamayganda
+`fragmentUlushi` tushishi shart — chiroq har piksel uchun to'lanadi.
+
 ### O'lchagichdagi FPS ishlatib bo'lmaydi
 
 2026-08-22 da aniqlandi. Telefon profilida yuk ikki baravar oshdi

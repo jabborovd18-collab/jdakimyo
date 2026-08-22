@@ -100,6 +100,9 @@ function qatorniJadvalga(q) {
     yuqoriSoha: yaxlit(q.yuqoriSoha, 4),
     quyiSoha: yaxlit(q.quyiSoha, 4),
     fps: yaxlit(q.fps, 1),
+    kadrVaqti: yaxlit(q.kadrVaqti, 2),
+    tarqoq: yaxlit(q.kadrVaqtiTarqoq, 2),
+    fragmentUlushi: q.narxIshonchli ? yaxlit(q.fragmentUlushi, 3) : "—",
     chiroqSoni: q.chiroqSoni,
     chiroqBudjeti: q.chiroqBudjeti,
     chiroqBudjetiBuzildi: q.chiroqBudjetiBuzildi,
@@ -262,6 +265,12 @@ function natijaniTekshir(natija, nuqta) {
     "yorliqToqnashuvi",
     "interaktivSoni",
     "stansiyaMeshlari",
+    "kadrVaqti",
+    "kadrVaqtiTarqoq",
+    "fragmentNarxi",
+    "geometriyaNarxi",
+    "fragmentUlushi",
+    "narxIshonchli",
   ];
   if (nuqta === "sweep") {
     kerak.push("sweepEngYomon", "sweepJoy", "sweepUrug", "sweepNamunaSoni");
@@ -294,6 +303,17 @@ function natijaniTekshir(natija, nuqta) {
   }
   if (!Number.isInteger(natija.yorliqToqnashuvi) || natija.yorliqToqnashuvi < 0) {
     throw new Error(`${profil}/${nuqta}: yorliqToqnashuvi yaroqsiz`);
+  }
+  // Kadr vaqti supurishda 0 (ataylab o'tkazib yuboriladi), nomli
+  // nuqtada esa musbat bo'lishi shart — 0 bo'lsa o'lchov ishlamagan.
+  for (const maydon of ["kadrVaqti", "fragmentNarxi", "geometriyaNarxi"]) {
+    const qiymat = natija[maydon];
+    if (!Number.isFinite(qiymat) || qiymat < 0) {
+      throw new Error(`${profil}/${nuqta}: ${maydon} yaroqsiz (${qiymat})`);
+    }
+    if (nuqta !== "sweep" && maydon === "kadrVaqti" && qiymat <= 0) {
+      throw new Error(`${profil}/${nuqta}: kadrVaqti o'lchanmadi`);
+    }
   }
   if (!Number.isInteger(natija.interaktivSoni) || natija.interaktivSoni < 1) {
     throw new Error(`${profil}/${nuqta}: interaktivSoni yaroqsiz`);
