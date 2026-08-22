@@ -404,9 +404,57 @@ git status --porcelain              # bo'sh bo'lishi kerak
 Ikkalasidan biri mos kelmasa — Gemini ishlayotgan bo'lishi mumkin.
 Ko'rikni boshlama, egasidan so'ra.
 
-Agar kelajakda to'qnashuvlar tez-tez bo'lsa, `git worktree` bilan
-alohida ko'rik papkasi ochiladi (bir marta sozlanadi, `node_modules`
-talab qiladi).
+### To'qnashuv SODIR BO'LDI — 2026-08-22, ikki marta
+
+Yuqoridagi "kim birinchi tugatsa" qoidasi yetarli bo'lmadi. O'sha kuni
+egasi "davom et, fayllar kesishmaydi" dedi va bu to'g'ri edi — fayllar
+haqiqatan kesishmadi. **Muammo fayllarda emas, umumiy `HEAD` da.**
+
+Gemini ishini tugatib commit qilganda ikki marta shoxni almashtirdi.
+Har safar ko'rikchining tugallanmagan ishi `git stash` ga tushdi va
+ishchi daraxt boshqa shoxga o'tdi.
+
+Birinchisida ish `stash` dan qaytarildi — zarar yo'q.
+
+**Ikkinchisi qimmatroq bo'ldi: u O'LCHOVNI buzdi.** Ko'rikchi
+`npm run lab3d:olcham` ni ishga tushirdi, lekin o'lchov paytida ishchi
+daraxt allaqachon boshqa shoxda edi. Natijada o'lchagich ESKI kodni
+o'lchadi va raqamlar boshlang'ich holatga qaytgandek ko'rindi. Agar
+shox tekshirilmaganida, xulosa "mening o'zgarishim hech narsa
+qilmagan" bo'lardi — ya'ni **o'lchov jim yolg'on gapiradi**.
+
+Bu 11.1 bandning yangi ko'rinishi: son ishonchli, lekin faqat u
+o'lchagan narsa siz o'ylagan narsa bo'lsa.
+
+**Ikki qoida shundan chiqdi:**
+
+1. **Har o'lchovdan oldin VA keyin shox tekshiriladi.** Ikkalasi ham
+   kutilgan shox bo'lsagina natija qabul qilinadi.
+2. **Ko'rikchi alohida `git worktree` da ishlaydi.** Bu endi "agar
+   to'qnashuv tez-tez bo'lsa" emas, sukut bo'yicha.
+
+### Alohida worktree — sozlash (bir marta)
+
+```
+git worktree add <scratch-yo'l>/lab -b claude/lab3d main
+cd <scratch-yo'l>/lab
+npm install --no-audit --no-fund
+npx prisma generate
+cp <asosiy-papka>/.env .env
+npm run dev
+```
+
+**`node_modules` ga junction QILINMAYDI.** Sinab ko'rildi va
+ishlamadi: Next 16 Turbopack junction'ni rad etadi —
+*"Symlink node_modules is invalid, it points out of the filesystem
+root"*. To'liq `npm install` kerak (npm keshi issiq bo'lsa bir necha
+daqiqa).
+
+Playwright brauzerlari umumiy (`~/AppData/Local/ms-playwright`), ya'ni
+qayta yuklanmaydi.
+
+Sozlangandan keyin tekshirildi: worktree asosiy papkaning o'lchovini
+AYNAN takrorlaydi (5 nuqtada `chaqiruv` va `uchburchak` bir xil).
 
 ---
 
