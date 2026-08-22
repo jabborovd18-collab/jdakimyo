@@ -91,8 +91,8 @@ export const XONA_ZONALARI = {
     nom: "Yuvinish Rakovinasi",
     tavsif: "Distillangan suv krani va idishlarni 100% yuvib tozalash stansiyasi",
     ikon: "ochiq",
-    kamera: [-(XONA.eni / 2 - 2.5), 1.55, CHEGARA.zMin + 2.2],
-    nishon: [-(XONA.eni / 2 - 2.5), 0.98, CHEGARA.zMin + 0.8],
+    kamera: [-(XONA.eni / 2 - 1.7), 1.55, CHEGARA.zMin + 1.6],
+    nishon: [-(XONA.eni / 2 - 0.21), 0.98, CHEGARA.zMin + 1.6],
     fov: 44,
   },
   davriy_jadval: {

@@ -5,19 +5,10 @@ import * as THREE from "three";
 import { qadamTovushi, shishaUrilishi, tiqinOchilishi, taroziBip, oqimBoshla, oqimToxtat } from "../lib/ovoz.js";
 import { idishYorliginiQoldaYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
-import { XONA, YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
+import { YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
 
 // Yurish chegarasi — xona o'lchamidan hosila, modul yuklanganda bir marta.
 // Old tomon kattaroq chetlanadi: eshik va ostona shu yerda.
-// Rakovina to'sig'i — uning modeldagi joyidan hosila
-// (xona-modellari.js: x = -(eni/2 - 2.5), z = zMin + 0.8).
-const RAKOVINA = (() => {
-  const d = xonaChegarasi();
-  const x = -(XONA.eni / 2 - 2.5);
-  const z = d.zMin + 0.8;
-  return { xMin: x - 0.5, xMax: x + 0.5, zMin: z - 0.5, zMax: z + 0.5 };
-})();
-
 const YURISH = (() => {
   const d = xonaChegarasi();
   return {
@@ -817,11 +808,13 @@ export function useYurish({
       nextX = cRight.x;
       nextZ = cRight.z;
 
-      // 4. Chap orqa rakovina to'sig'i — rakovina joyi xona o'lchamidan
-      // hisoblanadi (xona-modellari.js), shuning uchun to'siq ham.
-      const cSink = stolKolliziyasi(nextX, nextZ, RAKOVINA.xMin, RAKOVINA.xMax, RAKOVINA.zMin, RAKOVINA.zMax, 0.45);
-      nextX = cSink.x;
-      nextZ = cSink.z;
+      // 4. Rakovina uchun alohida to'siq YO'Q.
+      //
+      // U endi chap devordagi ish yuzasiga o'rnatilgan, devor
+      // chegarasi esa o'yinchini yuzadan 0.38 m oldin to'xtatadi
+      // (devor -10, yuza chuqurligi 0.42, yurish chegarasi -9.2).
+      // Ilgari rakovina xona o'rtasida havoda turgani uchun unga
+      // alohida to'siq kerak edi.
 
       // 5. Qat'iy xona devorlari va eshik chegarasi.
       // Sonlar QO'LDA YOZILMAYDI: ular xona o'lchamidan hisoblanadi

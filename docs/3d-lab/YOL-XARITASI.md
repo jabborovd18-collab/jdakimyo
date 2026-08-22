@@ -573,6 +573,62 @@ yozib qo'yish kerak: 36 500 uchburchak zamonaviy telefon uchun muammo
 emas, lekin `chaqiruv` bilan bir xil e'tibor talab qiladi — 0.3 sifat
 darajalarida to'ldirgich zichligi profilga bog'lanishi mumkin.
 
+### 2026-08-22 — kattalashtirish uchta narsani uzib qo'ygan edi
+
+Egasi telefonda va kompyuterda ko'rsatdi. Xona kattalashganda javon
+qatorlari xona o'lchamidan hisoblandi, LEKIN ular bilan bog'liq uchta
+narsa qattiq yozilganicha qoldi va havoda osilib qoldi:
+
+| Nima | Qayerda edi | Nima bo'ldi |
+|---|---|---|
+| 20 reagent shishasi | `DEVOR_JAVON_REAGENTLARI[].pos` | Devordan 2.5 m narida havoda; ikkitasi polda ko'rindi |
+| Rakovina | `-(eni/2 - 2.5)` | Xona o'rtasida, tayanchsiz |
+| Rakovina to'sig'i | `useYurish.js` | Ko'rinmas devor bo'lib qolgan bo'lardi |
+
+**Ildiz sabab bitta va u AGENTS.md 1-bandi:** javon qayerda ekani IKKI
+joyda yozilgan edi — qator geometriyasida (hisoblanadigan) va shisha
+`pos` massivida (qattiq). Ular bir-biridan uzildi.
+
+Endi shishalar joyi `reagentJoylari()` da qatordan hisoblanadi, `pos`
+esa faqat tartib va balandlikni belgilaydi. Rakovina chap devordagi
+ish yuzasiga o'rnatildi (kosa yuzaga botirilgan) va unga alohida
+to'siq kerak emas — devor chegarasi o'yinchini 0.38 m oldin to'xtatadi.
+
+**Saboq:** "yagona manbaga yig'ish" ni men xona o'lchamiga qo'lladim,
+lekin xona ichidagi MAZMUNGA qo'llamadim. Kattalashtirish o'zi
+xavfsiz edi — xavfli narsa yarim yig'ilgan manba edi.
+
+### To'ldirgich shaffof emas — mobil uchun
+
+To'ldirgich idishlar avval `transparent: true` bilan yaratilgan edi.
+Shaffof sirt mobil GPU da eng qimmat narsa: alohida o'tish, saralash
+va depth yozmaslik, ya'ni bir-birining ustidagi yuzlab idish ekranni
+qayta-qayta bo'yaydi.
+
+**Buni hozirgi o'lchagich KO'RSATA OLMAYDI.** `chaqiruv`, `uchburchak`
+va `ortacha` shaffoflik o'zgarganda umuman qimirlamadi. O'zgarish
+mobil GPU ning ma'lum xossasiga tayanadi, o'lchovga emas — va aynan
+shu sabab o'lchagichga fragment narxini o'lchaydigan asbob kerak
+(pastdagi yozuvga qarang).
+
+### O'lchagichdagi FPS ishlatib bo'lmaydi
+
+2026-08-22 da aniqlandi. Telefon profilida yuk ikki baravar oshdi
+(`chaqiruv` 137 → 190, `uchburchak` 10 686 → 22 316), FPS esa
+**o'sdi**: 44.3 → 45.9. Bir xil nuqtadagi o'lchovlar tarqoqligi 49%.
+
+Ya'ni FPS haqiqiy qurilma bilan taqqoslanmasligi yetmagandek, u
+**o'zi bilan ham taqqoslanmaydi**.
+
+Bu 0.6 (pishirilgan yorug'lik) ni bloklaydi: uning butun asosi —
+fragment narxi, va uni o'lchaydigan asbob yo'q. Yo'l xaritasidagi
+"fragment narxi ~6 barobar tushadi" — o'lchov emas, taxmin.
+
+**Taklif:** FPS o'rniga sinxron render vaqti (`gl.finish()` bilan N
+marta chizib, median), va bir xil kadrni 1x va 4x pikselda chizib
+farqdan FRAGMENT narxini ajratish. Shundan keyingina 0.6 ning mezoni
+haqiqiy bo'ladi.
+
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
 1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,

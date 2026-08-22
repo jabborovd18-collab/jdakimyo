@@ -416,9 +416,12 @@ const TOLDIRGICH = Object.freeze({
   radius: 0.036,
   minBaland: 0.15,
   maksBaland: 0.25,
-  // Reagent shishalari -0.25 tokchasida turadi; to'ldirgich qolgan
-  // ikkitasini va shkaf tubini egallaydi.
-  sathlar: Object.freeze([-0.62, 0.06, 0.36]),
+  // Uchala tokcha va shkaf tubi. Reagent tokchasi (-0.24) ham
+  // to'ldiriladi, lekin shishalar atrofida bo'sh joy qoldiriladi —
+  // aks holda ular to'ldirgich ichida yo'qolib ketardi.
+  sathlar: Object.freeze([-0.62, -0.24, 0.06, 0.36]),
+  reagentSathi: -0.24,
+  bandChet: 0.26,     // shisha atrofidagi bo'sh joy
 });
 
 // Kam sonli, bir-biriga yaqin ranglar: tokcha rang-barang bo'lsa
@@ -441,7 +444,7 @@ function toldirgichTasodifi(urug) {
  * @param {number} eni qator kengligi (lokal X bo'ylab)
  * @param {number} urug qat'iy urug' — har yuklashda AYNI joylashuv
  */
-function tokchaToldirgichi(eni, urug, materiallar) {
+function tokchaToldirgichi(eni, urug, materiallar, bandX = []) {
   const guruh = new THREE.Group();
   guruh.name = "Tokcha_Toldirgichi";
 
@@ -451,9 +454,12 @@ function tokchaToldirgichi(eni, urug, materiallar) {
   const oxirX = eni / 2 - TOLDIRGICH.chet;
 
   for (const sath of TOLDIRGICH.sathlar) {
+    const reagentTokchasi = Math.abs(sath - TOLDIRGICH.reagentSathi) < 0.01;
     for (let x = boshX; x <= oxirX; x += TOLDIRGICH.qadam) {
       // Ba'zi joy ataylab bo'sh: to'la tekis qator sun'iy ko'rinadi.
       if (tasodif() < 0.18) continue;
+      // Reagent tokchasida shishalar atrofi bo'sh qoladi.
+      if (reagentTokchasi && bandX.some((bx) => Math.abs(bx - x) < TOLDIRGICH.bandChet)) continue;
       const baland = TOLDIRGICH.minBaland
         + tasodif() * (TOLDIRGICH.maksBaland - TOLDIRGICH.minBaland);
       joylar.push({
@@ -477,8 +483,18 @@ function tokchaToldirgichi(eni, urug, materiallar) {
     TOLDIRGICH.radius * 0.45, TOLDIRGICH.radius * 0.5, 0.035, 6,
   );
 
+  // SHAFFOF EMAS — ataylab.
+  //
+  // Shaffof sirt mobil GPU da eng qimmat narsa: u alohida o'tishda,
+  // saralash bilan va depth yozmasdan chiziladi, ya'ni bir-birining
+  // ustidagi yuzlab idish butun ekranni qayta-qayta bo'yaydi
+  // (overdraw). Egasi telefonda aynan shundan keyin sekinlashuvni
+  // sezdi (2026-08-22).
+  //
+  // Bu idishlar fon buyumi — ularning ichi ko'rinishi shart emas.
+  // Haqiqiy reagent shishalari (20 ta) shaffofligicha qoladi.
   const tanaMat = new THREE.MeshStandardMaterial({
-    roughness: 0.28, metalness: 0.05, transparent: true, opacity: 0.82,
+    roughness: 0.32, metalness: 0.04,
   });
   const qopqoqMat = materiallar?.rezina
     || new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.75 });
@@ -519,7 +535,7 @@ function tokchaToldirgichi(eni, urug, materiallar) {
 }
 
 /** Devor Shkaf Karkasini Yaratish (Wall Cabinet Box) */
-function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMat, kenglik) {
+function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMat, kenglik, bandX) {
   const group = new THREE.Group();
   group.position.set(x, y, z);
   group.rotation.y = rotY;
@@ -582,7 +598,7 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMa
 
   // Tokchalarni to'ldiramiz. Urug' qator kengligidan hosila —
   // har qator o'z joylashuvini oladi, lekin har yuklashda AYNI.
-  group.add(tokchaToldirgichi(eni, Math.round(Math.abs(x) * 1000) + Math.round(eni * 100) + 7, materiallar));
+  group.add(tokchaToldirgichi(eni, Math.round(Math.abs(x) * 1000) + Math.round(eni * 100) + 7, materiallar, bandX));
 
   // BRIF-04 — poldan tokcha tubigacha yopiq tumba.
   // Balandlik HISOBLANADI: guruh dunyoda `y` da turadi, tokchaning tubi
@@ -612,6 +628,72 @@ function devorShkafiYasa(x, y, z, rotY, nom, materiallar, panjaraTuri, panjaraMa
   }
 
   return group;
+}
+
+// Qaysi reagent guruhi qaysi qatorda va uning qaysi qismida turadi.
+//
+// MUAMMO (egasi jonli sahifada ko'rsatdi, 2026-08-22): xona
+// kattalashtirilganda javon qatorlari xona o'lchamidan hisoblandi,
+// lekin shishalar joyi `DEVOR_JAVON_REAGENTLARI` dagi `pos` da qattiq
+// yozilgan bo'lib qoldi. Natijada shishalar devordan 2.5 m narida —
+// HAVODA osilib turdi, ikkitasi esa polda ko'rindi.
+//
+// Ildiz sabab AGENTS.md 1-bandi: bir ma'lumot (javon qayerda) ikki
+// joyda yozilgan edi. Endi shishalar joyi qatordan HISOBLANADI va
+// `pos` faqat tartibni belgilaydi.
+const REAGENT_TAQSIMOTI = Object.freeze({
+  kislota: Object.freeze({ qator: "orqaChap", bosh: 0.30, oxir: 0.70 }),
+  ishqor: Object.freeze({ qator: "orqaOng", bosh: 0.30, oxir: 0.70 }),
+  tuz: Object.freeze({ qator: "ong", bosh: 0.12, oxir: 0.40 }),
+  eritma: Object.freeze({ qator: "ong", bosh: 0.60, oxir: 0.88 }),
+});
+
+// Shisha tokcha sirtidan shu qadar oldinda turadi (tokcha chuqurligi
+// 0.35, ya'ni shisha uning o'rtasiga tushadi).
+const SHISHA_CHUQURLIGI = 0.10;
+
+/**
+ * Har reagentga dunyo koordinatasini beradi.
+ *
+ * Qator ichida bir xil balandlikdagi shishalar teng taqsimlanadi:
+ * ikki qatorli javonda (tuz) pastki qator yuqorigisining ostiga
+ * tushadi, chunki ikkalasi ham bir xil oraliqqa yoyiladi.
+ */
+function reagentJoylari(Q) {
+  const natija = new Map();
+  const guruhlar = new Map();
+  for (const item of DEVOR_JAVON_REAGENTLARI) {
+    const kalit = `${item.javon}|${item.pos[1]}`;
+    if (!guruhlar.has(kalit)) guruhlar.set(kalit, []);
+    guruhlar.get(kalit).push(item);
+  }
+
+  for (const [kalit, ro] of guruhlar) {
+    const [javon] = kalit.split("|");
+    const t = REAGENT_TAQSIMOTI[javon];
+    if (!t) continue;
+    const n = ro.length;
+    for (let i = 0; i < n; i += 1) {
+      // n ta shisha [bosh, oxir] oralig'iga teng joylashadi.
+      const ulush = n === 1
+        ? (t.bosh + t.oxir) / 2
+        : t.bosh + (t.oxir - t.bosh) * (i / (n - 1));
+      const siljish = (ulush - 0.5);
+      const y = ro[i].pos[1];
+      let joy;
+      let mahalliyX;
+      if (t.qator === "ong") {
+        mahalliyX = siljish * Q.ongKenglik;
+        joy = [Q.ongX - SHISHA_CHUQURLIGI, y, Q.ongMarkazZ + mahalliyX];
+      } else {
+        const markaz = t.qator === "orqaOng" ? Q.orqaMarkaz : -Q.orqaMarkaz;
+        mahalliyX = siljish * Q.orqaKenglik;
+        joy = [markaz + mahalliyX, y, Q.orqaZ + SHISHA_CHUQURLIGI];
+      }
+      natija.set(ro[i].kalit, { joy, qator: t.qator, mahalliyX });
+    }
+  }
+  return natija;
 }
 
 /**
@@ -679,19 +761,22 @@ export function javon3dYasa(materiallar, profil) {
   // Koordinatalar xona o'lchamidan keladi — kattalashtirilganda qatorlar
   // o'zi cho'ziladi va devorda yana bo'shliq paydo bo'lmaydi.
   const Q = JAVON_QATORLARI();
+  const reagentJoyi = reagentJoylari(Q);
+  const bandX = { orqaChap: [], orqaOng: [], ong: [] };
+  for (const j of reagentJoyi.values()) bandX[j.qator].push(j.mahalliyX);
 
   // Orqa devor — davriy jadvalning ikki yonida ikki qator.
   mainCabinetGroup.add(devorShkafiYasa(
-    -Q.orqaMarkaz, 1.8, Q.orqaZ, 0, "Kislotalar", materiallar, "oddiy", panjaraMat, Q.orqaKenglik,
+    -Q.orqaMarkaz, 1.8, Q.orqaZ, 0, "Kislotalar", materiallar, "oddiy", panjaraMat, Q.orqaKenglik, bandX.orqaChap,
   ));
   mainCabinetGroup.add(devorShkafiYasa(
-    Q.orqaMarkaz, 1.8, Q.orqaZ, 0, "Ishqorlar", materiallar, "hajm", panjaraMat, Q.orqaKenglik,
+    Q.orqaMarkaz, 1.8, Q.orqaZ, 0, "Ishqorlar", materiallar, "hajm", panjaraMat, Q.orqaKenglik, bandX.orqaOng,
   ));
 
   // O'ng devor — orqa qator tugagan joydan xavfsizlik dushigacha.
   mainCabinetGroup.add(devorShkafiYasa(
     Q.ongX, 1.8, Q.ongMarkazZ, -Math.PI / 2,
-    "Tuzlar va Eritmalar", materiallar, "tuz", panjaraMat, Q.ongKenglik,
+    "Tuzlar va Eritmalar", materiallar, "tuz", panjaraMat, Q.ongKenglik, bandX.ong,
   ));
 
   // Chap devor — DERAZALAR TAGIDA past javon qatori.
@@ -726,9 +811,18 @@ export function javon3dYasa(materiallar, profil) {
     });
   }
 
-  // Shishalarni tegishli javonlarga joylashtirish
+  // Shishalarni tegishli javonlarga joylashtirish.
+  // Joy `pos` dan EMAS, qator geometriyasidan hisoblanadi.
+  const joylar = reagentJoylari(Q);
   DEVOR_JAVON_REAGENTLARI.forEach((item) => {
     const bottle = reagentShishasiModel(item, materiallar);
+    const j = joylar.get(item.kalit);
+    if (j) {
+      bottle.position.set(j.joy[0], j.joy[1], j.joy[2]);
+      // Shishani javonga qaytarish animatsiyasi shu nuqtaga qaytaradi
+      // (shisha-animatsiya.js). U ham hisoblangan joy bo'lishi shart.
+      bottle.userData.aslPos = new THREE.Vector3(j.joy[0], j.joy[1], j.joy[2]);
+    }
     mainCabinetGroup.add(bottle);
   });
 

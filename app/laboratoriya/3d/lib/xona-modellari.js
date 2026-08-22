@@ -962,8 +962,19 @@ function rakovinaYasa(materiallar) {
 
   const group = new THREE.Group();
   group.name = "Yuvinish_Rakovinasi";
-  // Chap orqa burchakda — burchakdan sanaladi, markazdan emas.
-  group.position.set(-(XONA.eni / 2 - 2.5), 0.9, -XONA.boyi / 2 + XONA.markazZ + 0.8);
+  // Chap devordagi ish yuzasiga O'RNATILGAN.
+  //
+  // Ilgari u devordan 2.5 m narida, hech qanday tayanchsiz havoda
+  // turardi. Xona kattalashganda bu ochiq ko'rinib qoldi (egasi
+  // 2026-08-22 da ko'rsatdi). Endi u chap devordagi past javon
+  // qatorining ustida: kosa yuzaga botirilgan (kosa jiyagi 1.03,
+  // yuza 1.05), jo'mrak esa devor tomonda.
+  group.position.set(
+    -(XONA.eni / 2 - 0.21),
+    0.9,
+    -XONA.boyi / 2 + XONA.markazZ + 1.6,
+  );
+  group.rotation.y = Math.PI / 2;
 
   const chinniMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.1 });
   const kranMat = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.9, roughness: 0.1 });
