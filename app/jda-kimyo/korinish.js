@@ -36,6 +36,7 @@ const HISOB_NOMI = {
   'https://instagram.com/jdakimyo.uz': { nom: 'Instagram · @jdakimyo.uz', ikon: 'ulashish' },
   'https://t.me/jdakimyouz': { nom: 'Telegram kanal · @jdakimyouz', ikon: 'kanal' },
   'https://t.me/jdakimyouzbot': { nom: 'Telegram bot · @jdakimyouzbot', ikon: 'bot' },
+  'https://www.youtube.com/@jdakimyouz': { nom: 'YouTube · @jdakimyouz', ikon: 'video' },
 }
 
 /** Platformaning imkoniyatlari. Sonlar faqat manbadan keladi. */

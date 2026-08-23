@@ -65,7 +65,7 @@ solinadi, keyin quyidagilar birga qilinadi. Tartib foydaga qarab:
 | # | Manba | Nega aynan shu | Holat |
 |---|---|---|---|
 | 1 | Bing Webmaster + IndexNow | ChatGPT Search Bing indeksiga ham suyanadi; yangi sahifa soatlarda tushadi | IndexNow tayyor (`npm run indexnow`), Bing hisobi egasida |
-| 2 | YouTube | subtitr matni indekslanadi, AI iqtibos oladi | navbatda |
+| 2 | YouTube | subtitr matni indekslanadi, AI iqtibos oladi | kanal ochildi: @jdakimyouz |
 | 3 | Wikidata | entity'ning o'zi — "bu nima" savoliga javob shu yerdan olinadi | navbatda |
 | 4 | Reddit | ChatGPT ham, Google ham katta vazn beradi; qoidalar qattiq, sekin ish | navbatda |
 | 5 | GitHub | ochiq repo README indekslanadi | navbatda |
@@ -126,7 +126,9 @@ xato bo'lsa qanday xato.
 | 2026-08-23 | sitemap `lastmod` git tarixidan | yolg'on "hozir o'zgardi" signali olib tashlandi |
 | 2026-08-23 | apex 307 → **308** (Vercel, egasi qildi) | bitta qadamli doimiy yo'naltirish |
 | 2026-08-23 | Search Console: 10 ta asosiy manzil qo'lda navbatga qo'yildi | egasi qildi |
-| 2026-08-23 | IndexNow: 129 manzil yuborildi | `202 Accepted` |
+| 2026-08-23 | IndexNow: 129 manzil yuborildi | `202 Accepted`, kalit tasdiqlandi (200) |
+| 2026-08-23 | Bing: sitemap yuborildi + 100 manzil qo'lda | Success, 129 URL topildi |
+| 2026-08-23 | YouTube kanali ochildi va `sameAs` ga qo'shildi | youtube.com/@jdakimyouz |
 
 Yangi qatorni **ustiga emas, pastiga** qo'shing: jurnalning qiymati
 o'zgarish tarixida.
