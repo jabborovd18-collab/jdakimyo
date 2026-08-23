@@ -785,8 +785,30 @@ CI ga lint qo'shish allaqachon Vibe Code ga topshirilgan — takrorlash
 o'rniga shu yerga yozib qo'yildi: **lint kelganda `no-undef` yoqilishi
 shart**, aks holda keyingi bo'lishda ham xuddi shu xato takrorlanadi.
 
+### Uchinchi bo'lish yangi tuzoq ochdi — qayta eksport
+
+`javon-3d.js` (868 -> 179 + 4 modul) bo'linganda index fayl
+`DEVOR_JAVON_REAGENTLARI` ni `export { ... } from` bilan qayta
+eksport qilardi VA o'zi ham ishlatardi.
+
+**Qayta eksport nomni tashqariga chiqaradi, lekin faylning O'Z
+ICHIGA kiritmaydi.** Ya'ni boshqa modullar uni ko'rardi, index esa
+ko'rmasdi. Build yana jim o'tdi.
+
+Shuning uchun ish vaqti tekshiruvi doimiy asbob qilindi:
+`scripts/lab3d-ish-vaqti.cjs` sahifani ochib sahna qurilishini va
+konsol xatolarini tekshiradi. U bu nuqsonni DARROV ushladi.
+
+Bo'lishdan keyingi tartib endi shunday:
+  1. `npx next build`          — sintaksis va import yo'llari
+  2. `node scripts/lab3d-ish-vaqti.cjs` — sahna QURILADIMI
+  3. `npm run lab3d:olcham`    — sahna O'ZGARMADIMI
+
+Ikkinchi qadamsiz birinchi va uchinchisi yetarli emas: build jim
+o'tadi, o'lchov esa faqat timeout deydi va sababini aytmaydi.
+
 **Qolgan monolitlar:** `korinish.js` 1412, `useYurish.js` 1142,
-`javon-3d.js` 868, `olcham-mijoz.js` 727, `useSahna.js` 616.
+`olcham-mijoz.js` 727, `useSahna.js` 616.
 Birinchi ikkitasi React hook va komponent — model quruvchilarga
 qaraganda ancha xavfliroq.
 
