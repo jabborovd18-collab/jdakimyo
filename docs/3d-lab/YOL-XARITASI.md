@@ -749,6 +749,47 @@ NISBAT saqlangan (aksial/ekvatorial ≈ 1.19, haqiqiyga mos). Aniq
 sonlar matnda, `~` bilan, va `manba` maydonida ular tuzga qarab
 o'zgarishi aytilgan. Chizma o'zini aniq masshtab deb da'vo qilmaydi.
 
+### BRIF-05 boshlandi — va build yolg'on gapirdi
+
+Ikki monolit bo'lindi: `xona-modellari.js` (1707 -> 68 + 6 modul) va
+`jihoz-modellari.js` (1184 -> 160 + 4 modul).
+
+**Xona bo'linishi birinchi urinishdayoq to'g'ri chiqdi.** Jihoz
+bo'linishida esa UCHTA import tushib qoldi:
+
+  yorliqniBelgila  -> jihoz/yordamchi.js
+  idishSigimi      -> jihoz-modellari.js
+  suyuqlikYasa     -> jihoz-modellari.js
+
+**Va uchalasi ham `npx next build` dan O'TIB KETDI.** Sabab oddiy:
+aniqlanmagan identifikator JavaScriptda kompilyatsiya xatosi emas —
+u faqat o'sha satr BAJARILGANDA yiqiladi. Build esa kodni
+bajarmaydi.
+
+Natijada: build yashil, sahna esa umuman qurilmaydi. Buni faqat
+brauzer konsoli ko'rsatdi.
+
+**Nima qilindi.** Bo'lish paytida asl faylning import ro'yxati bilan
+solishtiruvchi vaqtinchalik skript yozildi va u qolgan ikkitasini
+topdi. Uni repoga doimiy asbob qilib qo'yishga urindim, lekin regex
+bu ish uchun yetarli emas: obyekt metodlari (`yangila(`, `tozala(`)
+va JSX dagi `useState` sozlagichlari yolg'on signal beradi. Shovqinli
+asbob yo'q asbobdan yomon — o'chirildi.
+
+**To'g'ri yechim — ESLint `no-undef`.** U haqiqiy parser bilan
+ishlaydi va aynan shu xatoni topadi. Loyihada esa ESLint sozlamasi
+UMUMAN YO'Q (`.eslintrc` ham, `eslint.config` ham). Shuning uchun
+hech narsa ushlamagan.
+
+CI ga lint qo'shish allaqachon Vibe Code ga topshirilgan — takrorlash
+o'rniga shu yerga yozib qo'yildi: **lint kelganda `no-undef` yoqilishi
+shart**, aks holda keyingi bo'lishda ham xuddi shu xato takrorlanadi.
+
+**Qolgan monolitlar:** `korinish.js` 1412, `useYurish.js` 1142,
+`javon-3d.js` 868, `olcham-mijoz.js` 727, `useSahna.js` 616.
+Birinchi ikkitasi React hook va komponent — model quruvchilarga
+qaraganda ancha xavfliroq.
+
 ### 3D qahramon uchun poydevor — ikki jim to'siq olib tashlandi
 
 Egasi so'radi: qahramonning o'zi hozir kerak emas, lekin kelajakda
