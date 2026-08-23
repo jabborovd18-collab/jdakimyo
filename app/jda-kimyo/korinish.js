@@ -406,6 +406,10 @@ export default function Korinish() {
             </div>
 
             <div className="flex flex-wrap gap-2 shrink-0">
+              <a href={YARATUVCHI.linkedin} target="_blank" rel="noopener noreferrer" className="v3-oyoq-havola">
+                <Ikon nom="tashqi" olcham={15} />
+                LinkedIn
+              </a>
               <a href={YARATUVCHI.telegram} target="_blank" rel="noopener noreferrer" className="v3-oyoq-havola">
                 <Ikon nom="telegram" olcham={15} />
                 Telegram
