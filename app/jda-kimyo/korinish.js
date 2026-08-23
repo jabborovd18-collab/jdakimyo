@@ -5,7 +5,7 @@ import Ikon from "@/components/Ikon"
 import FonTanlagich, { useFon } from "@/components/FonTanlagich"
 import HAJM from "@/lib/ilmiy-hajm.json"
 import { FANLAR, ochiqFanlarSoni } from "@/lib/fanlar"
-import { BAZA, YARATUVCHI, TASHKIL_YILI, RASMIY_HISOBLAR, MALUMOT_SANASI } from "@/lib/sayt-malumot"
+import { BAZA, YARATUVCHI, TASHKIL_YILI, RASMIY_HISOBLAR, OCHIQ_LUGAT, MALUMOT_SANASI } from "@/lib/sayt-malumot"
 import { FAQ, FAKTLAR } from "./malumot"
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -372,6 +372,14 @@ export default function Korinish() {
             </div>
             <p className="v3-yonalish-nom" style={{ marginBottom: 0, fontSize: 15 }}>www.jdakimyo.uz</p>
           </div>
+
+          <a href={OCHIQ_LUGAT} target="_blank" rel="noopener noreferrer" className="v3-blok" style={{ display: 'block' }}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <Ikon nom="fayl" olcham={15} qalin={1.8} />
+              <span className="v3-nishon">Ochiq ma{"'"}lumot</span>
+            </div>
+            <p className="v3-yonalish-nom" style={{ marginBottom: 0, fontSize: 15 }}>GitHub · kimyo lug{"'"}ati</p>
+          </a>
 
           {RASMIY_HISOBLAR.map((u) => {
             const h = HISOB_NOMI[u]

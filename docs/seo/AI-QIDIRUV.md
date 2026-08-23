@@ -68,7 +68,7 @@ solinadi, keyin quyidagilar birga qilinadi. Tartib foydaga qarab:
 | 2 | YouTube | subtitr matni indekslanadi, AI iqtibos oladi | kanal ochildi: @jdakimyouz |
 | 3 | Wikidata | entity'ning o'zi — "bu nima" savoliga javob shu yerdan olinadi | navbatda |
 | 4 | Reddit | ChatGPT ham, Google ham katta vazn beradi; qoidalar qattiq, sekin ish | navbatda |
-| 5 | GitHub | ochiq repo README indekslanadi | navbatda |
+| 5 | GitHub | ochiq repo README indekslanadi | bajarildi: uzbek-kimyo-lugat |
 | 6 | Quora / Medium / Telegraph | savol-javob shakli AI uchun qulay format | navbatda |
 | 7 | Instagram, Pinterest | AI qidiruvi uchun kuchsiz, lekin entity nomini mustahkamlaydi | hisob ochilyapti |
 
@@ -129,6 +129,8 @@ xato bo'lsa qanday xato.
 | 2026-08-23 | IndexNow: 129 manzil yuborildi | `202 Accepted`, kalit tasdiqlandi (200) |
 | 2026-08-23 | Bing: sitemap yuborildi + 100 manzil qo'lda | Success, 129 URL topildi |
 | 2026-08-23 | YouTube kanali ochildi va `sameAs` ga qo'shildi | youtube.com/@jdakimyouz |
+| 2026-08-23 | Yaratuvchining LinkedIn profili `sameAs` ga qo'shildi | linkedin.com/in/diyorbek-arslonivich |
+| 2026-08-23 | Ochiq lug'at GitHub'da e'lon qilindi | uzbek-kimyo-lugat, 242+34+22+39 yozuv |
 
 Yangi qatorni **ustiga emas, pastiga** qo'shing: jurnalning qiymati
 o'zgarish tarixida.

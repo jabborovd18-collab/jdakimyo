@@ -310,6 +310,29 @@ Aloqa: [Telegram](https://t.me/diyorbek_jabborov) ·
 
 fs.writeFileSync(path.join(CHIQISH, 'README.md'), README, 'utf8')
 
+// LICENSE — README da havola qilingan, ya'ni fayl ham bo'lishi shart.
+// To'liq huquqiy matn o'rniga rasmiy manzil ko'rsatiladi: matnni
+// ko'chirish uni eskirtiradi, Creative Commons esa o'z sahifasini
+// yangilab turadi.
+const LITSENZIYA = `Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+To'liq matn: https://creativecommons.org/licenses/by/4.0/legalcode
+Qisqacha:    https://creativecommons.org/licenses/by/4.0/deed.uz
+
+Ruxsat etiladi: nusxalash, tarqatish, o'zgartirish, tijoriy maqsadda
+ishlatish.
+
+Shart: manbani ko'rsatish.
+
+  Manba: JDA KIMYO — https://www.jdakimyo.uz
+
+Ma'lumot "qanday bo'lsa shundayligicha" beriladi. Kimyoviy qiymatlar
+o'quv maqsadida to'plangan; haqiqiy laboratoriya ishida rasmiy
+ma'lumotnomaga tayaning.
+`
+
+fs.writeFileSync(path.join(CHIQISH, 'LICENSE'), LITSENZIYA, 'utf8')
+
 console.log(`ochiq-lugat/ yozildi:`)
 console.log(`  birikmalar.json  — ${birikmalar.length} ta (${nomliSoni} tasida o'zbekcha nom bor)`)
 console.log(`  birikma-sahifalari.json — ${sahifalar.length} ta`)
