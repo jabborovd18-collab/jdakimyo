@@ -47,3 +47,9 @@ next-env.d.ts
 
 # 3D o'lchagich PNG lari — har safar qayta yasaladi, repo uchun emas
 .olcham/
+
+# Ochiq lug'at — GitHub'da alohida repozitoriyada e'lon qilinadi.
+# Bu yerda saqlanmaydi: u `lib/` dagi manbadan yasaladigan NATIJA va
+# ikkinchi nusxa bo'lib qolsa, birinchi o'zgarishdayoq undan uziladi.
+# Qayta yasash: node scripts/gen-ochiq-lugat.js
+/ochiq-lugat/
