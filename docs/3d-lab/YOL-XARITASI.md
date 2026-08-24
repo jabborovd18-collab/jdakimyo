@@ -942,6 +942,80 @@ marta chizib, median), va bir xil kadrni 1x va 4x pikselda chizib
 farqdan FRAGMENT narxini ajratish. Shundan keyingina 0.6 ning mezoni
 haqiqiy bo'ladi.
 
+### To'rtinchi bo'lish — komponent hookga ajratildi
+
+`olcham-mijoz.js` (727 → 108 + 7 modul). Oldingi uchtasidan farqi:
+bu React komponenti edi, ya'ni funksiyani ko'chirish YETMASDI.
+
+Fayl ikki qatlamdan iborat edi: 330 qator sof funksiya (React yo'q) va
+375 qator komponent. Faqat birinchisini ko'chirish 727 → 395 berardi —
+chegaradan past, lekin komponent baribir to'rt xil ishni bir joyda
+qilardi: kadr sanagichi, qarash sinovi, o'lchovning o'zi va
+`window.__*` eshigi. Shuning uchun mantiq ham ajratildi.
+
+| Fayl | Qator |
+|---|---:|
+| `useOlchov.js` | 233 |
+| `olcham-kadr-narxi.js` | 215 |
+| `useOlchamApi.js` | 108 |
+| `olcham-mijoz.js` | 108 |
+| `useKadrSanagich.js` | 78 |
+| `useQarashSinovi.js` | 66 |
+| `olcham-sahna-oqish.js` | 61 |
+| `olcham-kadr-rasm.js` | 49 |
+
+`kameraniQoy` `olcham-nuqtalar.js` ga ko'chdi: nuqta ta'rifi o'sha
+faylda, uni kameraga qo'yish esa o'sha ta'rifning davomi.
+
+**Ikki jim ikkinchi nusxa yo'q qilindi** (AGENTS.md 1-band):
+- supurish yo'lidagi narx obyekti inline literal edi —
+  `narxTaqsimoti` qaytargan shaklning nusxasi. Endi `supurishNarxi()`;
+  yangi maydon qo'shilganda ikkinchisi uzilib qolmaydi.
+- `fpsRef` endi hookdan tashqariga chiqmaydi. Undan tashqarida faqat
+  o'rtacha kerak edi va uni `fpsOrtachasi()` beradi — xom ref berilsa,
+  chaqiruvchi uni yana o'zicha o'qib, ikkinchi hisob paydo bo'lardi.
+
+**Bo'lish DASTURIY bajarildi.** Funksiya tanalari qo'lda ko'chirilmadi:
+kichik skript asl fayldan nomi bo'yicha blok kesib olib yangi faylga
+yozdi, ko'chirilgandan keyin esa asl import ro'yxati bilan solishtirdi.
+Sabab — 23-avgust saboqi: qo'lda ko'chirishda tushib qolgan bitta nom
+`npx next build` dan jimgina o'tib ketadi.
+
+#### Dalil — 5 kamera × 2 profil, oldin/keyin
+
+Tuzilish sonlari **hammasi bir xil** qoldi:
+
+| Profil | Nuqta | `uchburchak` | `chaqiruv` | `chiroq` | `interaktiv` | `yorliq` |
+|---|---|---:|---:|---:|---:|---:|
+| desktop | stol | 111 142 | 461 | 8 | 51 | 2 |
+| desktop | xona | 79 526 | 243 | 8 | 51 | 0 |
+| desktop | ship | 37 472 | 137 | 8 | 51 | 0 |
+| desktop | pol | 37 574 | 135 | 8 | 51 | 0 |
+| desktop | sweep | 63 280 | 303 | 8 | 51 | 5 |
+| telefon | stol | 39 556 | 192 | 3 | 51 | 2 |
+| telefon | xona | 21 546 | 66 | 3 | 51 | 0 |
+| telefon | ship | 148 | 11 | 3 | 51 | 0 |
+| telefon | pol | 226 | 8 | 3 | 51 | 0 |
+| telefon | sweep | 13 322 | 97 | 3 | 51 | 5 |
+
+`teksturaXotira`, `stansiyaMeshlari`, `birlashuv`, `asset`,
+`yorliqToqnashuvi` va `kuygan` ham o'zgarmadi.
+
+Farq faqat luma maydonlarida chiqdi va u **shovqin**: eng katta
+`|Δortacha|` desktopda 0.000034, telefonda 0.000910 — `OLCHOV.md`
+dagi barqarorlik chegarasidan (`< 0.02`) 20 barobar past. Sababi
+ham ma'lum: sahnada alanga va qaynash pufakchalari
+`performance.now()` bilan harakatlanadi, ya'ni ikki yugurishning
+kadri hech qachon aynan bir xil bo'lmaydi. `p95` farqi esa bitta
+gistogramma qadamiga teng (1/1024).
+
+**Uch qadam ham bajarildi:** `npx next build` yashil,
+`lab3d-ish-vaqti.cjs` "sahna qurildi / ish vaqti xatosi yo'q",
+o'lchov oldin/keyin.
+
+**Qolgan monolitlar:** `korinish.js` 1412, `useYurish.js` 1142,
+`useSahna.js` 616.
+
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
 1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,
@@ -963,6 +1037,24 @@ haqiqiy bo'ladi.
    va `p95` ustunini yozadi; `scripts/lab3d-olcham.js:61` esa
    `stol/xona [0.18, 0.45]`, `pol [0.15, 0.50]` va `p95` ni umuman
    tekshirmaydi. Qaysi biri haqiqat ekani hujjatdan bilinmaydi.
+
+2b. **BRIF-S02 arenaga berildi.** Yuqoridagi 2-nuqson uchun brif
+   yozildi: `BRIF-S02-olchov-chegaralari.md`. Sonlar o'zgarmaydi —
+   ular yagona modulga chiqadi va ikki darajaga ajraladi (MAJBURIY
+   darvoza / MAQSAD kuzatuvi).
+
+3. **`desktop/stol` darvozadan chiqib turibdi.** 2026-08-24 da BRIF-05
+   bazaviy o'lchovida ko'rindi: `ortacha = 0.4593`, skriptning o'z keng
+   chegarasi esa `[0.18, 0.45]`. Ya'ni `chiqibKetgan: 1` — va bu
+   bo'lishdan OLDIN, `origin/main` da shunday edi. Bo'lish uni na
+   yomonlashtirdi, na yaxshiladi (keyin ham 0.4593).
+
+   Sabab tekshirilmadi. Ehtimoli ikkita: (a) o'lchov dasturiy
+   renderda (SwiftShader) bajarilgani, (b) 4K teksturalar va javon
+   qatorlari qo'shilgandan keyin stol kadri haqiqatan yorqinlashgani.
+   Ajratish yo'li bor: bir marta haqiqiy GPU li mashinada o'lchash.
+
+   Tegilmadi (AGENTS.md 10-band). Bu 1-qavat kalibrovkasining ishi.
 
 ---
 

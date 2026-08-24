@@ -139,3 +139,23 @@ export function supurishNuqtalariniYarat(xomUrug) {
 export function nuqtaniOl(nom) {
   return NUQTALAR[nom] || NUQTALAR.stol;
 }
+
+// Nuqta ta'rifini HAQIQIY kameraga qo'yadi.
+//
+// Nega shu faylda: nuqtaning o'zi shu yerda ta'riflanadi, uni kameraga
+// ko'chirish esa o'sha ta'rifning davomi. Ikki joyda bo'lsa, `up` yoki
+// `nishon` maydoni qo'shilganda biri yangilanib, ikkinchisi qolib
+// ketardi (AGENTS.md 1-band).
+//
+// `controls.enabled = false`: o'lchov paytida orbit boshqaruvi kamerani
+// qayta hisoblab, qo'yilgan nuqtadan siljitib yuborardi.
+export function kameraniQoy(kamera, controls, nuqta) {
+  kamera.up.set(nuqta.up[0], nuqta.up[1], nuqta.up[2]);
+  kamera.position.set(nuqta.kamera[0], nuqta.kamera[1], nuqta.kamera[2]);
+  kamera.lookAt(nuqta.nishon[0], nuqta.nishon[1], nuqta.nishon[2]);
+  kamera.updateMatrixWorld();
+  if (controls) {
+    controls.enabled = false;
+    controls.target.set(nuqta.nishon[0], nuqta.nishon[1], nuqta.nishon[2]);
+  }
+}
