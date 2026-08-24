@@ -1153,6 +1153,90 @@ Unga o'tishdan oldin yuqoridagi jonli sahifa tekshiruvi doimiy
 asbobga aylantirilishi kerak: `korinish.js` bo'linganda mavjud
 tekshiruvlarning hech biri uni bajarmaydi.
 
+### Yettinchi bo'lish — BRIF-05 TUGADI
+
+`korinish.js` (1412 → 594 + 11 modul). Oxirgi monolit va eng xavflisi:
+bu **jonli sahifa**, o'lchagich emas.
+
+| Fayl | Qator | Nima |
+|---|---:|---|
+| `components/LabHud.jsx` | 198 | yuqori burchaklar va markaziy nishoncha |
+| `components/QolKartasi.jsx` | 145 | qo'ldagi idish, spatula, tezkor dozalar |
+| `hooks/useJihozAmallari.js` | 143 | idish tanlash, spirtovka, rakovina |
+| `components/YordamModali.jsx` | 137 | [H] boshqaruv qo'llanmasi |
+| `components/LabModallari.jsx` | 120 | 7 ta shartli modal |
+| `hooks/useXavfsizlik.js` | 102 | dush, ko'z yuvish, ko'zoynak, niqob |
+| `hooks/useTarozi.js` | 99 | pallaga qo'yish, tara, nol |
+| `hooks/useIsitish.js` | 93 | harorat va sovish sikli |
+| `hooks/useSpatula.js` | 87 | quruq moddani olish va solish |
+| `hooks/useTitrlash.js` | 73 | kran, tomchi sikli, stend |
+| `hooks/useElektroliz.js` | 72 | tok manbai, vaqt, stend |
+
+**Chegara stansiya bo'yicha o'tkazildi.** Ilgari titrlash uchta joyda
+yotardi: holat 398-qatorda, tugma 487-da, sikl 659-da. Endi uchalasi
+bitta faylda — chunki ular bitta stansiyaning uch tomoni. Xuddi shu
+tarozi, elektroliz, spatula va xavfsizlik jihozlariga qo'llandi.
+
+#### To'rt xato tutildi — va har birini boshqa asbob tutdi
+
+Bu bo'lish oldingi oltitasidan ko'ra ko'proq xato berdi, chunki
+komponentda **tartib muhim**: hook boshqa hookning qiymatini o'qisa,
+u KEYIN turishi shart.
+
+1. `Cannot access 'elektrolizVaqt' before initialization` — hook
+   chaqiruvi o'z qiymatini o'qiydigan qatordan keyin qolgan edi.
+2. `amalYoz is not defined` — `useXavfsizlik` ga uzatilmagan parametr.
+3. `Cannot access 'sahnaRef' before initialization` — `useTarozi`
+   `useSahna` dan oldin chaqirilgan edi.
+
+Uchalasini ham **jonli sahifa tekshiruvi** darrov ko'rsatdi. Build
+uchalasidan ham jimgina o'tdi.
+
+4. **To'rt faylda import tushib qolgan:** `idishHolatiniYoz`,
+   `pufakchaChiqishi`, `jamiHajm`, `moddaKorinishi`,
+   `suyuqlikSathiniYangila`, `taroziBip`, `tiqinOchilishi`,
+   `qaynashniYangila`, `shishaUrilishi`.
+
+**To'rtinchisi eng xavflisi edi va uni hech qanday ish vaqti
+tekshiruvi tutmasdi.** Sabab: bu kod faqat foydalanuvchi tarozига
+idish qo'yganda yoki spatula bilan modda olganda bajariladi. Login'siz
+tekshiruv u yergacha yetib bormaydi. Uni JSX teglari va ma'lum
+funksiya nomlarini import ro'yxati bilan solishtiruvchi kichik skript
+topdi.
+
+Ya'ni: **ish vaqti tekshiruvi faqat o'zi BOSIB O'TGAN yo'lni
+tekshiradi.** Bo'linayotgan kodning katta qismi foydalanuvchi
+harakatiga bog'liq bo'lsa, unga qo'shimcha statik tekshiruv kerak.
+
+#### Yangi doimiy asbob — `scripts/lab3d-jonli-vaqti.cjs`
+
+Bo'lishdan oldin aniqlandi: `lab3d-ish-vaqti.cjs` faqat
+`/laboratoriya/3d/olcham` ni ochadi, u esa `korinish.js` ni **umuman
+import qilmaydi**. Ya'ni jonli sahifa bo'linganda mavjud uch qadamning
+hech biri unga tegmasdi.
+
+Yangi skript jonli sahifani ochadi. Login yo'q, lekin sahifada server
+tomonda himoya ham yo'q: `page.js` to'g'ridan-to'g'ri `<Korinish />`
+ni chizadi va login komponent ichida tekshiriladi. Demak modul
+importlari, hook chaqiruvlari va birinchi render baribir bajariladi —
+yuqoridagi 1-3 xatolar aynan shu yerda chiqdi.
+
+#### BRIF-05 yakuni
+
+| Fayl | Oldin | Keyin | Modul |
+|---|---:|---:|---:|
+| `xona-modellari.js` | 1707 | 68 | 6 |
+| `jihoz-modellari.js` | 1184 | 162 | 4 |
+| `javon-3d.js` | 868 | 179 | 4 |
+| `olcham-mijoz.js` | 727 | 108 | 7 |
+| `useSahna.js` | 616 | 308 | 4 |
+| `useYurish.js` | 1142 | 251 | 6 |
+| `korinish.js` | 1412 | 594 | 11 |
+
+3D bo'limida **600 qatordan uzun fayl qolmadi** (AGENTS.md 11.7).
+Ikki agent endi bir vaqtda ishlay oladi — brifning asosiy maqsadi shu
+edi.
+
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
 1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,
