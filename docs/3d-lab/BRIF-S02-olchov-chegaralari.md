@@ -139,7 +139,11 @@ tekshiruvlarni o'zing ishga tushir, natijasini hisobotga qo'y.
 
 ## Ish oqimi
 
-Shox: `arena/olchov-chegaralari`, `origin/main` dan ochiladi.
+Shoxni O'ZING ochasan — arena har sessiyada avtomatik
+`arena/<sessiya-id>-jdakimyo` shoxini yaratadi va `origin/main` dan
+boshlaydi. Brifda shox nomi ATAYLAB yozilmagan: ilgari yozilgan
+nomlar (`arena/hakam-sinovlari` kabi) hech qachon ishlatilmagan va
+faqat chalkashtirgan.
 Ishingni shoxga **commit va push bilan TUGAT**. `main` ga merge qilma,
 PR ni o'zing tasdiqlama, deploy qilma — bu qadamlar sendan
 kutilmaydi va bloklangan. Push qilganingdan keyin to'xta va nima

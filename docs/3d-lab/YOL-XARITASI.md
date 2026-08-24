@@ -1075,6 +1075,84 @@ daraxt kommit qilinadigan daraxt bilan bir xil bo'lishi uchun.
 
 **Qolgan monolitlar:** `korinish.js` 1412, `useYurish.js` 1142.
 
+### Oltinchi bo'lish — yurish beshta hookka
+
+`useYurish.js` (1142 → 251 + 6 modul). Eng katta va eng aralash fayl
+edi: fizika, klaviatura, sichqoncha, pointer lock, raycast va
+laboratoriya qoidalari bir tanada turardi.
+
+| Fayl | Qator | Nima |
+|---|---:|---|
+| `hooks/useYurishSikli.js` | 425 | fizika, to'siq, ko'z balandligi, crosshair raycasti |
+| `hooks/useNishonAmali.js` | 307 | E tugmasining 15 holati |
+| `hooks/useQarashBoshqaruvi.js` | 255 | pointer lock, sichqoncha, zaxira rejim |
+| `hooks/useKlaviatura.js` | 100 | harakat tugmalari, sakrash, aniq dozalar |
+| `hooks/useYurishHolati.js` | 89 | 20 dan ortiq ref bitta joyda |
+| `lib/yurish-kolliziya.js` | 45 | xona chegarasi va stol to'sig'i — sof geometriya |
+
+**Seam qayerdan o'tdi.** Bo'linish uchun asos — 20 dan ortiq ref.
+Ular to'rt qism orasida bo'lingan va har biri boshqasining ozgina
+qismini o'qiydi. Parametr sifatida uzatilsa, har hookka 10–20 argument
+kerak bo'lardi. Shuning uchun `useYurishHolati()` hammasini yaratadi
+va to'plam sifatida qaytaradi; qolganlar to'plamdan o'zigacha keragini
+ochib oladi.
+
+**24 bandli bog'liqlik ro'yxati ATAYLAB saqlandi.** `qolgaOlYokiQoy`
+ning `useCallback` ro'yxatida 22 ta `on*` callback va 2 ta holat bor.
+Uni `amallarRef` bilan barqarorlashtirib bo'lardi — u holda ro'yxat
+5 bandga tushardi va effektlar behuda qayta ulanmasdi. Lekin bu
+effektlarning qayta ishga tushish PAYTINI o'zgartiradi, BRIF-05 esa
+xatti-harakatni o'zgartirishni taqiqlaydi. G'oya quyida, "kelajak
+ishlari" da qoldi.
+
+#### Tekshiruv asbobi haqiqiy nuqson tutdi
+
+Bo'lish dasturiy bajarildi, lekin bitta kesim **bir qator kalta**
+chiqdi: `useYurish` imzosining oxirgi ikki qatori (`taraMassa = 0,`
+va `}) {`) tushib qolgan edi. Ya'ni funksiya imzosi yopilmagan.
+
+Nomlarni solishtiruvchi kichik skript buni "controlsRef yetishmaydi"
+deb ko'rsatdi — men uni avval **yolg'on signal** deb o'yladim, chunki
+`controlsRef` imzoda ko'rinib turardi. Aslida u imzoning ichida edi,
+imzo esa yopilmagan — parser uchun u boshqa narsa edi.
+
+Saboq: bu asbobning signali "yolg'onmi?" degan savolga javob
+qidirganda, avval **nima uchun** shunday deganini tekshirish kerak.
+Skript repoga qo'shilmadi (regex shovqinli), scratchpad'da qoldi.
+
+#### Dalil — va uning CHEGARASI
+
+O'lchov: 5 kamera × 2 profil. `uchburchak`, `chaqiruv`, `chiroqSoni`,
+`interaktivSoni`, `yorliqSoni`, `birlashuv`, `asset` va boshqalar —
+**hammasi aynan bir xil**. Eng katta `|Δortacha|`: desktop 0.000297,
+telefon 0.000374.
+
+**LEKIN o'lchov `useYurish` ni umuman bajarmaydi.** O'lchagich sahifasi
+(`/laboratoriya/3d/olcham`) faqat `useSahna` ni ishlatadi; yurish
+kodiga u hech qachon tegmaydi. `scripts/lab3d-ish-vaqti.cjs` ham o'sha
+sahifani ochadi. Ya'ni bu bo'lish uchun uch qadamning ikkitasi ko'r.
+
+Shuning uchun to'rtinchi tekshiruv qo'shildi: **jonli sahifani ochish**
+(`/laboratoriya/3d`). Unda server tomonda himoya yo'q — `page.js`
+to'g'ridan-to'g'ri `<Korinish />` ni chizadi, login esa komponent
+ichida tekshiriladi. Demak login'siz ham modul importlari bajariladi,
+hooklar chaqiriladi va birinchi render bo'ladi. Natija:
+
+```
+  korinish chizildi
+  ekran matni: "Tizimga Kirish Talab Etiladi ..."
+  ish vaqti xatosi yo'q
+```
+
+Qolgan ochiq joy halol yozilsin: rAF sikli ICHIDAGI kod (fizika,
+raycast) login'siz bajarilmaydi. Uni tekshirish uchun sinov hisobi
+bilan kirish kerak.
+
+**Qolgan monolit:** `korinish.js` 1412 — BRIF-05 dagi oxirgisi.
+Unga o'tishdan oldin yuqoridagi jonli sahifa tekshiruvi doimiy
+asbobga aylantirilishi kerak: `korinish.js` bo'linganda mavjud
+tekshiruvlarning hech biri uni bajarmaydi.
+
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
 1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,

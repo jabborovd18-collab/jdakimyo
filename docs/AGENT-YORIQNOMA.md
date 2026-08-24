@@ -273,6 +273,32 @@ va u yopilgach kontekst ham yo'qoladi. Har brif uchun yangi chat va
 to'liq kirish prompti (kontekst repoda — `AGENTS.md`,
 `YOL-XARITASI.md`, brifning o'zi).
 
+### Brifda shox NOMI yozilmaydi
+
+2026-08-24 da aniqlandi. Briflarda `**Shox:** arena/hakam-sinovlari`
+kabi qatorlar bor edi, lekin GitHub'dagi shoxlar ro'yxati boshqacha
+gapiradi: `arena/019ff673-jdakimyo`, `arena/01a02b2d-jdakimyo`,
+`arena/01a01c11-jdakimyo`. Ya'ni **arena har sessiyada o'z shoxini
+o'zi yaratadi** va brifda yozilgan nom hech qachon ishlatilmagan.
+
+Zararsizdek ko'rinadi, lekin ikki xil zarari bor:
+
+1. Ko'rikchi yo'q shoxni qidiradi va "arena push qilmabdi" deb
+   xulosa qilishi mumkin — aslida ish boshqa nomda turgan bo'ladi.
+2. Bu 1-band buzilishi: brif shox nomini "biladi", holbuki haqiqat
+   arenaning o'zida.
+
+Shuning uchun brifda shox nomi yozilmaydi. O'rniga: *"o'z sessiya
+shoxingda ishla, `main` ga merge qilma"*. Ishni topish uchun:
+
+```
+git fetch origin && git branch -r --sort=-committerdate | head -5
+```
+
+Gemini boshqacha — u shoxni O'ZI ocholmaydi degan xulosa yo'q, lekin
+lokal papkada ishlagani uchun unga aniq nom berilgani ma'qul
+(11-bo'lim, 1-qoida).
+
 ### Nimalar bloklanmagan
 
 Chalkashmaslik uchun: ruleset faqat `main` ga qo'llanadi.
