@@ -7,6 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "node --test test/lab-nisbat.test.js test/lab-tenglama.test.js test/lab-birlik.test.js test/lab-idish.test.js test/lab-erituvchi.test.js",
     "postinstall": "prisma generate",
     "indexnow": "node scripts/indexnow.js",
     "db:push": "prisma db push",
