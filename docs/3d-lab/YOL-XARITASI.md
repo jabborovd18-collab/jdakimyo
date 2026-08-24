@@ -1016,6 +1016,65 @@ o'lchov oldin/keyin.
 **Qolgan monolitlar:** `korinish.js` 1412, `useYurish.js` 1142,
 `useSahna.js` 616.
 
+### Beshinchi bo'lish — 400 qatorlik effekt uch modulga
+
+`useSahna.js` (616 → 308 + 4 modul). Bu faylda qator soni chalg'ituvchi
+edi: 616 dan **400 tasi bitta `useEffect` ichida** yotardi. Ya'ni
+muammo uzunlikda emas, bitta funksiyaning ichida beshta mustaqil ish
+turganida edi.
+
+| Fayl | Qator | Nima |
+|---|---:|---|
+| `lib/sahna-sikli.js` | 150 | rAF sikli, resize, visibility, DRS, yorliq jadvali |
+| `lib/sahna-quvuri.js` | 129 | scene, kamera, renderer, kompozitor, boshqaruv, materiallar |
+| `lib/sahna-mazmuni.js` | 103 | stol, javon, xona, boshlang'ich jihozlar, birlashtirish |
+| `lib/sahna-jonli-effektlar.js` | 42 | alanga tebranishi va qaynash pufakchalari |
+
+Effekt endi ~60 qatorlik yig'uvchi: **quvur → mazmun → sikl**, so'ng
+ref larni ulash va tozalash.
+
+**Ikki chegara ataylab shu joydan o'tkazildi:**
+
+1. *Quvur / mazmun.* Quvur — chizish vositasi, mazmun — chiziladigan
+   narsa. Geometriyani birlashtirish `sahna-mazmuni.js` ning oxirgi
+   qadami bo'ldi: u sahna to'liq yig'ilganda bir marta bajarilishi
+   shart va shu talab endi mazmunni qo'yadigan kod bilan bir joyda
+   turadi — yangi ob'ekt qo'shgan odam tartibni o'ylashi shart emas.
+
+2. *Sikl / jonli effektlar.* Siklda sahnaning MAZMUNIGA bog'liq
+   yagona qism alanga va pufakchalar edi. U chiqarilgach, sikl faqat
+   "keyingi kadr qanday chiziladi" degan savolga javob beradi: resize
+   kadr o'lchamini, visibility chizilishini, DRS piksel zichligini.
+
+**`kadrIdRef` hookdan yo'qoldi.** rAF identifikatori endi siklning
+o'zida yashaydi va `toxtat()` uni o'zi tozalaydi. Sabab: rAF, o'lcham
+kuzatuvchisi va visibility hodisasi bitta joyda tug'iladi — demak
+bitta joyda o'lishi ham kerak. Ilgari ular tug'ilgan joyi bilan
+tozalanadigan joyi orasida 100 qator masofa bor edi va bitta unutilsa,
+sahifa fonda ham rAF yig'ib turaverardi.
+
+#### Dalil — 5 kamera × 2 profil, oldin/keyin
+
+`uchburchak`, `chaqiruv`, `teksturaXotira`, `chiroqSoni`,
+`interaktivSoni`, `yorliqSoni`, `yorliqToqnashuvi`, `kuygan`, `qora`,
+`stansiyaMeshlari`, `birlashuv`, `asset`, `pikselNisbati` —
+**hammasi ikkala profilda aynan bir xil**.
+
+Eng katta `|Δortacha|`: desktop **0.000103**, telefon **0.000588**
+(chegara 0.02). Sabab o'sha: alanga va pufakchalar `performance.now()`
+bilan harakatlanadi, ya'ni ikki yugurishning kadri hech qachon
+bit-ma-bit bir xil bo'lmaydi.
+
+Uch qadam: build yashil, `lab3d-ish-vaqti.cjs` "sahna qurildi / ish
+vaqti xatosi yo'q", o'lchov oldin/keyin.
+
+**Chekinish alohida tuzatildi.** Bloklar effekt ichidan (4 probel)
+olingani uchun yangi fayllarda ikki pog'ona chuqur turardi. Bo'shliq
+tuzatilgach uch qadam BOSHIDAN qayta yugurtirildi — tekshirilgan
+daraxt kommit qilinadigan daraxt bilan bir xil bo'lishi uchun.
+
+**Qolgan monolitlar:** `korinish.js` 1412, `useYurish.js` 1142.
+
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
 1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,
