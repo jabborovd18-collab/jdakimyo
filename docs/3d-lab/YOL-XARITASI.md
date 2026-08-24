@@ -147,7 +147,7 @@ va ustiga qurish mumkin bo'ladi.
 | 0.2 | Asset quvuri — `.glb` + KTX2 + HDRI yuklovchi, kesh, dispose | [BRIF-02](BRIF-02-asset-quvuri.md) | ✅ (HDRI qolmadi) |
 | 0.3 | Sifat darajalari — 4 pog'ona + dinamik rezolyutsiya | [BRIF-03](BRIF-03-sifat-darajalari.md) | ⬜ |
 | 0.4 | Xona miqyosi va devor geometriyasi qayta o'lchash | [BRIF-04](BRIF-04-xona-miqyosi.md) | ✅ |
-| 0.5 | Monolit fayllarni bo'lish (1523 → modul) | [BRIF-05](BRIF-05-monolitni-bolish.md) | ⬜ |
+| 0.5 | Monolit fayllarni bo'lish — 7 fayl, 600 qator chegarasi | [BRIF-05](BRIF-05-monolitni-bolish.md) | ✅ |
 | 0.6 | **Pishirilgan yorug'lik** — bitta lightmap, telefonda 3 real-time → 1–2 | brif yozilmagan | ⬜ |
 | 0.7 | **Zonali birlashtirish + LOD** — ~200 draw call → ~20 | [BRIF-07](BRIF-07-zonali-birlashtirish.md) | ✅ (1-mezon xato edi, LOD qilinmadi) |
 
@@ -179,7 +179,7 @@ yozishdan boshlanadi.
 | 4 | `0.2` asset quvuri | Qolgan hammasini ochadi | ✅ |
 | 5 | `0.6` pishirilgan yorug'lik | `0.2` ni talab qiladi | ⬅ NAVBAT |
 | 6 | `0.3` sifat darajalari + dinamik rezolyutsiya | 60 FPS kafolati | ⬜ |
-| 7 | `0.5` monolitni bo'lish | `korinish.js` 1523 qator, har brif unga tegadi | ⬜ |
+| 7 | `0.5` monolitni bo'lish | `korinish.js` 1412 → 594; 600 dan uzun fayl qolmadi | ✅ |
 
 `0.6` va `0.7` uchun brif hali yozilmagan.
 
