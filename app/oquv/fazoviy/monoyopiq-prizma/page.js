@@ -1,93 +1,110 @@
-import Link from "next/link"
+"use client"
 
-export const metadata = {
-  alternates: { canonical: '/oquv/fazoviy/monoyopiq-prizma' },
-  title: "Monoyopiq trigonal prizma (KS = 7)",
-  description:
-    "sp³d³ gibridlanish, C₂v simmetriya — bir yuzi yopilgan trigonal prizma, yettikoordinatali komplekslar uchun, 3D modeli bilan.",
-}
+import Link from "next/link"
+import MavzuLayout from "@/components/oquv/MavzuLayout"
+import InteraktivJadval from "@/components/oquv/InteraktivJadval"
+import KimyoFormula from "@/components/oquv/KimyoFormula"
+
+const MISOLLAR = [
+  { formula: "[NbF₇]²⁻", nomi: "Geptafloroniobat(V)", ion: "Nb⁵⁺ (4d⁰)", xususiyat: "Niobiy(V) ning klassik 7-koordinatali ftorid kompleksi" },
+  { formula: "[TaF₇]²⁻", nomi: "Geptaflorotantalat(V)", ion: "Ta⁵⁺ (5d⁰)", xususiyat: "Tantal(V) kristallarida monoyopiq trigonal prizma" },
+  { formula: "[ZrF₇]³⁻", nomi: "Geptaflorotsirkonat(IV)", ion: "Zr⁴⁺ (4d⁰)", xususiyat: "PBP va monoyopiq prizma o'rtasida polimorfizm" }
+]
 
 export default function MonoyopiqPrizma() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
-        <Link href="/oquv/fazoviy" className="text-purple-400 hover:text-purple-300 text-lg">← Orqaga</Link>
-        <div>
-          <h1 className="text-2xl font-bold text-green-400">🏠 Monoyopiq trigonal prizma</h1>
-          <p className="text-purple-400 text-sm">KS = 7 • sp³d³ gibridlanish • Simmetriya: C₂v • Yopiq prizma</p>
-        </div>
-      </header>
-
-      <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-
-        <div className="text-center">
-          <Link href="/oquv/fazoviy/monoyopiq-prizma/3d" className="inline-flex items-center gap-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white px-10 py-6 rounded-2xl text-xl font-bold transition-all transform hover:scale-105 shadow-2xl shadow-green-600/30">
-            <span className="text-4xl">🔄</span>
-            <div className="text-left"><div>3D modelni ko'rish</div><div className="text-sm font-normal text-green-200">[NbF₇]²⁻ — interaktiv</div></div>
-          </Link>
-        </div>
-
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Asosiy ma'lumotlar</h2>
-          <div className="bg-green-600/10 border border-green-500/30 rounded-xl p-6 mb-6">
-            <p className="text-purple-200 text-lg leading-relaxed">
-              <strong className="text-yellow-400">Monoyopiq trigonal prizma</strong> — trigonal prizmaning 
-              to'rtburchak yuzlaridan birining ustida qo'shimcha 7-ligand joylashgan. 6 ta ligand prizma uchlarida, 
-              1 ta ligand prizma yuzi ustida. KS = 7 uchun pentagonal bipiramida bilan raqobatlashadi.
-            </p>
+    <MavzuLayout
+      sarlavha="Monoyopiq trigonal prizma (KS = 7)"
+      tavsif="Koordinatsion soni 7 bo'lgan komplekslar • C₂ᵥ simmetriya • Trigonal prizmaning to'rtburchak yoqi ustida 7-ligand"
+      ikon="🏰"
+      nishon="KS = 7 (Monoyopiq)"
+      yol={[
+        { nom: "Fazoviy tuzilishi", havola: "/oquv/fazoviy" },
+        { nom: "Monoyopiq prizma" }
+      ]}
+      oldingiMavzu={{ nom: "Pentagonal bipiramida (KS=7)", havola: "/oquv/fazoviy/pentagonal-bipiramida" }}
+      keyingiMavzu={{ nom: "Kvadrat antiprizma (KS=8)", havola: "/oquv/fazoviy/kvadrat-antiprizma" }}
+      quizHavola="/oquv/video-darsliklar/quiz/fazoviy"
+    >
+      {/* ═══ 3D TUGMA ═══ */}
+      <div className="text-center">
+        <Link
+          href="/oquv/fazoviy/monoyopiq-prizma/3d"
+          className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl font-bold transition-transform hover:scale-105 shadow-sm border"
+          style={{
+            background: "var(--v3-urgu)",
+            color: "var(--v3-urgu-matn)",
+            borderColor: "var(--v3-urgu)"
+          }}
+        >
+          <span className="text-3xl">🔄</span>
+          <div className="text-left">
+            <div className="text-base sm:text-lg font-extrabold">3D Modelni Ko&apos;rish</div>
+            <div className="text-xs opacity-90 font-mono">[NbF₇]²⁻ va [TaF₇]²⁻ interaktiv</div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-3">Geometrik xususiyatlar</h3>
-              <ul className="text-purple-200 space-y-2 text-sm">
-                <li>• <strong>KS:</strong> 7</li><li>• <strong>Gibridlanish:</strong> sp³d³</li>
-                <li>• <strong>Simmetriya:</strong> C₂v (past)</li>
-                <li>• <strong>Strukturasi:</strong> Prizma + yuz ustida ligand</li>
-              </ul>
-            </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-3">Xususiyatlari</h3>
-              <ul className="text-purple-200 space-y-2 text-sm">
-                <li>• Monoyopiq ligand prizma yuzidan uzoqroqda</li>
-                <li>• d⁰ konfiguratsiya uchun qulay</li>
-                <li>• Kichik ligandlar (F⁻) bilan barqaror</li>
-                <li>• Katta ion radiusli metallar uchun</li>
-              </ul>
-            </div>
+        </Link>
+      </div>
+
+      {/* ═══ 1. PARAMETRLAR ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--v3-matn)" }}>
+          <span>📋</span>
+          <span>Geometrik xarakteristika</span>
+        </h2>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Koordinatsion son</span>
+            <strong className="text-base" style={{ color: "var(--v3-urgu)" }}>7</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Gibridlanish</span>
+            <strong className="text-base font-mono" style={{ color: "var(--v3-matn)" }}>sp³d³</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Simmetriya</span>
+            <strong className="text-base font-mono" style={{ color: "var(--v3-urgu-2)" }}>C₂ᵥ</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Tuzilish shakli</span>
+            <strong className="text-base" style={{ color: "var(--v3-matn)" }}>6 prizma + 1 qopqoq</strong>
           </div>
         </div>
 
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">⭐ Misollar</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead><tr className="border-b border-purple-700"><th className="py-3 px-4 text-purple-300">Formula</th><th className="py-3 px-4 text-purple-300">Nomi</th><th className="py-3 px-4 text-purple-300">Markaziy ion</th><th className="py-3 px-4 text-purple-300">Davr</th></tr></thead>
-              <tbody className="text-purple-200">
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-green-400">[NbF₇]²⁻</td><td className="py-3 px-4">geptaftoroniobat(V)</td><td className="py-3 px-4 text-yellow-400">Nb⁵⁺ (d⁰)</td><td className="py-3 px-4">5d</td></tr>
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-green-400">[TaF₇]²⁻</td><td className="py-3 px-4">geptaftorotantalat(V)</td><td className="py-3 px-4 text-yellow-400">Ta⁵⁺ (d⁰)</td><td className="py-3 px-4">5d</td></tr>
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-green-400">[MoF₇]⁻</td><td className="py-3 px-4">geptaftoromolibdat(VI)</td><td className="py-3 px-4 text-yellow-400">Mo⁶⁺ (d⁰)</td><td className="py-3 px-4">4d</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <p className="v3-xira text-xs sm:text-sm leading-relaxed pt-2">
+          Monoyopiq trigonal prizma (Capped trigonal prism) — 6 ta ligand trigonal prizma uchlarida va 7-ligand to&apos;rtburchak yon yuzlardan birining markazi ustida (qopqoq tarzida) joylashishi natijasida hosil bo&apos;ladi. Nb⁵⁺ va Ta⁵⁺ ftoridlarida uchraydi.
+        </p>
+      </div>
 
-        <div className="bg-gradient-to-r from-green-600/10 to-purple-600/10 border border-green-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li>KS = 7, <strong className="text-yellow-400">sp³d³ gibridlanish</strong></li>
-            <li>Trigonal prizmaning bir yuzi ustida <strong>qo'shimcha ligand</strong></li>
-            <li>Asosan <strong>d⁰ konfiguratsiyali</strong> metallar</li>
-            <li>Muhim misol: <strong>[NbF₇]²⁻</strong></li>
-          </ol>
-        </div>
+      {/* ═══ 2. JADVAL ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h3 className="text-lg font-bold" style={{ color: "var(--v3-matn)" }}>
+          Monoyopiq prizmatik komplekslar
+        </h3>
 
-        <div className="flex justify-between pt-6">
-          <Link href="/oquv/fazoviy/pentagonal-bipiramida" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300">← Pentagonal bipiramida</Link>
-          <Link href="/oquv/fazoviy/kubsimon" className="px-6 py-3 bg-cyan-600/80 rounded-xl hover:bg-cyan-500 text-white font-semibold">Kubsimon →</Link>
-        </div>
-
-      </section>
-    </main>
+        <InteraktivJadval
+          sarlavha="KS=7 monoyopiq prizma namunalari"
+          ustunlar={[
+            { kalit: "formula", nom: "Formula", format: "formula", kenglik: "25%" },
+            { kalit: "nomi", nom: "IUPAC nomi", kenglik: "30%" },
+            { kalit: "ion", nom: "Markaziy ion", format: "kod", kenglik: "18%" },
+            { kalit: "xususiyat", nom: "Xususiyati", kenglik: "27%" }
+          ]}
+          qatorlar={MISOLLAR}
+        />
+      </div>
+    </MavzuLayout>
   )
 }

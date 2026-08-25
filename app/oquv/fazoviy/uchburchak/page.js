@@ -1,160 +1,111 @@
-import Link from "next/link"
+"use client"
 
-export const metadata = {
-  alternates: { canonical: '/oquv/fazoviy/uchburchak' },
-  title: "Uchburchak geometriya (KS = 3)",
-  description:
-    "sp² gibridlanish, 120° valent burchak, D₃h simmetriya — koordinatsion soni 3 bo'lgan kam uchraydigan komplekslar, 3D modeli bilan.",
-}
+import Link from "next/link"
+import MavzuLayout from "@/components/oquv/MavzuLayout"
+import InteraktivJadval from "@/components/oquv/InteraktivJadval"
+import KimyoFormula from "@/components/oquv/KimyoFormula"
+
+const MISOLLAR = [
+  { formula: "[Pt(PPh₃)₃]", nomi: "Tris(trifenilfosfin)platina(0)", ion: "Pt⁰ (5d¹⁰)", xususiyat: "Katta hajmga ega fosfin ligandlari bilan barqaror" },
+  { formula: "[Cu(CN)₃]²⁻", nomi: "Trisiyanokuprat(I) ioni", ion: "Cu⁺ (3d¹⁰)", xususiyat: "Eritmada va kristall panjarada tekis uchburchak" },
+  { formula: "[HgI₃]⁻", nomi: "Triyodomerkurat(II) ioni", ion: "Hg²⁺ (5d¹⁰)", xususiyat: "Katta yodid ligandlari fazoviy to'siq yaratadi" },
+  { formula: "BF₃", nomi: "Bor triftorid (Klassik)", ion: "B³⁺ (sp²)", xususiyat: "Klassik 120° tekis uchburchak etaloni" }
+]
 
 export default function Uchburchak() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
-        <Link href="/oquv/fazoviy" className="text-purple-400 hover:text-purple-300 transition-all text-lg">
-          ← Orqaga
+    <MavzuLayout
+      sarlavha="Uchburchak tekislik geometriyasi (KS = 3)"
+      tavsif="Koordinatsion soni 3 bo'lgan komplekslar • sp² gibridlanish • 120° valent burchak • D₃ₕ simmetriya"
+      ikon="📐"
+      nishon="KS = 3"
+      yol={[
+        { nom: "Fazoviy tuzilishi", havola: "/oquv/fazoviy" },
+        { nom: "Uchburchak tekislik" }
+      ]}
+      oldingiMavzu={{ nom: "Chiziqli geometriya (KS=2)", havola: "/oquv/fazoviy/chiziqli" }}
+      keyingiMavzu={{ nom: "Tetraedrik geometriya (KS=4)", havola: "/oquv/fazoviy/tetraedrik" }}
+      quizHavola="/oquv/video-darsliklar/quiz/fazoviy"
+    >
+      {/* ═══ 3D TUGMA ═══ */}
+      <div className="text-center">
+        <Link
+          href="/oquv/fazoviy/uchburchak/3d"
+          className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl font-bold transition-transform hover:scale-105 shadow-sm border"
+          style={{
+            background: "var(--v3-urgu)",
+            color: "var(--v3-urgu-matn)",
+            borderColor: "var(--v3-urgu)"
+          }}
+        >
+          <span className="text-3xl">🔄</span>
+          <div className="text-left">
+            <div className="text-base sm:text-lg font-extrabold">3D Modelni Ko&apos;rish</div>
+            <div className="text-xs opacity-90 font-mono">[Cu(CN)₃]²⁻ va [Pt(PPh₃)₃] interaktiv</div>
+          </div>
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-green-400">📐 Uchburchak geometriya</h1>
-          <p className="text-purple-400 text-sm">KS = 3 • sp² gibridlanish • Valent burchak: 120° • Simmetriya: D₃h</p>
-        </div>
-      </header>
+      </div>
 
-      <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
+      {/* ═══ 1. XUSUSIYATLAR ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--v3-matn)" }}>
+          <span>📋</span>
+          <span>Geometrik parametrlar</span>
+        </h2>
 
-        {/* 3D ICONKA */}
-        <div className="text-center">
-          <Link 
-            href="/oquv/fazoviy/uchburchak/3d" 
-            className="inline-flex items-center gap-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white px-10 py-6 rounded-2xl text-xl font-bold transition-all transform hover:scale-105 shadow-2xl shadow-green-600/30"
-          >
-            <span className="text-4xl">🔄</span>
-            <div className="text-left">
-              <div>3D modelni ko'rish</div>
-              <div className="text-sm font-normal text-green-200">[Cu(CN)₃]²⁻ — interaktiv</div>
-            </div>
-          </Link>
-        </div>
-
-        {/* 1. ASOSIY MA'LUMOT */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Asosiy ma'lumotlar</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-3">Geometrik xususiyatlar</h3>
-              <ul className="text-purple-200 space-y-2 text-sm">
-                <li>• <strong>Koordinatsion son:</strong> 3</li>
-                <li>• <strong>Gibridlanish:</strong> sp²</li>
-                <li>• <strong>Valent burchak:</strong> 120°</li>
-                <li>• <strong>Simmetriya:</strong> D₃h</li>
-                <li>• <strong>Shakl:</strong> Tekis uchburchak</li>
-                <li>• <strong>Strukturasi:</strong> Barcha 3 ta ligand bir tekislikda</li>
-              </ul>
-            </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-3">Gibridlanish sxemasi</h3>
-              <div className="bg-purple-900/50 rounded-lg p-4 text-center">
-                <p className="text-purple-200 mb-2">s + p<sub>x</sub> + p<sub>y</sub> → <strong className="text-yellow-400">3 ta sp² gibrid orbital</strong></p>
-                <p className="text-purple-300 text-sm">p<sub>z</sub> — gibridlanmagan, π-bog'lar uchun</p>
-              </div>
-              <p className="text-purple-300 text-sm mt-3">Gibrid orbitallar bir tekislikda, <strong className="text-yellow-400">120°</strong> burchak ostida joylashgan.</p>
-            </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Koordinatsion son</span>
+            <strong className="text-base" style={{ color: "var(--v3-urgu)" }}>3</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Valent burchak</span>
+            <strong className="text-base" style={{ color: "var(--v3-matn)" }}>120°</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Gibridlanish</span>
+            <strong className="text-base font-mono" style={{ color: "var(--v3-matn)" }}>sp²</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Simmetriya</span>
+            <strong className="text-base font-mono" style={{ color: "var(--v3-urgu-2)" }}>D₃ₕ</strong>
           </div>
         </div>
 
-        {/* 2. XARAKTERLI IONLAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">⭐ Misollar va xarakterli ionlar</h2>
-          
-          <p className="text-purple-200 mb-6 leading-relaxed">
-            Uchburchak komplekslar <strong className="text-yellow-400">KS = 3</strong> uchun xarakterli. 
-            Bu nisbatan kam uchraydigan geometriya bo'lib, asosan d¹⁰ konfiguratsiyali ionlar (Cu⁺, Ag⁺, Au⁺, Hg²⁺) 
-            va ba'zi katta ligandlar bilan hosil bo'ladi.
-          </p>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-purple-700">
-                  <th className="py-3 px-4 text-purple-300">Formula</th>
-                  <th className="py-3 px-4 text-purple-300">Nomi</th>
-                  <th className="py-3 px-4 text-purple-300">Markaziy ion</th>
-                  <th className="py-3 px-4 text-purple-300">Ligandlar</th>
-                </tr>
-              </thead>
-              <tbody className="text-purple-200">
-                {[
-                  { f: "[Cu(CN)₃]²⁻", n: "trisiyanokuprat(I) ioni", ion: "Cu⁺ (d¹⁰)", lig: "3 × CN⁻" },
-                  { f: "[HgI₃]⁻", n: "triiodomerkurat(II) ioni", ion: "Hg²⁺ (d¹⁰)", lig: "3 × I⁻" },
-                  { f: "[Ag(PR₃)₃]⁺", n: "tris(fosfin)kumush(I) ioni", ion: "Ag⁺ (d¹⁰)", lig: "3 × PR₃" },
-                  { f: "[AuCl₃]", n: "trixloroaurat(III)", ion: "Au³⁺ (d⁸)", lig: "3 × Cl⁻" },
-                ].map((m, i) => (
-                  <tr key={i} className="border-b border-purple-800/30 hover:bg-purple-800/20">
-                    <td className="py-3 px-4 font-mono text-green-400">{m.f}</td>
-                    <td className="py-3 px-4">{m.n}</td>
-                    <td className="py-3 px-4 text-yellow-400">{m.ion}</td>
-                    <td className="py-3 px-4 text-purple-300 text-sm">{m.lig}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <p className="v3-xira text-xs sm:text-sm leading-relaxed pt-2">
+          Uchburchak tekislik shaklida 3 ta ligand markaziy atom atrofida bitta tekislikda 120° burchak ostida joylashadi. Bu shakl koordinatsion kimyoda kam uchraydi va asosan d¹⁰ metallari katta hajmli (sterik to&apos;siqli) ligandlar (masalan, trifenilfosfin PPh₃) bilan birikkanda hosil bo&apos;ladi.
+        </p>
+      </div>
 
-        {/* 3. XUSUSIYATLARI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">⚡ Muhim xususiyatlari</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-2">Strukturasi</h3>
-              <p className="text-purple-200 text-sm">
-                Barcha 3 ta ligand bir tekislikda joylashgan. Molekula yassi tuzilishga ega. 
-                p<sub>z</sub> orbital π-bog'lanish uchun qatnashishi mumkin.
-              </p>
-            </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-2">Geometrik izomeriya</h3>
-              <p className="text-purple-200 text-sm">
-                MA₂B tipidagi komplekslarda geometrik izomeriya kuzatilishi mumkin. 
-                Ikkita bir xil ligand yonma-yon yoki qarama-qarshi bo'lishi mumkin emas (hamma joylashuv ekvivalent).
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* ═══ 2. JADVAL ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h3 className="text-lg font-bold" style={{ color: "var(--v3-matn)" }}>
+          KS=3 komplekslariga namunalar
+        </h3>
 
-        {/* 4. XULOSA */}
-        <div className="bg-gradient-to-r from-green-600/10 to-purple-600/10 border border-green-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li>Uchburchak komplekslar — <strong className="text-yellow-400">KS = 3, sp² gibridlanish</strong></li>
-            <li>Valent burchak — <strong>120°</strong></li>
-            <li>Barcha 3 ta ligand <strong>bir tekislikda</strong> joylashgan</li>
-            <li>Asosan <strong>d¹⁰ konfiguratsiyali</strong> ionlar uchun xarakterli</li>
-            <li>Nisbatan <strong>kam uchraydigan</strong> geometriya</li>
-          </ol>
-        </div>
-
-        {/* Pastki navigatsiya */}
-        <div className="flex justify-between pt-6">
-          <Link 
-            href="/oquv/fazoviy/chiziqli" 
-            className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 transition-all text-purple-300"
-          >
-            ← Chiziqli
-          </Link>
-          <Link 
-            href="/oquv/fazoviy/tetraedrik" 
-            className="px-6 py-3 bg-cyan-600/80 rounded-xl hover:bg-cyan-500 transition-all text-white font-semibold"
-          >
-            Keyingi: Tetraedrik →
-          </Link>
-        </div>
-
-      </section>
-
-    </main>
+        <InteraktivJadval
+          sarlavha="Uchburchak tekislik komplekslari"
+          ustunlar={[
+            { kalit: "formula", nom: "Formula", format: "formula", kenglik: "25%" },
+            { kalit: "nomi", nom: "IUPAC nomi", kenglik: "30%" },
+            { kalit: "ion", nom: "Metall holati", format: "kod", kenglik: "18%" },
+            { kalit: "xususiyat", nom: "Xususiyati", kenglik: "27%" }
+          ]}
+          qatorlar={MISOLLAR}
+        />
+      </div>
+    </MavzuLayout>
   )
 }

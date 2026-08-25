@@ -1,103 +1,110 @@
-import Link from "next/link"
+"use client"
 
-export const metadata = {
-  alternates: { canonical: '/oquv/fazoviy/dodekaedrik' },
-  title: "Dodekaedrik geometriya (KS = 8)",
-  description:
-    "sp³d⁴ gibridlanish, D₂d simmetriya — koordinatsion soni 8 bo'lgan komplekslar uchun eng barqaror shakl, 3D modeli bilan.",
-}
+import Link from "next/link"
+import MavzuLayout from "@/components/oquv/MavzuLayout"
+import InteraktivJadval from "@/components/oquv/InteraktivJadval"
+import KimyoFormula from "@/components/oquv/KimyoFormula"
+
+const MISOLLAR = [
+  { formula: "[Mo(CN)₈]³⁻", nomi: "Oktasianomolibdat(V)", ion: "Mo⁵⁺ (4d¹)", xususiyat: "Kristall panjarada D₂_d simmetriyali dodekaedr" },
+  { formula: "[Zr(acac)₄]", nomi: "Tetrakis(atsetilatsetonato)tsirkoniy(IV)", ion: "Zr⁴⁺ (4d⁰)", xususiyat: "Bidentat xelat ligandlari bilan dodekaedrik kompleks" },
+  { formula: "[W(CN)₈]⁴⁻", nomi: "Oktasianovolframat(IV)", ion: "W⁴⁺ (5d²)", xususiyat: "Dodekaedrik d² diamagnit 8-koordinatsion kompleks" }
+]
 
 export default function Dodekaedrik() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
-        <Link href="/oquv/fazoviy" className="text-purple-400 hover:text-purple-300 text-lg">← Orqaga</Link>
-        <div>
-          <h1 className="text-2xl font-bold text-pink-400">⬡ Dodekaedrik geometriya</h1>
-          <p className="text-purple-400 text-sm">KS = 8 • sp³d⁴ gibridlanish • Simmetriya: D₂d • KS=8 uchun eng barqaror</p>
-        </div>
-      </header>
-
-      <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-
-        <div className="text-center">
-          <Link href="/oquv/fazoviy/dodekaedrik/3d" className="inline-flex items-center gap-4 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white px-10 py-6 rounded-2xl text-xl font-bold transition-all transform hover:scale-105 shadow-2xl shadow-pink-600/30">
-            <span className="text-4xl">🔄</span>
-            <div className="text-left"><div>3D modelni ko'rish</div><div className="text-sm font-normal text-pink-200">[Mo(CN)₈]⁴⁻ — interaktiv</div></div>
-          </Link>
-        </div>
-
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Asosiy ma'lumotlar</h2>
-          <div className="bg-pink-600/10 border border-pink-500/30 rounded-xl p-6 mb-6">
-            <p className="text-purple-200 text-lg leading-relaxed">
-              <strong className="text-yellow-400">Dodekaedrik komplekslar</strong> — KS = 8 uchun eng barqaror va eng ko'p tarqalgan geometriya.
-              Dodekaedr 12 ta uchburchak yuzli ko'pyoq. Kubsimon geometriyadan farqli ravishda, ligandlar orasidagi itarilish kuchlari minimallashgan.
-            </p>
+    <MavzuLayout
+      sarlavha="Dodekaedrik geometriya (KS = 8)"
+      tavsif="Koordinatsion soni 8 bo'lgan uchburchakli ko'pyoq • sp³d⁴ gibridlanish • D₂_d simmetriya • 8 ta uch va 12 ta yoq"
+      ikon="🔮"
+      nishon="KS = 8 (Dodekaedr)"
+      yol={[
+        { nom: "Fazoviy tuzilishi", havola: "/oquv/fazoviy" },
+        { nom: "Dodekaedrik geometriya" }
+      ]}
+      oldingiMavzu={{ nom: "Kvadrat antiprizma (KS=8)", havola: "/oquv/fazoviy/kvadrat-antiprizma" }}
+      keyingiMavzu={{ nom: "Kubsimon geometriya (KS=8)", havola: "/oquv/fazoviy/kubsimon" }}
+      quizHavola="/oquv/video-darsliklar/quiz/fazoviy"
+    >
+      {/* ═══ 3D TUGMA ═══ */}
+      <div className="text-center">
+        <Link
+          href="/oquv/fazoviy/dodekaedrik/3d"
+          className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl font-bold transition-transform hover:scale-105 shadow-sm border"
+          style={{
+            background: "var(--v3-urgu)",
+            color: "var(--v3-urgu-matn)",
+            borderColor: "var(--v3-urgu)"
+          }}
+        >
+          <span className="text-3xl">🔄</span>
+          <div className="text-left">
+            <div className="text-base sm:text-lg font-extrabold">3D Modelni Ko&apos;rish</div>
+            <div className="text-xs opacity-90 font-mono">[Mo(CN)₈]³⁻ va [Zr(acac)₄] interaktiv</div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-3">Geometrik xususiyatlar</h3>
-              <ul className="text-purple-200 space-y-2 text-sm">
-                <li>• <strong>KS:</strong> 8</li><li>• <strong>Gibridlanish:</strong> sp³d⁴</li>
-                <li>• <strong>Simmetriya:</strong> D₂d</li><li>• <strong>Shakl:</strong> 12 ta uchburchak yuzli dodekaedr</li>
-              </ul>
-            </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-3">Gibridlanish</h3>
-              <div className="bg-purple-900/50 rounded-lg p-4 text-center">
-                <p className="text-purple-200">s + 3p + 4d → <strong className="text-yellow-400">8 ta sp³d⁴</strong></p>
-              </div>
-              <p className="text-purple-300 text-sm mt-3">Kubsimondan farqli — f orbital ishtirok etmaydi, energetik qulayroq</p>
-            </div>
-          </div>
-        </div>
+        </Link>
+      </div>
 
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">⭐ Misollar</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead><tr className="border-b border-purple-700"><th className="py-3 px-4 text-purple-300">Formula</th><th className="py-3 px-4 text-purple-300">Nomi</th><th className="py-3 px-4 text-purple-300">Markaziy ion</th><th className="py-3 px-4 text-purple-300">Davr</th></tr></thead>
-              <tbody className="text-purple-200">
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-pink-400">[Mo(CN)₈]⁴⁻</td><td className="py-3 px-4">oktasiyanomolibdat(IV)</td><td className="py-3 px-4 text-yellow-400">Mo⁴⁺ (d²)</td><td className="py-3 px-4">4d</td></tr>
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-pink-400">[W(CN)₈]⁴⁻</td><td className="py-3 px-4">oktasiyanovolframat(IV)</td><td className="py-3 px-4 text-yellow-400">W⁴⁺ (d²)</td><td className="py-3 px-4">5d</td></tr>
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-pink-400">[Re(CN)₈]³⁻</td><td className="py-3 px-4">oktasiyanorenat(V)</td><td className="py-3 px-4 text-yellow-400">Re⁵⁺ (d²)</td><td className="py-3 px-4">5d</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      {/* ═══ 1. PARAMETRLAR ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--v3-matn)" }}>
+          <span>📋</span>
+          <span>Geometrik xarakteristika</span>
+        </h2>
 
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📊 KS = 8 geometriyalari taqqoslash</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead><tr className="border-b border-purple-700"><th className="py-3 px-4 text-purple-300">Shakl</th><th className="py-3 px-4 text-purple-300">Gibridlanish</th><th className="py-3 px-4 text-purple-300">Simmetriya</th><th className="py-3 px-4 text-purple-300">Barqarorlik</th></tr></thead>
-              <tbody className="text-purple-200">
-                <tr className="border-b border-purple-800/30"><td className="py-3 px-4">Kubsimon</td><td className="py-3 px-4">sp³d³f</td><td className="py-3 px-4">Oh</td><td className="py-3 px-4 text-red-400">Past</td></tr>
-                <tr className="border-b border-purple-800/30"><td className="py-3 px-4">Kvadrat antiprizma</td><td className="py-3 px-4">sp³d⁴</td><td className="py-3 px-4">D₄d</td><td className="py-3 px-4 text-yellow-400">O'rtacha</td></tr>
-                <tr><td className="py-3 px-4 font-bold">Dodekaedrik</td><td className="py-3 px-4">sp³d⁴</td><td className="py-3 px-4">D₂d</td><td className="py-3 px-4 text-green-400">Eng yuqori</td></tr>
-              </tbody>
-            </table>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Koordinatsion son</span>
+            <strong className="text-base" style={{ color: "var(--v3-urgu)" }}>8</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Shakl turi</span>
+            <strong className="text-base" style={{ color: "var(--v3-matn)" }}>12 ta uchburchak yoq</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Gibridlanish</span>
+            <strong className="text-base font-mono" style={{ color: "var(--v3-matn)" }}>sp³d⁴</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Simmetriya</span>
+            <strong className="text-base font-mono" style={{ color: "var(--v3-urgu-2)" }}>D₂_d</strong>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-pink-600/10 to-purple-600/10 border border-pink-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li>KS = 8, <strong className="text-yellow-400">sp³d⁴ gibridlanish</strong></li>
-            <li>KS = 8 uchun <strong>eng barqaror</strong> geometriya</li>
-            <li>Asosan <strong>4d va 5d elementlari</strong> (Mo, W, Re)</li>
-            <li>Muhim misol: <strong>[Mo(CN)₈]⁴⁻</strong></li>
-          </ol>
-        </div>
+        <p className="v3-xira text-xs sm:text-sm leading-relaxed pt-2">
+          Dodekaedrik komplekslar (D₂_d simmetriyali ko&apos;pyoq) — ligandlar 4 tadan iborat ikkita perpendikulyar tetraedrga o&apos;xshash trapezoid to&apos;plamga bo&apos;linadi (A va B sinf pozitsiyalari).
+        </p>
+      </div>
 
-        <div className="flex justify-between pt-6">
-          <Link href="/oquv/fazoviy/kubsimon" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300">← Kubsimon</Link>
-          <Link href="/oquv/fazoviy/kvadrat-antiprizma" className="px-6 py-3 bg-blue-600/80 rounded-xl hover:bg-blue-500 text-white font-semibold">Kvadrat antiprizma →</Link>
-        </div>
+      {/* ═══ 2. JADVAL ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h3 className="text-lg font-bold" style={{ color: "var(--v3-matn)" }}>
+          KS=8 dodekaedrik komplekslar
+        </h3>
 
-      </section>
-    </main>
+        <InteraktivJadval
+          sarlavha="Dodekaedrik komplekslar namunalari"
+          ustunlar={[
+            { kalit: "formula", nom: "Formula", format: "formula", kenglik: "25%" },
+            { kalit: "nomi", nom: "IUPAC nomi", kenglik: "30%" },
+            { kalit: "ion", nom: "Markaziy ion", format: "kod", kenglik: "18%" },
+            { kalit: "xususiyat", nom: "Xususiyati", kenglik: "27%" }
+          ]}
+          qatorlar={MISOLLAR}
+        />
+      </div>
+    </MavzuLayout>
   )
 }

@@ -1,97 +1,110 @@
-import Link from "next/link"
+"use client"
 
-export const metadata = {
-  alternates: { canonical: '/oquv/fazoviy/ikosaedrik' },
-  title: "Ikosaedrik geometriya (KS = 12)",
-  description:
-    "20 ta uchburchak yuzli eng yuqori simmetriyali ko'pyoq, Ih simmetriya — o'n ikki koordinatali komplekslar, 3D modeli bilan.",
-}
+import Link from "next/link"
+import MavzuLayout from "@/components/oquv/MavzuLayout"
+import InteraktivJadval from "@/components/oquv/InteraktivJadval"
+import KimyoFormula from "@/components/oquv/KimyoFormula"
+
+const MISOLLAR = [
+  { formula: "[Ce(NO₃)₆]²⁻", nomi: "Geksanitratoserat(IV)", ion: "Ce⁴⁺ (4f⁰)", xususiyat: "6 ta bidentat nitrat NO₃⁻ guruhlari orqali 12 ta kislorodli ikosaedrik sfera" },
+  { formula: "[Th(NO₃)₆]²⁻", nomi: "Geksanitratotorat(IV)", ion: "Th⁴⁺ (5f⁰)", xususiyat: "Toriy(IV) ning 12-koordinatali izostrukturali kompleksi" },
+  { formula: "[B₁₂H₁₂]²⁻", nomi: "Dodekagidro-kloso-dodekaborat", ion: "B₁₂ klaster", xususiyat: "Bor kimyosidagi 12 burchakli mukammal ikosaedr" }
+]
 
 export default function Ikosaedrik() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
-        <Link href="/oquv/fazoviy" className="text-purple-400 hover:text-purple-300 text-lg">← Orqaga</Link>
-        <div>
-          <h1 className="text-2xl font-bold text-yellow-400">🟡 Ikosaedrik geometriya</h1>
-          <p className="text-purple-400 text-sm">KS = 12 • 20 ta uchburchak yuz • Eng yuqori simmetriyali ko'pyoq • Ih simmetriya</p>
-        </div>
-      </header>
-
-      <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-
-        <div className="text-center">
-          <Link href="/oquv/fazoviy/ikosaedrik/3d" className="inline-flex items-center gap-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black px-10 py-6 rounded-2xl text-xl font-bold transition-all transform hover:scale-105 shadow-2xl shadow-yellow-500/30">
-            <span className="text-4xl">🔄</span>
-            <div className="text-left"><div>3D modelni ko'rish</div><div className="text-sm font-normal text-yellow-800">KS=12 — interaktiv</div></div>
-          </Link>
-        </div>
-
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Asosiy ma'lumotlar</h2>
-          <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-xl p-6 mb-6">
-            <p className="text-purple-200 text-lg leading-relaxed">
-              <strong className="text-yellow-400">Ikosaedr</strong> — 20 ta teng tomonli uchburchak yuz, 12 ta uch va 30 ta qirradan iborat eng yuqori simmetriyali ko'pyoq.
-              KS = 12 uchun xarakterli bo'lib, <strong className="text-yellow-400">Ih simmetriya</strong> ga ega. Lantanoid va aktinoid komplekslarida kuzatiladi.
-            </p>
+    <MavzuLayout
+      sarlavha="Ikosaedrik geometriya (KS = 12)"
+      tavsif="Koordinatsion soni 12 bo'lgan komplekslar • 20 ta uchburchak yoq va 12 ta uch • I_h eng yuqori simmetriya"
+      ikon="🌐"
+      nishon="KS = 12"
+      yol={[
+        { nom: "Fazoviy tuzilishi", havola: "/oquv/fazoviy" },
+        { nom: "Ikosaedrik geometriya" }
+      ]}
+      oldingiMavzu={{ nom: "Ikki yoqli antiprizma (KS=10)", havola: "/oquv/fazoviy/ikki-yoqli-antiprizma" }}
+      keyingiMavzu={{ nom: "Sendvich komplekslar", havola: "/oquv/fazoviy/sendvich" }}
+      quizHavola="/oquv/video-darsliklar/quiz/fazoviy"
+    >
+      {/* ═══ 3D TUGMA ═══ */}
+      <div className="text-center">
+        <Link
+          href="/oquv/fazoviy/ikosaedrik/3d"
+          className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl font-bold transition-transform hover:scale-105 shadow-sm border"
+          style={{
+            background: "var(--v3-urgu)",
+            color: "var(--v3-urgu-matn)",
+            borderColor: "var(--v3-urgu)"
+          }}
+        >
+          <span className="text-3xl">🔄</span>
+          <div className="text-left">
+            <div className="text-base sm:text-lg font-extrabold">3D Modelni Ko&apos;rish</div>
+            <div className="text-xs opacity-90 font-mono">[Ce(NO₃)₆]²⁻ va B₁₂H₁₂²⁻ interaktiv</div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-3">Geometrik xususiyatlar</h3>
-              <ul className="text-purple-200 space-y-2 text-sm">
-                <li>• <strong>KS:</strong> 12</li>
-                <li>• <strong>Simmetriya:</strong> Ih (eng yuqori)</li>
-                <li>• <strong>Yuzlar:</strong> 20 ta teng tomonli uchburchak</li>
-                <li>• <strong>Qirralar:</strong> 30 ta</li>
-                <li>• <strong>Uchlar:</strong> 12 ta</li>
-              </ul>
-            </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-3">Muhim faktlar</h3>
-              <ul className="text-purple-200 space-y-2 text-sm">
-                <li>• Platon jismlaridan biri</li>
-                <li>• Bor原子 klasterlari (B₁₂)</li>
-                <li>• Lantanoid komplekslari</li>
-                <li>• Ce(NO₃)₆³⁻ — 12 ta O donor atom</li>
-              </ul>
-            </div>
+        </Link>
+      </div>
+
+      {/* ═══ 1. PARAMETRLAR ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--v3-matn)" }}>
+          <span>📋</span>
+          <span>Geometrik xarakteristika</span>
+        </h2>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Koordinatsion son</span>
+            <strong className="text-base" style={{ color: "var(--v3-urgu)" }}>12</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Yuzlar soni</span>
+            <strong className="text-base" style={{ color: "var(--v3-matn)" }}>20 ta uchburchak</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Qirralar soni</span>
+            <strong className="text-base font-mono" style={{ color: "var(--v3-matn)" }}>30 ta</strong>
+          </div>
+          <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+            <span className="v3-xira text-[11px] block">Simmetriya</span>
+            <strong className="text-base font-mono" style={{ color: "var(--v3-urgu-2)" }}>I_h</strong>
           </div>
         </div>
 
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">⭐ Misollar</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead><tr className="border-b border-purple-700"><th className="py-3 px-4 text-purple-300">Formula</th><th className="py-3 px-4 text-purple-300">Nomi</th><th className="py-3 px-4 text-purple-300">Markaziy ion</th></tr></thead>
-              <tbody className="text-purple-200">
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-yellow-400">[Ce(NO₃)₆]³⁻</td><td className="py-3 px-4">geksanitratoserat(III)</td><td className="py-3 px-4 text-yellow-400">Ce³⁺</td></tr>
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-yellow-400">[Th(NO₃)₆]²⁻</td><td className="py-3 px-4">geksanitratotorat(IV)</td><td className="py-3 px-4 text-yellow-400">Th⁴⁺</td></tr>
-                <tr className="border-b border-purple-800/30 hover:bg-purple-800/20"><td className="py-3 px-4 font-mono text-yellow-400">[Pr(NO₃)₆]³⁻</td><td className="py-3 px-4">geksanitratoprazeodimat(III)</td><td className="py-3 px-4 text-yellow-400">Pr³⁺</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p className="text-purple-300 text-sm mt-4">
-            Nitrat (NO₃⁻) — bidentat ligand sifatida 2 ta O orqali bog'lanadi. 6 ta NO₃⁻ × 2 = 12 ta donor atom.
-          </p>
-        </div>
+        <p className="v3-xira text-xs sm:text-sm leading-relaxed pt-2">
+          Ikosaedr — 20 ta muntazam uchburchak yuz, 12 ta uch va 30 ta qirraga ega bo&apos;lgan Platon jismidir. Koordinatsion kimyoda KS=12 lantanoid va aktinoidlarning bidentat (masalan, NO₃⁻) ligandlar bilan hosil qilgan komplekslarida uchraydi.
+        </p>
+      </div>
 
-        <div className="bg-gradient-to-r from-yellow-600/10 to-purple-600/10 border border-yellow-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li>KS = 12 — <strong className="text-yellow-400">Ikosaedrik geometriya</strong></li>
-            <li>20 ta uchburchak yuz, <strong>Ih simmetriya</strong></li>
-            <li>Asosan <strong>lantanoidlar</strong> uchun xarakterli</li>
-            <li>Bidentat ligandlar orqali yuqori KS ga erishiladi</li>
-          </ol>
-        </div>
+      {/* ═══ 2. JADVAL ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h3 className="text-lg font-bold" style={{ color: "var(--v3-matn)" }}>
+          KS=12 komplekslariga namunalar
+        </h3>
 
-        <div className="flex justify-between pt-6">
-          <Link href="/oquv/fazoviy/ikki-yoqli-antiprizma" className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 text-purple-300">← Ikki yoqli antiprizma</Link>
-          <Link href="/oquv/fazoviy/sendvich" className="px-6 py-3 bg-purple-600/80 rounded-xl hover:bg-purple-500 text-white font-semibold">Sendvich (Ferrosen) →</Link>
-        </div>
-
-      </section>
-    </main>
+        <InteraktivJadval
+          sarlavha="KS=12 ikosaedrik komplekslar"
+          ustunlar={[
+            { kalit: "formula", nom: "Formula", format: "formula", kenglik: "25%" },
+            { kalit: "nomi", nom: "IUPAC nomi", kenglik: "30%" },
+            { kalit: "ion", nom: "Markaziy ion", format: "kod", kenglik: "18%" },
+            { kalit: "xususiyat", nom: "Xususiyati", kenglik: "27%" }
+          ]}
+          qatorlar={MISOLLAR}
+        />
+      </div>
+    </MavzuLayout>
   )
 }
