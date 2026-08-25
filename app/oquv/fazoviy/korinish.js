@@ -2,25 +2,22 @@
 
 import Link from "next/link"
 import { useState, useMemo } from "react"
+import OquvHeader from "@/components/oquv/OquvHeader"
 
-// ═══════════════════════════════════════════════════════════
-// GEOMETRIK SHAKLLAR (ilmiy aniq)
-// ═══════════════════════════════════════════════════════════
-const shakllar = [
+const SHAKLLAR = [
   // ── KS=2 ──
   {
     ks: 2,
     href: "/oquv/fazoviy/chiziqli",
     icon: "📏",
     title: "Chiziqli",
-    desc: "KS=2 • 180° burchak",
+    desc: "KS=2 • 180° burchak • D_∞h simmetriya",
     gibrid: "sp (oddiy) yoki sd (o'tish metallari)",
     misollar: ["[Ag(NH₃)₂]⁺", "[AuCl₂]⁻", "BeCl₂"],
     badge: "KS=2",
-    rang: "blue",
-    has3D: true
+    has3D: true,
+    featured: true
   },
-  
   // ── KS=3 ──
   {
     ks: 3,
@@ -31,10 +28,8 @@ const shakllar = [
     gibrid: "sp²",
     misollar: ["[Pt(PPh₃)₃]", "[Cu(CN)₃]²⁻", "BF₃"],
     badge: "KS=3",
-    rang: "green",
     has3D: true
   },
-  
   // ── KS=4 ──
   {
     ks: 4,
@@ -43,10 +38,10 @@ const shakllar = [
     title: "Tetraedrik",
     desc: "KS=4 • 109.5° • T_d simmetriya",
     gibrid: "sp³ (asosiy guruh) • sd³ (o'tish metallari)",
-    misollar: ["[CoCl₄]²⁻", "[Zn(OH)₄]²⁻", "CH₄", "Ni(CO)₄"],
+    misollar: ["[CoCl₄]²⁻", "[Zn(OH)₄]²⁻", "[Ni(CO)₄]"],
     badge: "KS=4",
-    rang: "cyan",
-    has3D: true
+    has3D: true,
+    featured: true
   },
   {
     ks: 4,
@@ -54,13 +49,12 @@ const shakllar = [
     icon: "◻️",
     title: "Tekis kvadrat",
     desc: "KS=4 • 90° • D₄ₕ simmetriya",
-    gibrid: "dsp² (VSEPR bo'yicha)",
-    misollar: ["[PtCl₄]²⁻", "Sisplatin", "[Ni(CN)₄]²⁻", "[Cu(NH₃)₄]²⁺"],
+    gibrid: "dsp² (d⁸ konfiguratsiyalar)",
+    misollar: ["[PtCl₄]²⁻", "cis-[Pt(NH₃)₂Cl₂]", "[Ni(CN)₄]²⁻", "[Cu(NH₃)₄]²⁺"],
     badge: "KS=4",
-    rang: "pink",
-    has3D: true
+    has3D: true,
+    featured: true
   },
-  
   // ── KS=5 ──
   {
     ks: 5,
@@ -68,10 +62,9 @@ const shakllar = [
     icon: "🔷",
     title: "Trigonal bipiramida",
     desc: "KS=5 • 90°/120° • D₃ₕ simmetriya",
-    gibrid: "VSEPR modeli (gibridlanish emas)",
+    gibrid: "dsp³ (d_z² ishtirokida)",
     misollar: ["[Fe(CO)₅]", "[CuCl₅]³⁻", "PCl₅"],
     badge: "KS=5",
-    rang: "orange",
     has3D: true
   },
   {
@@ -80,13 +73,11 @@ const shakllar = [
     icon: "🏛️",
     title: "Kvadrat piramida",
     desc: "KS=5 • ~90° • C₄ᵥ simmetriya",
-    gibrid: "VSEPR modeli",
+    gibrid: "dsp³ (d_x²-y² ishtirokida)",
     misollar: ["[Ni(CN)₅]³⁻", "[VO(acac)₂]", "[InCl₅]²⁻"],
     badge: "KS=5",
-    rang: "red",
     has3D: true
   },
-  
   // ── KS=6 ──
   {
     ks: 6,
@@ -94,561 +85,385 @@ const shakllar = [
     icon: "💎",
     title: "Oktaedrik",
     desc: "KS=6 • 90° • Oₕ simmetriya",
-    gibrid: "d²sp³ (inner) yoki sp³d² (outer)",
+    gibrid: "d²sp³ (ichki) yoki sp³d² (tashqi)",
     misollar: ["[Co(NH₃)₆]³⁺", "[Fe(CN)₆]³⁻", "[Cr(H₂O)₆]³⁺", "SF₆"],
     badge: "KS=6",
-    rang: "purple",
     has3D: true,
     featured: true
   },
   {
     ks: 6,
     href: "/oquv/fazoviy/trigonal-prizma",
-    icon: "🔶",
+    icon: "⛺",
     title: "Trigonal prizma",
-    desc: "KS=6 • D₃ₕ simmetriya • Kam uchraydi",
-    gibrid: "VSEPR/Kepert modeli",
-    misollar: ["[Re(S₂C₂Ph₂)₃]", "[W(CH₃)₆]", "[Mo(S₂C₂(CF₃)₂)₃]"],
+    desc: "KS=6 • D₃ₕ simmetriya • d⁰/d¹/d² tizimlar",
+    gibrid: "d²sp³ (trigonal prizmatik)",
+    misollar: ["[Re(S₂C₂Ph₂)₃]", "[W(CH₃)₆]", "MoS₂ qatlami"],
     badge: "KS=6",
-    rang: "amber",
-    has3D: true,
-    rarity: "Kam uchraydi"
+    has3D: true
   },
-  
   // ── KS=7 ──
   {
     ks: 7,
     href: "/oquv/fazoviy/pentagonal-bipiramida",
-    icon: "⬠",
+    icon: "⭐",
     title: "Pentagonal bipiramida",
     desc: "KS=7 • D₅ₕ simmetriya",
-    gibrid: "VSEPR modeli",
-    misollar: ["[ZrF₇]³⁻", "[HfF₇]³⁻", "[UO₂F₅]³⁻"],
+    gibrid: "sp³d³",
+    misollar: ["[UO₂(H₂O)₅]²⁺", "IF₇", "[ZrF₇]³⁻"],
     badge: "KS=7",
-    rang: "indigo",
     has3D: true
   },
   {
     ks: 7,
     href: "/oquv/fazoviy/monoyopiq-prizma",
-    icon: "🏠",
+    icon: "🏰",
     title: "Monoyopiq trigonal prizma",
     desc: "KS=7 • C₂ᵥ simmetriya",
-    gibrid: "VSEPR modeli",
-    misollar: ["[NbOF₆]³⁻", "[TaF₇]²⁻"],
+    gibrid: "sp³d³",
+    misollar: ["[TaF₇]²⁻", "[NbF₇]²⁻"],
     badge: "KS=7",
-    rang: "teal",
     has3D: true
   },
-  
   // ── KS=8 ──
   {
     ks: 8,
     href: "/oquv/fazoviy/kubsimon",
     icon: "🧊",
     title: "Kubsimon",
-    desc: "KS=8 • Oₕ simmetriya",
-    gibrid: "VSEPR/Kepert (f orbital kam)",
-    misollar: ["[Mo(CN)₈]⁴⁻", "[TaF₈]³⁻", "[PaF₈]³⁻"],
+    desc: "KS=8 • Oₕ simmetriya • f-metallarda",
+    gibrid: "sp³d³f (kam uchraydi)",
+    misollar: ["[UF₈]⁴⁻", "[Th(C₂O₄)₄]⁴⁻"],
     badge: "KS=8",
-    rang: "sky",
-    has3D: true
-  },
-  {
-    ks: 8,
-    href: "/oquv/fazoviy/dodekaedrik",
-    icon: "⬡",
-    title: "Dodekaedrik",
-    desc: "KS=8 • D₂d simmetriya",
-    gibrid: "VSEPR/Kepert modeli",
-    misollar: ["[Zr(acac)₄]", "[Mo(CN)₈]⁴⁻"],
-    badge: "KS=8",
-    rang: "fuchsia",
     has3D: true
   },
   {
     ks: 8,
     href: "/oquv/fazoviy/kvadrat-antiprizma",
-    icon: "🟦",
+    icon: "💠",
     title: "Kvadrat antiprizma",
-    desc: "KS=8 • D₄d simmetriya",
-    gibrid: "VSEPR/Kepert modeli",
-    misollar: ["[XeF₈]²⁻", "[IF₈]⁻", "[TaF₈]³⁻"],
+    desc: "KS=8 • D₄_d simmetriya • Eng barqaror KS=8",
+    gibrid: "sp³d⁴",
+    misollar: ["[TaF₈]³⁻", "[Zr(C₂O₄)₄]⁴⁻", "[Mo(CN)₈]⁴⁻"],
     badge: "KS=8",
-    rang: "violet",
+    has3D: true,
+    featured: true
+  },
+  {
+    ks: 8,
+    href: "/oquv/fazoviy/dodekaedrik",
+    icon: "🔮",
+    title: "Dodekaedrik (D₂_d)",
+    desc: "KS=8 • D₂_d simmetriya • 8 ta uchburchak yoq",
+    gibrid: "sp³d⁴",
+    misollar: ["[Mo(CN)₈]³⁻", "[Zr(acac)₄]"],
+    badge: "KS=8",
     has3D: true
   },
-  
   // ── KS=9 ──
   {
     ks: 9,
     href: "/oquv/fazoviy/uch-yoqli-prizma",
-    icon: "🔺",
-    title: "Uch yoqli trigonal prizma",
-    desc: "KS=9 • D₃ₕ simmetriya",
-    gibrid: "VSEPR modeli",
-    misollar: ["[ReH₉]²⁻", "[Nd(H₂O)₉]³⁺"],
+    icon: "🎯",
+    title: "Uch yoqli yopiq prizma",
+    desc: "KS=9 • D₃ₕ simmetriya • Lantanoidlar",
+    gibrid: "sp³d⁵",
+    misollar: ["[ReH₉]²⁻", "[Nd(H₂O)₉]³⁺", "[La(H₂O)₉]³⁺"],
     badge: "KS=9",
-    rang: "lime",
     has3D: true
   },
-  
   // ── KS=10 ──
   {
     ks: 10,
     href: "/oquv/fazoviy/ikki-yoqli-antiprizma",
-    icon: "🔷",
-    title: "Ikki yoqli kvadrat antiprizma",
-    desc: "KS=10 • D₄d simmetriya",
-    gibrid: "VSEPR modeli",
-    misollar: ["[Th(C₂O₄)₄(H₂O)₂]⁴⁻"],
+    icon: "🎖️",
+    title: "Ikki yoqli yopiq antiprizma",
+    desc: "KS=10 • D₄_d simmetriya • Aktinoidlar",
+    gibrid: "sp³d⁵f",
+    misollar: ["[Th(NO₃)₅]²⁻", "[Ce(NO₃)₅]²⁻"],
     badge: "KS=10",
-    rang: "rose",
     has3D: true
   },
-  {
-    ks: 10,
-    href: "/oquv/fazoviy/sendvich",
-    icon: "🥪",
-    title: "Sendvich (Metallosen)",
-    desc: "KS=10 • η⁵-C₅H₅ ligandlar",
-    gibrid: "Molekulyar orbital nazariyasi",
-    misollar: ["Ferrosen [Fe(C₅H₅)₂]", "Kobaltosen", "Nikelosen"],
-    badge: "KS=10",
-    rang: "emerald",
-    has3D: true,
-    featured: true
-  },
-  
   // ── KS=12 ──
   {
     ks: 12,
     href: "/oquv/fazoviy/ikosaedrik",
-    icon: "⚽",
-    title: "Ikosaedrik",
-    desc: "KS=12 • 20 ta uchburchak yuz • Iₕ simmetriya",
-    gibrid: "VSEPR modeli",
-    misollar: ["[B₁₂H₁₂]²⁻", "C₆₀ (fulleren)", "[Th(NO₃)₆]²⁻"],
+    icon: "🌐",
+    title: "Ikosaedrik (Kubooktaedr)",
+    desc: "KS=12 • I_h / O_h • Katta kationlar",
+    gibrid: "Chelatlovchi NO₃⁻ ligandlar bilan",
+    misollar: ["[Ce(NO₃)₆]²⁻", "[Th(NO₃)₆]²⁻"],
     badge: "KS=12",
-    rang: "yellow",
     has3D: true
+  },
+  // ── Maxsus ──
+  {
+    ks: "Maxsus",
+    href: "/oquv/fazoviy/sendvich",
+    icon: "🥪",
+    title: "Sendvich tuzilishi",
+    desc: "π-komplekslar • η⁵ va η⁶ ligandlar",
+    gibrid: "Organometall π-bog'lanish",
+    misollar: ["Fe(C₅H₅)₂ (Ferrosen)", "Cr(C₆H₆)₂", "U(C₈H₈)₂"],
+    badge: "π-kompleks",
+    has3D: true,
+    featured: true
   }
 ]
 
-// ═══════════════════════════════════════════════════════════
-// RANGLAR XARITASI
-// ═══════════════════════════════════════════════════════════
-const rangMap = {
-  blue:    { border: "hover:border-blue-400/50",    text: "group-hover:text-blue-400",    bg: "bg-blue-600/20 text-blue-400 border-blue-600/30" },
-  green:   { border: "hover:border-green-400/50",   text: "group-hover:text-green-400",   bg: "bg-green-600/20 text-green-400 border-green-600/30" },
-  cyan:    { border: "hover:border-cyan-400/50",    text: "group-hover:text-cyan-400",    bg: "bg-cyan-600/20 text-cyan-400 border-cyan-600/30" },
-  pink:    { border: "hover:border-pink-400/50",    text: "group-hover:text-pink-400",    bg: "bg-pink-600/20 text-pink-400 border-pink-600/30" },
-  orange:  { border: "hover:border-orange-400/50",  text: "group-hover:text-orange-400",  bg: "bg-orange-600/20 text-orange-400 border-orange-600/30" },
-  red:     { border: "hover:border-red-400/50",     text: "group-hover:text-red-400",     bg: "bg-red-600/20 text-red-400 border-red-600/30" },
-  purple:  { border: "hover:border-purple-400/50",  text: "group-hover:text-purple-400",  bg: "bg-purple-600/20 text-purple-400 border-purple-600/30" },
-  amber:   { border: "hover:border-amber-400/50",   text: "group-hover:text-amber-400",   bg: "bg-amber-600/20 text-amber-400 border-amber-600/30" },
-  indigo:  { border: "hover:border-indigo-400/50",  text: "group-hover:text-indigo-400",  bg: "bg-indigo-600/20 text-indigo-400 border-indigo-600/30" },
-  teal:    { border: "hover:border-teal-400/50",    text: "group-hover:text-teal-400",    bg: "bg-teal-600/20 text-teal-400 border-teal-600/30" },
-  sky:     { border: "hover:border-sky-400/50",     text: "group-hover:text-sky-400",     bg: "bg-sky-600/20 text-sky-400 border-sky-600/30" },
-  fuchsia: { border: "hover:border-fuchsia-400/50", text: "group-hover:text-fuchsia-400", bg: "bg-fuchsia-600/20 text-fuchsia-400 border-fuchsia-600/30" },
-  violet:  { border: "hover:border-violet-400/50",  text: "group-hover:text-violet-400",  bg: "bg-violet-600/20 text-violet-400 border-violet-600/30" },
-  lime:    { border: "hover:border-lime-400/50",    text: "group-hover:text-lime-400",    bg: "bg-lime-600/20 text-lime-400 border-lime-600/30" },
-  rose:    { border: "hover:border-rose-400/50",    text: "group-hover:text-rose-400",    bg: "bg-rose-600/20 text-rose-400 border-rose-600/30" },
-  emerald: { border: "hover:border-emerald-400/50", text: "group-hover:text-emerald-400", bg: "bg-emerald-600/20 text-emerald-400 border-emerald-600/30" },
-  yellow:  { border: "hover:border-yellow-400/50",  text: "group-hover:text-yellow-400",  bg: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30" }
-}
+export default function FazoviyKorinish() {
+  const [qidiruv, setQidiruv] = useState("")
+  const [tanlanganKS, setTanlanganKS] = useState("all")
+  const [faqat3D, setFaqat3D] = useState(false)
 
-export default function FazoviyTuzilishi() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedKS, setSelectedKS] = useState("all")
-  const [showOnly3D, setShowOnly3D] = useState(false)
+  const ksOptions = ["all", "2", "3", "4", "5", "6", "7", "8", "9", "10", "12", "Maxsus"]
 
-  // ═══════════════════════════════════════════════════════════
-  // STATISTIKA
-  // ═══════════════════════════════════════════════════════════
-  const stats = useMemo(() => ({
-    total: shakllar.length,
-    with3D: shakllar.filter(s => s.has3D).length,
-    ksRange: [Math.min(...shakllar.map(s => s.ks)), Math.max(...shakllar.map(s => s.ks))],
-    ksCounts: shakllar.reduce((acc, s) => {
-      acc[s.ks] = (acc[s.ks] || 0) + 1
-      return acc
-    }, {})
-  }), [])
+  const filtrlangan = useMemo(() => {
+    return SHAKLLAR.filter((s) => {
+      if (faqat3D && !s.has3D) return false
+      if (tanlanganKS !== "all" && String(s.ks) !== tanlanganKS) return false
+      if (!qidiruv.trim()) return true
 
-  // ═══════════════════════════════════════════════════════════
-  // FILTERLANGAN SHAKLLAR
-  // ═══════════════════════════════════════════════════════════
-  const filtered = useMemo(() => {
-    let result = shakllar
-    
-    if (selectedKS !== "all") {
-      result = result.filter(s => s.ks === parseInt(selectedKS))
-    }
-    
-    if (showOnly3D) {
-      result = result.filter(s => s.has3D)
-    }
-    
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
-      result = result.filter(s => 
+      const q = qidiruv.toLowerCase()
+      return (
         s.title.toLowerCase().includes(q) ||
         s.desc.toLowerCase().includes(q) ||
-        s.misollar.some(m => m.toLowerCase().includes(q)) ||
-        s.gibrid.toLowerCase().includes(q)
+        s.gibrid.toLowerCase().includes(q) ||
+        s.misollar.some((m) => m.toLowerCase().includes(q))
       )
-    }
-    
-    return result
-  }, [selectedKS, showOnly3D, searchQuery])
-
-  // ═══════════════════════════════════════════════════════════
-  // KS BO'YICHA GURUHLANGAN
-  // ═══════════════════════════════════════════════════════════
-  const grouped = useMemo(() => {
-    const groups = {}
-    filtered.forEach(s => {
-      if (!groups[s.ks]) groups[s.ks] = []
-      groups[s.ks].push(s)
     })
-    return Object.entries(groups).sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
-  }, [filtered])
+  }, [qidiruv, tanlanganKS, faqat3D])
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      {/* ═════ HEADER ═════ */}
-      <header className="border-b border-purple-800/50">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm mb-3 text-purple-400">
-            <Link href="/" className="hover:text-purple-300">🏠</Link>
-            <span className="text-purple-600">›</span>
-            <Link href="/oquv" className="hover:text-purple-300">O'quv</Link>
-            <span className="text-purple-600">›</span>
-            <span className="text-purple-300">Fazoviy tuzilishi</span>
-          </nav>
-
-          <div className="flex items-start justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-purple-300 flex items-center gap-3">
-                <span className="text-3xl">💎</span>
-                Fazoviy tuzilishi
-              </h1>
-              <p className="text-purple-500 text-sm mt-1">
-                Koordinatsion son va VSEPR modeli asosida • KS={stats.ksRange[0]} dan KS={stats.ksRange[1]} gacha • {stats.total} ta geometrik shakl
-              </p>
-            </div>
-            <Link 
-              href="/oquv"
-              className="text-purple-400 hover:text-purple-300 transition-colors text-sm flex items-center gap-2 bg-purple-900/40 px-4 py-2 rounded-lg border border-purple-700/50"
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        background: "var(--v3-fon)",
+        color: "var(--v3-matn)"
+      }}
+    >
+      <OquvHeader
+        sarlavha="Fazoviy tuzilishi (Geometriya)"
+        tavsif="Koordinatsion soni 2 dan 12 gacha bo'lgan fazoviy geometriyalar, simmetriya guruhlari va 3D modellar"
+        ikon="💎"
+        nishon="05-BOSQICH"
+        yol={[{ nom: "Fazoviy tuzilishi" }]}
+        ongTaraf={
+          <div className="flex items-center gap-3">
+            <Link
+              href="/oquv/fazoviy/cpk-ranglar"
+              className="px-3.5 py-1.5 rounded-xl border text-xs font-semibold transition-colors hover:opacity-80"
+              style={{
+                background: "var(--v3-yuza)",
+                borderColor: "var(--v3-chiziq)",
+                color: "var(--v3-urgu)"
+              }}
             >
-              ← Orqaga
+              🎨 CPK ranglar
+            </Link>
+            <Link
+              href="/oquv"
+              className="px-3.5 py-1.5 rounded-xl border text-xs font-medium transition-colors hover:opacity-80"
+              style={{
+                background: "var(--v3-yuza)",
+                borderColor: "var(--v3-chiziq)",
+                color: "var(--v3-matn)"
+              }}
+            >
+              ← O&apos;quv
             </Link>
           </div>
-        </div>
-      </header>
+        }
+      />
 
-      <section className="max-w-6xl mx-auto px-6 py-8">
-        
-        {/* ═════ STATISTIKA KARTOCHKALARI ═════ */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-          <div className="bg-purple-900/30 border border-purple-700/50 rounded-xl p-4">
-            <div className="text-xs text-purple-400 mb-1">Jami shakllar</div>
-            <div className="text-2xl font-bold text-white">{stats.total}</div>
-          </div>
-          <div className="bg-cyan-900/30 border border-cyan-700/50 rounded-xl p-4">
-            <div className="text-xs text-cyan-400 mb-1">3D model bilan</div>
-            <div className="text-2xl font-bold text-white">{stats.with3D}</div>
-          </div>
-          <div className="bg-amber-900/30 border border-amber-700/50 rounded-xl p-4">
-            <div className="text-xs text-amber-400 mb-1">KS diapazoni</div>
-            <div className="text-2xl font-bold text-white font-mono">{stats.ksRange[0]}-{stats.ksRange[1]}</div>
-          </div>
-          <div className="bg-pink-900/30 border border-pink-700/50 rounded-xl p-4">
-            <div className="text-xs text-pink-400 mb-1">KS guruhlar</div>
-            <div className="text-2xl font-bold text-white">{Object.keys(stats.ksCounts).length}</div>
-          </div>
-        </div>
-
-        {/* ═════ CPK RANGLAR HAVOLASI ═════ */}
-        {/* Bu sahifa mavjud edi, lekin hech qayerdan havola qilinmagandi —
-            3D modellardagi atom ranglarini tushunish uchun kerak */}
-        <Link
-          href="/oquv/fazoviy/cpk-ranglar"
-          className="group flex items-center gap-4 bg-gradient-to-r from-slate-900/60 to-purple-900/40 border border-purple-700/50 hover:border-yellow-400/50 rounded-2xl p-4 sm:p-5 mb-8 transition-all"
+      <main className="v3-konteyner py-8 md:py-12 space-y-8 flex-1">
+        {/* ═══ QIDIRUV VA FILTRLAR ═══ */}
+        <div
+          className="rounded-2xl p-6 border shadow-xs space-y-4"
+          style={{
+            background: "var(--v3-yuza)",
+            borderColor: "var(--v3-chiziq)"
+          }}
         >
-          <div className="flex gap-1 flex-shrink-0">
-            {["#FFFFFF", "#1A1A1A", "#3050F8", "#FF0D0D", "#1FF01F"].map((hex) => (
-              <span
-                key={hex}
-                className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-white/20"
-                style={{ backgroundColor: hex }}
-              />
-            ))}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-bold text-white text-sm sm:text-base group-hover:text-yellow-400 transition-colors">
-              CPK ranglar standarti
-            </div>
-            <div className="text-purple-300 text-xs">
-              3D modellardagi atomlar qaysi rangda ko&apos;rsatilishi
-            </div>
-          </div>
-          <span className="text-purple-500 group-hover:text-yellow-400 group-hover:translate-x-1 transition-all flex-shrink-0">
-            →
-          </span>
-        </Link>
-
-        {/* ═════ KIRISH QISMI ═════ */}
-        <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6 mb-8">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <span>📋</span> Bu bo'limda nimalarni o'rganasiz?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm text-purple-200">
-            {/* Raqamlar stats'dan olinadi — qo'lda yozilgani eskirib qolgandi
-                ("18 ta shakl" va "8 ta 3D model" haqiqatga mos emas edi) */}
-            {[
-              `${stats.total} ta geometrik shakl (KS=${stats.ksRange[0]} → KS=${stats.ksRange[1]})`,
-              "CPK xalqaro ranglar standarti",
-              "VSEPR va Kepert modellari",
-              "Har bir shakl uchun 3-4 ta misol",
-              `Interaktiv 3D modellar (${stats.with3D} ta)`,
-              "Sendvich birikmalar (metallosenlar)"
-            ].map((text, i) => (
-              <div key={i} className="flex items-start gap-2">
-                <span className="text-green-400 mt-0.5 text-xs">✓</span>
-                <span>{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ═════ FILTER VA QIDIRUV ═════ */}
-        <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mb-8 space-y-4">
-          {/* Search */}
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="🔍 Shakl, birikma yoki xossa bo'yicha qidirish..."
-              className="w-full px-5 py-3 bg-purple-950/60 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:outline-none focus:border-purple-400 transition-colors"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 hover:text-white text-lg"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-wrap gap-3">
-            {/* KS filter */}
-            <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-xs text-purple-400 font-semibold">KS:</span>
-              <button
-                onClick={() => setSelectedKS("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  selectedKS === "all"
-                    ? "bg-purple-600 text-white"
-                    : "bg-purple-900/50 text-purple-300 hover:bg-purple-800/50"
-                }`}
-              >
-                Hammasi
-              </button>
-              {[2, 3, 4, 5, 6, 7, 8, 9, 10, 12].map(ks => (
-                stats.ksCounts[ks] && (
-                  <button
-                    key={ks}
-                    onClick={() => setSelectedKS(String(ks))}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      selectedKS === String(ks)
-                        ? "bg-purple-600 text-white"
-                        : "bg-purple-900/50 text-purple-300 hover:bg-purple-800/50"
-                    }`}
-                  >
-                    KS={ks}
-                  </button>
-                )
-              ))}
-            </div>
-
-            {/* 3D filter */}
-            <label className="flex items-center gap-2 cursor-pointer ml-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="relative flex-1 max-w-md">
               <input
-                type="checkbox"
-                checked={showOnly3D}
-                onChange={(e) => setShowOnly3D(e.target.checked)}
-                className="w-4 h-4 rounded accent-purple-500"
+                type="text"
+                value={qidiruv}
+                onChange={(e) => setQidiruv(e.target.value)}
+                placeholder="Shakl, formula yoki gibridlanish qidirish..."
+                className="w-full px-3.5 py-2 pl-9 rounded-xl text-xs sm:text-sm border outline-none"
+                style={{
+                  background: "var(--v3-yuza-2)",
+                  borderColor: "var(--v3-chiziq)",
+                  color: "var(--v3-matn)"
+                }}
               />
-              <span className="text-xs text-purple-300 font-semibold">
-                Faqat 3D modellar ({stats.with3D})
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs opacity-50">
+                🔍
               </span>
-            </label>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setFaqat3D(!faqat3D)}
+                className="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all"
+                style={{
+                  background: faqat3D
+                    ? "color-mix(in srgb, var(--v3-urgu) 20%, var(--v3-yuza))"
+                    : "var(--v3-yuza-2)",
+                  borderColor: faqat3D ? "var(--v3-urgu)" : "var(--v3-chiziq)",
+                  color: faqat3D ? "var(--v3-urgu)" : "var(--v3-matn)"
+                }}
+              >
+                {faqat3D ? "✓ Faqat 3D modellar" : "☐ 3D modellar"}
+              </button>
+            </div>
           </div>
 
-          {/* Result count */}
-          {(searchQuery || selectedKS !== "all" || showOnly3D) && (
-            <div className="text-xs text-purple-400 pt-2 border-t border-purple-700/30">
-              Topildi: <span className="text-white font-semibold">{filtered.length}</span> ta shakl
-            </div>
-          )}
+          {/* KS tugmalari */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            <span className="text-xs v3-xira mr-2 shrink-0">KS:</span>
+            {ksOptions.map((ks) => {
+              const faol = tanlanganKS === ks
+              return (
+                <button
+                  key={ks}
+                  onClick={() => setTanlanganKS(ks)}
+                  className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all shrink-0 border"
+                  style={{
+                    background: faol ? "var(--v3-urgu)" : "var(--v3-yuza-2)",
+                    color: faol ? "var(--v3-urgu-matn)" : "var(--v3-matn)",
+                    borderColor: faol ? "var(--v3-urgu)" : "var(--v3-chiziq)"
+                  }}
+                >
+                  {ks === "all" ? "Barchasi" : ks}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
-        {/* ═════ NATIJALAR YO'Q ═════ */}
-        {filtered.length === 0 && (
-          <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-12 text-center">
-            <div className="text-5xl mb-4">🔍</div>
-            <h3 className="text-lg font-bold text-white mb-2">Hech narsa topilmadi</h3>
-            <p className="text-purple-400 text-sm mb-4">
-              Qidiruv so'zini yoki filtrlarni o'zgartirib ko'ring
+        {/* ═══ SHAKLLAR GRID ═══ */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filtrlangan.map((s) => (
+            <Link
+              key={s.href}
+              href={s.href}
+              className="group rounded-2xl p-5 sm:p-6 border transition-all flex flex-col justify-between hover:scale-[1.02] shadow-xs"
+              style={{
+                background: "var(--v3-yuza)",
+                borderColor: "var(--v3-chiziq)"
+              }}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl border transition-transform group-hover:scale-110"
+                    style={{
+                      background: "var(--v3-yuza-2)",
+                      borderColor: "var(--v3-chiziq)"
+                    }}
+                  >
+                    {s.icon}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {s.featured && (
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-full border font-bold"
+                        style={{
+                          background: "color-mix(in srgb, var(--v3-urgu) 15%, transparent)",
+                          color: "var(--v3-urgu)",
+                          borderColor: "color-mix(in srgb, var(--v3-urgu) 30%, transparent)"
+                        }}
+                      >
+                        ⭐ Muhim
+                      </span>
+                    )}
+                    {s.has3D && <span className="v3-nishon">3D</span>}
+                    <span className="v3-nishon">{s.badge}</span>
+                  </div>
+                </div>
+
+                <h3
+                  className="text-base sm:text-lg font-bold transition-colors group-hover:opacity-90 mb-1"
+                  style={{ color: "var(--v3-matn)" }}
+                >
+                  {s.title}
+                </h3>
+                <p className="v3-xira text-xs leading-relaxed mb-3">
+                  {s.desc}
+                </p>
+
+                <div
+                  className="p-2.5 rounded-xl border font-mono text-[11px] mb-3"
+                  style={{
+                    background: "var(--v3-yuza-2)",
+                    borderColor: "var(--v3-chiziq)",
+                    color: "var(--v3-urgu)"
+                  }}
+                >
+                  {s.gibrid}
+                </div>
+
+                <div className="flex flex-wrap gap-1">
+                  {s.misollar.map((m, j) => (
+                    <span
+                      key={j}
+                      className="text-[10px] px-2 py-0.5 rounded-md border font-mono"
+                      style={{
+                        background: "var(--v3-yuza-2)",
+                        borderColor: "var(--v3-chiziq)"
+                      }}
+                    >
+                      {m}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div
+                className="flex items-center justify-end pt-3 mt-5 border-t text-xs font-semibold"
+                style={{ borderColor: "var(--v3-chiziq)", color: "var(--v3-urgu)" }}
+              >
+                3D interaktiv ko&apos;rish →
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {filtrlangan.length === 0 && (
+          <div
+            className="rounded-2xl p-12 text-center border shadow-xs"
+            style={{
+              background: "var(--v3-yuza)",
+              borderColor: "var(--v3-chiziq)"
+            }}
+          >
+            <div className="text-4xl mb-3">🔍</div>
+            <h3 className="text-base font-bold mb-1" style={{ color: "var(--v3-matn)" }}>
+              Hech qanday shakl topilmadi
+            </h3>
+            <p className="v3-xira text-xs mb-4">
+              Qidiruv so&apos;zini yoki filtrlarni o&apos;zgartirib ko&apos;ring
             </p>
             <button
               onClick={() => {
-                setSearchQuery("")
-                setSelectedKS("all")
-                setShowOnly3D(false)
+                setQidiruv("")
+                setTanlanganKS("all")
+                setFaqat3D(false)
               }}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-bold"
+              style={{
+                background: "var(--v3-urgu)",
+                color: "var(--v3-urgu-matn)"
+              }}
             >
               Filtrlarni tozalash
             </button>
           </div>
         )}
-
-        {/* ═════ GURUHLANGAN NATIJALAR ═════ */}
-        {filtered.length > 0 && (
-          <div className="space-y-8">
-            {grouped.map(([ks, shapes]) => (
-              <div key={ks}>
-                {/* KS group header */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-purple-600/30 border border-purple-500/50 px-3 py-1 rounded-lg">
-                    <span className="text-xs text-purple-300 font-semibold">Koordinatsion son</span>
-                    <span className="text-lg font-bold text-white ml-2">{ks}</span>
-                  </div>
-                  <div className="flex-1 h-px bg-purple-700/50"></div>
-                  <span className="text-xs text-purple-400">{shapes.length} ta shakl</span>
-                </div>
-
-                {/* Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {shapes.map((s, i) => {
-                    const colors = rangMap[s.rang]
-                    return (
-                      <Link
-                        key={i}
-                        href={s.href}
-                        className={`group bg-purple-900/40 border border-purple-700/50 rounded-2xl p-5 hover:bg-purple-800/60 ${colors.border} transition-all transform hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-900/30 relative overflow-hidden`}
-                        aria-label={`${s.title} - ${s.desc}`}
-                      >
-                        {/* Featured badge */}
-                        {s.featured && (
-                          <div className="absolute top-2 right-2 bg-yellow-500/20 text-yellow-400 text-[10px] px-2 py-0.5 rounded-full border border-yellow-500/30">
-                            ⭐ Muhim
-                          </div>
-                        )}
-
-                        {/* Header */}
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-4xl group-hover:scale-110 transition-transform">
-                            {s.icon}
-                          </span>
-                          <div className="flex gap-1.5">
-                            {s.has3D && (
-                              <span className="bg-cyan-600/30 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-full text-[10px] font-bold">
-                                3D
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Title */}
-                        <h3 className={`text-base font-bold text-white mb-2 ${colors.text} transition-colors`}>
-                          {s.title}
-                        </h3>
-
-                        {/* Description */}
-                        <p className="text-purple-300 text-xs mb-2">{s.desc}</p>
-
-                        {/* Gibridlanish */}
-                        <p className="text-purple-400 text-[11px] mb-3 italic font-mono">
-                          {s.gibrid}
-                        </p>
-
-                        {/* Misollar */}
-                        <div className="mb-3">
-                          <p className="text-[10px] text-purple-500 mb-1.5 uppercase font-semibold tracking-wider">
-                            Misollar:
-                          </p>
-                          <div className="flex flex-wrap gap-1">
-                            {s.misollar.slice(0, 3).map((m, j) => (
-                              <span
-                                key={j}
-                                className="text-[10px] bg-purple-950/60 text-purple-300 px-2 py-0.5 rounded border border-purple-700/30 font-mono"
-                              >
-                                {m}
-                              </span>
-                            ))}
-                            {s.misollar.length > 3 && (
-                              <span className="text-[10px] text-purple-500 px-2 py-0.5">
-                                +{s.misollar.length - 3}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="flex items-center justify-between pt-3 border-t border-purple-700/30">
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${colors.bg}`}>
-                            {s.badge}
-                          </span>
-                          {s.rarity && (
-                            <span className="text-[10px] text-amber-400 italic">
-                              {s.rarity}
-                            </span>
-                          )}
-                          <span className="text-purple-400 group-hover:text-white text-xs transition-colors">
-                            O'qish →
-                          </span>
-                        </div>
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ═════ ILMIY IZOH ═════ */}
-        <div className="mt-10 bg-gradient-to-r from-amber-900/20 to-orange-900/20 border border-amber-700/30 rounded-2xl p-6">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">⚠️</span>
-            <div>
-              <h3 className="text-sm font-bold text-amber-300 mb-2">Muhim ilmiy eslatma</h3>
-              <p className="text-xs text-amber-100/80 leading-relaxed">
-                Zamonaviy koordinatsion kimyoda <strong className="text-amber-300">gibridlanish tushunchasi</strong> cheklangan qo'llaniladi.
-                Ko'p hollarda <strong className="text-amber-300">VSEPR modeli</strong>, <strong className="text-amber-300">Kepert modeli</strong> va
-                <strong className="text-amber-300"> Kristall maydon nazariyasi</strong> aniqroq natija beradi.
-                f-orbitallar ishtirokidagi gibridlanish (sp³d³f) juda kam uchraydigan holatlar uchun.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ═════ MANBA ═════ */}
-        <div className="mt-6 bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-5 text-center">
-          <p className="text-purple-300 text-xs">
-            📚 <strong>Manba:</strong> A.M. Nasimov, X.Sh. Tashpulatov — Noorganik kimyoning tanlangan boblari (5.3, 5.5-bo'limlar)
-          </p>
-        </div>
-      </section>
-    </main>
+      </main>
+    </div>
   )
 }

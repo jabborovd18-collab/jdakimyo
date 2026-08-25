@@ -1,204 +1,144 @@
-import Link from "next/link"
+"use client"
+
+import MavzuLayout from "@/components/oquv/MavzuLayout"
+import KimyoFormula from "@/components/oquv/KimyoFormula"
+
+const TUZLAR = [
+  {
+    formula: "K₄[Fe(CN)₆]",
+    nomi: "Kaliy geksatsianidoferrat(II) (Sariq qon tuzi)",
+    ichki: "[Fe(CN)₆]⁴⁻",
+    tashqi: "4K⁺",
+    markaz: "Fe²⁺",
+    ligand: "6 ta CN⁻ (tsianido)",
+    ks: 6,
+    geometriya: "Muntazam oktaedr",
+    xossasi: "Sariq kristall modda. Fe³⁺ ionlari bilan to'q ko'k 'Berlin lazuri' (Prussian blue) cho'kmasini beruvchi analitik reagent.",
+    reaksiya: "4Fe³⁺ + 3[Fe(CN)₆]⁴⁻ → Fe₄[Fe(CN)₆]₃↓ (Berlin lazuri)"
+  },
+  {
+    formula: "K₃[Fe(CN)₆]",
+    nomi: "Kaliy geksatsianidoferrat(III) (Qizil qon tuzi)",
+    ichki: "[Fe(CN)₆]³⁻",
+    tashqi: "3K⁺",
+    markaz: "Fe³⁺",
+    ligand: "6 ta CN⁻ (tsianido)",
+    ks: 6,
+    geometriya: "Oktaedrik",
+    xossasi: "To'q qizil kristall modda. Fe²⁺ ionlari bilan to'q ko'k 'Turbul ko'ki' (Turnbull's blue) cho'kmasini beradi.",
+    reaksiya: "3Fe²⁺ + 2[Fe(CN)₆]³⁻ → Fe₃[Fe(CN)₆]₂↓ (Turbul ko'ki)"
+  },
+  {
+    formula: "[Cr(H₂O)₆]Cl₃",
+    nomi: "Geksaakvaxrom(III) xlorid",
+    ichki: "[Cr(H₂O)₆]³⁺",
+    tashqi: "3Cl⁻",
+    markaz: "Cr³⁺",
+    ligand: "6 ta H₂O (akva)",
+    ks: 6,
+    geometriya: "Muntazam oktaedr",
+    xossasi: "Binafsha rangli gidratlangan kompleks tuz. Suvda to'liq ionlarga ajraladi va AgNO₃ bilan 3 mol AgCl cho'kmasi beradi.",
+    reaksiya: "[Cr(H₂O)₆]Cl₃ + 3AgNO₃ → 3AgCl↓ + [Cr(H₂O)₆](NO₃)₃"
+  }
+]
 
 export default function KompleksTuzlar() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
-        <Link href="/oquv/klassifikatsiyasi/sinf" className="text-purple-400 hover:text-purple-300 transition-all text-lg">
-          ← Orqaga
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-yellow-400">🧂 Kompleks tuzlar</h1>
-          <p className="text-purple-400 text-sm">Tarkibida H⁺ yoki OH⁻ bo'lmagan kompleks birikmalar • Eng ko'p tarqalgan sinf</p>
-        </div>
-      </header>
-
-      <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-
-        {/* 1. TA'RIF */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Kompleks tuzlar haqida</h2>
-          
-          <div className="bg-yellow-600/10 border border-yellow-500/30 rounded-xl p-6 mb-6">
-            <p className="text-purple-200 text-lg leading-relaxed">
-              <strong className="text-yellow-400">Kompleks tuzlar</strong> — eng ko'p tarqalgan kompleks birikmalar sinfi. 
-              Ular tarkibida <strong className="text-yellow-400">H⁺ yoki OH⁻ bo'lmagan</strong> kompleks birikmalardir. 
-              Tashqi sferasida metall kationlari yoki boshqa anionlar bo'lishi mumkin.
-            </p>
-          </div>
-
-          <p className="text-purple-200 leading-relaxed">
-            Kompleks tuzlar o'z navbatida <strong className="text-yellow-400">kation kompleksli</strong> (ichki sfera musbat) 
-            va <strong className="text-yellow-400">anion kompleksli</strong> (ichki sfera manfiy) turlarga bo'linadi. 
-            Ayrim hollarda ham kation, ham anion kompleks tutgan tuzlar ham uchraydi.
+    <MavzuLayout
+      sarlavha="Kompleks tuzlar"
+      tavsif="Tashqi sferasida metall kationlari yoki kislota qoldig'i anionlari tutgan eng keng tarqalgan kompleks tuzlar"
+      ikon="🧂"
+      nishon="TUZLAR"
+      yol={[
+        { nom: "Klassifikatsiyasi", havola: "/oquv/klassifikatsiyasi" },
+        { nom: "Sinfiga ko'ra", havola: "/oquv/klassifikatsiyasi/sinf" },
+        { nom: "Kompleks tuzlar" }
+      ]}
+      oldingiMavzu={{ nom: "Kompleks asoslar", havola: "/oquv/klassifikatsiyasi/sinf/asos" }}
+      keyingiMavzu={{ nom: "Zaryadiga ko'ra tasnif", havola: "/oquv/klassifikatsiyasi/zaryad" }}
+      quizHavola="/oquv/video-darsliklar/quiz/klassifikatsiyasi"
+    >
+      {/* ═══ TA'RIF ═══ */}
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--v3-matn)" }}>
+          <span>📋</span>
+          <span>Kompleks tuzlar haqida</span>
+        </h2>
+        <div
+          className="rounded-2xl p-5 border"
+          style={{
+            background: "color-mix(in srgb, var(--v3-urgu) 8%, var(--v3-yuza))",
+            borderColor: "color-mix(in srgb, var(--v3-urgu) 25%, var(--v3-chiziq))"
+          }}
+        >
+          <p className="v3-xira text-xs sm:text-sm leading-relaxed">
+            <strong style={{ color: "var(--v3-matn)" }}>Kompleks tuzlar</strong> — tashqi sferasida H⁺ yoki OH⁻ dan boshqa oddiy metall kationlari (K⁺, Na⁺, Ca²⁺) yoki kislota qoldiqlari (Cl⁻, SO₄²⁻, NO₃⁻) tutgan birikmalardir. Bu eng keng tarqalgan koordinatsion birikmalar guruhidir.
           </p>
         </div>
+      </div>
 
-        {/* 2. ANION KOMPLEKSLI TUZ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-2">
-            <span className="text-red-400">🔴</span> Anion kompleksli tuz
-          </h2>
-          <p className="text-purple-400 text-sm mb-6">Ichki sfera manfiy zaryadli</p>
-          
-          <div className="space-y-4">
-            <div className="bg-purple-800/30 rounded-xl p-6 border border-purple-700/30">
-              <h3 className="text-xl font-bold text-yellow-400 mb-3">K₄[Fe(CN)₆]</h3>
-              <p className="text-purple-300 mb-3">
-                <strong>kaliy geksasiyanoferrat(II)</strong> — &quot;Sariq qon tuzi&quot;
-              </p>
-              <div className="bg-purple-900/50 rounded-lg p-4">
-                <ul className="text-purple-200 space-y-2 text-sm">
-                  <li>• Tashqi sfera: <strong className="text-yellow-400">4K⁺</strong></li>
-                  <li>• Ichki sfera: <strong className="text-red-400">[Fe(CN)₆]⁴⁻</strong></li>
-                  <li>• Markaziy atom: <strong>Fe²⁺ (temir)</strong></li>
-                  <li>• Ligandlar: <strong>6 ta CN⁻</strong></li>
-                  <li>• Koordinatsion son: <strong>6</strong></li>
-                  <li>• Geometriya: <strong>Oktaedrik</strong></li>
-                  <li>• Oziq-ovqat qo'shimchasi: <strong>E536</strong></li>
-                </ul>
+      {/* ═══ MISOLLAR ═══ */}
+      <div className="space-y-6">
+        {TUZLAR.map((t, i) => (
+          <div
+            key={t.formula}
+            className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-6"
+            style={{
+              background: "var(--v3-yuza)",
+              borderColor: "var(--v3-chiziq)"
+            }}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b" style={{ borderColor: "var(--v3-chiziq)" }}>
+              <div>
+                <div className="text-lg sm:text-xl font-mono font-bold" style={{ color: "var(--v3-matn)" }}>
+                  <KimyoFormula formula={t.formula} ajratilgan={true} />
+                </div>
+                <div className="text-xs sm:text-sm font-semibold mt-1" style={{ color: "var(--v3-urgu)" }}>
+                  {t.nomi}
+                </div>
+              </div>
+              <span className="v3-nishon">Namunaviy tuz #{i + 1}</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+              <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+                <div className="v3-xira text-[11px] mb-1">Ichki sfera:</div>
+                <KimyoFormula formula={t.ichki} olcham="kichik" />
+              </div>
+              <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+                <div className="v3-xira text-[11px] mb-1">Tashqi sfera:</div>
+                <strong style={{ color: "var(--v3-urgu)" }}>{t.tashqi}</strong>
+              </div>
+              <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+                <div className="v3-xira text-[11px] mb-1">Markaziy atom va KS:</div>
+                <strong>{t.markaz} (KS = {t.ks})</strong>
+              </div>
+              <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+                <div className="v3-xira text-[11px] mb-1">Ligandlar:</div>
+                <strong>{t.ligand}</strong>
+              </div>
+              <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+                <div className="v3-xira text-[11px] mb-1">Geometriya:</div>
+                <strong>{t.geometriya}</strong>
+              </div>
+              <div className="p-3.5 rounded-xl border" style={{ background: "var(--v3-yuza-2)", borderColor: "var(--v3-chiziq)" }}>
+                <div className="v3-xira text-[11px] mb-1">Analitik reaksiya:</div>
+                <strong className="font-mono text-[11px]">{t.reaksiya}</strong>
               </div>
             </div>
 
-            <div className="bg-purple-800/30 rounded-xl p-6 border border-purple-700/30">
-              <h3 className="text-xl font-bold text-yellow-400 mb-3">K₃[Fe(CN)₆]</h3>
-              <p className="text-purple-300 mb-3">
-                <strong>kaliy geksasiyanoferrat(III)</strong> — &quot;Qizil qon tuzi&quot;
-              </p>
-              <div className="bg-purple-900/50 rounded-lg p-4">
-                <ul className="text-purple-200 space-y-2 text-sm">
-                  <li>• Tashqi sfera: <strong className="text-yellow-400">3K⁺</strong></li>
-                  <li>• Ichki sfera: <strong className="text-red-400">[Fe(CN)₆]³⁻</strong></li>
-                  <li>• Markaziy atom: <strong>Fe³⁺ (temir)</strong></li>
-                  <li>• Fe²⁺ → Fe³⁺ oksidlanish darajasi farqi</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 3. KATION KOMPLEKSLI TUZ */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-2">
-            <span className="text-blue-400">🔵</span> Kation kompleksli tuz
-          </h2>
-          <p className="text-purple-400 text-sm mb-6">Ichki sfera musbat zaryadli</p>
-          
-          <div className="space-y-4">
-            <div className="bg-purple-800/30 rounded-xl p-6 border border-purple-700/30">
-              <h3 className="text-xl font-bold text-yellow-400 mb-3">[Cr(H₂O)₆]Cl₃</h3>
-              <p className="text-purple-300 mb-3">
-                <strong>geksaakvaxrom(III) xlorid</strong>
-              </p>
-              <div className="bg-purple-900/50 rounded-lg p-4">
-                <ul className="text-purple-200 space-y-2 text-sm">
-                  <li>• Ichki sfera: <strong className="text-blue-400">[Cr(H₂O)₆]³⁺</strong></li>
-                  <li>• Tashqi sfera: <strong className="text-yellow-400">3Cl⁻</strong></li>
-                  <li>• Markaziy atom: <strong>Cr³⁺ (xrom)</strong></li>
-                  <li>• Ligandlar: <strong>6 ta H₂O</strong></li>
-                  <li>• Rangi: <strong>Binafsha</strong></li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="bg-purple-800/30 rounded-xl p-6 border border-purple-700/30">
-              <h3 className="text-xl font-bold text-yellow-400 mb-3">[Co(NH₃)₆]Cl₃</h3>
-              <p className="text-purple-300 mb-3">
-                <strong>geksaamminkobalt(III) xlorid</strong> — Verner klassikasi
-              </p>
-              <div className="bg-purple-900/50 rounded-lg p-4">
-                <ul className="text-purple-200 space-y-2 text-sm">
-                  <li>• Ichki sfera: <strong className="text-blue-400">[Co(NH₃)₆]³⁺</strong></li>
-                  <li>• Tashqi sfera: <strong className="text-yellow-400">3Cl⁻</strong></li>
-                  <li>• Markaziy atom: <strong>Co³⁺ (kobalt)</strong></li>
-                  <li>• Rangi: <strong>Zarg'aldoq-sariq</strong></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 4. HAM KATION HAM ANION KOMPLEKSLI */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-2">
-            <span className="text-purple-400">🟣</span> Ham kation, ham anion kompleksli tuz
-          </h2>
-          <p className="text-purple-400 text-sm mb-6">Ikkala ion ham kompleks tuzilishga ega</p>
-          
-          <div className="bg-purple-800/30 rounded-xl p-6 border border-purple-700/30">
-            <h3 className="text-xl font-bold text-yellow-400 mb-3">[Pt(NH₃)₄][PtCl₄]</h3>
-            <p className="text-purple-300 mb-3">
-              <strong>tetraamminplatina(II) tetraxloroplatinat(II)</strong> — &quot;Magnusning yashil tuzi&quot;
-            </p>
-            <div className="bg-purple-900/50 rounded-lg p-4">
-              <ul className="text-purple-200 space-y-2 text-sm">
-                <li>• Kation kompleks: <strong className="text-blue-400">[Pt(NH₃)₄]²⁺</strong></li>
-                <li>• Anion kompleks: <strong className="text-red-400">[PtCl₄]²⁻</strong></li>
-                <li>• Ikkalasi ham <strong>Pt²⁺</strong> — bir xil metall!</li>
-                <li>• Rangi: <strong>Yashil</strong></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* 5. DISSOTSILANISH */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">💧 Dissotsilanish xususiyatlari</h2>
-          
-          <div className="space-y-4">
-            <div className="bg-red-600/10 border border-red-500/30 rounded-xl p-5">
-              <h3 className="text-red-400 font-bold mb-2">Anion kompleksli tuz</h3>
-              <p className="font-mono text-yellow-400">K₄[Fe(CN)₆] → 4K⁺ + [Fe(CN)₆]⁴⁻</p>
-            </div>
-            <div className="bg-blue-600/10 border border-blue-500/30 rounded-xl p-5">
-              <h3 className="text-blue-400 font-bold mb-2">Kation kompleksli tuz</h3>
-              <p className="font-mono text-yellow-400">[Cr(H₂O)₆]Cl₃ → [Cr(H₂O)₆]³⁺ + 3Cl⁻</p>
-            </div>
-            <div className="bg-purple-600/10 border border-purple-500/30 rounded-xl p-5">
-              <h3 className="text-purple-400 font-bold mb-2">Ham kation, ham anion kompleksli</h3>
-              <p className="font-mono text-yellow-400">[Pt(NH₃)₄][PtCl₄] → [Pt(NH₃)₄]²⁺ + [PtCl₄]²⁻</p>
-            </div>
-          </div>
-          
-          <div className="mt-4 bg-yellow-600/10 border border-yellow-500/30 rounded-xl p-4">
-            <p className="text-yellow-300 text-sm">
-              <strong>⚠️ Muhim:</strong> Barcha kompleks tuzlarda ichki sfera mustahkam bog'langan. 
-              Dissotsilanishda faqat tashqi sfera ionlari ajralib chiqadi.
+            <p className="v3-xira text-xs leading-relaxed">
+              💡 <strong>Xossalari:</strong> {t.xossasi}
             </p>
           </div>
-        </div>
-
-        {/* 6. XULOSA */}
-        <div className="bg-gradient-to-r from-yellow-600/10 to-purple-600/10 border border-yellow-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li>Kompleks tuzlar <strong className="text-yellow-400">eng ko'p tarqalgan</strong> kompleks birikmalar sinfi</li>
-            <li>Tarkibida <strong className="text-yellow-400">H⁺ yoki OH⁻ yo'q</strong></li>
-            <li>3 turga bo'linadi: <strong>anion kompleksli, kation kompleksli, aralash</strong></li>
-            <li>Sariq qon tuzi K₄[Fe(CN)₆] — anion kompleksli tuz</li>
-            <li>Magnusning yashil tuzi — ham kation, ham anion kompleksli</li>
-          </ol>
-        </div>
-
-        {/* Pastki navigatsiya */}
-        <div className="flex justify-between pt-6">
-          <Link 
-            href="/oquv/klassifikatsiyasi/sinf/asos" 
-            className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 transition-all text-purple-300"
-          >
-            ← Kompleks asoslar
-          </Link>
-          <Link 
-            href="/oquv/klassifikatsiyasi/sinf" 
-            className="px-6 py-3 bg-yellow-600/80 rounded-xl hover:bg-yellow-500 transition-all text-white font-semibold"
-          >
-            Sinf bo'limi →
-          </Link>
-        </div>
-
-      </section>
-
-    </main>
+        ))}
+      </div>
+    </MavzuLayout>
   )
 }

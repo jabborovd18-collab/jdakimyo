@@ -1,209 +1,79 @@
-import Link from "next/link"
+"use client"
+
+import MavzuLayout from "@/components/oquv/MavzuLayout"
+import InteraktivJadval from "@/components/oquv/InteraktivJadval"
+import KimyoFormula from "@/components/oquv/KimyoFormula"
+
+const ARALASH_KOMPLEKSLAR = [
+  { formula: "[Pt(NH₃)₂Cl₂]", nomi: "Diammindixloridoplatina(II) (Sisplatin)", ligandlar: "2 ta NH₃ (ammin) + 2 ta Cl⁻ (xlorido)", ks: 4, tip: "Neytral + Anion" },
+  { formula: "[Co(NH₃)₅Cl]Cl₂", nomi: "Pentaamminkloridokobalt(III) xlorid", ligandlar: "5 ta NH₃ + 1 ta Cl⁻", ks: 6, tip: "Neytral + Anion" },
+  { formula: "[Co(NH₃)₄(H₂O)Cl]Cl₂", nomi: "Tetraamminakvakloridokobalt(III) xlorid", ligandlar: "4 ta NH₃ + 1 ta H₂O + 1 ta Cl⁻", ks: 6, tip: "Uch xil turdagi ligand" },
+  { formula: "[Cr(en)₂Cl₂]Cl", nomi: "Dixloridobis(etilendiamin)xrom(III) xlorid", ligandlar: "2 ta en (bidentat) + 2 ta Cl⁻", ks: 6, tip: "Xelat + Anion" },
+  { formula: "[Pt(NH₃)₂(py)Cl]Cl", nomi: "Diamminkloridopiridinplatina(II) xlorid", ligandlar: "2 ta NH₃ + 1 ta py + 1 ta Cl⁻", ks: 4, tip: "Turli organik va anorganik ligandlar" },
+]
 
 export default function AralashLigandli() {
-  const misollar = [
-    {
-      formula: "[Co(NH₃)₄Br(H₂O)](NO₃)₂",
-      nomi: "bromoakvatetraamminkobalt(III) nitrat",
-      ligandlar: "NH₃, Br⁻, H₂O",
-      turi: "3 xil ligand",
-      izoh: "Anion, neytral va kation ligandlar birgalikda. Nomlashda alfavit tartibi muhim."
-    },
-    {
-      formula: "sis-[PtCl₂(NH₃)₂]",
-      nomi: "sis-diammindixloroplatina(II) — SISPLATIN",
-      ligandlar: "Cl⁻, NH₃",
-      turi: "2 xil ligand",
-      izoh: "Saraton kasalligini davolashda ishlatiladigan eng mashhur kompleks."
-    },
-    {
-      formula: "[Co(NH₃)₅SO₄]Br",
-      nomi: "sulfatopentaamminkobalt(III) bromid",
-      ligandlar: "NH₃, SO₄²⁻",
-      turi: "2 xil ligand",
-      izoh: "Ionlanish izomeriyasiga misol. SO₄²⁻ ichki sferada."
-    },
-    {
-      formula: "[CrCl₂(H₂O)₄]Cl·2H₂O",
-      nomi: "dixlorotetraakvaxrom(III) xlorid digidrat",
-      ligandlar: "Cl⁻, H₂O",
-      turi: "2 xil ligand",
-      izoh: "Gidrat izomeriyaga misol. To'q yashil rangli."
-    },
-    {
-      formula: "[Fe(CO)₃(NO)]⁻",
-      nomi: "trikarbonilnitrozilferrat(0)",
-      ligandlar: "CO, NO",
-      turi: "2 xil ligand",
-      izoh: "CO va NO — ikkalasi ham kuchli maydonli neytral ligandlar."
-    },
-    {
-      formula: "fac-[Co(NH₃)₃Cl₃]",
-      nomi: "fac-trixlorotriaminkobalt(III)",
-      ligandlar: "NH₃, Cl⁻",
-      turi: "2 xil ligand",
-      izoh: "Fac-mer izomeriyaga misol. 3 ta Cl bir yuzda joylashgan."
-    }
-  ]
-
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 to-blue-950 text-white">
-      
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-purple-800/50">
-        <Link href="/oquv/klassifikatsiyasi/ligand" className="text-purple-400 hover:text-purple-300 transition-all text-lg">
-          ← Orqaga
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-pink-400">🎨 Aralash ligandli komplekslar</h1>
-          <p className="text-purple-400 text-sm">Bir necha turdagi ligandlar tutgan komplekslar • Eng amaliy ahamiyatga ega guruh</p>
+    <MavzuLayout
+      sarlavha="Aralash (Geteroligand) komplekslar"
+      tavsif="Ichki koordinatsion sferasida ikki yoki undan ortiq turli kimyoviy tabiatdagi ligandlarni bir vaqtda tutgan birikmalar"
+      ikon="🎨"
+      nishon="ARALASH LIGANDLAR"
+      yol={[
+        { nom: "Klassifikatsiyasi", havola: "/oquv/klassifikatsiyasi" },
+        { nom: "Ligand tabiatiga ko'ra", havola: "/oquv/klassifikatsiyasi/ligand" },
+        { nom: "Aralash ligandli" }
+      ]}
+      oldingiMavzu={{ nom: "Metallosenlar", havola: "/oquv/klassifikatsiyasi/ligand/metallosen" }}
+      keyingiMavzu={{ nom: "Kimyoviy bog'lanish bo'limi", havola: "/oquv/kimyoviy-boglanish" }}
+      quizHavola="/oquv/video-darsliklar/quiz/klassifikatsiyasi"
+    >
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--v3-matn)" }}>
+          <span>📋</span>
+          <span>Geteroligandli komplekslar xususiyatlari</span>
+        </h2>
+        <div
+          className="rounded-2xl p-5 border"
+          style={{
+            background: "color-mix(in srgb, var(--v3-urgu) 8%, var(--v3-yuza))",
+            borderColor: "color-mix(in srgb, var(--v3-urgu) 25%, var(--v3-chiziq))"
+          }}
+        >
+          <p className="v3-xira text-xs sm:text-sm leading-relaxed">
+            <strong style={{ color: "var(--v3-matn)" }}>Aralash (geteroligandli) komplekslar</strong> — bitta markaziy atomga turli xil donor xususiyatiga ega bo&apos;lgan bir necha turdagi ligandlar birikkan komplekslardir. Ular gomoleptik (bir xil ligandli) komplekslarga qaraganda simmetriyasi pastroq bo&apos;lib, geometrik (sis/trans, fas/mer) hamda optik izomeriyaga nihoyatda boydir.
+          </p>
         </div>
-      </header>
+      </div>
 
-      <section className="max-w-4xl mx-auto px-6 py-12 space-y-8">
+      <div
+        className="rounded-2xl p-6 sm:p-8 border shadow-xs space-y-4"
+        style={{
+          background: "var(--v3-yuza)",
+          borderColor: "var(--v3-chiziq)"
+        }}
+      >
+        <h3 className="text-lg font-bold" style={{ color: "var(--v3-matn)" }}>
+          Aralash ligandli komplekslarning muhim namunalari
+        </h3>
 
-        {/* 1. TA'RIF */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">📋 Aralash ligandli komplekslar haqida</h2>
-          
-          <div className="bg-pink-600/10 border border-pink-500/30 rounded-xl p-6 mb-6">
-            <p className="text-purple-200 text-lg leading-relaxed">
-              <strong className="text-yellow-400">Aralash ligandli komplekslar</strong> — ichki sferada 
-              <strong className="text-yellow-400"> bir necha turdagi ligandlar</strong> tutgan kompleks birikmalardir. 
-              Bu eng ko'p uchraydigan va <strong className="text-yellow-400">eng amaliy ahamiyatga ega</strong> guruhdir. 
-              Aksariyat kompleks birikmalar aynan aralash ligandli bo'ladi.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-2">Xususiyatlari</h3>
-              <ul className="text-purple-200 space-y-1 text-sm">
-                <li>• Bir necha turdagi ligandlar</li>
-                <li>• Ko'pincha geometrik izomeriya mavjud</li>
-                <li>• Nomlashda alfavit tartibi muhim</li>
-                <li>• Tabiatda eng ko'p tarqalgan</li>
-              </ul>
-            </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-2">Muhim faktlar</h3>
-              <ul className="text-purple-200 space-y-1 text-sm">
-                <li>• Sisplatin — eng mashhur vakil</li>
-                <li>• Izomeriya turlari ko'p uchraydi</li>
-                <li>• Farmatsevtikada keng qo'llaniladi</li>
-                <li>• Katalizator sifatida muhim</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* 2. ASOSIY MISOLAR */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">⭐ Eng muhim aralash ligandli komplekslar</h2>
-          
-          <div className="space-y-6">
-            {misollar.map((m, i) => (
-              <div key={i} className="bg-purple-800/30 rounded-xl p-6 border border-purple-700/30 hover:border-pink-400/30 transition-all">
-                <h3 className="text-xl font-bold text-yellow-400 font-mono mb-2">{m.formula}</h3>
-                <p className="text-purple-200 font-semibold mb-3">{m.nomi}</p>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <span className="bg-pink-600/20 text-pink-400 border border-pink-600/30 px-3 py-1 rounded-full text-xs">
-                    {m.turi}
-                  </span>
-                  {m.ligandlar.split(", ").map((l, j) => (
-                    <span key={j} className="bg-purple-600/20 text-purple-300 border border-purple-600/30 px-3 py-1 rounded-full text-xs">
-                      {l}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-purple-300 text-sm">💡 {m.izoh}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 3. SISPLATIN */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">💊 Sisplatin — aralash ligandli komplekslarning eng muhim vakili</h2>
-          
-          <div className="bg-pink-600/10 border border-pink-500/30 rounded-xl p-6 mb-6">
-            <p className="text-purple-200 leading-relaxed">
-              <strong className="text-yellow-400">sis-[PtCl₂(NH₃)₂]</strong> — sisplatin — 
-              aralash ligandli komplekslarning eng yorqin amaliy misoli. Bu kompleks 
-              <strong className="text-yellow-400"> saraton kasalliklarini davolashda</strong> keng qo'llaniladi.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-2">Ta'sir mexanizmi</h3>
-              <p className="text-purple-200 text-sm">
-                Sisplatin DNK molekulasiga kirib, qo'shni guanin asoslari bilan o'zaro bog'lanib (cross-linking), 
-                DNK replikatsiyasini to'xtatadi va saraton hujayralarining bo'linishini oldini oladi.
-              </p>
-            </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-2">Nega faqat sis-izomer?</h3>
-              <p className="text-purple-200 text-sm">
-                Trans-izomer DNK bilan bunday bog'lanishni hosil qila olmaydi. Shuning uchun 
-                faqat sis-izomer biologik faol, trans-izomer esa ta'sirsiz. Bu geometrik izomeriyaning 
-                tibbiyotdagi eng muhim misoli!
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* 4. IZOMERIYA */}
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-6">🔄 Aralash ligandli komplekslarda izomeriya</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-2">Geometrik izomeriya</h3>
-              <p className="text-purple-200 text-sm">
-                Har xil ligandlar turlicha joylashishi mumkin — sis-trans, fac-mer izomerlar hosil bo'ladi. 
-                Bu ko'pchilik aralash ligandli komplekslar uchun xarakterli.
-              </p>
-            </div>
-            <div className="bg-purple-800/30 rounded-xl p-5 border border-purple-700/30">
-              <h3 className="text-yellow-400 font-bold mb-2">Ionlanish izomeriyasi</h3>
-              <p className="text-purple-200 text-sm">
-                Tashqi va ichki sfera o'rtasida ligand almashinishi natijasida ionlanish izomerlari hosil bo'ladi. 
-                Masalan: [CoBr(NH₃)₅]SO₄ va [Co(NH₃)₅SO₄]Br.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* 5. XULOSA */}
-        <div className="bg-gradient-to-r from-pink-600/10 to-purple-600/10 border border-pink-500/20 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white mb-4">✅ Asosiy xulosalar</h2>
-          <ol className="space-y-2 text-purple-200 list-decimal list-inside">
-            <li>Aralash ligandli komplekslar — <strong className="text-yellow-400">eng ko'p tarqalgan</strong> guruh</li>
-            <li>Ichki sferada <strong>bir necha turdagi ligandlar</strong> mavjud</li>
-            <li>Sisplatin — <strong>eng muhim aralash ligandli kompleks</strong></li>
-            <li>Ko'pincha <strong>izomeriya</strong> kuzatiladi</li>
-            <li>Tibbiyot va farmatsevtikada keng qo'llaniladi</li>
-          </ol>
-        </div>
-
-        {/* Pastki navigatsiya */}
-        <div className="flex justify-between pt-6">
-          <Link 
-            href="/oquv/klassifikatsiyasi/ligand/nitrit" 
-            className="px-6 py-3 border border-purple-500 rounded-xl hover:bg-purple-800/50 transition-all text-purple-300"
-          >
-            ← Nitrit komplekslar
-          </Link>
-          <Link 
-            href="/oquv/klassifikatsiyasi/ligand/xelat" 
-            className="px-6 py-3 bg-green-600/80 rounded-xl hover:bg-green-500 transition-all text-white font-semibold"
-          >
-            Keyingi: Xelat komplekslar →
-          </Link>
-        </div>
-
-      </section>
-
-    </main>
+        <InteraktivJadval
+          sarlavha="Geteroligandli komplekslar jadvali"
+          ustunlar={[
+            { kalit: "formula", nom: "Formula", format: "formula", kenglik: "22%" },
+            { kalit: "nomi", nom: "IUPAC nomi", kenglik: "30%" },
+            { kalit: "ligandlar", nom: "Ligandlar tarkibi", kenglik: "28%" },
+            { kalit: "tip", nom: "Tasnif turi", kenglik: "20%" }
+          ]}
+          qatorlar={ARALASH_KOMPLEKSLAR}
+        />
+      </div>
+    </MavzuLayout>
   )
 }
