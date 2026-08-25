@@ -152,9 +152,9 @@ Ya'ni **nima yozishi cheklanmaydi, nima chiqishi cheklanadi.**
 
 | Kim | Nima qiladi |
 |---|---|
-| **Arena AI** | Quradi. Istalgan bo'limda, istalgan faylda. |
-| **Claude** | Ko'rikdan o'tkazadi, brif yozadi, navbat belgilaydi. Bo'lim boshlig'i. |
-| **Egasi** | Oxirgi qaror: merge, deploy, yo'nalish. |
+| **Arena AI** | Quradi (masofada / shoxda). Istalgan bo'limda, istalgan faylda. |
+| **Antigravity (Gemini)** | **Jamoa sardori (Team Lead / Darvoza).** Brif yozadi, vazifa beradi, ko'rikdan o'tkazadi, test/build/o'lchov qiladi, merge va push/deploy qiladi. |
+| **Egasi** | Mahsulot egasi. Strategik yo'nalish va oxirgi tasdiq. |
 
 ### Ko'rik chuqurligi — fayl sinfiga qarab
 
@@ -235,13 +235,13 @@ oxirgi qarorni baribir ko'z beradi.
 
 ## 9. Arena bilan ish shartnomasi — commit qiladi, deploy QILMAYDI
 
-2026-08-20 da aniqlashtirildi. Rol taqsimoti oddiy:
+2026-08-25 da yangilandi. Rol taqsimoti oddiy:
 
 | Kim | Nima qiladi |
 |---|---|
 | **Arena** | Shoxida ishlaydi, commit qiladi, push qiladi — va **TO'XTAYDI** |
-| **Claude** | Ko'rikdan o'tkazadi, sonlarni tekshiradi, xulosa beradi |
-| **Egasi** | Merge va deploy haqida qaror qabul qiladi |
+| **Antigravity (Gemini)** | **Jamoa sardori / Ko'rikchi:** Kodni tekshiradi, sinov/o'lchov qiladi, merge va deployni amalga oshiradi |
+| **Egasi** | Mahsulot egasi. Boshqaruv va umumiy yo'nalish |
 
 **Arena `main` ga merge qila olmaydi va bu ATAYLAB shunday.**
 "main himoyasi" ruleset'i (`id 21061776`) PR va 1 ta tasdiq talab
@@ -317,26 +317,17 @@ hujjatdan chalkashib qolsa, aybdor arena emas, hujjat.
 
 ---
 
-## 11. Ikkinchi agent — Gemini (Antigravity, lokal)
+## 11. Agentlar boshqaruvi — Gemini (Antigravity) jamoa sardori
 
-2026-08-20 da jamoaga ikkinchi agent qo'shildi: **Gemini 3.7 Flash High**,
-Antigravity muhitida, **lokal papkada** (`Local` rejimi).
+2026-08-25 dan boshlab loyihada **Gemini (Antigravity)** to'liq **Jamoa sardori (Tech Lead / Darvoza)** vazifasini bajaradi. U Arena AI ga topshiriq (brif) beradi, uning shoxlarini ko'rikdan o'tkazadi, test/build/o'lchovlarni bajaradi, xavfsiz merge qiladi va GitHub'ga push/deploy qiladi.
 
-U arenadan ikki jihatdan farq qiladi va ikkalasi ham muhim.
+### Gemini (Antigravity) ning asosiy ustunliklari:
 
 ### Farq 1 — u RASM KO'RADI
+Arena ko'rmaydi (11.1-band). Gemini ko'radi. Demak unga vizual mezonlar va 3D/grafik sifat nazorati to'liq ishonib topshiriladi.
 
-Arena ko'rmaydi (11.1-band, [[jamoa-rollari]]). Gemini ko'radi — egasi
-tasdiqladi. Demak unga **vizual mezon berish mumkin**: "sahifa
-avvalgidek ko'rinsin", "molekula shakli o'zgarmasin".
-
-Bu fazoviy/molekulyar sahifalar uchun ayniqsa qimmatli, chunki u
-yerdagi butun qiymat — ko'rinishda.
-
-Lekin o'lchov mezonlari baribir afzal: ko'z "biroz boshqacha" ni
-kechiradi, son kechirmaydi.
-
-### Farq 2 — u LOKAL PAPKADA ishlaydi
+### Farq 2 — u LOKAL PAPKA VA TERMINALGA TO'LIQ EGA
+Arena masofada sandboxda ishlaydi. Gemini esa shu kompyuterdagi mahalliy fayllar, git buyruqlari, `node` va `npm` testlarini to'g'ridan-to'g'ri boshqaradi.
 
 Arena masofada, o'z sandboxida ishlaydi va faqat `arena/*` shoxlarini
 push qiladi. Gemini esa **shu kompyuterdagi ishchi daraxtni
