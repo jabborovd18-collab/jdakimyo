@@ -147,38 +147,29 @@ export default function HamkorlikSahifasi({ params }) {
       </header>
 
       {/* Asosiy Kontent */}
-      <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* HERO KARTASI */}
-        <div className="bg-slate-900/80 border border-purple-800/50 rounded-3xl p-6 sm:p-10 text-center space-y-6 relative overflow-hidden shadow-2xl">
-          {/* Dual Brand Showcase (JDA Kimyo ✕ AlchemIQ) */}
-          <div className="flex items-center justify-center gap-4 sm:gap-6 pt-2">
-            <div className="flex flex-col items-center gap-2">
+        <div className="bg-slate-900/80 border border-purple-800/50 rounded-3xl p-6 sm:p-8 text-center space-y-5 relative overflow-hidden shadow-2xl">
+          {/* Dual Brand & Holat Badji */}
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-black/40 border border-amber-500/30 shadow-inner">
               <img
                 src="/images/hamkorlik/jdakimyo-neon-logo.jpg"
                 alt="JDA Kimyo"
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/25 transition-transform hover:scale-105"
+                className="w-7 h-7 rounded-lg object-cover border border-cyan-400/40 shadow-sm"
               />
-              <span className="text-[11px] font-extrabold text-cyan-300">JDA KIMYO</span>
-            </div>
-
-            <div className="flex flex-col items-center justify-center gap-1">
-              <span className="text-amber-400 font-black text-xl sm:text-2xl animate-pulse">✕</span>
-              <span className="text-[10px] sm:text-[11px] text-amber-400 font-extrabold uppercase tracking-wider bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
-                Hamkorlik
+              <span className="text-xs font-black bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
+                JDA KIMYO
               </span>
-            </div>
-
-            <div className="flex flex-col items-center gap-2">
+              <span className="text-amber-400/60 font-bold text-xs">✕</span>
               <img
                 src="/images/hamkorlik/alchemiq-logo.jpg"
                 alt={partnership.partnerName}
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-400/80 shadow-xl shadow-amber-500/25 transition-transform hover:scale-105"
+                className="w-7 h-7 rounded-lg object-cover border border-amber-400/50 shadow-sm"
               />
-              <span className="text-[11px] font-extrabold text-amber-300">{partnership.partnerName}</span>
+              <span className="text-xs font-bold text-amber-300">{partnership.partnerName}</span>
             </div>
-          </div>
 
-          <div className="flex items-center justify-center gap-3">
             <div className={`px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 ${
               isActive ? 'bg-green-500/20 text-green-400 border border-green-500/40' : 'bg-red-500/20 text-red-400 border border-red-500/40'
             }`}>
@@ -187,69 +178,69 @@ export default function HamkorlikSahifasi({ params }) {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+          <div className="space-y-2">
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
               {partnership.title}
             </h1>
-            <p className="text-sm sm:text-base text-purple-200 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-purple-200 max-w-xl mx-auto leading-relaxed">
               {partnership.certReason || partnership.description}
             </p>
           </div>
 
           {/* Sinov xarakteristikalari */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto text-xs text-purple-300">
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-purple-800/40">
-              <span className="text-[11px] text-purple-400 block">Savollar soni</span>
-              <strong className="text-base text-white font-bold">30 ta</strong>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-xl mx-auto text-xs text-purple-300">
+            <div className="p-2.5 rounded-xl bg-black/40 border border-purple-800/40">
+              <span className="text-[10px] text-purple-400 block">Savollar soni</span>
+              <strong className="text-sm text-white font-bold">30 ta</strong>
             </div>
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-purple-800/40">
-              <span className="text-[11px] text-purple-400 block">Vaqt chegarasi</span>
-              <strong className="text-base text-amber-400 font-bold">{partnership.timeLimitMin} daqiqa</strong>
+            <div className="p-2.5 rounded-xl bg-black/40 border border-purple-800/40">
+              <span className="text-[10px] text-purple-400 block">Vaqt chegarasi</span>
+              <strong className="text-sm text-amber-400 font-bold">{partnership.timeLimitMin} daqiqa</strong>
             </div>
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-purple-800/40">
-              <span className="text-[11px] text-purple-400 block">O&apos;tish bali</span>
-              <strong className="text-base text-green-400 font-bold">{partnership.minPassPercent}%</strong>
+            <div className="p-2.5 rounded-xl bg-black/40 border border-purple-800/40">
+              <span className="text-[10px] text-purple-400 block">O&apos;tish bali</span>
+              <strong className="text-sm text-green-400 font-bold">{partnership.minPassPercent}%</strong>
             </div>
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-purple-800/40">
-              <span className="text-[11px] text-purple-400 block">Mukofot</span>
-              <strong className="text-base text-amber-300 font-bold">Rasmiy Sertifikat</strong>
+            <div className="p-2.5 rounded-xl bg-black/40 border border-purple-800/40">
+              <span className="text-[10px] text-purple-400 block">Mukofot</span>
+              <strong className="text-sm text-amber-300 font-bold">Rasmiy Sertifikat</strong>
             </div>
           </div>
 
           {/* Muddati haqida */}
-          <div className="text-xs text-purple-400 font-mono flex items-center justify-center gap-1.5">
-            <Ikon nom="taqvim" olcham={14} />
+          <div className="text-[11px] text-purple-400 font-mono flex items-center justify-center gap-1.5">
+            <Ikon nom="taqvim" olcham={13} />
             <span>Sinov muddati: {sanaQisqa(startsAt)} dan — {sanaQisqa(endsAt)} gacha</span>
           </div>
 
           {/* AMAL TUGMALARI */}
-          <div className="pt-3">
+          <div className="pt-2">
             {!isAuthenticated ? (
-              <div className="max-w-md mx-auto space-y-3">
-                {/* KATTA ASOSIY RO'YXATDAN O'TISH TUGMASI */}
+              <div className="max-w-sm mx-auto space-y-2.5">
+                {/* RO'YXATDAN O'TISH TUGMASI */}
                 <Link
                   href={`/register?callbackUrl=/hamkorlik/${slug}`}
-                  className="w-full inline-flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-base sm:text-lg shadow-2xl shadow-amber-500/20 hover:scale-105 transition-all"
+                  className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-extrabold text-sm sm:text-base shadow-xl shadow-amber-500/20 hover:scale-[1.02] active:scale-95 transition-all"
                 >
-                  <Ikon nom="qosh" olcham={22} qalin={2.5} />
+                  <Ikon nom="qosh" olcham={18} qalin={2.5} />
                   <span>Ro&apos;yxatdan O&apos;tish va Testni Boshlash</span>
                 </Link>
 
                 {/* KICHIKROQ KIRISH HAVOLASI */}
-                <div className="flex items-center justify-center gap-2 pt-1 text-xs text-purple-300">
+                <div className="flex items-center justify-center gap-1.5 text-xs text-purple-300">
                   <span>Hisobingiz bormi?</span>
                   <Link
                     href={`/login?callbackUrl=/hamkorlik/${slug}`}
                     className="font-bold text-amber-400 hover:text-amber-300 underline underline-offset-4 flex items-center gap-1"
                   >
-                    <Ikon nom="chiqish" olcham={13} />
+                    <Ikon nom="chiqish" olcham={12} />
                     <span>Kirish</span>
                   </Link>
                 </div>
               </div>
             ) : !isActive ? (
-              <div className="p-4 rounded-2xl bg-red-950/30 border border-red-800/40 text-red-300 text-sm font-bold flex items-center justify-center gap-2">
-                <Ikon nom="ogohlantirish" olcham={18} />
+              <div className="p-3.5 rounded-xl bg-red-950/30 border border-red-800/40 text-red-300 text-xs font-bold flex items-center justify-center gap-2">
+                <Ikon nom="ogohlantirish" olcham={16} />
                 <span>Ushbu sinov vaqti yakunlangan yoki hali boshlanmagan.</span>
               </div>
             ) : hasSubmitted ? (

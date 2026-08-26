@@ -58,13 +58,12 @@ export default function ProfilHamkorlikBanner() {
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24))
       const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-      const secs = Math.floor((diff % (1000 * 60)) / 1000)
+      const mins = Math.floor((diff % (1000 * 60)) / (1000 * 60))
 
       if (days > 0) {
         setTimeLeft(`${days} kun ${hours} soat`)
       } else {
-        setTimeLeft(`${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`)
+        setTimeLeft(`${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`)
       }
     }
 
@@ -76,52 +75,45 @@ export default function ProfilHamkorlikBanner() {
   if (!event) return null
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border-2 border-amber-500/60 bg-gradient-to-r from-purple-950 via-slate-900 to-amber-950/50 p-5 sm:p-6 shadow-2xl transition-all hover:border-amber-400">
-      {/* Orqa fon nur effekti */}
-      <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
-        <div className="flex items-start gap-4">
-          <div className="relative flex items-center shrink-0">
+    <div className="relative overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-r from-slate-900 via-purple-950/40 to-slate-900 p-3.5 sm:p-4 shadow-lg transition-all hover:border-amber-400/60">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center shrink-0">
             <img
               src="/images/hamkorlik/jdakimyo-neon-logo.jpg"
               alt="JDA Kimyo"
-              className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl object-cover border-2 border-cyan-400/50 shadow-md shadow-cyan-500/20"
+              className="w-9 h-9 rounded-lg object-cover border border-cyan-400/50 shadow-sm"
             />
             <img
               src="/images/hamkorlik/alchemiq-logo.jpg"
-              alt="AlchemIQ"
-              className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl object-cover border-2 border-amber-400 -ml-4 shadow-xl shadow-amber-500/30"
+              alt={event.partnerName}
+              className="w-9 h-9 rounded-lg object-cover border border-amber-400/80 -ml-2.5 shadow-sm"
             />
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-slate-950 uppercase tracking-wider">
-                Mavsumiy Hamkorlik
+          <div className="min-w-0 space-y-0.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
+                Hamkorlik
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-black/50 text-amber-300 border border-amber-500/30 font-mono flex items-center gap-1.5">
-                <Ikon nom="soat" olcham={12} />
+              <span className="text-[11px] font-semibold text-amber-300 flex items-center gap-1 font-mono">
+                <Ikon nom="soat" olcham={11} />
                 <span>{timeLeft} qoldi</span>
               </span>
             </div>
 
-            <h2 className="text-base sm:text-xl font-black text-white">
+            <h3 className="text-sm sm:text-base font-bold text-white truncate">
               {event.partnerName} & JDA Kimyo — {event.title}
-            </h2>
-
-            <p className="text-xs sm:text-sm text-purple-200 line-clamp-1 max-w-xl">
-              {event.certReason || "Sinovda qatnashing va rasmiy QR-kodli mavsumiy sertifikatni qo'lga kiriting!"}
-            </p>
+            </h3>
           </div>
         </div>
 
         <Link
           href={`/hamkorlik/${event.slug}`}
-          className="w-full md:w-auto text-center px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-extrabold text-sm shadow-xl hover:scale-105 transition-transform shrink-0 flex items-center justify-center gap-2"
+          className="w-full sm:w-auto text-center px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md transition-transform active:scale-95 shrink-0 flex items-center justify-center gap-1.5"
         >
-          <span>Testda Qatnashish</span>
-          <Ikon nom="ong" olcham={16} />
+          <span>Testga o&apos;tish</span>
+          <Ikon nom="ong" olcham={13} />
         </Link>
       </div>
     </div>
