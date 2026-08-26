@@ -343,6 +343,8 @@ model SeasonalPartnership {
   startsAt        DateTime
   endsAt          DateTime
   isActive        Boolean   @default(true)
+  isAnnounced     Boolean   @default(false) // Admin e'lon qilmaguncha natijalar va sertifikatlar yashirin bo'ladi
+  publishedAt     DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -350,6 +352,7 @@ model SeasonalPartnership {
 
   @@index([slug])
   @@index([isActive])
+  @@index([isAnnounced])
 }
 
 model PartnershipAttempt {
@@ -366,6 +369,7 @@ model PartnershipAttempt {
   certId         String?             @unique
   completedAt    DateTime            @default(now())
 
+  @@unique([partnershipId, userId]) // Har bir profil faqat 1 marta ishlay oladi
   @@index([partnershipId])
   @@index([userId])
   @@index([score])

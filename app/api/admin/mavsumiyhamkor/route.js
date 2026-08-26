@@ -154,7 +154,99 @@ export async function POST(req) {
       })
     }
 
-    // 2. TADBIY YARATISH / TAHRIRLASH
+    // 2. NATIJALARNI RASMAN E'LON QILISH
+    if (action === 'publish_results') {
+      const { partnershipId } = body
+      if (!partnershipId) {
+        return NextResponse.json({ error: 'Hamkorlik ID kiritilmadi' }, { status: 400 })
+      }
+
+      const event = await prisma.seasonalPartnership.findUnique({
+        where: { id: partnershipId },
+        include: {
+          attempts: {
+            include: {
+              user: { select: { id: true, userId: true, username: true, fullName: true } }
+            }
+          }
+        }
+      })
+      if (!event) return NextResponse.json({ error: 'Tadbir topilmadi' }, { status: 404 })
+
+      // Hamkorlikni e'lon qilingan deb belgilash
+      await prisma.seasonalPartnership.update({
+        where: { id: partnershipId },
+        data: {
+          isAnnounced: true,
+          publishedAt: new Date()
+        }
+      })
+
+      // O'tish balidan o'tgan barcha ishtirokchilarga rasmiy sertifikat rasmiylashtirish
+      let certsCreated = 0
+      for (const attempt of event.attempts) {
+        if (attempt.passed && !attempt.certId) {
+          const certId = certIdGeneratsiya(event.certPrefix || 'AK-JK-2025-')
+          const certReason = event.certReason ||
+            `${event.partnerName || 'AlchemIQ'} va JDA Kimyo tomonidan tashkil etilgan ${event.title || '1 KUNLIK SINOV TESTIDA'} yuqori natija ko'rsatganligi va bilim darajasining a'lo darajada ekanligi uchun taqdim etiladi.`
+
+          await prisma.certificate.create({
+            data: {
+              certId,
+              userId: attempt.userId,
+              fullName: attempt.user.fullName || attempt.user.username,
+              fan: `Mavsumiy Hamkorlik: ${event.title}`,
+              reason: certReason,
+              examName: event.title,
+              grade: attempt.percentage >= 90 ? "A'lo (1-daraja)" : "Yuqori natija",
+              score: attempt.score,
+              percentage: attempt.percentage,
+              issuedById: session.user.id,
+              seals: {
+                partnerName: event.partnerName,
+                partnerLogo: event.partnerLogo || '/images/alchemiq-logo.png',
+                partnerSignName: event.partnerSignName || 'AlchemIQ Sardor Ergashev',
+                partnerSignUrl: event.partnerSignUrl || null,
+                jdaSignName: event.jdaSignName || 'JDA Kimyo Jamoasi',
+                jdaSignUrl: event.jdaSignUrl || null,
+                badgeText: event.badgeText || 'YUKORI NATIJA'
+              }
+            }
+          })
+
+          await prisma.partnershipAttempt.update({
+            where: { id: attempt.id },
+            data: { certId }
+          })
+          certsCreated++
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Natijalar rasman e'lon qilindi! ${certsCreated} ta sertifikat rasmiylashtirildi.`
+      })
+    }
+
+    // 3. NATIJALAR E'LONINI BEKOR QILISH (YASHIRISH)
+    if (action === 'unpublish_results') {
+      const { partnershipId } = body
+      if (!partnershipId) {
+        return NextResponse.json({ error: 'Hamkorlik ID kiritilmadi' }, { status: 400 })
+      }
+
+      await prisma.seasonalPartnership.update({
+        where: { id: partnershipId },
+        data: { isAnnounced: false }
+      })
+
+      return NextResponse.json({
+        success: true,
+        message: 'Natijalar yashirildi (e\'lon bekor qilindi).'
+      })
+    }
+
+    // 4. TADBIY YARATISH / TAHRIRLASH
     const {
       id,
       slug,

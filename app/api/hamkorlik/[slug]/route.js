@@ -4,11 +4,6 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 
-function certIdGeneratsiya(prefiks = 'AK-JK-2025-') {
-  const tasodif = Math.floor(1000 + Math.random() * 9000)
-  return `${prefiks}${tasodif}`
-}
-
 export async function GET(req, { params }) {
   try {
     const { slug } = await params
@@ -35,19 +30,57 @@ export async function GET(req, { params }) {
     }
 
     let userAttempt = null
+    let hasSubmitted = false
+
     if (session?.user?.id) {
-      userAttempt = await prisma.partnershipAttempt.findFirst({
+      const attempt = await prisma.partnershipAttempt.findUnique({
         where: {
-          partnershipId: partnership.id,
-          userId: session.user.id
-        },
-        orderBy: { completedAt: 'desc' }
+          partnershipId_userId: {
+            partnershipId: partnership.id,
+            userId: session.user.id
+          }
+        }
       })
+
+      if (attempt) {
+        hasSubmitted = true
+        if (partnership.isAnnounced) {
+          userAttempt = attempt
+        } else {
+          // Natija e'lon qilinmagan bo'lsa, ball va javoblar yashirin bo'ladi
+          userAttempt = {
+            hasSubmitted: true,
+            completedAt: attempt.completedAt,
+            totalQuestions: attempt.totalQuestions
+          }
+        }
+      }
     }
 
+    // Leaderboard faqat natijalar e'lon qilinganda to'liq ko'rsatiladi
+    const leaderboard = partnership.isAnnounced ? (partnership.attempts || []) : []
+
     return NextResponse.json({
-      partnership,
-      leaderboard: partnership.attempts || [],
+      partnership: {
+        id: partnership.id,
+        slug: partnership.slug,
+        title: partnership.title,
+        partnerName: partnership.partnerName,
+        partnerLogo: partnership.partnerLogo,
+        partnerSignName: partnership.partnerSignName,
+        jdaSignName: partnership.jdaSignName,
+        description: partnership.description,
+        badgeText: partnership.badgeText,
+        minPassPercent: partnership.minPassPercent,
+        timeLimitMin: partnership.timeLimitMin,
+        startsAt: partnership.startsAt,
+        endsAt: partnership.endsAt,
+        isActive: partnership.isActive,
+        isAnnounced: partnership.isAnnounced,
+        publishedAt: partnership.publishedAt
+      },
+      leaderboard,
+      hasSubmitted,
       userAttempt
     })
   } catch (error) {
@@ -73,6 +106,22 @@ export async function POST(req, { params }) {
       return NextResponse.json({ error: 'Hamkorlik topilmadi' }, { status: 404 })
     }
 
+    // 1. BIR PROFIL FAQAT BIR MARTA TOPSHIRA OLADI
+    const existingAttempt = await prisma.partnershipAttempt.findUnique({
+      where: {
+        partnershipId_userId: {
+          partnershipId: partnership.id,
+          userId: session.user.id
+        }
+      }
+    })
+
+    if (existingAttempt) {
+      return NextResponse.json({
+        error: 'Siz ushbu sinov testini allaqachon topshirgansiz. Qayta topshirishga ruxsat berilmaydi.'
+      }, { status: 400 })
+    }
+
     const now = new Date()
     if (!partnership.isActive || now < partnership.startsAt || now > partnership.endsAt) {
       return NextResponse.json({ error: 'Ushbu sinov muddati yakunlangan yoki nofaol' }, { status: 400 })
@@ -85,48 +134,7 @@ export async function POST(req, { params }) {
     const numericPercent = parseFloat(percentage)
     const passed = numericPercent >= (partnership.minPassPercent || 75.0)
 
-    let cert = null
-    let certId = null
-
-    // Agar o'tgan bo'lsa, rasmiy sertifikat yaratamiz
-    if (passed) {
-      certId = certIdGeneratsiya(partnership.certPrefix || 'AK-JK-2025-')
-      const certReason = partnership.certReason || 
-        `${partnership.partnerName} va JDA Kimyo tomonidan tashkil etilgan ${partnership.title}da yuqori natija ko'rsatganligi va bilim darajasining a'lo darajada ekanligi uchun taqdim etiladi.`
-
-      // User ma'lumotini olamiz
-      const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { fullName: true, username: true }
-      })
-
-      const ism = user?.fullName || user?.username || session.user.name || 'Ishtirokchi'
-
-      cert = await prisma.certificate.create({
-        data: {
-          certId,
-          userId: session.user.id,
-          fullName: ism,
-          fan: `Mavsumiy Hamkorlik: ${partnership.title}`,
-          reason: certReason,
-          examName: partnership.title,
-          grade: numericPercent >= 90 ? "A'lo (1-daraja)" : "Yuqori natija",
-          score: numericScore,
-          percentage: numericPercent,
-          seals: {
-            partnerName: partnership.partnerName,
-            partnerLogo: partnership.partnerLogo || '/images/alchemiq-logo.png',
-            partnerSignName: partnership.partnerSignName || 'AlchemIQ Sardor Ergashev',
-            partnerSignUrl: partnership.partnerSignUrl || null,
-            jdaSignName: partnership.jdaSignName || 'JDA Kimyo Jamoasi',
-            jdaSignUrl: partnership.jdaSignUrl || null,
-            badgeText: partnership.badgeText || 'YUKORI NATIJA'
-          }
-        }
-      })
-    }
-
-    // Urinishni bazaga yozamiz
+    // Urinishni bazaga saqlaymiz
     const attempt = await prisma.partnershipAttempt.create({
       data: {
         partnershipId: partnership.id,
@@ -136,16 +144,16 @@ export async function POST(req, { params }) {
         totalQuestions: parseInt(totalQuestions, 10) || 30,
         timeSpentSec: parseInt(timeSpentSec, 10) || 0,
         passed,
-        certId: certId || null
+        certId: null // Sertifikat faqat admin rasman e'lon qilganda biriktiriladi
       }
     })
 
     return NextResponse.json({
       success: true,
-      passed,
-      certId,
-      certificate: cert,
-      attempt
+      hasSubmitted: true,
+      isAnnounced: partnership.isAnnounced,
+      message: "Javoblaringiz qabul qilindi. Natijalar sinov yakunlangach rasman e'lon qilinadi.",
+      completedAt: attempt.completedAt
     })
   } catch (error) {
     console.error('[Hamkorlik POST Error]:', error)
