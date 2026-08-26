@@ -314,10 +314,15 @@ export default function HamkorlikSahifasi({ params }) {
                 </div>
               </div>
             ) : !isActive || partnership.isAnnounced ? (
-              /* 3-HOLAT: Test yakunlangan, lekin o'quvchi test ishlamagan */
-              <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-800/40 text-purple-200 text-xs font-bold flex items-center justify-center gap-2 max-w-md mx-auto">
-                <Ikon nom="ogohlantirish" olcham={16} className="text-amber-400" />
-                <span>Ushbu DTM sinov testi yakunlangan. Natijalar quyida e&apos;lon qilingan.</span>
+              /* 3-HOLAT: Test yakunlangan yoki natijalar e'lon qilingan, lekin foydalanuvchi test yechishga ulgurmagan */
+              <div className="p-4 rounded-2xl bg-purple-950/40 border border-purple-800/40 text-center space-y-1.5 max-w-md mx-auto">
+                <div className="flex items-center justify-center gap-2 text-amber-400 font-bold text-xs">
+                  <Ikon nom="soat" olcham={16} />
+                  <span>Sinov Yakunlangan</span>
+                </div>
+                <p className="text-xs text-purple-200">
+                  Siz ushbu sinov testini yechishga ulgurmadingiz. Keyingi sinovlarda omad tilaymiz!
+                </p>
               </div>
             ) : (
               /* 4-HOLAT: Test ochiq va foydalanuvchi ishlashi mumkin */

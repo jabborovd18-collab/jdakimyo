@@ -126,26 +126,11 @@ export async function POST(req) {
             partnerSignUrl: partnership?.partnerSignUrl || null,
             jdaSignName: partnership?.jdaSignName || 'JDA Kimyo Jamoasi',
             jdaSignUrl: partnership?.jdaSignUrl || null,
-            badgeText: partnership?.badgeText || 'YUKORI NATIJA'
+            badgeText: partnership?.badgeText || 'YUKORI NATIJA',
+            isManual: true
           }
         }
       })
-
-      // Agar tadbir biriktirilgan bo'lsa, urinish sifatida ham yozib qo'yamiz
-      if (partnership) {
-        await prisma.partnershipAttempt.create({
-          data: {
-            partnershipId: partnership.id,
-            userId,
-            score: numericScore,
-            percentage: numericPercent,
-            totalQuestions: 30,
-            timeSpentSec: parseInt(timeSpentSec, 10) || 0,
-            passed: true,
-            certId: cert.certId
-          }
-        })
-      }
 
       return NextResponse.json({
         success: true,
