@@ -103,7 +103,7 @@ export default function HamkorlikSahifasi({ params }) {
     try {
       const certData = {
         certId: userAttempt.certId,
-        fullName: session?.user?.name || session?.user?.fullName || session?.user?.username || 'Ishtirokchi',
+        fullName: session?.user?.fullName || session?.user?.name || session?.user?.username || 'Ishtirokchi',
         fan: 'Mavsumiy Hamkorlik — DTM sinov testi',
         reason: partnership.certReason || 'AlchemIQ va JDA Kimyo tomonidan tashkil etilgan DTM SINOV TESTIDA yuqori natija ko\'rsatganligi uchun taqdim etiladi.',
         score: userAttempt.score || 0,
