@@ -7,12 +7,12 @@ async function main() {
   console.log("🌱 AlchemIQ & JDA Kimyo mavsumiy hamkorlik tadbiri kiritilmoqda...")
 
   const startsAt = new Date()
-  const endsAt = new Date(Date.now() + 14 * 24 * 3600 * 1000) // 14 kunlik faol davr
+  const endsAt = new Date(Date.now() + 14 * 24 * 3600 * 1000)
 
   const event = await prisma.seasonalPartnership.upsert({
     where: { slug: 'alchemiq' },
     update: {
-      title: '1 Kunlik Sinov Testi',
+      title: 'DTM Sinov Testi',
       partnerName: 'AlchemIQ',
       partnerSignName: 'AlchemIQ Sardor Ergashev',
       jdaSignName: 'JDA Kimyo Jamoasi',
@@ -23,12 +23,12 @@ async function main() {
       startsAt,
       endsAt,
       isActive: true,
-      certReason: 'AlchemIQ va JDA Kimyo tomonidan tashkil etilgan 1 KUNLIK SINOV TESTIDA yuqori natija ko\'rsatganligi va bilim darajasining a\'lo darajada ekanligi uchun taqdim etiladi.',
-      description: 'AlchemIQ va JDA Kimyo hamkorligidagi 1 kunlik rasmiy olimpiada sinov testi.'
+      certReason: 'AlchemIQ va JDA Kimyo tomonidan tashkil etilgan DTM SINOV TESTIDA yuqori natija ko\'rsatganligi va bilim darajasining a\'lo darajada ekanligi uchun taqdim etiladi.',
+      description: 'AlchemIQ va JDA Kimyo hamkorligidagi rasmiy DTM sinov testi.'
     },
     create: {
       slug: 'alchemiq',
-      title: '1 Kunlik Sinov Testi',
+      title: 'DTM Sinov Testi',
       partnerName: 'AlchemIQ',
       partnerSignName: 'AlchemIQ Sardor Ergashev',
       jdaSignName: 'JDA Kimyo Jamoasi',
@@ -39,8 +39,8 @@ async function main() {
       startsAt,
       endsAt,
       isActive: true,
-      certReason: 'AlchemIQ va JDA Kimyo tomonidan tashkil etilgan 1 KUNLIK SINOV TESTIDA yuqori natija ko\'rsatganligi va bilim darajasining a\'lo darajada ekanligi uchun taqdim etiladi.',
-      description: 'AlchemIQ va JDA Kimyo hamkorligidagi 1 kunlik rasmiy olimpiada sinov testi.'
+      certReason: 'AlchemIQ va JDA Kimyo tomonidan tashkil etilgan DTM SINOV TESTIDA yuqori natija ko\'rsatganligi va bilim darajasining a\'lo darajada ekanligi uchun taqdim etiladi.',
+      description: 'AlchemIQ va JDA Kimyo hamkorligidagi rasmiy DTM sinov testi.'
     }
   })
 

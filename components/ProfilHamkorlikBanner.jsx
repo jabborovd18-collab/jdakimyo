@@ -78,17 +78,8 @@ export default function ProfilHamkorlikBanner() {
     <div className="relative overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-r from-slate-900 via-purple-950/40 to-slate-900 p-3.5 sm:p-4 shadow-lg transition-all hover:border-amber-400/60">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex items-center shrink-0">
-            <img
-              src="/images/hamkorlik/jdakimyo-neon-logo.jpg"
-              alt="JDA Kimyo"
-              className="w-9 h-9 rounded-lg object-cover border border-cyan-400/50 shadow-sm"
-            />
-            <img
-              src="/images/hamkorlik/alchemiq-logo.jpg"
-              alt={event.partnerName}
-              className="w-9 h-9 rounded-lg object-cover border border-amber-400/80 -ml-2.5 shadow-sm"
-            />
+          <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 shrink-0 shadow-sm">
+            <Ikon nom="kubok" olcham={18} />
           </div>
 
           <div className="min-w-0 space-y-0.5">
