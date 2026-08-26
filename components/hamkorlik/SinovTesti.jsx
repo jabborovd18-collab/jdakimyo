@@ -246,7 +246,7 @@ export default function SinovTesti({ partnership, user, onFinish }) {
                     </span>
                   </div>
 
-                  <p className="text-sm font-semibold text-white">{savol.question}</p>
+                  <p className="text-sm font-semibold text-white whitespace-pre-line">{savol.question}</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     {savol.options.map((opt, oIdx) => {
@@ -343,7 +343,7 @@ export default function SinovTesti({ partnership, user, onFinish }) {
 
           {/* Savol matni */}
           <div className="space-y-4">
-            <h2 className="text-base sm:text-xl font-bold text-white leading-relaxed">
+            <h2 className="text-base sm:text-xl font-bold text-white leading-relaxed whitespace-pre-line">
               {joriySavol.question}
             </h2>
 
