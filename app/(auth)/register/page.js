@@ -1,8 +1,9 @@
 // app/(auth)/register/page.js
 "use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { ACADEMIC_ROLES, DEFAULT_ROLE } from '@/lib/roles'
@@ -10,8 +11,9 @@ import { ACADEMIC_ROLES, DEFAULT_ROLE } from '@/lib/roles'
 // Server tomondagi qoida bilan bir xil (app/api/auth/register/route.js)
 const USERNAME_PATTERN = /^[a-z0-9._]{3,30}$/
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -79,9 +81,21 @@ export default function RegisterPage() {
 
       toast.success('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!')
 
-      setTimeout(() => {
-        router.push('/login')
-      }, 1000)
+      const callbackUrl = searchParams?.get('callbackUrl') || '/profil'
+
+      // Ro'yxatdan o'tgach darhol tizimga kiritamiz
+      const loginRes = await signIn('credentials', {
+        login: formData.username,
+        password: formData.password,
+        redirect: false
+      })
+
+      if (!loginRes?.error) {
+        router.push(callbackUrl)
+        router.refresh()
+      } else {
+        router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`)
+      }
 
     } catch (error) {
       toast.error(error.message)
@@ -259,5 +273,17 @@ export default function RegisterPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
+        <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </main>
+    }>
+      <RegisterForm />
+    </Suspense>
   )
 }

@@ -1,14 +1,15 @@
 // app/(auth)/login/page.js
 "use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -36,7 +37,8 @@ export default function LoginPage() {
       }
 
       toast.success('Muvaffaqiyatli kirdingiz!')
-      router.push('/profil')
+      const callbackUrl = searchParams?.get('callbackUrl') || '/profil'
+      router.push(callbackUrl)
       router.refresh()
 
     } catch (error) {
@@ -45,6 +47,10 @@ export default function LoginPage() {
       setIsLoading(false)
     }
   }
+
+  const registerHref = searchParams?.get('callbackUrl')
+    ? `/register?callbackUrl=${encodeURIComponent(searchParams.get('callbackUrl'))}`
+    : '/register'
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
@@ -73,11 +79,8 @@ export default function LoginPage() {
                 autoCorrect="off"
                 spellCheck="false"
                 required
-                className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
+                className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none transition-colors"
               />
-              <p className="text-xs text-purple-400 mt-1">
-                Username yoki ro'yxatdan o'tgan email manzilingizni kiriting
-              </p>
             </div>
 
             <div>
@@ -88,18 +91,17 @@ export default function LoginPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="••••••"
+                  placeholder="••••••••"
                   autoComplete="current-password"
                   required
-                  className="w-full px-4 py-3 pr-12 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
+                  className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Parolni yashirish' : "Parolni ko'rsatish"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-400 hover:text-yellow-400 transition-colors text-lg"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-400 hover:text-purple-200"
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
             </div>
@@ -107,16 +109,13 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-yellow-500/20"
             >
-              {isLoading ? 'Yuklanmoqda...' : 'Kirish'}
+              {isLoading ? 'Kirilmoqda...' : 'Kirish'}
             </button>
           </form>
 
-          {/* ELEKTRON DOSKA.
-              Ma'ruza zalida parol terib bo'lmaydi — 100 talaba ekranni
-              ko'rib turadi. Bu yo'l aynan login sahifasida turishi kerak:
-              odam kirmoqchi bo'lganda shu yerga keladi. */}
+          {/* ELEKTRON DOSKA */}
           <div className="mt-6 pt-5 border-t border-purple-800/50">
             <Link
               href="/doska"
@@ -136,13 +135,25 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-6 text-center text-sm text-purple-300">
-            Hisobingiz yo'qmi?{' '}
-            <Link href="/register" className="text-yellow-400 hover:text-yellow-300 font-semibold">
-              Ro'yxatdan o'tish
+            Hisobingiz yo&apos;qmi?{' '}
+            <Link href={registerHref} className="text-yellow-400 hover:text-yellow-300 font-semibold">
+              Ro&apos;yxatdan o&apos;tish
             </Link>
           </div>
         </div>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
+        <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </main>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }

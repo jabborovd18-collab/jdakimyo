@@ -109,20 +109,27 @@ export default function HamkorlikSahifasi({ params }) {
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-2.5 text-xs">
             {isAuthenticated ? (
-              <Link href="/profil" className="px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800 border border-purple-700/50 text-purple-200 flex items-center gap-1.5">
+              <Link href="/profil" className="px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800 border border-purple-700/50 text-purple-200 flex items-center gap-1.5 font-semibold">
                 <Ikon nom="odam" olcham={14} />
                 <span>Profilim ({session.user.name || session.user.username})</span>
               </Link>
             ) : (
-              <Link
-                href={`/login?callbackUrl=/hamkorlik/${slug}`}
-                className="px-4 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold flex items-center gap-1.5"
-              >
-                <Ikon nom="chiqish" olcham={14} />
-                <span>Kirish / Ro&apos;yxatdan o&apos;tish</span>
-              </Link>
+              <>
+                <Link
+                  href={`/login?callbackUrl=/hamkorlik/${slug}`}
+                  className="px-3 py-1.5 rounded-xl bg-black/40 hover:bg-purple-900/40 border border-purple-700/50 text-purple-200 font-semibold"
+                >
+                  Kirish
+                </Link>
+                <Link
+                  href={`/register?callbackUrl=/hamkorlik/${slug}`}
+                  className="px-4 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold shadow-md"
+                >
+                  Ro&apos;yxatdan o&apos;tish
+                </Link>
+              </>
             )}
           </div>
         </div>
@@ -182,15 +189,30 @@ export default function HamkorlikSahifasi({ params }) {
           </div>
 
           {/* AMAL TUGMALARI */}
-          <div className="pt-2">
+          <div className="pt-3">
             {!isAuthenticated ? (
-              <Link
-                href={`/login?callbackUrl=/hamkorlik/${slug}`}
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-extrabold text-base shadow-xl hover:scale-105 transition-transform"
-              >
-                <Ikon nom="chiqish" olcham={18} />
-                <span>Testda Qatnashish Uchun Tizimga Kiring</span>
-              </Link>
+              <div className="max-w-md mx-auto space-y-3">
+                {/* KATTA ASOSIY RO'YXATDAN O'TISH TUGMASI */}
+                <Link
+                  href={`/register?callbackUrl=/hamkorlik/${slug}`}
+                  className="w-full inline-flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-base sm:text-lg shadow-2xl shadow-amber-500/20 hover:scale-105 transition-all"
+                >
+                  <Ikon nom="qosh" olcham={22} qalin={2.5} />
+                  <span>Ro&apos;yxatdan O&apos;tish va Testni Boshlash</span>
+                </Link>
+
+                {/* KICHIKROQ KIRISH HAVOLASI */}
+                <div className="flex items-center justify-center gap-2 pt-1 text-xs text-purple-300">
+                  <span>Hisobingiz bormi?</span>
+                  <Link
+                    href={`/login?callbackUrl=/hamkorlik/${slug}`}
+                    className="font-bold text-amber-400 hover:text-amber-300 underline underline-offset-4 flex items-center gap-1"
+                  >
+                    <Ikon nom="chiqish" olcham={13} />
+                    <span>Kirish</span>
+                  </Link>
+                </div>
+              </div>
             ) : !isActive ? (
               <div className="p-4 rounded-2xl bg-red-950/30 border border-red-800/40 text-red-300 text-sm font-bold flex items-center justify-center gap-2">
                 <Ikon nom="ogohlantirish" olcham={18} />
