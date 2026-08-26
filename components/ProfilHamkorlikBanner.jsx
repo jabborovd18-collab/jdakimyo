@@ -82,8 +82,17 @@ export default function ProfilHamkorlikBanner() {
 
       <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 shrink-0 shadow-lg">
-            <Ikon nom="kubok" olcham={30} />
+          <div className="relative flex items-center shrink-0">
+            <img
+              src="/images/hamkorlik/jdakimyo-neon-logo.jpg"
+              alt="JDA Kimyo"
+              className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl object-cover border-2 border-cyan-400/50 shadow-md shadow-cyan-500/20"
+            />
+            <img
+              src="/images/hamkorlik/alchemiq-logo.jpg"
+              alt="AlchemIQ"
+              className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl object-cover border-2 border-amber-400 -ml-4 shadow-xl shadow-amber-500/30"
+            />
           </div>
 
           <div className="space-y-1">

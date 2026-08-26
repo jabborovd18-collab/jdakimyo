@@ -97,16 +97,27 @@ export default function HamkorlikSahifasi({ params }) {
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/20 to-slate-950 text-white">
       {/* Header */}
       <header className="border-b border-purple-800/40 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="text-lg sm:text-xl font-extrabold bg-gradient-to-r from-amber-400 to-yellow-400 bg-clip-text text-transparent">
-              JDA KIMYO
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Link href="/" className="flex items-center gap-2">
+              <img
+                src="/images/hamkorlik/jdakimyo-neon-logo.jpg"
+                alt="JDA Kimyo"
+                className="w-7 h-7 rounded-lg object-cover border border-cyan-400/40"
+              />
+              <span className="text-base sm:text-lg font-extrabold bg-gradient-to-r from-amber-400 to-yellow-400 bg-clip-text text-transparent">
+                JDA KIMYO
+              </span>
             </Link>
-            <span className="text-purple-700">✕</span>
-            <span className="font-bold text-sm sm:text-base text-amber-400 flex items-center gap-1.5">
-              <Ikon nom="hamkor" olcham={16} />
-              {partnership.partnerName}
-            </span>
+            <span className="text-purple-700 font-bold">✕</span>
+            <div className="flex items-center gap-1.5 font-bold text-xs sm:text-sm text-amber-400">
+              <img
+                src="/images/hamkorlik/alchemiq-logo.jpg"
+                alt={partnership.partnerName}
+                className="w-6 h-6 rounded-md object-cover border border-amber-400/40"
+              />
+              <span>{partnership.partnerName}</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2.5 text-xs">
@@ -139,12 +150,35 @@ export default function HamkorlikSahifasi({ params }) {
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
         {/* HERO KARTASI */}
         <div className="bg-slate-900/80 border border-purple-800/50 rounded-3xl p-6 sm:p-10 text-center space-y-6 relative overflow-hidden shadow-2xl">
-          {/* Hamkor Logotipi va Badj */}
-          <div className="flex items-center justify-center gap-4">
-            <div className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold flex items-center gap-2">
-              <Ikon nom="hamkor" olcham={16} />
-              <span>Rasmiy Mavsumiy Hamkorlik</span>
+          {/* Dual Brand Showcase (JDA Kimyo ✕ AlchemIQ) */}
+          <div className="flex items-center justify-center gap-4 sm:gap-6 pt-2">
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src="/images/hamkorlik/jdakimyo-neon-logo.jpg"
+                alt="JDA Kimyo"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/25 transition-transform hover:scale-105"
+              />
+              <span className="text-[11px] font-extrabold text-cyan-300">JDA KIMYO</span>
             </div>
+
+            <div className="flex flex-col items-center justify-center gap-1">
+              <span className="text-amber-400 font-black text-xl sm:text-2xl animate-pulse">✕</span>
+              <span className="text-[10px] sm:text-[11px] text-amber-400 font-extrabold uppercase tracking-wider bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+                Hamkorlik
+              </span>
+            </div>
+
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src="/images/hamkorlik/alchemiq-logo.jpg"
+                alt={partnership.partnerName}
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-400/80 shadow-xl shadow-amber-500/25 transition-transform hover:scale-105"
+              />
+              <span className="text-[11px] font-extrabold text-amber-300">{partnership.partnerName}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-3">
             <div className={`px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 ${
               isActive ? 'bg-green-500/20 text-green-400 border border-green-500/40' : 'bg-red-500/20 text-red-400 border border-red-500/40'
             }`}>
