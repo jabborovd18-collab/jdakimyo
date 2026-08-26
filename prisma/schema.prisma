@@ -217,6 +217,9 @@ model User {
   studentTeachers       TeacherStudent[]       @relation("StudentTeachers")
   assignmentSubmissions AssignmentSubmission[]
   quizAttempts          TeacherQuizAttempt[]
+
+  // MAVSUMIY HAMKORLIK SINOVLARI
+  partnershipAttempts   PartnershipAttempt[]
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -316,6 +319,57 @@ model Certificate {
   @@index([fan])
   @@index([issuedById])
   @@index([status])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MAVSUMIY HAMKORLIK VA OLIMPIADA SINOVLARI
+// ═══════════════════════════════════════════════════════════════
+model SeasonalPartnership {
+  id              String    @id @default(cuid())
+  slug            String    @unique // masalan: "alchemiq" -> /hamkorlik/alchemiq
+  title           String    // "1 Kunlik Sinov Testi"
+  partnerName     String    // "AlchemIQ"
+  partnerLogo     String?   // Logo URL yoki SVG
+  partnerSignName String?   // "AlchemIQ Sardor Ergashev"
+  partnerSignUrl  String?   // Imzo rasmi URL
+  jdaSignName     String?   @default("JDA Kimyo Jamoasi")
+  jdaSignUrl      String?   // JDA Imzo rasmi URL
+  description     String?   @db.Text
+  certReason      String?   @db.Text // Sertifikatdagi asosiy taqdimot matni
+  certPrefix      String    @default("AK-JK-2025-")
+  badgeText       String    @default("YUKORI NATIJA")
+  minPassPercent  Float     @default(75.0)
+  timeLimitMin    Int       @default(40) // Daqiqalarda
+  startsAt        DateTime
+  endsAt          DateTime
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  attempts        PartnershipAttempt[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model PartnershipAttempt {
+  id             String              @id @default(cuid())
+  partnershipId  String
+  partnership    SeasonalPartnership @relation(fields: [partnershipId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score          Int
+  percentage     Float
+  totalQuestions Int
+  timeSpentSec   Int                 @default(0)
+  passed         Boolean             @default(false)
+  certId         String?             @unique
+  completedAt    DateTime            @default(now())
+
+  @@index([partnershipId])
+  @@index([userId])
+  @@index([score])
+  @@index([completedAt])
 }
 
 model QuizQuestion {

@@ -13,6 +13,7 @@ import LabWidget from '@/components/LabWidget'
 import ProfilPostlar from '@/components/ProfilPostlar'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 import EmailTasdiqlash from '@/components/EmailTasdiqlash'
+import ProfilHamkorlikBanner from '@/components/ProfilHamkorlikBanner'
 import Ikon from '@/components/Ikon'
 import { sana } from '@/lib/sana'
 import { daraja, darajaHolati } from '@/lib/daraja'
@@ -113,6 +114,9 @@ export default function ProfilDashboard() {
     <div className="space-y-6 max-w-6xl">
       {/* Email Tasdiqlash ogohlantirishi */}
       <EmailTasdiqlash />
+
+      {/* ═══ MAVSUMIY HAMKORLIK BANNERI (AlchemIQ va boshqalar) ═══ */}
+      <ProfilHamkorlikBanner />
 
       {/* ═══ HERO SECTION ═══ */}
       <div className="v3-panel-karta p-6 sm:p-8 relative overflow-hidden space-y-6">

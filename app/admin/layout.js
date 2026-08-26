@@ -28,6 +28,7 @@ export default async function AdminLayout({ children }) {
       items: [
         { name: 'Dashboard', href: '/admin', icon: '📊', kerak: 'statistika' },
         { name: 'Foydalanuvchilar', href: '/admin/users', icon: '👥', kerak: 'foydalanuvchilar' },
+        { name: 'Mavsumiy hamkor', href: '/admin/mavsumiyhamkor', icon: '🤝', kerak: 'sertifikatlar' },
         { name: 'Sertifikatlar', href: '/admin/certificates', icon: '🎓', kerak: 'sertifikatlar' },
         { name: 'Kanallar', href: '/admin/kanallar', icon: '📢', kerak: 'kanallar' },
       ]
