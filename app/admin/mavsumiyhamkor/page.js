@@ -6,6 +6,7 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import Ikon from '@/components/Ikon'
 import { sanaQisqa } from '@/lib/sana'
+import { hisobotPDFYuklab } from '@/lib/hamkorlik-hisobot-pdf'
 
 const BOSH_HAMKORLIK = {
   id: '',
@@ -279,6 +280,30 @@ export default function AdminMavsumiyHamkorPage() {
     }
   }
 
+  // Barcha ishtirokchilar hisobotini PDF shaklida yuklab olish
+  const [hisobotLoadingId, setHisobotLoadingId] = useState(null)
+
+  const handleHisobotYuklab = async (eventObj, existingAttempts = null) => {
+    if (!eventObj) return
+    setHisobotLoadingId(eventObj.id)
+    try {
+      let attempts = existingAttempts
+      if (!attempts) {
+        const res = await fetch(`/api/admin/mavsumiyhamkor?id=${eventObj.id}`)
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error)
+        attempts = data.event?.attempts || []
+      }
+      await hisobotPDFYuklab(eventObj, attempts)
+      toast.success('Hisobot PDF muvaffaqiyatli yuklab olindi!')
+    } catch (e) {
+      console.error(e)
+      toast.error('Hisobotni yaratishda xatolik: ' + e.message)
+    } finally {
+      setHisobotLoadingId(null)
+    }
+  }
+
   // Event natijalarini ko'rish
   const eventNatijalariniYukla = async (id) => {
     setEventYuklanmoqda(true)
@@ -502,6 +527,18 @@ export default function AdminMavsumiyHamkorPage() {
                       >
                         <Ikon nom="kubok" olcham={14} />
                         <span>Reyting</span>
+                      </button>
+
+                      {/* PDF Hisobot yuklab olish */}
+                      <button
+                        type="button"
+                        onClick={() => handleHisobotYuklab(ev)}
+                        disabled={hisobotLoadingId === ev.id}
+                        className="px-3 py-1.5 rounded-xl bg-purple-900/60 hover:bg-purple-800 border border-purple-600/50 text-amber-300 text-xs font-bold flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                        title="Barcha ishtirokchilar natijalari hisobotini PDF shaklida yuklab olish"
+                      >
+                        <Ikon nom="sertifikat" olcham={14} />
+                        <span>{hisobotLoadingId === ev.id ? 'Hisobot...' : 'Hisobot (PDF)'}</span>
                       </button>
 
                       {/* Tahrirlash & O'chirish */}
@@ -940,6 +977,17 @@ export default function AdminMavsumiyHamkorPage() {
                   <span>Rasman E&apos;lon Qilingan</span>
                 </span>
               )}
+
+              {/* PDF Hisobot yuklab olish */}
+              <button
+                type="button"
+                onClick={() => handleHisobotYuklab(tanlanganEvent, tanlanganEvent?.attempts)}
+                disabled={hisobotLoadingId === tanlanganEvent?.id}
+                className="px-4 py-2 rounded-xl bg-purple-900/80 hover:bg-purple-800 border border-purple-600/60 text-amber-300 text-xs font-black flex items-center gap-1.5 shadow-lg disabled:opacity-50"
+              >
+                <Ikon nom="sertifikat" olcham={16} />
+                <span>{hisobotLoadingId === tanlanganEvent?.id ? 'PDF Tayyorlanmoqda...' : 'Hisobotni Yuklab Olish (PDF)'}</span>
+              </button>
 
               <button
                 type="button"
