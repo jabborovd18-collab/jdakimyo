@@ -91,6 +91,17 @@ O'rganish natijasida aniqlangan tizimli nuqsonlar:
 * Har bir mavzu oxirida 5-10 talik testlar;
 * Natijalarni to'g'ridan-to'g'ri foydalanuvchi profiliga (XP va yutuqlar) yozish.
 
+### 6-BOSQICH: JDA KIMYO AI — MASALA GENERATORI VA TRENAJYOR
+* **6.1 Mavzuli Masalalar Generatori:**
+  * 3 xil qiyinchilik (Maktab, DTM/Milliy Sertifikat, Olimpiada);
+  * 8 ta asosiy mavzu (Eritmalar, Kristallogidrat, Stexiometriya, Gazlar, Elektroliz, Organik, Muvozanat, Termokimyo).
+* **6.2 "Analog Masala Kloni" (Clone & Mutate):**
+  * Kiritilgan 1 ta masala andozasi asosida 3-5 ta yangi o'xshash masala generatsiya qilish.
+* **6.3 Aqlli DTM Distractor Generatori:**
+  * 1 ta to'g'ri + 3 ta tipik xato xulosalar bilan 4 talik mukammal test yaratish.
+* **6.4 PDF Test & Worksheet Eksport:**
+  * Ustozlar va abituriyentlar uchun bir bosishda chop etiladigan savolnoma va javoblar kaliti.
+
 ---
 
 ## 4. Qabul Mezonlari (Har bir sahifa uchun)

@@ -27,6 +27,7 @@ export async function POST(request) {
       return NextResponse.json({ xato: tezlik }, { status: 429 });
     }
 
+    const foydalanuvchiIsmi = session.user.fullName || session.user.name || session.user.username || "Do'stim";
     const body = await request.json();
     const { action = "yech", masalaMatni = "", rejim = "toliq", rasm = null, savol = "", yechim = null } = body;
 
@@ -38,7 +39,8 @@ export async function POST(request) {
       const javob = await aiRepetitorChat({
         masalaMatni,
         yechim,
-        savol
+        savol,
+        foydalanuvchiIsmi
       });
       return NextResponse.json({
         muvaffaqiyatli: true,
@@ -79,11 +81,12 @@ export async function POST(request) {
       }
     }
 
-    // Ko'p agentli orkestrator orqali yechish
+    // Ko'p agentli orkestrator orqali yechish va suhbat
     const natija = await multiAgentMasalaYech({
       masalaMatni: masalaMatni.trim(),
       rejim,
-      rasm
+      rasm,
+      foydalanuvchiIsmi
     });
 
     if (!natija) {

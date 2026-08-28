@@ -269,17 +269,30 @@ export default function MasalaChatSahifasi() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.xato || "Masalani yechishda xatolik yuz berdi");
 
-        setXabarlar((prev) => [
-          ...prev,
-          {
-            id: "ai-" + Date.now(),
-            rol: "ai",
-            turi: "yechim",
-            yechim: data,
-            rejim: joriyRejim,
-            vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
-          },
-        ]);
+        if (data.turi === "suhbat") {
+          setXabarlar((prev) => [
+            ...prev,
+            {
+              id: "ai-" + Date.now(),
+              rol: "ai",
+              turi: "chat_javob",
+              matn: data.matn,
+              vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
+            },
+          ]);
+        } else {
+          setXabarlar((prev) => [
+            ...prev,
+            {
+              id: "ai-" + Date.now(),
+              rol: "ai",
+              turi: "yechim",
+              yechim: data,
+              rejim: joriyRejim,
+              vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
+            },
+          ]);
+        }
       }
     } catch (err) {
       toast.error(err.message || "Xatolik yuz berdi");
