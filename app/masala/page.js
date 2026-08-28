@@ -1,7 +1,7 @@
 // app/masala/page.js
 //
-// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.4.0)
-// Emojilardan to'liq voz kechilgan: faqat yagona uslubdagi sof SVG stikerlar va piktogrammalar.
+// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.5.0)
+// ChatGPT Mobile uslubidagi yagona kapsulali input dock, ixcham sarlavha va toza SVG stikerlar.
 
 "use client";
 
@@ -17,26 +17,23 @@ import toast from "react-hot-toast";
 const REJIMLAR = [
   {
     id: "tuzoq",
-    nom: "1-Rejim: Qopqon & Tuzoq",
+    nom: "1-Rejim: Tuzoq",
     ikon: "chaqmoq",
-    qisqa: "Tuzoq Tahlili",
-    rang: "amber",
+    qisqa: "⚡ Tuzoq",
     tavsif: "Masaladagi nozik ayyorlik va xatolar tahlili (Javobsiz)",
   },
   {
     id: "yonalish",
-    nom: "2-Rejim: Yo'l-yo'riq",
+    nom: "2-Rejim: Yo'nalish",
     ikon: "kitob",
-    qisqa: "Yo'nalish & Formula",
-    rang: "blue",
+    qisqa: "🧭 Yo'nalish",
     tavsif: "Reaksiya tenglamalari va formulalar rejasi",
   },
   {
     id: "toliq",
-    nom: "3-Rejim: To'liq Master",
+    nom: "3-Rejim: Master",
     ikon: "tasdiq",
-    qisqa: "To'liq Master",
-    rang: "emerald",
+    qisqa: "🎯 Master",
     tavsif: "Berilgan, Reaksiya, KaTeX bosqichlari va yakuniy javob",
   },
 ];
@@ -147,7 +144,7 @@ export default function MasalaChatSahifasi() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       setRasmBase64(ev.target.result);
-      toast.success("Rasm biriktirildi! Yuborish tugmasini bosing.");
+      toast.success("Rasm biriktirildi!");
     };
     reader.readAsDataURL(file);
   };
@@ -203,15 +200,15 @@ export default function MasalaChatSahifasi() {
     const bosqichlar = joriyRasm
       ? [
           { ikon: "rasm", matn: "Rasm OCR tahlilidan o'tkazilmoqda..." },
-          { ikon: "qidiruv", matn: "1-Agent (Tahlilchi): Masala sharti va fizik kattaliklar ajratilmoqda..." },
-          { ikon: "kolba", matn: "2-Agent (Kimyogar): Kimyoviy jarayonlar va mollar hisoblanmoqda..." },
-          { ikon: "qalam", matn: "4-Agent (Pedagog): KaTeX formulalari bilan master-yechim yozilmoqda..." },
+          { ikon: "qidiruv", matn: "1-Agent: Masala sharti va kattaliklar ajratilmoqda..." },
+          { ikon: "kolba", matn: "2-Agent: Kimyoviy jarayonlar va mollar hisoblanmoqda..." },
+          { ikon: "qalam", matn: "4-Agent: KaTeX formulalari bilan master-yechim yozilmoqda..." },
         ]
       : [
-          { ikon: "qidiruv", matn: "1-Agent (Tahlilchi): Masala sharti va kattaliklar ajratilmoqda..." },
-          { ikon: "kolba", matn: "2-Agent (Kimyogar): Kimyoviy reaksiya va stexiometriya hisoblanmoqda..." },
-          { ikon: "atom", matn: "3-Agent (Nazoratchi): Matematik birliklar va hisoblar tekshirilmoqda..." },
-          { ikon: "qalam", matn: "4-Agent (Pedagog): KaTeX formulalari bilan master-yechim shakllantirilmoqda..." },
+          { ikon: "qidiruv", matn: "1-Agent: Masala sharti va kattaliklar ajratilmoqda..." },
+          { ikon: "kolba", matn: "2-Agent: Kimyoviy reaksiya va stexiometriya hisoblanmoqda..." },
+          { ikon: "atom", matn: "3-Agent: Matematik hisob-kitoblar tekshirilmoqda..." },
+          { ikon: "qalam", matn: "4-Agent: KaTeX formulalari bilan master-yechim yozilmoqda..." },
         ];
 
     setJonliHolat(bosqichlar[0]);
@@ -292,7 +289,7 @@ export default function MasalaChatSahifasi() {
           id: "ai-err-" + Date.now(),
           rol: "ai",
           turi: "xato",
-          matn: `Xatolik yuz berdi: ${err.message || "Masalani tahlil qilib bo'lmadi. Iltimos, qayta urinib ko'ring."}`,
+          matn: `Xatolik: ${err.message || "Masalani tahlil qilib bo'lmadi. Qayta urinib ko'ring."}`,
           vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
@@ -308,159 +305,95 @@ export default function MasalaChatSahifasi() {
       data-fon={fonKaliti}
       className="v3 min-h-screen w-full flex flex-col justify-between transition-colors duration-200 bg-[var(--v3-fon)] text-[var(--v3-matn)] font-sans"
     >
-      {/* ─── 1. HEADER (BOSH MENYU BILAN) ─── */}
-      <header className="sticky top-0 z-40 bg-[var(--v3-yuza)] border-b border-[var(--v3-chiziq)] backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-3">
-          {/* BOSH MENYU TUGMASI */}
-          <Link
-            href="/"
-            className="px-3 py-1.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] text-xs font-bold flex items-center gap-1.5 transition-colors"
-          >
-            <Ikon nom="chap" olcham={14} />
-            <span>Bosh menyu</span>
-          </Link>
+      {/* ─── 1. CHATGPT USLUBIDAGI IXCHAM VA TOZA HEADER ─── */}
+      <header className="sticky top-0 z-40 bg-[var(--v3-yuza)]/95 border-b border-[var(--v3-chiziq)] backdrop-blur-xl px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-xs">
+        {/* Chap: Bosh menyu tugmasi */}
+        <Link
+          href="/"
+          className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] text-xs font-bold flex items-center gap-1.5 transition-all shrink-0"
+          title="Bosh menyuga qaytish"
+        >
+          <Ikon nom="chap" olcham={16} />
+          <span className="hidden sm:inline">Bosh menyu</span>
+        </Link>
 
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-urgu)] flex items-center justify-center shadow-xs">
-              <Ikon nom="kolba" olcham={18} />
-            </div>
-            <div>
-              <h1 className="text-sm sm:text-base font-black text-[var(--v3-matn)] flex items-center gap-1.5 leading-none">
-                <span>JDA Kimyo AI</span>
-                <span className="px-1.5 py-0.5 rounded-md bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-urgu)] text-[10px] font-extrabold font-mono">
-                  v4.4
-                </span>
-              </h1>
-              <span className="text-[11px] text-[var(--v3-xira)] hidden sm:inline">
-                Intellektual Kimyoviy Masalalar Repetitori
-              </span>
-            </div>
+        {/* Markaz: Model nomi kapsulasi */}
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--v3-fon)] border border-[var(--v3-chiziq)]">
+          <div className="w-4 h-4 text-[var(--v3-urgu)] flex items-center justify-center">
+            <Ikon nom="kolba" olcham={14} />
           </div>
+          <span className="text-xs sm:text-sm font-black text-[var(--v3-matn)] tracking-tight">
+            JDA Kimyo AI
+          </span>
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-[var(--v3-urgu)]/20 text-[var(--v3-urgu)]">
+            v4.5
+          </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* YANGI CHAT TUGMASI (NEW CHAT) */}
+        {/* O'ng: Yangi Chat va Fon sozlash */}
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={yangiChatBoshlash}
-            className="px-3 py-1.5 rounded-xl bg-[var(--v3-urgu)] hover:opacity-90 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-            title="Yangi suhbat boshlash"
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[var(--v3-urgu)] hover:opacity-90 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+            title="Yangi chat boshlash"
           >
             <Ikon nom="qalam" olcham={14} />
-            <span>Yangi Chat</span>
+            <span className="hidden sm:inline">Yangi Chat</span>
           </button>
-
           <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
-          <Link href="/laboratoriya/3d" className="v3-tugma text-xs py-1.5 px-3">
-            <Ikon nom="atom" olcham={14} />
-            <span className="hidden sm:inline">3D Lab</span>
-          </Link>
         </div>
       </header>
 
       {/* ─── 2. ASOSIY CHAT OQIMI (MESSAGES THREAD) ─── */}
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6 overflow-y-auto">
-        {/* JDA KIMYO AI SALOMLASHISH VA 3 XIL USULIMIZ TANISHTIRUVI KARTASI */}
+      <main className="flex-1 max-w-3xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto">
+        {/* BOSHLANG'ICH MINIMAL SALOMLASHISH KARTASI */}
         {xabarlar.length === 0 && (
-          <div className="my-6 p-6 sm:p-8 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] shadow-xl space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
-            {/* SVG Markaziy Stiker */}
-            <div className="w-16 h-16 mx-auto rounded-3xl bg-[var(--v3-fon)] border-2 border-[var(--v3-urgu)] text-[var(--v3-urgu)] flex items-center justify-center shadow-lg">
+          <div className="my-auto py-8 sm:py-12 px-3 sm:px-6 rounded-3xl space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
+            {/* Markaziy SVG Logo */}
+            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-2xl bg-[var(--v3-yuza)] border-2 border-[var(--v3-urgu)] text-[var(--v3-urgu)] flex items-center justify-center shadow-lg">
               <Ikon nom="kolba" olcham={32} />
             </div>
 
-            <div className="space-y-2 max-w-xl mx-auto">
-              <h2 className="text-xl sm:text-2xl font-black text-[var(--v3-matn)]">
-                Assalomu alaykum! JDA Kimyo AI ga xush kelibsiz
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h2 className="text-lg sm:text-xl font-black text-[var(--v3-matn)]">
+                Assalomu alaykum!
               </h2>
               <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
-                Men kimyoviy masalalarni chuqur tahlil qiluvchi va darslik formatida yechib beruvchi intellektual assistentman. Bizda masalalar 3 xil pedagogik yondashuvda tahlil qilinadi:
+                Kimyo masalasini yozing, ovozda gapiring yoki rasmini yuklang. AI 4 bosqichda tahlil qilib beradi:
               </p>
             </div>
 
-            {/* 3 XIL YONDASHUV KARTALARI */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-left pt-1">
-              {/* 1-Rejim */}
-              <div
-                onClick={() => {
-                  setRejim("tuzoq");
-                  toast.success("1-Rejim tanlandi!");
-                }}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-1.5 ${
-                  rejim === "tuzoq"
-                    ? "bg-[var(--v3-fon)] border-[var(--v3-urgu)] ring-2 ring-[var(--v3-urgu)]"
-                    : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] hover:border-[var(--v3-urgu)]"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-                    <Ikon nom="chaqmoq" olcham={14} /> 1-Rejim
-                  </span>
-                  <Ikon nom="chaqmoq" olcham={14} className="text-amber-400 opacity-60" />
-                </div>
-                <strong className="text-xs sm:text-sm font-bold text-[var(--v3-matn)] block">
-                  Yashirin Qopqon & Tuzoq
-                </strong>
-                <p className="text-[11px] text-[var(--v3-xira)] leading-relaxed">
-                  Masaladagi nozik ayyorlik va 90% o&apos;quvchilar adashadigan qopqonlarni ochib beradi (Mustaqil yechish uchun).
-                </p>
-              </div>
-
-              {/* 2-Rejim */}
-              <div
-                onClick={() => {
-                  setRejim("yonalish");
-                  toast.success("2-Rejim tanlandi!");
-                }}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-1.5 ${
-                  rejim === "yonalish"
-                    ? "bg-[var(--v3-fon)] border-[var(--v3-urgu)] ring-2 ring-[var(--v3-urgu)]"
-                    : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] hover:border-[var(--v3-urgu)]"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
-                    <Ikon nom="kitob" olcham={14} /> 2-Rejim
-                  </span>
-                  <Ikon nom="kitob" olcham={14} className="text-blue-400 opacity-60" />
-                </div>
-                <strong className="text-xs sm:text-sm font-bold text-[var(--v3-matn)] block">
-                  Yo&apos;l-yo&apos;riq & Formulalar
-                </strong>
-                <p className="text-[11px] text-[var(--v3-xira)] leading-relaxed">
-                  Reaksiya tenglamalari va bosqichma-bosqich formulalar rejasini beradi (Hisoblash talaba zimmasida).
-                </p>
-              </div>
-
-              {/* 3-Rejim */}
-              <div
-                onClick={() => {
-                  setRejim("toliq");
-                  toast.success("3-Rejim tanlandi!");
-                }}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-1.5 ${
-                  rejim === "toliq"
-                    ? "bg-[var(--v3-fon)] border-[var(--v3-urgu)] ring-2 ring-[var(--v3-urgu)]"
-                    : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] hover:border-[var(--v3-urgu)]"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                    <Ikon nom="tasdiq" olcham={14} /> 3-Rejim
-                  </span>
-                  <Ikon nom="tasdiq" olcham={14} className="text-emerald-400 opacity-60" />
-                </div>
-                <strong className="text-xs sm:text-sm font-bold text-[var(--v3-matn)] block">
-                  To&apos;liq Master Yechim
-                </strong>
-                <p className="text-[11px] text-[var(--v3-xira)] leading-relaxed">
-                  Berilgan, Topish kerak, Reaksiyalar, KaTeX bosqichlari va yakuniy aniq javob bilan to&apos;liq tahlil.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-2 text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
-              <Ikon nom="qalam" olcham={14} className="text-[var(--v3-urgu)]" />
-              <span>Quyidagi maydonga istalgan kimyo masalasini yozing, ovozda ayting yoki kitobdagi rasmini tashlang.</span>
+            {/* IXCHAM 3 XIL REJIM TANLAGICH */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left">
+              {REJIMLAR.map((r) => (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => {
+                    setRejim(r.id);
+                    toast.success(`${r.qisqa} tanlandi!`);
+                  }}
+                  className={`p-3 rounded-2xl border transition-all text-left cursor-pointer space-y-1 ${
+                    rejim === r.id
+                      ? "bg-[var(--v3-yuza)] border-[var(--v3-urgu)] ring-2 ring-[var(--v3-urgu)] shadow-md"
+                      : "bg-[var(--v3-yuza)]/60 border-[var(--v3-chiziq)] hover:border-[var(--v3-urgu)]/60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
+                      <Ikon nom={r.ikon} olcham={13} className="text-[var(--v3-urgu)]" />
+                      {r.qisqa}
+                    </span>
+                    {rejim === r.id && (
+                      <Ikon nom="tasdiq" olcham={12} className="text-[var(--v3-urgu)]" />
+                    )}
+                  </div>
+                  <p className="text-[10px] text-[var(--v3-xira)] line-clamp-2 leading-tight">
+                    {r.tavsif}
+                  </p>
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -471,12 +404,12 @@ export default function MasalaChatSahifasi() {
             {/* FOYDALANUVCHI XABARI */}
             {xabar.rol === "user" && (
               <div className="flex justify-end">
-                <div className="max-w-[85%] sm:max-w-[75%] p-4 rounded-3xl rounded-tr-xs bg-[var(--v3-urgu)] text-white shadow-md space-y-2">
+                <div className="max-w-[88%] sm:max-w-[78%] p-3.5 sm:p-4 rounded-2xl rounded-tr-xs bg-[var(--v3-urgu)] text-white shadow-md space-y-2">
                   {xabar.rasm && (
                     <img
                       src={xabar.rasm}
                       alt="Yuklangan masala"
-                      className="max-h-56 rounded-2xl object-cover border border-white/20"
+                      className="max-h-52 rounded-xl object-cover border border-white/20"
                     />
                   )}
                   {xabar.matn && (
@@ -484,7 +417,7 @@ export default function MasalaChatSahifasi() {
                       {xabar.matn}
                     </p>
                   )}
-                  <span className="text-[10px] opacity-70 block text-right">
+                  <span className="text-[9px] opacity-70 block text-right">
                     {xabar.vaqt}
                   </span>
                 </div>
@@ -494,15 +427,15 @@ export default function MasalaChatSahifasi() {
             {/* AI CHAT JAVOBI (Follow-up) */}
             {xabar.rol === "ai" && xabar.turi === "chat_javob" && (
               <div className="flex justify-start">
-                <div className="max-w-[90%] sm:max-w-[80%] p-4 rounded-3xl rounded-tl-xs bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] shadow-md space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[var(--v3-urgu)]">
-                    <Ikon nom="ustoz" olcham={15} />
+                <div className="max-w-[92%] sm:max-w-[82%] p-3.5 sm:p-4 rounded-2xl rounded-tl-xs bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] shadow-sm space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--v3-urgu)]">
+                    <Ikon nom="ustoz" olcham={14} />
                     <span>AI Kimyo Repetitori:</span>
                   </div>
                   <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">
                     {xabar.matn}
                   </p>
-                  <span className="text-[10px] text-[var(--v3-xira)] block text-right">
+                  <span className="text-[9px] text-[var(--v3-xira)] block text-right">
                     {xabar.vaqt}
                   </span>
                 </div>
@@ -511,7 +444,7 @@ export default function MasalaChatSahifasi() {
 
             {/* AI XATOLIK XABARI */}
             {xabar.rol === "ai" && xabar.turi === "xato" && (
-              <div className="p-4 rounded-2xl bg-[var(--v3-fon)] border border-red-500/40 text-red-300 text-xs font-semibold flex items-center gap-2">
+              <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border border-red-500/40 text-red-300 text-xs font-semibold flex items-center gap-2">
                 <Ikon nom="ogohlantirish" olcham={16} className="text-red-400 shrink-0" />
                 <span>{xabar.matn}</span>
               </div>
@@ -519,21 +452,21 @@ export default function MasalaChatSahifasi() {
 
             {/* AI TO'LIQ KIMYOVIY YECHIM KARTASI (RICH CARD) */}
             {xabar.rol === "ai" && xabar.turi === "yechim" && (
-              <div className="p-5 sm:p-7 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] shadow-xl space-y-5">
+              <div className="p-4 sm:p-6 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] shadow-lg space-y-4">
                 {/* Yechim sarlavhasi va amallar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--v3-chiziq)]">
-                  <div className="flex items-center gap-2.5">
-                    <span className="px-2.5 py-1 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs font-bold text-[var(--v3-urgu)] flex items-center gap-1.5">
-                      <Ikon nom="tasdiq" olcham={13} />
-                      <span>{xabar.rejim === "tuzoq" ? "1-Rejim: Tuzoq" : xabar.rejim === "yonalish" ? "2-Rejim: Yo'nalish" : "3-Rejim: Master Yechim"}</span>
+                <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[var(--v3-chiziq)]">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-lg bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[11px] font-bold text-[var(--v3-urgu)] flex items-center gap-1">
+                      <Ikon nom="tasdiq" olcham={12} />
+                      <span>{xabar.rejim === "tuzoq" ? "Tuzoq" : xabar.rejim === "yonalish" ? "Yo'nalish" : "Master"}</span>
                     </span>
                     <strong className="text-xs sm:text-sm text-[var(--v3-matn)]">
-                      Kimyoviy Tahlil Natijasi
+                      Kimyoviy Yechim
                     </strong>
                   </div>
 
-                  {/* PDF, Audio, Nusxalash */}
-                  <div className="flex items-center gap-2">
+                  {/* PDF va Audio */}
+                  <div className="flex items-center gap-1.5">
                     {xabar.yechim?.ovozMatni && (
                       <button
                         type="button"
@@ -541,10 +474,10 @@ export default function MasalaChatSahifasi() {
                           ovozPleyeri.boshla(xabar.yechim.ovozMatni);
                           toast.success("Ovozli o'qish boshlandi");
                         }}
-                        className="p-2 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)] text-xs font-bold transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)] text-xs font-bold transition-colors cursor-pointer"
                         title="Ovozda tinglash"
                       >
-                        <Ikon nom="ovoz" olcham={15} />
+                        <Ikon nom="ovoz" olcham={14} />
                       </button>
                     )}
                     <button
@@ -555,11 +488,11 @@ export default function MasalaChatSahifasi() {
                           masalaMatni: xabar.yechim?.masalaMatni || "Kimyoviy Masala",
                           natija: xabar.yechim,
                         });
-                        toast.success("PDF konspekt yuklab olindi!");
+                        toast.success("PDF yuklab olindi!");
                       }}
-                      className="px-3 py-1.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs font-bold text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)] flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[11px] font-bold text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)] flex items-center gap-1 transition-colors cursor-pointer"
                     >
-                      <Ikon nom="sertifikat" olcham={14} className="text-[var(--v3-urgu)]" />
+                      <Ikon nom="sertifikat" olcham={13} className="text-[var(--v3-urgu)]" />
                       <span>PDF</span>
                     </button>
                   </div>
@@ -567,11 +500,11 @@ export default function MasalaChatSahifasi() {
 
                 {/* Berilgan & Topish kerak */}
                 {(xabar.yechim?.berilgan?.length > 0 || xabar.yechim?.topishKerak?.length > 0) && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {xabar.yechim.berilgan?.length > 0 && (
-                      <div className="p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-1.5">
-                        <span className="text-[10px] font-bold text-[var(--v3-urgu)] uppercase tracking-wider flex items-center gap-1">
-                          <Ikon nom="qalam" olcham={12} /> Berilgan:
+                      <div className="p-2.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-1">
+                        <span className="text-[9px] font-bold text-[var(--v3-urgu)] uppercase tracking-wider flex items-center gap-1">
+                          <Ikon nom="qalam" olcham={11} /> Berilgan:
                         </span>
                         {xabar.yechim.berilgan.map((b, i) => (
                           <div key={i} className="flex justify-between text-xs py-0.5">
@@ -582,9 +515,9 @@ export default function MasalaChatSahifasi() {
                       </div>
                     )}
                     {xabar.yechim.topishKerak?.length > 0 && (
-                      <div className="p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-1.5">
-                        <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
-                          <Ikon nom="qidiruv" olcham={12} /> Topish kerak:
+                      <div className="p-2.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-1">
+                        <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                          <Ikon nom="qidiruv" olcham={11} /> Topish kerak:
                         </span>
                         {xabar.yechim.topishKerak.map((t, i) => (
                           <div key={i} className="flex justify-between text-xs py-0.5">
@@ -599,20 +532,16 @@ export default function MasalaChatSahifasi() {
 
                 {/* Reaksiya tenglamalari */}
                 {(xabar.yechim?.tenglamalar?.length > 0 || xabar.yechim?.tenglama) && (
-                  <div className="p-3 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-center text-xs sm:text-sm font-mono font-bold text-[var(--v3-matn)]">
-                    <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--v3-xira)] mb-1">
-                      <Ikon nom="kolba" olcham={13} />
-                      <span>Reaksiya Tenglamasi:</span>
-                    </div>
+                  <div className="p-2.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-center text-xs font-mono font-bold text-[var(--v3-matn)] overflow-x-auto">
                     <LatexMatn matn={xabar.yechim.tenglamalar?.[0] || xabar.yechim.tenglama} inline={false} />
                   </div>
                 )}
 
                 {/* Yashirin Tuzoq */}
                 {xabar.yechim?.tuzoqTahlili?.kalitNuqta && (
-                  <div className="p-4 rounded-2xl bg-[var(--v3-fon)] border border-amber-400/40 space-y-1.5 text-xs">
-                    <strong className="text-amber-400 block font-bold flex items-center gap-1.5">
-                      <Ikon nom="ogohlantirish" olcham={14} /> Masaladagi Yashirin Qopqon (Tuzoq):
+                  <div className="p-3 rounded-xl bg-[var(--v3-fon)] border border-amber-400/40 space-y-1 text-xs">
+                    <strong className="text-amber-400 block font-bold flex items-center gap-1.5 text-[11px]">
+                      <Ikon nom="ogohlantirish" olcham={13} /> Masaladagi Yashirin Qopqon (Tuzoq):
                     </strong>
                     <p className="text-[var(--v3-matn)] leading-relaxed">{xabar.yechim.tuzoqTahlili.kalitNuqta}</p>
                   </div>
@@ -620,13 +549,13 @@ export default function MasalaChatSahifasi() {
 
                 {/* Yo'nalish formulalari */}
                 {xabar.yechim?.yonalish?.formulalar?.length > 0 && (
-                  <div className="p-4 rounded-2xl bg-[var(--v3-fon)] border border-blue-400/30 space-y-2 text-xs">
-                    <strong className="text-blue-400 block font-bold flex items-center gap-1.5">
-                      <Ikon nom="kitob" olcham={14} /> Kerakli Formulalar:
+                  <div className="p-3 rounded-xl bg-[var(--v3-fon)] border border-blue-400/30 space-y-1.5 text-xs">
+                    <strong className="text-blue-400 block font-bold flex items-center gap-1.5 text-[11px]">
+                      <Ikon nom="kitob" olcham={13} /> Kerakli Formulalar:
                     </strong>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {xabar.yechim.yonalish.formulalar.map((f, i) => (
-                        <div key={i} className="p-1.5 px-3 rounded-xl bg-[var(--v3-yuza)] border border-blue-400/40">
+                        <div key={i} className="p-1 px-2.5 rounded-lg bg-[var(--v3-yuza)] border border-blue-400/40">
                           <LatexMatn matn={f} />
                         </div>
                       ))}
@@ -636,18 +565,18 @@ export default function MasalaChatSahifasi() {
 
                 {/* Bosqichlar */}
                 {xabar.yechim?.bosqichlar?.length > 0 && (
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {xabar.yechim.bosqichlar.map((b, i) => (
-                      <div key={i} className="p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-1.5 text-xs">
-                        <strong className="text-[var(--v3-matn)] font-bold block flex items-center gap-1.5">
-                          <Ikon nom="tasdiq" olcham={13} className="text-[var(--v3-urgu)]" />
+                      <div key={i} className="p-3 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-1 text-xs">
+                        <strong className="text-[var(--v3-matn)] font-bold block flex items-center gap-1 text-[11px]">
+                          <Ikon nom="tasdiq" olcham={12} className="text-[var(--v3-urgu)]" />
                           <span>{b.sarlavha || `${i + 1}-Bosqich:`}</span>
                         </strong>
                         <p className="text-[var(--v3-matn)] leading-relaxed">
                           {b.tushuntirish || b.matn}
                         </p>
                         {b.formula && (
-                          <div className="p-2 rounded-xl bg-[var(--v3-yuza)] text-center font-mono font-bold text-[var(--v3-urgu)]">
+                          <div className="p-2 rounded-lg bg-[var(--v3-yuza)] text-center font-mono font-bold text-[var(--v3-urgu)] overflow-x-auto">
                             <LatexMatn matn={b.formula} inline={false} />
                           </div>
                         )}
@@ -658,9 +587,9 @@ export default function MasalaChatSahifasi() {
 
                 {/* Pearson kresti */}
                 {xabar.yechim?.krestSxemasi?.mavjud && (
-                  <div className="p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs font-mono text-center space-y-1">
-                    <span className="text-indigo-400 font-bold flex items-center justify-center gap-1.5">
-                      <Ikon nom="atom" olcham={14} /> Pearson Diagonal Kresti:
+                  <div className="p-2.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs font-mono text-center space-y-0.5">
+                    <span className="text-indigo-400 font-bold flex items-center justify-center gap-1 text-[11px]">
+                      <Ikon nom="atom" olcham={13} /> Pearson Diagonal Kresti:
                     </span>
                     <div className="text-[var(--v3-matn)] font-bold">
                       {xabar.yechim.krestSxemasi.w1}% va {xabar.yechim.krestSxemasi.w2}% ➔ {xabar.yechim.krestSxemasi.wTarget}% (Nisbat: {xabar.yechim.krestSxemasi.nisbat})
@@ -670,9 +599,9 @@ export default function MasalaChatSahifasi() {
 
                 {/* Yakuniy Javob */}
                 {xabar.yechim?.yakuniyJavob && (
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/40 text-xs sm:text-sm">
-                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                      <Ikon nom="tasdiq" olcham={14} /> Yakuniy Javob:
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/40 text-xs sm:text-sm">
+                    <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+                      <Ikon nom="tasdiq" olcham={13} /> Yakuniy Javob:
                     </span>
                     <strong className="text-[var(--v3-matn)] font-black text-sm sm:text-base">
                       {xabar.yechim.yakuniyJavob}
@@ -686,67 +615,66 @@ export default function MasalaChatSahifasi() {
 
         {/* JONLI AI HOLAT KO'RSATKICHI (TYPING INDICATOR) */}
         {yuklanmoqda && (
-          <div className="flex items-center gap-3 p-4 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-xs text-[var(--v3-matn)] shadow-md animate-pulse">
-            <div className="w-7 h-7 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-urgu)] text-[var(--v3-urgu)] flex items-center justify-center text-xs animate-spin shrink-0">
-              <Ikon nom={jonliHolat.ikon || "kolba"} olcham={15} />
+          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-xs text-[var(--v3-matn)] shadow-xs animate-pulse">
+            <div className="w-6 h-6 rounded-lg bg-[var(--v3-fon)] border border-[var(--v3-urgu)] text-[var(--v3-urgu)] flex items-center justify-center text-xs animate-spin shrink-0">
+              <Ikon nom={jonliHolat.ikon || "kolba"} olcham={14} />
             </div>
-            <span className="font-semibold">{jonliHolat.matn || "Javob tayyorlanmoqda..."}</span>
+            <span className="font-semibold text-xs">{jonliHolat.matn || "Javob tayyorlanmoqda..."}</span>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </main>
 
-      {/* ─── 3. PASTKI STICKY CHAT DOCK (MAXSUS SVG STIKER TUGMALAR BILAN) ─── */}
-      <footer className="sticky bottom-0 z-40 bg-[var(--v3-yuza)] border-t border-[var(--v3-chiziq)] backdrop-blur-xl p-3 sm:p-5 shadow-2xl">
-        <div className="max-w-4xl mx-auto space-y-3">
-          {/* Rejim va yordamchi tugmalar paneli */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            {/* 3 xil rejim tanlagich */}
-            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)]">
+      {/* ─── 3. PASTKI STICKY CHAT DOCK (CHATGPT MOBILE FORMATI) ─── */}
+      <footer className="sticky bottom-0 z-40 bg-[var(--v3-yuza)]/95 border-t border-[var(--v3-chiziq)] backdrop-blur-xl p-2.5 sm:p-4 shadow-2xl">
+        <div className="max-w-3xl mx-auto space-y-2">
+          {/* YUQORI REJIM VA BELGILAR CHIPLARI (YUPQA VA IXCHAM) */}
+          <div className="flex items-center justify-between gap-1.5 px-0.5">
+            {/* 3 ta ixcham rejim chipi */}
+            <div className="flex items-center gap-1">
               {REJIMLAR.map((r) => (
                 <button
                   key={r.id}
                   type="button"
                   onClick={() => setRejim(r.id)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
                     rejim === r.id
-                      ? "bg-[var(--v3-urgu)] text-white shadow-sm"
-                      : "text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+                      ? "bg-[var(--v3-urgu)] text-white shadow-xs"
+                      : "bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
                   }`}
-                  title={r.tavsif}
                 >
-                  <Ikon nom={r.ikon} olcham={13} />
-                  <span>{r.qisqa}</span>
+                  <Ikon nom={r.ikon} olcham={11} />
+                  <span>{r.qisqa.split(" ")[1] || r.qisqa}</span>
                 </button>
               ))}
             </div>
 
-            {/* Belgilar paneli tugmasi (SVG Stiker) */}
+            {/* Belgilar paneli ochgich */}
             <button
               type="button"
               onClick={() => setKlaviaturaOchiq(!klaviaturaOchiq)}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
                 klaviaturaOchiq
-                  ? "bg-[var(--v3-urgu)] text-white border-transparent"
-                  : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]"
+                  ? "bg-[var(--v3-urgu)] text-white"
+                  : "bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
               }`}
             >
-              <Ikon nom="atom" olcham={14} />
-              <span>Kimyoviy belgilar</span>
+              <Ikon nom="atom" olcham={12} />
+              <span>Belgilar</span>
             </button>
           </div>
 
           {/* Ochiladigan Kimyoviy maxsus belgilar klaviaturasi */}
           {klaviaturaOchiq && (
-            <div className="p-3 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] animate-in fade-in duration-150">
-              <div className="flex flex-wrap gap-1.5">
+            <div className="p-2.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] animate-in fade-in duration-150">
+              <div className="flex flex-wrap gap-1">
                 {TEZKOR_BELGILAR.map((b) => (
                   <button
                     key={b}
                     type="button"
                     onClick={() => belgiQosh(b)}
-                    className="px-2.5 py-1 rounded-lg bg-[var(--v3-yuza)] hover:bg-[var(--v3-urgu)] hover:text-white border border-[var(--v3-chiziq)] text-xs font-mono font-bold transition-colors cursor-pointer"
+                    className="px-2 py-0.5 rounded-lg bg-[var(--v3-yuza)] hover:bg-[var(--v3-urgu)] hover:text-white border border-[var(--v3-chiziq)] text-[11px] font-mono font-bold transition-colors cursor-pointer"
                   >
                     {b}
                   </button>
@@ -755,39 +683,35 @@ export default function MasalaChatSahifasi() {
             </div>
           )}
 
-          {/* YUKLANGAN RASM PREVIEW KARTASI */}
+          {/* YUKLANGAN RASM PREVIEW CHIP */}
           {rasmBase64 && (
-            <div className="p-3 rounded-2xl bg-[var(--v3-fon)] border-2 border-emerald-500/40 flex items-center justify-between shadow-md animate-in fade-in zoom-in-95">
-              <div className="flex items-center gap-3">
+            <div className="p-2 rounded-2xl bg-[var(--v3-fon)] border border-emerald-500/40 flex items-center justify-between shadow-xs animate-in fade-in">
+              <div className="flex items-center gap-2">
                 <img
                   src={rasmBase64}
-                  alt="Biriktirilgan masala rasmi"
-                  className="w-12 h-12 rounded-xl object-cover border border-emerald-400 shadow-xs"
+                  alt="Yuklangan masala"
+                  className="w-9 h-9 rounded-lg object-cover border border-emerald-400 shadow-2xs"
                 />
-                <div>
-                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                    <Ikon nom="tasdiq" olcham={13} />
-                    <span>Rasm biriktirildi (OCR Vision tayyor)</span>
-                  </span>
-                  <p className="text-[11px] text-[var(--v3-xira)] truncate max-w-[200px] sm:max-w-md">
-                    {rasmNomi || "Masala surati"}
+                <div className="text-[11px]">
+                  <span className="font-bold text-emerald-400 block">Rasm biriktirildi</span>
+                  <p className="text-[10px] text-[var(--v3-xira)] truncate max-w-[180px] sm:max-w-xs">
+                    {rasmNomi || "Surat"}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleRasmOchirish}
-                className="px-3 py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-                title="Rasmni o'chirish"
+                className="p-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-bold transition-colors cursor-pointer"
+                title="O'chirish"
               >
-                <Ikon nom="ochir" olcham={13} />
-                <span>O&apos;chirish</span>
+                <Ikon nom="ochir" olcham={14} />
               </button>
             </div>
           )}
 
-          {/* ASOSIY INPUT VA MAXSUS SVG STIKER TUGMALAR */}
-          <form onSubmit={handleXabarYuborish} className="flex items-end gap-2">
+          {/* YAGONA CHATGPT KAPSULA INPUTI */}
+          <form onSubmit={handleXabarYuborish} className="relative flex items-center">
             <input
               ref={fileInputRef}
               type="file"
@@ -796,55 +720,59 @@ export default function MasalaChatSahifasi() {
               onChange={handleRasmYuklash}
             />
 
-            {/* 📸 MAXSUS SVG KAMERA / RASM TUGMASI */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="p-3 rounded-2xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] transition-all shrink-0 flex items-center justify-center shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-[var(--v3-chiziq)]"
-              title="Kitob yoki daftardagi masalani suratga olib yuklash"
-            >
-              <Ikon nom="rasm" olcham={20} className="text-[var(--v3-matn)]" />
-            </button>
+            {/* CHATGPT KAPSULASI (Bitta yumaloq yaxlit qobiq) */}
+            <div className="w-full flex items-center gap-1.5 p-1.5 pl-2.5 rounded-full bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] shadow-md focus-within:border-[var(--v3-urgu)] transition-all">
+              {/* Chap: Rasm / Kamera qo'shish tugmasi */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-8 h-8 rounded-full hover:bg-[var(--v3-yuza)] text-[var(--v3-matn)] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                title="Rasm yuklash / Suratga olish"
+              >
+                <Ikon nom="rasm" olcham={18} />
+              </button>
 
-            {/* 🎙️ MAXSUS SVG MIKROFON / OVOZ TUGMASI */}
-            <button
-              type="button"
-              onClick={handleOvozYozish}
-              className={`p-3 rounded-2xl border transition-all shrink-0 flex items-center justify-center shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-[var(--v3-chiziq)] ${
-                ovozYozilmoqda
-                  ? "bg-red-500/20 text-red-400 border-red-500 ring-2 ring-red-400/50 animate-pulse"
-                  : "border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)]"
-              }`}
-              title={ovozYozilmoqda ? "Ovoz yozishni to'xtatish" : "Ovozda aytish"}
-            >
-              <Ikon nom="mikrofon" olcham={20} className={ovozYozilmoqda ? "text-red-400" : "text-[var(--v3-matn)]"} />
-            </button>
+              {/* Markaz: Textarea / Input */}
+              <textarea
+                ref={textareaRef}
+                rows={1}
+                value={kiritma}
+                onChange={(e) => setKiritma(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleXabarYuborish();
+                  }
+                }}
+                placeholder="Masala yozing yoki rasm/ovoz tashlang..."
+                className="flex-1 bg-transparent text-xs sm:text-sm text-[var(--v3-matn)] placeholder-[var(--v3-xira)] focus:outline-hidden resize-none max-h-28 py-1.5 leading-relaxed font-sans"
+              />
 
-            {/* Textarea */}
-            <textarea
-              ref={textareaRef}
-              rows={1}
-              value={kiritma}
-              onChange={(e) => setKiritma(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleXabarYuborish();
-                }
-              }}
-              placeholder="Masala matnini yozing yoki rasm/ovoz tashlang (Enter bosing)..."
-              className="flex-1 p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs sm:text-sm text-[var(--v3-matn)] placeholder-[var(--v3-xira)] focus:outline-hidden focus:border-[var(--v3-urgu)] resize-none max-h-32 leading-relaxed font-sans"
-            />
-
-            {/* 🚀 MAXSUS SVG SEND STIKER TUGMASI */}
-            <button
-              type="submit"
-              disabled={yuklanmoqda || (!kiritma.trim() && !rasmBase64)}
-              className="p-3.5 rounded-2xl bg-[var(--v3-urgu)] hover:opacity-90 text-white shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 hover:scale-105 active:scale-95 cursor-pointer font-bold"
-              title="Yuborish"
-            >
-              <Ikon nom="jonat" olcham={20} />
-            </button>
+              {/* O'ng: Agar matn bo'sh bo'lsa OVOZ, matn yozilgan bo'lsa YUBORISH tugmasi */}
+              {!kiritma.trim() && !rasmBase64 ? (
+                <button
+                  type="button"
+                  onClick={handleOvozYozish}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                    ovozYozilmoqda
+                      ? "bg-red-500 text-white animate-pulse"
+                      : "bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)]"
+                  }`}
+                  title={ovozYozilmoqda ? "Ovozni to'xtatish" : "Ovozda aytish"}
+                >
+                  <Ikon nom="mikrofon" olcham={17} />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={yuklanmoqda}
+                  className="w-9 h-9 rounded-full bg-[var(--v3-urgu)] hover:opacity-90 text-white flex items-center justify-center shadow-xs transition-all shrink-0 cursor-pointer"
+                  title="Yuborish"
+                >
+                  <Ikon nom="jonat" olcham={17} />
+                </button>
+              )}
+            </div>
           </form>
         </div>
       </footer>
