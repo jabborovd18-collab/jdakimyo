@@ -10,6 +10,7 @@ import Link from "next/link";
 import FonTanlagich, { useFon } from "@/components/FonTanlagich";
 import Ikon from "@/components/Ikon";
 import LatexMatn from "@/components/LatexMatn.jsx";
+import UsageModelsModal from "@/components/masala/UsageModelsModal";
 import { masalaPdfYukla } from "@/lib/masala-pdf.js";
 import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
 import toast from "react-hot-toast";
@@ -50,6 +51,7 @@ export default function MasalaChatSahifasi() {
   const [rasmBase64, setRasmBase64] = useState(null);
   const [rasmNomi, setRasmNomi] = useState("");
   const [klaviaturaOchiq, setKlaviaturaOchiq] = useState(false);
+  const [usageModalOchiq, setUsageModalOchiq] = useState(false);
 
   // Chat xabarlar oqimi
   const [xabarlar, setXabarlar] = useState([]);
@@ -385,17 +387,22 @@ export default function MasalaChatSahifasi() {
 
         {/* Markaz: Model va Hands-free Ovoz Switcher */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--v3-fon)] border border-[var(--v3-chiziq)]">
+          <button
+            type="button"
+            onClick={() => setUsageModalOchiq(true)}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] hover:border-[var(--v3-urgu)] transition-all cursor-pointer shadow-2xs group"
+            title="Usage & Modellar ma'lumotini ko'rish"
+          >
             <div className="w-4 h-4 text-[var(--v3-urgu)] flex items-center justify-center">
               <Ikon nom="kolba" olcham={14} />
             </div>
             <span className="text-xs sm:text-sm font-black text-[var(--v3-matn)] tracking-tight">
               JDA Kimyo AI
             </span>
-            <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-[var(--v3-urgu)]/20 text-[var(--v3-urgu)]">
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-[var(--v3-urgu)]/20 text-[var(--v3-urgu)] group-hover:bg-[var(--v3-urgu)] group-hover:text-white transition-colors">
               v5.0
             </span>
-          </div>
+          </button>
 
           {/* Hands-Free Jonli Ovoz Rejimi Switcheri */}
           <button
@@ -888,6 +895,12 @@ export default function MasalaChatSahifasi() {
           </form>
         </div>
       </footer>
+
+      {/* CLAUDE & GEMINI USLUBIDAGI USAGE & MODELS MODALI */}
+      <UsageModelsModal
+        ochiq={usageModalOchiq}
+        yopish={() => setUsageModalOchiq(false)}
+      />
     </div>
   );
 }

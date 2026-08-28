@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { tezlikOshdimi, AI_QOIDASI } from "@/lib/tezlik-cheklov.js";
 import { multiAgentMasalaYech, aiRepetitorChat } from "@/lib/ai-agents/masala-orkestrator.js";
+import { aiQuota } from "@/lib/ai-agents/ai-quota.js";
 
 const MATN_CHEGARASI = 4000;
 const RASM_BAYT_CHEGARASI = 4 * 1024 * 1024; // 4 MB
@@ -25,6 +26,12 @@ export async function POST(request) {
     const tezlik = tezlikOshdimi(`masala:${session.user.id}`, AI_QOIDASI);
     if (tezlik) {
       return NextResponse.json({ xato: tezlik }, { status: 429 });
+    }
+
+    // Kunlik quota limitini tekshirish
+    const quotaTekshiruv = aiQuota.tekshir(session.user.id, session.user.role || "USER");
+    if (!quotaTekshiruv.ruxsat) {
+      return NextResponse.json({ xato: quotaTekshiruv.xato }, { status: 429 });
     }
 
     const foydalanuvchiIsmi = session.user.fullName || session.user.name || session.user.username || "Do'stim";
@@ -96,6 +103,11 @@ export async function POST(request) {
         { xato: "AI agentlari masalani tahlil qila olmadi. Iltimos, shartni to'liqroq yozing yoki qayta urinib ko'ring." },
         { status: 500 }
       );
+    }
+
+    // Agar keshdan olinmagan bo'lsa (yangi API sarflangan bo'lsa) quota hisobini 1 ga oshiramiz
+    if (!natija._keshdan) {
+      aiQuota.oshir(session.user.id);
     }
 
     return NextResponse.json({
