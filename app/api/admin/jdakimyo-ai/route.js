@@ -194,7 +194,7 @@ export async function POST(request) {
   if (geminiKey) {
     const boshlandi = Date.now();
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -209,7 +209,7 @@ export async function POST(request) {
           status: 'ok',
           statusCode: res.status,
           sarfMs,
-          model: 'gemini-2.0-flash',
+          model: 'gemini-3.6-flash',
           javob: data.candidates[0].content.parts[0].text,
           xato: null
         };
@@ -218,7 +218,7 @@ export async function POST(request) {
           status: 'error',
           statusCode: res.status,
           sarfMs,
-          model: 'gemini-2.0-flash',
+          model: 'gemini-3.6-flash',
           javob: null,
           xato: data.error?.message || 'Gemini xatoligi'
         };

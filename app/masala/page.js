@@ -1,6 +1,7 @@
 // app/masala/page.js
 //
-// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.0.0)
+// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.1.0)
+// JDA Kimyo uslubidagi toza SVG stikerlar, 3 xil usul tanishtiruvi va Yangi Chat imkoniyati.
 
 "use client";
 
@@ -14,16 +15,30 @@ import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
 import toast from "react-hot-toast";
 
 const REJIMLAR = [
-  { id: "tuzoq", nom: "1-Rejim: Qopqon & Tuzoq", belgi: "⚡", tavsif: "Masaladagi nozik ayyorlik va xatolar tahlili (Javobsiz)" },
-  { id: "yonalish", nom: "2-Rejim: Yo'l-yo'riq", belgi: "🧭", tavsif: "Reaksiya tenglamalari va formulalar rejasi" },
-  { id: "toliq", nom: "3-Rejim: To'liq Master", belgi: "🎯", tavsif: "Berilgan, Reaksiya, KaTeX bosqichlari va yakuniy javob" },
-];
-
-const TEZKOR_NAMUNALAR = [
-  { turi: "eritmalar", sarlavha: "💧 Eritmalar konsentratsiyasi", matn: "200 g 10% li osh tuzi eritmasiga 50 g suv qo'shildi. Yangi hosil bo'lgan eritmaning foiz konsentratsiyasini toping." },
-  { turi: "kristallogidrat", sarlavha: "💎 Kristallogidrat erishi", matn: "25 g mis kuporosi (CuSO4*5H2O) 175 g suvda eritildi. Hosil bo'lgan eritmadagi CuSO4 ning massa ulushini (%) hisoblang." },
-  { turi: "stexiometriya", sarlavha: "⚖️ Stexiometriya & Gaz ajralishi", matn: "13 g rux metali yetarli miqdordagi xlorid kislotasi bilan reaksiyaga kirishganda normal sharoitda necha litr vodorod gazi ajraladi?" },
-  { turi: "gazlar", sarlavha: "💨 Gazlar aralashmasi", matn: "20 litr metan va etan aralashmasi to'liq yondirilganda 32 litr CO2 hosil bo'ldi. Dastlabki aralashmadagi metanning hajm ulushini (%) toping." },
+  {
+    id: "tuzoq",
+    nom: "1-Rejim: Qopqon & Tuzoq",
+    belgi: "⚡",
+    ikon: "chaqmoq",
+    qisqa: "Tuzoq Tahlili",
+    tavsif: "Masaladagi nozik ayyorlik va xatolar tahlili (Javobsiz)",
+  },
+  {
+    id: "yonalish",
+    nom: "2-Rejim: Yo'l-yo'riq",
+    belgi: "🧭",
+    ikon: "kitob",
+    qisqa: "Yo'nalish & Formula",
+    tavsif: "Reaksiya tenglamalari va formulalar rejasi",
+  },
+  {
+    id: "toliq",
+    nom: "3-Rejim: To'liq Master",
+    belgi: "🎯",
+    ikon: "yulduz",
+    qisqa: "To'liq Master",
+    tavsif: "Berilgan, Reaksiya, KaTeX bosqichlari va yakuniy javob",
+  },
 ];
 
 const TEZKOR_BELGILAR = [
@@ -38,7 +53,6 @@ export default function MasalaChatSahifasi() {
   const [rasmBase64, setRasmBase64] = useState(null);
   const [rasmNomi, setRasmNomi] = useState("");
   const [klaviaturaOchiq, setKlaviaturaOchiq] = useState(false);
-  const [namunalarOchiq, setNamunalarOchiq] = useState(false);
 
   // Chat xabarlar oqimi
   const [xabarlar, setXabarlar] = useState([]);
@@ -51,7 +65,6 @@ export default function MasalaChatSahifasi() {
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // Chatni pastga aylantirish
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -60,7 +73,7 @@ export default function MasalaChatSahifasi() {
     scrollToBottom();
   }, [xabarlar, jonliHolatMatni]);
 
-  // Speech Recognition sozlash
+  // Speech Recognition
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -123,7 +136,7 @@ export default function MasalaChatSahifasi() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Faqat rasm fayllarini yuklash mumkin");
+      toast.error("Faqat rasm fayllarini yuklash mumkin (.jpg, .png, .webp)");
       return;
     }
     if (file.size > 4 * 1024 * 1024) {
@@ -143,6 +156,17 @@ export default function MasalaChatSahifasi() {
     setRasmBase64(null);
     setRasmNomi("");
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // YANGI CHAT BOSHLASH (NEW CHAT)
+  const yangiChatBoshlash = () => {
+    setXabarlar([]);
+    setKiritma("");
+    setRasmBase64(null);
+    setRasmNomi("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    ovozPleyeri.toxtat();
+    toast.success("Yangi suhbat boshlandi!");
   };
 
   // Asosiy xabar jo'natish
@@ -278,54 +302,48 @@ export default function MasalaChatSahifasi() {
     }
   };
 
-  const tozalashChat = () => {
-    setXabarlar([]);
-    ovozPleyeri.toxtat();
-    toast.success("Chat tozalandi!");
-  };
-
   return (
     <div
       data-fon={fonKaliti}
       className="v3 min-h-screen w-full flex flex-col justify-between transition-colors duration-200 bg-[var(--v3-fon)] text-[var(--v3-matn)] font-sans"
     >
       {/* ─── 1. HEADER ─── */}
-      <header className="sticky top-0 z-40 bg-[var(--v3-yuza)] border-b border-[var(--v3-chiziq)] backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-xs">
+      <header className="sticky top-0 z-40 bg-[var(--v3-yuza)] border-b border-[var(--v3-chiziq)] backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
           <Link href="/oquv" className="v3-tugma text-xs py-1.5 px-3">
             <Ikon nom="chap" olcham={14} />
             <span>Ta{"'"}lim</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[var(--v3-urgu)] text-white flex items-center justify-center shadow-md">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center shadow-md font-bold">
               <Ikon nom="kolba" olcham={18} />
             </div>
             <div>
               <h1 className="text-sm sm:text-base font-black text-[var(--v3-matn)] flex items-center gap-1.5 leading-none">
                 <span>JDA Kimyo AI</span>
-                <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
-                  Multi-Agent v4.0
+                <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold font-mono">
+                  v4.1
                 </span>
               </h1>
-              <span className="text-[11px] text-[var(--v3-xira)]">
-                Kimyoviy Masalalar Repetitori & Stexiometrik Assistent
+              <span className="text-[11px] text-[var(--v3-xira)] hidden sm:inline">
+                Intellektual Kimyoviy Masalalar Repetitori
               </span>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {xabarlar.length > 0 && (
-            <button
-              type="button"
-              onClick={tozalashChat}
-              className="px-2.5 py-1.5 rounded-xl border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-red-400 hover:bg-red-500/10 text-xs font-semibold flex items-center gap-1 transition-colors"
-              title="Chatni tozalash"
-            >
-              <Ikon nom="ochir" olcham={14} />
-              <span className="hidden sm:inline">Tozalash</span>
-            </button>
-          )}
+          {/* YANGI CHAT TUGMASI (NEW CHAT) */}
+          <button
+            type="button"
+            onClick={yangiChatBoshlash}
+            className="px-3 py-1.5 rounded-xl bg-[var(--v3-urgu)] hover:opacity-90 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+            title="Yangi suhbat boshlash"
+          >
+            <Ikon nom="qalam" olcham={14} />
+            <span>Yangi Chat</span>
+          </button>
+
           <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
           <Link href="/laboratoriya/3d" className="v3-tugma text-xs py-1.5 px-3">
             <Ikon nom="atom" olcham={14} />
@@ -336,47 +354,106 @@ export default function MasalaChatSahifasi() {
 
       {/* ─── 2. ASOSIY CHAT OQIMI (MESSAGES THREAD) ─── */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6 overflow-y-auto">
-        {/* Boshlang'ich tabrik kartochkasi */}
+        {/* JDA KIMYO AI SALOMLASHISH VA 3 XIL USULIMIZ TANISHTIRUVI KARTASI */}
         {xabarlar.length === 0 && (
-          <div className="my-8 p-6 sm:p-8 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] shadow-xl space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
+          <div className="my-6 p-6 sm:p-8 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] shadow-xl space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
             <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center shadow-lg">
               <Ikon nom="yulduz" olcham={32} />
             </div>
 
-            <div className="space-y-2 max-w-lg mx-auto">
+            <div className="space-y-2 max-w-xl mx-auto">
               <h2 className="text-xl sm:text-2xl font-black text-[var(--v3-matn)]">
-                Assalomu alaykum! Masalangizni yuboring
+                Assalomu alaykum! JDA Kimyo AI ga xush kelibsiz
               </h2>
               <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
-                Masala matnini yozing, ovozda gapiring yoki kitobdagi rasmini tashlang. 4 ta ixtisoslashgan AI agenti masalani soniyaning o&apos;ndan birida darslik formatida yechib beradi.
+                Men kimyoviy masalalarni chuqur tahlil qiluvchi va darslik formatida yechib beruvchi intellektual assistentman. Bizda masalalar 3 xil pedagogik yondashuvda tahlil qilinadi:
               </p>
             </div>
 
-            {/* Namunaviy tezkor tugmalar */}
-            <div className="pt-2">
-              <span className="text-[11px] font-bold text-[var(--v3-urgu)] uppercase tracking-wider block mb-3">
-                💡 Sinab ko&apos;rish uchun tayyor namunalar:
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left">
-                {TEZKOR_NAMUNALAR.map((namuna, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => {
-                      setKiritma(namuna.matn);
-                      toast.success("Namuna yuklandi!");
-                    }}
-                    className="p-3.5 rounded-2xl bg-[var(--v3-fon)] hover:bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] transition-all group"
-                  >
-                    <strong className="text-xs text-[var(--v3-matn)] block mb-1 group-hover:text-[var(--v3-urgu)]">
-                      {namuna.sarlavha}
-                    </strong>
-                    <p className="text-[11px] text-[var(--v3-xira)] line-clamp-2 leading-relaxed">
-                      {namuna.matn}
-                    </p>
-                  </button>
-                ))}
+            {/* 3 XIL YONDASHUV KARTALARI */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-left pt-1">
+              {/* 1-Rejim */}
+              <div
+                onClick={() => {
+                  setRejim("tuzoq");
+                  toast.success("1-Rejim tanlandi!");
+                }}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-1.5 ${
+                  rejim === "tuzoq"
+                    ? "bg-amber-500/10 border-amber-500/60 ring-2 ring-amber-400"
+                    : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] hover:border-amber-400/50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
+                    <Ikon nom="chaqmoq" olcham={13} /> 1-Rejim
+                  </span>
+                  <span className="text-xs font-bold text-amber-400">⚡</span>
+                </div>
+                <strong className="text-xs sm:text-sm font-bold text-[var(--v3-matn)] block">
+                  Yashirin Qopqon & Tuzoq
+                </strong>
+                <p className="text-[11px] text-[var(--v3-xira)] leading-relaxed">
+                  Masaladagi nozik ayyorlik va 90% o&apos;quvchilar adashadigan qopqonlarni ochib beradi (Mustaqil yechish uchun).
+                </p>
               </div>
+
+              {/* 2-Rejim */}
+              <div
+                onClick={() => {
+                  setRejim("yonalish");
+                  toast.success("2-Rejim tanlandi!");
+                }}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-1.5 ${
+                  rejim === "yonalish"
+                    ? "bg-blue-500/10 border-blue-500/60 ring-2 ring-blue-400"
+                    : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] hover:border-blue-400/50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400 flex items-center gap-1">
+                    <Ikon nom="kitob" olcham={13} /> 2-Rejim
+                  </span>
+                  <span className="text-xs font-bold text-blue-400">🧭</span>
+                </div>
+                <strong className="text-xs sm:text-sm font-bold text-[var(--v3-matn)] block">
+                  Yo&apos;l-yo&apos;riq & Formulalar
+                </strong>
+                <p className="text-[11px] text-[var(--v3-xira)] leading-relaxed">
+                  Reaksiya tenglamalari va bosqichma-bosqich formulalar rejasini beradi (Hisoblash talaba zimmasida).
+                </p>
+              </div>
+
+              {/* 3-Rejim */}
+              <div
+                onClick={() => {
+                  setRejim("toliq");
+                  toast.success("3-Rejim tanlandi!");
+                }}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-1.5 ${
+                  rejim === "toliq"
+                    ? "bg-emerald-500/10 border-emerald-500/60 ring-2 ring-emerald-400"
+                    : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] hover:border-emerald-400/50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+                    <Ikon nom="yulduz" olcham={13} /> 3-Rejim
+                  </span>
+                  <span className="text-xs font-bold text-emerald-400">🎯</span>
+                </div>
+                <strong className="text-xs sm:text-sm font-bold text-[var(--v3-matn)] block">
+                  To&apos;liq Master Yechim
+                </strong>
+                <p className="text-[11px] text-[var(--v3-xira)] leading-relaxed">
+                  Berilgan, Topish kerak, Reaksiyalar, KaTeX bosqichlari va yakuniy aniq javob bilan to&apos;liq tahlil.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 text-xs text-[var(--v3-xira)] flex items-center justify-center gap-2">
+              <Ikon nom="qalam" olcham={14} className="text-[var(--v3-urgu)]" />
+              <span>Quyidagi maydonga istalgan kimyo masalasini yozing, ovozda ayting yoki kitobdagi rasmini tashlang.</span>
             </div>
           </div>
         )}
@@ -438,8 +515,9 @@ export default function MasalaChatSahifasi() {
                 {/* Yechim sarlavhasi va amallar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--v3-chiziq)]">
                   <div className="flex items-center gap-2.5">
-                    <span className="px-2.5 py-1 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs font-bold text-[var(--v3-urgu)]">
-                      {xabar.rejim === "tuzoq" ? "⚡ 1-Rejim: Tuzoq" : xabar.rejim === "yonalish" ? "🧭 2-Rejim: Yo'nalish" : "🎯 3-Rejim: Master Yechim"}
+                    <span className="px-2.5 py-1 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs font-bold text-[var(--v3-urgu)] flex items-center gap-1.5">
+                      <Ikon nom="tasdiq" olcham={13} />
+                      <span>{xabar.rejim === "tuzoq" ? "⚡ 1-Rejim: Tuzoq" : xabar.rejim === "yonalish" ? "🧭 2-Rejim: Yo'nalish" : "🎯 3-Rejim: Master Yechim"}</span>
                     </span>
                     <strong className="text-xs sm:text-sm text-[var(--v3-matn)]">
                       Kimyoviy Tahlil Natijasi
@@ -521,7 +599,9 @@ export default function MasalaChatSahifasi() {
                 {/* Yashirin Tuzoq */}
                 {xabar.yechim?.tuzoqTahlili?.kalitNuqta && (
                   <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/40 space-y-1.5 text-xs">
-                    <strong className="text-amber-400 block font-bold">⚡ Masaladagi Yashirin Qopqon:</strong>
+                    <strong className="text-amber-400 block font-bold flex items-center gap-1.5">
+                      <Ikon nom="chaqmoq" olcham={14} /> Masaladagi Yashirin Qopqon (Tuzoq):
+                    </strong>
                     <p>{xabar.yechim.tuzoqTahlili.kalitNuqta}</p>
                   </div>
                 )}
@@ -529,7 +609,9 @@ export default function MasalaChatSahifasi() {
                 {/* Yo'nalish formulalari */}
                 {xabar.yechim?.yonalish?.formulalar?.length > 0 && (
                   <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-400/30 space-y-2 text-xs">
-                    <strong className="text-blue-400 block font-bold">🧭 Kerakli Formulalar:</strong>
+                    <strong className="text-blue-400 block font-bold flex items-center gap-1.5">
+                      <Ikon nom="kitob" olcham={14} /> Kerakli Formulalar:
+                    </strong>
                     <div className="flex flex-wrap gap-2">
                       {xabar.yechim.yonalish.formulalar.map((f, i) => (
                         <div key={i} className="p-1.5 px-3 rounded-xl bg-[var(--v3-fon)] border border-blue-400/40">
@@ -591,7 +673,7 @@ export default function MasalaChatSahifasi() {
         {yuklanmoqda && (
           <div className="flex items-center gap-3 p-4 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-xs text-[var(--v3-matn)] shadow-md animate-pulse">
             <div className="w-6 h-6 rounded-full bg-[var(--v3-urgu)] text-white flex items-center justify-center text-xs animate-spin">
-              ⚗️
+              <Ikon nom="kolba" olcham={14} />
             </div>
             <span className="font-semibold">{jonliHolatMatni || "Javob tayyorlanmoqda..."}</span>
           </div>
@@ -612,42 +694,32 @@ export default function MasalaChatSahifasi() {
                   key={r.id}
                   type="button"
                   onClick={() => setRejim(r.id)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                     rejim === r.id
                       ? "bg-[var(--v3-urgu)] text-white shadow-sm"
                       : "text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
                   }`}
                   title={r.tavsif}
                 >
-                  <span>{r.belgi} {r.nom.split(":")[1] || r.nom}</span>
+                  <Ikon nom={r.ikon} olcham={12} />
+                  <span>{r.qisqa}</span>
                 </button>
               ))}
             </div>
 
-            {/* Klaviatura & Namunalar tugmalari */}
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setKlaviaturaOchiq(!klaviaturaOchiq)}
-                className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition-colors ${
-                  klaviaturaOchiq
-                    ? "bg-[var(--v3-urgu)] text-white border-transparent"
-                    : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)]"
-                }`}
-              >
-                <Ikon nom="atom" olcham={14} />
-                <span className="hidden sm:inline">Belgilar</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setNamunalarOchiq(!namunalarOchiq)}
-                className="px-3 py-1.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)] text-xs font-bold flex items-center gap-1"
-              >
-                <Ikon nom="kitob" olcham={14} />
-                <span className="hidden sm:inline">Namunalar</span>
-              </button>
-            </div>
+            {/* Belgilar paneli tugmasi */}
+            <button
+              type="button"
+              onClick={() => setKlaviaturaOchiq(!klaviaturaOchiq)}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition-colors ${
+                klaviaturaOchiq
+                  ? "bg-[var(--v3-urgu)] text-white border-transparent"
+                  : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)]"
+              }`}
+            >
+              <Ikon nom="atom" olcham={14} />
+              <span>Kimyoviy belgilar</span>
+            </button>
           </div>
 
           {/* Ochiladigan Kimyoviy maxsus belgilar klaviaturasi */}
@@ -665,27 +737,6 @@ export default function MasalaChatSahifasi() {
                   </button>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Ochiladigan Namunalar ro'yxati */}
-          {namunalarOchiq && (
-            <div className="p-3 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-1.5 max-h-48 overflow-y-auto animate-in fade-in duration-150">
-              {TEZKOR_NAMUNALAR.map((n, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => {
-                    setKiritma(n.matn);
-                    setNamunalarOchiq(false);
-                    toast.success("Namuna yuklandi!");
-                  }}
-                  className="w-full p-2.5 rounded-xl bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] text-left text-xs flex justify-between items-center"
-                >
-                  <strong className="text-[var(--v3-matn)]">{n.sarlavha}</strong>
-                  <span className="text-[10px] text-[var(--v3-urgu)] font-bold">Tanlash ➔</span>
-                </button>
-              ))}
             </div>
           )}
 
@@ -758,8 +809,8 @@ export default function MasalaChatSahifasi() {
                   handleXabarYuborish();
                 }
               }}
-              placeholder="Masala matnini kiriting yoki savolingizni yozing (Enter bosing)..."
-              className="flex-1 p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs sm:text-sm text-[var(--v3-matn)] placeholder-[var(--v3-xira)] focus:outline-hidden focus:border-[var(--v3-urgu)] resize-none max-h-32 leading-relaxed"
+              placeholder="Masala matnini yozing yoki savolingizni bering (Enter bosing)..."
+              className="flex-1 p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs sm:text-sm text-[var(--v3-matn)] placeholder-[var(--v3-xira)] focus:outline-hidden focus:border-[var(--v3-urgu)] resize-none max-h-32 leading-relaxed font-sans"
             />
 
             {/* Jo'natish tugmasi */}
