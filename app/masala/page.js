@@ -123,9 +123,9 @@ export default function MasalaSahifasi() {
                 <span>/</span>
                 <span className="text-[var(--v3-urgu)] font-bold">3 Xil Yondashuv</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-[var(--v3-matn)] flex items-center gap-2 mt-0.5">
+              <h1 className="text-xl sm:text-2xl font-black text-[var(--v3-matn)] flex items-center gap-2 mt-0.5">
                 <Ikon nom="kolba" olcham={22} className="text-[var(--v3-urgu)]" />
-                <span>AI Kimyo Masalalari Repetitori</span>
+                <span>JDA Kimyo AI</span>
                 <span className="v3-tag v3-tag-ochiq text-[10px] font-bold">Beta</span>
               </h1>
             </div>
