@@ -1,7 +1,7 @@
 // app/masala/page.js
 //
-// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.2.0)
-// JDA Kimyo SVG stikerlar, Bosh menyu navigatsiyasi, Tushunarli Rasm yuklash va 3 xil usul tanishtiruvi.
+// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.3.0)
+// JDA Kimyo SVG stikerlari, Bosh menyu, Maxsus Camera & Audio SVG stiker tugmalari.
 
 "use client";
 
@@ -150,7 +150,7 @@ export default function MasalaChatSahifasi() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       setRasmBase64(ev.target.result);
-      toast.success("Rasm biriktirildi! Endi Yuborish tugmasini bosing.");
+      toast.success("Rasm biriktirildi! Yuborish tugmasini bosing.");
     };
     reader.readAsDataURL(file);
   };
@@ -331,7 +331,7 @@ export default function MasalaChatSahifasi() {
               <h1 className="text-sm sm:text-base font-black text-[var(--v3-matn)] flex items-center gap-1.5 leading-none">
                 <span>JDA Kimyo AI</span>
                 <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold font-mono">
-                  v4.2
+                  v4.3
                 </span>
               </h1>
               <span className="text-[11px] text-[var(--v3-xira)] hidden sm:inline">
@@ -692,7 +692,7 @@ export default function MasalaChatSahifasi() {
         <div ref={messagesEndRef} />
       </main>
 
-      {/* ─── 3. PASTKI STICKY CHAT DOCK (INPUT VA TUSHUNARLI RASM YUKLASH) ─── */}
+      {/* ─── 3. PASTKI STICKY CHAT DOCK (MAXSUS SVG STIKER TUGMALAR BILAN) ─── */}
       <footer className="sticky bottom-0 z-40 bg-[var(--v3-yuza)] border-t border-[var(--v3-chiziq)] backdrop-blur-xl p-3 sm:p-5 shadow-2xl">
         <div className="max-w-4xl mx-auto space-y-3">
           {/* Rejim va yordamchi tugmalar paneli */}
@@ -717,14 +717,14 @@ export default function MasalaChatSahifasi() {
               ))}
             </div>
 
-            {/* Belgilar paneli tugmasi */}
+            {/* Belgilar paneli tugmasi (SVG Stiker) */}
             <button
               type="button"
               onClick={() => setKlaviaturaOchiq(!klaviaturaOchiq)}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition-colors ${
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors ${
                 klaviaturaOchiq
                   ? "bg-[var(--v3-urgu)] text-white border-transparent"
-                  : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)]"
+                  : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]"
               }`}
             >
               <Ikon nom="atom" olcham={14} />
@@ -750,9 +750,9 @@ export default function MasalaChatSahifasi() {
             </div>
           )}
 
-          {/* YUKLANGAN RASM ANIQ VA CHIROYLI PREVIEW KARTASI */}
+          {/* YUKLANGAN RASM PREVIEW KARTASI */}
           {rasmBase64 && (
-            <div className="p-3 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/40 flex items-center justify-between shadow-md">
+            <div className="p-3 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/40 flex items-center justify-between shadow-md animate-in fade-in zoom-in-95">
               <div className="flex items-center gap-3">
                 <img
                   src={rasmBase64}
@@ -780,7 +780,7 @@ export default function MasalaChatSahifasi() {
             </div>
           )}
 
-          {/* ASOSIY INPUT VA RASM YUKLASH TUGMALARI */}
+          {/* ASOSIY INPUT VA MAXSUS SVG STIKER TUGMALAR */}
           <form onSubmit={handleXabarYuborish} className="flex items-end gap-2">
             <input
               ref={fileInputRef}
@@ -790,29 +790,28 @@ export default function MasalaChatSahifasi() {
               onChange={handleRasmYuklash}
             />
 
-            {/* O'TA TUSHUNARLI VA CHIROYLI RASM YUKLASH TUGMASI */}
+            {/* 📸 MAXSUS SVG KAMERA / RASM STIKER TUGMASI */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="px-3 py-3 rounded-2xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] transition-all shrink-0 flex items-center gap-1.5 font-bold text-xs"
+              className="p-3 rounded-2xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200 transition-all shrink-0 flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
               title="Kitob yoki daftardagi masalani suratga olib yuklash"
             >
-              <Ikon nom="rasm" olcham={18} />
-              <span className="hidden sm:inline">Rasm yuklash</span>
+              <Ikon nom="rasm" olcham={20} />
             </button>
 
-            {/* Ovozli yozish tugmasi */}
+            {/* 🎙️ MAXSUS SVG MIKROFON / OVOZ STIKER TUGMASI */}
             <button
               type="button"
               onClick={handleOvozYozish}
-              className={`p-3 rounded-2xl border transition-colors shrink-0 ${
+              className={`p-3 rounded-2xl border transition-all shrink-0 flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 cursor-pointer ${
                 ovozYozilmoqda
-                  ? "bg-red-500/20 text-red-400 border-red-500 animate-pulse"
-                  : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]"
+                  ? "bg-red-500/20 text-red-400 border-red-500 ring-2 ring-red-400/50 animate-pulse"
+                  : "border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 hover:text-amber-200"
               }`}
-              title="Ovozda aytish"
+              title={ovozYozilmoqda ? "Ovoz yozishni to'xtatish" : "Ovozda aytish"}
             >
-              <Ikon nom="mikrofon" olcham={18} />
+              <Ikon nom="mikrofon" olcham={20} />
             </button>
 
             {/* Textarea */}
@@ -827,18 +826,18 @@ export default function MasalaChatSahifasi() {
                   handleXabarYuborish();
                 }
               }}
-              placeholder="Masala matnini yozing yoki rasm yuklang (Enter bosing)..."
+              placeholder="Masala matnini yozing yoki rasm/ovoz tashlang (Enter bosing)..."
               className="flex-1 p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs sm:text-sm text-[var(--v3-matn)] placeholder-[var(--v3-xira)] focus:outline-hidden focus:border-[var(--v3-urgu)] resize-none max-h-32 leading-relaxed font-sans"
             />
 
-            {/* Jo'natish tugmasi */}
+            {/* 🚀 MAXSUS SVG SEND STIKER TUGMASI */}
             <button
               type="submit"
               disabled={yuklanmoqda || (!kiritma.trim() && !rasmBase64)}
-              className="p-3.5 rounded-2xl bg-[var(--v3-urgu)] hover:opacity-90 text-white shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 cursor-pointer"
+              className="p-3.5 rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 hover:scale-105 active:scale-95 cursor-pointer font-bold"
               title="Yuborish"
             >
-              <Ikon nom="jonat" olcham={18} />
+              <Ikon nom="jonat" olcham={20} />
             </button>
           </form>
         </div>
