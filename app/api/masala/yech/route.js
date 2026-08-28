@@ -40,6 +40,7 @@ export async function POST(request) {
         masalaMatni,
         yechim,
         savol,
+        foydalanuvchiId: session.user.id,
         foydalanuvchiIsmi
       });
       return NextResponse.json({
@@ -86,6 +87,7 @@ export async function POST(request) {
       masalaMatni: masalaMatni.trim(),
       rejim,
       rasm,
+      foydalanuvchiId: session.user.id,
       foydalanuvchiIsmi
     });
 
