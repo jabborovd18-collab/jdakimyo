@@ -1,7 +1,7 @@
 // app/masala/page.js
 //
-// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.5.0)
-// ChatGPT Mobile uslubidagi yagona kapsulali input dock, ixcham sarlavha va toza SVG stikerlar.
+// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v5.0.0)
+// ChatGPT Mobile formati, Hands-free Jonli Ovozli AI (TTS/STT), Aqlli Kesh va Klasterli Agentlar.
 
 "use client";
 
@@ -55,7 +55,11 @@ export default function MasalaChatSahifasi() {
   const [xabarlar, setXabarlar] = useState([]);
   const [yuklanmoqda, setYuklanmoqda] = useState(false);
   const [jonliHolat, setJonliHolat] = useState({ ikon: "kolba", matn: "" });
+
+  // Ovozli AI (Hands-free & TTS/STT)
   const [ovozYozilmoqda, setOvozYozilmoqda] = useState(false);
+  const [avtoOvozRejimi, setAvtoOvozRejimi] = useState(false);
+  const [faolOvozId, setFaolOvozId] = useState(null);
   const [speechRecog, setSpeechRecog] = useState(null);
 
   const messagesEndRef = useRef(null);
@@ -70,7 +74,7 @@ export default function MasalaChatSahifasi() {
     scrollToBottom();
   }, [xabarlar, jonliHolat]);
 
-  // Speech Recognition
+  // Speech Recognition (STT)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -93,6 +97,36 @@ export default function MasalaChatSahifasi() {
       }
     }
   }, []);
+
+  // Ovozda ijro etish funksiyasi
+  const matnniOvozdaIjroEt = (matn, xabarId) => {
+    if (!matn) return;
+
+    if (faolOvozId === xabarId) {
+      ovozPleyeri.toxtat();
+      setFaolOvozId(null);
+      return;
+    }
+
+    setFaolOvozId(xabarId);
+    ovozPleyeri.boshla(matn, {
+      onBoshlandi: () => setFaolOvozId(xabarId),
+      onTugadi: () => {
+        setFaolOvozId(null);
+        // Agar Hands-free Ovoz rejimi yoqiq bo'lsa, AI gapirib bo'lgach avtomatik mikrofonni ochamiz!
+        if (avtoOvozRejimi && speechRecog && !ovozYozilmoqda) {
+          try {
+            speechRecog.start();
+            setOvozYozilmoqda(true);
+            toast("Sizni tinglamoqdaman...", { icon: "🎙️" });
+          } catch (e) {
+            // e'tiborsiz qoldirish
+          }
+        }
+      },
+      onXato: () => setFaolOvozId(null),
+    });
+  };
 
   const belgiQosh = (belgi) => {
     if (!textareaRef.current) {
@@ -164,6 +198,7 @@ export default function MasalaChatSahifasi() {
     setRasmNomi("");
     if (fileInputRef.current) fileInputRef.current.value = "";
     ovozPleyeri.toxtat();
+    setFaolOvozId(null);
     toast.success("Yangi suhbat boshlandi!");
   };
 
@@ -172,6 +207,11 @@ export default function MasalaChatSahifasi() {
     if (e) e.preventDefault();
     if (!kiritma.trim() && !rasmBase64) return;
     if (yuklanmoqda) return;
+
+    if (ovozYozilmoqda && speechRecog) {
+      speechRecog.stop();
+      setOvozYozilmoqda(false);
+    }
 
     const joriyMatn = kiritma.trim();
     const joriyRasm = rasmBase64;
@@ -215,10 +255,9 @@ export default function MasalaChatSahifasi() {
     const timer = setInterval(() => {
       step = (step + 1) % bosqichlar.length;
       setJonliHolat(bosqichlar[step]);
-    }, 1100);
+    }, 900);
 
     try {
-      // Oxirgi yechim bo'lsa va bu follow-up savol bo'lsa
       const oxirgiAiYechim = [...xabarlar].reverse().find((m) => m.rol === "ai" && m.turi === "yechim");
 
       const isFollowUp = !joriyRasm && oxirgiAiYechim && joriyMatn.length < 80 && (
@@ -244,16 +283,21 @@ export default function MasalaChatSahifasi() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.xato || "Xatolik yuz berdi");
 
+        const aiId = "ai-" + Date.now();
         setXabarlar((prev) => [
           ...prev,
           {
-            id: "ai-" + Date.now(),
+            id: aiId,
             rol: "ai",
             turi: "chat_javob",
             matn: data.javob,
             vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
           },
         ]);
+
+        if (avtoOvozRejimi) {
+          matnniOvozdaIjroEt(data.javob, aiId);
+        }
       } else {
         const res = await fetch("/api/masala/yech", {
           method: "POST",
@@ -269,22 +313,27 @@ export default function MasalaChatSahifasi() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.xato || "Masalani yechishda xatolik yuz berdi");
 
+        const aiId = "ai-" + Date.now();
         if (data.turi === "suhbat") {
           setXabarlar((prev) => [
             ...prev,
             {
-              id: "ai-" + Date.now(),
+              id: aiId,
               rol: "ai",
               turi: "chat_javob",
               matn: data.matn,
               vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
             },
           ]);
+
+          if (avtoOvozRejimi) {
+            matnniOvozdaIjroEt(data.matn, aiId);
+          }
         } else {
           setXabarlar((prev) => [
             ...prev,
             {
-              id: "ai-" + Date.now(),
+              id: aiId,
               rol: "ai",
               turi: "yechim",
               yechim: data,
@@ -292,6 +341,10 @@ export default function MasalaChatSahifasi() {
               vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
             },
           ]);
+
+          if (avtoOvozRejimi && data.ovozMatni) {
+            matnniOvozdaIjroEt(data.ovozMatni, aiId);
+          }
         }
       }
     } catch (err) {
@@ -318,9 +371,9 @@ export default function MasalaChatSahifasi() {
       data-fon={fonKaliti}
       className="v3 min-h-screen w-full flex flex-col justify-between transition-colors duration-200 bg-[var(--v3-fon)] text-[var(--v3-matn)] font-sans"
     >
-      {/* ─── 1. CHATGPT USLUBIDAGI IXCHAM VA TOZA HEADER ─── */}
+      {/* ─── 1. CHATGPT USLUBIDAGI IXCHAM HEADER ─── */}
       <header className="sticky top-0 z-40 bg-[var(--v3-yuza)]/95 border-b border-[var(--v3-chiziq)] backdrop-blur-xl px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-xs">
-        {/* Chap: Bosh menyu tugmasi */}
+        {/* Chap: Bosh menyu */}
         <Link
           href="/"
           className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] text-xs font-bold flex items-center gap-1.5 transition-all shrink-0"
@@ -330,20 +383,47 @@ export default function MasalaChatSahifasi() {
           <span className="hidden sm:inline">Bosh menyu</span>
         </Link>
 
-        {/* Markaz: Model nomi kapsulasi */}
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--v3-fon)] border border-[var(--v3-chiziq)]">
-          <div className="w-4 h-4 text-[var(--v3-urgu)] flex items-center justify-center">
-            <Ikon nom="kolba" olcham={14} />
+        {/* Markaz: Model va Hands-free Ovoz Switcher */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--v3-fon)] border border-[var(--v3-chiziq)]">
+            <div className="w-4 h-4 text-[var(--v3-urgu)] flex items-center justify-center">
+              <Ikon nom="kolba" olcham={14} />
+            </div>
+            <span className="text-xs sm:text-sm font-black text-[var(--v3-matn)] tracking-tight">
+              JDA Kimyo AI
+            </span>
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-[var(--v3-urgu)]/20 text-[var(--v3-urgu)]">
+              v5.0
+            </span>
           </div>
-          <span className="text-xs sm:text-sm font-black text-[var(--v3-matn)] tracking-tight">
-            JDA Kimyo AI
-          </span>
-          <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-[var(--v3-urgu)]/20 text-[var(--v3-urgu)]">
-            v4.5
-          </span>
+
+          {/* Hands-Free Jonli Ovoz Rejimi Switcheri */}
+          <button
+            type="button"
+            onClick={() => {
+              const yangi = !avtoOvozRejimi;
+              setAvtoOvozRejimi(yangi);
+              if (yangi) {
+                toast.success("Ovozli muloqot (Hands-free) yoqildi!");
+              } else {
+                ovozPleyeri.toxtat();
+                setFaolOvozId(null);
+                toast("Ovozli muloqot o'chirildi");
+              }
+            }}
+            className={`p-1.5 px-2.5 rounded-full text-[10px] font-bold border flex items-center gap-1 transition-all cursor-pointer ${
+              avtoOvozRejimi
+                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500 ring-2 ring-emerald-400/40 animate-pulse"
+                : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+            }`}
+            title="Hands-free: AI javoblarni avtomatik o'qiydi va sizni tinglaydi"
+          >
+            <Ikon nom="ovoz" olcham={12} className={avtoOvozRejimi ? "text-emerald-400" : ""} />
+            <span className="hidden md:inline">{avtoOvozRejimi ? "Jonli Ovoz Yoniq" : "Ovozli Rejim"}</span>
+          </button>
         </div>
 
-        {/* O'ng: Yangi Chat va Fon sozlash */}
+        {/* O'ng: Yangi Chat va Fon */}
         <div className="flex items-center gap-1.5">
           <button
             type="button"
@@ -360,10 +440,9 @@ export default function MasalaChatSahifasi() {
 
       {/* ─── 2. ASOSIY CHAT OQIMI (MESSAGES THREAD) ─── */}
       <main className="flex-1 max-w-3xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto">
-        {/* BOSHLANG'ICH MINIMAL SALOMLASHISH KARTASI */}
+        {/* BOSHLANG'ICH SALOMLASHISH */}
         {xabarlar.length === 0 && (
           <div className="my-auto py-8 sm:py-12 px-3 sm:px-6 rounded-3xl space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
-            {/* Markaziy SVG Logo */}
             <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-2xl bg-[var(--v3-yuza)] border-2 border-[var(--v3-urgu)] text-[var(--v3-urgu)] flex items-center justify-center shadow-lg">
               <Ikon nom="kolba" olcham={32} />
             </div>
@@ -373,11 +452,11 @@ export default function MasalaChatSahifasi() {
                 Assalomu alaykum!
               </h2>
               <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
-                Kimyo masalasini yozing, ovozda gapiring yoki rasmini yuklang. AI 4 bosqichda tahlil qilib beradi:
+                Kimyo masalasini yozing, ovozda gapiring yoki erkin suhbat quring. AI 4 ta ixtisoslashgan klasterda tahlil qiladi:
               </p>
             </div>
 
-            {/* IXCHAM 3 XIL REJIM TANLAGICH */}
+            {/* 3 XIL REJIM TANLAGICH */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left">
               {REJIMLAR.map((r) => (
                 <button
@@ -413,7 +492,7 @@ export default function MasalaChatSahifasi() {
 
         {/* Xabarlar ro'yxati */}
         {xabarlar.map((xabar) => (
-          <div key={xabar.id} className="space-y-2">
+          <div key={xabar.id} className="space-y-2 animate-in fade-in duration-200">
             {/* FOYDALANUVCHI XABARI */}
             {xabar.rol === "user" && (
               <div className="flex justify-end">
@@ -437,14 +516,32 @@ export default function MasalaChatSahifasi() {
               </div>
             )}
 
-            {/* AI CHAT JAVOBI (Follow-up) */}
+            {/* AI CHAT JAVOBI (Erkin suhbat / Follow-up) */}
             {xabar.rol === "ai" && xabar.turi === "chat_javob" && (
               <div className="flex justify-start">
-                <div className="max-w-[92%] sm:max-w-[82%] p-3.5 sm:p-4 rounded-2xl rounded-tl-xs bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] shadow-sm space-y-2">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--v3-urgu)]">
-                    <Ikon nom="ustoz" olcham={14} />
-                    <span>AI Kimyo Repetitori:</span>
+                <div className="max-w-[92%] sm:max-w-[82%] p-3.5 sm:p-4 rounded-2xl rounded-tl-xs bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] shadow-sm space-y-2.5">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-[var(--v3-chiziq)]">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--v3-urgu)]">
+                      <Ikon nom="ustoz" olcham={14} />
+                      <span>JDA Kimyo AI:</span>
+                    </div>
+
+                    {/* Ovozda tinglash tugmasi */}
+                    <button
+                      type="button"
+                      onClick={() => matnniOvozdaIjroEt(xabar.matn, xabar.id)}
+                      className={`p-1.5 rounded-lg border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                        faolOvozId === xabar.id
+                          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500 animate-pulse"
+                          : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]"
+                      }`}
+                      title={faolOvozId === xabar.id ? "Ovozni to'xtatish" : "Ovozda eshitish"}
+                    >
+                      <Ikon nom="ovoz" olcham={13} className={faolOvozId === xabar.id ? "text-emerald-400" : ""} />
+                      <span className="text-[10px]">{faolOvozId === xabar.id ? "To'xtatish" : "Tinglash"}</span>
+                    </button>
                   </div>
+
                   <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">
                     {xabar.matn}
                   </p>
@@ -463,7 +560,7 @@ export default function MasalaChatSahifasi() {
               </div>
             )}
 
-            {/* AI TO'LIQ KIMYOVIY YECHIM KARTASI (RICH CARD) */}
+            {/* AI TO'LIQ KIMYOVIY YECHIM KARTASI (RICH SOLUTION CARD) */}
             {xabar.rol === "ai" && xabar.turi === "yechim" && (
               <div className="p-4 sm:p-6 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] shadow-lg space-y-4">
                 {/* Yechim sarlavhasi va amallar */}
@@ -474,7 +571,7 @@ export default function MasalaChatSahifasi() {
                       <span>{xabar.rejim === "tuzoq" ? "Tuzoq" : xabar.rejim === "yonalish" ? "Yo'nalish" : "Master"}</span>
                     </span>
                     <strong className="text-xs sm:text-sm text-[var(--v3-matn)]">
-                      Kimyoviy Yechim
+                      Kimyoviy Tahlil Natijasi
                     </strong>
                   </div>
 
@@ -483,14 +580,16 @@ export default function MasalaChatSahifasi() {
                     {xabar.yechim?.ovozMatni && (
                       <button
                         type="button"
-                        onClick={() => {
-                          ovozPleyeri.boshla(xabar.yechim.ovozMatni);
-                          toast.success("Ovozli o'qish boshlandi");
-                        }}
-                        className="p-1.5 rounded-lg bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)] text-xs font-bold transition-colors cursor-pointer"
-                        title="Ovozda tinglash"
+                        onClick={() => matnniOvozdaIjroEt(xabar.yechim.ovozMatni, xabar.id)}
+                        className={`p-1.5 px-2 rounded-lg border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                          faolOvozId === xabar.id
+                            ? "bg-emerald-500/20 text-emerald-400 border-emerald-500 animate-pulse"
+                            : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]"
+                        }`}
+                        title={faolOvozId === xabar.id ? "Ovozni to'xtatish" : "Ovozda tinglash"}
                       >
-                        <Ikon nom="ovoz" olcham={14} />
+                        <Ikon nom="ovoz" olcham={13} className={faolOvozId === xabar.id ? "text-emerald-400" : ""} />
+                        <span className="text-[10px] hidden sm:inline">{faolOvozId === xabar.id ? "To'xtatish" : "Ovozda"}</span>
                       </button>
                     )}
                     <button
@@ -626,7 +725,7 @@ export default function MasalaChatSahifasi() {
           </div>
         ))}
 
-        {/* JONLI AI HOLAT KO'RSATKICHI (TYPING INDICATOR) */}
+        {/* JONLI AI HOLAT KO'RSATKICHI */}
         {yuklanmoqda && (
           <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-xs text-[var(--v3-matn)] shadow-xs animate-pulse">
             <div className="w-6 h-6 rounded-lg bg-[var(--v3-fon)] border border-[var(--v3-urgu)] text-[var(--v3-urgu)] flex items-center justify-center text-xs animate-spin shrink-0">
@@ -642,7 +741,7 @@ export default function MasalaChatSahifasi() {
       {/* ─── 3. PASTKI STICKY CHAT DOCK (CHATGPT MOBILE FORMATI) ─── */}
       <footer className="sticky bottom-0 z-40 bg-[var(--v3-yuza)]/95 border-t border-[var(--v3-chiziq)] backdrop-blur-xl p-2.5 sm:p-4 shadow-2xl">
         <div className="max-w-3xl mx-auto space-y-2">
-          {/* YUQORI REJIM VA BELGILAR CHIPLARI (YUPQA VA IXCHAM) */}
+          {/* YUQORI REJIM VA BELGILAR CHIPLARI */}
           <div className="flex items-center justify-between gap-1.5 px-0.5">
             {/* 3 ta ixcham rejim chipi */}
             <div className="flex items-center gap-1">
@@ -733,9 +832,9 @@ export default function MasalaChatSahifasi() {
               onChange={handleRasmYuklash}
             />
 
-            {/* CHATGPT KAPSULASI (Bitta yumaloq yaxlit qobiq) */}
+            {/* CHATGPT KAPSULASI (Yaxlit yumaloq qobiq) */}
             <div className="w-full flex items-center gap-1.5 p-1.5 pl-2.5 rounded-full bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] shadow-md focus-within:border-[var(--v3-urgu)] transition-all">
-              {/* Chap: Rasm / Kamera qo'shish tugmasi */}
+              {/* Chap: Rasm / Kamera qo'shish */}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -745,7 +844,7 @@ export default function MasalaChatSahifasi() {
                 <Ikon nom="rasm" olcham={18} />
               </button>
 
-              {/* Markaz: Textarea / Input */}
+              {/* Markaz: Textarea */}
               <textarea
                 ref={textareaRef}
                 rows={1}
@@ -757,11 +856,11 @@ export default function MasalaChatSahifasi() {
                     handleXabarYuborish();
                   }
                 }}
-                placeholder="Masala yozing yoki rasm/ovoz tashlang..."
+                placeholder={avtoOvozRejimi ? "Gapiring yoki yozing (Ovozli rejim)..." : "Masala yozing yoki rasm/ovoz tashlang..."}
                 className="flex-1 bg-transparent text-xs sm:text-sm text-[var(--v3-matn)] placeholder-[var(--v3-xira)] focus:outline-hidden resize-none max-h-28 py-1.5 leading-relaxed font-sans"
               />
 
-              {/* O'ng: Agar matn bo'sh bo'lsa OVOZ, matn yozilgan bo'lsa YUBORISH tugmasi */}
+              {/* O'ng: Agar matn bo'sh bo'lsa OVOZ, matn yozilgan bo'lsa YUBORISH */}
               {!kiritma.trim() && !rasmBase64 ? (
                 <button
                   type="button"
