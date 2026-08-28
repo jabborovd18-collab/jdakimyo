@@ -1,7 +1,7 @@
 // app/masala/page.js
 //
-// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.1.0)
-// JDA Kimyo uslubidagi toza SVG stikerlar, 3 xil usul tanishtiruvi va Yangi Chat imkoniyati.
+// JDA KIMYO AI — ZAMONAVIY CHATBOT FORMATIDAGI KIMYOVIY MASALALAR ASSISTENTI (v4.2.0)
+// JDA Kimyo SVG stikerlar, Bosh menyu navigatsiyasi, Tushunarli Rasm yuklash va 3 xil usul tanishtiruvi.
 
 "use client";
 
@@ -21,6 +21,7 @@ const REJIMLAR = [
     belgi: "⚡",
     ikon: "chaqmoq",
     qisqa: "Tuzoq Tahlili",
+    rang: "amber",
     tavsif: "Masaladagi nozik ayyorlik va xatolar tahlili (Javobsiz)",
   },
   {
@@ -29,6 +30,7 @@ const REJIMLAR = [
     belgi: "🧭",
     ikon: "kitob",
     qisqa: "Yo'nalish & Formula",
+    rang: "blue",
     tavsif: "Reaksiya tenglamalari va formulalar rejasi",
   },
   {
@@ -37,6 +39,7 @@ const REJIMLAR = [
     belgi: "🎯",
     ikon: "yulduz",
     qisqa: "To'liq Master",
+    rang: "emerald",
     tavsif: "Berilgan, Reaksiya, KaTeX bosqichlari va yakuniy javob",
   },
 ];
@@ -139,15 +142,15 @@ export default function MasalaChatSahifasi() {
       toast.error("Faqat rasm fayllarini yuklash mumkin (.jpg, .png, .webp)");
       return;
     }
-    if (file.size > 4 * 1024 * 1024) {
-      toast.error("Rasm hajmi 4 MB dan oshmasligi kerak.");
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Rasm hajmi 5 MB dan oshmasligi kerak.");
       return;
     }
     setRasmNomi(file.name);
     const reader = new FileReader();
     reader.onload = (ev) => {
       setRasmBase64(ev.target.result);
-      toast.success("Rasm biriktirildi!");
+      toast.success("Rasm biriktirildi! Endi Yuborish tugmasini bosing.");
     };
     reader.readAsDataURL(file);
   };
@@ -156,6 +159,7 @@ export default function MasalaChatSahifasi() {
     setRasmBase64(null);
     setRasmNomi("");
     if (fileInputRef.current) fileInputRef.current.value = "";
+    toast("Rasm olib tashlandi", { icon: "🗑️" });
   };
 
   // YANGI CHAT BOSHLASH (NEW CHAT)
@@ -307,13 +311,18 @@ export default function MasalaChatSahifasi() {
       data-fon={fonKaliti}
       className="v3 min-h-screen w-full flex flex-col justify-between transition-colors duration-200 bg-[var(--v3-fon)] text-[var(--v3-matn)] font-sans"
     >
-      {/* ─── 1. HEADER ─── */}
+      {/* ─── 1. HEADER (BOSH MENYU BILAN) ─── */}
       <header className="sticky top-0 z-40 bg-[var(--v3-yuza)] border-b border-[var(--v3-chiziq)] backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
-          <Link href="/oquv" className="v3-tugma text-xs py-1.5 px-3">
+          {/* TEPADA BOSH MENYU TUGMASI */}
+          <Link
+            href="/"
+            className="px-3 py-1.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] text-xs font-bold flex items-center gap-1.5 transition-colors"
+          >
             <Ikon nom="chap" olcham={14} />
-            <span>Ta{"'"}lim</span>
+            <span>Bosh menyu</span>
           </Link>
+
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center shadow-md font-bold">
               <Ikon nom="kolba" olcham={18} />
@@ -322,7 +331,7 @@ export default function MasalaChatSahifasi() {
               <h1 className="text-sm sm:text-base font-black text-[var(--v3-matn)] flex items-center gap-1.5 leading-none">
                 <span>JDA Kimyo AI</span>
                 <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold font-mono">
-                  v4.1
+                  v4.2
                 </span>
               </h1>
               <span className="text-[11px] text-[var(--v3-xira)] hidden sm:inline">
@@ -357,8 +366,9 @@ export default function MasalaChatSahifasi() {
         {/* JDA KIMYO AI SALOMLASHISH VA 3 XIL USULIMIZ TANISHTIRUVI KARTASI */}
         {xabarlar.length === 0 && (
           <div className="my-6 p-6 sm:p-8 rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] shadow-xl space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center shadow-lg">
-              <Ikon nom="yulduz" olcham={32} />
+            {/* SVG Markaziy Stiker */}
+            <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 text-slate-950 flex items-center justify-center shadow-lg">
+              <Ikon nom="kolba" olcham={32} />
             </div>
 
             <div className="space-y-2 max-w-xl mx-auto">
@@ -682,7 +692,7 @@ export default function MasalaChatSahifasi() {
         <div ref={messagesEndRef} />
       </main>
 
-      {/* ─── 3. PASTKI STICKY CHAT DOCK (INPUT VA BOSHQARUV) ─── */}
+      {/* ─── 3. PASTKI STICKY CHAT DOCK (INPUT VA TUSHUNARLI RASM YUKLASH) ─── */}
       <footer className="sticky bottom-0 z-40 bg-[var(--v3-yuza)] border-t border-[var(--v3-chiziq)] backdrop-blur-xl p-3 sm:p-5 shadow-2xl">
         <div className="max-w-4xl mx-auto space-y-3">
           {/* Rejim va yordamchi tugmalar paneli */}
@@ -740,30 +750,37 @@ export default function MasalaChatSahifasi() {
             </div>
           )}
 
-          {/* Yuklangan rasm previewsi */}
+          {/* YUKLANGAN RASM ANIQ VA CHIROYLI PREVIEW KARTASI */}
           {rasmBase64 && (
-            <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-400/40 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+            <div className="p-3 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/40 flex items-center justify-between shadow-md">
+              <div className="flex items-center gap-3">
                 <img
                   src={rasmBase64}
-                  alt="Biriktirilgan rasm"
-                  className="w-10 h-10 rounded-xl object-cover border border-amber-400/50"
+                  alt="Biriktirilgan masala rasmi"
+                  className="w-12 h-12 rounded-xl object-cover border border-emerald-400 shadow-xs"
                 />
-                <span className="text-xs text-white font-semibold truncate max-w-[200px] sm:max-w-md">
-                  {rasmNomi || "Rasm biriktirildi"}
-                </span>
+                <div>
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                    <Ikon nom="tasdiq" olcham={13} /> Rasm biriktirildi (OCR Vision tayyor)
+                  </span>
+                  <p className="text-[11px] text-[var(--v3-xira)] truncate max-w-[200px] sm:max-w-md">
+                    {rasmNomi || "Masala surati"}
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={handleRasmOchirish}
-                className="p-1.5 rounded-xl bg-black/40 text-red-400 hover:text-red-300"
+                className="px-3 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 text-xs font-bold flex items-center gap-1 transition-colors"
+                title="Rasmni o'chirish"
               >
-                <Ikon nom="yopish" olcham={14} />
+                <Ikon nom="ochir" olcham={13} />
+                <span>O&apos;chirish</span>
               </button>
             </div>
           )}
 
-          {/* Asosiy Input va Jo'natish formasi */}
+          {/* ASOSIY INPUT VA RASM YUKLASH TUGMALARI */}
           <form onSubmit={handleXabarYuborish} className="flex items-end gap-2">
             <input
               ref={fileInputRef}
@@ -773,14 +790,15 @@ export default function MasalaChatSahifasi() {
               onChange={handleRasmYuklash}
             />
 
-            {/* Rasm qo'shish tugmasi */}
+            {/* O'TA TUSHUNARLI VA CHIROYLI RASM YUKLASH TUGMASI */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-3 rounded-2xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] transition-colors shrink-0"
-              title="Rasm yuklash"
+              className="px-3 py-3 rounded-2xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] transition-all shrink-0 flex items-center gap-1.5 font-bold text-xs"
+              title="Kitob yoki daftardagi masalani suratga olib yuklash"
             >
               <Ikon nom="rasm" olcham={18} />
+              <span className="hidden sm:inline">Rasm yuklash</span>
             </button>
 
             {/* Ovozli yozish tugmasi */}
@@ -809,7 +827,7 @@ export default function MasalaChatSahifasi() {
                   handleXabarYuborish();
                 }
               }}
-              placeholder="Masala matnini yozing yoki savolingizni bering (Enter bosing)..."
+              placeholder="Masala matnini yozing yoki rasm yuklang (Enter bosing)..."
               className="flex-1 p-3.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs sm:text-sm text-[var(--v3-matn)] placeholder-[var(--v3-xira)] focus:outline-hidden focus:border-[var(--v3-urgu)] resize-none max-h-32 leading-relaxed font-sans"
             />
 
@@ -820,7 +838,7 @@ export default function MasalaChatSahifasi() {
               className="p-3.5 rounded-2xl bg-[var(--v3-urgu)] hover:opacity-90 text-white shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 cursor-pointer"
               title="Yuborish"
             >
-              <Ikon nom="yubor" olcham={18} />
+              <Ikon nom="jonat" olcham={18} />
             </button>
           </form>
         </div>
