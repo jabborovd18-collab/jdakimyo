@@ -8,9 +8,10 @@ import MasalaKiritish from "./components/MasalaKiritish.jsx";
 import YechimPaneli from "./components/YechimPaneli.jsx";
 
 const YUKLANISH_BOSQICHLARI = [
-  "🔍 1-bosqich: Masala sharti va kimyoviy birikmalar tahlil qilinmoqda...",
-  "⚖️ 2-bosqich: Stexiometrik reaksiya tenglamalari va mollar hisoblanmoqda...",
-  "💡 3-bosqich: Tanlangan rejim bo'yicha ilmiy xulosa shakllantirilmoqda...",
+  "🔍 1-Agent (Tahlilchi): Masala sharti va fizik kattaliklar ajratilmoqda...",
+  "⚗️ 2-Agent (Kimyogar): Reaksiya tenglamalari va stexiometriya hisoblanmoqda...",
+  "⚖️ 3-Agent (Matematik): Birliklar va proporsiyalar tekshiruvdan o'tmoqda...",
+  "👨‍🏫 4-Agent (Pedagog): KaTeX formulalari bilan master-yechim shakllantirilmoqda...",
 ];
 
 export default function MasalaSahifasi() {

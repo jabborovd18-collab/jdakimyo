@@ -1,8 +1,12 @@
+// app/masala/components/YechimPaneli.jsx
+//
+// JDA KIMYO — Zamonaviy Interaktiv Yechim Doskasi va AI Repetitor Q&A (v4.0.0)
+
 "use client";
 
 import { useState, useEffect } from "react";
 import Ikon from "@/components/Ikon";
-import MasalaVizual from "./MasalaVizual.jsx";
+import LatexMatn from "@/components/LatexMatn.jsx";
 import { masalaPdfYukla } from "@/lib/masala-pdf.js";
 import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
 import toast from "react-hot-toast";
@@ -10,9 +14,12 @@ import toast from "react-hot-toast";
 export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvchiNom = "Talaba" }) {
   const [ijroEtilmoqda, setIjroEtilmoqda] = useState(false);
   const [tezlik, setTezlik] = useState(1);
-  const [oqituvchiJavobi, setOqituvchiJavobi] = useState("");
   const [pdfYuklanmoqda, setPdfYuklanmoqda] = useState(false);
-  const [faolGapIndeks, setFaolGapIndeks] = useState(-1);
+
+  // AI Repetitor Chat holatlari
+  const [chatSavol, setChatSavol] = useState("");
+  const [chatYuklanmoqda, setChatYuklanmoqda] = useState(false);
+  const [chatXabarlar, setChatXabarlar] = useState([]);
 
   useEffect(() => {
     return () => {
@@ -36,24 +43,11 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
       ovozPleyeri.boshla(matn, {
         tezlik,
         onBoshlandi: () => setIjroEtilmoqda(true),
-        onTugadi: () => {
-          setIjroEtilmoqda(false);
-          setFaolGapIndeks(-1);
-        },
-        onQadam: (idx) => {
-          setFaolGapIndeks(idx);
-        },
-        onXato: () => {
-          setIjroEtilmoqda(false);
-        },
+        onTugadi: () => setIjroEtilmoqda(false),
+        onXato: () => setIjroEtilmoqda(false),
       });
       setIjroEtilmoqda(true);
     }
-  };
-
-  const handleTezlikOzgardi = (yangiTezlik) => {
-    setTezlik(yangiTezlik);
-    ovozPleyeri.tezlikniOrnat(yangiTezlik);
   };
 
   const handlePdfYuklabOlish = async () => {
@@ -62,7 +56,7 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
       toast.loading("Masala yechimi PDF hujjati tayyorlanmoqda...", { id: "masala-pdf" });
       await masalaPdfYukla({
         foydalanuvchiNom,
-        masalaMatni: natija.masalaMatni || natija.tenglama || "Kimyoviy Masala",
+        masalaMatni: natija.masalaMatni || "Kimyoviy Masala",
         natija,
       });
       toast.success("PDF hisoboti muvaffaqiyatli yuklandi!", { id: "masala-pdf" });
@@ -74,286 +68,360 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
   };
 
   const nusxaOlish = () => {
-    const matn = `${natija.tenglama || ""}\n\n${natija.bosqichlar?.map((b) => `${b.sarlavha}:\n${b.matn}`).join("\n\n")}\n\nJavob: ${natija.yakuniyJavob || ""}`;
-    navigator.clipboard.writeText(matn);
-    toast.success("Yechim matni buferga nusxalandi!");
+    const tenglamalarMatn = natija.tenglamalar?.join("\n") || natija.tenglama || "";
+    const bosqichlarMatn = natija.bosqichlar?.map((b) => `${b.sarlavha}:\n${b.tushuntirish || b.matn}\nFormula: ${b.formula || ""}`).join("\n\n") || "";
+    const toliqMatn = `KIMYOVIY MASALA YECHIMI:\n\n${natija.masalaMatni || ""}\n\nREAKSIYALAR:\n${tenglamalarMatn}\n\nBOSQICHLAR:\n${bosqichlarMatn}\n\nJAVOB: ${natija.yakuniyJavob || ""}`;
+    navigator.clipboard.writeText(toliqMatn);
+    toast.success("Yechim konspekti nusxalandi!");
+  };
+
+  const handleChatYuborish = async (e) => {
+    e.preventDefault();
+    if (!chatSavol.trim() || chatYuklanmoqda) return;
+
+    const savolMatni = chatSavol.trim();
+    setChatSavol("");
+    setChatXabarlar((prev) => [...prev, { rol: "user", matn: savolMatni }]);
+    setChatYuklanmoqda(true);
+
+    try {
+      const res = await fetch("/api/masala/yech", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "chat",
+          masalaMatni: natija.masalaMatni,
+          yechim: natija,
+          savol: savolMatni,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.xato || "Xatolik yuz berdi");
+
+      setChatXabarlar((prev) => [...prev, { rol: "ai", matn: data.javob }]);
+    } catch (err) {
+      toast.error("AI Repetitor javob berishda xatolik: " + err.message);
+      setChatXabarlar((prev) => [
+        ...prev,
+        { rol: "ai", matn: "Kechirasiz, qayta so'ray olasizmi? Serverda vaqtinchalik xatolik bo'ldi." },
+      ]);
+    } finally {
+      setChatYuklanmoqda(false);
+    }
   };
 
   const rejim = natija.rejim || "toliq";
 
   return (
-    <div className="rounded-2xl border p-5 sm:p-6 shadow-2xl bg-[var(--v3-yuza)] border-[var(--v3-chiziq-2)] space-y-5 animate-in fade-in duration-200 text-[var(--v3-matn)]">
-      {/* ─── HEADER VA AUDIO PLAYER ─── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--v3-chiziq)]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)]">
-            <Ikon nom="kolba" olcham={20} />
+    <div className="rounded-3xl border p-5 sm:p-7 shadow-2xl bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] space-y-6 text-[var(--v3-matn)]">
+      {/* ─── 1. HEADER VA BOSHQARUV PANEL ─── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[var(--v3-chiziq)]">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)] shadow-inner">
+            <Ikon nom="kolba" olcham={22} />
           </div>
           <div>
-            <div className="v3-nishon text-[var(--v3-urgu)]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--v3-urgu)]">
               {rejim === "tuzoq"
                 ? "⚡ 1-Rejim: Keskin Burilish Tahlili"
                 : rejim === "yonalish"
                 ? "🧭 2-Rejim: Yo'naltirish & Formulalar"
                 : "🎯 3-Rejim: To'liq Master Yechim"}
-            </div>
-            <h3 className="text-sm sm:text-base font-bold text-[var(--v3-matn)]">
-              {rejim === "tuzoq"
-                ? "Masaladagi Yashirin Qopqon"
-                : rejim === "yonalish"
-                ? "Yechish Rejasi va Formulalar"
-                : "Professional Kimyoviy Tahlil"}
+            </span>
+            <h3 className="text-base sm:text-lg font-black text-[var(--v3-matn)]">
+              Professional Kimyoviy Tahlil Doskasi
             </h3>
           </div>
         </div>
 
-        {/* Audio boshqaruv va Amallar */}
+        {/* Amallar: Audio, PDF, Nusxa */}
         <div className="flex flex-wrap items-center gap-2">
           {natija.ovozMatni && (
-            <div className="flex items-center gap-1.5 p-1 rounded-xl border bg-[var(--v3-fon)] border-[var(--v3-chiziq)]">
-              <button
-                type="button"
-                onClick={handleOvozIjro}
-                className={`v3-tugma text-xs py-1.5 px-3 font-bold ${
-                  ijroEtilmoqda ? "v3-tugma-asosiy shadow-sm" : ""
-                }`}
-              >
-                <Ikon nom="ovoz" olcham={13} />
-                <span>{ijroEtilmoqda ? "To'xtatish" : "Ovozli tushuntirish"}</span>
-              </button>
-
-              <div className="flex gap-1 border-l pl-1.5 border-[var(--v3-chiziq)]">
-                {[1, 1.25, 1.5].map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => handleTezlikOzgardi(t)}
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition ${
-                      tezlik === t
-                        ? "bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)]"
-                        : "text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
-                    }`}
-                  >
-                    {t}x
-                  </button>
-                ))}
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={handleOvozIjro}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors ${
+                ijroEtilmoqda
+                  ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
+                  : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)] text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]"
+              }`}
+            >
+              <Ikon nom={ijroEtilmoqda ? "pausa" : "ovoz"} olcham={15} />
+              <span>{ijroEtilmoqda ? "To'xtatish" : "Ovozli o'qish"}</span>
+            </button>
           )}
 
           <button
             type="button"
             onClick={handlePdfYuklabOlish}
             disabled={pdfYuklanmoqda}
-            className="v3-tugma text-xs py-1.5 px-3 font-semibold inline-flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] hover:bg-[var(--v3-yuza-2)] text-xs font-bold text-[var(--v3-matn)] flex items-center gap-1.5 transition-colors"
             title="PDF formatida yuklab olish"
           >
-            <Ikon nom="fayl" olcham={13} />
-            <span>PDF Daftari</span>
+            <Ikon nom="sertifikat" olcham={15} className="text-[var(--v3-urgu)]" />
+            <span>{pdfYuklanmoqda ? "PDF..." : "PDF"}</span>
           </button>
 
           <button
             type="button"
             onClick={nusxaOlish}
-            className="v3-tugma text-xs py-1.5 px-2.5"
-            title="Nusxa olish"
+            className="px-3 py-1.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] hover:bg-[var(--v3-yuza-2)] text-xs font-bold text-[var(--v3-matn)] flex items-center gap-1.5 transition-colors"
+            title="Nusxalash"
           >
-            <Ikon nom="belgi" olcham={13} />
+            <Ikon nom="nusxa" olcham={15} />
+            <span>Nusxa</span>
           </button>
         </div>
       </div>
 
-      {/* ─── 1-REJIM: TUZOQ VA KESKIN BURILISH BLOKI ─── */}
-      {rejim === "tuzoq" && natija.tuzoqTahlili && (
-        <div className="p-5 rounded-2xl border border-amber-500/40 bg-amber-500/10 space-y-3 shadow-inner">
-          <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-            <Ikon nom="chaqmoq" olcham={16} />
-            <span>Diqqat: Ko{"'"}zdan Qochishi Mumkin Bo{"'"}lgan Nozik Nuqta!</span>
-          </div>
-
-          <div className="p-3.5 rounded-xl border border-amber-500/30 bg-[var(--v3-fon)] text-xs text-[var(--v3-matn)] space-y-2">
-            <div className="font-bold text-amber-300">
-              🔑 Kalit qoida:
-            </div>
-            <p className="leading-relaxed">{natija.tuzoqTahlili.kalitNuqta}</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] space-y-1">
-              <span className="text-[10.5px] font-mono uppercase text-red-400 block font-bold">
-                ⚠️ Keng tarqalgan xato:
+      {/* ─── 2. BERILGAN VA TOPISH KERAK (Darslik Standarti) ─── */}
+      {(natija.berilgan?.length > 0 || natija.topishKerak?.length > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Berilgan */}
+          {natija.berilgan?.length > 0 && (
+            <div className="p-4 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-2">
+              <span className="text-[11px] font-bold text-[var(--v3-urgu)] uppercase tracking-wider flex items-center gap-1.5">
+                <Ikon nom="tasdiq" olcham={14} /> Berilgan kattaliklar:
               </span>
-              <p className="text-[11px] text-[var(--v3-xira)] leading-relaxed">
-                {natija.tuzoqTahlili.kengTarqalganXato}
-              </p>
-            </div>
-
-            <div className="p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] space-y-1">
-              <span className="text-[10.5px] font-mono uppercase text-emerald-400 block font-bold">
-                💡 Nima uchun muhim:
-              </span>
-              <p className="text-[11px] text-[var(--v3-xira)] leading-relaxed">
-                {natija.tuzoqTahlili.nimaUchunMuhim}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── 2-REJIM: YO'NALTIRISH VA FORMULALAR BLOKI ─── */}
-      {rejim === "yonalish" && natija.yonalish && (
-        <div className="space-y-4">
-          {/* Formulalar */}
-          {natija.yonalish.formulalar?.length > 0 && (
-            <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 space-y-2">
-              <span className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
-                <Ikon nom="doska" olcham={14} />
-                <span>Kerakli Fizik-Kimyoviy Formulalar:</span>
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
-                {natija.yonalish.formulalar.map((f, i) => (
-                  <div
-                    key={i}
-                    className="p-2.5 rounded-lg border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] text-cyan-400 font-bold"
-                  >
-                    {f}
+              <div className="space-y-1.5">
+                {natija.berilgan.map((b, i) => (
+                  <div key={i} className="flex items-center justify-between text-xs py-1 px-2.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
+                    <LatexMatn matn={b.belgi || ""} className="font-semibold text-[var(--v3-matn)]" />
+                    <strong className="text-[var(--v3-matn)] font-mono">{b.qiymat || ""}</strong>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Qadamlar rejasi */}
-          {natija.yonalish.qadamlarRejasi?.length > 0 && (
-            <div className="p-4 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] space-y-2">
-              <span className="v3-nishon text-[var(--v3-urgu)]">Yechish algoritmi (3 ta qadam):</span>
-              <div className="space-y-1.5 text-xs">
-                {natija.yonalish.qadamlarRejasi.map((q, i) => (
-                  <div
-                    key={i}
-                    className="p-2.5 rounded-lg border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] flex items-start gap-2 text-[var(--v3-matn)] leading-relaxed"
-                  >
-                    <span className="font-bold text-[var(--v3-urgu)] shrink-0 font-mono">
-                      {i + 1}.
-                    </span>
-                    <span>{q}</span>
+          {/* Topish kerak */}
+          {natija.topishKerak?.length > 0 && (
+            <div className="p-4 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-2">
+              <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Ikon nom="savol" olcham={14} /> Topish kerak:
+              </span>
+              <div className="space-y-1.5">
+                {natija.topishKerak.map((t, i) => (
+                  <div key={i} className="flex items-center justify-between text-xs py-1 px-2.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
+                    <LatexMatn matn={t.belgi || ""} className="font-bold text-amber-300" />
+                    <span className="text-[var(--v3-xira)]">{t.nom || "Noma'lum qiymat"}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
-
-          {/* O'quvchi Hisoblash Daftarchasi (Interactive Scratchpad) */}
-          <div className="p-4 rounded-xl border border-[var(--v3-urgu)]/40 bg-[var(--v3-yuza)] space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
-                <Ikon nom="quiz" olcham={14} className="text-[var(--v3-urgu)]" />
-                <span>Hisoblash Daftarchangiz:</span>
-              </span>
-              <span className="text-[10px] text-[var(--v3-xira)]">Olingan javobingizni tekshiring</span>
-            </div>
-
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={oqituvchiJavobi}
-                onChange={(e) => setOqituvchiJavobi(e.target.value)}
-                placeholder="Hisoblab topgan javobingizni yozing (masalan: 12.8% yoki 0.25 mol)..."
-                className="v3-kiritish flex-1 text-xs font-mono"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  if (!oqituvchiJavobi.trim()) {
-                    toast.error("Avval hisoblangan javobingizni kiriting!");
-                    return;
-                  }
-                  toast.success("Ajoyib harakat! Endi to'liq master yechim bilan taqqoslang.");
-                  if (typeof onToliqYechimgaOtish === "function") {
-                    onToliqYechimgaOtish();
-                  }
-                }}
-                className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold shrink-0"
-              >
-                Tekshirish
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
-      {/* ─── REAKSIYA TENGLAMASI ─── */}
-      {natija.tenglama && (
-        <div className="p-3.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] text-center space-y-1">
-          <span className="text-[10px] uppercase font-mono tracking-widest text-[var(--v3-xira)]">
-            Asosiy Reaksiya / Kimyoviy Bog{"'"}lanish
+      {/* ─── 3. KIMYOVIY REAKSIYA TENGLAMALARI ─── */}
+      {(natija.tenglamalar?.length > 0 || natija.tenglama) && (
+        <div className="p-4 rounded-2xl bg-slate-950/40 border border-purple-900/40 space-y-2">
+          <span className="text-[11px] font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+            <Ikon nom="reaksiya" olcham={14} /> Reaksiya Tenglamasi va Munosabat:
           </span>
-          <div className="text-sm sm:text-base font-bold font-mono text-[var(--v3-urgu)]">
-            {natija.tenglama}
+          <div className="space-y-2">
+            {(natija.tenglamalar || [natija.tenglama]).map((t, i) => (
+              <div key={i} className="p-3 rounded-xl bg-purple-950/30 border border-purple-800/40 text-center text-sm sm:text-base font-mono font-bold text-white overflow-x-auto">
+                <LatexMatn matn={t} inline={false} />
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* ─── 3-BOSQICH: DINAMIK ILMIY VIZUAL GRAFIK (SXEMA) ─── */}
-      {natija.vizualSxema && <MasalaVizual sxema={natija.vizualSxema} />}
-
-      {/* ─── BOSQICHMA-BOSQICH TAHLIL VA HISOBOT ─── */}
-      <div className="space-y-2.5">
-        <div className="v3-nishon">Qadam-baqadam yechim tahlili:</div>
-        <div className="space-y-2">
-          {natija.bosqichlar?.map((b, idx) => (
-            <div
-              key={idx}
-              className="p-4 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] space-y-1.5 transition-all hover:border-[var(--v3-urgu)]"
-            >
-              <div className="text-xs font-bold text-[var(--v3-urgu)] flex items-center gap-1.5">
-                <Ikon nom="ong" olcham={12} />
-                <span>{b.sarlavha}</span>
-              </div>
-              <div className="text-xs text-[var(--v3-matn)] leading-relaxed font-mono whitespace-pre-line">
-                {b.matn}
-              </div>
-              {b.formula && (
-                <div className="p-2 rounded-lg border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[11px] font-mono text-cyan-400">
-                  {b.formula}
-                </div>
-              )}
+      {/* ─── 4. YASHIRIN TUZOQ & QOPQON TAHLILI (Agar mavjud bo'lsa) ─── */}
+      {natija.tuzoqTahlili?.kalitNuqta && (
+        <div className="p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-400/50 space-y-3">
+          <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <Ikon nom="chaqmoq" olcham={18} />
+            <span>⚡ Masaladagi Yashirin Qopqon (Tuzoq) Tahlili:</span>
+          </div>
+          <div className="space-y-2 text-xs text-[var(--v3-matn)] leading-relaxed">
+            <div className="p-3 rounded-xl bg-[var(--v3-fon)] border border-amber-400/30">
+              <strong className="text-amber-300 block mb-1">🔍 Nozik Kalit Nuqta:</strong>
+              <p>{natija.tuzoqTahlili.kalitNuqta}</p>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── 3-REJIM: YAKUNIY JAVOB KARTASI ─── */}
-      {rejim === "toliq" && natija.yakuniyJavob && (
-        <div className="p-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 space-y-1">
-          <div className="flex items-center justify-between text-xs font-bold text-emerald-400">
-            <span className="flex items-center gap-1.5">
-              <Ikon nom="belgi" olcham={15} />
-              <span>🏁 Yakuniy Matematik Javob:</span>
-            </span>
-            <span className="v3-tag v3-tag-ochiq text-[10px] font-mono font-bold">
-              ✓ Tasdiqlangan
-            </span>
+            {natija.tuzoqTahlili.kengTarqalganXato && (
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200">
+                <strong className="text-red-400 block mb-1">⚠️ 90% O&apos;quvchilar Yo&apos;l Qo&apos;yadigan Xato:</strong>
+                <p>{natija.tuzoqTahlili.kengTarqalganXato}</p>
+              </div>
+            )}
           </div>
-          <div className="text-sm sm:text-base font-black text-emerald-300 font-mono">
+        </div>
+      )}
+
+      {/* ─── 5. YO'NALTIRISH & FORMULALAR (Agar 'yonalish' bo'lsa) ─── */}
+      {natija.yonalish && (
+        <div className="p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-3">
+          <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
+            <Ikon nom="kitob" olcham={18} />
+            <span>🧭 Yechish Rejasi va Kerakli Formulalar:</span>
+          </div>
+          {natija.yonalish.formulalar?.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {natija.yonalish.formulalar.map((f, i) => (
+                <div key={i} className="px-3 py-1.5 rounded-xl bg-[var(--v3-fon)] border border-blue-400/40 text-xs font-mono font-bold text-blue-200">
+                  <LatexMatn matn={f} />
+                </div>
+              ))}
+            </div>
+          )}
+          {natija.yonalish.qadamlarRejasi?.length > 0 && (
+            <div className="space-y-1.5 pt-1">
+              {natija.yonalish.qadamlarRejasi.map((q, i) => (
+                <div key={i} className="p-2.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs text-[var(--v3-matn)]">
+                  {q}
+                </div>
+              ))}
+            </div>
+          )}
+          {rejim !== "toliq" && (
+            <button
+              type="button"
+              onClick={onToliqYechimgaOtish}
+              className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold text-xs shadow-md hover:from-emerald-400 hover:to-teal-400 transition-all flex items-center justify-center gap-2"
+            >
+              <Ikon nom="orin" olcham={16} />
+              <span>To&apos;liq Master Yechimni Ko&apos;rish ➔</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ─── 6. BOSQICHMA-BOSQICH MASTER YECHIM (KaTeX) ─── */}
+      {natija.bosqichlar?.length > 0 && (
+        <div className="space-y-3">
+          <span className="text-xs font-bold text-[var(--v3-matn)] flex items-center gap-2">
+            <Ikon nom="orin" olcham={16} className="text-[var(--v3-urgu)]" />
+            <span>Bosqichma-bosqich Ilmiy Yechim:</span>
+          </span>
+          <div className="space-y-3">
+            {natija.bosqichlar.map((b, i) => (
+              <div key={i} className="p-4 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-2 hover:border-[var(--v3-chiziq-2)] transition-colors">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-[var(--v3-urgu)] text-white font-bold text-xs flex items-center justify-center shrink-0">
+                    {b.raqam || i + 1}
+                  </span>
+                  <strong className="text-xs sm:text-sm font-bold text-[var(--v3-matn)]">
+                    {b.sarlavha || `${i + 1}-Bosqich`}
+                  </strong>
+                </div>
+
+                <p className="text-xs text-[var(--v3-matn)] leading-relaxed pl-8">
+                  {b.tushuntirish || b.matn}
+                </p>
+
+                {b.formula && (
+                  <div className="ml-8 p-3 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center text-xs sm:text-sm font-mono font-bold text-[var(--v3-urgu)] overflow-x-auto">
+                    <LatexMatn matn={b.formula} inline={false} />
+                  </div>
+                )}
+
+                {b.mantiq && (
+                  <div className="ml-8 text-[11px] text-[var(--v3-xira)] italic">
+                    💡 Mantiq: {b.mantiq}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── 7. PEARSON DIAGONAL KRESTI (Agar mavjud bo'lsa) ─── */}
+      {natija.krestSxemasi?.mavjud && (
+        <div className="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/40 space-y-2">
+          <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+            <Ikon nom="atom" olcham={15} /> Pearson Diagonal Kresti Sxemasi:
+          </span>
+          <div className="p-4 rounded-xl bg-black/40 border border-indigo-800/40 flex items-center justify-center font-mono text-xs sm:text-sm text-white">
+            <div className="grid grid-cols-3 gap-4 text-center items-center">
+              <div className="space-y-4 font-bold text-amber-300">
+                <div>{natija.krestSxemasi.w1}%</div>
+                <div>{natija.krestSxemasi.w2}%</div>
+              </div>
+              <div className="p-2 rounded-xl bg-indigo-600/30 border border-indigo-400 font-extrabold text-white">
+                {natija.krestSxemasi.wTarget}%
+              </div>
+              <div className="space-y-4 font-bold text-emerald-300">
+                <div>{natija.krestSxemasi.qism1} qism</div>
+                <div>{natija.krestSxemasi.qism2} qism</div>
+              </div>
+            </div>
+          </div>
+          <div className="text-center text-xs text-indigo-200 font-bold">
+            Massa nisbati: {natija.krestSxemasi.nisbat}
+          </div>
+        </div>
+      )}
+
+      {/* ─── 8. YAKUNIY ANIQ JAVOB ─── */}
+      {natija.yakuniyJavob && (
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 border-2 border-emerald-500/50 space-y-1">
+          <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <Ikon nom="tasdiq" olcham={16} /> Yakuniy Natija:
+          </span>
+          <h4 className="text-base sm:text-lg font-black text-white leading-relaxed">
             {natija.yakuniyJavob}
-          </div>
+          </h4>
         </div>
       )}
 
-      {/* Rejimni almashtirish tugmasi (agar 'tuzoq' yoki 'yonalish' bo'lsa) */}
-      {rejim !== "toliq" && typeof onToliqYechimgaOtish === "function" && (
-        <div className="pt-2 border-t border-[var(--v3-chiziq)] flex justify-end">
-          <button
-            type="button"
-            onClick={onToliqYechimgaOtish}
-            className="v3-tugma v3-tugma-asosiy text-xs py-2 px-6 font-bold inline-flex items-center gap-2"
-          >
-            <Ikon nom="orin" olcham={14} />
-            <span>To{"'"}liq Master Yechimni Ochish →</span>
-          </button>
+      {/* ─── 9. AI REPETITOR BILAN MULOQOT (Follow-up Chat) ─── */}
+      <div className="pt-4 border-t border-[var(--v3-chiziq)] space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-[var(--v3-matn)] flex items-center gap-2">
+            <Ikon nom="xabar" olcham={16} className="text-[var(--v3-urgu)]" />
+            <span>AI Kimyo Repetitoridan Tushunmagan Qadamingizni So&apos;rang</span>
+          </span>
         </div>
-      )}
+
+        {/* Xabarlar ro'yxati */}
+        {chatXabarlar.length > 0 && (
+          <div className="space-y-2.5 max-h-64 overflow-y-auto p-3 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)]">
+            {chatXabarlar.map((x, i) => (
+              <div
+                key={i}
+                className={`p-3 rounded-2xl text-xs leading-relaxed ${
+                  x.rol === "user"
+                    ? "bg-[var(--v3-urgu)] text-white ml-6 font-semibold"
+                    : "bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] mr-6"
+                }`}
+              >
+                <span className="text-[10px] opacity-75 block mb-0.5 uppercase tracking-wider font-bold">
+                  {x.rol === "user" ? "Sizning savolingiz:" : "👨‍🏫 AI Repetitor:"}
+                </span>
+                <p>{x.matn}</p>
+              </div>
+            ))}
+            {chatYuklanmoqda && (
+              <div className="p-3 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-xs text-[var(--v3-xira)] mr-6 animate-pulse">
+                👨‍🏫 Repetitor tushuntirish yozmoqda...
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Savol kiritish formasi */}
+        <form onSubmit={handleChatYuborish} className="flex gap-2">
+          <input
+            type="text"
+            value={chatSavol}
+            onChange={(e) => setChatSavol(e.target.value)}
+            placeholder="Masalan: 2-bosqichdagi proporsiyani nega bunday tuzdik? Yoki boshqa usuli bormi?"
+            className="flex-1 px-4 py-2.5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-xs text-[var(--v3-matn)] placeholder-[var(--v3-xira)] focus:outline-hidden focus:border-[var(--v3-urgu)] font-sans"
+          />
+          <button
+            type="submit"
+            disabled={!chatSavol.trim() || chatYuklanmoqda}
+            className="px-5 py-2.5 rounded-2xl bg-[var(--v3-urgu)] hover:opacity-90 text-white text-xs font-bold shadow-md disabled:opacity-40 flex items-center gap-1.5 transition-all"
+          >
+            <Ikon nom="yubor" olcham={14} />
+            <span>So&apos;rash</span>
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

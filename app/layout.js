@@ -1,5 +1,6 @@
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import "katex/dist/katex.min.css";
 import { Providers } from "./providers";
 import { saytGrafi, ldJsonProps } from "@/lib/tuzilgan-malumot";
 
