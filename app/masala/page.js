@@ -796,28 +796,28 @@ export default function MasalaChatSahifasi() {
               onChange={handleRasmYuklash}
             />
 
-            {/* 📸 MAXSUS SVG KAMERA / RASM STIKER TUGMASI */}
+            {/* 📸 MAXSUS SVG KAMERA / RASM TUGMASI */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-3 rounded-2xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] hover:text-[var(--v3-urgu)] transition-all shrink-0 flex items-center justify-center shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
+              className="p-3 rounded-2xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] transition-all shrink-0 flex items-center justify-center shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-[var(--v3-chiziq)]"
               title="Kitob yoki daftardagi masalani suratga olib yuklash"
             >
-              <Ikon nom="rasm" olcham={20} />
+              <Ikon nom="rasm" olcham={20} className="text-[var(--v3-matn)]" />
             </button>
 
-            {/* 🎙️ MAXSUS SVG MIKROFON / OVOZ STIKER TUGMASI */}
+            {/* 🎙️ MAXSUS SVG MIKROFON / OVOZ TUGMASI */}
             <button
               type="button"
               onClick={handleOvozYozish}
-              className={`p-3 rounded-2xl border transition-all shrink-0 flex items-center justify-center shadow-xs hover:scale-105 active:scale-95 cursor-pointer ${
+              className={`p-3 rounded-2xl border transition-all shrink-0 flex items-center justify-center shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-[var(--v3-chiziq)] ${
                 ovozYozilmoqda
                   ? "bg-red-500/20 text-red-400 border-red-500 ring-2 ring-red-400/50 animate-pulse"
-                  : "border-[var(--v3-chiziq)] bg-[var(--v3-fon)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] hover:text-[var(--v3-urgu)]"
+                  : "border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)]"
               }`}
               title={ovozYozilmoqda ? "Ovoz yozishni to'xtatish" : "Ovozda aytish"}
             >
-              <Ikon nom="mikrofon" olcham={20} />
+              <Ikon nom="mikrofon" olcham={20} className={ovozYozilmoqda ? "text-red-400" : "text-[var(--v3-matn)]"} />
             </button>
 
             {/* Textarea */}
