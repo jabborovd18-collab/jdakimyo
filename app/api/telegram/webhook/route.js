@@ -30,6 +30,13 @@ import { bugungiIqtibos, iqtibosMatni } from '@/lib/iqtibos'
 import { xabarYubor } from '@/lib/bildirishnoma'
 import { koprukkaUzat, kopruSozlanganmi, saytniki } from '@/lib/telegram-kopruk'
 import { TANGA_TOPISH, TANGA_SAVOLGA } from '@/lib/bot-tanga'
+import {
+  aiRejimdami,
+  aiRejimniBoshla,
+  aiRejimniTugat,
+  shaxsiyAiXabariniBajar,
+  guruhAiXabariniBajar,
+} from '@/lib/telegram-ai-handler'
 
 const SAYT = 'https://www.jdakimyo.uz'
 
@@ -135,7 +142,20 @@ export async function POST(request) {
     // beradi. Har xabarga javob yozadigan bot guruhdan darrov
     // chiqarib yuboriladi.
     if (xabar.chat?.type === 'group' || xabar.chat?.type === 'supergroup') {
-      const guruhMatn = (xabar.text || '').trim()
+      const guruhMatn = (xabar.text || xabar.caption || '').trim()
+
+      // GURUHDA JDA KIMYO AI GA MUROJAAT (@jdakimyouzbot yoki Bot xabariga Reply)
+      const botNomiRegex = new RegExp(`@${BOT_NOMI}\\b`, 'i')
+      const botTegQilindi = botNomiRegex.test(guruhMatn) || xabar.reply_to_message?.from?.is_bot
+
+      if (botTegQilindi) {
+        await guruhAiXabariniBajar({
+          chatId: String(chatId),
+          xabar,
+          botUsername: BOT_NOMI,
+        }).catch((e) => console.error('[Guruh AI xatosi]', e.message))
+        return NextResponse.json({ ok: true })
+      }
 
       if (/^\/iqtibos(@\w+)?$/.test(guruhMatn)) {
         await guruhgaIqtibos(String(chatId))
@@ -150,15 +170,6 @@ export async function POST(request) {
         return NextResponse.json({ ok: true })
       }
 
-      // GURUHDA BOT SUHBATGA ARALASHMAYDI — faqat buyruqlar uzatiladi.
-      // Har xabarni Python botga jo'natsak, ikki zarar bo'lardi:
-      // bepul Render kvotasi behuda yeyilardi va bot suhbatga
-      // aralashib qolish xavfi tug'ilardi. Buyruq bo'lmagan xabar
-      // shu yerda to'xtaydi.
-      //
-      // Hisob tekshirilmaydi: guruhning o'zi hech qachon "ulangan"
-      // bo'lmaydi. Buyruqni kim yuborgani va unga ruxsat bor-yo'qligini
-      // Python bot o'zi hal qiladi.
       if (guruhMatn.startsWith('/')) {
         await koprukka(yangilik, chatId, { hisobTekshir: false })
       }
@@ -169,20 +180,38 @@ export async function POST(request) {
       return NextResponse.json({ ok: true })
     }
 
-    // MATNSIZ XABAR — hujjat, rasm, ovoz. Sayt ularning birortasini
-    // ishlatmaydi; test fayli va PDF uchun rasmlar aynan shu yo'l bilan
-    // keladi. Ilgari bu yerda `return` turardi va fayllar jimgina
-    // tashlab yuborilardi.
+    const matn = (xabar.text || xabar.caption || '').trim()
+
+    // 1. AI REJIMINI BOSHLASH TUGMASI YOKI /ai BUYRUG'I
+    if (matn === TUGMALAR.ai || matn === '/ai') {
+      await aiRejimniBoshla(String(chatId), xabar.from?.first_name)
+      return NextResponse.json({ ok: true })
+    }
+
+    // 2. AI REJIMIDAN CHIQISH TUGMASI YOKI /chiqish BUYRUG'I
+    if (matn === '🚪 AI rejimidan chiqish' || matn === '/chiqish') {
+      await aiRejimniTugat(String(chatId))
+      return NextResponse.json({ ok: true })
+    }
+
+    // 3. AGAR FOYDALANUVCHI AI REJIMIDA BO'LSA
+    if (aiRejimdami(String(chatId))) {
+      await shaxsiyAiXabariniBajar({
+        chatId: String(chatId),
+        xabar,
+        username: xabar.from?.username,
+        ism: xabar.from?.first_name,
+      }).catch((e) => console.error('[Shaxsiy AI xatosi]', e.message))
+      return NextResponse.json({ ok: true })
+    }
+
+    // MATNSIZ XABAR (va AI rejimida bo'lmagan holatda) — Python botga uzatiladi
     if (!xabar.text) {
       await koprukka(yangilik, chatId)
       return NextResponse.json({ ok: true })
     }
 
-    const matn = xabar.text.trim()
-
-    // Sayt o'ziniki bo'lmagan HAMMA narsani Python botga uzatadi —
-    // quiz oqimidagi erkin matn (fayl nomi va h.k.) ham shu yo'ldan
-    // o'tadi.
+    // Sayt o'ziniki bo'lmagan HAMMA narsani Python botga uzatadi
     if (!saytniki(matn, Object.values(TUGMALAR))) {
       await koprukka(yangilik, chatId)
       return NextResponse.json({ ok: true })
@@ -193,7 +222,6 @@ export async function POST(request) {
       matn,
       username: xabar.from?.username || null,
       ism: xabar.from?.first_name || null,
-      // Quiz havolasi ko'prikka o'zgarishsiz uzatilishi kerak
       yangilik,
     })
   } catch (e) {
