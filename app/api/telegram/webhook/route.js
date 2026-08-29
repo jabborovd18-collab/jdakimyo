@@ -52,7 +52,16 @@ const RASMIY_KANAL = process.env.RASMIY_KANAL || 'https://t.me/jdakimyouz'
  * Guruhda "menga shaxsiy yozing" deb aytish yetarli emas: odam botni
  * qidirib topishi kerak bo'ladi va ko'pchilik shu joyda to'xtaydi.
  */
-const BOT_NOMI = process.env.TELEGRAM_BOT_USERNAME || 'jdakimyouzbot'
+function botNominiTozala(raw) {
+  if (!raw) return 'jdakimyouzbot'
+  return String(raw)
+    .replace(/^https?:\/\/t\.me\//i, '')
+    .replace(/^@/, '')
+    .trim()
+    .toLowerCase()
+}
+
+const BOT_NOMI = botNominiTozala(process.env.TELEGRAM_BOT_USERNAME || 'jdakimyouzbot')
 
 export async function POST(request) {
   // Sozlanmagan bo'lsa jimgina qaytamiz: bu holat faqat kalit
@@ -143,10 +152,15 @@ export async function POST(request) {
     // chiqarib yuboriladi.
     if (xabar.chat?.type === 'group' || xabar.chat?.type === 'supergroup') {
       const guruhMatn = (xabar.text || xabar.caption || '').trim()
+      const kichikMatn = guruhMatn.toLowerCase()
 
-      // GURUHDA JDA KIMYO AI GA MUROJAAT (@jdakimyouzbot yoki Bot xabariga Reply)
-      const botNomiRegex = new RegExp(`@${BOT_NOMI}\\b`, 'i')
-      const botTegQilindi = botNomiRegex.test(guruhMatn) || xabar.reply_to_message?.from?.is_bot
+      // GURUHDA JDA KIMYO AI GA MUROJAAT (@jdakimyouzbot, bot nomi yoki Bot xabariga Reply)
+      const botTegQilindi =
+        kichikMatn.includes(`@${BOT_NOMI}`) ||
+        kichikMatn.includes('jdakimyouzbot') ||
+        kichikMatn.includes('@jdakimyo') ||
+        Boolean(xabar.reply_to_message?.from?.is_bot) ||
+        (xabar.entities || []).some((e) => e.type === 'mention' || e.type === 'text_mention')
 
       if (botTegQilindi) {
         await guruhAiXabariniBajar({
