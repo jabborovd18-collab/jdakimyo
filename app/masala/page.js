@@ -18,23 +18,23 @@ import toast from "react-hot-toast";
 const REJIMLAR = [
   {
     id: "tuzoq",
-    nom: "1-Rejim: Tuzoq",
+    nom: "Tuzoq Tahlili",
     ikon: "chaqmoq",
-    qisqa: "⚡ Tuzoq",
+    qisqa: "Tuzoq",
     tavsif: "Masaladagi nozik ayyorlik va xatolar tahlili (Javobsiz)",
   },
   {
     id: "yonalish",
-    nom: "2-Rejim: Yo'nalish",
+    nom: "Yo'nalish & Reja",
     ikon: "kitob",
-    qisqa: "🧭 Yo'nalish",
+    qisqa: "Yo'nalish",
     tavsif: "Reaksiya tenglamalari va formulalar rejasi",
   },
   {
     id: "toliq",
-    nom: "3-Rejim: Master",
+    nom: "Master Yechim",
     ikon: "tasdiq",
-    qisqa: "🎯 Master",
+    qisqa: "Master",
     tavsif: "Berilgan, Reaksiya, KaTeX bosqichlari va yakuniy javob",
   },
 ];
@@ -62,11 +62,11 @@ export default function MasalaChatSahifasi() {
   const [ovozYozilmoqda, setOvozYozilmoqda] = useState(false);
   const [avtoOvozRejimi, setAvtoOvozRejimi] = useState(false);
   const [faolOvozId, setFaolOvozId] = useState(null);
-  const [speechRecog, setSpeechRecog] = useState(null);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -76,31 +76,82 @@ export default function MasalaChatSahifasi() {
     scrollToBottom();
   }, [xabarlar, jonliHolat]);
 
-  // Speech Recognition (STT)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognizer = new SpeechRecognition();
-        recognizer.continuous = true;
-        recognizer.interimResults = true;
-        recognizer.lang = "uz-UZ";
-
-        recognizer.onresult = (event) => {
-          let yangi = "";
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            yangi += event.results[i][0].transcript;
-          }
-          if (yangi) setKiritma((prev) => (prev ? prev + " " + yangi : yangi));
-        };
-        recognizer.onerror = () => setOvozYozilmoqda(false);
-        recognizer.onend = () => setOvozYozilmoqda(false);
-        setSpeechRecog(recognizer);
-      }
+  // STT (Speech to text) boshlash
+  const startOvozYozish = () => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Brauzeringiz ovozli yozishni qo'llab-quvvatlamaydi (Chrome, Edge yoki Safari ishlating).");
+      return;
     }
-  }, []);
 
-  // Ovozda ijro etish funksiyasi
+    try {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch (e) {}
+      }
+
+      const recognizer = new SpeechRecognition();
+      recognizer.continuous = false;
+      recognizer.interimResults = true;
+      recognizer.lang = "uz-UZ";
+
+      recognizer.onstart = () => {
+        setOvozYozilmoqda(true);
+        toast.success("Tinglamoqdaman... Masalani gapiring.", { icon: "🎙️" });
+      };
+
+      recognizer.onresult = (event) => {
+        let natijaMatn = "";
+        for (let i = 0; i < event.results.length; ++i) {
+          natijaMatn += event.results[i][0].transcript;
+        }
+        if (natijaMatn) {
+          setKiritma(natijaMatn);
+        }
+      };
+
+      recognizer.onerror = (event) => {
+        console.warn("[STT Xatolik]:", event.error);
+        if (event.error === "not-allowed") {
+          toast.error("Mikrofonga ruxsat berilmagan. Brauzer sozlamalaridan ruxsat bering.");
+        } else if (event.error === "language-not-supported") {
+          recognizer.lang = "ru-RU";
+        }
+        setOvozYozilmoqda(false);
+      };
+
+      recognizer.onend = () => {
+        setOvozYozilmoqda(false);
+      };
+
+      recognitionRef.current = recognizer;
+      recognizer.start();
+    } catch (err) {
+      console.error("[STT Boshlash xatosi]:", err);
+      setOvozYozilmoqda(false);
+      toast.error("Mikrofonni ishga tushirib bo'lmadi.");
+    }
+  };
+
+  const toxtatOvozYozish = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
+    }
+    setOvozYozilmoqda(false);
+  };
+
+  const handleOvozYozish = () => {
+    if (ovozYozilmoqda) {
+      toxtatOvozYozish();
+      toast("Ovoz yozish to'xtatildi", { icon: "⏹️" });
+    } else {
+      startOvozYozish();
+    }
+  };
+
+  // Ovozda ijro etish funksiyasi (TTS)
   const matnniOvozdaIjroEt = (matn, xabarId) => {
     if (!matn) return;
 
@@ -115,18 +166,17 @@ export default function MasalaChatSahifasi() {
       onBoshlandi: () => setFaolOvozId(xabarId),
       onTugadi: () => {
         setFaolOvozId(null);
-        // Agar Hands-free Ovoz rejimi yoqiq bo'lsa, AI gapirib bo'lgach avtomatik mikrofonni ochamiz!
-        if (avtoOvozRejimi && speechRecog && !ovozYozilmoqda) {
-          try {
-            speechRecog.start();
-            setOvozYozilmoqda(true);
-            toast("Sizni tinglamoqdaman...", { icon: "🎙️" });
-          } catch (e) {
-            // e'tiborsiz qoldirish
-          }
+        // Hands-free rejimda AI javob berib bo'lgach foydalanuvchini tinglaydi
+        if (avtoOvozRejimi) {
+          setTimeout(() => {
+            startOvozYozish();
+          }, 400);
         }
       },
-      onXato: () => setFaolOvozId(null),
+      onXato: (xatoXabar) => {
+        setFaolOvozId(null);
+        toast.error(xatoXabar || "Ovozda o'qishda xatolik yuz berdi");
+      },
     });
   };
 
@@ -144,25 +194,6 @@ export default function MasalaChatSahifasi() {
       el.focus();
       el.setSelectionRange(start + belgi.length, start + belgi.length);
     }, 0);
-  };
-
-  const handleOvozYozish = () => {
-    if (!speechRecog) {
-      toast.error("Brauzeringiz ovozli yozishni qo'llab-quvvatlamaydi.");
-      return;
-    }
-    if (ovozYozilmoqda) {
-      speechRecog.stop();
-      setOvozYozilmoqda(false);
-    } else {
-      try {
-        speechRecog.start();
-        setOvozYozilmoqda(true);
-        toast.success("Ovoz yozilmoqda... Masalani gapiring.");
-      } catch (e) {
-        setOvozYozilmoqda(false);
-      }
-    }
   };
 
   const handleRasmYuklash = (e) => {
@@ -200,6 +231,7 @@ export default function MasalaChatSahifasi() {
     setRasmNomi("");
     if (fileInputRef.current) fileInputRef.current.value = "";
     ovozPleyeri.toxtat();
+    toxtatOvozYozish();
     setFaolOvozId(null);
     toast.success("Yangi suhbat boshlandi!");
   };
@@ -210,9 +242,8 @@ export default function MasalaChatSahifasi() {
     if (!kiritma.trim() && !rasmBase64) return;
     if (yuklanmoqda) return;
 
-    if (ovozYozilmoqda && speechRecog) {
-      speechRecog.stop();
-      setOvozYozilmoqda(false);
+    if (ovozYozilmoqda) {
+      toxtatOvozYozish();
     }
 
     const joriyMatn = kiritma.trim();
@@ -414,6 +445,7 @@ export default function MasalaChatSahifasi() {
                 toast.success("Ovozli muloqot (Hands-free) yoqildi!");
               } else {
                 ovozPleyeri.toxtat();
+                toxtatOvozYozish();
                 setFaolOvozId(null);
                 toast("Ovozli muloqot o'chirildi");
               }
@@ -463,7 +495,7 @@ export default function MasalaChatSahifasi() {
               </p>
             </div>
 
-            {/* 3 XIL REJIM TANLAGICH */}
+            {/* 3 XIL REJIM TANLAGICH (TOZA SVG IKONKALAR BILAN) */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left">
               {REJIMLAR.map((r) => (
                 <button
@@ -471,7 +503,7 @@ export default function MasalaChatSahifasi() {
                   type="button"
                   onClick={() => {
                     setRejim(r.id);
-                    toast.success(`${r.qisqa} tanlandi!`);
+                    toast.success(`${r.nom} tanlandi!`);
                   }}
                   className={`p-3 rounded-2xl border transition-all text-left cursor-pointer space-y-1 ${
                     rejim === r.id
@@ -482,7 +514,7 @@ export default function MasalaChatSahifasi() {
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-[var(--v3-matn)] flex items-center gap-1.5">
                       <Ikon nom={r.ikon} olcham={13} className="text-[var(--v3-urgu)]" />
-                      {r.qisqa}
+                      <span>{r.nom}</span>
                     </span>
                     {rejim === r.id && (
                       <Ikon nom="tasdiq" olcham={12} className="text-[var(--v3-urgu)]" />
@@ -750,7 +782,7 @@ export default function MasalaChatSahifasi() {
         <div className="max-w-3xl mx-auto space-y-2">
           {/* YUQORI REJIM VA BELGILAR CHIPLARI */}
           <div className="flex items-center justify-between gap-1.5 px-0.5">
-            {/* 3 ta ixcham rejim chipi */}
+            {/* 3 ta ixcham rejim chipi (TOZA SVG VA MATN) */}
             <div className="flex items-center gap-1">
               {REJIMLAR.map((r) => (
                 <button
@@ -764,7 +796,7 @@ export default function MasalaChatSahifasi() {
                   }`}
                 >
                   <Ikon nom={r.ikon} olcham={11} />
-                  <span>{r.qisqa.split(" ")[1] || r.qisqa}</span>
+                  <span>{r.qisqa}</span>
                 </button>
               ))}
             </div>
