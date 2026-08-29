@@ -10,6 +10,7 @@ import Link from "next/link";
 import FonTanlagich, { useFon } from "@/components/FonTanlagich";
 import Ikon from "@/components/Ikon";
 import LatexMatn from "@/components/LatexMatn.jsx";
+import BoyitilganMatn from "@/components/BoyitilganMatn.jsx";
 import UsageModelsModal from "@/components/masala/UsageModelsModal";
 import { masalaPdfYukla } from "@/lib/masala-pdf.js";
 import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
@@ -581,9 +582,7 @@ export default function MasalaChatSahifasi() {
                     </button>
                   </div>
 
-                  <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">
-                    {xabar.matn}
-                  </p>
+                  <BoyitilganMatn matn={xabar.matn} className="text-xs sm:text-sm text-[var(--v3-matn)]" />
                   <span className="text-[9px] text-[var(--v3-xira)] block text-right">
                     {xabar.vaqt}
                   </span>
