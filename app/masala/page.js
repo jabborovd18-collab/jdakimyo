@@ -237,6 +237,15 @@ export default function MasalaChatSahifasi() {
     toast.success("Yangi suhbat boshlandi!");
   };
 
+  // Rasmdagi boshqa masalani tezkor yechish
+  const handleBoshqaMasalaniYech = (masalaNomi, rasmData) => {
+    setKiritma(`${masalaNomi}ni to'liq yechib ber`);
+    if (rasmData) {
+      setRasmBase64(rasmData);
+      setRasmNomi("Avvalgi rasm");
+    }
+  };
+
   // Asosiy xabar jo'natish
   const handleXabarYuborish = async (e) => {
     if (e) e.preventDefault();
@@ -743,6 +752,29 @@ export default function MasalaChatSahifasi() {
                     </span>
                     <div className="text-[var(--v3-matn)] font-bold">
                       {xabar.yechim.krestSxemasi.w1}% va {xabar.yechim.krestSxemasi.w2}% ➔ {xabar.yechim.krestSxemasi.wTarget}% (Nisbat: {xabar.yechim.krestSxemasi.nisbat})
+                    </div>
+                  </div>
+                )}
+
+                {/* Rasmdagi Boshqa Masalalar Tanlash Chiplari */}
+                {xabar.yechim?.boshqaMasalalar?.length > 0 && (
+                  <div className="p-3 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-urgu)]/30 space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--v3-matn)]">
+                      <Ikon nom="rasm" olcham={14} className="text-[var(--v3-urgu)]" />
+                      <span>Rasmdagi boshqa aniqlangan masalalar:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {xabar.yechim.boshqaMasalalar.map((bm, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => handleBoshqaMasalaniYech(bm, xabar.rasm)}
+                          className="px-2.5 py-1 rounded-xl bg-[var(--v3-yuza)] hover:bg-[var(--v3-urgu)] hover:text-white border border-[var(--v3-chiziq)] text-[11px] font-bold text-[var(--v3-matn)] transition-all cursor-pointer shadow-2xs flex items-center gap-1"
+                        >
+                          <span>{bm}</span>
+                          <span className="opacity-60">➔</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
