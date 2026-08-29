@@ -40,7 +40,7 @@ export default function UsageModelsModal({ ochiq, yopish }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="w-full max-w-lg rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] p-5 sm:p-7 shadow-2xl space-y-6 text-[var(--v3-matn)] animate-in zoom-in-95 duration-200"
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] p-5 sm:p-7 shadow-2xl space-y-6 text-[var(--v3-matn)] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Sarlavha */}

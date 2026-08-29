@@ -40,7 +40,7 @@ export async function GET() {
       },
       modellar: [
         {
-          nom: "JDA Kimyo Core AI (v5.0)",
+          nom: "JDA Kimyo Core AI (v6.0 Reasoner)",
           turi: "DTM & Olimpiada Masalalar Tahlilchisi",
           holat: "Faol (Jonli)",
           tezlik: "Yuqori tezlik",

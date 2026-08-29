@@ -33,6 +33,9 @@ const YOLLAR = {
   tahrir: (
     <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
   ),
+  qalam: (
+    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+  ),
   ulashish: (
     <>
       <circle cx="18" cy="5" r="3" />

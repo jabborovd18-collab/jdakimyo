@@ -431,7 +431,7 @@ export default function MasalaChatSahifasi() {
               JDA Kimyo AI
             </span>
             <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-[var(--v3-urgu)]/20 text-[var(--v3-urgu)] group-hover:bg-[var(--v3-urgu)] group-hover:text-white transition-colors">
-              v5.0
+              v6.0
             </span>
           </button>
 
