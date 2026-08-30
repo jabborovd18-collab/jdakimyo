@@ -154,13 +154,14 @@ export async function POST(request) {
       const guruhMatn = (xabar.text || xabar.caption || '').trim()
       const kichikMatn = guruhMatn.toLowerCase()
 
-      // GURUHDA JDA KIMYO AI GA MUROJAAT (@jdakimyouzbot, bot nomi yoki Bot xabariga Reply)
+      // GURUHDA JDA KIMYO AI GA MUROJAAT (Faqat aniq @jdakimyouzbot teglanganda yoki Bot xabariga Reply qilinganda)
       const botTegQilindi =
         kichikMatn.includes(`@${BOT_NOMI}`) ||
         kichikMatn.includes('jdakimyouzbot') ||
-        kichikMatn.includes('@jdakimyo') ||
-        Boolean(xabar.reply_to_message?.from?.is_bot) ||
-        (xabar.entities || []).some((e) => e.type === 'mention' || e.type === 'text_mention')
+        kichikMatn.startsWith('/ai') ||
+        (Boolean(xabar.reply_to_message?.from?.is_bot) &&
+          (xabar.reply_to_message?.from?.username?.toLowerCase() === BOT_NOMI ||
+            xabar.reply_to_message?.from?.id === Number(process.env.TELEGRAM_BOT_TOKEN?.split(':')[0])))
 
       if (botTegQilindi) {
         await guruhAiXabariniBajar({
