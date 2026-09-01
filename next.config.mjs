@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingIncludes: {
+    // @sparticuz/chromium binary fayllarni fs orqali topadi; statik tracer bu
+    // yo'lni ko'rmaydi, shuning uchun faqat PDF functionga aniq qo'shamiz.
+    '/api/masala/pdf': ['./node_modules/@sparticuz/chromium/bin/**/*'],
+  },
   async redirects() {
     return [
       // /birikmalar HECH QACHON ishlamagan: sahifa `/api/compounds` dan

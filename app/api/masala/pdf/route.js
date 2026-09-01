@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { tezlikOshdimi } from "@/lib/tezlik-cheklov.js";
-import { masalaPdfChromiumdaYarat } from "@/lib/masala-pdf-chromium.js";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -47,6 +46,9 @@ export async function POST(request) {
       return xatoJavobi("Yechim ma'lumoti topilmadi.", 400);
     }
 
+    // Chromium og'ir serverless dependency bo'lgani uchun faqat haqiqiy PDF
+    // so'rovida yuklanadi; aks holda route ochilishining o'zi yiqilishi mumkin.
+    const { masalaPdfChromiumdaYarat } = await import("@/lib/masala-pdf-chromium.js");
     const foydalanuvchiNom = session.user.fullName || session.user.username || "Talaba";
     const pdf = await masalaPdfChromiumdaYarat({
       foydalanuvchiNom,
