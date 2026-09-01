@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint",
-    "test": "node --test test/lab-nisbat.test.js test/lab-tenglama.test.js test/lab-birlik.test.js test/lab-idish.test.js test/lab-erituvchi.test.js",
+    "lint": "eslint .",
+    "test": "node --test test/lab-nisbat.test.js test/lab-tenglama.test.js test/lab-birlik.test.js test/lab-idish.test.js test/lab-erituvchi.test.js test/quiz-baho.test.js test/ustoz-quiz.test.js test/ai-himoya.test.js test/masala-pdf.test.js test/latex-format.test.js",
+    "check:chemistry": "node scripts/check-reactions.js && node scripts/check-element-analiz.js",
     "postinstall": "prisma generate",
     "indexnow": "node scripts/indexnow.js",
     "db:push": "prisma db push",
@@ -17,21 +18,24 @@
     "lab3d:olcham": "node scripts/lab3d-olcham.js",
     "lab3d:model": "node scripts/lab3d-model-yasa.js",
     "lab3d:asset-sinov": "node scripts/lab3d-asset-sinov.js",
-    "lab3d:asset-taqqos": "node scripts/lab3d-asset-taqqos.js"
+    "lab3d:asset-taqqos": "node scripts/lab3d-asset-taqqos.js",
+    "pdf:namuna": "node scripts/masala-pdf-namuna.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
     "@pdf-lib/fontkit": "^1.1.1",
     "@prisma/client": "^5.22.0",
+    "@sparticuz/chromium": "^149.0.0",
     "@vercel/blob": "^2.5.0",
     "bcryptjs": "^2.4.3",
     "dejavu-fonts-ttf": "^2.37.3",
     "html2canvas": "^1.4.1",
-    "jspdf": "^2.5.2",
+    "jspdf": "^4.2.1",
     "katex": "^0.18.4",
     "next": "^16.0.10",
     "next-auth": "^4.24.11",
     "pdf-lib": "^1.17.1",
+    "playwright-core": "^1.62.1",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -40,13 +44,14 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@sparticuz/chromium": "^149.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.17.0",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@types/three": "^0.170.0",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.3",
     "playwright": "^1.62.1",
     "postcss": "^8.4.47",
     "prisma": "^5.22.0",
@@ -54,6 +59,6 @@
     "typescript": "^5.6.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.9.0"
   }
 }

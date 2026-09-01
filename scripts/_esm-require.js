@@ -8,6 +8,7 @@
  * Yon ta'sirsiz (sof) modullar uchun. Ruxsat etilgan importlar:
  *   - qo'shni JSON fayl:  import X from './y.json'
  *   - qo'shni ESM modul:  import { a } from './y.js'
+ *   - Node ichki moduli:   import crypto from 'crypto'
  *
  * Qo'shni modul REKURSIV ravishda ichkariga ko'chiriladi va bog'liqlik
  * tartibida joylashtiriladi. Nega kerak bo'ldi: `lib/lab-birlik.js`
@@ -31,6 +32,12 @@ function manbaniTayyorla(toliqYol) {
     .replace(
       /import\s+(\w+)\s+from\s+['"](\.[^'"]+\.json)['"];?/g,
       (_, nom, yol) => `const ${nom} = require(${JSON.stringify(path.join(papka, yol))});`,
+    )
+    // Sof modulning Node ichki bog'liqligi vaqtinchalik CJS faylda ham
+    // bevosita ishlaydi. Paket importlari ataylab ruxsat etilmaydi.
+    .replace(
+      /import\s+(\w+)\s+from\s+['"]((?:node:)?(?:crypto|buffer|util))['"];?/g,
+      (_, nom, modul) => `const ${nom} = require(${JSON.stringify(modul)});`,
     )
     // Qo'shni ESM modul importi olib tashlanadi — uning kodi allaqachon
     // yuqorida turadi, ya'ni nomlar shu qamrovda mavjud.

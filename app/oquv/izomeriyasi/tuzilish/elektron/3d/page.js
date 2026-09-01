@@ -6,6 +6,7 @@ import * as THREE from "three"
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib"
 import fontkit from "@pdf-lib/fontkit"
+import DOrbitalDiagram from "./DOrbitalDiagram"
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CPK RANGLARI

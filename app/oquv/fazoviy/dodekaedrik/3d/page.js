@@ -3674,7 +3674,7 @@ const generatePDF = async () => {
         </div>
         )
 
-        /* 3D CONTAINER */
+        {/* 3D konteyner */}
         <div ref={containerRef} className="flex-1 w-full relative min-h-[500px]">
 
           {loading && (
@@ -3686,7 +3686,7 @@ const generatePDF = async () => {
             </div>
           )}
 
-          /* TOOLTIP — pastda markazda */
+          {/* Ko'rsatma sahnani to'smasligi uchun pastda markazlanadi. */}
           {showTooltip && !loading && (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-purple-950/90 backdrop-blur-md px-4 py-2 rounded-xl text-xs text-purple-200 z-20 border border-purple-700/50 animate-fade-in">
               <div className="flex items-center gap-3 flex-wrap justify-center">

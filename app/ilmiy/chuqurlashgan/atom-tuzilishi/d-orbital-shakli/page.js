@@ -465,7 +465,7 @@ function EnergetikAjralish() {
           {g.levels.map((l, i) => (
             <div key={i} className="w-full flex items-center gap-3">
               <span className="text-purple-400 text-[10px] w-2/5 text-right">{l.name}</span>
-              <div className="flex-1 h-8 rounded-lg border flex items-center px-2" style={{ width: `${l.h}` }} className={`flex-1 h-8 ${l.bg} border rounded-lg flex items-center px-2`}>
+              <div style={{ width: `${l.h}` }} className={`flex-1 h-8 ${l.bg} border rounded-lg flex items-center px-2`}>
                 <span className={`${l.text} text-[10px] font-bold`}>{l.energy}</span>
               </div>
             </div>

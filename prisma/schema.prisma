@@ -267,6 +267,9 @@ model VerificationToken {
 
 model QuizResult {
   id             String   @id @default(cuid())
+  // Bir urinishni qayta yuborish ikkinchi marta XP bermasligi uchun server
+  // yaratgan yagona kalit. Eski natijalarda qiymat yo'qligi tabiiy.
+  attemptId      String?  @unique
   userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   quizName       String
@@ -1729,6 +1732,8 @@ model TeacherQuizQuestion {
 
 model TeacherQuizAttempt {
   id          String   @id @default(cuid())
+  // Bir tokenni ikki marta topshirish ikkinchi urinish va XP yaratmasin.
+  attemptId   String?  @unique
   quizId      String
   studentId   String
   answers     Json

@@ -11,6 +11,7 @@
 // Sahifa "bot nega jim" degan savolga ham javob beradi: Telegram
 // oxirgi xatosini ko'rsatadi. Usiz xato hech qayerda ko'rinmasdi.
 "use client"
+import Link from 'next/link'
 import { useState, useEffect, useCallback } from 'react'
 import toast from 'react-hot-toast'
 
@@ -1104,9 +1105,9 @@ function Elon({ ishlaydi }) {
           <div className="text-xs text-amber-300/80 leading-relaxed">
             E'lon yuborish uchun kamida bitta odam hisobini ulashi kerak.
             Botga <span className="font-mono">/kod</span> yozing va kodni{' '}
-            <a href="/profil/telegram" className="underline hover:text-amber-200">
+            <Link href="/profil/telegram" className="underline hover:text-amber-200">
               Sozlamalar → Telegram
-            </a>{' '}
+            </Link>{' '}
             bo'limiga kiriting — birinchi ulanish sizniki bo'ladi.
           </div>
         </div>

@@ -13,6 +13,30 @@ import { aiQuota } from "@/lib/ai-agents/ai-quota.js";
 const MATN_CHEGARASI = 4000;
 const RASM_BAYT_CHEGARASI = 4 * 1024 * 1024; // 4 MB
 
+function xotiraKontekstiniTozala(xotira) {
+  if (!xotira || typeof xotira !== "object") return null;
+  const oxirgiXabarlar = Array.isArray(xotira.oxirgiXabarlar)
+    ? xotira.oxirgiXabarlar
+      .slice(-6)
+      .filter((xabar) => xabar?.rol === "user" || xabar?.rol === "ai")
+      .map((xabar) => ({
+        rol: xabar.rol,
+        matn: typeof xabar.matn === "string" ? xabar.matn.slice(0, 500) : "",
+      }))
+      .filter((xabar) => xabar.matn)
+    : [];
+  const mavzular = {};
+  for (const [mavzu, soni] of Object.entries(xotira.profil?.mavzular || {}).slice(0, 30)) {
+    const tozaMavzu = String(mavzu).slice(0, 60);
+    const tozaSoni = Math.max(0, Math.min(10_000, Number(soni) || 0));
+    if (tozaMavzu) mavzular[tozaMavzu] = tozaSoni;
+  }
+  return {
+    oxirgiXabarlar,
+    profil: Object.keys(mavzular).length ? { mavzular } : null,
+  };
+}
+
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
@@ -28,33 +52,67 @@ export async function POST(request) {
       return NextResponse.json({ xato: tezlik }, { status: 429 });
     }
 
-    // Kunlik quota limitini tekshirish
-    const quotaTekshiruv = aiQuota.tekshir(session.user.id, session.user.role || "USER");
-    if (!quotaTekshiruv.ruxsat) {
-      return NextResponse.json({ xato: quotaTekshiruv.xato }, { status: 429 });
+    const foydalanuvchiIsmi = session.user.fullName || session.user.username || "Do'stim";
+    const body = await request.json().catch(() => null);
+    if (!body) {
+      return NextResponse.json({ xato: "So'rov formati noto'g'ri." }, { status: 400 });
     }
+    const {
+      action = "yech",
+      masalaMatni = "",
+      rejim = "toliq",
+      rasm = null,
+      savol = "",
+      yechim = null,
+      ishlashYonalishi = "avtomatik",
+      xotiraKonteksti: xomXotiraKonteksti = null,
+    } = body;
+    const xotiraKonteksti = xotiraKontekstiniTozala(xomXotiraKonteksti);
 
-    const foydalanuvchiIsmi = session.user.fullName || session.user.name || session.user.username || "Do'stim";
-    const body = await request.json();
-    const { action = "yech", masalaMatni = "", rejim = "toliq", rasm = null, savol = "", yechim = null } = body;
+    const quotaBandQil = async () => {
+      const quota = await aiQuota.bandQil(
+        session.user.id,
+        session.user.role,
+        Boolean(session.user.isTeacher),
+      );
+      if (!quota.ruxsat) {
+        const error = new Error(quota.xato);
+        error.statusCode = 429;
+        throw error;
+      }
+    };
 
     // AI REPETITOR BILAN MULOQOT (Follow-up Chat)
     if (action === "chat") {
-      if (!savol || !savol.trim()) {
+      if (typeof savol !== "string" || !savol.trim()) {
         return NextResponse.json({ xato: "Savol matni kiritilmadi." }, { status: 400 });
       }
-      const javob = await aiRepetitorChat({
+      if (savol.length > 2000 || typeof masalaMatni !== "string" || masalaMatni.length > MATN_CHEGARASI) {
+        return NextResponse.json({ xato: "Suhbat matni ruxsat etilgan hajmdan oshdi." }, { status: 400 });
+      }
+      const oldingiJavob = typeof yechim?.yakuniyJavob === "string"
+        ? yechim.yakuniyJavob.slice(0, 8000)
+        : "";
+      const chatNatija = await aiRepetitorChat({
         masalaMatni,
-        yechim,
-        savol,
+        yechim: { yakuniyJavob: oldingiJavob },
+        savol: savol.trim(),
         foydalanuvchiId: session.user.id,
-        foydalanuvchiIsmi
+        foydalanuvchiIsmi,
+        ishlashYonalishi,
+        xotiraKonteksti,
+        apiChaqirishdanOldin: quotaBandQil,
       });
       return NextResponse.json({
         muvaffaqiyatli: true,
         action: "chat",
-        javob
+        javob: chatNatija.matn,
+        aiYonalish: chatNatija.aiYonalish,
       });
+    }
+
+    if (action !== "yech") {
+      return NextResponse.json({ xato: "Noma'lum amal." }, { status: 400 });
     }
 
     // MASALA YECHISH REJIMI
@@ -95,7 +153,10 @@ export async function POST(request) {
       rejim,
       rasm,
       foydalanuvchiId: session.user.id,
-      foydalanuvchiIsmi
+      foydalanuvchiIsmi,
+      ishlashYonalishi,
+      xotiraKonteksti,
+      apiChaqirishdanOldin: quotaBandQil,
     });
 
     if (!natija) {
@@ -104,10 +165,8 @@ export async function POST(request) {
         { status: 500 }
       );
     }
-
-    // Agar keshdan olinmagan bo'lsa (yangi API sarflangan bo'lsa) quota hisobini 1 ga oshiramiz
-    if (!natija._keshdan) {
-      aiQuota.oshir(session.user.id);
+    if (natija.muvaffaqiyatli === false) {
+      return NextResponse.json({ xato: natija.xato || "So'rov rad etildi." }, { status: 400 });
     }
 
     return NextResponse.json({
@@ -116,9 +175,11 @@ export async function POST(request) {
     });
   } catch (err) {
     console.error("[Masala yech API xatosi]:", err);
+    const ruxsatStatuslar = new Set([429, 502, 503, 504]);
+    const status = ruxsatStatuslar.has(err?.statusCode) ? err.statusCode : 500;
     return NextResponse.json(
-      { xato: "Masalani tahlil qilishda server xatoligi yuz berdi." },
-      { status: 500 }
+      { xato: status === 500 ? "Masalani tahlil qilishda server xatoligi yuz berdi." : err.message },
+      { status }
     );
   }
 }

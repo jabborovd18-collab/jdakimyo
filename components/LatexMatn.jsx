@@ -7,38 +7,43 @@
 
 import React, { useMemo } from "react";
 import katex from "katex";
+import "katex/contrib/mhchem";
 import "katex/dist/katex.min.css";
+import { latexniNormallashtir, latexniOddiyMatnga } from "@/lib/latex-oddiy-matn.js";
 
 export default function LatexMatn({ matn = "", inline = true, className = "" }) {
-  const html = useMemo(() => {
-    if (!matn) return "";
-    
-    let toza = String(matn).trim();
+  const render = useMemo(() => {
+    if (!matn) return { html: "", zaxira: "" };
 
-    // Atrofdagi $ va $$ belgilarini olib tashlash (chunki katex.renderToString sof formula kutadi)
-    if (toza.startsWith("$$") && toza.endsWith("$$")) {
-      toza = toza.slice(2, -2).trim();
-    } else if (toza.startsWith("$") && toza.endsWith("$")) {
-      toza = toza.slice(1, -1).trim();
-    }
+    const toza = latexniNormallashtir(matn);
 
     try {
-      return katex.renderToString(toza, {
-        displayMode: !inline,
-        throwOnError: false,
-        output: "htmlAndMathml",
-      });
-    } catch (e) {
-      return toza;
+      return {
+        html: katex.renderToString(toza, {
+          displayMode: !inline,
+          throwOnError: true,
+          output: "htmlAndMathml",
+          trust: false,
+        }),
+        zaxira: "",
+      };
+    } catch {
+      // Xom LaTeXni `dangerouslySetInnerHTML` ga berish xavfli va qizil
+      // xato matnini ko'rsatadi; o'qiladigan oddiy matn zaxirasi yaxshiroq.
+      return { html: "", zaxira: latexniOddiyMatnga(toza) };
     }
   }, [matn, inline]);
 
   if (!matn) return null;
 
+  if (!render.html) {
+    return <span className={`latex-zaxira whitespace-pre-wrap ${className}`}>{render.zaxira}</span>;
+  }
+
   return (
     <span
       className={`katex-render inline-block ${className}`}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: render.html }}
     />
   );
 }

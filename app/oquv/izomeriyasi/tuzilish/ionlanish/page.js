@@ -461,7 +461,7 @@ export default function IonlanishIzomeriyasi() {
               </p>
               <code className="block bg-green-950/60 rounded-lg p-3 text-xs text-pink-300 font-mono">
                 Ag⁺ + Br⁻ → AgBr↓ (och sarg'ish)<br />
-                <span className="text-red-300">// Ichki sferadagi Br⁻ reaksiyaga kirishmaydi!</span>
+                <span className="text-red-300">{'// Ichki sferadagi Br⁻ reaksiyaga kirishmaydi!'}</span>
               </code>
             </div>
 
@@ -475,7 +475,7 @@ export default function IonlanishIzomeriyasi() {
               </p>
               <code className="block bg-green-950/60 rounded-lg p-3 text-xs text-pink-300 font-mono">
                 Ba²⁺ + SO₄²⁻ → BaSO₄↓ (oq)<br />
-                <span className="text-red-300">// Ichki sferadagi sulfato ligand cho'kmaydi!</span>
+                <span className="text-red-300">{"// Ichki sferadagi sulfato ligand cho'kmaydi!"}</span>
               </code>
             </div>
 

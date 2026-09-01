@@ -383,10 +383,10 @@ export default function K4FeCN6EAPage() {
 
           {showCalc && (
             <div className="mt-4 bg-purple-950/50 rounded-xl p-4 border border-purple-700/30 text-xs font-mono text-purple-300 space-y-2">
-              <p className="text-purple-500">// Molekulyar massa hisobi (IUPAC 2021)</p>
+              <p className="text-purple-500">{'// Molekulyar massa hisobi (IUPAC 2021)'}</p>
               <p>M = 4×{ATOMIC_MASSES.K} + {ATOMIC_MASSES.Fe} + 6×({ATOMIC_MASSES.C}+{ATOMIC_MASSES.N}) + 3×(2×{ATOMIC_MASSES.H}+{ATOMIC_MASSES.O})</p>
               <p>M = 156.393 + 55.845 + 156.108 + 54.048 = <span className="text-yellow-400 font-bold">{COMPOUND.molarMass.toFixed(3)} g/mol</span></p>
-              <p className="text-purple-500 mt-2">// Element foizlari: %X = (n_X × A_X) / M × 100</p>
+              <p className="text-purple-500 mt-2">{'// Element foizlari: %X = (n_X × A_X) / M × 100'}</p>
               <p>%C = (6×12.011) / 422.394 × 100 = <span className="text-yellow-400">{COMPOUND.theoretical.C.percent.toFixed(3)}%</span></p>
               <p>%H = (6×1.008) / 422.394 × 100 = <span className="text-yellow-400">{COMPOUND.theoretical.H.percent.toFixed(3)}%</span></p>
               <p>%N = (6×14.007) / 422.394 × 100 = <span className="text-yellow-400">{COMPOUND.theoretical.N.percent.toFixed(3)}%</span></p>

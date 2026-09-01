@@ -7,6 +7,7 @@
 import { useState, useEffect } from "react";
 import Ikon from "@/components/Ikon";
 import LatexMatn from "@/components/LatexMatn.jsx";
+import LatexBoyMatn from "@/components/LatexBoyMatn.jsx";
 import { masalaPdfYukla } from "@/lib/masala-pdf.js";
 import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
 import toast from "react-hot-toast";
@@ -308,9 +309,9 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
                   </strong>
                 </div>
 
-                <p className="text-xs text-[var(--v3-matn)] leading-relaxed pl-8">
-                  {b.tushuntirish || b.matn}
-                </p>
+                <div className="text-xs text-[var(--v3-matn)] leading-relaxed pl-8">
+                  <LatexBoyMatn matn={b.tushuntirish || b.matn || ""} />
+                </div>
 
                 {b.formula && (
                   <div className="ml-8 p-3 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center text-xs sm:text-sm font-mono font-bold text-[var(--v3-urgu)] overflow-x-auto">
@@ -320,7 +321,7 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
 
                 {b.mantiq && (
                   <div className="ml-8 text-[11px] text-[var(--v3-xira)] italic">
-                    💡 Mantiq: {b.mantiq}
+                    💡 Mantiq: <LatexBoyMatn matn={b.mantiq} />
                   </div>
                 )}
               </div>
@@ -363,7 +364,7 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
             <Ikon nom="tasdiq" olcham={16} /> Yakuniy Natija:
           </span>
           <h4 className="text-base sm:text-lg font-black text-white leading-relaxed">
-            {natija.yakuniyJavob}
+            <LatexBoyMatn matn={natija.yakuniyJavob} />
           </h4>
         </div>
       )}
@@ -392,7 +393,7 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
                 <span className="text-[10px] opacity-75 block mb-0.5 uppercase tracking-wider font-bold">
                   {x.rol === "user" ? "Sizning savolingiz:" : "👨‍🏫 AI Repetitor:"}
                 </span>
-                <p>{x.matn}</p>
+                <div><LatexBoyMatn matn={x.matn} /></div>
               </div>
             ))}
             {chatYuklanmoqda && (

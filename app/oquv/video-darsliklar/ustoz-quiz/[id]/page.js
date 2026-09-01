@@ -57,7 +57,8 @@ export default function UstozQuizSolvePage() {
         throw new Error(data.error || 'Testni yuklab bo\'lmadi')
       }
 
-      setQuiz(data.quiz)
+      setNeedCode(false)
+      setQuiz({ ...data.quiz, canAttempt: data.canAttempt })
       if (data.quiz.timeLimit) {
         setTimeLeft(data.quiz.timeLimit * 60)
       }
@@ -65,6 +66,23 @@ export default function UstozQuizSolvePage() {
       setError(err.message)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const verifyAccessCode = async () => {
+    if (!accessCode.trim()) return toast.error('Kirish kodini kiriting')
+    try {
+      const res = await fetch('/api/oquv/ustoz-quiz/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quizId, code: accessCode }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Kod noto'g'ri")
+      toast.success(data.message || 'Kirish tasdiqlandi')
+      await fetchQuiz()
+    } catch (err) {
+      toast.error(err.message)
     }
   }
 
@@ -112,6 +130,7 @@ export default function UstozQuizSolvePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          attemptToken: quiz.attemptToken,
           answers: formattedAnswers,
           timeSpent
         })
@@ -159,6 +178,36 @@ export default function UstozQuizSolvePage() {
           <Link href="/oquv/video-darsliklar/ustoz-quiz" className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 inline-flex">
             Barcha testlarga qaytish
           </Link>
+        </div>
+      </main>
+    )
+  }
+
+  if (needCode) {
+    return (
+      <main data-fon={fon} className="v3 min-h-screen text-[var(--v3-matn)] bg-[var(--v3-fon)] flex items-center justify-center p-4">
+        <div className="v3-panel-karta max-w-md w-full p-8 space-y-5">
+          <div>
+            <div className="v3-nishon mb-2">Himoyalangan quiz</div>
+            <h1 className="font-bold text-xl">Kirish kodini kiriting</h1>
+            <p className="text-xs text-[var(--v3-xira)] mt-2">Kod tekshirilgach, ruxsat xavfsiz cookie orqali shu hisobga bog'lanadi.</p>
+          </div>
+          <label className="v3-quiz-maydon">
+            <span>Kirish kodi</span>
+            <input
+              value={accessCode}
+              onChange={(event) => setAccessCode(event.target.value)}
+              onKeyDown={(event) => event.key === 'Enter' && verifyAccessCode()}
+              placeholder="Masalan: KIMYO2026"
+              autoComplete="one-time-code"
+            />
+          </label>
+          <div className="flex justify-end gap-3">
+            <Link href="/oquv/video-darsliklar/ustoz-quiz" className="v3-tugma text-xs py-2 px-4">Orqaga</Link>
+            <button type="button" onClick={verifyAccessCode} className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4">
+              Tekshirish
+            </button>
+          </div>
         </div>
       </main>
     )
@@ -273,9 +322,10 @@ export default function UstozQuizSolvePage() {
               <button
                 type="button"
                 onClick={startQuiz}
+                disabled={quiz?.canAttempt === false}
                 className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-6 font-bold"
               >
-                Testni boshlash →
+                {quiz?.canAttempt === false ? 'Urinishlar tugagan' : 'Testni boshlash →'}
               </button>
             </div>
           </div>
@@ -410,7 +460,7 @@ export default function UstozQuizSolvePage() {
         {/* ─── 3. NATIJA VA XATOLAR TAHLILI ─── */}
         {results && (
           <div className="v3-panel-karta p-6 sm:p-10 space-y-8 animate-in fade-in zoom-in-95 duration-200">
-            <div className="text-center space-y-3">
+            {results.showResults ? <div className="text-center space-y-3">
               <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto text-3xl font-bold font-mono border-4 ${
                 results.passed
                   ? 'border-green-500/40 bg-green-500/10 text-green-400'
@@ -426,18 +476,24 @@ export default function UstozQuizSolvePage() {
                 To{"'"}plangan ball: <strong className="text-[var(--v3-matn)]">{results.score} / {results.maxScore}</strong>.
                 {results.xpEarned > 0 && <span> Sizga <strong>+{results.xpEarned} XP</strong> berildi.</span>}
               </p>
-            </div>
+            </div> : (
+              <div className="text-center space-y-3">
+                <span className="v3-quiz-katta-ikon mx-auto"><Ikon nom="belgi" olcham={25} /></span>
+                <h2 className="text-2xl font-bold">Javoblar saqlandi</h2>
+                <p className="text-xs text-[var(--v3-xira)]">Ustoz bu quiz natijasini darhol ko'rsatmaslikni tanlagan.</p>
+              </div>
+            )}
 
             {/* Amallar */}
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <button
+              {Array.isArray(results.results) && <button
                 type="button"
                 onClick={() => setShowReview(!showReview)}
                 className="v3-tugma text-xs py-2.5 px-4"
               >
                 <Ikon nom="quiz" olcham={15} />
                 {showReview ? 'Tahlilni yashirish' : 'Savollar tahlilini ko\'rish'}
-              </button>
+              </button>}
 
               <button
                 type="button"
@@ -446,6 +502,7 @@ export default function UstozQuizSolvePage() {
                   setStarted(false)
                   setAnswers({})
                   setCurrentIdx(0)
+                  fetchQuiz()
                 }}
                 className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-4 font-bold"
               >
@@ -490,14 +547,15 @@ export default function UstozQuizSolvePage() {
 
                       <div className="grid gap-1.5 text-xs">
                         {opts.map((opt, optIdx) => {
-                          const isCorrectOpt = r.correctAnswer === optIdx
+                          const isCorrectOpt = Number.isInteger(r.correctAnswer) && r.correctAnswer === optIdx
                           const isUserSel = r.userAnswer === optIdx
+                          const isUserCorrect = isUserSel && r.isCorrect
 
                           return (
                             <div
                               key={optIdx}
                               className={`p-2.5 rounded-lg border flex items-center justify-between ${
-                                isCorrectOpt
+                                isCorrectOpt || isUserCorrect
                                   ? 'bg-green-500/10 border-green-500/30 text-green-300 font-semibold'
                                   : isUserSel
                                   ? 'bg-red-500/10 border-red-500/30 text-red-300'

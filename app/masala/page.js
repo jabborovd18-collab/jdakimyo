@@ -14,6 +14,20 @@ import BoyitilganMatn from "@/components/BoyitilganMatn.jsx";
 import UsageModelsModal from "@/components/masala/UsageModelsModal";
 import { masalaPdfYukla } from "@/lib/masala-pdf.js";
 import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
+import {
+  aiChatlarRoyxatiniOl,
+  aiChatniOl,
+  aiChatniOchirish,
+  aiChatniSaqlash,
+  aiSozlamaniOl,
+  aiSozlamaniSaqlash,
+  aiXotiraNusxasiniOl,
+  aiXotiraNusxasiniQosh,
+  brauzerXotirasiniBarqarorQil,
+  oquvProfiliniOl,
+  oquvProfiliniYangila,
+  yangiAiChatId,
+} from "@/lib/ai-xotira-brauzer.js";
 import toast from "react-hot-toast";
 
 const REJIMLAR = [
@@ -40,14 +54,49 @@ const REJIMLAR = [
   },
 ];
 
+const ISHLASH_YONALISHLARI = [
+  { id: "avtomatik", nom: "Avtomatik" },
+  { id: "tezkor", nom: "Tez javob" },
+  { id: "oddiy", nom: "Oddiy" },
+  { id: "murakkab", nom: "Chuqur" },
+];
+
+const MIJOZ_VAQT_CHEGARASI = {
+  avtomatik: 55_000,
+  tezkor: 18_000,
+  oddiy: 35_000,
+  murakkab: 55_000,
+};
+
 const TEZKOR_BELGILAR = [
   "₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉",
   "⁺", "⁻", "²⁺", "³⁺", "→", "⇌", "↑", "↓", "Δ", "°C", "ω", "ν", "ρ", "pH"
 ];
 
+function chatKontekstiniYig(xabarlar, profil) {
+  const oxirgiXabarlar = xabarlar
+    .slice(-6)
+    .map((xabar) => {
+      const matn = xabar.matn
+        || xabar.yechim?.yakuniyJavob
+        || (xabar.rasm ? "Rasmli kimyo masalasi" : "");
+      return matn ? { rol: xabar.rol, matn: String(matn).slice(0, 500) } : null;
+    })
+    .filter(Boolean);
+
+  return {
+    oxirgiXabarlar,
+    profil: profil ? {
+      mavzular: profil.mavzular || {},
+      oxirgiFaollik: profil.oxirgiFaollik || null,
+    } : null,
+  };
+}
+
 export default function MasalaChatSahifasi() {
   const [fonKaliti, fonniOzgartir] = useFon();
   const [rejim, setRejim] = useState("toliq");
+  const [ishlashYonalishi, setIshlashYonalishi] = useState("avtomatik");
   const [kiritma, setKiritma] = useState("");
   const [rasmBase64, setRasmBase64] = useState(null);
   const [rasmNomi, setRasmNomi] = useState("");
@@ -58,16 +107,35 @@ export default function MasalaChatSahifasi() {
   const [xabarlar, setXabarlar] = useState([]);
   const [yuklanmoqda, setYuklanmoqda] = useState(false);
   const [jonliHolat, setJonliHolat] = useState({ ikon: "kolba", matn: "" });
+  const [chatId, setChatId] = useState(null);
+  const [saqlanganChatlar, setSaqlanganChatlar] = useState([]);
+  const [tarixOchiq, setTarixOchiq] = useState(false);
+  const [xotiraTayyor, setXotiraTayyor] = useState(false);
+  const [akkauntSinxroni, setAkkauntSinxroni] = useState(false);
+  const [sinxronHolat, setSinxronHolat] = useState("mahalliy");
 
   // Ovozli AI (Hands-free & TTS/STT)
   const [ovozYozilmoqda, setOvozYozilmoqda] = useState(false);
   const [avtoOvozRejimi, setAvtoOvozRejimi] = useState(false);
   const [faolOvozId, setFaolOvozId] = useState(null);
+  const [oraliqOvozMatni, setOraliqOvozMatni] = useState("");
+  const [ovozHolati, setOvozHolati] = useState("");
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
   const recognitionRef = useRef(null);
+  const sorovControllerRef = useRef(null);
+  const chatAvlodiRef = useRef(0);
+  const sinxronTaymerRef = useRef(null);
+  const avtoOvozRef = useRef(false);
+  const yuklanmoqdaRef = useRef(false);
+  const ovozQoldaToxtadiRef = useRef(false);
+  const sttYakuniyRef = useRef("");
+  const sttBoshlangichRef = useRef("");
+  const sttTilRef = useRef("uz-UZ");
+  const avtoYuborTaymerRef = useRef(null);
+  const xabarYuborishRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -77,52 +145,254 @@ export default function MasalaChatSahifasi() {
     scrollToBottom();
   }, [xabarlar, jonliHolat]);
 
-  // STT (Speech to text) boshlash
-  const startOvozYozish = () => {
-    if (typeof window === "undefined") return;
+  useEffect(() => {
+    avtoOvozRef.current = avtoOvozRejimi;
+  }, [avtoOvozRejimi]);
+
+  useEffect(() => {
+    yuklanmoqdaRef.current = yuklanmoqda;
+  }, [yuklanmoqda]);
+
+  useEffect(() => {
+    let faol = true;
+
+    async function xotiraniTiklash() {
+      try {
+        void brauzerXotirasiniBarqarorQil();
+        const [faolChatId, sinxronYoqilgan] = await Promise.all([
+          aiSozlamaniOl("faolChatId"),
+          aiSozlamaniOl("akkauntSinxroni", false),
+        ]);
+
+        if (sinxronYoqilgan) {
+          setAkkauntSinxroni(true);
+          setSinxronHolat("yuklanmoqda");
+          const javob = await fetch("/api/masala/xotira", { cache: "no-store" });
+          if (javob.ok) {
+            const data = await javob.json();
+            if (data.nusxa) await aiXotiraNusxasiniQosh(data.nusxa);
+            setSinxronHolat("sinxron");
+          } else {
+            setSinxronHolat("xato");
+          }
+        }
+
+        const chatlar = await aiChatlarRoyxatiniOl();
+        const tiklanadiganId = chatlar.some((chat) => chat.id === faolChatId)
+          ? faolChatId
+          : chatlar[0]?.id;
+        const chat = tiklanadiganId ? await aiChatniOl(tiklanadiganId) : null;
+
+        if (!faol) return;
+        const yangiId = tiklanadiganId || yangiAiChatId();
+        setChatId(yangiId);
+        setXabarlar(chat?.xabarlar || []);
+        setSaqlanganChatlar(chatlar);
+        await aiSozlamaniSaqlash("faolChatId", yangiId);
+      } catch (error) {
+        console.warn("[AI XOTIRA] Brauzer tarixini tiklab bo'lmadi:", error);
+        if (faol) {
+          setChatId(yangiAiChatId());
+          toast.error("Chat tarixini ochib bo'lmadi. Joriy chat vaqtincha ishlaydi.");
+        }
+      } finally {
+        if (faol) setXotiraTayyor(true);
+      }
+    }
+
+    void xotiraniTiklash();
+    return () => {
+      faol = false;
+      sorovControllerRef.current?.abort();
+      clearTimeout(sinxronTaymerRef.current);
+      clearTimeout(avtoYuborTaymerRef.current);
+      ovozQoldaToxtadiRef.current = true;
+      try { recognitionRef.current?.abort(); } catch {}
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!xotiraTayyor || !chatId) return;
+    void aiSozlamaniSaqlash("faolChatId", chatId);
+    if (xabarlar.length === 0) return;
+
+    let bekor = false;
+    aiChatniSaqlash({ id: chatId, xabarlar })
+      .then(() => aiChatlarRoyxatiniOl())
+      .then((chatlar) => {
+        if (!bekor) setSaqlanganChatlar(chatlar);
+      })
+      .catch((error) => console.warn("[AI XOTIRA] Chat saqlanmadi:", error));
+
+    clearTimeout(sinxronTaymerRef.current);
+    if (akkauntSinxroni) {
+      sinxronTaymerRef.current = setTimeout(async () => {
+        try {
+          setSinxronHolat("yuklanmoqda");
+          const nusxa = await aiXotiraNusxasiniOl();
+          const javob = await fetch("/api/masala/xotira", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nusxa),
+          });
+          if (!javob.ok) throw new Error("Akkaunt xotirasi saqlanmadi");
+          setSinxronHolat("sinxron");
+        } catch (error) {
+          console.warn("[AI XOTIRA] Sinxronlash xatosi:", error);
+          setSinxronHolat("xato");
+        }
+      }, 2500);
+    }
+
+    return () => {
+      bekor = true;
+    };
+  }, [xabarlar, chatId, xotiraTayyor, akkauntSinxroni]);
+
+  const aiSorovYubor = async (body, tanlanganYonalish) => {
+    const controller = new AbortController();
+    sorovControllerRef.current = controller;
+    const vaqtMs = MIJOZ_VAQT_CHEGARASI[tanlanganYonalish]
+      || MIJOZ_VAQT_CHEGARASI.avtomatik;
+    const taymer = setTimeout(() => controller.abort(), vaqtMs);
+
+    try {
+      const response = await fetch("/api/masala/yech", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.xato || "AI so'rovini bajarib bo'lmadi");
+      }
+      return data;
+    } catch (error) {
+      if (controller.signal.aborted) {
+        const vaqtXatosi = new Error("So'rov belgilangan vaqtda tugamadi. Qayta urinib ko'ring.");
+        vaqtXatosi.kod = "BEKOR_QILINDI";
+        throw vaqtXatosi;
+      }
+      throw error;
+    } finally {
+      clearTimeout(taymer);
+      if (sorovControllerRef.current === controller) {
+        sorovControllerRef.current = null;
+      }
+    }
+  };
+
+  // STT final va oraliq natijani alohida ushlaydi. Aks holda brauzer har
+  // oraliq natijada oldingi matnni yo'qotib, gapni "sakratib" yuboradi.
+  const startOvozYozish = (qaytaBoshlash = false) => {
+    if (typeof window === "undefined" || yuklanmoqdaRef.current) return;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error("Brauzeringiz ovozli yozishni qo'llab-quvvatlamaydi (Chrome, Edge yoki Safari ishlating).");
+      toast.error("Brauzeringiz ovozli yozishni qo'llab-quvvatlamaydi (Chrome yoki Edge ishlating).");
       return;
     }
 
     try {
       if (recognitionRef.current) {
-        try { recognitionRef.current.abort(); } catch (e) {}
+        ovozQoldaToxtadiRef.current = true;
+        try { recognitionRef.current.abort(); } catch {}
+      }
+
+      clearTimeout(avtoYuborTaymerRef.current);
+      ovozPleyeri.toxtat();
+      setFaolOvozId(null);
+      ovozQoldaToxtadiRef.current = false;
+      if (!qaytaBoshlash) {
+        sttBoshlangichRef.current = kiritma.trim();
+        sttYakuniyRef.current = "";
+        setOraliqOvozMatni("");
       }
 
       const recognizer = new SpeechRecognition();
-      recognizer.continuous = false;
+      recognizer.continuous = true;
       recognizer.interimResults = true;
-      recognizer.lang = "uz-UZ";
+      recognizer.maxAlternatives = 1;
+      recognizer.lang = sttTilRef.current;
 
       recognizer.onstart = () => {
         setOvozYozilmoqda(true);
-        toast.success("Tinglamoqdaman... Masalani gapiring.", { icon: "🎙️" });
+        setOvozHolati(qaytaBoshlash ? "Tinglash davom etmoqda..." : "Tinglamoqdaman...");
+        if (!qaytaBoshlash) {
+          toast.success("Tinglamoqdaman... Masalani gapiring.", { icon: "🎙️" });
+        }
       };
 
       recognizer.onresult = (event) => {
-        let natijaMatn = "";
-        for (let i = 0; i < event.results.length; ++i) {
-          natijaMatn += event.results[i][0].transcript;
+        let yangiYakuniy = "";
+        let oraliq = "";
+        for (let i = event.resultIndex; i < event.results.length; i += 1) {
+          const bolak = event.results[i][0]?.transcript?.trim();
+          if (!bolak) continue;
+          if (event.results[i].isFinal) yangiYakuniy += ` ${bolak}`;
+          else oraliq += ` ${bolak}`;
         }
-        if (natijaMatn) {
-          setKiritma(natijaMatn);
+
+        if (yangiYakuniy.trim()) {
+          sttYakuniyRef.current = `${sttYakuniyRef.current} ${yangiYakuniy}`.replace(/\s+/g, " ").trim();
+        }
+        const toliqMatn = [sttBoshlangichRef.current, sttYakuniyRef.current, oraliq.trim()]
+          .filter(Boolean)
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim();
+        setKiritma(toliqMatn);
+        setOraliqOvozMatni(oraliq.trim());
+        setOvozHolati(oraliq.trim() ? "Gap aniqlanmoqda..." : "Jimlik kutilmoqda...");
+
+        if (avtoOvozRef.current && yangiYakuniy.trim()) {
+          clearTimeout(avtoYuborTaymerRef.current);
+          avtoYuborTaymerRef.current = setTimeout(() => {
+            const yuboriladigan = [sttBoshlangichRef.current, sttYakuniyRef.current]
+              .filter(Boolean)
+              .join(" ")
+              .replace(/\s+/g, " ")
+              .trim();
+            if (!yuboriladigan || yuklanmoqdaRef.current) return;
+            ovozQoldaToxtadiRef.current = true;
+            try { recognizer.stop(); } catch {}
+            setOraliqOvozMatni("");
+            setOvozHolati("Yuborilmoqda...");
+            xabarYuborishRef.current?.(null, yuboriladigan);
+          }, 1100);
         }
       };
 
       recognizer.onerror = (event) => {
         console.warn("[STT Xatolik]:", event.error);
-        if (event.error === "not-allowed") {
-          toast.error("Mikrofonga ruxsat berilmagan. Brauzer sozlamalaridan ruxsat bering.");
-        } else if (event.error === "language-not-supported") {
-          recognizer.lang = "ru-RU";
-        }
         setOvozYozilmoqda(false);
+        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+          ovozQoldaToxtadiRef.current = true;
+          setOvozHolati("Mikrofon ruxsati berilmagan");
+          toast.error("Mikrofonga ruxsat berilmagan. Brauzer sozlamalaridan ruxsat bering.");
+        } else if (event.error === "language-not-supported" && sttTilRef.current !== "ru-RU") {
+          sttTilRef.current = "ru-RU";
+          ovozQoldaToxtadiRef.current = true;
+          setOvozHolati("Muqobil til bilan qayta ulanmoqda...");
+          setTimeout(() => startOvozYozish(true), 450);
+        } else if (event.error !== "no-speech" && event.error !== "aborted") {
+          setOvozHolati("Ovozni tanib bo'lmadi");
+          toast.error("Ovozni tanishda uzilish bo'ldi. Qayta urinib ko'ring.");
+        }
       };
 
       recognizer.onend = () => {
         setOvozYozilmoqda(false);
+        recognitionRef.current = null;
+        const davomEtishKerak = avtoOvozRef.current
+          && !ovozQoldaToxtadiRef.current
+          && !yuklanmoqdaRef.current
+          && !sttYakuniyRef.current;
+        if (davomEtishKerak) {
+          setTimeout(() => startOvozYozish(true), 350);
+        } else if (!yuklanmoqdaRef.current) {
+          setOvozHolati("");
+        }
       };
 
       recognitionRef.current = recognizer;
@@ -130,17 +400,21 @@ export default function MasalaChatSahifasi() {
     } catch (err) {
       console.error("[STT Boshlash xatosi]:", err);
       setOvozYozilmoqda(false);
+      setOvozHolati("");
       toast.error("Mikrofonni ishga tushirib bo'lmadi.");
     }
   };
 
   const toxtatOvozYozish = () => {
+    ovozQoldaToxtadiRef.current = true;
+    clearTimeout(avtoYuborTaymerRef.current);
     if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (e) {}
+      try { recognitionRef.current.stop(); } catch {}
     }
+    recognitionRef.current = null;
     setOvozYozilmoqda(false);
+    setOraliqOvozMatni("");
+    setOvozHolati("");
   };
 
   const handleOvozYozish = () => {
@@ -168,7 +442,7 @@ export default function MasalaChatSahifasi() {
       onTugadi: () => {
         setFaolOvozId(null);
         // Hands-free rejimda AI javob berib bo'lgach foydalanuvchini tinglaydi
-        if (avtoOvozRejimi) {
+        if (avtoOvozRef.current) {
           setTimeout(() => {
             startOvozYozish();
           }, 400);
@@ -224,8 +498,84 @@ export default function MasalaChatSahifasi() {
     toast.success("Rasm olib tashlandi");
   };
 
+  const chatniOch = async (tanlanganId) => {
+    if (tanlanganId === chatId || yuklanmoqda) return;
+    try {
+      chatAvlodiRef.current += 1;
+      sorovControllerRef.current?.abort();
+      ovozPleyeri.toxtat();
+      toxtatOvozYozish();
+      const chat = await aiChatniOl(tanlanganId);
+      if (!chat) throw new Error("Chat topilmadi");
+      setChatId(tanlanganId);
+      setXabarlar(chat.xabarlar || []);
+      setTarixOchiq(false);
+      setYuklanmoqda(false);
+      setJonliHolat({ ikon: "kolba", matn: "" });
+      await aiSozlamaniSaqlash("faolChatId", tanlanganId);
+    } catch (error) {
+      toast.error(error.message || "Chatni ochib bo'lmadi");
+    }
+  };
+
+  const saqlanganChatniOchirish = async (ochiriladiganId) => {
+    if (!window.confirm("Bu chat tarixdan butunlay o'chirilsinmi?")) return;
+    try {
+      await aiChatniOchirish(ochiriladiganId);
+      const chatlar = await aiChatlarRoyxatiniOl();
+      setSaqlanganChatlar(chatlar);
+      if (ochiriladiganId === chatId) {
+        yangiChatBoshlash();
+      }
+      toast.success("Chat tarixdan o'chirildi");
+    } catch {
+      toast.error("Chatni o'chirib bo'lmadi");
+    }
+  };
+
+  const akkauntSinxroniniAlmashtir = async () => {
+    if (sinxronHolat === "yuklanmoqda") return;
+    if (akkauntSinxroni) {
+      setAkkauntSinxroni(false);
+      setSinxronHolat("mahalliy");
+      await aiSozlamaniSaqlash("akkauntSinxroni", false);
+      toast("Akkaunt sinxroni o'chdi. Chatlar brauzerda saqlanadi.");
+      return;
+    }
+
+    try {
+      setSinxronHolat("yuklanmoqda");
+      const olishJavobi = await fetch("/api/masala/xotira", { cache: "no-store" });
+      if (olishJavobi.status === 401) {
+        throw new Error("Sinxronlash uchun akkauntga kiring");
+      }
+      if (!olishJavobi.ok) throw new Error("Akkaunt xotirasini ochib bo'lmadi");
+      const data = await olishJavobi.json();
+      if (data.nusxa) await aiXotiraNusxasiniQosh(data.nusxa);
+
+      const nusxa = await aiXotiraNusxasiniOl();
+      const saqlashJavobi = await fetch("/api/masala/xotira", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nusxa),
+      });
+      if (!saqlashJavobi.ok) throw new Error("Akkaunt xotirasini saqlab bo'lmadi");
+
+      setAkkauntSinxroni(true);
+      setSinxronHolat("sinxron");
+      await aiSozlamaniSaqlash("akkauntSinxroni", true);
+      setSaqlanganChatlar(await aiChatlarRoyxatiniOl());
+      toast.success("Chatlar akkaunt bilan sinxronlandi");
+    } catch (error) {
+      setSinxronHolat("xato");
+      toast.error(error.message || "Sinxronlashda xatolik yuz berdi");
+    }
+  };
+
   // YANGI CHAT BOSHLASH (NEW CHAT)
   const yangiChatBoshlash = () => {
+    chatAvlodiRef.current += 1;
+    sorovControllerRef.current?.abort();
     setXabarlar([]);
     setKiritma("");
     setRasmBase64(null);
@@ -234,6 +584,12 @@ export default function MasalaChatSahifasi() {
     ovozPleyeri.toxtat();
     toxtatOvozYozish();
     setFaolOvozId(null);
+    setYuklanmoqda(false);
+    setJonliHolat({ ikon: "kolba", matn: "" });
+    const yangiId = yangiAiChatId();
+    setChatId(yangiId);
+    void aiSozlamaniSaqlash("faolChatId", yangiId);
+    setTarixOchiq(false);
     toast.success("Yangi suhbat boshlandi!");
   };
 
@@ -247,18 +603,24 @@ export default function MasalaChatSahifasi() {
   };
 
   // Asosiy xabar jo'natish
-  const handleXabarYuborish = async (e) => {
+  const handleXabarYuborish = async (e, majburiyMatn = null) => {
     if (e) e.preventDefault();
-    if (!kiritma.trim() && !rasmBase64) return;
+    const yuboriladiganMatn = majburiyMatn ?? kiritma;
+    if (!yuboriladiganMatn.trim() && !rasmBase64) return;
     if (yuklanmoqda) return;
 
     if (ovozYozilmoqda) {
       toxtatOvozYozish();
     }
 
-    const joriyMatn = kiritma.trim();
+    const joriyMatn = yuboriladiganMatn.trim();
     const joriyRasm = rasmBase64;
     const joriyRejim = rejim;
+    const joriyIshlashYonalishi = ishlashYonalishi;
+    const joriyChatAvlodi = chatAvlodiRef.current;
+    const xotiraKontekstiPromise = oquvProfiliniOl()
+      .catch(() => null)
+      .then((profil) => chatKontekstiniYig(xabarlar, profil));
 
     // Kiritma maydonlarini tozalash
     setKiritma("");
@@ -278,29 +640,19 @@ export default function MasalaChatSahifasi() {
     setXabarlar((prev) => [...prev, userMsg]);
     setYuklanmoqda(true);
 
-    // Jonli animatsiyali SVG qadamlari
-    let step = 0;
-    const bosqichlar = joriyRasm
-      ? [
-          { ikon: "rasm", matn: "Rasm OCR tahlilidan o'tkazilmoqda..." },
-          { ikon: "qidiruv", matn: "1-Agent: Masala sharti va kattaliklar ajratilmoqda..." },
-          { ikon: "kolba", matn: "2-Agent: Kimyoviy jarayonlar va mollar hisoblanmoqda..." },
-          { ikon: "qalam", matn: "4-Agent: KaTeX formulalari bilan master-yechim yozilmoqda..." },
-        ]
-      : [
-          { ikon: "qidiruv", matn: "1-Agent: Masala sharti va kattaliklar ajratilmoqda..." },
-          { ikon: "kolba", matn: "2-Agent: Kimyoviy reaksiya va stexiometriya hisoblanmoqda..." },
-          { ikon: "atom", matn: "3-Agent: Matematik hisob-kitoblar tekshirilmoqda..." },
-          { ikon: "qalam", matn: "4-Agent: KaTeX formulalari bilan master-yechim yozilmoqda..." },
-        ];
-
-    setJonliHolat(bosqichlar[0]);
-    const timer = setInterval(() => {
-      step = (step + 1) % bosqichlar.length;
-      setJonliHolat(bosqichlar[step]);
-    }, 900);
+    const kutishHolati = {
+      avtomatik: "So'rov turi serverda aniqlanmoqda...",
+      tezkor: "Tezkor javob tayyorlanmoqda...",
+      oddiy: "Kimyoviy masala yechilmoqda...",
+      murakkab: "Chuqur tahlil va tekshiruv bajarilmoqda...",
+    };
+    setJonliHolat({
+      ikon: joriyRasm ? "rasm" : "kolba",
+      matn: kutishHolati[joriyIshlashYonalishi],
+    });
 
     try {
+      const xotiraKonteksti = await xotiraKontekstiPromise;
       const oxirgiAiYechim = [...xabarlar].reverse().find((m) => m.rol === "ai" && m.turi === "yechim");
 
       const isFollowUp = !joriyRasm && oxirgiAiYechim && joriyMatn.length < 80 && (
@@ -312,19 +664,16 @@ export default function MasalaChatSahifasi() {
       );
 
       if (isFollowUp) {
-        setJonliHolat({ ikon: "ustoz", matn: "AI Repetitor tushuntirish yozmoqda..." });
-        const res = await fetch("/api/masala/yech", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        setJonliHolat({ ikon: "ustoz", matn: "AI repetitor tushuntirish yozmoqda..." });
+        const data = await aiSorovYubor({
             action: "chat",
             masalaMatni: oxirgiAiYechim.yechim?.masalaMatni || "",
             yechim: oxirgiAiYechim.yechim,
             savol: joriyMatn,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.xato || "Xatolik yuz berdi");
+            ishlashYonalishi: joriyIshlashYonalishi,
+            xotiraKonteksti,
+          }, joriyIshlashYonalishi);
+        if (chatAvlodiRef.current !== joriyChatAvlodi) return;
 
         const aiId = "ai-" + Date.now();
         setXabarlar((prev) => [
@@ -334,6 +683,7 @@ export default function MasalaChatSahifasi() {
             rol: "ai",
             turi: "chat_javob",
             matn: data.javob,
+            aiYonalish: data.aiYonalish,
             vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
           },
         ]);
@@ -342,19 +692,15 @@ export default function MasalaChatSahifasi() {
           matnniOvozdaIjroEt(data.javob, aiId);
         }
       } else {
-        const res = await fetch("/api/masala/yech", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const data = await aiSorovYubor({
             action: "yech",
             masalaMatni: joriyMatn,
             rejim: joriyRejim,
             rasm: joriyRasm,
-          }),
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.xato || "Masalani yechishda xatolik yuz berdi");
+            ishlashYonalishi: joriyIshlashYonalishi,
+            xotiraKonteksti,
+          }, joriyIshlashYonalishi);
+        if (chatAvlodiRef.current !== joriyChatAvlodi) return;
 
         const aiId = "ai-" + Date.now();
         if (data.turi === "suhbat") {
@@ -365,6 +711,7 @@ export default function MasalaChatSahifasi() {
               rol: "ai",
               turi: "chat_javob",
               matn: data.matn,
+              aiYonalish: data.aiYonalish,
               vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
             },
           ]);
@@ -373,6 +720,7 @@ export default function MasalaChatSahifasi() {
             matnniOvozdaIjroEt(data.matn, aiId);
           }
         } else {
+          void oquvProfiliniYangila(data.masalaTuri);
           setXabarlar((prev) => [
             ...prev,
             {
@@ -381,6 +729,7 @@ export default function MasalaChatSahifasi() {
               turi: "yechim",
               yechim: data,
               rejim: joriyRejim,
+              aiYonalish: data.aiYonalish,
               vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
             },
           ]);
@@ -391,6 +740,7 @@ export default function MasalaChatSahifasi() {
         }
       }
     } catch (err) {
+      if (chatAvlodiRef.current !== joriyChatAvlodi) return;
       toast.error(err.message || "Xatolik yuz berdi");
       setXabarlar((prev) => [
         ...prev,
@@ -403,11 +753,14 @@ export default function MasalaChatSahifasi() {
         },
       ]);
     } finally {
-      clearInterval(timer);
-      setYuklanmoqda(false);
-      setJonliHolat({ ikon: "kolba", matn: "" });
+      if (chatAvlodiRef.current === joriyChatAvlodi) {
+        setYuklanmoqda(false);
+        setJonliHolat({ ikon: "kolba", matn: "" });
+      }
     }
   };
+
+  xabarYuborishRef.current = handleXabarYuborish;
 
   return (
     <div
@@ -476,6 +829,15 @@ export default function MasalaChatSahifasi() {
         <div className="flex items-center gap-1.5">
           <button
             type="button"
+            onClick={() => setTarixOchiq(true)}
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] hover:bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+            title="Saqlangan chatlar"
+          >
+            <Ikon nom="vaqt" olcham={14} />
+            <span className="hidden lg:inline">Tarix</span>
+          </button>
+          <button
+            type="button"
             onClick={yangiChatBoshlash}
             className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[var(--v3-urgu)] hover:opacity-90 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
             title="Yangi chat boshlash"
@@ -486,6 +848,103 @@ export default function MasalaChatSahifasi() {
           <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
         </div>
       </header>
+
+      {tarixOchiq && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-[var(--v3-fon)]/80" role="dialog" aria-modal="true" aria-label="Chat tarixi">
+          <button
+            type="button"
+            className="absolute inset-0 cursor-default"
+            onClick={() => setTarixOchiq(false)}
+            aria-label="Chat tarixini yopish"
+          />
+          <aside className="relative z-10 h-full w-[min(92vw,390px)] bg-[var(--v3-yuza)] border-l border-[var(--v3-chiziq)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+            <div className="p-4 border-b border-[var(--v3-chiziq)] flex items-center justify-between">
+              <div>
+                <h2 className="font-black text-sm text-[var(--v3-matn)]">Chat tarixi</h2>
+                <p className="text-[10px] text-[var(--v3-xira)]">Brauzeringizning shaxsiy xotirasida</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTarixOchiq(false)}
+                className="p-2 rounded-xl hover:bg-[var(--v3-fon)] text-[var(--v3-matn)] cursor-pointer"
+                aria-label="Yopish"
+              >
+                <Ikon nom="yopish" olcham={17} />
+              </button>
+            </div>
+
+            <div className="p-3 border-b border-[var(--v3-chiziq)]">
+              <button
+                type="button"
+                onClick={akkauntSinxroniniAlmashtir}
+                disabled={sinxronHolat === "yuklanmoqda"}
+                className="w-full p-3 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] flex items-center justify-between gap-3 text-left cursor-pointer disabled:opacity-60"
+              >
+                <span>
+                  <span className="block text-xs font-bold text-[var(--v3-matn)]">Akkaunt bilan sinxronlash</span>
+                  <span className="block text-[10px] text-[var(--v3-xira)] mt-0.5">
+                    {sinxronHolat === "yuklanmoqda"
+                      ? "Sinxronlanmoqda..."
+                      : akkauntSinxroni
+                        ? "Yoniq · shifrlangan akkaunt nusxasi"
+                        : "O'chiq · faqat shu brauzerda"}
+                  </span>
+                </span>
+                <span className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                  akkauntSinxroni ? "bg-[var(--v3-urgu)]" : "bg-[var(--v3-chiziq)]"
+                }`}>
+                  <span className={`block w-5 h-5 rounded-full bg-[var(--v3-urgu-matn)] shadow-sm transition-transform ${
+                    akkauntSinxroni ? "translate-x-4" : "translate-x-0"
+                  }`} />
+                </span>
+              </button>
+              {sinxronHolat === "xato" && (
+                <p className="mt-2 text-[10px] text-red-400">Sinxronlash ishlamadi; lokal tarix saqlanishda davom etadi.</p>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {saqlanganChatlar.length === 0 ? (
+                <div className="py-10 text-center text-xs text-[var(--v3-xira)]">
+                  Hali saqlangan chat yo'q.
+                </div>
+              ) : saqlanganChatlar.map((chat) => (
+                <div
+                  key={chat.id}
+                  className={`group rounded-2xl border flex items-center gap-1 ${
+                    chat.id === chatId
+                      ? "bg-[var(--v3-urgu)]/10 border-[var(--v3-urgu)]"
+                      : "bg-[var(--v3-fon)] border-[var(--v3-chiziq)]"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => chatniOch(chat.id)}
+                    className="min-w-0 flex-1 p-3 text-left cursor-pointer"
+                  >
+                    <span className="block truncate text-xs font-bold text-[var(--v3-matn)]">{chat.sarlavha}</span>
+                    <span className="block mt-1 text-[9px] text-[var(--v3-xira)]">
+                      {new Date(chat.yangilanganAt).toLocaleDateString("uz-UZ")} · {chat.xabarSoni} xabar
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => saqlanganChatniOchirish(chat.id)}
+                    className="p-2 mr-1 rounded-xl text-[var(--v3-xira)] hover:text-red-400 hover:bg-red-500/10 cursor-pointer"
+                    aria-label={`${chat.sarlavha} chatini o'chirish`}
+                  >
+                    <Ikon nom="ochir" olcham={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-3 border-t border-[var(--v3-chiziq)] text-[9px] leading-relaxed text-[var(--v3-xira)]">
+              Rasmning o'zi faqat shu qurilmada qoladi. Akkaunt nusxasiga matn, yechim va o'quv mavzulari tushadi.
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* ─── 2. ASOSIY CHAT OQIMI (MESSAGES THREAD) ─── */}
       <main className="flex-1 max-w-3xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto">
@@ -501,7 +960,7 @@ export default function MasalaChatSahifasi() {
                 Assalomu alaykum!
               </h2>
               <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
-                Kimyo masalasini yozing, ovozda gapiring yoki erkin suhbat quring. AI 4 ta ixtisoslashgan klasterda tahlil qiladi:
+                Kimyo masalasini yozing, ovozda gapiring yoki erkin suhbat quring. AI so'rovni tezkor, oddiy yoki chuqur yo'nalishga ajratadi:
               </p>
             </div>
 
@@ -573,6 +1032,11 @@ export default function MasalaChatSahifasi() {
                     <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--v3-urgu)]">
                       <Ikon nom="ustoz" olcham={14} />
                       <span>JDA Kimyo AI:</span>
+                      {xabar.aiYonalish?.nom && (
+                        <span className="px-1.5 py-0.5 rounded-md bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[9px] text-[var(--v3-xira)]">
+                          {xabar.aiYonalish.nom}{xabar.aiYonalish.avtomatik ? " · avtomatik" : ""}
+                        </span>
+                      )}
                     </div>
 
                     {/* Ovozda tinglash tugmasi */}
@@ -617,6 +1081,11 @@ export default function MasalaChatSahifasi() {
                       <Ikon nom="tasdiq" olcham={12} />
                       <span>{xabar.rejim === "tuzoq" ? "Tuzoq" : xabar.rejim === "yonalish" ? "Yo'nalish" : "Master"}</span>
                     </span>
+                    {xabar.aiYonalish?.nom && (
+                      <span className="px-2 py-0.5 rounded-lg bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[10px] font-bold text-[var(--v3-xira)]">
+                        {xabar.aiYonalish.nom}{xabar.aiYonalish.avtomatik ? " · avtomatik" : ""}
+                      </span>
+                    )}
                     <strong className="text-xs sm:text-sm text-[var(--v3-matn)]">
                       Kimyoviy Tahlil Natijasi
                     </strong>
@@ -641,13 +1110,19 @@ export default function MasalaChatSahifasi() {
                     )}
                     <button
                       type="button"
-                      onClick={() => {
-                        masalaPdfYukla({
-                          foydalanuvchiNom: "Talaba",
-                          masalaMatni: xabar.yechim?.masalaMatni || "Kimyoviy Masala",
-                          natija: xabar.yechim,
-                        });
-                        toast.success("PDF yuklab olindi!");
+                      onClick={async () => {
+                        const toastId = toast.loading("PDF tayyorlanmoqda...");
+                        try {
+                          await masalaPdfYukla({
+                            foydalanuvchiNom: "Talaba",
+                            masalaMatni: xabar.yechim?.masalaMatni || "Kimyoviy Masala",
+                            natija: xabar.yechim,
+                          });
+                          toast.success("PDF yuklab olindi!", { id: toastId });
+                        } catch (error) {
+                          console.error("[PDF yaratish xatosi]", error);
+                          toast.error("PDF tayyorlab bo'lmadi.", { id: toastId });
+                        }
                       }}
                       className="px-2.5 py-1 rounded-lg bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[11px] font-bold text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)] flex items-center gap-1 transition-colors cursor-pointer"
                     >
@@ -812,7 +1287,7 @@ export default function MasalaChatSahifasi() {
       <footer className="sticky bottom-0 z-40 bg-[var(--v3-yuza)]/95 border-t border-[var(--v3-chiziq)] backdrop-blur-xl p-2.5 sm:p-4 shadow-2xl">
         <div className="max-w-3xl mx-auto space-y-2">
           {/* YUQORI REJIM VA BELGILAR CHIPLARI */}
-          <div className="flex items-center justify-between gap-1.5 px-0.5">
+          <div className="flex items-center justify-between gap-1.5 px-0.5 flex-wrap">
             {/* 3 ta ixcham rejim chipi (TOZA SVG VA MATN) */}
             <div className="flex items-center gap-1">
               {REJIMLAR.map((r) => (
@@ -832,19 +1307,34 @@ export default function MasalaChatSahifasi() {
               ))}
             </div>
 
-            {/* Belgilar paneli ochgich */}
-            <button
-              type="button"
-              onClick={() => setKlaviaturaOchiq(!klaviaturaOchiq)}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
-                klaviaturaOchiq
-                  ? "bg-[var(--v3-urgu)] text-white"
-                  : "bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
-              }`}
-            >
-              <Ikon nom="atom" olcham={12} />
-              <span>Belgilar</span>
-            </button>
+            <div className="flex items-center gap-1">
+              <label className="sr-only" htmlFor="ai-ishlash-yonalishi">AI ishlash yo'nalishi</label>
+              <select
+                id="ai-ishlash-yonalishi"
+                value={ishlashYonalishi}
+                onChange={(event) => setIshlashYonalishi(event.target.value)}
+                className="px-2 py-1 rounded-full text-[11px] font-bold bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)] focus:outline-hidden focus:border-[var(--v3-urgu)] cursor-pointer"
+                title="AI yo'nalishini avtomatik aniqlash yoki qo'lda tanlash"
+              >
+                {ISHLASH_YONALISHLARI.map((yonalish) => (
+                  <option key={yonalish.id} value={yonalish.id}>{yonalish.nom}</option>
+                ))}
+              </select>
+
+              {/* Belgilar paneli ochgich */}
+              <button
+                type="button"
+                onClick={() => setKlaviaturaOchiq(!klaviaturaOchiq)}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
+                  klaviaturaOchiq
+                    ? "bg-[var(--v3-urgu)] text-white"
+                    : "bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
+                }`}
+              >
+                <Ikon nom="atom" olcham={12} />
+                <span>Belgilar</span>
+              </button>
+            </div>
           </div>
 
           {/* Ochiladigan Kimyoviy maxsus belgilar klaviaturasi */}
@@ -862,6 +1352,18 @@ export default function MasalaChatSahifasi() {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {(ovozYozilmoqda || ovozHolati) && (
+            <div className="px-3 py-2 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] flex items-center gap-2 text-[11px]">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${
+                ovozYozilmoqda ? "bg-red-500 animate-pulse" : "bg-[var(--v3-urgu)]"
+              }`} />
+              <span className="font-bold text-[var(--v3-matn)] shrink-0">{ovozHolati || "Tinglamoqdaman..."}</span>
+              {oraliqOvozMatni && (
+                <span className="truncate text-[var(--v3-xira)]">“{oraliqOvozMatni}”</span>
+              )}
             </div>
           )}
 

@@ -277,6 +277,7 @@ export async function PUT(request) {
     if (!alreadyGraded) {
       try {
         const saved = await saveQuizResult(submission.studentId, {
+          attemptId: `yopiq:${submission.id}`,
           quizName: `Yopiq quiz: ${submission.quiz.title}`,
           score,
           totalQuestions: submission.quiz.maxScore,

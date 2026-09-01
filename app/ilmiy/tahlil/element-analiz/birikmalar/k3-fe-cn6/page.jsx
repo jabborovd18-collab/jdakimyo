@@ -352,7 +352,7 @@ export default function K3FeCN6Page() {
 
           {showCalc && (
             <div className="mt-4 bg-purple-950/50 rounded-xl p-4 border border-purple-700/30 text-xs font-mono text-purple-300 space-y-2">
-              <p className="text-purple-500">// Molekulyar massa hisobi</p>
+              <p className="text-purple-500">{'// Molekulyar massa hisobi'}</p>
               <p>M = 3×{ATOMIC_MASSES.K} + {ATOMIC_MASSES.Fe} + 6×({ATOMIC_MASSES.C}+{ATOMIC_MASSES.N})</p>
               <p>M = 117.295 + 55.845 + 156.108 = <span className="text-yellow-400 font-bold">{COMPOUND.molarMass.toFixed(3)} g/mol</span></p>
               <div className="bg-amber-600/10 border border-amber-500/30 rounded-lg p-3 mt-2">

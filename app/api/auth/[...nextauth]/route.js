@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { verifyCredentials } from '@/lib/credentials'
 import { tokenniAlmashtir } from '@/lib/doska'
 import { soravchiIp } from '@/lib/ip-cheklov'
+import { authMaxfiyKaliti } from '@/lib/auth-maxfiy-kalit'
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -133,7 +134,7 @@ export const authOptions = {
       return session
     }
   },
-  secret: process.env.NEXTAUTH_SECRET
+  secret: authMaxfiyKaliti()
 }
 
 const handler = NextAuth(authOptions)

@@ -21,6 +21,16 @@ const CHIQISH_DIR = path.join(__dirname, "..", ".olcham");
 const KUTILGAN_QATOR = 5;
 const PROFIL_NOMLARI = ["telefon", "desktop", "ilova"];
 const SIFAT_ALIASES = { arzon: "telefon", toliq: "desktop" };
+const OLCHOV_TIMEOUT_MS = Number(process.env.LAB3D_TIMEOUT_MS || 180000);
+
+if (
+  !Number.isInteger(OLCHOV_TIMEOUT_MS)
+  || OLCHOV_TIMEOUT_MS < 1000
+  || OLCHOV_TIMEOUT_MS > 600000
+) {
+  console.error("XATO: LAB3D_TIMEOUT_MS 1000..600000 oralig'idagi butun son bo'lishi shart");
+  process.exit(1);
+}
 
 const profilXom = process.env.LAB3D_PROFIL || "";
 const sifatXom = process.env.LAB3D_SIFAT || "";
@@ -72,6 +82,27 @@ function yaxlit(son, raqam) {
   if (typeof son !== "number" || !Number.isFinite(son)) return son;
   const k = 10 ** raqam;
   return Math.round(son * k) / k;
+}
+
+function vaqtChegarasi(vazifa, nom, timeoutMs = OLCHOV_TIMEOUT_MS) {
+  let taymer;
+  const kutish = new Promise((_, reject) => {
+    taymer = setTimeout(() => {
+      reject(new Error(`${nom} ${timeoutMs} ms ichida tugamadi`));
+    }, timeoutMs);
+  });
+
+  return Promise.race([vazifa, kutish]).finally(() => clearTimeout(taymer));
+}
+
+async function xavfsizYop(vazifa, nom) {
+  try {
+    await vaqtChegarasi(vazifa, nom, 10000);
+  } catch (err) {
+    // Asosiy o'lchov xatosi yopishdagi ikkilamchi muammo bilan almashib
+    // ketmasligi kerak; brauzerni yopish navbatdagi bosqichda yana uriniladi.
+    process.stderr.write(`OGOHLANTIRISH: ${err.message}\n`);
+  }
 }
 
 function sweepJoyniYoz(joy) {
@@ -315,7 +346,15 @@ function natijaniTekshir(natija, nuqta) {
     if (!Number.isFinite(qiymat) || qiymat < 0) {
       throw new Error(`${profil}/${nuqta}: ${maydon} yaroqsiz (${qiymat})`);
     }
-    if (nuqta !== "sweep" && maydon === "kadrVaqti" && qiymat <= 0) {
+    const dasturiyNarxOtkazildi = dasturiyRenderer(natija.renderer)
+      && natija.narxIshonchli === false
+      && natija.narxSababi.includes("dasturiy renderer");
+    if (
+      nuqta !== "sweep"
+      && maydon === "kadrVaqti"
+      && qiymat <= 0
+      && !dasturiyNarxOtkazildi
+    ) {
       throw new Error(`${profil}/${nuqta}: kadrVaqti o'lchanmadi`);
     }
   }
@@ -414,7 +453,10 @@ async function asosiy() {
     // U GPU siz, sof funksiya ustida ishlaydi va bir necha millisekund
     // oladi. Shuning uchun har o'lchovda yugurtiriladi: buzilgan
     // boshqaruvchi jim o'tib ketmasin.
-    const drsSinov = await page.evaluate(() => window.__rezolyutsiyaSinovi());
+    const drsSinov = await vaqtChegarasi(
+      page.evaluate(() => window.__rezolyutsiyaSinovi()),
+      "DRS sinovi",
+    );
     if (!drsSinov || !Array.isArray(drsSinov.sinovlar) || !drsSinov.sinovlar.length) {
       throw new Error("__rezolyutsiyaSinovi() natija bermadi");
     }
@@ -431,7 +473,10 @@ async function asosiy() {
       `  DRS sinovi: ${drsSinov.jami}/${drsSinov.jami} o'tdi\n`,
     );
 
-    const sahifaSozlamasi = await page.evaluate(() => window.__olchamSozlama);
+    const sahifaSozlamasi = await vaqtChegarasi(
+      page.evaluate(() => window.__olchamSozlama),
+      "O'lchov sozlamasini o'qish",
+    );
     if (!sahifaSozlamasi.profillar.includes(profil)) {
       throw new Error(`${profil}: sahifa bu profilni bilmaydi`);
     }
@@ -445,9 +490,12 @@ async function asosiy() {
 
     for (const nuqta of nuqtalar) {
       process.stderr.write(`  ${profil}/${nuqta} ...\n`);
-      const natija = await page.evaluate(
-        (nom) => window.__olcham({ nuqta: nom, rasm: true }),
-        nuqta,
+      const natija = await vaqtChegarasi(
+        page.evaluate(
+          (nom) => window.__olcham({ nuqta: nom, rasm: true }),
+          nuqta,
+        ),
+        `${profil}/${nuqta} o'lchovi`,
       );
       const rasm = natija.rasm;
       delete natija.rasm;
@@ -457,9 +505,12 @@ async function asosiy() {
     }
 
     process.stderr.write(`  ${profil}/sweep ...\n`);
-    const sweepNatija = await page.evaluate(
-      (xomUrug) => window.__supurish({ urug: xomUrug }),
-      urug,
+    const sweepNatija = await vaqtChegarasi(
+      page.evaluate(
+        (xomUrug) => window.__supurish({ urug: xomUrug }),
+        urug,
+      ),
+      `${profil}/sweep o'lchovi`,
     );
     const sweepRasm = sweepNatija.rasm;
     delete sweepNatija.rasm;
@@ -470,8 +521,8 @@ async function asosiy() {
       path.join(CHIQISH_DIR, `${profil}-sweep-worst.png`),
     );
   } finally {
-    if (page) await page.close();
-    await browser.close();
+    if (page) await xavfsizYop(page.close(), "O'lchov sahifasini yopish");
+    await xavfsizYop(browser.close(), "O'lchov brauzerini yopish");
   }
 
   if (olchovlar.length !== KUTILGAN_QATOR) {

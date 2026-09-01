@@ -50,6 +50,15 @@ Chromium kerak bo'lishi mumkin:
 npx playwright install chromium
 ```
 
+Har bir brauzer ichidagi o'lchov sukut bo'yicha 180 soniyada tugashi
+shart. WebGL drayveri javob bermay qolsa skript cheksiz osilib turmaydi,
+qaysi nuqta tugamaganini yozib exit `1` beradi. Sekin sinov muhiti uchun
+chegara millisekundda o'zgartiriladi (1000–600000):
+
+```bash
+LAB3D_TIMEOUT_MS=300000 npm run lab3d:olcham
+```
+
 Playwright Chromium ochilmasa skript `@sparticuz/chromium` va
 SwiftShader'ga o'tadi.
 
@@ -326,8 +335,11 @@ SwiftShader, llvmpipe, softpipe yoki lavapipe aniqlansa jadval tagida:
 
 > FPS raqamlari dasturiy renderdan — haqiqiy GPU emas.
 
-ogohlantirishi chiqadi. Bunday FPS telefon bilan solishtirilmaydi;
-`chiroqSoni`, `uchburchak` va `chaqiruv` esa sahna grafidan keladi.
+ogohlantirishi chiqadi. Bunday FPS telefon bilan solishtirilmaydi.
+Dasturiy renderer `gl.finish()` da drayverga bog'liq ravishda daqiqalab
+bloklanishi va haqiqiy GPU narxini baribir bermasligi sabab `kadrVaqti`
+hamda `fragmentUlushi` unda o'lchanmaydi (`0` va `—`). `chiroqSoni`,
+`uchburchak`, `chaqiruv` va kadr gistogrammasi esa ishlashda davom etadi.
 
 Bir profilni ketma-ket ikki marta o'lchaganda har qatorning
 `|Δortacha| < 0.02` bo'lishi kerak. Quvur o'zgarishida bundan tashqari

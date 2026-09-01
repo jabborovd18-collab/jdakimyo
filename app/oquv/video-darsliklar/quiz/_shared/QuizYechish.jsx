@@ -77,7 +77,7 @@ export default function QuizYechish({ slug }) {
   const router = useRouter()
   const { data: session, status } = useSession()
   const [fon, fonTanla] = useFon()
-  const { questions, isLoading: bankLoading, error: bankError } = useQuizBank(slug, 20)
+  const { questions, attemptToken, isLoading: bankLoading, error: bankError } = useQuizBank(slug, 20)
 
   const isAuthenticated = status === "authenticated"
   const [userName, setUserName] = useState("")
@@ -120,8 +120,6 @@ export default function QuizYechish({ slug }) {
     return () => clearInterval(interval)
   }, [quizStarted, showResult, startTime])
 
-  if (!config) return null
-
   const tezkorTanla = (qiymat) => {
     setTezkor(qiymat)
     try {
@@ -152,32 +150,18 @@ export default function QuizYechish({ slug }) {
       questionIndex: currentQuestionIndex,
       question: savol.question,
       selectedAnswer: tanlov,
-      correctAnswer: savol.correct,
-      isCorrect: tanlov === savol.correct,
-      explanation: savol.explanation,
       category: savol.category,
     }
   }
 
   const submitQuizResult = async (yakuniyJavoblar) => {
-    if (!isAuthenticated) return null
-
-    const score = yakuniyJavoblar.filter((a) => a.isCorrect).length
-    const percentage = Math.round((score / questions.length) * 100)
-
     try {
       const response = await fetch("/api/quiz/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          quizName: config.natijaNomi,
-          category: config.slug,
-          score,
-          totalQuestions: questions.length,
-          percentage,
+          attemptToken,
           timeSpent: elapsedTime,
-          // Server keyingi bosqichda ballni o'zi tekshirishi uchun haqiqiy
-          // javoblar ham yuboriladi; faqat yakuniy songa bog'lanib qolmaymiz.
           answers: yakuniyJavoblar.map((a) => ({
             questionId: a.questionId,
             selected: a.selectedAnswer,
@@ -197,7 +181,7 @@ export default function QuizYechish({ slug }) {
       return data
     } catch (error) {
       console.error("[Quiz Submit Error]:", error)
-      toast.error("Natija serverga saqlanmadi. Mahalliy natijangiz yo'qolmaydi.")
+      toast.error(error.message || "Natijani server tekshira olmadi")
       return null
     }
   }
@@ -207,21 +191,33 @@ export default function QuizYechish({ slug }) {
     yakunBandRef.current = true
     setIsSubmitting(true)
 
-    const correctCount = yakuniyJavoblar.filter((a) => a.isCorrect).length
-    saveQuizHistory(config.slug, questions.map((q) => q.id))
-    updateQuizStats(config.slug, { total: questions.length, correct: correctCount })
-
     const serverNatija = await submitQuizResult(yakuniyJavoblar)
-    setSaqlashNatija(isAuthenticated ? Boolean(serverNatija) : null)
+    if (!serverNatija) {
+      yakunBandRef.current = false
+      setIsSubmitting(false)
+      return false
+    }
+
+    const natijaById = new Map(serverNatija.results.map((result) => [result.questionId, result]))
+    const tekshirilganJavoblar = yakuniyJavoblar.map((answer) => ({
+      ...answer,
+      ...natijaById.get(answer.questionId),
+    }))
+    setAnswers(tekshirilganJavoblar)
+    saveQuizHistory(config.slug, questions.map((q) => q.id))
+    updateQuizStats(config.slug, { total: serverNatija.totalQuestions, correct: serverNatija.score })
+    setSaqlashNatija(isAuthenticated ? Boolean(serverNatija.saved) : null)
     setShowResult(true)
     setIsSubmitting(false)
+    return true
   }
 
   const keyingiYokiYakunla = async (yakuniyJavoblar) => {
     setAnswers(yakuniyJavoblar)
 
     if (currentQuestionIndex >= questions.length - 1) {
-      await yakunla(yakuniyJavoblar)
+      const yakunlandi = await yakunla(yakuniyJavoblar)
+      if (!yakunlandi) setIsConfirmed(true)
       return
     }
 
@@ -305,6 +301,8 @@ export default function QuizYechish({ slug }) {
     quizStarted, showResult, bankLoading, bankError, questions,
     currentQuestionIndex, selectedAnswer, isConfirmed, tezkor, answers, isSubmitting,
   ])
+
+  if (!config) return null
 
   const qobiq = (children, markaz = false) => (
     <main data-fon={fon} className={`v3 v3-quiz min-h-screen ${markaz ? "flex flex-col" : ""}`}>
@@ -429,7 +427,7 @@ export default function QuizYechish({ slug }) {
     )
   }
 
-  const correctCount = answers.filter((a) => a.isCorrect).length
+  const correctCount = answers.filter((a) => a.isCorrect === true).length
   const percentage = questions.length ? Math.round((correctCount / questions.length) * 100) : 0
 
   if (showResult) {
@@ -580,8 +578,6 @@ export default function QuizYechish({ slug }) {
           <div className="v3-quiz-variantlar">
             {currentQuestion.options.map((option, index) => {
               const isSelected = selectedAnswer === index
-              const isCorrect = isConfirmed && index === currentQuestion.correct
-              const isWrong = isConfirmed && isSelected && index !== currentQuestion.correct
 
               return (
                 <button
@@ -590,24 +586,23 @@ export default function QuizYechish({ slug }) {
                   onClick={() => handleAnswerSelect(index)}
                   disabled={isConfirmed || isSubmitting}
                   aria-pressed={isSelected}
-                  className={`v3-quiz-variant ${isSelected ? "is-tanlangan" : ""} ${isCorrect ? "is-togri" : ""} ${isWrong ? "is-xato" : ""}`}
+                  className={`v3-quiz-variant ${isSelected ? "is-tanlangan" : ""}`}
                 >
                   <span className="v3-quiz-harf">{String.fromCharCode(65 + index)}</span>
                   <span className="flex-1">{option}</span>
-                  {isCorrect && <Ikon nom="belgi" olcham={18} />}
-                  {isWrong && <Ikon nom="yopish" olcham={18} />}
+                  {isConfirmed && isSelected && <Ikon nom="belgi" olcham={18} />}
                 </button>
               )
             })}
           </div>
 
           {isConfirmed && (
-            <div className={`v3-quiz-xulosa ${selectedAnswer === currentQuestion.correct ? "is-togri" : "is-xato"}`}>
+            <div className="v3-quiz-xulosa">
               <div className="v3-quiz-xulosa-bosh">
-                <Ikon nom={selectedAnswer === currentQuestion.correct ? "belgi" : "yopish"} olcham={18} />
-                <strong>{selectedAnswer === currentQuestion.correct ? "Javob to'g'ri" : "Javob xato"}</strong>
+                <Ikon nom="belgi" olcham={18} />
+                <strong>Javob qabul qilindi</strong>
               </div>
-              <p>{currentQuestion.explanation}</p>
+              <p>To'g'ri javob va tushuntirish test yakunida server tekshiruvidan keyin ko'rsatiladi.</p>
             </div>
           )}
 
@@ -658,8 +653,8 @@ export default function QuizYechish({ slug }) {
             <div><span className="is-bajarilgan" /> Javob berilgan</div>
           </div>
           <div className="v3-quiz-navigator-past">
-            <span>Aniqlik</span>
-            <strong>{answers.length ? Math.round((correctCount / answers.length) * 100) : 0}%</strong>
+            <span>Bajarildi</span>
+            <strong>{answers.length}/{questions.length}</strong>
           </div>
         </aside>
       </div>

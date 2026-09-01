@@ -1,0 +1,9 @@
+# Maxfiy qiymatlar Vercel loyiha sozlamalaridan olinadi; lokal nusxa deploy
+# manbasiga tushsa, bitta ma'lumotning ikki egasi paydo bo'ladi.
+.env
+.env.*
+!.env.example
+
+# Mahalliy QA natijalari deploy paketining bir qismi emas.
+output/
+.olcham/

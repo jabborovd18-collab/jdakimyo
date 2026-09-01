@@ -1,19 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getRandomQuestions, getPreviousIds } from "./utils/storage"
-import { ASOSIY_QUIZ_SLUGLARI } from "./quiz-config"
+import { getPreviousIds } from "./utils/storage"
 
-/**
- * Quiz savollarini bazadan yuklab, kerakli to'plamni tuzadi.
- *
- * Oddiy mavzuda qiyinlik muvozanati saqlanadi. Aralash testda esa har
- * asosiy yo'nalishdan teng miqdor olinadi; shunda bazadagi eng katta
- * kategoriya butun testni egallab olmaydi.
- */
+/** Server tanlagan javobsiz savollar va shu to'plamga bog'langan urinish. */
 export function useQuizBank(category, count = 20) {
   const [state, setState] = useState({
     questions: [],
+    attemptToken: null,
     isLoading: true,
     error: null,
   })
@@ -23,43 +17,27 @@ export function useQuizBank(category, count = 20) {
 
     async function load() {
       try {
-        const response = await fetch(
-          `/api/quiz/bank?category=${encodeURIComponent(category)}`,
-        )
+        const response = await fetch('/api/quiz/bank', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            category,
+            count,
+            previousIds: getPreviousIds(category),
+          }),
+        })
         const data = await response.json()
 
-        if (!response.ok) {
-          throw new Error(data.error || "Savollarni yuklab bo'lmadi")
-        }
+        if (!response.ok) throw new Error(data.error || "Savollarni yuklab bo'lmadi")
         if (cancelled) return
-
-        if (!Array.isArray(data.questions) || data.questions.length === 0) {
-          throw new Error("Bu mavzuda hali savol yo'q")
+        if (!Array.isArray(data.questions) || data.questions.length !== count || !data.attemptToken) {
+          throw new Error("Server to'liq quiz urinishini qaytarmadi")
         }
 
-        const previousIds = getPreviousIds(category)
-        let questions
-
-        if (category === "aralash") {
-          const harBiridan = Math.floor(count / ASOSIY_QUIZ_SLUGLARI.length)
-          const tanlangan = ASOSIY_QUIZ_SLUGLARI.flatMap((slug) => {
-            const bank = data.questions.filter((q) => q.category === slug)
-            if (bank.length < harBiridan) {
-              throw new Error(`${slug} mavzusida aralash test uchun savol yetarli emas`)
-            }
-            return getRandomQuestions(bank, harBiridan, previousIds)
-          })
-          // Yig'ilgan to'rtta blok ketma-ket turmasligi uchun yakuniy
-          // tanlov yana aralashtiriladi. Qiyinlik bu bosqichda o'zgarmaydi.
-          questions = aralashtir(tanlangan)
-        } else {
-          questions = getRandomQuestions(data.questions, count, previousIds)
-        }
-
-        setState({ questions, isLoading: false, error: null })
+        setState({ questions: data.questions, attemptToken: data.attemptToken, isLoading: false, error: null })
       } catch (error) {
         if (!cancelled) {
-          setState({ questions: [], isLoading: false, error: error.message })
+          setState({ questions: [], attemptToken: null, isLoading: false, error: error.message })
         }
       }
     }
@@ -71,13 +49,4 @@ export function useQuizBank(category, count = 20) {
   }, [category, count])
 
   return state
-}
-
-function aralashtir(array) {
-  const nusxa = [...array]
-  for (let i = nusxa.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[nusxa[i], nusxa[j]] = [nusxa[j], nusxa[i]]
-  }
-  return nusxa
 }

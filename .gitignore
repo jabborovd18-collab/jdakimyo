@@ -16,6 +16,7 @@
 # next.js
 /.next/
 /out/
+/output/
 
 # production
 /build
@@ -53,3 +54,6 @@ next-env.d.ts
 # ikkinchi nusxa bo'lib qolsa, birinchi o'zgarishdayoq undan uziladi.
 # Qayta yasash: node scripts/gen-ochiq-lugat.js
 /ochiq-lugat/
+
+.vercel
+.env*

@@ -20,9 +20,9 @@ export async function GET() {
     }
 
     const userId = session.user.id;
-    const userRole = session.user.role || "USER";
+    const userRole = session.user.role || "bakalavr";
 
-    const quota = aiQuota.malumotOl(userId, userRole);
+    const quota = await aiQuota.malumotOl(userId, userRole, Boolean(session.user.isTeacher));
     const keshStat = aiKesh.statistikaOl();
 
     return NextResponse.json({

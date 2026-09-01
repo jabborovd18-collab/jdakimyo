@@ -67,10 +67,10 @@ const DESKTOP_PANEL_NURLARI = Object.freeze([
 // sanaydi. Statik quruvchi byudjetda shu bitta joyni oldindan zaxiralaydi.
 const DINAMIK_CHIROQ_ZAXIRASI = 1;
 
-// BRIF-01B: 0.87 oq nuqtasiz xira qoldi; yuqori ekspozitsiya va lokal
-// hotspotlar esa o'rtacha/supurishni buzdi. 0.95 + past ambient sun'iy
-// doirasiz eng yorug' tabiiy variant bo'lib o'lchandi.
-export const TONE_MAPPING_EKSPOZITSIYA = 0.95;
+// BRIF-01B: 0.87 oq nuqtasiz xira qoldi; 0.95 esa desktop/stol kadrini
+// oraliq qorovuldan ozgina oshirdi (0.4594 > 0.45). 0.91 tabiiy oq
+// nuqtani saqlab, shu kichik kuyishsiz yorqinlik og'ishini tuzatadi.
+export const TONE_MAPPING_EKSPOZITSIYA = 0.91;
 
 // Quyidagi kichik factory'lar modal, jihoz va vaqtinchalik effektlarda ham
 // Light konstruktorining yagona egasini saqlaydi. Ular qiymatni o'zgartirmaydi.
