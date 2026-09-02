@@ -63,7 +63,7 @@ export default async function AdminLayout({ children }) {
         // Bot butun sayt uchun bitta, shuning uchun 'sozlamalar'
         // huquqi ostida. Sahifaning o'zi superadminni ham tekshiradi.
         { name: 'Telegram bot', href: '/admin/telegram', icon: '🤖', kerak: 'bot' },
-        { name: 'JDA Kimyo AI', href: '/admin/jdakimyo-ai', icon: '🧠', kerak: 'bot' },
+        { name: 'JDA Kimyo AI', href: '/admin/jdakimyo-ai', icon: '🧠', kerak: 'aiKorish' },
       ]
     }
   ]

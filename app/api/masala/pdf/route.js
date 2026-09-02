@@ -1,6 +1,10 @@
+import { randomUUID } from "node:crypto";
+import { after } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { tezlikOshdimi } from "@/lib/tezlik-cheklov.js";
+import { aiSozlamaniOl } from "@/lib/ai-agents/ai-config.js";
+import { aiHodisalarniYoz } from "@/lib/ai-agents/ai-telemetriya.js";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -16,9 +20,15 @@ function xatoJavobi(xato, status = 500) {
 }
 
 export async function POST(request) {
+  const boshlandi = Date.now();
+  const requestId = randomUUID();
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) return xatoJavobi("PDF yuklash uchun tizimga kiring.", 401);
+    const { config } = await aiSozlamaniOl();
+    if (!config.enabled || !config.channels.pdf) {
+      return xatoJavobi("Premium PDF xizmati vaqtincha o'chirilgan.", 503);
+    }
 
     const contentLength = Number(request.headers.get("content-length")) || 0;
     if (contentLength > SO_ROV_BAYT_CHEGARASI) {
@@ -56,6 +66,9 @@ export async function POST(request) {
       natija: body.natija,
       sana: new Date(),
     });
+    after(() => aiHodisalarniYoz([{
+      requestId, channel: "pdf", operation: "premium_pdf", status: "success", durationMs: Date.now() - boshlandi,
+    }]).catch((error) => console.error("[PDF telemetriya xatosi]", error?.message)));
 
     const sana = new Date().toISOString().slice(0, 10);
     return new Response(pdf, {
@@ -69,6 +82,9 @@ export async function POST(request) {
     });
   } catch (xato) {
     console.error("[Premium PDF xatosi]", xato);
+    after(() => aiHodisalarniYoz([{
+      requestId, channel: "pdf", operation: "premium_pdf", status: "error", errorCode: "PDF_XATO", durationMs: Date.now() - boshlandi,
+    }]).catch((error) => console.error("[PDF telemetriya xatosi]", error?.message)));
     return xatoJavobi("Premium PDF tayyorlanmadi. Qayta urinib ko'ring.", 500);
   }
 }

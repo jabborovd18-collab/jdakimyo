@@ -1,7 +1,10 @@
-import { NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
+import { after, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { tezlikOshdimi, OVOZ_QOIDASI } from "@/lib/tezlik-cheklov.js";
+import { aiSozlamaniOl } from "@/lib/ai-agents/ai-config.js";
+import { aiHodisalarniYoz } from "@/lib/ai-agents/ai-telemetriya.js";
 
 // GET /api/ovoz?matn=...
 // Google Translate TTS (tl=uz) audio oqimini mobil brauzerlar va iOS Safari
@@ -11,10 +14,16 @@ import { tezlikOshdimi, OVOZ_QOIDASI } from "@/lib/tezlik-cheklov.js";
 // xizmatiga aylanardi va har so'rov Vercel funksiya vaqtini yeydi.
 // Hozircha faqat `/masala` sahifasi chaqiradi, u ham kirishni talab qiladi.
 export async function GET(request) {
+  const boshlandi = Date.now();
+  const requestId = randomUUID();
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return new NextResponse("Kirish talab qilinadi", { status: 401 });
+    }
+    const { config } = await aiSozlamaniOl();
+    if (!config.enabled || !config.channels.ovoz) {
+      return new NextResponse("Ovozli xizmat vaqtincha o'chirilgan", { status: 503 });
     }
 
     const tezlik = tezlikOshdimi(`ovoz:${session.user.id}`, OVOZ_QOIDASI);
@@ -47,6 +56,9 @@ export async function GET(request) {
     }
 
     const audioBytes = await res.arrayBuffer();
+    after(() => aiHodisalarniYoz([{
+      requestId, channel: "ovoz", operation: "tts", status: "success", durationMs: Date.now() - boshlandi,
+    }]).catch((error) => console.error("[Ovoz telemetriya xatosi]", error?.message)));
 
     return new NextResponse(audioBytes, {
       headers: {
@@ -58,6 +70,9 @@ export async function GET(request) {
       },
     });
   } catch (err) {
+    after(() => aiHodisalarniYoz([{
+      requestId, channel: "ovoz", operation: "tts", status: "error", errorCode: "TTS_XATO", durationMs: Date.now() - boshlandi,
+    }]).catch((error) => console.error("[Ovoz telemetriya xatosi]", error?.message)));
     return new NextResponse("Server audio xatosi", { status: 500 });
   }
 }

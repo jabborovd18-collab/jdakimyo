@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { aiQuota } from "@/lib/ai-agents/ai-quota.js";
 import { aiKesh } from "@/lib/ai-agents/ai-cache.js";
+import { aiSozlamaniOl } from "@/lib/ai-agents/ai-config.js";
 
 export async function GET() {
   try {
@@ -22,11 +23,15 @@ export async function GET() {
     const userId = session.user.id;
     const userRole = session.user.role || "bakalavr";
 
-    const quota = await aiQuota.malumotOl(userId, userRole, Boolean(session.user.isTeacher));
-    const keshStat = aiKesh.statistikaOl();
+    const [quota, faolSozlama] = await Promise.all([
+      aiQuota.malumotOl(userId, userRole, Boolean(session.user.isTeacher)),
+      aiSozlamaniOl(),
+    ]);
+    const keshStat = aiKesh.statistikaOl(faolSozlama.config.cache);
 
     return NextResponse.json({
       muvaffaqiyatli: true,
+      kanallar: faolSozlama.config.channels,
       foydalanuvchi: {
         ism: session.user.fullName || session.user.name || session.user.username || "Talaba",
         rol: userRole,

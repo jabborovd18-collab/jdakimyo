@@ -3,12 +3,15 @@
 // JDA KIMYO — Ko'p Agentli Kimyoviy Masalalar API Handler (v4.0.0).
 // Groq (120B / Qwen-3.8) + OpenRouter + Gemini zaxira zanjiri bilan to'liq qurollangan.
 
-import { NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
+import { after, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { tezlikOshdimi, AI_QOIDASI } from "@/lib/tezlik-cheklov.js";
 import { multiAgentMasalaYech, aiRepetitorChat } from "@/lib/ai-agents/masala-orkestrator.js";
 import { aiQuota } from "@/lib/ai-agents/ai-quota.js";
+import { aiHodisalarniYoz } from "@/lib/ai-agents/ai-telemetriya.js";
+import { aiSozlamaniOl } from "@/lib/ai-agents/ai-config.js";
 
 const MATN_CHEGARASI = 4000;
 const RASM_BAYT_CHEGARASI = 4 * 1024 * 1024; // 4 MB
@@ -38,6 +41,27 @@ function xotiraKontekstiniTozala(xotira) {
 }
 
 export async function POST(request) {
+  const requestId = randomUUID();
+  const hodisalar = [];
+  let amal = "noma_lum";
+  const telemetriya = (hodisa) => {
+    hodisalar.push({
+      ...hodisa,
+      requestId,
+      channel: "sayt",
+      operation: amal,
+    });
+  };
+  // Javob telemetriya yozilishini kutmaydi; server ish tugaguncha yozuvni
+  // xavfsiz yakunlash uchun Next.jsning after mexanizmi ishlatiladi.
+  after(async () => {
+    try {
+      await aiHodisalarniYoz(hodisalar);
+    } catch (error) {
+      console.error("[AI telemetriya yozuv xatosi]:", error?.message);
+    }
+  });
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -53,6 +77,7 @@ export async function POST(request) {
     }
 
     const foydalanuvchiIsmi = session.user.fullName || session.user.username || "Do'stim";
+    const { config: aiConfig } = await aiSozlamaniOl();
     const body = await request.json().catch(() => null);
     if (!body) {
       return NextResponse.json({ xato: "So'rov formati noto'g'ri." }, { status: 400 });
@@ -67,6 +92,7 @@ export async function POST(request) {
       ishlashYonalishi = "avtomatik",
       xotiraKonteksti: xomXotiraKonteksti = null,
     } = body;
+    amal = action === "chat" ? "chat" : "yech";
     const xotiraKonteksti = xotiraKontekstiniTozala(xomXotiraKonteksti);
 
     const quotaBandQil = async () => {
@@ -102,12 +128,15 @@ export async function POST(request) {
         ishlashYonalishi,
         xotiraKonteksti,
         apiChaqirishdanOldin: quotaBandQil,
+        kanal: "sayt",
+        telemetriya,
       });
       return NextResponse.json({
         muvaffaqiyatli: true,
         action: "chat",
         javob: chatNatija.matn,
         aiYonalish: chatNatija.aiYonalish,
+        kanallar: aiConfig.channels,
       });
     }
 
@@ -157,6 +186,8 @@ export async function POST(request) {
       ishlashYonalishi,
       xotiraKonteksti,
       apiChaqirishdanOldin: quotaBandQil,
+      kanal: "sayt",
+      telemetriya,
     });
 
     if (!natija) {
@@ -171,6 +202,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       muvaffaqiyatli: true,
+      kanallar: aiConfig.channels,
       ...natija
     });
   } catch (err) {

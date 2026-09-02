@@ -68,6 +68,12 @@ describe('AI kesh kaliti', () => {
     })
     assert.notEqual(a, b)
   })
+
+  test("sozlama versiyasi o'zgarsa eski javob kaliti qayta ishlatilmaydi", () => {
+    const eski = kesh.kalitYarat({ matn: 'H2O nima?', configVersion: '1-1' })
+    const yangi = kesh.kalitYarat({ matn: 'H2O nima?', configVersion: '2-1' })
+    assert.notEqual(eski, yangi)
+  })
 })
 
 describe("AI yo'nalish tanlovi", () => {
@@ -111,6 +117,11 @@ describe('AI role limiti', () => {
   test("ikkilamchi ustoz bayrog'i akademik rolni ustoz limitiga ko'taradi", () => {
     assert.equal(aiKunlikLimit('bakalavr', true), 1000)
   })
+
+  test("admin sozlagan limit sof qoida orqali qo'llanadi", () => {
+    assert.equal(aiKunlikLimit('bakalavr', false, { bakalavr: 7, teacher: 20 }), 7)
+    assert.equal(aiKunlikLimit('bakalavr', true, { bakalavr: 7, teacher: 20 }), 20)
+  })
 })
 
 describe('AI gateway urinish chegarasi', () => {
@@ -152,6 +163,48 @@ describe('AI gateway urinish chegarasi', () => {
         if (qiymat === undefined) delete process.env[kalit]
         else process.env[kalit] = qiymat
       }
+    }
+  })
+
+  test("runtime routing va telemetriya haqiqiy tanlangan modelni qaytaradi", async () => {
+    const eskiFetch = global.fetch
+    const eskiGemini = process.env.GEMINI_API_KEY
+    const eskiGroq = process.env.GROQ_API_KEY
+    const hodisalar = []
+    try {
+      process.env.GEMINI_API_KEY = 'sinov-gemini'
+      process.env.GROQ_API_KEY = 'sinov-groq'
+      global.fetch = async (url) => {
+        assert.match(String(url), /generativelanguage\.googleapis\.com/)
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            candidates: [{ content: { parts: [{ text: 'Tayyor' }] } }],
+            usageMetadata: { promptTokenCount: 4, candidatesTokenCount: 2, totalTokenCount: 6 },
+          }),
+        }
+      }
+      const javob = await aiModelChaqir('sinov', {
+        yonalish: 'tezkor',
+        jsonRejim: false,
+        runtimeSozlama: {
+          enabled: true,
+          routing: { tezkor: ['geminiAsosiy'] },
+          directions: { tezkor: { urinishChegarasi: 1, urinishVaqtiMs: 2000, umumiyVaqtMs: 4000, tokenChegarasi: 200 } },
+        },
+        telemetriya: (hodisa) => hodisalar.push(hodisa),
+      })
+      assert.equal(javob, 'Tayyor')
+      assert.equal(hodisalar[0].provider, 'gemini')
+      assert.equal(hodisalar[0].totalTokens, 6)
+      assert.equal(hodisalar[0].status, 'success')
+    } finally {
+      global.fetch = eskiFetch
+      if (eskiGemini === undefined) delete process.env.GEMINI_API_KEY
+      else process.env.GEMINI_API_KEY = eskiGemini
+      if (eskiGroq === undefined) delete process.env.GROQ_API_KEY
+      else process.env.GROQ_API_KEY = eskiGroq
     }
   })
 })

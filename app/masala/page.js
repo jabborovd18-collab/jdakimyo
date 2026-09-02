@@ -113,6 +113,7 @@ export default function MasalaChatSahifasi() {
   const [xotiraTayyor, setXotiraTayyor] = useState(false);
   const [akkauntSinxroni, setAkkauntSinxroni] = useState(false);
   const [sinxronHolat, setSinxronHolat] = useState("mahalliy");
+  const [xizmatKanallari, setXizmatKanallari] = useState({ ovoz: true, pdf: true });
 
   // Ovozli AI (Hands-free & TTS/STT)
   const [ovozYozilmoqda, setOvozYozilmoqda] = useState(false);
@@ -148,6 +149,22 @@ export default function MasalaChatSahifasi() {
   useEffect(() => {
     avtoOvozRef.current = avtoOvozRejimi;
   }, [avtoOvozRejimi]);
+
+  useEffect(() => {
+    let faol = true;
+    fetch("/api/masala/usage", { cache: "no-store" })
+      .then((javob) => javob.ok ? javob.json() : null)
+      .then((data) => { if (faol && data?.kanallar) setXizmatKanallari(data.kanallar); })
+      .catch(() => {});
+    return () => { faol = false; };
+  }, []);
+
+  useEffect(() => {
+    if (xizmatKanallari.ovoz !== false) return;
+    ovozPleyeri.toxtat();
+    setAvtoOvozRejimi(false);
+    setFaolOvozId(null);
+  }, [xizmatKanallari.ovoz]);
 
   useEffect(() => {
     yuklanmoqdaRef.current = yuklanmoqda;
@@ -267,6 +284,7 @@ export default function MasalaChatSahifasi() {
       if (!response.ok) {
         throw new Error(data.xato || "AI so'rovini bajarib bo'lmadi");
       }
+      if (data.kanallar) setXizmatKanallari(data.kanallar);
       return data;
     } catch (error) {
       if (controller.signal.aborted) {
@@ -428,7 +446,7 @@ export default function MasalaChatSahifasi() {
 
   // Ovozda ijro etish funksiyasi (TTS)
   const matnniOvozdaIjroEt = (matn, xabarId) => {
-    if (!matn) return;
+    if (!matn || xizmatKanallari.ovoz === false) return;
 
     if (faolOvozId === xabarId) {
       ovozPleyeri.toxtat();
@@ -799,7 +817,7 @@ export default function MasalaChatSahifasi() {
           </button>
 
           {/* Hands-Free Jonli Ovoz Rejimi Switcheri */}
-          <button
+          {xizmatKanallari.ovoz !== false && <button
             type="button"
             onClick={() => {
               const yangi = !avtoOvozRejimi;
@@ -822,7 +840,7 @@ export default function MasalaChatSahifasi() {
           >
             <Ikon nom="ovoz" olcham={12} className={avtoOvozRejimi ? "text-emerald-400" : ""} />
             <span className="hidden md:inline">{avtoOvozRejimi ? "Jonli Ovoz Yoniq" : "Ovozli Rejim"}</span>
-          </button>
+          </button>}
         </div>
 
         {/* O'ng: Yangi Chat va Fon */}
@@ -1040,7 +1058,7 @@ export default function MasalaChatSahifasi() {
                     </div>
 
                     {/* Ovozda tinglash tugmasi */}
-                    <button
+                    {xizmatKanallari.ovoz !== false && <button
                       type="button"
                       onClick={() => matnniOvozdaIjroEt(xabar.matn, xabar.id)}
                       className={`p-1.5 rounded-lg border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
@@ -1052,7 +1070,7 @@ export default function MasalaChatSahifasi() {
                     >
                       <Ikon nom="ovoz" olcham={13} className={faolOvozId === xabar.id ? "text-emerald-400" : ""} />
                       <span className="text-[10px]">{faolOvozId === xabar.id ? "To'xtatish" : "Tinglash"}</span>
-                    </button>
+                    </button>}
                   </div>
 
                   <BoyitilganMatn matn={xabar.matn} className="text-xs sm:text-sm text-[var(--v3-matn)]" />
@@ -1093,7 +1111,7 @@ export default function MasalaChatSahifasi() {
 
                   {/* PDF va Audio */}
                   <div className="flex items-center gap-1.5">
-                    {xabar.yechim?.ovozMatni && (
+                    {xizmatKanallari.ovoz !== false && xabar.yechim?.ovozMatni && (
                       <button
                         type="button"
                         onClick={() => matnniOvozdaIjroEt(xabar.yechim.ovozMatni, xabar.id)}
@@ -1108,7 +1126,7 @@ export default function MasalaChatSahifasi() {
                         <span className="text-[10px] hidden sm:inline">{faolOvozId === xabar.id ? "To'xtatish" : "Ovozda"}</span>
                       </button>
                     )}
-                    <button
+                    {xizmatKanallari.pdf !== false && <button
                       type="button"
                       onClick={async () => {
                         const toastId = toast.loading("PDF tayyorlanmoqda...");
@@ -1128,7 +1146,7 @@ export default function MasalaChatSahifasi() {
                     >
                       <Ikon nom="sertifikat" olcham={13} className="text-[var(--v3-urgu)]" />
                       <span>PDF</span>
-                    </button>
+                    </button>}
                   </div>
                 </div>
 
@@ -1433,7 +1451,7 @@ export default function MasalaChatSahifasi() {
               />
 
               {/* O'ng: Agar matn bo'sh bo'lsa OVOZ, matn yozilgan bo'lsa YUBORISH */}
-              {!kiritma.trim() && !rasmBase64 ? (
+              {!kiritma.trim() && !rasmBase64 && xizmatKanallari.ovoz !== false ? (
                 <button
                   type="button"
                   onClick={handleOvozYozish}

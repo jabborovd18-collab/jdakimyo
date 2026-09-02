@@ -1,250 +1,215 @@
-// app/api/admin/jdakimyo-ai/route.js
-//
-// JDA KIMYO AI — SUPER ADMIN TEXNIK KO'RIK VA DIAGNOSTIKA API (v4.0.0)
-//
-// Ushbu API faqat superadminga ochiq bo'lib, barcha ulangan AI provayderlarni
-// (Groq, OpenRouter, Gemini) sinovdan o'tkazadi va aniq xatolik sabablarini qaytaradi.
+// JDA Kimyo AI boshqaruvi: kuzatuv va o'zgartirish huquqlari ajratilgan.
+// Maxfiy API kalitlari va foydalanuvchi suhbatlari bu API orqali chiqmaydi.
 
-import { NextResponse } from 'next/server';
-import { checkAdminAuth } from '@/lib/admin-auth';
+import { NextResponse } from "next/server";
+import { checkAdminAuth } from "@/lib/admin-auth";
+import { prisma } from "@/lib/prisma";
+import { aiKesh } from "@/lib/ai-agents/ai-cache.js";
+import {
+  aiConfigXavfsizTayyorla,
+  aiSozlamagaQaytish,
+  aiSozlamaniOl,
+  aiSozlamaniSaqlash,
+  aiSozlamaVersiyalariniOl,
+} from "@/lib/ai-agents/ai-config.js";
+import { aiModelReyestriOl, aiProvayderKorigi } from "@/lib/ai-agents/ai-gateway.js";
+import { aiDashboardMalumotiOl } from "@/lib/ai-agents/ai-telemetriya.js";
+import { aiSifatSinoviniIshgaTushir } from "@/lib/ai-agents/ai-eval.js";
 
-export async function GET() {
-  const { isSuperAdmin } = await checkAdminAuth();
-  if (!isSuperAdmin) {
-    return NextResponse.json({ xato: 'Faqat super admin uchun ruxsat berilgan.' }, { status: 403 });
+const KORIK_ORALIGI_MS = 20_000;
+
+function radEtildi(xabar = "Bu amal uchun ruxsat yo'q.") {
+  return NextResponse.json({ xato: xabar }, { status: 403 });
+}
+
+async function korikOrniniBandQil(adminId) {
+  const kalit = `admin:ai-korik:${adminId}`;
+  for (let urinish = 0; urinish < 3; urinish += 1) {
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const hozir = new Date();
+        const yozuv = await tx.sorovLimit.findUnique({ where: { kalit } });
+        if (yozuv && hozir.getTime() - yozuv.oynaBoshi.getTime() < KORIK_ORALIGI_MS) {
+          const xato = new Error("Provayder ko'rigini 20 soniyadan keyin qayta ishga tushiring.");
+          xato.statusCode = 429;
+          throw xato;
+        }
+        await tx.sorovLimit.upsert({
+          where: { kalit },
+          create: { kalit, soni: 1, oynaBoshi: hozir },
+          update: { soni: { increment: 1 }, oynaBoshi: hozir },
+        });
+        return true;
+      }, { isolationLevel: "Serializable" });
+    } catch (error) {
+      if (error?.code === "P2034" && urinish < 2) continue;
+      throw error;
+    }
   }
+}
 
-  const groqKey = (process.env.GROQ_API_KEY || '').trim();
-  const openrouterKey = (process.env.OPENROUTER_API_KEY || '').trim();
-  const geminiKey = (process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_KEY || '').trim();
+function huquqlarniAjrat(huquq) {
+  return {
+    korish: Boolean(huquq.aiKorish),
+    sinash: Boolean(huquq.aiSinash),
+    sozlash: Boolean(huquq.aiSozlash),
+    favqulodda: Boolean(huquq.aiFavqulodda),
+  };
+}
 
-  const natijalar = {
-    sana: new Date().toISOString(),
-    provayderlar: {
-      groq: {
-        nom: 'Groq Cloud (120B / Qwen-3.8)',
-        kalitBormi: Boolean(groqKey),
-        kalitQisqa: groqKey ? `${groqKey.slice(0, 7)}...${groqKey.slice(-4)}` : 'Yo\'q',
-        holat: 'tekshirilmagan',
-        javobVaqtiMs: 0,
-        xatoXabar: null,
-        sinovJavobi: null
-      },
-      openrouter: {
-        nom: 'OpenRouter (Minimax / Nemotron)',
-        kalitBormi: Boolean(openrouterKey),
-        kalitQisqa: openrouterKey ? `${openrouterKey.slice(0, 9)}...${openrouterKey.slice(-4)}` : 'Yo\'q',
-        holat: 'tekshirilmagan',
-        javobVaqtiMs: 0,
-        xatoXabar: null,
-        sinovJavobi: null
-      },
-      gemini: {
-        nom: 'Google Gemini (2.0 Flash / 1.5 Flash)',
-        kalitBormi: Boolean(geminiKey),
-        kalitQisqa: geminiKey ? `${geminiKey.slice(0, 7)}...${geminiKey.slice(-4)}` : 'Yo\'q',
-        holat: 'tekshirilmagan',
-        javobVaqtiMs: 0,
-        xatoXabar: null,
-        sinovJavobi: null
+export async function GET(request) {
+  const auth = await checkAdminAuth("aiKorish");
+  if (!auth.isAdmin) return radEtildi("JDA Kimyo AI boshqaruvini ko'rish huquqi yo'q.");
+
+  try {
+    const soat = Number(new URL(request.url).searchParams.get("soat")) || 24;
+    const [faol, versiyalar, dashboard, oxirgiSinovlar] = await Promise.all([
+      aiSozlamaniOl({ fresh: true }),
+      aiSozlamaVersiyalariniOl(15),
+      aiDashboardMalumotiOl({ soat }),
+      prisma.aiEvalRun.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 8,
+        select: { id: true, revision: true, totalCases: true, passed: true, failed: true, durationMs: true, createdAt: true },
+      }),
+    ]);
+    const ogohlantirishlar = [];
+    if (dashboard.xatoFoizi >= faol.config.alerts.errorRatePercent) {
+      ogohlantirishlar.push({ turi: "xato", xabar: `Xato ulushi ${dashboard.xatoFoizi}% ga yetdi.` });
+    }
+    if (dashboard.fallbackFoizi >= faol.config.alerts.fallbackRatePercent) {
+      ogohlantirishlar.push({ turi: "fallback", xabar: `Fallback ulushi ${dashboard.fallbackFoizi}% ga yetdi.` });
+    }
+    const p95Chegaralar = {
+      tezkor: faol.config.alerts.quickP95Ms,
+      oddiy: faol.config.alerts.normalP95Ms,
+      murakkab: faol.config.alerts.deepP95Ms,
+    };
+    for (const yonalish of dashboard.yonalishMetrikalar) {
+      if (p95Chegaralar[yonalish.nom] && yonalish.p95Ms >= p95Chegaralar[yonalish.nom]) {
+        ogohlantirishlar.push({ turi: "sekin", xabar: `${yonalish.nom} yo'nalishining P95 vaqti ${yonalish.p95Ms} ms.` });
       }
     }
-  };
 
-  return NextResponse.json(natijalar);
+    return NextResponse.json({
+      muvaffaqiyatli: true,
+      sana: new Date().toISOString(),
+      huquqlar: huquqlarniAjrat(auth.huquq),
+      faolSozlama: faol,
+      versiyalar,
+      dashboard,
+      ogohlantirishlar,
+      oxirgiSinovlar,
+      reyestr: aiModelReyestriOl(),
+      kesh: {
+        ...aiKesh.statistikaOl(faol.config.cache),
+        izoh: "Bu ko'rsatkich joriy server nusxasiga tegishli; umumiy natija telemetriyada ko'rinadi.",
+      },
+      xotira: {
+        brauzer: "Qurilmadagi mahalliy xotira",
+        akkaunt: "Foydalanuvchi kaliti bilan shifrlangan Vercel Blob",
+        adminKorishi: false,
+        xomSuhbatTelemetriyada: false,
+      },
+    });
+  } catch (error) {
+    console.error("[AI admin GET xatosi]", error);
+    return NextResponse.json({ xato: "AI boshqaruv ma'lumotlarini olib bo'lmadi." }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
-  const { isSuperAdmin } = await checkAdminAuth();
-  if (!isSuperAdmin) {
-    return NextResponse.json({ xato: 'Faqat super admin uchun ruxsat berilgan.' }, { status: 403 });
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ xato: "So'rov formati noto'g'ri." }, { status: 400 });
   }
+  const action = String(body.action || "korik");
+  const kerakliHuquq = action === "korik" || action === "eval" ? "aiSinash"
+    : action === "favqulodda" ? "aiFavqulodda"
+      : "aiSozlash";
+  const auth = await checkAdminAuth(kerakliHuquq);
+  if (!auth.isAdmin) return radEtildi();
 
-  const body = await request.json().catch(() => ({}));
-  const { action = 'korik', testPrompt = '200 g 10% li NaCl eritmasida necha gramm tuz bor? Qisqa javob ber.' } = body;
-
-  const groqKey = (process.env.GROQ_API_KEY || '').trim();
-  const openrouterKey = (process.env.OPENROUTER_API_KEY || '').trim();
-  const geminiKey = (process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_KEY || '').trim();
-
-  const hisobot = {
-    sana: new Date().toISOString(),
-    groq: null,
-    openrouter: null,
-    gemini: null
-  };
-
-  // 1. GROQ DIAGNOSTIKASI
-  if (groqKey) {
-    const boshlandi = Date.now();
-    try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + groqKey,
-          'Content-Type': 'application/json'
+  try {
+    if (action === "korik") {
+      await korikOrniniBandQil(auth.user.id);
+      const faol = await aiSozlamaniOl();
+      const testPrompt = typeof body.testPrompt === "string"
+        ? body.testPrompt.trim().slice(0, 500)
+        : undefined;
+      const hisobot = await aiProvayderKorigi({ runtimeSozlama: faol.config, prompt: testPrompt });
+      await prisma.auditLog.create({
+        data: {
+          adminId: auth.user.id,
+          action: "ai_provider_check",
+          targetType: "ai_gateway",
+          details: JSON.stringify({ natijalar: hisobot.map(({ provayder, holat, sarfMs }) => ({ provayder, holat, sarfMs })) }),
         },
-        body: JSON.stringify({
-          model: 'openai/gpt-oss-120b',
-          messages: [{ role: 'user', content: testPrompt }],
-          max_tokens: 300
-        })
       });
-      const sarfMs = Date.now() - boshlandi;
-      const data = await res.json();
-
-      if (res.ok) {
-        hisobot.groq = {
-          status: 'ok',
-          statusCode: res.status,
-          sarfMs,
-          model: 'openai/gpt-oss-120b',
-          javob: data.choices?.[0]?.message?.content || '',
-          xato: null
-        };
-      } else {
-        hisobot.groq = {
-          status: 'error',
-          statusCode: res.status,
-          sarfMs,
-          model: 'openai/gpt-oss-120b',
-          javob: null,
-          xato: data.error?.message || data.error || 'Noma\'lum xatolik'
-        };
-      }
-    } catch (err) {
-      hisobot.groq = {
-        status: 'error',
-        statusCode: 0,
-        sarfMs: Date.now() - boshlandi,
-        model: 'openai/gpt-oss-120b',
-        javob: null,
-        xato: err.message
-      };
+      return NextResponse.json({ muvaffaqiyatli: true, hisobot });
     }
-  } else {
-    hisobot.groq = {
-      status: 'missing_key',
-      statusCode: 0,
-      sarfMs: 0,
-      xato: 'GROQ_API_KEY sozlanmagan (.env yoki Vercel Environment Variables ga qo\'shilmagan)'
-    };
-  }
 
-  // 2. OPENROUTER DIAGNOSTIKASI
-  if (openrouterKey) {
-    const boshlandi = Date.now();
-    try {
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + openrouterKey,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://jdakimyo.uz',
-          'X-Title': 'JDA KIMYO Diagnostics'
+    if (action === "publish") {
+      const tekshiruv = aiConfigXavfsizTayyorla(body.config);
+      if (!tekshiruv.muvaffaqiyatli) {
+        return NextResponse.json({ xato: "AI sozlamasida noto'g'ri qiymatlar bor.", xatolar: tekshiruv.xatolar }, { status: 400 });
+      }
+      const natija = await aiSozlamaniSaqlash({
+        config: tekshiruv.config,
+        adminId: auth.user.id,
+        note: body.note,
+        expectedRevision: body.expectedRevision,
+      });
+      return NextResponse.json({ muvaffaqiyatli: true, faolSozlama: natija });
+    }
+
+    if (action === "rollback") {
+      const natija = await aiSozlamagaQaytish({
+        revision: body.revision,
+        adminId: auth.user.id,
+        expectedRevision: body.expectedRevision,
+      });
+      return NextResponse.json({ muvaffaqiyatli: true, faolSozlama: natija });
+    }
+
+    if (action === "cache_clear") {
+      const ochirilgan = aiKesh.tozalash();
+      await prisma.auditLog.create({
+        data: {
+          adminId: auth.user.id,
+          action: "ai_cache_clear",
+          targetType: "ai_cache",
+          details: JSON.stringify({ ochirilgan, serverNusxasi: true }),
         },
-        body: JSON.stringify({
-          model: 'minimax/minimax-m3:free',
-          messages: [{ role: 'user', content: testPrompt }],
-          max_tokens: 300
-        })
       });
-      const sarfMs = Date.now() - boshlandi;
-      const data = await res.json();
-
-      if (res.ok && data.choices?.[0]?.message?.content) {
-        hisobot.openrouter = {
-          status: 'ok',
-          statusCode: res.status,
-          sarfMs,
-          model: 'minimax/minimax-m3:free',
-          javob: data.choices[0].message.content,
-          xato: null
-        };
-      } else {
-        hisobot.openrouter = {
-          status: 'error',
-          statusCode: res.status,
-          sarfMs,
-          model: 'minimax/minimax-m3:free',
-          javob: null,
-          xato: data.error?.message || data.error || 'Noma\'lum xatolik'
-        };
-      }
-    } catch (err) {
-      hisobot.openrouter = {
-        status: 'error',
-        statusCode: 0,
-        sarfMs: Date.now() - boshlandi,
-        model: 'minimax/minimax-m3:free',
-        javob: null,
-        xato: err.message
-      };
+      return NextResponse.json({ muvaffaqiyatli: true, ochirilgan });
     }
-  } else {
-    hisobot.openrouter = {
-      status: 'missing_key',
-      statusCode: 0,
-      sarfMs: 0,
-      xato: 'OPENROUTER_API_KEY sozlanmagan'
-    };
-  }
 
-  // 3. GEMINI DIAGNOSTIKASI
-  if (geminiKey) {
-    const boshlandi = Date.now();
-    try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: testPrompt }] }]
-        })
+    if (action === "eval") {
+      const faol = await aiSozlamaniOl();
+      const natija = await aiSifatSinoviniIshgaTushir({ adminId: auth.user.id, revision: faol.revision });
+      return NextResponse.json({ muvaffaqiyatli: true, natija });
+    }
+
+    if (action === "favqulodda") {
+      if (typeof body.enabled !== "boolean") {
+        return NextResponse.json({ xato: "AI holati true yoki false bo'lishi kerak." }, { status: 400 });
+      }
+      const faol = await aiSozlamaniOl({ fresh: true });
+      const enabled = body.enabled;
+      const natija = await aiSozlamaniSaqlash({
+        config: { ...faol.config, enabled },
+        adminId: auth.user.id,
+        expectedRevision: faol.revision,
+        note: enabled ? "AI favqulodda rejimdan chiqarildi" : "AI favqulodda to'xtatildi",
       });
-      const sarfMs = Date.now() - boshlandi;
-      const data = await res.json();
-
-      if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        hisobot.gemini = {
-          status: 'ok',
-          statusCode: res.status,
-          sarfMs,
-          model: 'gemini-3.6-flash',
-          javob: data.candidates[0].content.parts[0].text,
-          xato: null
-        };
-      } else {
-        hisobot.gemini = {
-          status: 'error',
-          statusCode: res.status,
-          sarfMs,
-          model: 'gemini-3.6-flash',
-          javob: null,
-          xato: data.error?.message || 'Gemini xatoligi'
-        };
-      }
-    } catch (err) {
-      hisobot.gemini = {
-        status: 'error',
-        statusCode: 0,
-        sarfMs: Date.now() - boshlandi,
-        model: 'gemini-2.0-flash',
-        javob: null,
-        xato: err.message
-      };
+      return NextResponse.json({ muvaffaqiyatli: true, faolSozlama: natija });
     }
-  } else {
-    hisobot.gemini = {
-      status: 'missing_key',
-      statusCode: 0,
-      sarfMs: 0,
-      xato: 'GEMINI_API_KEY sozlanmagan'
-    };
-  }
 
-  return NextResponse.json({
-    muvaffaqiyatli: true,
-    action,
-    hisobot
-  });
+    return NextResponse.json({ xato: "Noma'lum amal." }, { status: 400 });
+  } catch (error) {
+    console.error("[AI admin POST xatosi]", error);
+    const status = [400, 404, 409, 429].includes(error?.statusCode) ? error.statusCode : 500;
+    return NextResponse.json({ xato: status === 500 ? "AI boshqaruv amalini bajarib bo'lmadi." : error.message }, { status });
+  }
 }

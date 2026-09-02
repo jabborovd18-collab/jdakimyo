@@ -1392,6 +1392,83 @@ model SorovLimit {
   @@index([yangilandi])
 }
 
+// JDA Kimyo AI ning faol boshqaruv sozlamasi. API kalitlari bu yerga
+// yozilmaydi: ular Vercel maxfiy muhitida qoladi, bu jadval faqat routing,
+// vaqt, kvota va xavfsiz ishlash siyosatini saqlaydi.
+model AiSettings {
+  id          String   @id @default("main")
+  revision    Int      @default(0)
+  config      Json
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("ai_settings")
+}
+
+// Har nashr alohida saqlanadi: noto'g'ri sozlama productionga chiqsa,
+// oldingi holatni taxmin qilmasdan aynan o'sha nusxaga qaytish mumkin.
+model AiConfigVersion {
+  id        String   @id @default(cuid())
+  revision  Int      @unique
+  config    Json
+  note      String?  @db.Text
+  adminId   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("ai_config_versions")
+}
+
+// Xom savol va chat matni ataylab saqlanmaydi. Operatsion nazorat uchun
+// provayder, vaqt, token va xato kodi yetadi; bu foydalanuvchi maxfiyligini
+// buzmasdan haqiqiy AI oqimini o'lchash imkonini beradi.
+model AiUsageEvent {
+  id                String   @id @default(cuid())
+  requestId         String
+  channel           String
+  operation         String
+  direction         String?
+  problemType       String?
+  provider          String?
+  model             String?
+  status            String
+  errorCode         String?
+  durationMs        Int      @default(0)
+  inputTokens       Int      @default(0)
+  outputTokens      Int      @default(0)
+  totalTokens       Int      @default(0)
+  cacheHit          Boolean  @default(false)
+  deterministicUsed Boolean  @default(false)
+  fallbackIndex     Int?
+  createdAt         DateTime @default(now())
+
+  @@index([requestId])
+  @@index([createdAt])
+  @@index([provider, createdAt])
+  @@index([status, createdAt])
+  @@index([channel, createdAt])
+  @@map("ai_usage_events")
+}
+
+// Sifat sinovi natijasining ixcham hisoboti. Nazorat savollarining o'zi
+// server kodida turadi, shu jadval esa qaysi versiya nechta testdan
+// o'tganini audit uchun saqlaydi.
+model AiEvalRun {
+  id         String   @id @default(cuid())
+  adminId    String?
+  revision   Int
+  totalCases Int
+  passed     Int
+  failed     Int
+  durationMs Int
+  details    Json
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([revision])
+  @@map("ai_eval_runs")
+}
+
 // Telegram hisobi bilan bog'lanish.
 //
 // NEGA `chatId` HAM UNIQUE. Bitta Telegram hisobi bitta saytdagi
