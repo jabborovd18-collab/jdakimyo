@@ -100,7 +100,7 @@ export default function ProfilHamkorlikBanner() {
         </div>
 
         <Link
-          href={`/hamkorlik/${event.slug}`}
+          href={event.slug === 'sea-ms-sinov' ? '/sea-ms-sinov' : `/hamkorlik/${event.slug}`}
           className="w-full sm:w-auto text-center px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md transition-transform active:scale-95 shrink-0 flex items-center justify-center gap-1.5"
         >
           <span>Testga o&apos;tish</span>

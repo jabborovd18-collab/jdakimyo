@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { MILLIY_SERTIFIKAT_1_SAVOLLAR, javobniTekshir } from '@/data/hamkorlik/milliy-sertifikat-1-savollar'
 
 export async function GET(req, { params }) {
   try {
@@ -81,7 +82,15 @@ export async function GET(req, { params }) {
       },
       leaderboard,
       hasSubmitted,
-      userAttempt
+      userAttempt,
+      savollar: slug === 'sea-ms-sinov'
+        ? MILLIY_SERTIFIKAT_1_SAVOLLAR.map((s) => ({
+            id: s.id,
+            turi: s.turi,
+            rasm: s.rasm,
+            options: s.options || null,
+          }))
+        : undefined,
     })
   } catch (error) {
     console.error('[Hamkorlik GET Error]:', error)
@@ -128,11 +137,30 @@ export async function POST(req, { params }) {
     }
 
     const body = await req.json()
-    const { score = 0, percentage = 0, totalQuestions = 30, timeSpentSec = 0 } = body
+    const { timeSpentSec = 0 } = body
 
-    const numericScore = parseInt(score, 10)
-    const numericPercent = parseFloat(percentage)
-    const passed = numericPercent >= (partnership.minPassPercent || 75.0)
+    let numericScore = 0
+    let numericPercent = 0
+    let totalSavollarSoni = 30
+
+    if (slug === 'sea-ms-sinov') {
+      let togri = 0
+      MILLIY_SERTIFIKAT_1_SAVOLLAR.forEach((savol) => {
+        const berilgan = body.javoblar?.[savol.id]
+        if (javobniTekshir(savol, berilgan)) {
+          togri++
+        }
+      })
+      numericScore = togri
+      numericPercent = Math.round((togri / 40) * 100 * 10) / 10
+      totalSavollarSoni = 40
+    } else {
+      numericScore = parseInt(body.score, 10) || 0
+      numericPercent = parseFloat(body.percentage) || 0
+      totalSavollarSoni = parseInt(body.totalQuestions, 10) || 30
+    }
+
+    const passed = numericPercent >= (partnership.minPassPercent || 60.0)
 
     // Urinishni bazaga saqlaymiz
     const attempt = await prisma.partnershipAttempt.create({
@@ -141,10 +169,10 @@ export async function POST(req, { params }) {
         userId: session.user.id,
         score: numericScore,
         percentage: numericPercent,
-        totalQuestions: parseInt(totalQuestions, 10) || 30,
+        totalQuestions: totalSavollarSoni,
         timeSpentSec: parseInt(timeSpentSec, 10) || 0,
         passed,
-        certId: null // Sertifikat faqat admin rasman e'lon qilganda biriktiriladi
+        certId: null
       }
     })
 
