@@ -15,36 +15,36 @@ async function main() {
     where: { slug: 'sea-ms-sinov' },
     update: {
       title: 'Milliy Sertifikat Sinov Testi #1',
-      partnerName: 'Spectrum Nashriyoti',
-      partnerLogo: '/images/hamkorlik/spectrum-logo.png',
-      partnerSignName: 'Spectrum Nashriyoti',
+      partnerName: 'SEA Kimyo',
+      partnerLogo: '/images/hamkorlik/sea-kimyo-logo.png',
+      partnerSignName: 'SEA Kimyo',
       jdaSignName: 'JDA Kimyo Jamoasi',
       certPrefix: 'MS-2026-',
       badgeText: 'MILLIY SERTIFIKAT',
-      minPassPercent: 60.0,
+      minPassPercent: 0,
       timeLimitMin: 100,
       startsAt,
       endsAt,
       isActive: true,
       isAnnounced: false,
-      description: 'Milliy sertifikatga tayyorgarlik 1-sonli rasmiy sinov testi (40 ta savol, 100 minut).'
+      description: 'SEA Kimyo va JDA Kimyo hamkorligida Milliy sertifikatga tayyorgarlik 1-sonli rasmiy sinov testi. Bilimni sinash va mustahkamlash uchun (40 ta savol, 100 minut).'
     },
     create: {
       slug: 'sea-ms-sinov',
       title: 'Milliy Sertifikat Sinov Testi #1',
-      partnerName: 'Spectrum Nashriyoti',
-      partnerLogo: '/images/hamkorlik/spectrum-logo.png',
-      partnerSignName: 'Spectrum Nashriyoti',
+      partnerName: 'SEA Kimyo',
+      partnerLogo: '/images/hamkorlik/sea-kimyo-logo.png',
+      partnerSignName: 'SEA Kimyo',
       jdaSignName: 'JDA Kimyo Jamoasi',
       certPrefix: 'MS-2026-',
       badgeText: 'MILLIY SERTIFIKAT',
-      minPassPercent: 60.0,
+      minPassPercent: 0,
       timeLimitMin: 100,
       startsAt,
       endsAt,
       isActive: true,
       isAnnounced: false,
-      description: 'Milliy sertifikatga tayyorgarlik 1-sonli rasmiy sinov testi (40 ta savol, 100 minut).'
+      description: 'SEA Kimyo va JDA Kimyo hamkorligida Milliy sertifikatga tayyorgarlik 1-sonli rasmiy sinov testi. Bilimni sinash va mustahkamlash uchun (40 ta savol, 100 minut).'
     }
   });
 

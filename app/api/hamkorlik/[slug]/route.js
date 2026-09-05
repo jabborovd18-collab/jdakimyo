@@ -9,7 +9,8 @@ export async function GET(req, { params }) {
   try {
     const { slug } = await params
     const session = await getServerSession(authOptions)
-    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN'
+    const userRole = session?.user?.role?.toLowerCase() || ''
+    const isAdmin = ['admin', 'superadmin', 'moderator'].includes(userRole)
 
     const partnership = await prisma.seasonalPartnership.findUnique({
       where: { slug },
@@ -18,7 +19,7 @@ export async function GET(req, { params }) {
           where: {
             passed: true,
             user: {
-              role: { notIn: ['ADMIN', 'SUPER_ADMIN'] }
+              role: { notIn: ['admin', 'superadmin', 'moderator', 'ADMIN', 'SUPER_ADMIN', 'MODERATOR'] }
             }
           },
           include: {
@@ -109,7 +110,8 @@ export async function POST(req, { params }) {
   try {
     const { slug } = await params
     const session = await getServerSession(authOptions)
-    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN'
+    const userRole = session?.user?.role?.toLowerCase() || ''
+    const isAdmin = ['admin', 'superadmin', 'moderator'].includes(userRole)
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Iltimos, avval tizimga kiring' }, { status: 401 })
@@ -168,7 +170,8 @@ export async function POST(req, { params }) {
       totalSavollarSoni = parseInt(body.totalQuestions, 10) || 30
     }
 
-    const passed = numericPercent >= (partnership.minPassPercent || 60.0)
+    // sea-ms-sinov uchun o'tish bali yo'q (maqsad: bilimni sinash va mustahkamlash, sertifikat berilmaydi)
+    const passed = slug === 'sea-ms-sinov' ? true : (numericPercent >= (partnership.minPassPercent || 60.0))
 
     let attempt;
     if (existingAttempt && isAdmin) {

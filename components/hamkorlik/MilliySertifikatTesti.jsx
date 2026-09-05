@@ -168,13 +168,13 @@ export default function MilliySertifikatTesti({
             ← Shaxsiy Profilga Qaytish
           </Link>
           <a
-            href="https://t.me/jdakimyouz"
+            href="https://t.me/AlchemistryIQ"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all flex items-center justify-center gap-2"
           >
             <Ikon nom="telegram" olcham={16} />
-            <span>Telegramda Yangiliklarni Kuzatish</span>
+            <span>SEA Kimyo Telegram (@AlchemistryIQ)</span>
           </a>
         </div>
       </div>

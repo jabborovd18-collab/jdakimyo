@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback, use } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import SinovTesti from '@/components/hamkorlik/SinovTesti'
 import { ALCHEMIQ_SAVOLLAR } from '@/data/hamkorlik/alchemiq-savollar'
@@ -14,9 +15,16 @@ import toast from 'react-hot-toast'
 export default function HamkorlikSahifasi({ params }) {
   const resolvedParams = use(params)
   const slug = resolvedParams.slug
+  const router = useRouter()
 
   const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
+
+  useEffect(() => {
+    if (slug === 'sea-ms-sinov') {
+      router.replace('/sea-ms-sinov')
+    }
+  }, [slug, router])
 
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -24,6 +32,19 @@ export default function HamkorlikSahifasi({ params }) {
   const [testBoshlandi, setTestBoshlandi] = useState(false)
   const [activeTab, setActiveTab] = useState('natijalar') // 'natijalar' | 'haqida' | 'leaderboard'
   const [pdfYuklanmoqda, setPdfYuklanmoqda] = useState(false)
+
+  if (slug === 'sea-ms-sinov') {
+    return (
+      <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] flex items-center justify-center p-6">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center mx-auto animate-spin">
+            <Ikon nom="kolba" olcham={24} />
+          </div>
+          <p className="text-sm text-[var(--v3-xira)]">Milliy Sertifikat sinov sahifasiga o&apos;tkazilmoqda...</p>
+        </div>
+      </main>
+    )
+  }
 
   const yukla = useCallback(async () => {
     setIsLoading(true)

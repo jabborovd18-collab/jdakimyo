@@ -45,6 +45,11 @@ const nextConfig = {
         destination: '/chat',
         permanent: true,
       },
+      {
+        source: '/hamkorlik/sea-ms-sinov',
+        destination: '/sea-ms-sinov',
+        permanent: false,
+      },
     ]
   },
   async headers() {

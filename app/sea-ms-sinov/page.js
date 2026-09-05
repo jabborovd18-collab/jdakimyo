@@ -77,6 +77,10 @@ export default function SeaMsSinovSahifasi() {
 
   const { partnership, leaderboard = [], hasSubmitted, userAttempt, savollar = [], isAdmin = false } = data
 
+  // Foydalanuvchi roli — session va API dan tekshiriladi
+  const userRole = session?.user?.role?.toLowerCase() || ''
+  const isSuperAdmin = isAdmin || ['admin', 'superadmin', 'moderator'].includes(userRole)
+
   // Vaqt hisob-kitoblari (O'zbekiston vaqti)
   const now = new Date()
   const boshlanishVaqti = new Date(partnership.startsAt)
@@ -85,48 +89,48 @@ export default function SeaMsSinovSahifasi() {
   // 100 minutlik qoida: 00:00 dan 100 minut oldin (22:20 da) yangi kirish yopiladi
   const yangiKirishYopilishVaqti = new Date(tugashVaqti.getTime() - 100 * 60 * 1000)
 
-  const haliBoshlanmadi = !isAdmin && now < boshlanishVaqti
-  const qabulYopildi = !isAdmin && now >= yangiKirishYopilishVaqti && now < tugashVaqti
-  const butunlayTugadi = !isAdmin && now >= tugashVaqti
+  const haliBoshlanmadi = !isSuperAdmin && now < boshlanishVaqti
+  const qabulYopildi = !isSuperAdmin && now >= yangiKirishYopilishVaqti && now < tugashVaqti
+  const butunlayTugadi = !isSuperAdmin && now >= tugashVaqti
 
   return (
-    <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] pb-16">
+    <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] pb-16 antialiased">
       {/* ═══ SUPER ADMIN OGOHLANTIRIShI ═══ */}
-      {isAdmin && (
-        <div className="bg-amber-500/20 border-b border-amber-500/40 px-4 py-2 text-center text-xs font-bold text-amber-300 flex items-center justify-center gap-2">
-          <span>👑</span>
-          <span>Super Admin Rejimi: Siz testni muddatidan oldin xohlagancha yechib tekshirishingiz mumkin. Natijangiz hisobot va reytingga kirmaydi.</span>
+      {isSuperAdmin && (
+        <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2.5 text-center text-xs font-semibold text-amber-300 flex items-center justify-center gap-2 shadow-inner">
+          <span className="text-base">👑</span>
+          <span>Super Admin Rejimi Faol: Siz testni muddatidan oldin xohlagancha yechib tekshirishingiz mumkin. Natijangiz umumiy hisobot va reytingga kirmaydi.</span>
         </div>
       )}
 
       {/* ═══ HERO BANNER ═══ */}
-      <section className="relative border-b border-[var(--v3-chiziq)] bg-gradient-to-b from-[var(--v3-yuza-2)] to-[var(--v3-fon)] pt-8 pb-10 px-4 sm:px-6 overflow-hidden">
+      <section className="relative border-b border-[var(--v3-chiziq)] bg-gradient-to-b from-[var(--v3-yuza-2)] to-[var(--v3-fon)] pt-9 pb-11 px-4 sm:px-6 overflow-hidden">
         <div className="max-w-4xl mx-auto space-y-4 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
-            <span>🏆 SPECTRUM NASHRIYOTI & JDA KIMYO</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-bold uppercase tracking-wider shadow-sm">
+            <span>🏆 SEA KIMYO & JDA KIMYO HAMKORLIGI</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--v3-matn)]">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--v3-matn)] leading-tight">
             Milliy Sertifikat Sinov Testi #1
           </h1>
 
           <p className="text-sm sm:text-base text-[var(--v3-xira)] max-w-2xl mx-auto leading-relaxed">
-            Haqiqiy Milliy Sertifikat standarti bo&apos;yicha 40 ta rasmiy savol: variantli testlar va ochiq masalalar. O&apos;z bilimingizni Respublika darajasida sinang!
+            Haqiqiy Milliy Sertifikat standarti bo&apos;yicha 40 ta rasmiy savol: variantli testlar va ochiq masalalar. Ushbu sinov sertifikat bermaydi — asosiy maqsad bilimni sinash, mustahkamlash va haqiqiy imtihonga tayyorgarlikdir!
           </p>
 
           {/* Asosiy ko'rsatkichlar */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 pt-2">
-            <span className="v3-tag v3-tag-ochiq text-xs font-mono font-bold">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-2">
+            <span className="v3-tag v3-tag-ochiq text-xs font-semibold">
               📝 40 ta savol
             </span>
-            <span className="v3-tag v3-tag-ochiq text-xs font-mono font-bold">
-              ⏱️ 100 minut
+            <span className="v3-tag v3-tag-ochiq text-xs font-semibold">
+              ⏱️ 100 daqiqa
             </span>
-            <span className="v3-tag v3-tag-yopiq text-xs font-mono font-bold">
-              📊 17:00 dan 00:00 gacha
+            <span className="v3-tag v3-tag-yopiq text-xs font-semibold">
+              🎯 Maqsad: Bilimni sinash
             </span>
-            <span className="v3-tag v3-tag-yopiq text-xs font-mono font-bold text-emerald-400">
-              ⚡ Natijalar: 00:00 da
+            <span className="v3-tag v3-tag-yopiq text-xs font-semibold text-emerald-400">
+              ⚡ Natijalar: Bugun 00:00 da
             </span>
           </div>
         </div>
@@ -137,23 +141,23 @@ export default function SeaMsSinovSahifasi() {
         {/* Test jarayoni boshlangan bo'lsa */}
         {testBoshlandi ? (
           <MilliySertifikatTesti
-            partnership={{ ...partnership, isAdmin }}
+            partnership={{ ...partnership, isAdmin: isSuperAdmin }}
             savollar={savollar}
-            userAttempt={isAdmin ? null : userAttempt}
+            userAttempt={isSuperAdmin ? null : userAttempt}
             isLoggedIn={isAuthenticated}
           />
         ) : (
           <>
             {/* ═══ HOLAT VA HARAKAT KARTASI ═══ */}
             <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-6">
-              {hasSubmitted && !isAdmin ? (
+              {hasSubmitted && !isSuperAdmin ? (
                 /* Topshirib bo'lgan bo'lsa */
                 <div className="space-y-4">
                   <div className="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl">
                     ✓
                   </div>
                   <h2 className="text-xl font-bold">Siz testni topshirdingiz!</h2>
-                  <p className="text-xs text-[var(--v3-xira)] max-w-md mx-auto">
+                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
                     Natijangiz va to&apos;liq tahlil bugun soat <b>00:00 da</b> ushbu sahifada e&apos;lon qilinadi.
                   </p>
                 </div>
@@ -162,7 +166,7 @@ export default function SeaMsSinovSahifasi() {
                 <div className="space-y-3">
                   <span className="text-3xl">⏳</span>
                   <h2 className="text-xl font-bold">Test soat 17:00 da ochiladi</h2>
-                  <p className="text-xs text-[var(--v3-xira)]">
+                  <p className="text-xs sm:text-sm text-[var(--v3-xira)]">
                     Sinov O&apos;zbekiston vaqti bilan 6-sentyabr (Bugun, Yakshanba) soat 17:00 da boshlanadi. Sahifani yangilab turing!
                   </p>
                 </div>
@@ -171,8 +175,8 @@ export default function SeaMsSinovSahifasi() {
                 <div className="space-y-3">
                   <span className="text-3xl">🛑</span>
                   <h2 className="text-xl font-bold">Sinovga Yangi Qabul Yopildi</h2>
-                  <p className="text-xs text-[var(--v3-xira)] max-w-md mx-auto">
-                    Sinov muddati 100 minut bo&apos;lgani sababli, yangi kirish soat <b>22:20 da</b> to&apos;xtatildi. Barcha natijalar soat <b>00:00 da</b> e&apos;lon qilinadi.
+                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
+                    Sinov muddati 100 daqiqa bo&apos;lgani sababli, yangi kirish soat <b>22:20 da</b> to&apos;xtatildi. Barcha natijalar soat <b>00:00 da</b> e&apos;lon qilinadi.
                   </p>
                 </div>
               ) : !isAuthenticated ? (
@@ -183,20 +187,20 @@ export default function SeaMsSinovSahifasi() {
                   </div>
                   <div className="space-y-1">
                     <h3 className="font-bold text-base">Testni Boshlash Uchun Tizimga Kiring</h3>
-                    <p className="text-xs text-[var(--v3-xira)]">
+                    <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
                       Natijangiz adashmasligi va reytingda chiqishingiz uchun profilingizga kiring yoki 30 soniyada ro&apos;yxatdan o&apos;ting.
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <Link
                       href="/login?callbackUrl=/sea-ms-sinov"
-                      className="flex-1 py-3 px-4 rounded-xl bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold text-xs shadow-lg hover:opacity-90 transition-all text-center"
+                      className="flex-1 py-3 px-4 rounded-xl bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold text-xs sm:text-sm shadow-lg hover:opacity-90 transition-all text-center"
                     >
                       Kirish
                     </Link>
                     <Link
                       href="/register?callbackUrl=/sea-ms-sinov"
-                      className="flex-1 py-3 px-4 rounded-xl bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] font-bold text-xs border border-[var(--v3-chiziq)] hover:bg-[var(--v3-chiziq)] transition-all text-center"
+                      className="flex-1 py-3 px-4 rounded-xl bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] font-bold text-xs sm:text-sm border border-[var(--v3-chiziq)] hover:bg-[var(--v3-chiziq)] transition-all text-center"
                     >
                       Ro&apos;yxatdan O&apos;tish
                     </Link>
@@ -209,20 +213,20 @@ export default function SeaMsSinovSahifasi() {
                     🧪
                   </div>
                   <div className="space-y-1">
-                    <h2 className="text-xl font-bold">
-                      {isAdmin ? '👑 Super Admin Sinov Rejimi' : 'Sinov Testi Faol!'}
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
+                      {isSuperAdmin ? '👑 Super Admin Sinov Rejimi' : 'Sinov Testi Faol!'}
                     </h2>
-                    <p className="text-xs text-[var(--v3-xira)]">
-                      {isAdmin
-                        ? 'Siz admin sifatida savollarni va tizimni xohlagancha sinab ko\'rishingiz mumkin.'
-                        : 'Sizga 40 ta savol uchun 100 minut vaqt beriladi. Faqat 1 marta topshirish mumkin.'}
+                    <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
+                      {isSuperAdmin
+                        ? "Siz tizim administratori sifatida barcha 40 ta savolni muddatidan oldin xohlagancha sinab ko'rishingiz mumkin. Natijangiz hisobot va reytingga kirmaydi."
+                        : "Sizga 40 ta savol uchun 100 daqiqa vaqt beriladi. Faqat 1 marta topshirish mumkin."}
                     </p>
                   </div>
                   <button
                     onClick={() => setTestBoshlandi(true)}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition-all scale-100 hover:scale-105"
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm sm:text-base shadow-xl transition-all scale-100 hover:scale-105 active:scale-95"
                   >
-                    🚀 {isAdmin ? 'Testni Boshlash (Admin Sinovi)' : 'Testni Boshlash (100 minut)'}
+                    🚀 {isSuperAdmin ? 'Testni Boshlash (Super Admin Sinovi)' : 'Testni Boshlash (100 daqiqa)'}
                   </button>
                 </div>
               )}
@@ -230,43 +234,43 @@ export default function SeaMsSinovSahifasi() {
 
             {/* ═══ 1 OYLIK MARAFON JADVALI ═══ */}
             <div className="v3-panel-karta p-6 space-y-4 border border-blue-500/30 bg-blue-500/5">
-              <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
+              <div className="flex items-center gap-2 text-blue-400 font-bold text-sm sm:text-base">
                 <Ikon nom="taqvim" olcham={18} />
                 <span>Milliy Sertifikat Oylik Marafoni Jadvali:</span>
               </div>
-              <p className="text-xs text-[var(--v3-xira)]">
+              <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
                 Bir oy davomida har haftaning <b>Seshanba, Payshanba va Shanba</b> kunlari soat <b>17:00 da</b> yangi rasmiy sinov testlari o&apos;tkaziladi:
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border-2 border-emerald-500/40 text-center space-y-1">
+                <div className="p-3.5 rounded-xl bg-[var(--v3-yuza)] border-2 border-emerald-500/40 text-center space-y-1">
                   <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Bugun!</span>
-                  <div className="font-bold text-xs text-[var(--v3-matn)]">1-Sinov Testi</div>
-                  <div className="text-[11px] text-[var(--v3-xira)]">6-sentyabr (Bugun) 17:00</div>
+                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">1-Sinov Testi</div>
+                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">6-sentyabr (Bugun) 17:00</div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center space-y-1">
+                <div className="p-3.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center space-y-1">
                   <span className="text-[10px] uppercase font-bold text-blue-400 tracking-wider">Navbatdagi</span>
-                  <div className="font-bold text-xs text-[var(--v3-matn)]">2-Sinov Testi</div>
-                  <div className="text-[11px] text-[var(--v3-xira)]">8-sentyabr (Seshanba) 17:00</div>
+                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">2-Sinov Testi</div>
+                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">8-sentyabr (Seshanba) 17:00</div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center space-y-1">
+                <div className="p-3.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center space-y-1">
                   <span className="text-[10px] uppercase font-bold text-purple-400 tracking-wider">Kelgusi</span>
-                  <div className="font-bold text-xs text-[var(--v3-matn)]">3-Sinov Testi</div>
-                  <div className="text-[11px] text-[var(--v3-xira)]">10-sentyabr (Payshanba) 17:00</div>
+                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">3-Sinov Testi</div>
+                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">10-sentyabr (Payshanba) 17:00</div>
                 </div>
               </div>
 
               <div className="text-center pt-2">
                 <a
-                  href="https://t.me/jdakimyouz"
+                  href="https://t.me/AlchemistryIQ"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-xs font-semibold text-blue-400 hover:underline"
+                  className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-blue-400 hover:text-blue-300 hover:underline transition-colors"
                 >
-                  <Ikon nom="telegram" olcham={14} />
-                  <span>Telegram kanalimizda keyingi testlar eslatmasini yoqib qo&apos;ying</span>
+                  <Ikon nom="telegram" olcham={16} />
+                  <span>SEA Kimyo Telegram kanali (@AlchemistryIQ)</span>
                 </a>
               </div>
             </div>
