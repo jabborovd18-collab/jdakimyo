@@ -6,10 +6,10 @@ async function main() {
   console.log("🌱 Milliy Sertifikat Sinov Testi #1 (sea-ms-sinov) kiritilmoqda...");
 
   // O'zbekiston vaqti (UTC+5):
-  // 5-sentyabr 17:00 UZT = 5-sentyabr 12:00 UTC
-  // 5-sentyabr 00:00 (kechasi) UZT = 5-sentyabr 19:00 UTC
-  const startsAt = new Date('2026-09-05T12:00:00.000Z');
-  const endsAt = new Date('2026-09-05T19:00:00.000Z');
+  // 6-sentyabr 17:00 UZT = 6-sentyabr 12:00 UTC
+  // 6-sentyabr 00:00 (kechasi) UZT = 6-sentyabr 19:00 UTC
+  const startsAt = new Date('2026-09-06T12:00:00.000Z');
+  const endsAt = new Date('2026-09-06T19:00:00.000Z');
 
   const event = await prisma.seasonalPartnership.upsert({
     where: { slug: 'sea-ms-sinov' },

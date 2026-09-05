@@ -148,6 +148,19 @@ export default function MilliySertifikatTesti({
         </div>
 
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          {partnership?.isAdmin && (
+            <button
+              onClick={() => {
+                setYakunlandi(false)
+                setJavoblar({})
+                setQolganVaqt((partnership?.timeLimitMin || 100) * 60)
+                setJoriyIndex(0)
+              }}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+            >
+              🔄 Qaytadan Sinash (Admin)
+            </button>
+          )}
           <Link
             href="/profil"
             className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[var(--v3-yuza-2)] hover:bg-[var(--v3-chiziq)] text-[var(--v3-matn)] text-sm font-semibold transition-all border border-[var(--v3-chiziq)]"
@@ -271,9 +284,11 @@ export default function MilliySertifikatTesti({
                 <div className="relative">
                   <input
                     type="text"
+                    inputMode="decimal"
+                    pattern="[0-9.,]*"
                     value={joriyJavob || ''}
                     onChange={(e) => ochiqJavobYoz(e.target.value)}
-                    placeholder="Javobni yozing..."
+                    placeholder="Masalan: 64 yoki 22.3"
                     className="w-full text-center text-xl font-mono font-bold py-3 px-4 rounded-xl bg-[var(--v3-yuza-2)] border-2 border-[var(--v3-urgu)] text-[var(--v3-matn)] focus:outline-none shadow-lg placeholder:text-[var(--v3-xira)]/50"
                   />
                 </div>

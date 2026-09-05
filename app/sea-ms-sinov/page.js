@@ -75,7 +75,7 @@ export default function SeaMsSinovSahifasi() {
     )
   }
 
-  const { partnership, leaderboard = [], hasSubmitted, userAttempt, savollar = [] } = data
+  const { partnership, leaderboard = [], hasSubmitted, userAttempt, savollar = [], isAdmin = false } = data
 
   // Vaqt hisob-kitoblari (O'zbekiston vaqti)
   const now = new Date()
@@ -85,12 +85,20 @@ export default function SeaMsSinovSahifasi() {
   // 100 minutlik qoida: 00:00 dan 100 minut oldin (22:20 da) yangi kirish yopiladi
   const yangiKirishYopilishVaqti = new Date(tugashVaqti.getTime() - 100 * 60 * 1000)
 
-  const haliBoshlanmadi = now < boshlanishVaqti
-  const qabulYopildi = now >= yangiKirishYopilishVaqti && now < tugashVaqti
-  const butunlayTugadi = now >= tugashVaqti
+  const haliBoshlanmadi = !isAdmin && now < boshlanishVaqti
+  const qabulYopildi = !isAdmin && now >= yangiKirishYopilishVaqti && now < tugashVaqti
+  const butunlayTugadi = !isAdmin && now >= tugashVaqti
 
   return (
     <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] pb-16">
+      {/* ═══ SUPER ADMIN OGOHLANTIRIShI ═══ */}
+      {isAdmin && (
+        <div className="bg-amber-500/20 border-b border-amber-500/40 px-4 py-2 text-center text-xs font-bold text-amber-300 flex items-center justify-center gap-2">
+          <span>👑</span>
+          <span>Super Admin Rejimi: Siz testni muddatidan oldin xohlagancha yechib tekshirishingiz mumkin. Natijangiz hisobot va reytingga kirmaydi.</span>
+        </div>
+      )}
+
       {/* ═══ HERO BANNER ═══ */}
       <section className="relative border-b border-[var(--v3-chiziq)] bg-gradient-to-b from-[var(--v3-yuza-2)] to-[var(--v3-fon)] pt-8 pb-10 px-4 sm:px-6 overflow-hidden">
         <div className="max-w-4xl mx-auto space-y-4 text-center relative z-10">
@@ -129,16 +137,16 @@ export default function SeaMsSinovSahifasi() {
         {/* Test jarayoni boshlangan bo'lsa */}
         {testBoshlandi ? (
           <MilliySertifikatTesti
-            partnership={partnership}
+            partnership={{ ...partnership, isAdmin }}
             savollar={savollar}
-            userAttempt={userAttempt}
+            userAttempt={isAdmin ? null : userAttempt}
             isLoggedIn={isAuthenticated}
           />
         ) : (
           <>
             {/* ═══ HOLAT VA HARAKAT KARTASI ═══ */}
             <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-6">
-              {hasSubmitted ? (
+              {hasSubmitted && !isAdmin ? (
                 /* Topshirib bo'lgan bo'lsa */
                 <div className="space-y-4">
                   <div className="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl">
@@ -155,7 +163,7 @@ export default function SeaMsSinovSahifasi() {
                   <span className="text-3xl">⏳</span>
                   <h2 className="text-xl font-bold">Test soat 17:00 da ochiladi</h2>
                   <p className="text-xs text-[var(--v3-xira)]">
-                    Sinov O&apos;zbekiston vaqti bilan 5-sentyabr soat 17:00 da boshlanadi. Sahifani yangilab turing!
+                    Sinov O&apos;zbekiston vaqti bilan 6-sentyabr (Bugun, Yakshanba) soat 17:00 da boshlanadi. Sahifani yangilab turing!
                   </p>
                 </div>
               ) : qabulYopildi ? (
@@ -201,16 +209,20 @@ export default function SeaMsSinovSahifasi() {
                     🧪
                   </div>
                   <div className="space-y-1">
-                    <h2 className="text-xl font-bold">Sinov Testi Faol!</h2>
+                    <h2 className="text-xl font-bold">
+                      {isAdmin ? '👑 Super Admin Sinov Rejimi' : 'Sinov Testi Faol!'}
+                    </h2>
                     <p className="text-xs text-[var(--v3-xira)]">
-                      Sizga 40 ta savol uchun <b>100 minut</b> vaqt beriladi. Faqat 1 marta topshirish mumkin.
+                      {isAdmin
+                        ? 'Siz admin sifatida savollarni va tizimni xohlagancha sinab ko\'rishingiz mumkin.'
+                        : 'Sizga 40 ta savol uchun 100 minut vaqt beriladi. Faqat 1 marta topshirish mumkin.'}
                     </p>
                   </div>
                   <button
                     onClick={() => setTestBoshlandi(true)}
                     className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition-all scale-100 hover:scale-105"
                   >
-                    🚀 Testni Boshlash (100 minut)
+                    🚀 {isAdmin ? 'Testni Boshlash (Admin Sinovi)' : 'Testni Boshlash (100 minut)'}
                   </button>
                 </div>
               )}
@@ -230,7 +242,7 @@ export default function SeaMsSinovSahifasi() {
                 <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border-2 border-emerald-500/40 text-center space-y-1">
                   <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Bugun!</span>
                   <div className="font-bold text-xs text-[var(--v3-matn)]">1-Sinov Testi</div>
-                  <div className="text-[11px] text-[var(--v3-xira)]">5-sentyabr (Shanba) 17:00</div>
+                  <div className="text-[11px] text-[var(--v3-xira)]">6-sentyabr (Bugun) 17:00</div>
                 </div>
 
                 <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center space-y-1">

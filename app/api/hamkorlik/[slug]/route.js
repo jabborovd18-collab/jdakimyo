@@ -9,19 +9,25 @@ export async function GET(req, { params }) {
   try {
     const { slug } = await params
     const session = await getServerSession(authOptions)
+    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN'
 
     const partnership = await prisma.seasonalPartnership.findUnique({
       where: { slug },
       include: {
         attempts: {
-          where: { passed: true },
+          where: {
+            passed: true,
+            user: {
+              role: { notIn: ['ADMIN', 'SUPER_ADMIN'] }
+            }
+          },
           include: {
             user: {
               select: { userId: true, username: true, fullName: true, avatar: true }
             }
           },
           orderBy: [{ score: 'desc' }, { timeSpentSec: 'asc' }],
-          take: 20
+          take: 50
         }
       }
     })
@@ -83,6 +89,7 @@ export async function GET(req, { params }) {
       leaderboard,
       hasSubmitted,
       userAttempt,
+      isAdmin,
       savollar: slug === 'sea-ms-sinov'
         ? MILLIY_SERTIFIKAT_1_SAVOLLAR.map((s) => ({
             id: s.id,
@@ -102,6 +109,7 @@ export async function POST(req, { params }) {
   try {
     const { slug } = await params
     const session = await getServerSession(authOptions)
+    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN'
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Iltimos, avval tizimga kiring' }, { status: 401 })
@@ -115,7 +123,7 @@ export async function POST(req, { params }) {
       return NextResponse.json({ error: 'Hamkorlik topilmadi' }, { status: 404 })
     }
 
-    // 1. BIR PROFIL FAQAT BIR MARTA TOPSHIRA OLADI
+    // 1. BIR PROFIL FAQAT BIR MARTA TOPSHIRA OLADI (Adminlar mustasno)
     const existingAttempt = await prisma.partnershipAttempt.findUnique({
       where: {
         partnershipId_userId: {
@@ -125,14 +133,14 @@ export async function POST(req, { params }) {
       }
     })
 
-    if (existingAttempt) {
+    if (existingAttempt && !isAdmin) {
       return NextResponse.json({
         error: 'Siz ushbu sinov testini allaqachon topshirgansiz. Qayta topshirishga ruxsat berilmaydi.'
       }, { status: 400 })
     }
 
     const now = new Date()
-    if (!partnership.isActive || now < partnership.startsAt || now > partnership.endsAt) {
+    if (!isAdmin && (!partnership.isActive || now < partnership.startsAt || now > partnership.endsAt)) {
       return NextResponse.json({ error: 'Ushbu sinov muddati yakunlangan yoki nofaol' }, { status: 400 })
     }
 
@@ -162,19 +170,33 @@ export async function POST(req, { params }) {
 
     const passed = numericPercent >= (partnership.minPassPercent || 60.0)
 
-    // Urinishni bazaga saqlaymiz
-    const attempt = await prisma.partnershipAttempt.create({
-      data: {
-        partnershipId: partnership.id,
-        userId: session.user.id,
-        score: numericScore,
-        percentage: numericPercent,
-        totalQuestions: totalSavollarSoni,
-        timeSpentSec: parseInt(timeSpentSec, 10) || 0,
-        passed,
-        certId: null
-      }
-    })
+    let attempt;
+    if (existingAttempt && isAdmin) {
+      attempt = await prisma.partnershipAttempt.update({
+        where: { id: existingAttempt.id },
+        data: {
+          score: numericScore,
+          percentage: numericPercent,
+          totalQuestions: totalSavollarSoni,
+          timeSpentSec: parseInt(timeSpentSec, 10) || 0,
+          passed,
+          completedAt: new Date()
+        }
+      })
+    } else {
+      attempt = await prisma.partnershipAttempt.create({
+        data: {
+          partnershipId: partnership.id,
+          userId: session.user.id,
+          score: numericScore,
+          percentage: numericPercent,
+          totalQuestions: totalSavollarSoni,
+          timeSpentSec: parseInt(timeSpentSec, 10) || 0,
+          passed,
+          certId: null
+        }
+      })
+    }
 
     return NextResponse.json({
       success: true,
