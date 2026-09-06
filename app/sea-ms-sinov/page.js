@@ -108,8 +108,15 @@ export default function SeaMsSinovSahifasi() {
   // 100 minutlik qoida: 00:00 dan 100 minut oldin (22:20 da) yangi kirish yopiladi
   const yangiKirishYopilishVaqti = new Date(tugashVaqti.getTime() - 100 * 60 * 1000)
 
+  // Foydalanuvchi testni allaqachon boshlaganmi?
+  const testniOldinBoshlagan = Boolean(
+    (userAttempt && userAttempt.startedAt) ||
+    (typeof window !== 'undefined' && localStorage.getItem(`ms_sinov_boshlangan_sea-ms-sinov_${session?.user?.id || 'mehmon'}`))
+  )
+
   const haliBoshlanmadi = !isSuperAdmin && now < boshlanishVaqti
-  const qabulYopildi = !isSuperAdmin && now >= yangiKirishYopilishVaqti && now < tugashVaqti
+  // Agar ilgari boshlagan bo'lsa, 22:20 dan keyin ham davom ettirishga ruxsat beriladi
+  const qabulYopildi = !isSuperAdmin && !testniOldinBoshlagan && now >= yangiKirishYopilishVaqti && now < tugashVaqti
   const butunlayTugadi = !isSuperAdmin && now >= tugashVaqti
 
   // 17:00 gacha qolgan vaqt hisobi
@@ -118,6 +125,54 @@ export default function SeaMsSinovSahifasi() {
   const ochilishMin = Math.floor((ochilishFarqMs % (1000 * 60 * 60)) / (1000 * 60))
   const ochilishSek = Math.floor((ochilishFarqMs % (1000 * 60)) / 1000)
   const ochilishTaymerMatni = `${ochilishSoat.toString().padStart(2, '0')}:${ochilishMin.toString().padStart(2, '0')}:${ochilishSek.toString().padStart(2, '0')}`
+
+  // Soat 17:00 bo'lganda (taymer 0 bo'lganda) agar savollar yuklanmagan bo'lsa avtomatik API'dan olish
+  useEffect(() => {
+    if (!isSuperAdmin && (!savollar || savollar.length === 0) && now >= boshlanishVaqti && now < tugashVaqti) {
+      yukla()
+    }
+  }, [now, boshlanishVaqti, tugashVaqti, isSuperAdmin, savollar, yukla])
+
+  // Testni xavfsiz boshlash yoki davom ettirish
+  const handleTestBoshlash = async () => {
+    if (!savollar || savollar.length === 0) {
+      setIsLoading(true)
+      try {
+        const res = await fetch(`/api/hamkorlik/${slug}`)
+        const json = await res.json()
+        if (json.savollar && json.savollar.length > 0) {
+          setData(json)
+          if (session?.user?.id) {
+            try {
+              await fetch(`/api/hamkorlik/${slug}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'start' })
+              })
+            } catch {}
+          }
+          setTestBoshlandi(true)
+        } else {
+          setError("Savollar hali faollashmadi. Iltimos soat 17:00 bo'lishini kuting.")
+        }
+      } catch (e) {
+        setError(e.message)
+      } finally {
+        setIsLoading(false)
+      }
+    } else {
+      if (session?.user?.id) {
+        try {
+          await fetch(`/api/hamkorlik/${slug}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'start' })
+          })
+        } catch {}
+      }
+      setTestBoshlandi(true)
+    }
+  }
 
   return (
     <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] pb-16 antialiased">
@@ -176,7 +231,7 @@ export default function SeaMsSinovSahifasi() {
               </p>
             </div>
             <button
-              onClick={() => setTestBoshlandi(true)}
+              onClick={handleTestBoshlash}
               className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm shadow-md transition-all active:scale-95 shrink-0 flex items-center gap-2"
             >
               <span>🚀 Testni Hoziroq Boshlash (Admin)</span>
@@ -390,10 +445,10 @@ export default function SeaMsSinovSahifasi() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setTestBoshlandi(true)}
+                  onClick={handleTestBoshlash}
                   className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm sm:text-base shadow-xl transition-all scale-100 hover:scale-105 active:scale-95"
                 >
-                  🚀 Testni Boshlash (100 daqiqa)
+                  {testniOldinBoshlagan ? '▶ Testni Davom Ettirish' : '🚀 Testni Boshlash (100 daqiqa)'}
                 </button>
               </div>
             )}
@@ -405,14 +460,14 @@ export default function SeaMsSinovSahifasi() {
                 <span>Milliy Sertifikat Oylik Marafoni Jadvali:</span>
               </div>
               <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
-                Bir oy davomida har haftaning <b>Seshanba, Payshanba va Shanba</b> kunlari soat <b>17:00 da</b> yangi rasmiy sinov testlari o&apos;tkaziladi:
+                Bir oy davomida har haftaning <b>Seshanba, Payshanba va Shanba</b> kunlari (hamda bugungi maxsus ochilish sinovi) soat <b>17:00 da</b> yangi rasmiy sinov testlari o&apos;tkaziladi:
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border-2 border-emerald-500/40 text-center space-y-1">
                   <span className="text-[10px] uppercase font-extrabold text-emerald-400 tracking-wider">Bugun!</span>
                   <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">1-Sinov Testi</div>
-                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">6-sentyabr (Bugun) 17:00</div>
+                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">6-sentyabr (Bugun, Yakshanba) 17:00</div>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center space-y-1">

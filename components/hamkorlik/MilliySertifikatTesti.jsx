@@ -48,11 +48,14 @@ export default function MilliySertifikatTesti({
   useEffect(() => {
     if (yakunlandi) return
     try {
+      let yuklanganJavoblar = {}
       const saqlangan = localStorage.getItem(storageKalit)
       if (saqlangan) {
         const parsed = JSON.parse(saqlangan)
         if (parsed && typeof parsed === 'object') {
-          setJavoblar((prev) => ({ ...parsed, ...prev }))
+          yuklanganJavoblar = parsed
+          setJavoblar(parsed)
+          javoblarRef.current = parsed
         }
       }
 
@@ -66,7 +69,7 @@ export default function MilliySertifikatTesti({
       const realQolgan = Math.max(0, limitSoniya - elapsedSec)
       setQolganVaqt(realQolgan)
       if (realQolgan <= 0) {
-        testniYakunla(javoblarRef.current)
+        testniYakunla(yuklanganJavoblar)
       }
     } catch {
       // xotira o'qish xatosi e'tiborga olinmaydi

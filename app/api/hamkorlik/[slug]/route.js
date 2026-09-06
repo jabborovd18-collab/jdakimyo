@@ -26,7 +26,13 @@ export async function GET(req, { params }) {
               role: { notIn: ['admin', 'superadmin', 'moderator', 'ADMIN', 'SUPER_ADMIN', 'MODERATOR'] }
             }
           },
-          include: {
+          select: {
+            id: true,
+            score: true,
+            percentage: true,
+            totalQuestions: true,
+            timeSpentSec: true,
+            completedAt: true,
             user: {
               select: { userId: true, username: true, fullName: true, avatar: true }
             }
@@ -55,11 +61,14 @@ export async function GET(req, { params }) {
       })
 
       if (attempt) {
-        hasSubmitted = true
+        // Faqat javoblar topshirilgan bo'lsa haqiqiy topshirilgan hisoblanadi
+        const isActuallySubmitted = attempt.answers !== null || (attempt.score > 0 && !attempt.startedAt)
+        hasSubmitted = isActuallySubmitted
+
         if (partnership.isAnnounced || isAdmin) {
           // Umumiy reytingdagi o'rnini hisoblaymiz (adminlar hisoblanmaydi)
           let rank = null
-          if (!isAdmin) {
+          if (!isAdmin && isActuallySubmitted) {
             const betterCount = await prisma.partnershipAttempt.count({
               where: {
                 partnershipId: partnership.id,
@@ -86,15 +95,17 @@ export async function GET(req, { params }) {
             timeSpentSec: attempt.timeSpentSec,
             passed: attempt.passed,
             completedAt: attempt.completedAt,
-            hasSubmitted: true,
+            startedAt: attempt.startedAt,
+            hasSubmitted: isActuallySubmitted,
             rank,
             answers: attempt.answers || null
           }
         } else {
           // Natija e'lon qilinmagan bo'lsa, ball va javoblar yashirin bo'ladi
           userAttempt = {
-            hasSubmitted: true,
-            completedAt: attempt.completedAt,
+            hasSubmitted: isActuallySubmitted,
+            startedAt: attempt.startedAt,
+            completedAt: isActuallySubmitted ? attempt.completedAt : null,
             totalQuestions: attempt.totalQuestions
           }
         }
@@ -179,21 +190,61 @@ export async function POST(req, { params }) {
       }
     })
 
-    if (existingAttempt && !isAdmin) {
-      return NextResponse.json({
-        error: 'Siz ushbu sinov testini allaqachon topshirgansiz. Qayta topshirishga ruxsat berilmaydi.'
-      }, { status: 400 })
-    }
-
     const now = new Date()
     if (!isAdmin && (!partnership.isActive || now < partnership.startsAt || now > partnership.endsAt)) {
       return NextResponse.json({ error: 'Ushbu sinov muddati yakunlangan yoki nofaol' }, { status: 400 })
     }
 
     const body = await req.json()
+
+    // A) TESTNI BOSHLASH SIGNALINI QAYD ETISH (startedAt)
+    if (body.action === 'start') {
+      let attempt = existingAttempt
+      if (!attempt) {
+        attempt = await prisma.partnershipAttempt.create({
+          data: {
+            partnershipId: partnership.id,
+            userId: session.user.id,
+            score: 0,
+            percentage: 0,
+            totalQuestions: slug === 'sea-ms-sinov' ? 40 : 30,
+            timeSpentSec: 0,
+            startedAt: new Date(),
+            passed: false
+          }
+        })
+      } else if (!attempt.startedAt) {
+        attempt = await prisma.partnershipAttempt.update({
+          where: { id: attempt.id },
+          data: { startedAt: new Date() }
+        })
+      }
+
+      return NextResponse.json({
+        success: true,
+        startedAt: attempt.startedAt,
+        message: 'Sinov rasman boshlandi'
+      })
+    }
+
+    // B) TESTNI TOPSHIRISH (SUBMIT)
+    // 1. BIR PROFIL FAQAT BIR MARTA TOPSHIRA OLADI (Adminlar mustasno)
+    if (existingAttempt && existingAttempt.answers !== null && !isAdmin) {
+      return NextResponse.json({
+        error: 'Siz ushbu sinov testini allaqachon topshirgansiz. Qayta topshirishga ruxsat berilmaydi.'
+      }, { status: 400 })
+    }
+
     const maxAllowedSec = (partnership.timeLimitMin || 100) * 60
     const rawTimeSpent = parseInt(body.timeSpentSec, 10) || 0
     const timeSpentSecClamped = Math.min(Math.max(1, rawTimeSpent), maxAllowedSec)
+
+    // SERVER TOMONIDA HAQIQIY SARFLANGAN VAQTNI ANIQ HISOBLASH
+    let finalTimeSpentSec = timeSpentSecClamped
+    if (existingAttempt?.startedAt) {
+      const serverElapsed = Math.floor((now.getTime() - new Date(existingAttempt.startedAt).getTime()) / 1000)
+      finalTimeSpentSec = Math.min(Math.max(1, serverElapsed), maxAllowedSec)
+    }
 
     let numericScore = 0
     let numericPercent = 0
@@ -220,14 +271,14 @@ export async function POST(req, { params }) {
     const passed = slug === 'sea-ms-sinov' ? true : (numericPercent >= (partnership.minPassPercent || 60.0))
 
     let attempt;
-    if (existingAttempt && isAdmin) {
+    if (existingAttempt) {
       attempt = await prisma.partnershipAttempt.update({
         where: { id: existingAttempt.id },
         data: {
           score: numericScore,
           percentage: numericPercent,
           totalQuestions: totalSavollarSoni,
-          timeSpentSec: timeSpentSecClamped,
+          timeSpentSec: finalTimeSpentSec,
           answers: body.javoblar || {},
           passed,
           completedAt: new Date()
@@ -241,9 +292,11 @@ export async function POST(req, { params }) {
           score: numericScore,
           percentage: numericPercent,
           totalQuestions: totalSavollarSoni,
-          timeSpentSec: timeSpentSecClamped,
+          timeSpentSec: finalTimeSpentSec,
           answers: body.javoblar || {},
           passed,
+          startedAt: new Date(Date.now() - finalTimeSpentSec * 1000),
+          completedAt: new Date(),
           certId: null
         }
       })
