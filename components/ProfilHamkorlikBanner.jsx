@@ -40,7 +40,7 @@ export default function ProfilHamkorlikBanner() {
     }
 
     hisobla()
-    const timer = setInterval(hisobla, 60000)
+    const timer = setInterval(hisobla, 5000)
     return () => clearInterval(timer)
   }, [])
 

@@ -92,8 +92,16 @@ export default function SeaMsSinovSahifasi() {
 
   const { partnership, leaderboard = [], hasSubmitted, userAttempt, savollar = [] } = data
 
-  // Vaqt hisob-kitoblari (O'zbekiston vaqti)
-  const now = new Date()
+  // Jonli vaqt hisob-kitoblari (Har soniyada yangilanadi)
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
   const boshlanishVaqti = new Date(partnership.startsAt)
   const tugashVaqti = new Date(partnership.endsAt)
 
@@ -103,6 +111,13 @@ export default function SeaMsSinovSahifasi() {
   const haliBoshlanmadi = !isSuperAdmin && now < boshlanishVaqti
   const qabulYopildi = !isSuperAdmin && now >= yangiKirishYopilishVaqti && now < tugashVaqti
   const butunlayTugadi = !isSuperAdmin && now >= tugashVaqti
+
+  // 17:00 gacha qolgan vaqt hisobi
+  const ochilishFarqMs = Math.max(0, boshlanishVaqti.getTime() - now.getTime())
+  const ochilishSoat = Math.floor(ochilishFarqMs / (1000 * 60 * 60))
+  const ochilishMin = Math.floor((ochilishFarqMs % (1000 * 60 * 60)) / (1000 * 60))
+  const ochilishSek = Math.floor((ochilishFarqMs % (1000 * 60)) / 1000)
+  const ochilishTaymerMatni = `${ochilishSoat.toString().padStart(2, '0')}:${ochilishMin.toString().padStart(2, '0')}:${ochilishSek.toString().padStart(2, '0')}`
 
   return (
     <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] pb-16 antialiased">
@@ -195,15 +210,30 @@ export default function SeaMsSinovSahifasi() {
                   </p>
                 </div>
               ) : haliBoshlanmadi ? (
-                /* Hali 17:00 bo'lmagan bo'lsa */
-                <div className="space-y-3">
-                  <span className="text-3xl">⏳</span>
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
-                    Test soat 17:00 da ochiladi
-                  </h2>
-                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
-                    Sinov O&apos;zbekiston vaqti bilan 6-sentyabr (Bugun, Yakshanba) soat 17:00 da boshlanadi va 00:00 gacha davom etadi. Sahifani yangilab turing!
-                  </p>
+                /* Hali 17:00 bo'lmagan bo'lsa — Jonli teskari taymer */
+                <div className="space-y-4 max-w-md mx-auto py-2">
+                  <div className="w-16 h-16 rounded-3xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto text-3xl shadow-sm animate-pulse">
+                    ⏳
+                  </div>
+                  <div className="space-y-1.5">
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
+                      Test soat 17:00 da avtomatik ochiladi
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
+                      Sinov 6-sentyabr (Bugun) soat 17:00 da start oladi. Sahifani yangilash shart emas, taymer tugashi bilan test avtomatik faollashadi!
+                    </p>
+                  </div>
+
+                  {/* Jonli Teskari Taymer Kartasi */}
+                  <div className="p-4 rounded-2xl bg-[var(--v3-yuza-2)] border-2 border-amber-500/40 shadow-inner flex flex-col items-center gap-1.5">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400">
+                      Sinov Boshlanishiga Qoldi:
+                    </span>
+                    <div className="flex items-center gap-2 font-mono text-2xl sm:text-3xl font-black text-amber-400 tracking-wider">
+                      <Ikon nom="soat" olcham={22} />
+                      <span>{ochilishTaymerMatni}</span>
+                    </div>
+                  </div>
                 </div>
               ) : qabulYopildi ? (
                 /* 22:20 dan keyin bo'lsa */
