@@ -16,6 +16,15 @@ export default function SeaMsSinovSahifasi() {
   const [error, setError] = useState('')
   const [testBoshlandi, setTestBoshlandi] = useState(false)
   const [activeTab, setActiveTab] = useState('haqida') // 'haqida' | 'natijalar'
+  const [now, setNow] = useState(new Date())
+
+  // BARCHA HOOKLAR TOP LEVELDA (Early returnlardan oldin)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   const slug = 'sea-ms-sinov'
 
@@ -59,6 +68,7 @@ export default function SeaMsSinovSahifasi() {
     }
   }, [isSuperAdmin])
 
+  // EARLY RETURNLAR FAQAT HOOKLAR TUGAGANDAN SO'NG
   if (isLoading) {
     return (
       <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] flex items-center justify-center p-6">
@@ -91,16 +101,6 @@ export default function SeaMsSinovSahifasi() {
   }
 
   const { partnership, leaderboard = [], hasSubmitted, userAttempt, savollar = [] } = data
-
-  // Jonli vaqt hisob-kitoblari (Har soniyada yangilanadi)
-  const [now, setNow] = useState(new Date())
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   const boshlanishVaqti = new Date(partnership.startsAt)
   const tugashVaqti = new Date(partnership.endsAt)
@@ -194,112 +194,137 @@ export default function SeaMsSinovSahifasi() {
           />
         ) : (
           <>
-            {/* ═══ HOLAT VA HARAKAT KARTASI ═══ */}
-            <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-6 rounded-3xl">
-              {hasSubmitted && !isSuperAdmin ? (
-                /* Topshirib bo'lgan bo'lsa */
-                <div className="space-y-4">
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl shadow-sm">
-                    ✓
-                  </div>
+            {/* ═══ 1. ASOSIY HOLAT KARTASI ═══ */}
+            {!isAuthenticated ? (
+              /* A) TIZIMGA KIRMAGAN MEHMONLAR UCHUN (Hozir Telegramdan kirganlar darhol ko'radi) */
+              <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-6 rounded-3xl border-2 border-amber-500/40 shadow-xl">
+                <div className="w-16 h-16 rounded-3xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto text-3xl shadow-sm">
+                  🔐
+                </div>
+
+                <div className="space-y-2 max-w-lg mx-auto">
                   <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
-                    Siz testni topshirdingiz!
+                    Sinovda Qatnashish Uchun Tizimga Kiring
                   </h2>
-                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
-                    Sizning javoblaringiz qabul qilingan. Natijangiz va to&apos;liq tahlil bugun soat <b>00:00 da</b> ushbu sahifada e&apos;lon qilinadi.
+                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
+                    {haliBoshlanmadi ? (
+                      <>
+                        Sinov bugun soat <b>17:00 da</b> boshlanadi. Ungacha profilingizga kiring yoki 30 soniyada ro&apos;yxatdan o&apos;tib tayyor turing!
+                      </>
+                    ) : (
+                      <>
+                        Natijangiz serverda saqlanishi va Respublika reytingida chiqishingiz uchun tizimga kiring yoki yangi hisob oching.
+                      </>
+                    )}
                   </p>
                 </div>
-              ) : haliBoshlanmadi ? (
-                /* Hali 17:00 bo'lmagan bo'lsa — Jonli teskari taymer */
-                <div className="space-y-4 max-w-md mx-auto py-2">
-                  <div className="w-16 h-16 rounded-3xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto text-3xl shadow-sm animate-pulse">
-                    ⏳
-                  </div>
-                  <div className="space-y-1.5">
-                    <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
-                      Test soat 17:00 da avtomatik ochiladi
-                    </h2>
-                    <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
-                      Sinov 6-sentyabr (Bugun) soat 17:00 da start oladi. Sahifani yangilash shart emas, taymer tugashi bilan test avtomatik faollashadi!
-                    </p>
-                  </div>
 
-                  {/* Jonli Teskari Taymer Kartasi */}
-                  <div className="p-4 rounded-2xl bg-[var(--v3-yuza-2)] border-2 border-amber-500/40 shadow-inner flex flex-col items-center gap-1.5">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400">
+                {/* Hali 17:00 bo'lmagan bo'lsa — Mehmonlarga ham taymer chiqadi */}
+                {haliBoshlanmadi && (
+                  <div className="inline-flex flex-col items-center gap-1 px-6 py-3 rounded-2xl bg-[var(--v3-yuza-2)] border-2 border-amber-500/30 shadow-inner">
+                    <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">
                       Sinov Boshlanishiga Qoldi:
                     </span>
-                    <div className="flex items-center gap-2 font-mono text-2xl sm:text-3xl font-black text-amber-400 tracking-wider">
+                    <div className="flex items-center gap-2 font-mono text-2xl sm:text-3xl font-black text-amber-400">
                       <Ikon nom="soat" olcham={22} />
                       <span>{ochilishTaymerMatni}</span>
                     </div>
                   </div>
+                )}
+
+                {/* Kirish va Ro'yxatdan o'tish tugmalari — Yirik va tushunarli */}
+                <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2">
+                  <Link
+                    href="/login?callbackUrl=/sea-ms-sinov"
+                    className="flex-1 py-3.5 px-6 rounded-2xl bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-extrabold text-sm shadow-lg hover:opacity-90 transition-all text-center active:scale-95"
+                  >
+                    Tizimga Kirish
+                  </Link>
+                  <Link
+                    href="/register?callbackUrl=/sea-ms-sinov"
+                    className="flex-1 py-3.5 px-6 rounded-2xl bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] font-bold text-sm border-2 border-[var(--v3-chiziq)] hover:bg-[var(--v3-chiziq)] transition-all text-center active:scale-95"
+                  >
+                    Yangi Hisob Ochish (Ro&apos;yxatdan O&apos;tish)
+                  </Link>
                 </div>
-              ) : qabulYopildi ? (
-                /* 22:20 dan keyin bo'lsa */
-                <div className="space-y-3">
-                  <span className="text-3xl">🛑</span>
+              </div>
+            ) : hasSubmitted && !isSuperAdmin ? (
+              /* B) TOPSHIRIB BO'LGAN FOYDALANUVCHILAR UCHUN */
+              <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-4 rounded-3xl">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl shadow-sm">
+                  ✓
+                </div>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
+                  Siz testni topshirdingiz!
+                </h2>
+                <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
+                  Sizning javoblaringiz qabul qilingan. Natijangiz va to&apos;liq tahlil bugun soat <b>00:00 da</b> ushbu sahifada e&apos;lon qilinadi.
+                </p>
+              </div>
+            ) : haliBoshlanmadi ? (
+              /* C) TIZIMGA KIRGAN, LEKIN HALI 17:00 BO'LMAGAN */
+              <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-4 max-w-md mx-auto rounded-3xl border border-amber-500/30">
+                <div className="w-16 h-16 rounded-3xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto text-3xl shadow-sm animate-pulse">
+                  ⏳
+                </div>
+                <div className="space-y-1.5">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold mb-1">
+                    ✓ Profilingizga kirdingiz: @{username || session?.user?.username || 'Foydalanuvchi'}
+                  </div>
                   <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
-                    Sinovga Yangi Qabul Yopildi
+                    Test soat 17:00 da avtomatik ochiladi
                   </h2>
-                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
-                    Sinov muddati 100 daqiqa bo&apos;lgani sababli, yangi kirish soat <b>22:20 da</b> to&apos;xtatildi. Barcha natijalar soat <b>00:00 da</b> e&apos;lon qilinadi.
+                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
+                    Sahifani yangilash shart emas, taymer tugashi bilan test avtomatik faollashadi!
                   </p>
                 </div>
-              ) : !isAuthenticated ? (
-                /* Tizimga kirmagan bo'lsa */
-                <div className="space-y-4 max-w-md mx-auto">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto text-xl">
-                    🔐
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-extrabold text-base sm:text-lg text-[var(--v3-matn)]">
-                      Testni Boshlash Uchun Tizimga Kiring
-                    </h3>
-                    <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
-                      Natijangiz saqlanishi va reytingda chiqishingiz uchun profilingizga kiring yoki 30 soniyada ro&apos;yxatdan o&apos;ting.
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                    <Link
-                      href="/login?callbackUrl=/sea-ms-sinov"
-                      className="flex-1 py-3 px-4 rounded-xl bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold text-xs sm:text-sm shadow-md hover:opacity-90 transition-all text-center"
-                    >
-                      Kirish
-                    </Link>
-                    <Link
-                      href="/register?callbackUrl=/sea-ms-sinov"
-                      className="flex-1 py-3 px-4 rounded-xl bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] font-bold text-xs sm:text-sm border border-[var(--v3-chiziq)] hover:bg-[var(--v3-chiziq)] transition-all text-center"
-                    >
-                      Ro&apos;yxatdan O&apos;tish
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                /* Test hozir ochiq va boshlashga tayyor */
-                <div className="space-y-4 max-w-lg mx-auto">
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl shadow-sm">
-                    🧪
-                  </div>
-                  <div className="space-y-1">
-                    <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
-                      Sinov Testi Faol!
-                    </h2>
-                    <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
-                      Sizga 40 ta savol uchun 100 daqiqa vaqt beriladi. Har bir ishtirokchi faqat 1 marta topshirishi mumkin.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setTestBoshlandi(true)}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm sm:text-base shadow-xl transition-all scale-100 hover:scale-105 active:scale-95"
-                  >
-                    🚀 Testni Boshlash (100 daqiqa)
-                  </button>
-                </div>
-              )}
-            </div>
 
-            {/* ═══ 1 OYLIK MARAFON JADVALI ═══ */}
+                {/* Jonli Teskari Taymer Kartasi */}
+                <div className="p-4 rounded-2xl bg-[var(--v3-yuza-2)] border-2 border-amber-500/40 shadow-inner flex flex-col items-center gap-1.5">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400">
+                    Sinov Boshlanishiga Qoldi:
+                  </span>
+                  <div className="flex items-center gap-2 font-mono text-2xl sm:text-3xl font-black text-amber-400 tracking-wider">
+                    <Ikon nom="soat" olcham={22} />
+                    <span>{ochilishTaymerMatni}</span>
+                  </div>
+                </div>
+              </div>
+            ) : qabulYopildi ? (
+              /* D) 22:20 DAN KEYIN QABUL YOPILGANDA */
+              <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-3 rounded-3xl">
+                <span className="text-3xl">🛑</span>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
+                  Sinovga Yangi Qabul Yopildi
+                </h2>
+                <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
+                  Sinov muddati 100 daqiqa bo&apos;lgani sababli, yangi kirish soat <b>22:20 da</b> to&apos;xtatildi. Barcha natijalar soat <b>00:00 da</b> e&apos;lon qilinadi.
+                </p>
+              </div>
+            ) : (
+              /* E) HOZIR OCHIQ VA TIZIMGA KIRGAN */
+              <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-6 rounded-3xl">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl shadow-sm">
+                  🧪
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
+                    Sinov Testi Faol!
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
+                    Sizga 40 ta savol uchun 100 daqiqa vaqt beriladi. Har bir ishtirokchi faqat 1 marta topshirishi mumkin.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setTestBoshlandi(true)}
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm sm:text-base shadow-xl transition-all scale-100 hover:scale-105 active:scale-95"
+                >
+                  🚀 Testni Boshlash (100 daqiqa)
+                </button>
+              </div>
+            )}
+
+            {/* ═══ 2. 1 OYLIK MARAFON JADVALI ═══ */}
             <div className="v3-panel-karta p-5 sm:p-6 space-y-4 border border-blue-500/30 bg-blue-500/5 rounded-3xl">
               <div className="flex items-center gap-2 text-blue-400 font-bold text-sm sm:text-base">
                 <Ikon nom="taqvim" olcham={18} />
@@ -342,7 +367,7 @@ export default function SeaMsSinovSahifasi() {
               </div>
             </div>
 
-            {/* ═══ NATIJALAR (00:00 dan keyin yoki isAnnounced bo'lganda) ═══ */}
+            {/* ═══ 3. NATIJALAR (00:00 dan keyin yoki isAnnounced bo'lganda) ═══ */}
             {partnership.isAnnounced && leaderboard.length > 0 && (
               <div className="v3-panel-karta p-6 space-y-4 rounded-3xl">
                 <h3 className="font-bold text-base text-[var(--v3-matn)] flex items-center gap-2">
@@ -377,4 +402,5 @@ export default function SeaMsSinovSahifasi() {
     </main>
   )
 }
+
 
