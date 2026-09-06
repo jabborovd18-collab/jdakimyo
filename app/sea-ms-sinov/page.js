@@ -1,7 +1,7 @@
 // app/sea-ms-sinov/page.js
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import MilliySertifikatTesti from '@/components/hamkorlik/MilliySertifikatTesti'
@@ -17,6 +17,7 @@ export default function SeaMsSinovSahifasi() {
   const [testBoshlandi, setTestBoshlandi] = useState(false)
   const [activeTab, setActiveTab] = useState('haqida') // 'haqida' | 'natijalar'
   const [now, setNow] = useState(new Date())
+  const autoYuklandiRef = useRef(false)
 
   // BARCHA HOOKLAR TOP LEVELDA (Early returnlardan oldin)
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function SeaMsSinovSahifasi() {
       }
     } catch (e) {
       setError(e.message)
+      autoYuklandiRef.current = false // Xatolik bo'lsa qayta urinishga ruxsat
     } finally {
       setIsLoading(false)
     }
@@ -67,6 +69,25 @@ export default function SeaMsSinovSahifasi() {
       setTestBoshlandi(true)
     }
   }, [isSuperAdmin])
+
+  // Soat 17:00 bo'lganda (taymer 0 bo'lganda) agar savollar yuklanmagan bo'lsa avtomatik API'dan olish
+  // DIQQAT: Barcha hooklar early return lardan OLDIN bo'lishi shart!
+  useEffect(() => {
+    if (!data?.partnership?.startsAt) return
+    const boshlanish = new Date(data.partnership.startsAt)
+    const tugash = new Date(data.partnership.endsAt)
+    if (
+      !isSuperAdmin &&
+      (!data.savollar || data.savollar.length === 0) &&
+      now >= boshlanish &&
+      now < tugash &&
+      !autoYuklandiRef.current &&
+      !isLoading
+    ) {
+      autoYuklandiRef.current = true
+      yukla()
+    }
+  }, [now, data, isSuperAdmin, isLoading, yukla])
 
   // EARLY RETURNLAR FAQAT HOOKLAR TUGAGANDAN SO'NG
   if (isLoading) {
@@ -125,13 +146,6 @@ export default function SeaMsSinovSahifasi() {
   const ochilishMin = Math.floor((ochilishFarqMs % (1000 * 60 * 60)) / (1000 * 60))
   const ochilishSek = Math.floor((ochilishFarqMs % (1000 * 60)) / 1000)
   const ochilishTaymerMatni = `${ochilishSoat.toString().padStart(2, '0')}:${ochilishMin.toString().padStart(2, '0')}:${ochilishSek.toString().padStart(2, '0')}`
-
-  // Soat 17:00 bo'lganda (taymer 0 bo'lganda) agar savollar yuklanmagan bo'lsa avtomatik API'dan olish
-  useEffect(() => {
-    if (!isSuperAdmin && (!savollar || savollar.length === 0) && now >= boshlanishVaqti && now < tugashVaqti) {
-      yukla()
-    }
-  }, [now, boshlanishVaqti, tugashVaqti, isSuperAdmin, savollar, yukla])
 
   // Testni xavfsiz boshlash yoki davom ettirish
   const handleTestBoshlash = async () => {
