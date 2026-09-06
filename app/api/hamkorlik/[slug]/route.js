@@ -56,8 +56,40 @@ export async function GET(req, { params }) {
 
       if (attempt) {
         hasSubmitted = true
-        if (partnership.isAnnounced) {
-          userAttempt = attempt
+        if (partnership.isAnnounced || isAdmin) {
+          // Umumiy reytingdagi o'rnini hisoblaymiz (adminlar hisoblanmaydi)
+          let rank = null
+          if (!isAdmin) {
+            const betterCount = await prisma.partnershipAttempt.count({
+              where: {
+                partnershipId: partnership.id,
+                user: {
+                  role: { notIn: ['admin', 'superadmin', 'moderator', 'ADMIN', 'SUPER_ADMIN', 'MODERATOR'] }
+                },
+                OR: [
+                  { score: { gt: attempt.score } },
+                  {
+                    score: attempt.score,
+                    timeSpentSec: { lt: attempt.timeSpentSec }
+                  }
+                ]
+              }
+            })
+            rank = betterCount + 1
+          }
+
+          userAttempt = {
+            id: attempt.id,
+            score: attempt.score,
+            percentage: attempt.percentage,
+            totalQuestions: attempt.totalQuestions,
+            timeSpentSec: attempt.timeSpentSec,
+            passed: attempt.passed,
+            completedAt: attempt.completedAt,
+            hasSubmitted: true,
+            rank,
+            answers: attempt.answers || null
+          }
         } else {
           // Natija e'lon qilinmagan bo'lsa, ball va javoblar yashirin bo'ladi
           userAttempt = {
@@ -71,6 +103,9 @@ export async function GET(req, { params }) {
 
     // Leaderboard faqat natijalar e'lon qilinganda to'liq ko'rsatiladi
     const leaderboard = partnership.isAnnounced ? (partnership.attempts || []) : []
+
+    const now = new Date()
+    const ruxsatSavollar = isAdmin || (partnership.startsAt && now >= new Date(partnership.startsAt))
 
     return NextResponse.json({
       partnership: {
@@ -95,7 +130,7 @@ export async function GET(req, { params }) {
       hasSubmitted,
       userAttempt,
       isAdmin,
-      savollar: slug === 'sea-ms-sinov'
+      savollar: (slug === 'sea-ms-sinov' && ruxsatSavollar)
         ? MILLIY_SERTIFIKAT_1_SAVOLLAR.map((s) => ({
             id: s.id,
             turi: s.turi,
@@ -103,7 +138,7 @@ export async function GET(req, { params }) {
             options: s.options || null,
             optionLabels: s.optionLabels || null,
           }))
-        : undefined,
+        : [],
     })
   } catch (error) {
     console.error('[Hamkorlik GET Error]:', error)
@@ -156,7 +191,9 @@ export async function POST(req, { params }) {
     }
 
     const body = await req.json()
-    const { timeSpentSec = 0 } = body
+    const maxAllowedSec = (partnership.timeLimitMin || 100) * 60
+    const rawTimeSpent = parseInt(body.timeSpentSec, 10) || 0
+    const timeSpentSecClamped = Math.min(Math.max(1, rawTimeSpent), maxAllowedSec)
 
     let numericScore = 0
     let numericPercent = 0
@@ -190,7 +227,8 @@ export async function POST(req, { params }) {
           score: numericScore,
           percentage: numericPercent,
           totalQuestions: totalSavollarSoni,
-          timeSpentSec: parseInt(timeSpentSec, 10) || 0,
+          timeSpentSec: timeSpentSecClamped,
+          answers: body.javoblar || {},
           passed,
           completedAt: new Date()
         }
@@ -203,7 +241,8 @@ export async function POST(req, { params }) {
           score: numericScore,
           percentage: numericPercent,
           totalQuestions: totalSavollarSoni,
-          timeSpentSec: parseInt(timeSpentSec, 10) || 0,
+          timeSpentSec: timeSpentSecClamped,
+          answers: body.javoblar || {},
           passed,
           certId: null
         }
@@ -215,7 +254,9 @@ export async function POST(req, { params }) {
       hasSubmitted: true,
       isAnnounced: partnership.isAnnounced,
       message: "Javoblaringiz qabul qilindi. Natijalar sinov yakunlangach rasman e'lon qilinadi.",
-      completedAt: attempt.completedAt
+      completedAt: attempt.completedAt,
+      score: partnership.isAnnounced ? numericScore : undefined,
+      percentage: partnership.isAnnounced ? numericPercent : undefined
     })
   } catch (error) {
     console.error('[Hamkorlik POST Error]:', error)

@@ -15,11 +15,13 @@ export default function MilliySertifikatTesti({
   partnership,
   savollar = [],
   userAttempt = null,
-  isLoggedIn = false
+  isLoggedIn = false,
+  userId = ''
 }) {
+  const limitSoniya = (partnership?.timeLimitMin || 100) * 60
   const [joriyIndex, setJoriyIndex] = useState(0)
   const [javoblar, setJavoblar] = useState({})
-  const [qolganVaqt, setQolganVaqt] = useState((partnership?.timeLimitMin || 100) * 60)
+  const [qolganVaqt, setQolganVaqt] = useState(limitSoniya)
   const [yakunlandi, setYakunlandi] = useState(Boolean(userAttempt?.hasSubmitted || userAttempt?.completedAt))
   const [natija, setNatija] = useState(userAttempt)
   const [yuklanmoqda, setYuklanmoqda] = useState(false)
@@ -31,9 +33,16 @@ export default function MilliySertifikatTesti({
 
   const navigatorScrollRef = useRef(null)
   const activePillRef = useRef(null)
+  const javoblarRef = useRef(javoblar)
 
-  // LocalStorage kesh kaliti
-  const storageKalit = `ms_sinov_javoblar_${partnership?.slug || 'sea-ms-sinov'}`
+  useEffect(() => {
+    javoblarRef.current = javoblar
+  }, [javoblar])
+
+  // Har bir foydalanuvchi uchun alohida LocalStorage kalitlari
+  const userKalit = userId || userAttempt?.userId || 'mehmon'
+  const storageKalit = `ms_sinov_javoblar_${partnership?.slug || 'sea-ms-sinov'}_${userKalit}`
+  const startTimeKalit = `ms_sinov_boshlangan_${partnership?.slug || 'sea-ms-sinov'}_${userKalit}`
 
   // 1. Dastlabki yuklashda xotiradan (localStorage) tiklash
   useEffect(() => {
@@ -46,10 +55,23 @@ export default function MilliySertifikatTesti({
           setJavoblar((prev) => ({ ...parsed, ...prev }))
         }
       }
+
+      // Taymerni vaqt tamg'asi orqali hisoblash (sahifa yangilanganda ham 100 daqiqaga qaytib qolmaydi)
+      let boshlanganTs = localStorage.getItem(startTimeKalit)
+      if (!boshlanganTs || isNaN(parseInt(boshlanganTs, 10))) {
+        boshlanganTs = Date.now().toString()
+        localStorage.setItem(startTimeKalit, boshlanganTs)
+      }
+      const elapsedSec = Math.max(0, Math.floor((Date.now() - parseInt(boshlanganTs, 10)) / 1000))
+      const realQolgan = Math.max(0, limitSoniya - elapsedSec)
+      setQolganVaqt(realQolgan)
+      if (realQolgan <= 0) {
+        testniYakunla(javoblarRef.current)
+      }
     } catch {
       // xotira o'qish xatosi e'tiborga olinmaydi
     }
-  }, [storageKalit, yakunlandi])
+  }, [storageKalit, startTimeKalit, limitSoniya, yakunlandi])
 
   // Javoblar o'zgarganda localStorage'ga yozib borish
   useEffect(() => {
@@ -71,7 +93,7 @@ export default function MilliySertifikatTesti({
       setQolganVaqt((old) => {
         if (old <= 1) {
           clearInterval(taymerInterval)
-          testniYakunla()
+          testniYakunla(javoblarRef.current)
           return 0
         }
         return old - 1
@@ -148,21 +170,29 @@ export default function MilliySertifikatTesti({
   }, [joriyIndex, savollar, javobTanla, tasdiqModali, navigatsiyaModali, zoomRasm])
 
   // 6. Testni serverga topshirish
-  const testniYakunla = async () => {
-    setTasdiqModali(false)
+  const testniYakunla = async (customJavoblar = null) => {
     if (yuklanmoqda || yakunlandi) return
 
+    setTasdiqModali(true)
     setYuklanmoqda(true)
     setXatolik('')
 
     try {
-      const sarflanganVaqt = (partnership?.timeLimitMin || 100) * 60 - qolganVaqt
+      const yakuniyJavoblar = customJavoblar || javoblarRef.current || {}
+      
+      let sarflanganVaqt = limitSoniya - qolganVaqt
+      try {
+        const startTs = localStorage.getItem(startTimeKalit)
+        if (startTs) {
+          sarflanganVaqt = Math.floor((Date.now() - parseInt(startTs, 10)) / 1000)
+        }
+      } catch {}
 
       const res = await fetch(`/api/hamkorlik/${partnership.slug}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          javoblar,
+          javoblar: yakuniyJavoblar,
           timeSpentSec: Math.max(1, sarflanganVaqt)
         })
       })
@@ -172,10 +202,12 @@ export default function MilliySertifikatTesti({
 
       try {
         localStorage.removeItem(storageKalit)
+        localStorage.removeItem(startTimeKalit)
       } catch {
         // xotirani tozalash
       }
 
+      setTasdiqModali(false)
       setYakunlandi(true)
       setNatija({
         hasSubmitted: true,
@@ -183,7 +215,7 @@ export default function MilliySertifikatTesti({
         totalQuestions: 40
       })
     } catch (err) {
-      setXatolik(err.message)
+      setXatolik(err.message || 'Xatolik yuz berdi')
     } finally {
       setYuklanmoqda(false)
     }
@@ -246,9 +278,13 @@ export default function MilliySertifikatTesti({
           {partnership?.isAdmin && (
             <button
               onClick={() => {
+                try {
+                  localStorage.removeItem(storageKalit)
+                  localStorage.removeItem(startTimeKalit)
+                } catch {}
                 setYakunlandi(false)
                 setJavoblar({})
-                setQolganVaqt((partnership?.timeLimitMin || 100) * 60)
+                setQolganVaqt(limitSoniya)
                 setJoriyIndex(0)
               }}
               className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
@@ -688,41 +724,57 @@ export default function MilliySertifikatTesti({
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="v3-panel-karta p-6 max-w-md w-full space-y-4 border border-[var(--v3-chiziq)] shadow-2xl rounded-3xl">
             <div className="text-center space-y-2">
-              <span className="text-3xl">⚠️</span>
+              <span className="text-3xl">{qolganVaqt <= 0 ? '⏱️' : '⚠️'}</span>
               <h3 className="text-lg font-bold text-[var(--v3-matn)]">
-                Testni Yakunlaysizmi?
+                {qolganVaqt <= 0 ? 'Vaqt Yakunlandi' : 'Testni Yakunlaysizmi?'}
               </h3>
               <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
-                Siz 40 ta savoldan <b>{belgilanganlarSoni} tasiga</b> javob berdingiz.
-                Topshirilgandan so&apos;ng javoblarni o&apos;zgartirib bo&apos;lmaydi.
+                {qolganVaqt <= 0
+                  ? 'Ajratilgan 100 daqiqa vaqt tugadi. Barcha belgilangan javoblaringiz serverga topshirilmoqda.'
+                  : `Siz 40 ta savoldan ${belgilanganlarSoni} tasiga javob berdingiz. Topshirilgandan so'ng javoblarni o'zgartirib bo'lmaydi.`}
               </p>
             </div>
 
-            {belgilanganlarSoni < savollar.length && (
+            {qolganVaqt > 0 && belgilanganlarSoni < savollar.length && (
               <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs text-center leading-relaxed">
                 ⚠️ Diqqat: Hali <b>{savollar.length - belgilanganlarSoni} ta</b> savolga javob belgilanmagan!
               </div>
             )}
 
             {xatolik && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs text-center">
-                {xatolik}
+              <div className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs text-center space-y-1.5">
+                <div className="font-bold">⚠️ Yuborishda xatolik yuz berdi:</div>
+                <div className="text-[11px] opacity-90">{xatolik}</div>
               </div>
             )}
 
             <div className="flex items-center gap-3 pt-2">
+              {!yuklanmoqda && qolganVaqt > 0 && (
+                <button
+                  onClick={() => {
+                    setTasdiqModali(false)
+                    setXatolik('')
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-[var(--v3-yuza-2)] text-xs font-semibold text-[var(--v3-matn)] hover:bg-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] transition-all"
+                >
+                  Davom etish
+                </button>
+              )}
               <button
-                onClick={() => setTasdiqModali(false)}
-                className="flex-1 py-2.5 rounded-xl bg-[var(--v3-yuza-2)] text-xs font-semibold text-[var(--v3-matn)] hover:bg-[var(--v3-chiziq)] border border-[var(--v3-chiziq)] transition-all"
-              >
-                Davom etish
-              </button>
-              <button
-                onClick={testniYakunla}
+                onClick={() => testniYakunla()}
                 disabled={yuklanmoqda}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition-all shadow-md disabled:opacity-50"
+                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {yuklanmoqda ? 'Yuborilmoqda...' : 'Ha, Yakunlash'}
+                {yuklanmoqda ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Yuborilmoqda...</span>
+                  </>
+                ) : xatolik ? (
+                  '🔄 Qayta Yuborish'
+                ) : (
+                  'Ha, Yakunlash'
+                )}
               </button>
             </div>
           </div>

@@ -191,6 +191,7 @@ export default function SeaMsSinovSahifasi() {
             savollar={savollar}
             userAttempt={isSuperAdmin ? null : userAttempt}
             isLoggedIn={isAuthenticated}
+            userId={session?.user?.id}
           />
         ) : (
           <>
@@ -267,17 +268,62 @@ export default function SeaMsSinovSahifasi() {
               </div>
             ) : hasSubmitted && !isSuperAdmin ? (
               /* B) TOPSHIRIB BO'LGAN FOYDALANUVCHILAR UCHUN */
-              <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-4 rounded-3xl">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl shadow-sm">
-                  ✓
+              partnership.isAnnounced && userAttempt?.score !== undefined ? (
+                /* Natijalar e'lon qilinganda shaxsiy natijalar kartasi */
+                <div className="v3-panel-karta p-6 sm:p-8 space-y-6 rounded-3xl border-2 border-emerald-500/40 bg-emerald-500/5">
+                  <div className="text-center space-y-2">
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto text-2xl shadow-sm">
+                      🏆
+                    </div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                      Rasmiy Natijalar E&apos;lon Qilindi
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
+                      Sizning Natijangiz
+                    </h2>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center">
+                      <div className="text-[11px] text-[var(--v3-xira)] font-medium">To&apos;g&apos;ri javoblar</div>
+                      <div className="text-xl sm:text-2xl font-black text-emerald-400 mt-1 font-mono">
+                        {userAttempt.score} / {userAttempt.totalQuestions || 40}
+                      </div>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center">
+                      <div className="text-[11px] text-[var(--v3-xira)] font-medium">Ko&apos;rsatkich</div>
+                      <div className="text-xl sm:text-2xl font-black text-blue-400 mt-1 font-mono">
+                        {userAttempt.percentage}%
+                      </div>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center">
+                      <div className="text-[11px] text-[var(--v3-xira)] font-medium">Respublika Reytingi</div>
+                      <div className="text-xl sm:text-2xl font-black text-amber-400 mt-1 font-mono">
+                        {userAttempt.rank ? `${userAttempt.rank}-o'rin` : '-'}
+                      </div>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center">
+                      <div className="text-[11px] text-[var(--v3-xira)] font-medium">Sarflangan vaqt</div>
+                      <div className="text-xl sm:text-2xl font-black text-purple-400 mt-1 font-mono">
+                        {Math.floor((userAttempt.timeSpentSec || 0) / 60)} daq
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
-                  Siz testni topshirdingiz!
-                </h2>
-                <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
-                  Sizning javoblaringiz qabul qilingan. Natijangiz va to&apos;liq tahlil bugun soat <b>00:00 da</b> ushbu sahifada e&apos;lon qilinadi.
-                </p>
-              </div>
+              ) : (
+                /* Natija kutayotgan holat */
+                <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-4 rounded-3xl">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl shadow-sm">
+                    ✓
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
+                    Siz testni topshirdingiz!
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
+                    Sizning javoblaringiz qabul qilingan. Natijangiz va to&apos;liq tahlil bugun soat <b>00:00 da</b> ushbu sahifada e&apos;lon qilinadi.
+                  </p>
+                </div>
+              )
             ) : haliBoshlanmadi ? (
               /* C) TIZIMGA KIRGAN, LEKIN HALI 17:00 BO'LMAGAN */
               <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-4 max-w-md mx-auto rounded-3xl border border-amber-500/30">
@@ -307,8 +353,19 @@ export default function SeaMsSinovSahifasi() {
                   </div>
                 </div>
               </div>
+            ) : butunlayTugadi ? (
+              /* D1) 00:00 DAN KEYIN BUTUNLAY TUGAGANDA */
+              <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-3 rounded-3xl border border-[var(--v3-chiziq)]">
+                <span className="text-4xl">🏁</span>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">
+                  Sinov Muddati Yakunlandi
+                </h2>
+                <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-md mx-auto leading-relaxed">
+                  Ushbu 1-sinov testi uchun ajratilgan muddat yakuniga yetdi. Barcha ishtirokchilar natijalari va to&apos;g&apos;ri javoblarni quyida ko&apos;rishingiz mumkin.
+                </p>
+              </div>
             ) : qabulYopildi ? (
-              /* D) 22:20 DAN KEYIN QABUL YOPILGANDA */
+              /* D2) 22:20 DAN KEYIN QABUL YOPILGANDA */
               <div className="v3-panel-karta p-6 sm:p-8 text-center space-y-3 rounded-3xl">
                 <span className="text-3xl">🛑</span>
                 <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--v3-matn)]">

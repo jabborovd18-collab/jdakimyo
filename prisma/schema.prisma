@@ -370,6 +370,7 @@ model PartnershipAttempt {
   timeSpentSec   Int                 @default(0)
   passed         Boolean             @default(false)
   certId         String?             @unique
+  answers        Json?
   completedAt    DateTime            @default(now())
 
   @@unique([partnershipId, userId]) // Har bir profil faqat 1 marta ishlay oladi
