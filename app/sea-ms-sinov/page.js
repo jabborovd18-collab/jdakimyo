@@ -232,19 +232,36 @@ export default function SeaMsSinovSahifasi() {
                   </div>
                 )}
 
-                {/* Kirish va Ro'yxatdan o'tish tugmalari — Yirik va tushunarli */}
-                <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2">
+                {/* Kirish va Ro'yxatdan o'tish tugmalari — Yaqqol taktil tugmalar */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-w-lg mx-auto pt-2">
                   <Link
                     href="/login?callbackUrl=/sea-ms-sinov"
-                    className="flex-1 py-3.5 px-6 rounded-2xl bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-extrabold text-sm shadow-lg hover:opacity-90 transition-all text-center active:scale-95"
+                    className="p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95 border-2 border-blue-400/40 group"
                   >
-                    Tizimga Kirish
+                    <span className="text-2xl group-hover:scale-110 transition-transform">🔑</span>
+                    <div className="text-left">
+                      <div className="text-[11px] uppercase tracking-wider text-blue-200 font-bold leading-none">
+                        Menda hisob bor
+                      </div>
+                      <div className="text-base font-black text-white leading-tight mt-1">
+                        Tizimga Kirish →
+                      </div>
+                    </div>
                   </Link>
+
                   <Link
                     href="/register?callbackUrl=/sea-ms-sinov"
-                    className="flex-1 py-3.5 px-6 rounded-2xl bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] font-bold text-sm border-2 border-[var(--v3-chiziq)] hover:bg-[var(--v3-chiziq)] transition-all text-center active:scale-95"
+                    className="p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95 border-2 border-emerald-400/40 group"
                   >
-                    Yangi Hisob Ochish (Ro&apos;yxatdan O&apos;tish)
+                    <span className="text-2xl group-hover:scale-110 transition-transform">✨</span>
+                    <div className="text-left">
+                      <div className="text-[11px] uppercase tracking-wider text-emerald-200 font-bold leading-none">
+                        Yangi o&apos;quvchilar
+                      </div>
+                      <div className="text-base font-black text-white leading-tight mt-1">
+                        Ro&apos;yxatdan O&apos;tish →
+                      </div>
+                    </div>
                   </Link>
                 </div>
               </div>
