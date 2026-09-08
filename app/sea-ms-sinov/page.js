@@ -27,7 +27,7 @@ export default function SeaMsSinovSahifasi() {
     return () => clearInterval(timer)
   }, [])
 
-  const slug = 'sea-ms-sinov'
+  const slug = 'sea-ms-sinov-2'
 
   const yukla = useCallback(async () => {
     setIsLoading(true)
@@ -132,7 +132,7 @@ export default function SeaMsSinovSahifasi() {
   // Foydalanuvchi testni allaqachon boshlaganmi?
   const testniOldinBoshlagan = Boolean(
     (userAttempt && userAttempt.startedAt) ||
-    (typeof window !== 'undefined' && localStorage.getItem(`ms_sinov_boshlangan_sea-ms-sinov_${session?.user?.id || 'mehmon'}`))
+    (typeof window !== 'undefined' && localStorage.getItem(`ms_sinov_boshlangan_${slug}_${session?.user?.id || 'mehmon'}`))
   )
 
   const haliBoshlanmadi = !isSuperAdmin && now < boshlanishVaqti
@@ -206,7 +206,7 @@ export default function SeaMsSinovSahifasi() {
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--v3-matn)] leading-tight">
-            Milliy Sertifikat Sinov Testi #1
+            {partnership.title}
           </h1>
 
           <p className="text-xs sm:text-sm text-[var(--v3-xira)] max-w-2xl mx-auto leading-relaxed">
@@ -474,26 +474,26 @@ export default function SeaMsSinovSahifasi() {
                 <span>Milliy Sertifikat Oylik Marafoni Jadvali:</span>
               </div>
               <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
-                Bir oy davomida har haftaning <b>Seshanba, Payshanba va Shanba</b> kunlari (hamda bugungi maxsus ochilish sinovi) soat <b>17:00 da</b> yangi rasmiy sinov testlari o&apos;tkaziladi:
+                Bir oy davomida har haftaning <b>Seshanba, Payshanba va Shanba</b> kunlari soat <b>17:00 da</b> yangi rasmiy sinov testlari o&apos;tkaziladi:
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border-2 border-emerald-500/40 text-center space-y-1">
                   <span className="text-[10px] uppercase font-extrabold text-emerald-400 tracking-wider">Bugun!</span>
-                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">1-Sinov Testi</div>
-                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">6-sentyabr (Bugun, Yakshanba) 17:00</div>
+                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">2-Sinov Testi</div>
+                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">8-sentyabr (Bugun, Seshanba) 17:00</div>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center space-y-1">
                   <span className="text-[10px] uppercase font-extrabold text-blue-400 tracking-wider">Navbatdagi</span>
-                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">2-Sinov Testi</div>
-                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">8-sentyabr (Seshanba) 17:00</div>
+                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">3-Sinov Testi</div>
+                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">10-sentyabr (Payshanba) 17:00</div>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-center space-y-1">
                   <span className="text-[10px] uppercase font-extrabold text-purple-400 tracking-wider">Kelgusi</span>
-                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">3-Sinov Testi</div>
-                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">10-sentyabr (Payshanba) 17:00</div>
+                  <div className="font-bold text-xs sm:text-sm text-[var(--v3-matn)]">4-Sinov Testi</div>
+                  <div className="text-[11px] sm:text-xs text-[var(--v3-xira)]">12-sentyabr (Shanba) 17:00</div>
                 </div>
               </div>
 
@@ -545,5 +545,4 @@ export default function SeaMsSinovSahifasi() {
     </main>
   )
 }
-
 

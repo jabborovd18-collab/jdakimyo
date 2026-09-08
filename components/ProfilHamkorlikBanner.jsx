@@ -65,7 +65,7 @@ export default function ProfilHamkorlikBanner() {
             </div>
 
             <h3 className="text-base sm:text-lg font-extrabold text-[var(--v3-matn)] leading-tight">
-              Milliy Sertifikat Sinov Testi #1
+              Milliy Sertifikat Sinov Testi #2
             </h3>
 
             <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
@@ -109,4 +109,3 @@ export default function ProfilHamkorlikBanner() {
     </div>
   )
 }
-

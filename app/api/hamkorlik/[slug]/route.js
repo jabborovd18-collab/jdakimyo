@@ -4,6 +4,12 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { MILLIY_SERTIFIKAT_1_SAVOLLAR, javobniTekshir } from '@/data/hamkorlik/milliy-sertifikat-1-savollar'
+import { MILLIY_SERTIFIKAT_2_SAVOLLAR } from '@/data/hamkorlik/milliy-sertifikat-2-savollar'
+
+const SERTIFIKAT_SAVOLLARI = {
+  'sea-ms-sinov': MILLIY_SERTIFIKAT_1_SAVOLLAR,
+  'sea-ms-sinov-2': MILLIY_SERTIFIKAT_2_SAVOLLAR,
+}
 
 export async function GET(req, { params }) {
   try {
@@ -118,6 +124,8 @@ export async function GET(req, { params }) {
     const now = new Date()
     const ruxsatSavollar = isAdmin || (partnership.startsAt && now >= new Date(partnership.startsAt))
 
+    const savollarManbai = SERTIFIKAT_SAVOLLARI[slug]
+
     return NextResponse.json({
       partnership: {
         id: partnership.id,
@@ -141,8 +149,8 @@ export async function GET(req, { params }) {
       hasSubmitted,
       userAttempt,
       isAdmin,
-      savollar: (slug === 'sea-ms-sinov' && ruxsatSavollar)
-        ? MILLIY_SERTIFIKAT_1_SAVOLLAR.map((s) => ({
+      savollar: (savollarManbai && ruxsatSavollar)
+        ? savollarManbai.map((s) => ({
             id: s.id,
             turi: s.turi,
             rasm: s.rasm,
@@ -207,7 +215,7 @@ export async function POST(req, { params }) {
             userId: session.user.id,
             score: 0,
             percentage: 0,
-            totalQuestions: slug === 'sea-ms-sinov' ? 40 : 30,
+            totalQuestions: SERTIFIKAT_SAVOLLARI[slug] ? 40 : 30,
             timeSpentSec: 0,
             startedAt: new Date(),
             passed: false
@@ -250,9 +258,10 @@ export async function POST(req, { params }) {
     let numericPercent = 0
     let totalSavollarSoni = 30
 
-    if (slug === 'sea-ms-sinov') {
+    const savollarManbai = SERTIFIKAT_SAVOLLARI[slug]
+    if (savollarManbai) {
       let togri = 0
-      MILLIY_SERTIFIKAT_1_SAVOLLAR.forEach((savol) => {
+      savollarManbai.forEach((savol) => {
         const berilgan = body.javoblar?.[savol.id]
         if (javobniTekshir(savol, berilgan)) {
           togri++
@@ -267,8 +276,8 @@ export async function POST(req, { params }) {
       totalSavollarSoni = parseInt(body.totalQuestions, 10) || 30
     }
 
-    // sea-ms-sinov uchun o'tish bali yo'q (maqsad: bilimni sinash va mustahkamlash, sertifikat berilmaydi)
-    const passed = slug === 'sea-ms-sinov' ? true : (numericPercent >= (partnership.minPassPercent || 60.0))
+    // Sinov testlarida o'tish bali yo'q: ular sertifikat emas, tayyorgarlik uchun.
+    const passed = savollarManbai ? true : (numericPercent >= (partnership.minPassPercent || 60.0))
 
     let attempt;
     if (existingAttempt) {

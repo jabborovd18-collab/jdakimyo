@@ -263,16 +263,16 @@ export default function MilliySertifikatTesti({
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1">
             <div className="p-2.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
-              <span className="block font-bold text-[var(--v3-matn)]">2-Sinov Testi</span>
-              <span className="text-[11px] text-[var(--v3-xira)]">8-sentyabr (Seshanba)</span>
-            </div>
-            <div className="p-2.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
               <span className="block font-bold text-[var(--v3-matn)]">3-Sinov Testi</span>
               <span className="text-[11px] text-[var(--v3-xira)]">10-sentyabr (Payshanba)</span>
             </div>
             <div className="p-2.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
               <span className="block font-bold text-[var(--v3-matn)]">4-Sinov Testi</span>
               <span className="text-[11px] text-[var(--v3-xira)]">12-sentyabr (Shanba)</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
+              <span className="block font-bold text-[var(--v3-matn)]">5-Sinov Testi</span>
+              <span className="text-[11px] text-[var(--v3-xira)]">15-sentyabr (Seshanba)</span>
             </div>
           </div>
         </div>
@@ -786,4 +786,3 @@ export default function MilliySertifikatTesti({
     </div>
   )
 }
-
