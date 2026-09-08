@@ -958,6 +958,9 @@ export default function AdminMavsumiyHamkorPage() {
       ═══════════════════════════════════════════════════════════════ */}
       {tab === 'natijalar' && (
         <div className="bg-slate-900/80 border border-purple-800/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+          {(() => {
+            const sinovTestimi = tanlanganEvent?.slug === 'sea-ms-sinov' || tanlanganEvent?.slug === 'sea-ms-sinov-2'
+            return <>
           <div className="flex items-center justify-between border-b border-purple-800/40 pb-4">
             <div>
               <span className="text-xs text-amber-400 font-mono block font-bold">
@@ -1058,11 +1061,11 @@ export default function AdminMavsumiyHamkorPage() {
                     <tr>
                       <th className="p-3 rounded-l-xl">O&apos;rin</th>
                       <th className="p-3">Foydalanuvchi</th>
-                      <th className="p-3">Ball (30 dan)</th>
+                      <th className="p-3">Ball ({sinovTestimi ? '40' : '30'} dan)</th>
                       <th className="p-3">Foiz</th>
                       <th className="p-3">Sarflangan Vaqt</th>
-                      <th className="p-3">Holat</th>
-                      <th className="p-3 rounded-r-xl">Sertifikat ID</th>
+                      <th className={`p-3 ${sinovTestimi ? 'rounded-r-xl' : ''}`}>Holat</th>
+                      {!sinovTestimi && <th className="p-3 rounded-r-xl">Sertifikat ID</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-purple-900/30">
@@ -1086,12 +1089,12 @@ export default function AdminMavsumiyHamkorPage() {
                         </td>
                         <td className="p-3">
                           <span className={`px-2 py-0.5 rounded-md font-bold text-[10px] ${
-                            att.passed ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400'
+                            sinovTestimi || att.passed ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400'
                           }`}>
-                            {att.passed ? 'O\'tdi' : 'O\'tmadi'}
+                            {sinovTestimi ? 'Topshirildi' : (att.passed ? 'O\'tdi' : 'O\'tmadi')}
                           </span>
                         </td>
-                        <td className="p-3 font-mono text-purple-200">
+                        {!sinovTestimi && <td className="p-3 font-mono text-purple-200">
                           {att.certId ? (
                             <Link
                               href={`/sertifikat/verify/${att.certId}`}
@@ -1104,7 +1107,7 @@ export default function AdminMavsumiyHamkorPage() {
                           ) : (
                             <span className="text-purple-500">—</span>
                           )}
-                        </td>
+                        </td>}
                       </tr>
                     ))}
                   </tbody>
@@ -1112,6 +1115,8 @@ export default function AdminMavsumiyHamkorPage() {
               </div>
             </div>
           )}
+          </>
+          })()}
         </div>
       )}
     </div>

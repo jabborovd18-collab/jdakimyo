@@ -57,7 +57,7 @@ export async function GET(req) {
         orderBy: { createdAt: 'desc' }
       }),
       prisma.partnershipAttempt.count(),
-      prisma.partnershipAttempt.count({ where: { passed: true } })
+      prisma.certificate.count()
     ])
 
     return NextResponse.json({

@@ -254,6 +254,10 @@ export async function POST(req, { params }) {
       }, { status: 400 })
     }
 
+    if (!existingAttempt?.startedAt) {
+      return NextResponse.json({ error: 'Avval testni boshlang' }, { status: 400 })
+    }
+
     const maxAllowedSec = (partnership.timeLimitMin || 100) * 60
     const rawTimeSpent = parseInt(body.timeSpentSec, 10) || 0
     const timeSpentSecClamped = Math.min(Math.max(1, rawTimeSpent), maxAllowedSec)
