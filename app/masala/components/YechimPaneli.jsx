@@ -12,6 +12,11 @@ import { masalaPdfYukla } from "@/lib/masala-pdf.js";
 import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
 import toast from "react-hot-toast";
 
+const TEZKOR_SAVOLLAR = [
+  { matn: "Bu formulani nega qo'lladik?", ikon: "formula" },
+  { matn: "Keyingi bosqichni sodda tushuntiring.", ikon: "yordam" },
+];
+
 export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvchiNom = "Talaba" }) {
   const [ijroEtilmoqda, setIjroEtilmoqda] = useState(false);
   const [tezlik, setTezlik] = useState(1);
@@ -124,10 +129,10 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--v3-urgu)]">
               {rejim === "tuzoq"
-                ? "⚡ 1-Rejim: Keskin Burilish Tahlili"
+                ? "1-Rejim: Keskin Burilish Tahlili"
                 : rejim === "yonalish"
-                ? "🧭 2-Rejim: Yo'naltirish & Formulalar"
-                : "🎯 3-Rejim: To'liq Master Yechim"}
+                ? "2-Rejim: Yo'naltirish va Formulalar"
+                : "3-Rejim: To'liq Master Yechim"}
             </span>
             <h3 className="text-base sm:text-lg font-black text-[var(--v3-matn)]">
               Professional Kimyoviy Tahlil Doskasi
@@ -174,6 +179,31 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
           </button>
         </div>
       </div>
+
+      {/* Server hakami AI ning tekshirilgan sonli da'volarini alohida ko'rsatadi. */}
+      {natija.serverTekshiruvi && (
+        <div className="p-4 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-2">
+          <div className="flex items-center gap-2 text-sm font-bold text-[var(--v3-matn)]">
+            <Ikon nom="qalqon" olcham={18} className="text-[var(--v3-urgu)]" />
+            <span>Server hakami tekshiruvi</span>
+          </div>
+          {natija.serverTekshiruvi.ogohlantirishlar?.length > 0 ? (
+            <div className="space-y-1.5">
+              {natija.serverTekshiruvi.ogohlantirishlar.map((ogohlantirish, i) => (
+                <p key={i} className="flex gap-2 text-xs leading-relaxed text-[var(--v3-matn)]">
+                  <Ikon nom="ogohlantirish" olcham={15} className="shrink-0 text-[var(--v3-urgu)]" />
+                  <span>{ogohlantirish.xabar}</span>
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p className="flex items-center gap-2 text-xs text-[var(--v3-matn)]">
+              <Ikon nom="tasdiq" olcham={15} className="text-[var(--v3-urgu)]" />
+              <span>{natija.serverTekshiruvi.tekshirildi ? "Tekshirilgan sonli da'volarda zidlik topilmadi." : "Server dalillari yechimga qo'llandi."}</span>
+            </p>
+          )}
+        </div>
+      )}
 
       {/* ─── 2. BERILGAN VA TOPISH KERAK (Darslik Standarti) ─── */}
       {(natija.berilgan?.length > 0 || natija.topishKerak?.length > 0) && (
@@ -232,19 +262,19 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
 
       {/* ─── 4. YASHIRIN TUZOQ & QOPQON TAHLILI (Agar mavjud bo'lsa) ─── */}
       {natija.tuzoqTahlili?.kalitNuqta && (
-        <div className="p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-400/50 space-y-3">
-          <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
-            <Ikon nom="chaqmoq" olcham={18} />
-            <span>⚡ Masaladagi Yashirin Qopqon (Tuzoq) Tahlili:</span>
+        <div className="p-5 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-3">
+          <div className="flex items-center gap-2 text-[var(--v3-urgu)] font-bold text-sm">
+            <Ikon nom="nizom" olcham={18} />
+            <span>Masaladagi nozik nuqta</span>
           </div>
           <div className="space-y-2 text-xs text-[var(--v3-matn)] leading-relaxed">
-            <div className="p-3 rounded-xl bg-[var(--v3-fon)] border border-amber-400/30">
-              <strong className="text-amber-300 block mb-1">🔍 Nozik Kalit Nuqta:</strong>
+            <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)]">
+              <strong className="text-[var(--v3-urgu)] mb-1 flex items-center gap-1.5"><Ikon nom="kuzatuv" olcham={14} /> Nozik kalit nuqta</strong>
               <p>{natija.tuzoqTahlili.kalitNuqta}</p>
             </div>
             {natija.tuzoqTahlili.kengTarqalganXato && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200">
-                <strong className="text-red-400 block mb-1">⚠️ 90% O&apos;quvchilar Yo&apos;l Qo&apos;yadigan Xato:</strong>
+              <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-[var(--v3-matn)]">
+                <strong className="text-[var(--v3-urgu)] mb-1 flex items-center gap-1.5"><Ikon nom="ogohlantirish" olcham={14} /> Keng tarqalgan xato</strong>
                 <p>{natija.tuzoqTahlili.kengTarqalganXato}</p>
               </div>
             )}
@@ -257,7 +287,7 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
         <div className="p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-3">
           <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
             <Ikon nom="kitob" olcham={18} />
-            <span>🧭 Yechish Rejasi va Kerakli Formulalar:</span>
+            <span>Yechish rejasi va kerakli formulalar:</span>
           </div>
           {natija.yonalish.formulalar?.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -284,7 +314,8 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
               className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold text-xs shadow-md hover:from-emerald-400 hover:to-teal-400 transition-all flex items-center justify-center gap-2"
             >
               <Ikon nom="orin" olcham={16} />
-              <span>To&apos;liq Master Yechimni Ko&apos;rish ➔</span>
+              <span>To&apos;liq Master Yechimni Ko&apos;rish</span>
+              <Ikon nom="ong" olcham={15} />
             </button>
           )}
         </div>
@@ -321,7 +352,7 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
 
                 {b.mantiq && (
                   <div className="ml-8 text-[11px] text-[var(--v3-xira)] italic">
-                    💡 Mantiq: <LatexBoyMatn matn={b.mantiq} />
+                    <span className="inline-flex items-center gap-1"><Ikon nom="kuzatuv" olcham={13} /> Mantiq:</span> <LatexBoyMatn matn={b.mantiq} />
                   </div>
                 )}
               </div>
@@ -378,6 +409,20 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
           </span>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+          {TEZKOR_SAVOLLAR.map((savol) => (
+            <button
+              key={savol.matn}
+              type="button"
+              onClick={() => setChatSavol(savol.matn)}
+              className="px-3 py-1.5 rounded-xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] hover:bg-[var(--v3-yuza)] text-xs font-semibold text-[var(--v3-matn)] flex items-center gap-1.5 transition-colors"
+            >
+              <Ikon nom={savol.ikon} olcham={14} className="text-[var(--v3-urgu)]" />
+              <span>{savol.matn}</span>
+            </button>
+          ))}
+        </div>
+
         {/* Xabarlar ro'yxati */}
         {chatXabarlar.length > 0 && (
           <div className="space-y-2.5 max-h-64 overflow-y-auto p-3 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)]">
@@ -391,14 +436,14 @@ export default function YechimPaneli({ natija, onToliqYechimgaOtish, foydalanuvc
                 }`}
               >
                 <span className="text-[10px] opacity-75 block mb-0.5 uppercase tracking-wider font-bold">
-                  {x.rol === "user" ? "Sizning savolingiz:" : "👨‍🏫 AI Repetitor:"}
+                  {x.rol === "user" ? "Sizning savolingiz:" : <span className="inline-flex items-center gap-1"><Ikon nom="ustoz" olcham={13} /> AI Repetitor:</span>}
                 </span>
                 <div><LatexBoyMatn matn={x.matn} /></div>
               </div>
             ))}
             {chatYuklanmoqda && (
               <div className="p-3 rounded-2xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-xs text-[var(--v3-xira)] mr-6 animate-pulse">
-                👨‍🏫 Repetitor tushuntirish yozmoqda...
+                <span className="inline-flex items-center gap-1.5"><Ikon nom="ustoz" olcham={14} className="text-[var(--v3-urgu)]" /> Repetitor tushuntirish yozmoqda...</span>
               </div>
             )}
           </div>

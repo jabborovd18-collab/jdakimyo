@@ -14,6 +14,8 @@
 // uchun xatolar konsolga yoziladi, javob esa baribir 200 bo'ladi.
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+
+export const maxDuration = 60;
 import {
   telegramYubor, tgHimoyala, telegramSozlanganmi, TUGMALAR, sarlavhaBelgisi,
   tugmaJavobi,

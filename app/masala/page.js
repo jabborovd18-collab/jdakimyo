@@ -1150,6 +1150,31 @@ export default function MasalaChatSahifasi() {
                   </div>
                 </div>
 
+                {/* Server hakami tekshiruvi (Sof SVG ikonkalari bilan) */}
+                {xabar.yechim?.serverTekshiruvi && (
+                  <div className="p-3 rounded-2xl bg-[var(--v3-fon)] border border-[var(--v3-chiziq)] space-y-1.5 text-xs">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--v3-matn)]">
+                      <Ikon nom="qalqon" olcham={15} className="text-[var(--v3-urgu)]" />
+                      <span>Server hakami tekshiruvi:</span>
+                    </div>
+                    {xabar.yechim.serverTekshiruvi.ogohlantirishlar?.length > 0 ? (
+                      <div className="space-y-1">
+                        {xabar.yechim.serverTekshiruvi.ogohlantirishlar.map((o, i) => (
+                          <p key={i} className="flex items-start gap-1.5 text-[11px] leading-relaxed text-[var(--v3-matn)]">
+                            <Ikon nom="ogohlantirish" olcham={13} className="shrink-0 mt-0.5 text-[var(--v3-urgu)]" />
+                            <span>{o.xabar}</span>
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="flex items-center gap-1.5 text-[11px] text-[var(--v3-matn)]">
+                        <Ikon nom="tasdiq" olcham={13} className="text-[var(--v3-urgu)]" />
+                        <span>{xabar.yechim.serverTekshiruvi.tekshirildi ? "Tekshirilgan sonli da'volarda zidlik topilmadi." : "Server dalillari yechimga qo'llandi."}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {/* Berilgan & Topish kerak */}
                 {(xabar.yechim?.berilgan?.length > 0 || xabar.yechim?.topishKerak?.length > 0) && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

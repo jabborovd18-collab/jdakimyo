@@ -14,6 +14,10 @@ const { aiYonalishniAniqlash, masalaTuriniAniqlash } = esmRequire(
   'lib/ai-agents/ai-yonalish.js',
   ['aiYonalishniAniqlash', 'masalaTuriniAniqlash'],
 )
+const { OLIMPIADA_SYSTEM_PROMPT } = esmRequire(
+  'lib/ai-agents/agent-olimpiada.js',
+  ['OLIMPIADA_SYSTEM_PROMPT'],
+)
 const { aiModelChaqir, AiGatewayXatosi, aiMasalaNatijasiniTekshir } = esmRequire(
   'lib/ai-agents/ai-gateway.js',
   ['aiModelChaqir', 'AiGatewayXatosi', 'aiMasalaNatijasiniTekshir'],
@@ -109,12 +113,23 @@ describe("AI yo'nalish tanlovi", () => {
     const turi = masalaTuriniAniqlash(matn)
     const yonalish = aiYonalishniAniqlash({ matn, masalaTuri: turi })
     assert.equal(yonalish.id, 'murakkab')
+    assert.equal(yonalish.umumiyVaqtMs, 60_000)
+    assert.equal(yonalish.tokenChegarasi, 6_000)
   })
 
   test("foydalanuvchi tanlovi avtomatik qarordan ustun turadi", () => {
     const yonalish = aiYonalishniAniqlash({ matn: 'Salom', tanlov: 'murakkab' })
     assert.equal(yonalish.id, 'murakkab')
     assert.equal(yonalish.avtomatik, false)
+  })
+})
+
+describe("Murakkab yechim protokoli", () => {
+  test("olimpiada prompti kimyoviy model, sistema va massa balansini talab qiladi", () => {
+    assert.match(OLIMPIADA_SYSTEM_PROMPT, /Kimyoviy model va reaksiyalar/)
+    assert.match(OLIMPIADA_SYSTEM_PROMPT, /Matematik apparat/)
+    assert.match(OLIMPIADA_SYSTEM_PROMPT, /Massaning saqlanishi va sanity check/)
+    assert.match(OLIMPIADA_SYSTEM_PROMPT, /sanityTekshiruvi/)
   })
 })
 
