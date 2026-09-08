@@ -12,21 +12,24 @@ import { multiAgentMasalaYech, aiRepetitorChat } from "@/lib/ai-agents/masala-or
 import { aiQuota } from "@/lib/ai-agents/ai-quota.js";
 import { aiHodisalarniYoz } from "@/lib/ai-agents/ai-telemetriya.js";
 import { aiSozlamaniOl } from "@/lib/ai-agents/ai-config.js";
+import { xotiraMatniniTozala } from "@/lib/ai-agents/ai-security.js";
 
 const MATN_CHEGARASI = 4000;
 const RASM_BAYT_CHEGARASI = 4 * 1024 * 1024; // 4 MB
 
-function xotiraKontekstiniTozala(xotira) {
+export function xotiraKontekstiniTozala(xotira) {
   if (!xotira || typeof xotira !== "object") return null;
   const oxirgiXabarlar = Array.isArray(xotira.oxirgiXabarlar)
     ? xotira.oxirgiXabarlar
       .slice(-6)
       .filter((xabar) => xabar?.rol === "user" || xabar?.rol === "ai")
-      .map((xabar) => ({
-        rol: xabar.rol,
-        matn: typeof xabar.matn === "string" ? xabar.matn.slice(0, 500) : "",
-      }))
-      .filter((xabar) => xabar.matn)
+      .map((xabar) => {
+        const tekshiruv = xotiraMatniniTozala(xabar.matn);
+        return tekshiruv.xavfsiz && tekshiruv.tozaMatn
+          ? { rol: xabar.rol, matn: tekshiruv.tozaMatn }
+          : null;
+      })
+      .filter((xabar) => xabar?.matn)
     : [];
   const mavzular = {};
   for (const [mavzu, soni] of Object.entries(xotira.profil?.mavzular || {}).slice(0, 30)) {
@@ -44,6 +47,8 @@ export async function POST(request) {
   const requestId = randomUUID();
   const hodisalar = [];
   let amal = "noma_lum";
+  let kvotaBandQilingan = false;
+  let kvotaFoydalanuvchiId = null;
   const telemetriya = (hodisa) => {
     hodisalar.push({
       ...hodisa,
@@ -106,6 +111,8 @@ export async function POST(request) {
         error.statusCode = 429;
         throw error;
       }
+      kvotaBandQilingan = true;
+      kvotaFoydalanuvchiId = session.user.id;
     };
 
     // AI REPETITOR BILAN MULOQOT (Follow-up Chat)
@@ -131,6 +138,9 @@ export async function POST(request) {
         kanal: "sayt",
         telemetriya,
       });
+      if (chatNatija.muvaffaqiyatli === false) {
+        return NextResponse.json({ xato: chatNatija.xato || "So'rov rad etildi." }, { status: 400 });
+      }
       return NextResponse.json({
         muvaffaqiyatli: true,
         action: "chat",
@@ -207,6 +217,15 @@ export async function POST(request) {
     });
   } catch (err) {
     console.error("[Masala yech API xatosi]:", err);
+    const kvotaQaytariladigan = err?.statusCode === 502 || err?.statusCode === 504
+      || err?.kod === "BARCHA_URINISH_XATO" || err?.kod === "UMUMIY_VAQT_TUGADI";
+    if (kvotaBandQilingan && kvotaFoydalanuvchiId && kvotaQaytariladigan) {
+      try {
+        await aiQuota.qaytar(kvotaFoydalanuvchiId);
+      } catch (qaytarishXatosi) {
+        console.error("[AI kvota qaytarish xatosi]:", qaytarishXatosi?.message);
+      }
+    }
     const ruxsatStatuslar = new Set([429, 502, 503, 504]);
     const status = ruxsatStatuslar.has(err?.statusCode) ? err.statusCode : 500;
     return NextResponse.json(
