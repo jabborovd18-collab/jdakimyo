@@ -5,6 +5,14 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 
+function sinovTestimi(event) {
+  return event?.slug === 'sea-ms-sinov' || event?.slug === 'sea-ms-sinov-2'
+}
+
+const ODDIY_ISHTIROKCHI_ROLLARI = {
+  role: { notIn: ['admin', 'superadmin', 'moderator', 'ADMIN', 'SUPER_ADMIN', 'MODERATOR'] }
+}
+
 // Yagona unikal sertifikat raqami yasovchi
 function certIdGeneratsiya(prefiks = 'AK-JK-2025-') {
   const tasodif = Math.floor(1000 + Math.random() * 9000)
@@ -26,6 +34,7 @@ export async function GET(req) {
         where: { id },
         include: {
           attempts: {
+            where: { user: ODDIY_ISHTIROKCHI_ROLLARI },
             include: {
               user: {
                 select: { id: true, userId: true, username: true, fullName: true, avatar: true }
@@ -96,6 +105,10 @@ export async function POST(req) {
         partnership = await prisma.seasonalPartnership.findUnique({ where: { id: partnershipId } })
       }
 
+      if (sinovTestimi(partnership)) {
+        return NextResponse.json({ error: 'Sinov testi uchun sertifikat berilmaydi' }, { status: 400 })
+      }
+
       const certId = (customCertId && customCertId.trim()) 
         ? customCertId.trim().toUpperCase() 
         : certIdGeneratsiya(partnership?.certPrefix || 'AK-JK-2025-')
@@ -150,6 +163,7 @@ export async function POST(req) {
         where: { id: partnershipId },
         include: {
           attempts: {
+            where: { user: ODDIY_ISHTIROKCHI_ROLLARI },
             include: {
               user: { select: { id: true, userId: true, username: true, fullName: true } }
             }
@@ -167,10 +181,11 @@ export async function POST(req) {
         }
       })
 
-      // O'tish balidan o'tgan barcha ishtirokchilarga rasmiy sertifikat rasmiylashtirish
+      // Sinov testida sertifikat yo'q; qolgan tadbirlarda o'tganlarga sertifikat beriladi.
       let certsCreated = 0
-      for (const attempt of event.attempts) {
-        if (attempt.passed && !attempt.certId) {
+      if (!sinovTestimi(event)) {
+        for (const attempt of event.attempts) {
+          if (attempt.passed && !attempt.certId) {
           const certId = certIdGeneratsiya(event.certPrefix || 'AK-JK-2025-')
           const certReason = event.certReason ||
             `${event.partnerName || 'AlchemIQ'} va JDA Kimyo tomonidan tashkil etilgan ${event.title || '1 KUNLIK SINOV TESTIDA'} yuqori natija ko'rsatganligi va bilim darajasining a'lo darajada ekanligi uchun taqdim etiladi.`
@@ -203,13 +218,16 @@ export async function POST(req) {
             where: { id: attempt.id },
             data: { certId }
           })
-          certsCreated++
+            certsCreated++
+          }
         }
       }
 
       return NextResponse.json({
         success: true,
-        message: `Natijalar rasman e'lon qilindi! ${certsCreated} ta sertifikat rasmiylashtirildi.`
+        message: sinovTestimi(event)
+          ? 'Natijalar rasman e\'lon qilindi. Bu sinov testi uchun sertifikat berilmaydi.'
+          : `Natijalar rasman e'lon qilindi! ${certsCreated} ta sertifikat rasmiylashtirildi.`
       })
     }
 

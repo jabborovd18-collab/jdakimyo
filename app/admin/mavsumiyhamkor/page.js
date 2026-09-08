@@ -105,7 +105,9 @@ export default function AdminMavsumiyHamkorPage() {
   // Havoladan nusxa olish
   const havolaNusxaOlish = (slug) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://jdakimyo.uz'
-    const link = `${origin}/hamkorlik/${slug}`
+    const link = slug === 'sea-ms-sinov' || slug === 'sea-ms-sinov-2'
+      ? `${origin}/sea-ms-sinov`
+      : `${origin}/hamkorlik/${slug}`
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(link)
       toast.success(`Havola nusxalandi: ${link}`, { icon: '📋' })
@@ -117,7 +119,12 @@ export default function AdminMavsumiyHamkorPage() {
   // Natijalarni e'lon qilish
   const natijalarniElonQilish = async (eventId, e) => {
     if (e) e.stopPropagation()
-    if (!confirm("Rostdan ham ushbu sinov natijalarini rasman e'lon qilmoqchimisiz? O'tish balidan o'tgan barcha ishtirokchilarga rasmiy sertifikat taqdim etiladi.")) {
+    const event = events.find((item) => item.id === eventId)
+    const sinovTestimi = event?.slug === 'sea-ms-sinov' || event?.slug === 'sea-ms-sinov-2'
+    const tasdiqMatni = sinovTestimi
+      ? "Rostdan ham ushbu sinov natijalarini rasman e'lon qilmoqchimisiz? Bu testda o'tish bali va sertifikat yo'q."
+      : "Rostdan ham ushbu sinov natijalarini rasman e'lon qilmoqchimisiz? O'tish balidan o'tgan barcha ishtirokchilarga rasmiy sertifikat taqdim etiladi."
+    if (!confirm(tasdiqMatni)) {
       return
     }
 
@@ -422,6 +429,7 @@ export default function AdminMavsumiyHamkorPage() {
                 const start = new Date(ev.startsAt)
                 const end = new Date(ev.endsAt)
                 const isFaol = ev.isActive && now >= start && now <= end
+                const sinovTestimi = ev.slug === 'sea-ms-sinov' || ev.slug === 'sea-ms-sinov-2'
 
                 return (
                   <div
@@ -463,8 +471,8 @@ export default function AdminMavsumiyHamkorPage() {
                       </p>
 
                       <div className="grid grid-cols-2 gap-2 text-[11px] text-purple-400 pt-2 border-t border-purple-900/40 font-mono">
-                        <div>Savollar: <strong>30 ta</strong></div>
-                        <div>O&apos;tish: <strong>{ev.minPassPercent}%</strong></div>
+                        <div>Savollar: <strong>{sinovTestimi ? 40 : 30} ta</strong></div>
+                        <div>{sinovTestimi ? 'O\'tish bali: ' : 'O\'tish: '}<strong>{sinovTestimi ? 'Yo\'q' : `${ev.minPassPercent}%`}</strong></div>
                         <div>Urinishlar: <strong>{ev._count?.attempts || 0} ta</strong></div>
                         <div>Prefiks: <strong>{ev.certPrefix}</strong></div>
                         <div className="col-span-2 text-[10px]">
@@ -488,7 +496,7 @@ export default function AdminMavsumiyHamkorPage() {
 
                       {/* Sahifani ko'rish */}
                       <Link
-                        href={`/hamkorlik/${ev.slug}`}
+                        href={sinovTestimi ? '/sea-ms-sinov' : `/hamkorlik/${ev.slug}`}
                         target="_blank"
                         className="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-700/50 text-purple-200 text-xs font-semibold flex items-center gap-1.5"
                       >

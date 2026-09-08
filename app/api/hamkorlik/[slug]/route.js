@@ -205,6 +205,17 @@ export async function POST(req, { params }) {
 
     const body = await req.json()
 
+    // Admin sinovi faqat tekshirish uchun: u urinish, reyting yoki hisobot yaratmaydi.
+    if (isAdmin) {
+      return NextResponse.json({
+        success: true,
+        startedAt: new Date(),
+        completedAt: new Date(),
+        isAnnounced: partnership.isAnnounced,
+        message: body.action === 'start' ? 'Admin sinovi boshlandi' : 'Admin sinovi yakunlandi'
+      })
+    }
+
     // A) TESTNI BOSHLASH SIGNALINI QAYD ETISH (startedAt)
     if (body.action === 'start') {
       let attempt = existingAttempt

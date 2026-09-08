@@ -21,7 +21,7 @@ export default function HamkorlikSahifasi({ params }) {
   const isAuthenticated = status === 'authenticated'
 
   useEffect(() => {
-    if (slug === 'sea-ms-sinov') {
+    if (slug === 'sea-ms-sinov' || slug === 'sea-ms-sinov-2') {
       router.replace('/sea-ms-sinov')
     }
   }, [slug, router])
@@ -32,21 +32,10 @@ export default function HamkorlikSahifasi({ params }) {
   const [testBoshlandi, setTestBoshlandi] = useState(false)
   const [activeTab, setActiveTab] = useState('natijalar') // 'natijalar' | 'haqida' | 'leaderboard'
   const [pdfYuklanmoqda, setPdfYuklanmoqda] = useState(false)
-
-  if (slug === 'sea-ms-sinov') {
-    return (
-      <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] flex items-center justify-center p-6">
-        <div className="text-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center mx-auto animate-spin">
-            <Ikon nom="kolba" olcham={24} />
-          </div>
-          <p className="text-sm text-[var(--v3-xira)]">Milliy Sertifikat sinov sahifasiga o&apos;tkazilmoqda...</p>
-        </div>
-      </main>
-    )
-  }
+  const milliySinovi = slug === 'sea-ms-sinov' || slug === 'sea-ms-sinov-2'
 
   const yukla = useCallback(async () => {
+    if (milliySinovi) return
     setIsLoading(true)
     setError('')
     try {
@@ -64,11 +53,24 @@ export default function HamkorlikSahifasi({ params }) {
     } finally {
       setIsLoading(false)
     }
-  }, [slug])
+  }, [slug, milliySinovi])
 
   useEffect(() => {
-    yukla()
-  }, [yukla])
+    if (!milliySinovi) yukla()
+  }, [milliySinovi, yukla])
+
+  if (milliySinovi) {
+    return (
+      <main className="min-h-screen bg-[var(--v3-fon)] text-[var(--v3-matn)] flex items-center justify-center p-6">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center mx-auto animate-spin">
+            <Ikon nom="kolba" olcham={24} />
+          </div>
+          <p className="text-sm text-[var(--v3-xira)]">Milliy Sertifikat sinov sahifasiga o&apos;tkazilmoqda...</p>
+        </div>
+      </main>
+    )
+  }
 
   if (isLoading) {
     return (
