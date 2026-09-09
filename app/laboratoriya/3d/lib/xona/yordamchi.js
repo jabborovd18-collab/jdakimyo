@@ -6,6 +6,13 @@
 // Xatti-harakat o'zgarmadi — faqat kodning joyi.
 
 
+/** 16x12m KATTA UNIVERSITET LABORATORIYA ZALI ME'MORCHILIGI */
+// Devor qalinligi. Ilgari devor qalinliksiz `PlaneGeometry` edi va
+// deraza uning oldiga 2 sm da yopishtirilgan shisha to'rtburchak edi —
+// ya'ni teshik yo'q, ortida ko'radigan narsa yo'q, ram va tokcha yo'q
+// (BRIF-04, 3-muammo). Qiymat bir joyda turadi: devor ham (`pol-shift-
+// devor.js`), deraza rami ham (`deraza.js`) shu songa bog'lanadi.
+export const DEVOR_QALINLIGI = 0.25;
 
 
 /** Butun 3D Laboratoriya Xonasi Interyerini yig'uvchi bosh funksiya */
