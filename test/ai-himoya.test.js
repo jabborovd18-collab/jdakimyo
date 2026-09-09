@@ -26,9 +26,9 @@ const { xavfsizlikTekshir, xotiraMatniniTozala } = esmRequire(
   'lib/ai-agents/ai-security.js',
   ['xavfsizlikTekshir', 'xotiraMatniniTozala'],
 )
-const { DETERMINISTIK_VOSITA_SCHEMALARI, aiYechiminiDeterministikTekshir, deterministikVositaniBajar, gazHisobla, aralashmaBalansiniTekshir, kramerDeterminanti, kramerSistemasiniYech, faradeyHisobla, phHisobla, eruvchanlikKopaytmasiHisobla, molyarMassaniHisobla, deterministikKontekstTuz } = esmRequire(
+const { DETERMINISTIK_VOSITA_SCHEMALARI, aiYechiminiDeterministikTekshir, buferPhHisobla, deterministikVositaniBajar, gazHisobla, aralashmaBalansiniTekshir, kramerDeterminanti, kramerSistemasiniYech, faradeyHisobla, organikFormulaTop, pearsonKrestiHisobla, phHisobla, eruvchanlikKopaytmasiHisobla, molyarMassaniHisobla, deterministikKontekstTuz } = esmRequire(
   'lib/ai-agents/deterministik-kimyo.js',
-  ['DETERMINISTIK_VOSITA_SCHEMALARI', 'aiYechiminiDeterministikTekshir', 'deterministikVositaniBajar', 'gazHisobla', 'aralashmaBalansiniTekshir', 'kramerDeterminanti', 'kramerSistemasiniYech', 'faradeyHisobla', 'phHisobla', 'eruvchanlikKopaytmasiHisobla', 'molyarMassaniHisobla', 'deterministikKontekstTuz'],
+  ['DETERMINISTIK_VOSITA_SCHEMALARI', 'aiYechiminiDeterministikTekshir', 'buferPhHisobla', 'deterministikVositaniBajar', 'gazHisobla', 'aralashmaBalansiniTekshir', 'kramerDeterminanti', 'kramerSistemasiniYech', 'faradeyHisobla', 'organikFormulaTop', 'pearsonKrestiHisobla', 'phHisobla', 'eruvchanlikKopaytmasiHisobla', 'molyarMassaniHisobla', 'deterministikKontekstTuz'],
 )
 const { AI_KIMYO_BENCHMARKLARI, KENGAYTIRILGAN_KIMYO_BENCHMARKLARI, aiBenchmarkNatijasiniBahola, aiKimyoBenchmarkiniBajar } = esmRequire(
   'lib/ai-agents/ai-kimyo-benchmark.js',
@@ -321,7 +321,7 @@ describe('AI gateway urinish chegarasi', () => {
       assert.equal(javob.yakuniyJavob, '0.635 g Cu')
       assert.equal(bajarilgan, 1)
       assert.equal(sorovlar.length, 2)
-      assert.equal(sorovlar[0].tools.length, 6)
+      assert.equal(sorovlar[0].tools.length, 9)
       assert.equal(sorovlar[1].messages.at(-1).role, 'tool')
       assert.match(sorovlar[1].messages.at(-1).content, /0.635/)
     } finally {
@@ -517,6 +517,7 @@ describe('Deterministik kimyo hakami va benchmark', () => {
   test("deterministik vosita schema barcha asosiy hisoblagichlarni ochadi", () => {
     assert.deepEqual(DETERMINISTIK_VOSITA_SCHEMALARI.map((vosita) => vosita.function.name), [
       'kramer_yech', 'faradey_massasi', 'ph_hisobla', 'molyar_massa_hisobla', 'gaz_hisobla', 'ks_hisobla',
+      'organik_formula_top', 'bufer_ph', 'pearson_kresti',
     ])
     assert.equal(DETERMINISTIK_VOSITA_SCHEMALARI.every((vosita) => vosita.function.parameters.type === 'object'), true)
   })
@@ -532,6 +533,41 @@ describe('Deterministik kimyo hakami va benchmark', () => {
   test("vosita dispatcher noma'lum nom va yaroqsiz parametrni xavfsiz rad etadi", () => {
     assert.equal(deterministikVositaniBajar({ nom: 'kod_bajar', argumentlar: {} }).muvaffaqiyatli, false)
     assert.equal(deterministikVositaniBajar({ nom: 'ph_hisobla', argumentlar: {} }).muvaffaqiyatli, false)
+  })
+
+  test("yonish mahsulotlari glyukozaning empirik va molekulyar formulasini topadi", () => {
+    const natija = organikFormulaTop({ co2Massa: 2.64, h2oMassa: 1.08, moddaMassa: 1.8, molyarMassa: 180 })
+    assert.equal(natija.empirikFormula, 'CH2O')
+    assert.equal(natija.molekulyarFormula, 'C6H12O6')
+    assert.equal(natija.kislorodBor, true)
+  })
+
+  test("yonish analizidagi 1 : 1.33 : 1.66 nisbat C3H4O5 ga keltiriladi", () => {
+    const natija = organikFormulaTop({ co2Massa: 1.3203, h2oMassa: 0.3603, moddaMassa: 1.2, molyarMassa: 120 })
+    assert.deepEqual(natija.empirikNisbat, { C: 3, H: 4, O: 5 })
+    assert.equal(natija.molekulyarFormula, 'C3H4O5')
+  })
+
+  test("kislorodsiz uglevodorod yonishida O formula tarkibiga kiritilmaydi", () => {
+    const natija = organikFormulaTop({ co2Massa: 4.401, h2oMassa: 3.607, moddaMassa: 1.604, molyarMassa: 16.043 })
+    assert.equal(natija.kislorodBor, false)
+    assert.equal(natija.empirikFormula, 'CH4')
+    assert.equal(natija.molekulyarFormula, 'CH4')
+  })
+
+  test("Henderson-Hasselbalch kislota va asos buferini pH/pOH bilan hisoblaydi", () => {
+    const kislota = buferPhHisobla({ pKa: 4.76, kislotaKons: 0.1, tuzKons: 0.2 })
+    const asos = buferPhHisobla({ pKb: 4.75, asosKons: 0.1, tuzKons: 0.2 })
+    assert.ok(Math.abs(kislota.pH - 5.06103) < 0.0001)
+    assert.ok(Math.abs(asos.pOH - 5.05103) < 0.0001)
+    assert.ok(Math.abs(asos.pH - 8.94897) < 0.0001)
+  })
+
+  test("Pearson kresti vositasi mavjud hisoblagich bilan bir xil nisbatni qaytaradi", () => {
+    const bevosita = pearsonKrestiHisobla({ w1: 40, w2: 10, wTarget: 20 })
+    const vosita = deterministikVositaniBajar({ nom: 'pearson_kresti', argumentlar: { w1: 40, w2: 10, wTarget: 20 } })
+    assert.equal(bevosita.nisbat, '1 : 2')
+    assert.deepEqual(vosita.natija, bevosita)
   })
 })
 

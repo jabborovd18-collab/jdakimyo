@@ -42,3 +42,25 @@
 ### Chegara
 
 - Commit qilinmadi.
+
+## Sprint 9 — DTM va olimpiada formulalar dvigateli
+
+### Bajarilgan ishlar
+
+- `organik_formula_top` vositasi qo'shildi. U CO2 va H2O massasidan C/H atom mollarini, massa ayirmasidan O ni, 1–12 ko'paytirgich bilan eng kichik butun nisbatni aniqlaydi. Berilgan molyar massa yoki H2/havoga nisbiy zichlik bilan mos bo'lsa, molekulyar formulani ham qaytaradi.
+- `bufer_ph` Henderson-Hasselbalch tenglamasi orqali kislota buferining pHini yoki asos buferining pOH/pHini hisoblaydi.
+- Mavjud `pearsonKrestiHisobla` `pearson_kresti` nomi bilan rasmiy tool schema va server dispatcherga ulandi.
+- Tool registry 6 tadan 9 taga kengaydi. Gatewayning 8 vositalik eski uzatish limiti 12 ga oshirildi, shuning uchun to'qqizala schema modelga yuboriladi.
+- Organik va eritmalar yo'nalishlari yangi vositalarni `auto` rejimda oladi; murakkab va olimpiada yo'nalishlari server vositasini majburiy chaqirish qoidasini saqlab qoldi.
+
+### Testlar va tekshiruv
+
+- `npm.cmd test` — 216 test o'tdi, 0 ta xato.
+- `node --test test/ai-himoya.test.js` — 58 test o'tdi, 0 ta xato.
+- Glyukoza, 1 : 1.33 : 1.66 dan C3H4O5, kislorodsiz uglevodorod, kislota/asos buferi va Pearson dispatcher holatlari unit-test bilan qoplandi.
+- Tool-call gateway testi 9 ta schema provayderga uzatilishini ham tekshiradi.
+- Maqsadli ESLint — 0 ta xato; `npm.cmd run check:chemistry` — 238 reaksiya, 0 ta xato; `git diff --check` — toza.
+
+### Chegara
+
+- Commit qilinmadi.
