@@ -4,6 +4,44 @@
 // Bu reaksiyalarning "sharoit" maydoni eng muhim qismi — harorat aytilmasa
 // tenglama ma'nosini yo'qotadi.
 
+function nanoTermikMexanizmi(reaksiya) {
+  const suvsizlanish = reaksiya.reactionType === 'suvsizlanish'
+  const bosqichlar = suvsizlanish
+    ? [
+      {
+        formula: '[M(OH₂)ₙ]qattiq*',
+        name: 'Faollashgan kristallogidrat',
+        note: 'Qizdirish M–OH₂ koordinatsion bog‘ini cho‘zadi; suv ligandlari 10⁻¹²–10⁻⁹ s tebranishlarda ajralishga tayyorlanadi.',
+      },
+      {
+        formula: 'M–OH₂···',
+        name: 'Desolvatsiya oralig‘i',
+        note: 'Suv molekulasi panjaradan chiqib, qolgan koordinatsion muhit qayta tartiblanadi.',
+      },
+    ]
+    : [
+      {
+        formula: 'Qattiq modda*',
+        name: 'Vibratsion faollashgan panjara',
+        note: 'Issiqlik eng zaif panjara yoki koordinatsion bog‘ni cho‘zadi; lokal tebranishlar 10⁻¹³–10⁻¹² s tartibida yuz beradi.',
+      },
+      {
+        formula: 'Bog‘ uzilish oralig‘i',
+        name: 'Qayta tartiblanayotgan fragment',
+        note: 'Bog‘ uzilishi va elektron/ligand qayta taqsimlanishi gaz yoki oksid hosil bo‘lishidan oldin kechadi.',
+      },
+    ]
+
+  return {
+    ...reaksiya,
+    intermediates: reaksiya.intermediates || bosqichlar,
+    rateFactors: [
+      { factor: 'Nano vaqt koeffitsienti', effect: 'Panjara tebranishi 10⁻¹³–10⁻¹² s; faollashgan fragmentning makroskopik parchalanishga ulanishi haroratga bog‘liq.' },
+      ...(reaksiya.rateFactors || []),
+    ],
+  }
+}
+
 module.exports = {
   kategoriya: 'Termik parchalanish',
 
@@ -181,5 +219,5 @@ module.exports = {
         { factor: 'Harorat', effect: 'Isitilganda tez parchalanadi' },
       ],
     },
-  ],
+  ].map(nanoTermikMexanizmi),
 }

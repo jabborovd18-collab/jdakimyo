@@ -6,6 +6,39 @@
 // mahsulotlardan biri eritmadan chiqib ketishi kerak — cho'kma, gaz yoki
 // kam dissotsilanuvchi modda (suv) ko'rinishida.
 
+function nanoChoKmaMexanizmi(reaksiya) {
+  const chokmaBor = reaksiya.equation.includes('↓')
+  const bosqichlar = chokmaBor
+    ? [
+      {
+        formula: '[M(H₂O)ₙ]ᶻ⁺···Xᶻ⁻',
+        name: 'Tashqi-sfera ion jufti',
+        note: 'Solvatlangan ionlar diffuziya bilan 10⁻⁹–10⁻⁷ s ichida uchrashadi; suv ligandlari hali saqlanadi.',
+      },
+      {
+        formula: 'M–X(s)ₙ',
+        name: 'Kritik yadro',
+        note: 'Qisman desolvatsiyadan so‘ng M–X koordinatsion bog‘lari paydo bo‘ladi; yadro o‘sishi ko‘rinadigan cho‘kmaga olib keladi.',
+      },
+    ]
+    : [
+      {
+        formula: '[M(OH₂)ₙ]ᶻ⁺',
+        name: 'Solvatlangan kompleks',
+        note: 'Kislota-asos almashinuvida H⁺ yoki OH⁻ suv ligandlari bilan proton almashadi; bu bosqich 10⁻⁹–10⁻⁶ s tartibida boradi.',
+      },
+    ]
+
+  return {
+    ...reaksiya,
+    intermediates: reaksiya.intermediates || bosqichlar,
+    rateFactors: [
+      { factor: 'Nano vaqt koeffitsienti', effect: 'Ion jufti hosil bo‘lishi 10⁻⁹–10⁻⁷ s, yadro yoki proton-almashinish bosqichi 10⁻⁶ s gacha.' },
+      ...(reaksiya.rateFactors || []),
+    ],
+  }
+}
+
 module.exports = {
   kategoriya: 'Cho\'ktirish',
 
@@ -228,5 +261,5 @@ module.exports = {
       reactionType: 'gaz ajralishi bilan almashinish',
       observations: 'Cho\'kma "qaynab" eriydi, gaz pufakchalari chiqadi.',
     },
-  ],
+  ].map(nanoChoKmaMexanizmi),
 }
