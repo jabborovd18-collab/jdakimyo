@@ -26,9 +26,9 @@ const { xavfsizlikTekshir, xotiraMatniniTozala } = esmRequire(
   'lib/ai-agents/ai-security.js',
   ['xavfsizlikTekshir', 'xotiraMatniniTozala'],
 )
-const { aiYechiminiDeterministikTekshir, gazHisobla, aralashmaBalansiniTekshir } = esmRequire(
+const { aiYechiminiDeterministikTekshir, gazHisobla, aralashmaBalansiniTekshir, kramerDeterminanti, kramerSistemasiniYech, faradeyHisobla, phHisobla, eruvchanlikKopaytmasiHisobla, deterministikKontekstTuz } = esmRequire(
   'lib/ai-agents/deterministik-kimyo.js',
-  ['aiYechiminiDeterministikTekshir', 'gazHisobla', 'aralashmaBalansiniTekshir'],
+  ['aiYechiminiDeterministikTekshir', 'gazHisobla', 'aralashmaBalansiniTekshir', 'kramerDeterminanti', 'kramerSistemasiniYech', 'faradeyHisobla', 'phHisobla', 'eruvchanlikKopaytmasiHisobla', 'deterministikKontekstTuz'],
 )
 const { AI_KIMYO_BENCHMARKLARI, KENGAYTIRILGAN_KIMYO_BENCHMARKLARI, aiBenchmarkNatijasiniBahola, aiKimyoBenchmarkiniBajar } = esmRequire(
   'lib/ai-agents/ai-kimyo-benchmark.js',
@@ -350,24 +350,97 @@ describe('Deterministik kimyo hakami va benchmark', () => {
     )
   })
 
-  test("kengaytirilgan benchmark admin baholashi uchun beshta holatni beradi", async () => {
-    assert.equal(KENGAYTIRILGAN_KIMYO_BENCHMARKLARI.length, 5)
+  test("kengaytirilgan benchmark admin baholashi uchun o'nta holatni beradi", async () => {
+    assert.equal(KENGAYTIRILGAN_KIMYO_BENCHMARKLARI.length, 10)
     const natija = await aiKimyoBenchmarkiniBajar({ benchmarklar: KENGAYTIRILGAN_KIMYO_BENCHMARKLARI })
-    assert.equal(natija.totalCases, 5)
+    assert.equal(natija.totalCases, 10)
     assert.equal(natija.failed, 0)
-    assert.deepEqual(natija.details.slice(-2).map((detail) => detail.id), [
-      'respublika_qotishma_magniy_mis',
-      'respublika_gaz_aralashmasi_yonish',
+    assert.deepEqual(natija.details.slice(-5).map((detail) => detail.id), [
+      'xalqaro_elektroliz_mis',
+      'xalqaro_ph_kuchli_kislota',
+      'xalqaro_ks_kalsiy_florid',
+      'xalqaro_kristallogidrat_cuso4',
+      'xalqaro_uch_gazli_aralashma',
     ])
   })
 
-  test("admin sifat hisobida ikki yangi olimpiada benchmarki ham qatnashadi", async () => {
+  test("admin sifat hisobida o'nta olimpiada benchmarki ham qatnashadi", async () => {
     const natija = await aiSifatNatijasiniHisobla({ revision: 7 })
     assert.equal(natija.revision, 7)
-    assert.equal(natija.totalCases, 10)
+    assert.equal(natija.totalCases, 15)
     assert.equal(natija.failed, 0)
     assert.ok(natija.details.some((detail) => detail.id === 'benchmark:respublika_qotishma_magniy_mis'))
-    assert.ok(natija.details.some((detail) => detail.id === 'benchmark:respublika_gaz_aralashmasi_yonish'))
+    assert.ok(natija.details.some((detail) => detail.id === 'benchmark:xalqaro_elektroliz_mis'))
+    assert.ok(natija.details.some((detail) => detail.id === 'benchmark:xalqaro_uch_gazli_aralashma'))
+  })
+
+  test("Kramer determinantlari bilan uch noma'lumli sistema yechiladi", () => {
+    const natija = kramerSistemasiniYech({
+      koeffitsiyentlar: [[1, 1, 1], [1, 0, 1], [0.5, 0.5, 2]],
+      ozodHadlar: [1, 0.5, 0.875],
+    })
+    assert.equal(kramerDeterminanti([[1, 1, 1], [1, 0, 1], [0.5, 0.5, 2]]), -1.5)
+    assert.equal(natija.mavjud, true)
+    assert.deepEqual(natija.yechim, { x: 0.25, y: 0.5, z: 0.25 })
+  })
+
+  test("singulyar Kramer sistemasi yagona yechim deb ko'rsatilmaydi", () => {
+    const natija = kramerSistemasiniYech({ koeffitsiyentlar: [[1, 1], [2, 2]], ozodHadlar: [2, 4] })
+    assert.deepEqual(natija, { mavjud: false, sabab: 'singulyar_sistema', determinant: 0, yechim: null })
+  })
+
+  test("Kramer hisoblagichi noto'g'ri shakldagi matritsani rad etadi", () => {
+    assert.equal(kramerDeterminanti([[1, 2, 3], [4, 5, 6]]), null)
+    assert.equal(kramerSistemasiniYech({ koeffitsiyentlar: [[1, 2]], ozodHadlar: [3, 4] }), null)
+  })
+
+  test("Faradey qonuni mis elektrod massasini SI birliklarda hisoblaydi", () => {
+    const natija = faradeyHisobla({ molyarMassa: 63.5, tok: 2, vaqtSekund: 965, elektronSoni: 2 })
+    assert.equal(natija.zaryad, 1930)
+    assert.ok(Math.abs(natija.massa - 0.635) < 0.0001)
+    assert.ok(Math.abs(natija.mol - 0.01) < 0.00001)
+  })
+
+  test("Faradey hisoblagichi manfiy yoki nol fizik kattalikni qabul qilmaydi", () => {
+    assert.equal(faradeyHisobla({ molyarMassa: 63.5, tok: 0, vaqtSekund: 965, elektronSoni: 2 }), null)
+  })
+
+  test("pH hisoblagichi H+ konsentratsiyasi uchun pH va pOH ni bog'laydi", () => {
+    const natija = phHisobla({ vodorodIoni: 0.002 })
+    assert.ok(Math.abs(natija.pH - 2.69897) < 0.00001)
+    assert.ok(Math.abs(natija.pH + natija.pOH - 14) < 0.00001)
+  })
+
+  test("pH hisoblagichi OH- konsentratsiyasidan ham ishlaydi", () => {
+    const natija = phHisobla({ gidroksidIoni: 0.001 })
+    assert.equal(natija.pOH, 3)
+    assert.equal(natija.pH, 11)
+  })
+
+  test("eruvchanlik ko'paytmasi ionlar darajasi bilan hisoblanadi", () => {
+    const natija = eruvchanlikKopaytmasiHisobla({
+      ionlar: [{ nom: 'Ca2+', konsentratsiya: 0.001 }, { nom: 'F-', konsentratsiya: 0.002, daraja: 2 }],
+    })
+    assert.equal(natija.Ks, 4e-9)
+  })
+
+  test("Ks hisoblagichi manfiy konsentratsiyani rad etadi", () => {
+    assert.equal(eruvchanlikKopaytmasiHisobla({ ionlar: [{ konsentratsiya: -0.001 }] }), null)
+  })
+
+  test("elektrokimyo, pH, Ks va sistema uchun kognitiv kontekst uzatiladi", () => {
+    const natija = deterministikKontekstTuz("Elektrolizda x, y, z noma'lumli tenglamalar sistemasi, pH va Ks ni toping")
+    assert.equal(natija.ishlatildi, true)
+    assert.deepEqual(natija.apparatlar, ['faradey', 'ph', 'ks', 'kramer'])
+    assert.match(natija.prompt, /F = 96485/)
+    assert.match(natija.prompt, /pH = -log10/)
+  })
+
+  test("Faradey, pH va Ks dagi sonli xato server ogohlantirishiga tushadi", () => {
+    const natija = aiYechiminiDeterministikTekshir({
+      bosqichlar: [{ formula: 'm = 63.5 × 2 × 965 / (2 × F) = 0.7 g; pH = -log(0.002) = 3; Ks = 0.001 × (0.002)^2 = 5e-9' }],
+    })
+    assert.deepEqual(natija.ogohlantirishlar.map((xato) => xato.turi), ['faradey_xatosi', 'ph_xatosi', 'ks_xatosi'])
   })
 })
 
