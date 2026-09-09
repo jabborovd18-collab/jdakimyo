@@ -340,3 +340,151 @@ export function smartPlanshetYasa(materiallar) {
 
   return group;
 }
+
+
+/**
+ * Haqiqiy neon nurli EXIT / CHIQISH belgisi (Illuminated Emergency
+ * Exit Sign). Old devorga, eshik tepasiga o'rnatiladi.
+ *
+ * BRIF-05 (2-bosqich): `qobiq.js` dan ko'chirildi — panel/ekran
+ * mazmunan shu faylga tegishli. Kod va pozitsiyalar o'zgarmadi.
+ */
+export function exitBelgisiniQosh(roomGroup) {
+  const XONA_D = XONA.boyi;
+  const MZ = XONA.markazZ;
+
+  if (typeof document !== "undefined") {
+    const exitCanvas = document.createElement("canvas");
+    exitCanvas.width = 256;
+    exitCanvas.height = 96;
+    const exitCtx = exitCanvas.getContext("2d");
+    if (exitCtx) {
+      exitCtx.fillStyle = "#064e3b";
+      exitCtx.fillRect(0, 0, 256, 96);
+      exitCtx.strokeStyle = "#10b981";
+      exitCtx.lineWidth = 6;
+      exitCtx.strokeRect(4, 4, 248, 88);
+
+      exitCtx.fillStyle = "#ffffff";
+      exitCtx.font = "900 34px sans-serif";
+      exitCtx.textAlign = "center";
+      exitCtx.fillText("EXIT / CHIQISH", 128, 48);
+
+      exitCtx.fillStyle = "#34d399";
+      exitCtx.font = "bold 20px monospace";
+      exitCtx.fillText("🏃 CHIQISH ESALIK", 128, 78);
+
+      const exitTexture = new THREE.CanvasTexture(exitCanvas);
+      const exitSignGeo = new THREE.PlaneGeometry(0.72, 0.26);
+      const exitSignMat = new THREE.MeshBasicMaterial({ map: exitTexture });
+      const exitSignMesh = new THREE.Mesh(exitSignGeo, exitSignMat);
+      exitSignMesh.rotation.y = Math.PI;
+      exitSignMesh.position.set(0, 2.85, XONA_D / 2 + MZ - 0.04);
+      roomGroup.add(exitSignMesh);
+    }
+  }
+}
+
+
+/**
+ * Eshik yonidagi Raqamli Xona Iqlim va Havfsizlik Stansiyasi (Room
+ * Climate & Safety Monitor). `userData.iqlimniYangila` orqali jonli
+ * yangilanadi (`korinish.js`).
+ *
+ * BRIF-05 (2-bosqich): `qobiq.js` dan ko'chirildi. Kod va pozitsiyalar
+ * o'zgarmadi.
+ */
+export function iqlimStansiyasiniQosh(roomGroup) {
+  const XONA_D = XONA.boyi;
+  const MZ = XONA.markazZ;
+
+  let clCanvas = null;
+  let clCtx = null;
+  let clTexture = null;
+
+  const chizIqlimEkrani = (harorat = 22.4, tutunBormi = false, ventilyatsiyaFaol = false) => {
+    if (!clCtx || !clCanvas) return;
+    clCtx.fillStyle = "#030712";
+    clCtx.fillRect(0, 0, 512, 256);
+
+    clCtx.strokeStyle = tutunBormi ? "#ef4444" : "#38bdf8";
+    clCtx.lineWidth = 4;
+    clCtx.strokeRect(6, 6, 500, 244);
+
+    clCtx.fillStyle = tutunBormi ? "#ef4444" : "#38bdf8";
+    clCtx.font = "bold 22px monospace";
+    clCtx.textAlign = "left";
+    clCtx.fillText("● JDA-LAB CLIMATE & SAFETY", 20, 36);
+
+    clCtx.fillStyle = tutunBormi ? "#f59e0b" : "#64748b";
+    clCtx.font = "bold 16px monospace";
+    clCtx.textAlign = "right";
+    clCtx.fillText(tutunBormi ? "HAZARD ALERT" : "ONLINE", 492, 36);
+
+    // Harorat
+    clCtx.fillStyle = tutunBormi ? "#f59e0b" : "#10b981";
+    clCtx.font = "900 48px monospace";
+    clCtx.textAlign = "left";
+    clCtx.fillText(`${harorat.toFixed(1)}°C`, 20, 100);
+
+    clCtx.fillStyle = "#94a3b8";
+    clCtx.font = "bold 18px monospace";
+    clCtx.fillText("Namlik: 48% RH", 240, 75);
+    clCtx.fillText("Bosim: 758 mmHg", 240, 102);
+
+    // Havo sifati & O2
+    clCtx.fillStyle = "#0f172a";
+    clCtx.fillRect(16, 125, 480, 105);
+    clCtx.strokeStyle = tutunBormi ? "rgba(239, 68, 68, 0.4)" : "rgba(56, 189, 248, 0.25)";
+    clCtx.strokeRect(16, 125, 480, 105);
+
+    if (tutunBormi) {
+      clCtx.fillStyle = "#ef4444";
+      clCtx.font = "bold 20px monospace";
+      clCtx.fillText("Havo: ⚠️ TUTUN VA GAZ ANIKLANDI!", 30, 160);
+      clCtx.fillStyle = "#f59e0b";
+      clCtx.fillText("Ventilyatsiya: MAKSIMAL (100% SO'RISH)", 30, 195);
+      clCtx.fillText("Tavsiya: Dush & Gaz niqobidan foydalaning", 30, 222);
+    } else {
+      clCtx.fillStyle = "#34d399";
+      clCtx.font = "bold 20px monospace";
+      clCtx.fillText("Havo sifati: ● XAVFSIZ (0.00 ppm)", 30, 160);
+      clCtx.fillStyle = "#38bdf8";
+      clCtx.fillText("O₂ darajasi: 20.9% (Optimal)", 30, 195);
+      clCtx.fillText("Ventilyatsiya: ME'YORDA (Avtomatik)", 30, 222);
+    }
+  };
+
+  if (typeof document !== "undefined") {
+    clCanvas = document.createElement("canvas");
+    clCanvas.width = 512;
+    clCanvas.height = 256;
+    clCtx = clCanvas.getContext("2d");
+    if (clCtx) {
+      chizIqlimEkrani(22.4, false, false);
+      clTexture = new THREE.CanvasTexture(clCanvas);
+    }
+  }
+
+  const climateMeshGeo = new THREE.PlaneGeometry(0.85, 0.44);
+  const climateMeshMat = clTexture
+    ? new THREE.MeshBasicMaterial({ map: clTexture })
+    : new THREE.MeshBasicMaterial({ color: 0x030712 });
+  const climateMesh = new THREE.Mesh(climateMeshGeo, climateMeshMat);
+  climateMesh.name = "Xona_Iqlim_Stansiyasi";
+  climateMesh.rotation.y = Math.PI;
+  climateMesh.position.set(1.8, 1.65, XONA_D / 2 + MZ - 0.04);
+
+  climateMesh.userData = {
+    kalit: "xona_iqlimi",
+    nom: "Xona Iqlim va Havfsizlik Ko'rsatkichi",
+    tanlanadi: true,
+    iqlimniYangila: (harorat = 22.4, tutunBormi = false, ventilyatsiyaFaol = false) => {
+      if (clCtx && clCanvas && clTexture) {
+        chizIqlimEkrani(harorat, tutunBormi, ventilyatsiyaFaol);
+        clTexture.needsUpdate = true;
+      }
+    },
+  };
+  roomGroup.add(climateMesh);
+}

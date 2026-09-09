@@ -7,6 +7,7 @@
 
 import * as THREE from "three";
 import { XONA } from "../sozlama.js";
+import { soyaTashlasin } from "./yordamchi.js";
 
 
 /** Yuvinish Rakovinasi, Distillangan Suv Krani va Oqim modeli */
@@ -102,4 +103,88 @@ export function rakovinaYasa(materiallar) {
   };
 
   return group;
+}
+
+
+/**
+ * Xavfsizlik Dushi va Ko'z Yuvish Stansiyasi (O'ng devorda).
+ * `userData.dushniYangila` / `kozYuvishniYangila` orqali suv oqimi
+ * jonli boshqariladi (`korinish.js`, `useYurish.js`).
+ *
+ * BRIF-05 (2-bosqich): `qobiq.js` dan ko'chirildi — suv-santexnika
+ * mazmunan shu faylga tegishli. Kod va pozitsiyalar o'zgarmadi.
+ */
+export function xavfsizlikDushiniQosh(roomGroup, ramkaMat, profil) {
+  const XONA_W = XONA.eni;
+  const MZ = XONA.markazZ;
+
+  const dushGroup = new THREE.Group();
+  dushGroup.name = "Xavfsizlik_Dushi_Stansiyasi";
+  dushGroup.position.set(XONA_W / 2 - 0.15, 0, MZ + 3.1);
+
+  const suvMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 });
+  const sariqMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2 });
+
+  // Vertikal po'lat truba
+  const trubaGeo = new THREE.CylinderGeometry(0.025, 0.025, 2.8, 16);
+  const truba = new THREE.Mesh(trubaGeo, ramkaMat);
+  truba.position.y = 1.4;
+  dushGroup.add(truba);
+
+  // Dush kallagi
+  const boshGeo = new THREE.ConeGeometry(0.18, 0.12, 20);
+  const bosh = new THREE.Mesh(boshGeo, sariqMat);
+  bosh.position.set(-0.35, 2.7, 0);
+  dushGroup.add(bosh);
+
+  // Tortish zanjiri va halqasi (Pull ring)
+  const zanjirGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.6, 8);
+  const zanjir = new THREE.Mesh(zanjirGeo, ramkaMat);
+  zanjir.position.set(-0.35, 2.3, 0);
+  dushGroup.add(zanjir);
+
+  const halqaGeo = new THREE.TorusGeometry(0.04, 0.008, 8, 16);
+  const halqa = new THREE.Mesh(halqaGeo, sariqMat);
+  halqa.position.set(-0.35, 2.0, 0);
+  halqa.userData = { kalit: "xavfsizlik_dushi", nom: "Favqulodda Xavfsizlik Dushi Zanjiri", tanlanadi: true };
+  dushGroup.add(halqa);
+
+  // Dush suv kaskadi (Shower Cascade mesh)
+  const dushSuvGeo = new THREE.CylinderGeometry(0.35, 0.55, 2.4, 20, 1, true);
+  const dushSuvMesh = new THREE.Mesh(dushSuvGeo, suvMat);
+  dushSuvMesh.position.set(-0.35, 1.4, 0);
+  dushSuvMesh.visible = false;
+  dushGroup.add(dushSuvMesh);
+
+  // Ko'z yuvish vannasi (Eyewash basin)
+  const vannaGeo = new THREE.CylinderGeometry(0.16, 0.12, 0.1, 20);
+  const vanna = new THREE.Mesh(vannaGeo, sariqMat);
+  vanna.position.set(-0.35, 1.05, 0);
+  vanna.userData = { kalit: "koz_yuvish", nom: "Ko'z Yuvish Favvorasi", tanlanadi: true };
+  dushGroup.add(vanna);
+
+  const favvoraGeo = new THREE.CylinderGeometry(0.01, 0.015, 0.18, 12);
+  const favvoraMesh = new THREE.Mesh(favvoraGeo, suvMat);
+  favvoraMesh.position.set(-0.35, 1.15, 0);
+  favvoraMesh.visible = false;
+  dushGroup.add(favvoraMesh);
+
+  const dushniYangila = (faol = false) => {
+    dushSuvMesh.visible = faol;
+  };
+
+  const kozYuvishniYangila = (faol = false) => {
+    favvoraMesh.visible = faol;
+  };
+
+  dushGroup.userData = {
+    kalit: "xavfsizlik_dushi",
+    nom: "Xavfsizlik Dushi va Ko'z Yuvish Stansiyasi",
+    tanlanadi: true,
+    dushniYangila,
+    kozYuvishniYangila,
+    dushFaol: false,
+    kozFaol: false,
+  };
+  roomGroup.add(soyaTashlasin(dushGroup, profil));
 }

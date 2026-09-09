@@ -6,7 +6,9 @@
 // Xatti-harakat o'zgarmadi — faqat kodning joyi.
 
 import * as THREE from "three";
+import { XONA } from "../sozlama.js";
 import { tortmaShkafNuriniYarat } from "../yoruglik.js";
+import { soyaTashlasin } from "./yordamchi.js";
 
 
 /** Tortma Shkaf (Fume Hood) modeli */
@@ -288,4 +290,72 @@ export function stolDaftarlariYasa() {
   group.add(ruchka);
 
   return group;
+}
+
+
+/**
+ * Eshik Yonidagi Devor Xavfsizlik Shkafi (Ko'zoynak va Gaz Niqobi).
+ *
+ * BRIF-05 (2-bosqich): `qobiq.js` dan ko'chirildi — devor shkafi
+ * mazmunan mebelga tegishli. Kod va pozitsiyalar o'zgarmadi.
+ */
+export function xavfsizlikShkafiniQosh(roomGroup, shishaMat, profil) {
+  const XONA_D = XONA.boyi;
+  const MZ = XONA.markazZ;
+
+  const xavfShkafGroup = new THREE.Group();
+  xavfShkafGroup.name = "Xavfsizlik_Shkafi";
+  xavfShkafGroup.position.set(-1.8, 1.65, XONA_D / 2 + MZ - 0.05);
+  xavfShkafGroup.rotation.y = Math.PI;
+
+  const shkafKarkasGeo = new THREE.BoxGeometry(0.65, 0.75, 0.18);
+  const shkafKarkasMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.3 }); // Emerald Green HazMat
+  const shkafKarkas = new THREE.Mesh(shkafKarkasGeo, shkafKarkasMat);
+  xavfShkafGroup.add(shkafKarkas);
+
+  const oynaQopqoqGeo = new THREE.BoxGeometry(0.60, 0.70, 0.01);
+  const oynaQopqoq = new THREE.Mesh(oynaQopqoqGeo, shishaMat);
+  oynaQopqoq.position.z = 0.09;
+  xavfShkafGroup.add(oynaQopqoq);
+
+  // Himoya Ko'zoynagi modeli
+  const kozoynakGroup = new THREE.Group();
+  kozoynakGroup.name = "Himoya_Kozoynagi";
+  kozoynakGroup.position.set(0, 0.15, 0.02);
+
+  const linzaGeo = new THREE.BoxGeometry(0.24, 0.08, 0.04);
+  const linzaMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.6, roughness: 0.1 });
+  const linza = new THREE.Mesh(linzaGeo, linzaMat);
+  kozoynakGroup.add(linza);
+
+  const tasmarGeo = new THREE.TorusGeometry(0.12, 0.008, 8, 16);
+  const tasma = new THREE.Mesh(tasmarGeo, new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+  tasma.rotation.x = Math.PI / 2;
+  kozoynakGroup.add(tasma);
+
+  kozoynakGroup.userData = { kalit: "himoya_kozoynagi", nom: "Kimyoviy Himoya Ko'zoynagi", tanlanadi: true };
+  xavfShkafGroup.add(kozoynakGroup);
+
+  // Gaz Niqobi / Respirator modeli
+  const niqobGroup = new THREE.Group();
+  niqobGroup.name = "Gaz_Niqobi";
+  niqobGroup.position.set(0, -0.15, 0.02);
+
+  const korpusNGeo = new THREE.ConeGeometry(0.09, 0.14, 16);
+  const korpusNMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+  const korpusN = new THREE.Mesh(korpusNGeo, korpusNMat);
+  korpusN.rotation.x = -Math.PI / 2;
+  niqobGroup.add(korpusN);
+
+  const filtrGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.04, 16);
+  const filtrMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8 });
+  const filtr = new THREE.Mesh(filtrGeo, filtrMat);
+  filtr.rotation.x = Math.PI / 2;
+  filtr.position.set(0, 0, 0.08);
+  niqobGroup.add(filtr);
+
+  niqobGroup.userData = { kalit: "gaz_niqobi", nom: "Kimyoviy Gaz Niqobi / Respirator", tanlanadi: true };
+  xavfShkafGroup.add(niqobGroup);
+
+  roomGroup.add(soyaTashlasin(xavfShkafGroup, profil));
 }
