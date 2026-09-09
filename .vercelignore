@@ -7,3 +7,8 @@
 # Mahalliy QA natijalari deploy paketining bir qismi emas.
 output/
 .olcham/
+test/
+docs/
+scripts/
+tools/
+.github/
