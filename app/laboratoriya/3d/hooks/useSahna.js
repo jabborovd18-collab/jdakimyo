@@ -21,6 +21,7 @@ import { modelOl, assetlarniQollash, assetlarniTozala } from "../lib/asset-yuklo
 import { profilniAniqla, profilniOl } from "../lib/sifat-profili.js";
 import { yoruglikniQur } from "../lib/yoruglik.js";
 import { holatYarat, keyingiNisbat } from "../lib/dinamik-rezolyutsiya.js";
+import { vaqtOqimi } from "../lib/vaqt-oqimi.js";
 import {
   YORLIQLAR_SAQLASH_KALITI,
   YORLIQ_TEKSHIRISH_QADAMI,
@@ -462,6 +463,10 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
         );
     let drsOxirgiKadr = 0;
 
+    // X-Ray slow-motion uchun yig'ilgan sahna vaqti (lib/vaqt-oqimi.js).
+    let vaqtYigildi = performance.now() * 0.006;
+    let oxirgiOn = performance.now();
+
     // 10. Animatsiya sikli
     const animate = () => {
       kadrIdRef.current = requestAnimationFrame(animate);
@@ -480,7 +485,15 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
       }
 
       // 4-MUAMMO: Sahnadagi alanga tebranishi va qaynash pufakchalarini 60 FPS da harakatlantirish
-      const vaqt = performance.now() * 0.006;
+      //
+      // X-RAY SLOW-MOTION: `vaqtOqimi.koeff` (lib/vaqt-oqimi.js) 1 dan
+      // kichik bo'lsa sahna vaqti sekin oqadi. Koeff=1 da `vaqtYigildi`
+      // aynan eski `performance.now()*0.006` bilan bir xil o'sadi
+      // (delta yig'indisi) — oddiy rejim o'zgarmaydi.
+      const hozirgiOn = performance.now();
+      vaqtYigildi += (hozirgiOn - oxirgiOn) * 0.006 * vaqtOqimi.koeff;
+      oxirgiOn = hozirgiOn;
+      const vaqt = vaqtYigildi;
       scene.children.forEach((obj) => {
         if (obj.userData?.alanga && obj.userData.yoqilgan) {
           if (obj.userData.sariqAlanga) {
@@ -500,7 +513,8 @@ export function useSahna(konteynerRef, yuklanmoqda = false, sozlama = {}) {
           if (geo?.attributes?.position) {
             const posArr = geo.attributes.position.array;
             for (let i = 0; i < count; i++) {
-              posArr[i * 3 + 1] += basePos[i].speed;
+              // Pufakcha tezligi ham vaqt oqimiga ergashadi (koeff=1 da eski qiymat).
+              posArr[i * 3 + 1] += basePos[i].speed * vaqtOqimi.koeff;
               if (posArr[i * 3 + 1] > balandlik + 0.02) {
                 posArr[i * 3 + 1] = 0.03;
               }

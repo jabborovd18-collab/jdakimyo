@@ -22,16 +22,24 @@ export function materiallarniYarat(profil, maksAnizotrop = 1) {
   const kattaYuza = (t) => kattaYuzaniSozla(t, profil.anizotrop, maksAnizotrop);
 
   // Profilning `transmission` maydoni eski arzon/to'liq shisha tanlovining
-  // aynan o'zi. Qiymatlar bu brifda o'zgarmaydi.
+  // aynan o'zi — telefon arzon MeshStandard yo'lida qoladi (60 FPS).
+  //
+  // 4K OPTIKA (2026-09-09): desktop/ilova shishasi haqiqiy laboratoriya
+  // shishasi qiymatlariga o'tkazildi: transmission 0.95 (deyarli tiniq),
+  // roughness 0.05, ior 1.52 (borosilikat shisha), thickness 1.2
+  // (sinish chuqurligi — idish devorining optik "og'irligi"),
+  // specularIntensity 1.0. `opacity` 1.0 ga ko'tarildi: transmission
+  // ishlaganda xiralik opacity bilan emas, shishaning o'zi bilan
+  // boshqariladi — ikkalasi birga shishani sutdek qilardi.
   const shisha = profil.transmission
     ? new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
         transparent: true,
-        opacity: 0.88,
-        roughness: 0.04,
-        metalness: 0.02,
-        transmission: 0.82,
-        thickness: 0.06,
+        opacity: 1.0,
+        roughness: 0.05,
+        metalness: 0.0,
+        transmission: 0.95,
+        thickness: 1.2,
         ior: 1.52,
         specularIntensity: 1.0,
         specularColor: new THREE.Color(0xffffff),

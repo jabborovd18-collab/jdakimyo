@@ -20,6 +20,12 @@
 
 import * as THREE from "three";
 
+// KINO REJIM — dolly zoom paytida FPS yurish sikli kamerani qo'yib
+// turishi uchun bayroq. `useYurish` har kadrda o'qiydi: faol bo'lsa
+// harakat/kolliziya/lookAt o'tkazib yuboriladi (rAF sikli to'xtamaydi,
+// DRS ishlayveradi). Bitta yozuvchi — X-Ray sho'ng'ish (korinish.js).
+export const kinoRejim = { faol: false };
+
 /** Silliq tezlanish-sekinlanish (easeInOutCubic). */
 export function silliqlash(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
