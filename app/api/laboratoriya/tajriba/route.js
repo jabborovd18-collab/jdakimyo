@@ -39,7 +39,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 })
     }
 
-    const { kalitlar, reactionId, miqdorlar, idish } = await request.json()
+    const { kalitlar, reactionId, miqdorlar, idish, harorat } = await request.json()
     if (!Array.isArray(kalitlar) || kalitlar.length === 0) {
       return NextResponse.json({ error: 'Reagent tanlanmagan' }, { status: 400 })
     }
@@ -53,12 +53,18 @@ export async function POST(request) {
         ? miqdorlar
         : null
 
+    // `harorat` — 3D laboratoriyada idishning hozirgi harorati. Termik
+    // reaksiya (masalan Cu(OH)₂ → CuO) sovuq idishda boshlanmasligi
+    // uchun kerak. 2D yubormaydi — u yerda tekshiruv o'tkazib yuboriladi.
+    const tozaHarorat = Number.isFinite(Number(harorat)) ? Number(harorat) : null
+
     const natija = await tajribaniOtkaz(
       session.user.id,
       kalitlar,
       reactionId || null,
       tozaMiqdorlar,
       typeof idish === 'string' && idish ? idish : null,
+      tozaHarorat,
     )
 
     // Bir to'plamdan bir nechta reaksiya chiqdi — foydalanuvchi tanlashi
@@ -81,7 +87,9 @@ export async function POST(request) {
     // "Reaksiya bo'lmadi" ham, "reagent yetmadi" ham foydalanuvchi
     // ko'radigan oddiy natija — server nosozligi emas.
     if (error instanceof LabXatosi) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      // `kod` — mashina o'qiydigan tur ('sovuq'): 3D client "hali
+      // qizimagan" holatni suyuqlikni kulrang qilib buzmasligi uchun.
+      return NextResponse.json({ error: error.message, kod: error.kod ?? null }, { status: 400 })
     }
     if (error?.code === 'P2034' || error?.code === 'P2028') {
       return NextResponse.json(

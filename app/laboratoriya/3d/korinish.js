@@ -34,7 +34,7 @@ import {
 import { eritmaHisobla } from "./lib/eritma-tayyorlash.js";
 import { titrlashHolatiniHisobla } from "./lib/titrlash-dvigatel.js";
 import { elektrolizHisobla } from "./lib/elektroliz-dvigatel.js";
-import { tozala, jamiHajm, idishHolatiniOl, idishHolatiniYoz } from "./lib/idish-holati.js";
+import { tozala, jamiHajm, idishHolatiniOl, idishHolatiniYoz, dekantatsiya } from "./lib/idish-holati.js";
 import { jurnalYarat, yoz } from "./lib/jurnal.js";
 import { suyuqlikSathiniYangila, qaynashniYangila } from "./lib/jihoz-modellari.js";
 import { moddaKorinishi } from "./lib/modda-korinishi.js";
@@ -290,15 +290,37 @@ export default function Korinish() {
     }
 
     if (group) {
-      suyuqlikSathiniYangila(group, 0, null, 0);
-      // Yuvilgan idishning O'Z holati tozalanadi — boshqa idishlarga tegmaydi.
       const holat = idishHolatiniOl(group, group.userData?.kalit);
-      idishHolatiniYoz(group, tozala(holat));
+
+      // Dekantatsiya: suyuqlik to'kiladi, CHO'KMA QOLADI (BRIF-R01, 5-bosqich).
+      // Ilgari rakovina hammasini o'chirardi — Cu(OH)₂ cho'kmasi ham ketardi
+      // va uni qizdirishga hech narsa qolmasdi. Qattiq/suyuqni modda jadvali
+      // aytadi (lib/lab-modda.js — yagona manba).
+      const { holat: yuvilgan, tokilgan, qolganKalitlar } = dekantatsiya(
+        holat,
+        (kalit) => moddaKorinishi(kalit).holat === "qattiq",
+      );
+
+      if (qolganKalitlar.length > 0) {
+        idishHolatiniYoz(group, yuvilgan);
+        const chokmaKorinish = moddaKorinishi(qolganKalitlar[0]);
+        suyuqlikSathiniYangila(group, 0, null, jamiHajm(yuvilgan), chokmaKorinish.rang);
+        toast.success(
+          tokilgan.length > 0
+            ? `✓ Eritma to'kildi (${tokilgan.join(", ")}), ${qolganKalitlar.join(", ")} cho'kmasi yuvilib idishda qoldi`
+            : `✓ ${qolganKalitlar.join(", ")} cho'kmasi toza suv bilan yuvildi`
+        );
+      } else {
+        suyuqlikSathiniYangila(group, 0, null, 0);
+        idishHolatiniYoz(group, tozala(holat));
+        toast.success("✓ Idish distillangan suv bilan to'liq yuvildi va tozalandi!");
+      }
+    } else {
+      toast.success("✓ Idish distillangan suv bilan to'liq yuvildi va tozalandi!");
     }
     jurnalRef.current = jurnalYarat();
 
     amalYoz({ turi: "amal", kalit: "yuvish" });
-    toast.success("✓ Idish distillangan suv bilan to'liq yuvildi va tozalandi!");
     setAralashmaOzgarish((s) => s + 1);
 
     setTimeout(() => {
@@ -833,15 +855,55 @@ export default function Korinish() {
 
   // Moddalar aralashganda avtomatik reaksiya hisoblash — faol idishning
   // o'z holatiga asoslanadi.
+  //
+  // Har `aralashmaOzgarish` uchun KO'PI BILAN BITTA urinish (ref bilan).
+  // Usiz reaksiya topilmaganda sikl aylanardi: `otkazilmoqda` true→false
+  // bo'lishi effektni qayta uyg'otadi, shart yana o'tadi (natija null
+  // qolgan) va server bir xil so'rov bilan qayta-qayta urilardi. Yangi
+  // quyish `aralashmaOzgarish` ni oshiradi va urinish yana ochiladi.
+  const oxirgiAralashmaUrinishRef = useRef(-1);
   useEffect(() => {
     if (!nishonIdishGroup) return;
+    if (oxirgiAralashmaUrinishRef.current === aralashmaOzgarish) return;
     const moddalar = idishHolatiniOl(nishonIdishGroup, nishonIdishGroup.userData?.kalit)?.moddalar || {};
     const moddaKalitlar = Object.keys(moddalar);
 
     if (moddaKalitlar.length >= 2 && !otkazilmoqda && !natija) {
+      oxirgiAralashmaUrinishRef.current = aralashmaOzgarish;
       otkaz(null, nishonIdishGroup);
     }
   }, [aralashmaOzgarish, otkazilmoqda, natija, otkaz, nishonIdishGroup]);
+
+  // Isitishda TERMIK reaksiya urinishi (BRIF-R01, 6-bosqich).
+  //
+  // Aralashish triggeri buni qamramaydi: u 2+ modda talab qiladi, termik
+  // parchalanish esa BITTA qattiq moddadan boshlanadi (Cu(OH)₂ → CuO + H₂O).
+  // Shart — idishda kamida bitta QATTIQ modda (cho'kma/kukun): suv yoki
+  // eritmani qizdirish reaksiya urinishi emas, shunchaki qaynash.
+  //
+  // Bo'ladimi-bo'lmaydimi SERVER hal qiladi: u haroratni bazadagi
+  // `temperature` bilan solishtiradi ('sovuq' kodi). Har 20 gradusda bitta
+  // urinish — server sekundiga so'rov bilan bombalanmasin, lekin "60 °C da
+  // hali erta, 80 °C da bo'ldi" yo'li ham ochiq qolsin.
+  const oxirgiTermikUrinishRef = useRef(-Infinity);
+  useEffect(() => {
+    if (!isitimoda) {
+      oxirgiTermikUrinishRef.current = -Infinity;
+      return;
+    }
+    if (otkazilmoqda || !nishonIdishGroup) return;
+    if (harorat < 80) return;
+    if (harorat - oxirgiTermikUrinishRef.current < 20) return;
+
+    const holat = idishHolatiniOl(nishonIdishGroup, nishonIdishGroup.userData?.kalit);
+    const kalitlar = Object.keys(holat?.moddalar || {});
+    if (kalitlar.length === 0) return;
+    if (!kalitlar.some((k) => moddaKorinishi(k).holat === "qattiq")) return;
+
+    oxirgiTermikUrinishRef.current = harorat;
+    setNatija(null);
+    otkaz(null, nishonIdishGroup);
+  }, [harorat, isitimoda, otkazilmoqda, nishonIdishGroup, otkaz, setNatija]);
 
   useEffect(() => {
     yuklaLab();
