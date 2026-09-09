@@ -944,6 +944,15 @@ haqiqiy bo'ladi.
 
 ### Yo'l-yo'lakay topilgan nuqsonlar (10-band — yozildi, tuzatilmadi)
 
+0. **`setFpsQolIdish` aniqlanmagan (BRIF-05 2-bosqichda topildi).**
+   HUD dagi "[G] Javonga" tugmasi (`LabHUD.jsx`, ilgari
+   `korinish.js:1193`) `javongaQaytar()` dan keyin `setFpsQolIdish(null)`
+   chaqiradi, lekin `useYurish` bu setterni qaytarmaydi — tugma bosilsa
+   `ReferenceError`. Klaviatura [G] yo'li ishlaydi (setter hook ichida).
+   Refaktorda ATAYLAB tuzatilmadi — xatti-harakat o'zgarmasin;
+   tuzatish alohida ish: `useYurish` return ro'yxatiga `setFpsQolIdish`
+   qo'shib, `LabHUD` ga prop sifatida berish kifoya.
+
 1. **`tortmaShkafYasa` o'lik kod.** `xona-modellari.js:555-590`,
    `Fume_Hood` nomli tortma shkaf modeli — ta'riflangan, lekin hech
    qayerdan chaqirilmagan. 4 mesh, ~37 qator. Xona rejasida tortma
