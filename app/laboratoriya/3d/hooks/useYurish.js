@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { qadamTovushi, shishaUrilishi, tiqinOchilishi, taroziBip, oqimBoshla, oqimToxtat } from "../lib/ovoz.js";
 import { idishYorliginiQoldaYangila } from "../lib/yorliqlar.js";
 import { pointerLockMavjudmi, yawniSiljit } from "../lib/qarash-boshqaruvi.js";
+import { kinoRejim } from "../lib/kamera-dolly.js";
 import { ANIQ_DOZALAR, YURISH_CHETLANISHI, xonaChegarasi } from "../lib/sozlama.js";
 import { ishorasiniMosla, useKirishUsuli } from "../lib/kirish-usuli.js";
 
@@ -752,6 +753,12 @@ export function useYurish({
       const hozir = performance.now();
       const dt = Math.min(0.08, (hozir - oldingiVaqtRef.current) / 1000);
       oldingiVaqtRef.current = hozir;
+
+      // KINO REJIM (X-Ray dolly zoom): kamerani dolly boshqaradi —
+      // yurish, kolliziya va lookAt bu kadrda o'tkazib yuboriladi.
+      // Sikl to'xtamaydi (dt yangilanib turadi), rejim tugashi bilan
+      // boshqaruv silliq qaytadi.
+      if (kinoRejim.faol) return;
 
       const keys = keysRef.current;
       const analog = analogRef.current;

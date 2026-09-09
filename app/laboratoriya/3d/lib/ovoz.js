@@ -253,3 +253,90 @@ export function taroziBip(chastota = 2400) {
   } catch (e) {}
 }
 
+
+// 8. Laboratoriya fon atmosferasi (Ambient Room Tone).
+//
+// Sokin ventilyatsiya g'uvillashi (past chastotaga filtrlangan shovqin)
+// + juda past elektr g'ichirlashi (50 Hz hum). Tashqi fayl yo'q — xuddi
+// qolgan ovozlar kabi Web Audio bilan generatsiya qilinadi.
+//
+// MUHIM: brauzer AudioContext ni foydalanuvchi ishorasisiz ochmaydi.
+// Shuning uchun bu funksiya birinchi bosish/klikda chaqiriladi
+// (korinish.js). Ikkinchi chaqiruv hech narsa qilmaydi (idempotent).
+let fonManba = null;
+let fonGain = null;
+let fonHum = null;
+let fonHumGain = null;
+
+export function laboratoriyaFonOvoziniYarat() {
+  const ctx = getAudioContext();
+  if (!ctx || fonManba) return;
+
+  try {
+    // Ventilyatsiya: 2 soniyalik oq shovqin buferi, loop bilan.
+    const buferUzunligi = ctx.sampleRate * 2;
+    const bufer = ctx.createBuffer(1, buferUzunligi, ctx.sampleRate);
+    const kanal = bufer.getChannelData(0);
+    for (let i = 0; i < buferUzunligi; i += 1) {
+      kanal[i] = Math.random() * 2 - 1;
+    }
+
+    fonManba = ctx.createBufferSource();
+    fonManba.buffer = bufer;
+    fonManba.loop = true;
+
+    // Past chastota filtri — shovqinni "shshsh" dan "guvv" ga aylantiradi.
+    const filtr = ctx.createBiquadFilter();
+    filtr.type = "lowpass";
+    filtr.frequency.setValueAtTime(220, ctx.currentTime);
+    filtr.Q.setValueAtTime(0.6, ctx.currentTime);
+
+    fonGain = ctx.createGain();
+    // Juda sokin boshlanadi va 2 soniyada me'yorga chiqadi — eshik
+    // ortidan kirgandek, birdan "portlamaydi".
+    fonGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    fonGain.gain.exponentialRampToValueAtTime(0.022, ctx.currentTime + 2.0);
+
+    fonManba.connect(filtr);
+    filtr.connect(fonGain);
+    fonGain.connect(ctx.destination);
+    fonManba.start();
+
+    // Elektr hum — chiroq balastining 50 Hz g'ichirlashi, deyarli
+    // sezilmas darajada.
+    fonHum = ctx.createOscillator();
+    fonHum.type = "sine";
+    fonHum.frequency.setValueAtTime(50, ctx.currentTime);
+
+    fonHumGain = ctx.createGain();
+    fonHumGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    fonHumGain.gain.exponentialRampToValueAtTime(0.006, ctx.currentTime + 3.0);
+
+    fonHum.connect(fonHumGain);
+    fonHumGain.connect(ctx.destination);
+    fonHum.start();
+  } catch (e) {
+    fonManba = null;
+  }
+}
+
+export function laboratoriyaFonOvoziniToxtat() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    if (fonGain) fonGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+    if (fonHumGain) fonHumGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+    const eskiManba = fonManba;
+    const eskiHum = fonHum;
+    setTimeout(() => {
+      try {
+        if (eskiManba) eskiManba.stop();
+        if (eskiHum) eskiHum.stop();
+      } catch (e) {}
+    }, 600);
+  } catch (e) {}
+  fonManba = null;
+  fonGain = null;
+  fonHum = null;
+  fonHumGain = null;
+}

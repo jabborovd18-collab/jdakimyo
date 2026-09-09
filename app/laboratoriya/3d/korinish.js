@@ -41,7 +41,10 @@ import { INDIKATORLAR } from "./lib/javon-3d.js";
 import { KIRISH, ishoralarniOl, useKirishUsuli } from "./lib/kirish-usuli.js";
 import { jamiHajm, idishHolatiniOl } from "./lib/idish-holati.js";
 import { jurnalYarat } from "./lib/jurnal.js";
-import { kameraDollyZoom } from "./lib/kamera-dolly.js";
+import { kameraDollyZoom, kinoRejim } from "./lib/kamera-dolly.js";
+import { vaqtniSekinlashtir, vaqtniTikla } from "./lib/vaqt-oqimi.js";
+import { laboratoriyaFonOvoziniYarat, laboratoriyaFonOvoziniToxtat, shishaUrilishi } from "./lib/ovoz.js";
+import * as THREE from "three";
 import toast from "react-hot-toast";
 
 export default function Korinish() {
@@ -270,16 +273,64 @@ export default function Korinish() {
     else if (stansiya === "lab_planshet") setEkspertModalOchilgan(true);
   }, []);
 
-  // KINEMATIK KAMERA ZAMINI (BRIF-05, 2-bosqich, 4-band).
+  // JONLI X-RAY SHO'NG'ISHI ("Mortal Kombat" uslubi).
   //
-  // Idish markaziga "Mortal Kombat X-Ray" uslubida silliq sho'ng'ish
-  // uchun interfeys. HOZIRCHA HECH QAYERDA CHAQIRILMAYDI — vizual
-  // holat o'zgarmasligi shart. Kelajakdagi X-Ray sho'ng'ish brifi shu
-  // funksiyani modal ochilishidan oldin chaqiradi.
-  const kameraGaDollyZoom = useCallback((targetPosition, zoomFactor) => {
-    if (!kameraRef?.current) return Promise.resolve(false);
-    return kameraDollyZoom(kameraRef.current, targetPosition, zoomFactor);
-  }, [kameraRef]);
+  // X-Ray chaqirilganda modal DARHOL ochilmaydi: avval kamera idish
+  // markaziga dolly-zoom bilan sho'ng'iydi (kamera-dolly.js), fon
+  // rentgen spektriga qorayadi (overlay), sahna vaqti sekinlashadi
+  // (vaqt-oqimi.js) — keyin molekula modali ochiladi. Modal yopilganda
+  // hammasi teskari tartibda tiklanadi.
+  //
+  // Idish yo'q bo'lsa kamera oldidagi 1 m nuqtaga sho'ng'iydi — effekt
+  // baribir ishlaydi (X-Ray har doim reaksiya natijasidan ochiladi,
+  // lekin himoya shart arzon).
+  const [xrayQoraymoqda, setXrayQoraymoqda] = useState(false);
+  const xrayQaytarRef = useRef(null);
+
+  const xraygaShongi = useCallback(async () => {
+    const kamera = kameraRef?.current;
+    if (!kamera || xrayQaytarRef.current) {
+      // Kamera yo'q yoki sho'ng'ish allaqachon faol — eski yo'l.
+      setXrayModalOchilgan(true);
+      return;
+    }
+
+    // Nishon: faol idishning dunyo koordinatasi (suyuqlik sathi
+    // balandligida — idish "yuragi"), bo'lmasa kamera oldidagi nuqta.
+    let nishon;
+    if (nishonIdishGroup) {
+      nishon = new THREE.Vector3();
+      nishonIdishGroup.getWorldPosition(nishon);
+      nishon.y += 0.06;
+    } else {
+      nishon = new THREE.Vector3(0, 0, -1)
+        .applyQuaternion(kamera.quaternion)
+        .add(kamera.position);
+    }
+
+    kinoRejim.faol = true;
+    setXrayQoraymoqda(true);
+    vaqtniSekinlashtir(0.22);
+    shishaUrilishi(1400);
+
+    const natijaDolly = await kameraDollyZoom(kamera, nishon, 2.6, { davomiylikMs: 1100 });
+    if (natijaDolly && natijaDolly.qaytar) {
+      xrayQaytarRef.current = natijaDolly.qaytar;
+    }
+    setXrayModalOchilgan(true);
+  }, [kameraRef, nishonIdishGroup]);
+
+  const xraydanQayt = useCallback(async () => {
+    setXrayModalOchilgan(false);
+    const qaytar = xrayQaytarRef.current;
+    xrayQaytarRef.current = null;
+    if (qaytar) {
+      await qaytar();
+    }
+    vaqtniTikla();
+    setXrayQoraymoqda(false);
+    kinoRejim.faol = false;
+  }, []);
 
   // 9. Xonada Erkin Yurish Hooki (FPS Direct Hands Engine)
   const {
@@ -361,6 +412,22 @@ export default function Korinish() {
       document.body.style.overscrollBehavior = prevOverscroll;
     };
   }, []);
+
+  // ATMOSFERA FON OVOZI — birinchi bosishda sokin boshlanadi.
+  //
+  // Brauzer AudioContext ni foydalanuvchi ishorasisiz ochmaydi, shuning
+  // uchun `pointerdown` kutiladi ({ once: true } — bir marta). Ovoz
+  // o'chirilgan bo'lsa boshlamaymiz; keyin yoqilsa, navbatdagi bosish
+  // boshlaydi (listener ovoz holati o'zgarganda qayta o'rnatiladi).
+  useEffect(() => {
+    if (!ovozYoqilgan) {
+      laboratoriyaFonOvoziniToxtat();
+      return undefined;
+    }
+    const boshla = () => laboratoriyaFonOvoziniYarat();
+    window.addEventListener("pointerdown", boshla, { once: true });
+    return () => window.removeEventListener("pointerdown", boshla);
+  }, [ovozYoqilgan]);
 
   // Klaviatura qisqa buyruqlari ([H] Yordam, [M] Ovoz)
   useEffect(() => {
@@ -472,6 +539,22 @@ export default function Korinish() {
           style={{ touchAction: "none", overscrollBehavior: "none" }}
         />
 
+        {/* --- X-RAY RENTGEN SPEKTRI QORAYTIRISH QATLAMI --- */}
+        {/* Dolly sho'ng'ish paytida fon qorayadi va sovuq rentgen-ko'k
+            vignetka paydo bo'ladi. CSS transition — GPU kompozitor
+            qatlamida, sahna render narxiga ta'sir qilmaydi. */}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-0 z-20 transition-opacity duration-700 ${
+            xrayQoraymoqda ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(2,6,23,0.55) 0%, rgba(1,4,16,0.9) 62%, rgba(0,0,0,0.98) 100%)",
+            boxShadow: "inset 0 0 160px rgba(56,189,248,0.18)",
+          }}
+        />
+
         <LabHUD
           kozoynakTaqilgan={kozoynakTaqilgan}
           gazNiqobiTaqilgan={gazNiqobiTaqilgan}
@@ -529,7 +612,7 @@ export default function Korinish() {
           onYop={() => setEkspertModalOchilgan(false)}
           onXRayOch={() => {
             setEkspertModalOchilgan(false);
-            setXrayModalOchilgan(true);
+            xraygaShongi();
           }}
           onPdfYukla={async () => {
             await labDaftariPdfYukla({
@@ -547,7 +630,7 @@ export default function Korinish() {
       {xrayModalOchilgan && (
         <XRayMolekulaModal
           reaksiyaTenglamasi={natija?.reaksiya?.equation || "HCl + NaOH"}
-          onYop={() => setXrayModalOchilgan(false)}
+          onYop={xraydanQayt}
         />
       )}
 
