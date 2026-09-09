@@ -421,28 +421,29 @@ describe('Deterministik kimyo hakami va benchmark', () => {
     )
   })
 
-  test("kengaytirilgan benchmark admin baholashi uchun o'nta holatni beradi", async () => {
-    assert.equal(KENGAYTIRILGAN_KIMYO_BENCHMARKLARI.length, 10)
+  test("kengaytirilgan benchmark admin baholashi uchun o'n uchta holatni beradi", async () => {
+    assert.equal(KENGAYTIRILGAN_KIMYO_BENCHMARKLARI.length, 13)
     const natija = await aiKimyoBenchmarkiniBajar({ benchmarklar: KENGAYTIRILGAN_KIMYO_BENCHMARKLARI })
-    assert.equal(natija.totalCases, 10)
+    assert.equal(natija.totalCases, 13)
     assert.equal(natija.failed, 0)
-    assert.deepEqual(natija.details.slice(-5).map((detail) => detail.id), [
-      'xalqaro_elektroliz_mis',
-      'xalqaro_ph_kuchli_kislota',
-      'xalqaro_ks_kalsiy_florid',
-      'xalqaro_kristallogidrat_cuso4',
-      'xalqaro_uch_gazli_aralashma',
+    assert.deepEqual(natija.details.slice(-3).map((detail) => detail.id), [
+      'dtm_organik_yonish_glyukoza',
+      'dtm_asetat_bufer_ph',
+      'dtm_pearson_kislota_suyultirish',
     ])
   })
 
-  test("admin sifat hisobida o'nta olimpiada benchmarki ham qatnashadi", async () => {
+  test("admin sifat hisobida o'n uchta olimpiada benchmarki ham qatnashadi", async () => {
     const natija = await aiSifatNatijasiniHisobla({ revision: 7 })
     assert.equal(natija.revision, 7)
-    assert.equal(natija.totalCases, 15)
+    assert.equal(natija.totalCases, 18)
     assert.equal(natija.failed, 0)
     assert.ok(natija.details.some((detail) => detail.id === 'benchmark:respublika_qotishma_magniy_mis'))
     assert.ok(natija.details.some((detail) => detail.id === 'benchmark:xalqaro_elektroliz_mis'))
     assert.ok(natija.details.some((detail) => detail.id === 'benchmark:xalqaro_uch_gazli_aralashma'))
+    assert.ok(natija.details.some((detail) => detail.id === 'benchmark:dtm_organik_yonish_glyukoza'))
+    assert.ok(natija.details.some((detail) => detail.id === 'benchmark:dtm_asetat_bufer_ph'))
+    assert.ok(natija.details.some((detail) => detail.id === 'benchmark:dtm_pearson_kislota_suyultirish'))
   })
 
   test("Kramer determinantlari bilan uch noma'lumli sistema yechiladi", () => {
@@ -568,6 +569,63 @@ describe('Deterministik kimyo hakami va benchmark', () => {
     const vosita = deterministikVositaniBajar({ nom: 'pearson_kresti', argumentlar: { w1: 40, w2: 10, wTarget: 20 } })
     assert.equal(bevosita.nisbat, '1 : 2')
     assert.deepEqual(vosita.natija, bevosita)
+  })
+
+  test("yonish tahlilidagi noto'g'ri organik formula server hakamiga tushadi", () => {
+    const natija = aiYechiminiDeterministikTekshir({
+      masalaMatni: "1.80 g noma'lum organik modda to'liq yonganda 2.64 g CO2 va 1.08 g H2O hosil bo'ldi. M = 180 g/mol.",
+      yakuniyJavob: 'Modda formulasi C6H12O5.',
+      bosqichlar: [],
+    })
+    assert.equal(natija.ogohlantirishlar.at(-1).turi, 'organik_formula_xatosi')
+    assert.equal(natija.ogohlantirishlar.at(-1).kutilgan, 'C6H12O6')
+  })
+
+  test("yonish tahlilidagi to'g'ri organik formula ogohlantirishsiz o'tadi", () => {
+    const natija = aiYechiminiDeterministikTekshir({
+      masalaMatni: "1.80 g noma'lum organik modda to'liq yonganda 2.64 g CO2 va 1.08 g H2O hosil bo'ldi. M = 180 g/mol.",
+      yakuniyJavob: 'Modda formulasi C6H12O6.',
+      bosqichlar: [],
+    })
+    assert.equal(natija.tekshiruvlar.at(-1).turi, 'organik_formula')
+    assert.equal(natija.ogohlantirishlar.some((xato) => xato.turi === 'organik_formula_xatosi'), false)
+  })
+
+  test("organik hakam molekulyar formulani vodorodga nisbiy zichlikdan ham oladi", () => {
+    const natija = aiYechiminiDeterministikTekshir({
+      masalaMatni: "1.80 g noma'lum organik modda to'liq yonganda 2.64 g CO2 va 1.08 g H2O hosil bo'ldi. D(H2) = 90.",
+      yakuniyJavob: 'Modda formulasi CH2O.',
+      bosqichlar: [],
+    })
+    assert.equal(natija.ogohlantirishlar.at(-1).turi, 'organik_formula_xatosi')
+    assert.equal(natija.ogohlantirishlar.at(-1).kutilgan, 'C6H12O6')
+  })
+
+  test("noto'g'ri asetat buferi pH qiymati server hakamiga tushadi", () => {
+    const natija = aiYechiminiDeterministikTekshir({
+      masalaMatni: "pKa = 4.76, C(kislota) = 0.10 mol/L va C(tuz) = 0.20 mol/L bo'lgan asetat buferining pH ini toping.",
+      yakuniyJavob: 'pH = 6.00.',
+      bosqichlar: [],
+    })
+    assert.equal(natija.ogohlantirishlar.at(-1).turi, 'bufer_xatosi')
+    assert.ok(Math.abs(natija.ogohlantirishlar.at(-1).kutilgan - 5.06103) < 0.0001)
+  })
+
+  test("to'g'ri asetat buferi pH qiymati ogohlantirishsiz o'tadi", () => {
+    const natija = aiYechiminiDeterministikTekshir({
+      masalaMatni: "pKa = 4.76, C(kislota) = 0.10 mol/L va C(tuz) = 0.20 mol/L bo'lgan asetat buferining pH ini toping.",
+      yakuniyJavob: 'pH = 5.061.',
+      bosqichlar: [],
+    })
+    assert.equal(natija.tekshiruvlar.at(-1).turi, 'bufer_ph')
+    assert.equal(natija.ogohlantirishlar.some((xato) => xato.turi === 'bufer_xatosi'), false)
+  })
+
+  test("uch yangi benchmark vositali hakamdan ogohlantirishsiz o'tadi", async () => {
+    const yangiBenchmarklar = KENGAYTIRILGAN_KIMYO_BENCHMARKLARI.slice(-3)
+    const natija = await aiKimyoBenchmarkiniBajar({ benchmarklar: yangiBenchmarklar })
+    assert.equal(natija.totalCases, 3)
+    assert.equal(natija.failed, 0)
   })
 })
 

@@ -64,3 +64,24 @@
 ### Chegara
 
 - Commit qilinmadi.
+
+## Sprint 10 — Server hakami va xalqaro olimpiada benchmarklari
+
+### Bajarilgan ishlar
+
+- `aiYechiminiDeterministikTekshir` yonish masalasidan CO2, H2O va namuna massasini, ixtiyoriy molyar massani yoki H2/havoga nisbiy zichlikni faqat aniq naqshlar orqali oladi. Model keltirgan C/H/O formulasi `organikFormulaTop` natijasiga mos kelmasa `organik_formula_xatosi` qayd qilinadi.
+- Bufer masalasidagi pKa/pKb hamda kislota, asos va tuz konsentratsiyalari aniq bo'lsa, hakam `buferPhHisobla` bilan pH ni mustaqil hisoblaydi. Model qiymati mos bo'lmasa `bufer_xatosi` qaytariladi.
+- Benchmark baholagichi endi har bir namuna javobini uning savol matni bilan birga hakamdan o'tkazadi. Shu sabab organik va bufer tekshiruvlari test quvurida haqiqatan ishlaydi.
+- Respublika/DTM/IChO to'plamiga uch holat qo'shildi: glyukoza uchun organik yonish tahlili, asetat buferi va Pearson kresti bilan HCl eritmasi. Kengaytirilgan to'plam 13 ta, admin sifat sinovi esa 18 ta holatga yetdi.
+
+### Testlar va tekshiruv
+
+- `npm.cmd test` — 222 test o'tdi, 0 ta xato.
+- `node --test test/ai-himoya.test.js` — 64 test o'tdi, 0 ta xato.
+- Noto'g'ri va to'g'ri organik formula, noto'g'ri va to'g'ri bufer pH, shuningdek uch yangi benchmarkning to'liq hakamdan o'tishi unit-test bilan qoplandi.
+- `git diff --check` — toza.
+
+### Chegara
+
+- Faqat `lib/`, `data/`, so'ralgan test va hisobot fayli o'zgartirildi; 3D sahnaga tegilmadi.
+- Commit qilinmadi.

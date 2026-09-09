@@ -116,4 +116,49 @@ export const RESPUBLIKA_KIMYO_OLIMPIADA_BENCHMARKLARI = Object.freeze([
       ]),
     }),
   }),
+  Object.freeze({
+    id: "dtm_organik_yonish_glyukoza",
+    soha: "organik_yonish_tahlili",
+    manba: "DTM va IChO uslubidagi organik yonish tahlili",
+    savol: "1.80 g noma'lum organik modda to'liq yonganda 2.64 g CO2 va 1.08 g H2O hosil bo'ldi. M = 180 g/mol. Moddaning molekulyar formulasini toping.",
+    javobNaqsh: /C6H12O6/i,
+    namunaNatija: Object.freeze({
+      muvaffaqiyatli: true,
+      turi: "yechim",
+      yakuniyJavob: "Moddaning molekulyar formulasi C6H12O6.",
+      bosqichlar: Object.freeze([
+        Object.freeze({ formula: "Yonish tahlili va M = 180 g/mol dan molekulyar formula C6H12O6." }),
+      ]),
+    }),
+  }),
+  Object.freeze({
+    id: "dtm_asetat_bufer_ph",
+    soha: "bufer_eritma",
+    manba: "DTM va IChO uslubidagi asetat buferi",
+    savol: "pKa = 4.76, C(kislota) = 0.10 mol/L va C(tuz) = 0.20 mol/L bo'lgan asetat buferining pH ini toping.",
+    javobNaqsh: /pH\s*=\s*5[.,]06/i,
+    namunaNatija: Object.freeze({
+      muvaffaqiyatli: true,
+      turi: "yechim",
+      yakuniyJavob: "pH = 5.06.",
+      bosqichlar: Object.freeze([
+        Object.freeze({ formula: "pH = 4.76 + log(0.20 / 0.10) = 5.061." }),
+      ]),
+    }),
+  }),
+  Object.freeze({
+    id: "dtm_pearson_kislota_suyultirish",
+    soha: "pearson_kresti",
+    manba: "DTM uslubidagi Pearson kresti bilan eritma tayyorlash",
+    savol: "40% va 10% li HCl eritmalaridan 20% li HCl tayyorlash uchun eritmalar nisbatini Pearson kresti bilan toping.",
+    javobNaqsh: /(?:40%\s*li\s*:\s*10%\s*li|1\s*:\s*2)/i,
+    namunaNatija: Object.freeze({
+      muvaffaqiyatli: true,
+      turi: "yechim",
+      yakuniyJavob: "40% li eritma : 10% li eritma = 1 : 2.",
+      bosqichlar: Object.freeze([
+        Object.freeze({ formula: "Pearson farqlari: 20 - 10 = 10 va 40 - 20 = 20; nisbat 10 : 20 = 1 : 2." }),
+      ]),
+    }),
+  }),
 ])
