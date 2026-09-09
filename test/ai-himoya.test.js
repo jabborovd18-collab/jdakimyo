@@ -26,9 +26,9 @@ const { xavfsizlikTekshir, xotiraMatniniTozala } = esmRequire(
   'lib/ai-agents/ai-security.js',
   ['xavfsizlikTekshir', 'xotiraMatniniTozala'],
 )
-const { aiYechiminiDeterministikTekshir, gazHisobla, aralashmaBalansiniTekshir, kramerDeterminanti, kramerSistemasiniYech, faradeyHisobla, phHisobla, eruvchanlikKopaytmasiHisobla, deterministikKontekstTuz } = esmRequire(
+const { DETERMINISTIK_VOSITA_SCHEMALARI, aiYechiminiDeterministikTekshir, deterministikVositaniBajar, gazHisobla, aralashmaBalansiniTekshir, kramerDeterminanti, kramerSistemasiniYech, faradeyHisobla, phHisobla, eruvchanlikKopaytmasiHisobla, molyarMassaniHisobla, deterministikKontekstTuz } = esmRequire(
   'lib/ai-agents/deterministik-kimyo.js',
-  ['aiYechiminiDeterministikTekshir', 'gazHisobla', 'aralashmaBalansiniTekshir', 'kramerDeterminanti', 'kramerSistemasiniYech', 'faradeyHisobla', 'phHisobla', 'eruvchanlikKopaytmasiHisobla', 'deterministikKontekstTuz'],
+  ['DETERMINISTIK_VOSITA_SCHEMALARI', 'aiYechiminiDeterministikTekshir', 'deterministikVositaniBajar', 'gazHisobla', 'aralashmaBalansiniTekshir', 'kramerDeterminanti', 'kramerSistemasiniYech', 'faradeyHisobla', 'phHisobla', 'eruvchanlikKopaytmasiHisobla', 'molyarMassaniHisobla', 'deterministikKontekstTuz'],
 )
 const { AI_KIMYO_BENCHMARKLARI, KENGAYTIRILGAN_KIMYO_BENCHMARKLARI, aiBenchmarkNatijasiniBahola, aiKimyoBenchmarkiniBajar } = esmRequire(
   'lib/ai-agents/ai-kimyo-benchmark.js',
@@ -291,6 +291,69 @@ describe('AI gateway urinish chegarasi', () => {
       else process.env.GEMINI_API_KEY = eskiGemini
     }
   })
+
+  test("model tool_call qilsa gateway server natijasini ikkinchi so'rovga uzatadi", async () => {
+    const eskiFetch = global.fetch
+    const eskiGroq = process.env.GROQ_API_KEY
+    const eskiWarn = console.warn
+    const sorovlar = []
+    let bajarilgan = 0
+    try {
+      process.env.GROQ_API_KEY = 'sinov-groq'
+      console.warn = () => {}
+      global.fetch = async (_url, sozlamalar) => {
+        sorovlar.push(JSON.parse(sozlamalar.body))
+        if (sorovlar.length === 1) {
+          return { ok: true, json: async () => ({ choices: [{ message: {
+            content: null,
+            tool_calls: [{ id: 'call-1', type: 'function', function: { name: 'faradey_massasi', arguments: '{"molyarMassa":63.5,"tok":2,"vaqtSekund":965,"elektronSoni":2}' } }],
+          } }], usage: {} }) }
+        }
+        return { ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify({ muvaffaqiyatli: true, turi: 'yechim', bosqichlar: [], yakuniyJavob: '0.635 g Cu' }) } }], usage: {} }) }
+      }
+      const javob = await aiModelChaqir('Elektroliz masalasi', {
+        yonalish: 'tezkor',
+        vositalar: DETERMINISTIK_VOSITA_SCHEMALARI,
+        vositaTanlovi: 'required',
+        vositaBajaruvchi: ({ nom, argumentlar }) => { bajarilgan += 1; return deterministikVositaniBajar({ nom, argumentlar }) },
+        runtimeSozlama: { enabled: true, routing: { tezkor: ['groqTezkor'] }, directions: { tezkor: { urinishChegarasi: 1, urinishVaqtiMs: 2000, umumiyVaqtMs: 4000, tokenChegarasi: 200 } } },
+      })
+      assert.equal(javob.yakuniyJavob, '0.635 g Cu')
+      assert.equal(bajarilgan, 1)
+      assert.equal(sorovlar.length, 2)
+      assert.equal(sorovlar[0].tools.length, 6)
+      assert.equal(sorovlar[1].messages.at(-1).role, 'tool')
+      assert.match(sorovlar[1].messages.at(-1).content, /0.635/)
+    } finally {
+      global.fetch = eskiFetch
+      console.warn = eskiWarn
+      if (eskiGroq === undefined) delete process.env.GROQ_API_KEY
+      else process.env.GROQ_API_KEY = eskiGroq
+    }
+  })
+
+  test("majburiy vosita chaqiruvi bo'lmasa gateway yaroqsiz javobni rad etadi", async () => {
+    const eskiFetch = global.fetch
+    const eskiGroq = process.env.GROQ_API_KEY
+    const eskiWarn = console.warn
+    try {
+      process.env.GROQ_API_KEY = 'sinov-groq'
+      console.warn = () => {}
+      global.fetch = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify({ muvaffaqiyatli: true, turi: 'yechim', bosqichlar: [], yakuniyJavob: '12' }) } }], usage: {} }) })
+      await assert.rejects(
+        aiModelChaqir('Murakkab hisob', {
+          yonalish: 'tezkor', vositalar: DETERMINISTIK_VOSITA_SCHEMALARI, vositaTanlovi: 'required', vositaBajaruvchi: () => ({ muvaffaqiyatli: true }),
+          runtimeSozlama: { enabled: true, routing: { tezkor: ['groqTezkor'] }, directions: { tezkor: { urinishChegarasi: 1, urinishVaqtiMs: 2000, umumiyVaqtMs: 4000, tokenChegarasi: 200 } } },
+        }),
+        (error) => error instanceof AiGatewayXatosi && error.kod === 'BARCHA_URINISH_XATO',
+      )
+    } finally {
+      global.fetch = eskiFetch
+      console.warn = eskiWarn
+      if (eskiGroq === undefined) delete process.env.GROQ_API_KEY
+      else process.env.GROQ_API_KEY = eskiGroq
+    }
+  })
 })
 
 describe('AI javobi va xavfsizlik himoyasi', () => {
@@ -449,6 +512,26 @@ describe('Deterministik kimyo hakami va benchmark', () => {
       bosqichlar: [{ formula: 'm = 63.5 × 2 × 965 / (2 × F) = 0.7 g; pH = -log(0.002) = 3; Ks = 0.001 × (0.002)^2 = 5e-9' }],
     })
     assert.deepEqual(natija.ogohlantirishlar.map((xato) => xato.turi), ['faradey_xatosi', 'ph_xatosi', 'ks_xatosi'])
+  })
+
+  test("deterministik vosita schema barcha asosiy hisoblagichlarni ochadi", () => {
+    assert.deepEqual(DETERMINISTIK_VOSITA_SCHEMALARI.map((vosita) => vosita.function.name), [
+      'kramer_yech', 'faradey_massasi', 'ph_hisobla', 'molyar_massa_hisobla', 'gaz_hisobla', 'ks_hisobla',
+    ])
+    assert.equal(DETERMINISTIK_VOSITA_SCHEMALARI.every((vosita) => vosita.function.parameters.type === 'object'), true)
+  })
+
+  test("vosita dispatcher Kramer, Faradey va molyar massa natijasini dvigateldan qaytaradi", () => {
+    const kramer = deterministikVositaniBajar({ nom: 'kramer_yech', argumentlar: { koeffitsiyentlar: [[1, 1], [1, -1]], ozodHadlar: [5, 1] } })
+    const faradey = deterministikVositaniBajar({ nom: 'faradey_massasi', argumentlar: { molyarMassa: 63.5, tok: 2, vaqtSekund: 965, elektronSoni: 2 } })
+    assert.deepEqual(kramer.natija.yechim, { x: 3, y: 2 })
+    assert.ok(Math.abs(faradey.natija.massa - 0.635) < 0.0001)
+    assert.equal(molyarMassaniHisobla({ formula: 'H2O' }).molyarMassa, 18.015)
+  })
+
+  test("vosita dispatcher noma'lum nom va yaroqsiz parametrni xavfsiz rad etadi", () => {
+    assert.equal(deterministikVositaniBajar({ nom: 'kod_bajar', argumentlar: {} }).muvaffaqiyatli, false)
+    assert.equal(deterministikVositaniBajar({ nom: 'ph_hisobla', argumentlar: {} }).muvaffaqiyatli, false)
   })
 })
 

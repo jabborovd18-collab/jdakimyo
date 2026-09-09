@@ -21,3 +21,24 @@
 ### Chegara
 
 - Commit qilinmadi.
+
+## Sprint 8 — Deterministik AI Tool-Calling
+
+### Bajarilgan ishlar
+
+- `lib/ai-agents/deterministik-kimyo.js` ga OpenAI-mos function-calling schema va qat'iy server dispatcher qo'shildi. Vositlar: `kramer_yech`, `faradey_massasi`, `ph_hisobla`, `molyar_massa_hisobla`, `gaz_hisobla`, `ks_hisobla`.
+- Dispatcher faqat oldindan ruxsat etilgan nomlarni bajaradi; noma'lum nom, JSON bo'lmagan argument yoki fizik jihatdan yaroqsiz parametr xavfsiz rad etiladi. Molyar massa avvaldan mavjud yagona atom-massa dvigatelidan olinadi.
+- `lib/ai-agents/ai-gateway.js` OpenAI-mos provayderlarda haqiqiy aylana qo'llaydi: model `tool_calls` yuboradi, server natijani `role: tool` bilan qaytaradi, keyin model yakuniy JSON yechimni tuzadi. Murakkab masalada birinchi vosita chaqiruvi bo'lmasa urinish yaroqsiz deb rad etiladi.
+- `lib/ai-agents/masala-orkestrator.js` murakkab va olimpiada yo'nalishlariga vositalarni majburiy ulaydi. Server qaytargan vosita izlari yakuniy `serverTekshiruvi.vositalar` maydonida saqlanadi.
+
+### Testlar va tekshiruv
+
+- `npm.cmd test` — 211 test o'tdi, 0 ta xato.
+- `node --test test/ai-himoya.test.js` — 53 test o'tdi, 0 ta xato.
+- Mock Groq integratsiya testi modelning `tool_call` so'rovi, server Faradey hisobi va ikkinchi so'rovdagi `role: tool` natijasini tekshiradi.
+- Schema qamrovi, Kramer/Faradey/molyar massa dispatcher natijalari, noma'lum vosita rad qilinishi hamda majburiy vosita chaqiruvisiz javobning rad qilinishi unit-test bilan qoplandi.
+- Maqsadli ESLint — 0 ta xato; `npm.cmd run check:chemistry` — 238 reaksiya, 0 ta xato; `git diff --check` — toza.
+
+### Chegara
+
+- Commit qilinmadi.
