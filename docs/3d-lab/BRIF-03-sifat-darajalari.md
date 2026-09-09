@@ -208,3 +208,53 @@ bo'lsin (telefon 1.0, desktop 1.5, ilova 1.5).
 3. Uch profil × barcha nuqta: o'lchov oldin/keyin jadvali.
 4. `pikselNisbati` uch profilda.
 5. `npm run build` chiqishi.
+
+---
+
+## NATIJA (2026-09-09) — qabul qilindi
+
+Amalga oshirish: `lib/dinamik-rezolyutsiya.js` (sof `keyingiNisbat` +
+`holatYarat` + `rezolyutsiyaSinovi`), profilga `pikselOraligi` va
+`nishonKadrVaqti` maydonlari, `useSahna.js` ulanishi. Boshqaruvchi
+brifdagi 5 sinov o'rniga 8 sinov bilan sinaladi — jadvaldagi
+`tebranish` o'rnini `olik_zona` + `kutish` + `vsync` + `juda_sekin`
+egalladi (vsync 16.7 ms kadr aynan nishonga teng bo'lgan real hodisani
+qamraydi, shu sabab `tezChegara` 0.7 emas 1.05 nisbatda).
+
+### 1-mezon — sun'iy sinov (8/8, uch profil o'lchovida ham yugurdi)
+
+| sinov | kutilgan | olingan | izoh |
+|---|---|---|---|
+| `sekin` | 0.6 | 0.6 | 30 oyna × 50 ms → pastki chegara |
+| `tez` | 1.5 | 1.5 | 90 oyna × 5 ms → yuqori chegara |
+| `chegara` | 0.6 | 0.6 | 200 oyna × 50 ms, pastdan tushmadi |
+| `olik_zona` | 1 | 1 | 50 oyna × 20 ms (nishon 16.7) → o'zgarish yo'q |
+| `sekin_kotarilish` | 1 | 1 | 4 arzon oyna → hali ko'tarilmadi (5 kerak) |
+| `vsync` | > 1.0 | 1.5 | 60 oyna × 16.7 ms → ko'tarildi |
+| `juda_sekin` | 0.6 | 0.6 | 10 s × 10 FPS → pastki chegaraga yetdi |
+| `kutish` | ≤ 10 | 9 | 10 oyna × 50 ms → oynada bittadan qadam |
+
+`npm run lab3d:olcham` sinovni har yugurishda chaqiradi, yiqilsa
+exit 1 (`scripts/lab3d-olcham.js`).
+
+### 2-mezon — jonli ulanish
+
+`?drs=1` bilan o'lchagich sahifasida (dasturiy renderer sekin):
+`getPixelRatio()` 1 → 0.9 → 0.7 → 0.6 (pastki chegara) ~4.5 s ichida,
+konsolda `[DRS] pikselNisbati -> 0.9/0.8/0.7/0.6` jurnali. Oddiy
+o'lchovda (`drs` parametrisiz) DRS o'chiq.
+
+### 3–4-mezon — o'lchov o'zgarmadi, `pikselNisbati` natijada
+
+Uch profil × 5 nuqta: `XULOSA: 0/5`, `chiroqBudjetiBuzildi=0/5`
+(telefon shipPolFarq=0.3788, desktop=0.3939, ilova=0.3872 — chegara
+ichida). `pikselNisbati` ustuni: telefon 1, desktop/ilova 1.5 —
+boshlang'ich qiymatga teng, DRS o'lchagichda ishlamagani skript
+qorovuli bilan ham tekshiriladi (`pikselNisbatiKutilgan` bilan farq
+bo'lsa exit 1).
+
+### 5-mezon — build
+
+Sandbox muhitida `next build` xotira yetishmay o'ldiriladi (OOM,
+exit 137) — bu DRS ga bog'liq emas, avvalgi briflarda ham shu holat.
+CI/deploy muhitida tekshirilsin. `npm test` 168/168.
