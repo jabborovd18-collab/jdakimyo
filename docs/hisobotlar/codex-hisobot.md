@@ -85,3 +85,24 @@
 
 - Faqat `lib/`, `data/`, so'ralgan test va hisobot fayli o'zgartirildi; 3D sahnaga tegilmadi.
 - Commit qilinmadi.
+
+## Sprint 11 — Deterministik reaksiya balanseri
+
+### Bajarilgan ishlar
+
+- `reaksiyaTengla` `chem-balance.js`ning mavjud `azoniOqi` parseridan atomlar va zaryadlarni oladi. Gauss eliminatsiyasi tenglamaning bir o'lchamli nol-fazosini topib, ratsional javobni eng kichik musbat butun koeffitsiyentlarga keltiradi.
+- Natija tenglashtirilgan tenglama, koeffitsiyentlar, ularning yig'indisi, redoks turi va elektronlar berilishi/qabul qilinishining mosligini qaytaradi. Bir nechta mustaqil yechim yoki yaroqsiz formula bo'lsa vosita taxmin qilmaydi.
+- `reaksiya_tengla` o'ninchi tool schema va dispatcherga ulandi. Orkestrator tenglashtirish, koeffitsiyent yoki redoks so'rovlarida ushbu vositani faollashtirib, uni majburiy chaqirishni talab qiladi.
+- Gatewayning vosita reyestri testi 10 ta schema uzatilishini tasdiqlaydi.
+
+### Testlar va tekshiruv
+
+- `npm.cmd test` — 227 test o'tdi, 0 ta xato.
+- `node --test test/ai-himoya.test.js` — 69 test o'tdi, 0 ta xato.
+- KMnO4/HCl, Cu/HNO3 va K2Cr2O7/FeSO4/H2SO4 redoks tenglamalari, dispatcher hamda noaniq/yaroqsiz kirishlar unit-test bilan qoplandi.
+- `git diff --check` — toza.
+
+### Chegara
+
+- Faqat `lib/`, so'ralgan test va hisobot fayli o'zgartirildi; 3D sahnaga tegilmadi.
+- Commit qilinmadi.

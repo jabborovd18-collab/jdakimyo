@@ -26,9 +26,9 @@ const { xavfsizlikTekshir, xotiraMatniniTozala } = esmRequire(
   'lib/ai-agents/ai-security.js',
   ['xavfsizlikTekshir', 'xotiraMatniniTozala'],
 )
-const { DETERMINISTIK_VOSITA_SCHEMALARI, aiYechiminiDeterministikTekshir, buferPhHisobla, deterministikVositaniBajar, gazHisobla, aralashmaBalansiniTekshir, kramerDeterminanti, kramerSistemasiniYech, faradeyHisobla, organikFormulaTop, pearsonKrestiHisobla, phHisobla, eruvchanlikKopaytmasiHisobla, molyarMassaniHisobla, deterministikKontekstTuz } = esmRequire(
+const { DETERMINISTIK_VOSITA_SCHEMALARI, aiYechiminiDeterministikTekshir, buferPhHisobla, deterministikVositaniBajar, gazHisobla, aralashmaBalansiniTekshir, kramerDeterminanti, kramerSistemasiniYech, faradeyHisobla, organikFormulaTop, pearsonKrestiHisobla, phHisobla, eruvchanlikKopaytmasiHisobla, molyarMassaniHisobla, reaksiyaTengla, deterministikKontekstTuz } = esmRequire(
   'lib/ai-agents/deterministik-kimyo.js',
-  ['DETERMINISTIK_VOSITA_SCHEMALARI', 'aiYechiminiDeterministikTekshir', 'buferPhHisobla', 'deterministikVositaniBajar', 'gazHisobla', 'aralashmaBalansiniTekshir', 'kramerDeterminanti', 'kramerSistemasiniYech', 'faradeyHisobla', 'organikFormulaTop', 'pearsonKrestiHisobla', 'phHisobla', 'eruvchanlikKopaytmasiHisobla', 'molyarMassaniHisobla', 'deterministikKontekstTuz'],
+  ['DETERMINISTIK_VOSITA_SCHEMALARI', 'aiYechiminiDeterministikTekshir', 'buferPhHisobla', 'deterministikVositaniBajar', 'gazHisobla', 'aralashmaBalansiniTekshir', 'kramerDeterminanti', 'kramerSistemasiniYech', 'faradeyHisobla', 'organikFormulaTop', 'pearsonKrestiHisobla', 'phHisobla', 'eruvchanlikKopaytmasiHisobla', 'molyarMassaniHisobla', 'reaksiyaTengla', 'deterministikKontekstTuz'],
 )
 const { AI_KIMYO_BENCHMARKLARI, KENGAYTIRILGAN_KIMYO_BENCHMARKLARI, aiBenchmarkNatijasiniBahola, aiKimyoBenchmarkiniBajar } = esmRequire(
   'lib/ai-agents/ai-kimyo-benchmark.js',
@@ -321,7 +321,7 @@ describe('AI gateway urinish chegarasi', () => {
       assert.equal(javob.yakuniyJavob, '0.635 g Cu')
       assert.equal(bajarilgan, 1)
       assert.equal(sorovlar.length, 2)
-      assert.equal(sorovlar[0].tools.length, 9)
+      assert.equal(sorovlar[0].tools.length, 10)
       assert.equal(sorovlar[1].messages.at(-1).role, 'tool')
       assert.match(sorovlar[1].messages.at(-1).content, /0.635/)
     } finally {
@@ -518,7 +518,7 @@ describe('Deterministik kimyo hakami va benchmark', () => {
   test("deterministik vosita schema barcha asosiy hisoblagichlarni ochadi", () => {
     assert.deepEqual(DETERMINISTIK_VOSITA_SCHEMALARI.map((vosita) => vosita.function.name), [
       'kramer_yech', 'faradey_massasi', 'ph_hisobla', 'molyar_massa_hisobla', 'gaz_hisobla', 'ks_hisobla',
-      'organik_formula_top', 'bufer_ph', 'pearson_kresti',
+      'organik_formula_top', 'bufer_ph', 'pearson_kresti', 'reaksiya_tengla',
     ])
     assert.equal(DETERMINISTIK_VOSITA_SCHEMALARI.every((vosita) => vosita.function.parameters.type === 'object'), true)
   })
@@ -626,6 +626,46 @@ describe('Deterministik kimyo hakami va benchmark', () => {
     const natija = await aiKimyoBenchmarkiniBajar({ benchmarklar: yangiBenchmarklar })
     assert.equal(natija.totalCases, 3)
     assert.equal(natija.failed, 0)
+  })
+
+  test("KMnO4 va HCl redoks tenglamasini elektron balansi bilan tenglaydi", () => {
+    const natija = reaksiyaTengla({ tenglama: 'KMnO4 + HCl -> KCl + MnCl2 + Cl2 + H2O' })
+    assert.equal(natija.tenglashtirilganTenglama, '2KMnO4 + 16HCl -> 2KCl + 2MnCl2 + 5Cl2 + 8H2O')
+    assert.deepEqual(natija.koeffitsiyentlar, [2, 16, 2, 2, 5, 8])
+    assert.equal(natija.jamiKoeffitsiyent, 35)
+    assert.equal(natija.redoksTuri, 'redoks')
+    assert.equal(natija.elektronBalansi.mos, true)
+  })
+
+  test("Cu va HNO3 klassik redoks tenglamasini tenglaydi", () => {
+    const natija = reaksiyaTengla({ tenglama: 'Cu + HNO3 -> Cu(NO3)2 + NO2 + H2O' })
+    assert.equal(natija.tenglashtirilganTenglama, 'Cu + 4HNO3 -> Cu(NO3)2 + 2NO2 + 2H2O')
+    assert.equal(natija.elektronBalansi.berilganElektronlar, 2)
+    assert.equal(natija.elektronBalansi.qabulQilinganElektronlar, 2)
+  })
+
+  test("dixromat, temir(II) va sulfat kislotali murakkab sistema tenglashadi", () => {
+    const natija = reaksiyaTengla({
+      chapTomon: ['K2Cr2O7', 'FeSO4', 'H2SO4'],
+      ongTomon: ['K2SO4', 'Cr2(SO4)3', 'Fe2(SO4)3', 'H2O'],
+    })
+    assert.equal(natija.tenglashtirilganTenglama, 'K2Cr2O7 + 6FeSO4 + 7H2SO4 -> K2SO4 + Cr2(SO4)3 + 3Fe2(SO4)3 + 7H2O')
+    assert.deepEqual(natija.koeffitsiyentlar, [1, 6, 7, 1, 1, 3, 7])
+    assert.equal(natija.elektronBalansi.mos, true)
+  })
+
+  test("reaksiya_tengla dispatcher orqali ham ayni server natijasini qaytaradi", () => {
+    const natija = deterministikVositaniBajar({
+      nom: 'reaksiya_tengla',
+      argumentlar: { tenglama: 'H2 + O2 -> H2O' },
+    })
+    assert.equal(natija.muvaffaqiyatli, true)
+    assert.equal(natija.natija.tenglashtirilganTenglama, '2H2 + O2 -> 2H2O')
+  })
+
+  test("tenglama balanseri ko'p erkin yechim yoki yaroqsiz formulaga taxmin qilmaydi", () => {
+    assert.equal(reaksiyaTengla({ tenglama: 'H2 + O2 -> H2O + H2O2' }), null)
+    assert.equal(reaksiyaTengla({ tenglama: 'Xx + O2 -> XxO2' }), null)
   })
 })
 
