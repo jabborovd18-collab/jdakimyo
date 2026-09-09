@@ -26,13 +26,21 @@ const { xavfsizlikTekshir, xotiraMatniniTozala } = esmRequire(
   'lib/ai-agents/ai-security.js',
   ['xavfsizlikTekshir', 'xotiraMatniniTozala'],
 )
-const { aiYechiminiDeterministikTekshir } = esmRequire(
+const { aiYechiminiDeterministikTekshir, gazHisobla, aralashmaBalansiniTekshir } = esmRequire(
   'lib/ai-agents/deterministik-kimyo.js',
-  ['aiYechiminiDeterministikTekshir'],
+  ['aiYechiminiDeterministikTekshir', 'gazHisobla', 'aralashmaBalansiniTekshir'],
 )
-const { AI_KIMYO_BENCHMARKLARI, aiBenchmarkNatijasiniBahola, aiKimyoBenchmarkiniBajar } = esmRequire(
+const { AI_KIMYO_BENCHMARKLARI, KENGAYTIRILGAN_KIMYO_BENCHMARKLARI, aiBenchmarkNatijasiniBahola, aiKimyoBenchmarkiniBajar } = esmRequire(
   'lib/ai-agents/ai-kimyo-benchmark.js',
-  ['AI_KIMYO_BENCHMARKLARI', 'aiBenchmarkNatijasiniBahola', 'aiKimyoBenchmarkiniBajar'],
+  ['AI_KIMYO_BENCHMARKLARI', 'KENGAYTIRILGAN_KIMYO_BENCHMARKLARI', 'aiBenchmarkNatijasiniBahola', 'aiKimyoBenchmarkiniBajar'],
+)
+const { erkinAralashmaniBahola } = esmRequire(
+  'lib/tajriba.js',
+  ['erkinAralashmaniBahola'],
+)
+const { aiSifatNatijasiniHisobla } = esmRequire(
+  'lib/ai-agents/ai-eval-core.js',
+  ['aiSifatNatijasiniHisobla'],
 )
 const { latexniOddiyMatnga } = esmRequire(
   'lib/latex-oddiy-matn.js',
@@ -313,6 +321,63 @@ describe('Deterministik kimyo hakami va benchmark', () => {
     assert.equal(aiBenchmarkNatijasiniBahola(AI_KIMYO_BENCHMARKLARI[0], {
       muvaffaqiyatli: true, turi: 'yechim', yakuniyJavob: '3 mol', bosqichlar: [],
     }).otildi, false)
+  })
+
+  test("normal sharoitdagi gaz hajmi, zichlik va nisbiy zichlikni bitta modelda hisoblaydi", () => {
+    const natija = gazHisobla({ mol: 2, massa: 32, molyarMassa: 16, etalonMolyarMassa: 2 })
+    assert.equal(natija.hajm, 44.8)
+    assert.equal(natija.zichlik, 32 / 44.8)
+    assert.equal(natija.nisbiyZichlik, 8)
+  })
+
+  test("aralashma massasi va massaviy ulushlar balansini alohida tekshiradi", () => {
+    assert.deepEqual(
+      aralashmaBalansiniTekshir({ massalar: [4.8, 5.2], ulushlar: [0.48, 0.52], jamiMassa: 10 }),
+      { hisoblanganMassa: 10, ulushYigindisi: 1, massaMos: true, ulushlarMos: true },
+    )
+    const xato = aralashmaBalansiniTekshir({ massalar: [4, 5], ulushlar: [0.4, 0.5], jamiMassa: 10 })
+    assert.equal(xato.massaMos, false)
+    assert.equal(xato.ulushlarMos, false)
+  })
+
+  test("gaz va aralashma tengliklaridagi xatolar server ogohlantirishiga tushadi", () => {
+    const natija = aiYechiminiDeterministikTekshir({
+      bosqichlar: [{ formula: 'V = 2 × 22.4 = 40 L; D(H2) = 16 / 2 = 7; m_umumiy = 4 + 5 = 10; w1 + w2 = 0.9' }],
+    })
+    assert.deepEqual(
+      natija.ogohlantirishlar.map((xato) => xato.turi),
+      ['hisob_xatosi', 'hisob_xatosi', 'gaz_hajmi_xatosi', 'nisbiy_zichlik_xatosi', 'aralashma_massasi_xatosi', 'massaviy_ulush_xatosi'],
+    )
+  })
+
+  test("kengaytirilgan benchmark admin baholashi uchun beshta holatni beradi", async () => {
+    assert.equal(KENGAYTIRILGAN_KIMYO_BENCHMARKLARI.length, 5)
+    const natija = await aiKimyoBenchmarkiniBajar({ benchmarklar: KENGAYTIRILGAN_KIMYO_BENCHMARKLARI })
+    assert.equal(natija.totalCases, 5)
+    assert.equal(natija.failed, 0)
+    assert.deepEqual(natija.details.slice(-2).map((detail) => detail.id), [
+      'respublika_qotishma_magniy_mis',
+      'respublika_gaz_aralashmasi_yonish',
+    ])
+  })
+
+  test("admin sifat hisobida ikki yangi olimpiada benchmarki ham qatnashadi", async () => {
+    const natija = await aiSifatNatijasiniHisobla({ revision: 7 })
+    assert.equal(natija.revision, 7)
+    assert.equal(natija.totalCases, 10)
+    assert.equal(natija.failed, 0)
+    assert.ok(natija.details.some((detail) => detail.id === 'benchmark:respublika_qotishma_magniy_mis'))
+    assert.ok(natija.details.some((detail) => detail.id === 'benchmark:respublika_gaz_aralashmasi_yonish'))
+  })
+})
+
+describe('Erkin sandbox aralashma matritsasi', () => {
+  test("neytrallanish, cho'kma va o'zgarishsiz aralashmani shartnomaviy belgilaydi", () => {
+    assert.deepEqual(erkinAralashmaniBahola(['HCl', 'NaOH']).turi, 'neytrallanish')
+    assert.deepEqual(erkinAralashmaniBahola(['AgNO₃', 'NaCl']).turi, 'chokma')
+    const aralashma = erkinAralashmaniBahola(['NaCl', 'KI'])
+    assert.equal(aralashma.turi, 'ozgarishsiz_aralashma')
+    assert.equal(aralashma.sarflanadimi, false)
   })
 })
 
