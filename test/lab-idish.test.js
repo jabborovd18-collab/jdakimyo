@@ -18,6 +18,7 @@ const {
   idishMateriali,
   idishXavfi,
   haroratniOqi,
+  pastHaroratniOqi,
 } = esmRequire('lib/lab-idish.js', [
   'idishmi',
   'idishOl',
@@ -25,6 +26,7 @@ const {
   'idishMateriali',
   'idishXavfi',
   'haroratniOqi',
+  'pastHaroratniOqi',
 ]);
 
 describe('idishmi', () => {
@@ -74,6 +76,23 @@ describe('idishOl va idishSigimi', () => {
     assert.equal(idishMateriali('probirka').nom, 'Shisha');
     assert.equal(idishMateriali('yoq-idish').nom, 'Shisha');
     assert.equal(idishMateriali('chinni-kosacha').nom, 'Chinni');
+  });
+});
+
+describe('pastHaroratniOqi', () => {
+  test('diapazondan eng KICHIGI olinadi: "80–100 °C" → 80', () => {
+    // Reaksiya boshlanish ostonasi — Cu(OH)₂ parchalanishi 80 °C dan
+    // boshlanadi, 100 kutish shart emas (BRIF-R01, 6-bosqich).
+    assert.equal(pastHaroratniOqi('80–100 °C'), 80);
+  });
+
+  test('bitta son bo\'lsa o\'sha qaytadi: "1200 °C" → 1200', () => {
+    assert.equal(pastHaroratniOqi('1200 °C'), 1200);
+  });
+
+  test("bo'sh, null — 0 (darvoza yo'q)", () => {
+    assert.equal(pastHaroratniOqi(''), 0);
+    assert.equal(pastHaroratniOqi(null), 0);
   });
 });
 

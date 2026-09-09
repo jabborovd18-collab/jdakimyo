@@ -79,6 +79,45 @@ export function tozala(holat) {
   };
 }
 
+// Dekantatsiya — cho'kma ustidagi suyuqlikni to'kish (BRIF-R01, 5-bosqich).
+//
+// Nega `qattiqmi` tashqaridan keladi: bu fayl modda jadvalini bilmaydi va
+// bilmasligi kerak (u sof holat mantig'i, sinovda 3D siz ishlaydi).
+// Qaysi modda qattiq ekanini chaqiruvchi `moddaKorinishi` orqali aytadi —
+// manba baribir bitta, lib/lab-modda.js.
+//
+// Nega to'liq tozalash EMAS: Cu(OH)₂ cho'kmasini yuvishda Na₂SO₄ eritmasi
+// KETISHI, cho'kmaning O'ZI esa QOLISHI kerak. Ilgari rakovina hammasini
+// o'chirardi va ikkinchi bosqich (qizdirish) uchun cho'kma qolmasdi.
+export function dekantatsiya(holat, qattiqmi) {
+  const moddalar = holat?.moddalar || {};
+  const qolgan = {};
+  const tokilgan = [];
+
+  for (const [kalit, modda] of Object.entries(moddalar)) {
+    if (typeof qattiqmi === "function" && qattiqmi(kalit)) {
+      qolgan[kalit] = modda;
+    } else {
+      tokilgan.push(kalit);
+    }
+  }
+
+  const yangiHajm = Object.values(qolgan).reduce(
+    (jami, modda) => jami + (modda.ml || 0),
+    0
+  );
+
+  return {
+    holat: {
+      ...holat,
+      moddalar: qolgan,
+      hajm: Number(yangiHajm.toFixed(3)),
+    },
+    tokilgan,
+    qolganKalitlar: Object.keys(qolgan),
+  };
+}
+
 // Idishdagi ma'lum bir reagentning mol miqdorini o'qish: aniq hisob kitoblar uchun
 // xavfsiz o'qish funksiyasi.
 export function molMiqdori(holat, kalit) {

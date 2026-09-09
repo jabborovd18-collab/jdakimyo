@@ -1,15 +1,80 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { reagentBirligi, hajmniBirlikka } from "@/lib/lab-birlik.js";
+import { reagentBirligi, hajmniBirlikka, birlikdanHajmga } from "@/lib/lab-birlik.js";
 import { effektlarniAniqla } from "../lib/kuzatuv-tahlil.js";
 import { effektlarniIshgaTushir, aralashishEffekti } from "../lib/effektlar.js";
 import { hisobot, yoz } from "../lib/jurnal.js";
 import { PALITRA } from "@/lib/lab-modda.js";
 import { suyuqlikSathiniYangila } from "../lib/jihoz-modellari.js";
-import { jamiHajm, idishHolatiniOl } from "../lib/idish-holati.js";
+import { jamiHajm, idishHolatiniOl, idishHolatiniYoz } from "../lib/idish-holati.js";
+import { aralashmaRangi } from "../lib/rang-aralashtirish.js";
+import { moddaKorinishi } from "../lib/modda-korinishi.js";
 import { pufakchaChiqishi, chokmaTushishi } from "../lib/ovoz.js";
 import { kinetikaniBaho } from "../lib/reaksiya-kinetikasi.js";
+
+// Reaksiyadan keyin idish tarkibini serverdan kelgan mahsulotlarga almashtiradi
+// va suyuqlik/cho'kma sathini yangi tarkibga moslaydi.
+//
+// Miqdor SERVERNIKI: `olindi[].miqdor` unum bilan hisoblangan haqiqiy chiqim
+// (lib/tajriba.js), client uni faqat ml ga o'tkazib ko'rsatadi. Harorat
+// saqlanadi — issiq idish reaksiyadan keyin sovib qolmaydi.
+function mahsulotgaAlmashtir(group, eskiHolat, olindi) {
+  if (!group) return;
+
+  const moddalar = {};
+  for (const m of olindi) {
+    if (!m?.kalit) continue;
+    // Gaz idishda QOLMAYDI — u pufak effekti bilan chiqib ketdi. Holatga
+    // yozilsa keyingi reaksiya qidiruviga "sharpa reagent" bo'lib kirardi.
+    if (moddaKorinishi(m.kalit).holat === "gaz") continue;
+    const ml = birlikdanHajmga(m.miqdor ?? 0, m.birlik ?? "ml");
+    if (ml <= 0) continue;
+    moddalar[m.kalit] = { ml: Number(ml.toFixed(3)), mol: 0 };
+  }
+
+  const jami = Object.values(moddalar).reduce((j, m) => j + m.ml, 0);
+  const yangiHolat = {
+    ...eskiHolat,
+    idish: group.userData?.kalit || eskiHolat?.idish || "probirka",
+    moddalar,
+    hajm: Number(jami.toFixed(3)),
+  };
+  idishHolatiniYoz(group, yangiHolat);
+
+  // Suyuqlik va cho'kma sathi yangi tarkibdan hisoblanadi: qattiq mahsulot
+  // (Cu(OH)₂↓) cho'kma qatlami bo'lib qoladi, suyuqlik (Na₂SO₄ eritmasi)
+  // rangini aralashma qoidasi beradi. Effekt tugagach qatlam YO'QOLMAYDI —
+  // ilgari cho'kma faqat animatsiya umri davomida ko'rinardi.
+  let suyuqMl = 0;
+  let chokmaMl = 0;
+  let chokmaRang = null;
+  for (const [kalit, m] of Object.entries(moddalar)) {
+    const korinish = moddaKorinishi(kalit);
+    if (korinish.holat === "qattiq") {
+      chokmaMl += m.ml;
+      chokmaRang = korinish.rang;
+    } else if (korinish.holat !== "gaz") {
+      suyuqMl += m.ml;
+    }
+  }
+
+  const suyuqHolat = { ...yangiHolat, moddalar: {} };
+  for (const [kalit, m] of Object.entries(moddalar)) {
+    if (moddaKorinishi(kalit).holat === "suyuq") suyuqHolat.moddalar[kalit] = m;
+  }
+  const rangObj = suyuqMl > 0 ? aralashmaRangi(suyuqHolat) : null;
+
+  suyuqlikSathiniYangila(
+    group,
+    suyuqMl,
+    rangObj,
+    chokmaMl,
+    chokmaRang ?? undefined,
+  );
+
+  return yangiHolat;
+}
 
 // Reaksiya o'tkazishni, API bilan bog'lanishni va 3D effektlar ketma-ketligini
 // boshqaruvchi asosiy hook.
@@ -101,6 +166,10 @@ export function useTajriba({ sahnaRef, jurnalRef, holatniYangila }) {
           // Qaysi idishda ishlanayotgani. Server sig'imni tekshiradi va
           // reaksiya idishni yaroqsiz qilgan-qilmaganini hal qiladi.
           idish: idishHolat?.idish ?? null,
+          // Idishning hozirgi harorati. Termik reaksiya (Cu(OH)₂ → CuO)
+          // sovuq idishda boshlanmasligini SERVER hal qiladi — client
+          // faqat o'lchov yuboradi (AGENTS.md 2).
+          harorat: idishHolat?.harorat ?? null,
         }),
       });
 
@@ -122,6 +191,20 @@ export function useTajriba({ sahnaRef, jurnalRef, holatniYangila }) {
         const status = sorovJavobi.status;
         if (status === 409) {
           setXato("Baza band yoki server band bo'lib qoldi. Qayta urinib ko'ring.");
+        } else if (ma_lumot.kod === "sovuq") {
+          // Idish hali qizimagan — bu buzilish EMAS, kutish. Aralashma
+          // o'z rangida qoladi: foydalanuvchi spirtovkani yoqib qayta
+          // urinadi va o'shanda reaksiya boshlanadi (Cu(OH)₂ → CuO).
+          setXato(ma_lumot.error);
+        } else if (
+          ma_lumot.kod === "kirishmadi" &&
+          kalitlar.filter((k) => k !== "H₂O" && k !== "H₂O-oddiy").length <= 1
+        ) {
+          // Suv + ko'pi bilan bitta modda = bu ERITMA (CuSO₄ suvda),
+          // buzilgan aralashma emas. Rang o'z holida qoladi: och moviy
+          // eritmani kulrang qilish o'quvchiga "xato qildim" degan
+          // noto'g'ri signal berardi. Xato paneli ham ochilmaydi —
+          // eritish reaksiya emas, jim davom etiladi.
         } else {
           // 400 va boshqalar: idishdagi suyuqlikni xira kulrang qilamiz
           const hajm = jamiHajm(idishHolat);
@@ -184,6 +267,16 @@ export function useTajriba({ sahnaRef, jurnalRef, holatniYangila }) {
 
           if (boshqaruvchi.tugadimi() || hozir - boshlanishMs > maxKutishMs) {
             animatsiyaniTozala();
+
+            // Idish tarkibi MAHSULOTGA almashadi — server qancha chiqqanini
+            // aytdi (`olindi`), client faqat ko'rsatadi.
+            //
+            // Ilgari bu qadam YO'Q edi: reaksiyadan keyin idishda eski
+            // reagent kalitlari qolardi. Oqibati — Cu(OH)₂ hosil bo'lgach
+            // uni qizdirib CuO ga aylantirib bo'lmasdi, chunki idish
+            // "CuSO₄ + NaOH" deb turardi va ikkinchi reaksiya topilmasdi.
+            mahsulotgaAlmashtir(tanlanganIdishGroup, idishHolat, ma_lumot.olindi || []);
+
             // Jurnal hisobotini shakllantirish
             if (jurnalRef?.current) {
               yoz(jurnalRef.current, {
