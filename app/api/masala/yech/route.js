@@ -126,9 +126,23 @@ export async function POST(request) {
       const oldingiJavob = typeof yechim?.yakuniyJavob === "string"
         ? yechim.yakuniyJavob.slice(0, 8000)
         : "";
+      // Chatga faqat ko'rsatiladigan avvalgi yechim bo'laklari uzatiladi:
+      // ular promptga kiritilmaydi, SVG generator esa matnni XMLdan himoyalaydi.
+      const chatYechim = {
+        yakuniyJavob: oldingiJavob,
+        tenglamalar: Array.isArray(yechim?.tenglamalar)
+          ? yechim.tenglamalar.filter((qator) => typeof qator === "string").slice(0, 2)
+          : [],
+        yonalish: {
+          formulalar: Array.isArray(yechim?.yonalish?.formulalar)
+            ? yechim.yonalish.formulalar.filter((qator) => typeof qator === "string").slice(0, 2)
+            : [],
+        },
+        krestSxemasi: yechim?.krestSxemasi || yechim?.vizualSxema || null,
+      };
       const chatNatija = await aiRepetitorChat({
         masalaMatni,
-        yechim: { yakuniyJavob: oldingiJavob },
+        yechim: chatYechim,
         savol: savol.trim(),
         foydalanuvchiId: session.user.id,
         foydalanuvchiIsmi,
@@ -145,6 +159,8 @@ export async function POST(request) {
         muvaffaqiyatli: true,
         action: "chat",
         javob: chatNatija.matn,
+        sokratikRejim: chatNatija.sokratikRejim,
+        vizual: chatNatija.vizual,
         aiYonalish: chatNatija.aiYonalish,
         kanallar: aiConfig.channels,
       });

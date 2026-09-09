@@ -50,6 +50,14 @@ const { pdfVizualniTayyorla } = esmRequire(
   'lib/masala-pdf-vizual.js',
   ['pdfVizualniTayyorla'],
 )
+const { sokratikRejimniAniqla, sokratikKorsatmaTuz } = esmRequire(
+  'lib/ai-agents/sokratik-repetitor.js',
+  ['sokratikRejimniAniqla', 'sokratikKorsatmaTuz'],
+)
+const { chatVizualiniYarat } = esmRequire(
+  'lib/chat-vizual.js',
+  ['chatVizualiniYarat'],
+)
 
 describe('AI kesh kaliti', () => {
   const kesh = new AiKeshManager()
@@ -451,6 +459,42 @@ describe('Erkin sandbox aralashma matritsasi', () => {
     const aralashma = erkinAralashmaniBahola(['NaCl', 'KI'])
     assert.equal(aralashma.turi, 'ozgarishsiz_aralashma')
     assert.equal(aralashma.sarflanadimi, false)
+  })
+})
+
+describe('Sokratik repetitor va chat vizuali', () => {
+  test("tushuntirish va birga yechish so'rovi Sokratik rejimni yoqadi", () => {
+    assert.equal(sokratikRejimniAniqla("Bu masalani tushuntirib bering"), true)
+    assert.equal(sokratikRejimniAniqla("Keling, birga yechaylik"), true)
+    assert.equal(sokratikRejimniAniqla("Javob necha?"), false)
+  })
+
+  test("Sokratik ko'rsatma tayyor javobni yashirib, bitta keyingi savolni talab qiladi", () => {
+    const korsatma = sokratikKorsatmaTuz()
+    assert.match(korsatma, /Tayyor yechimni, yakuniy sonni/)
+    assert.match(korsatma, /faqat bitta keyingi qadam/i)
+    assert.match(korsatma, /savol bilan tugasin/i)
+  })
+
+  test("chat vizuali formula va Pearson nisbatini bitta ixcham SVGda beradi", () => {
+    const natija = chatVizualiniYarat({
+      tenglamalar: ['2H2 + O2 -> 2H2O'],
+      krestSxemasi: { modda1: '40% eritma', w1: 40, wTarget: 20, modda2: '10% eritma', w2: 10, nisbat: '1 : 2' },
+    })
+    assert.equal(natija.turi, 'svg_formula_jadval')
+    assert.match(natija.svg, /<svg/)
+    assert.match(natija.svg, /2H2 \+ O2 -&gt; 2H2O/)
+    assert.match(natija.svg, /1 : 2/)
+  })
+
+  test("chat SVGsi foydalanuvchi matnini XML sifatida bajarishga yo'l qo'ymaydi", () => {
+    const natija = chatVizualiniYarat({ tenglamalar: ['<script>alert(1)</script> = x'] })
+    assert.doesNotMatch(natija.svg, /<script>/)
+    assert.match(natija.svg, /&lt;script&gt;/)
+  })
+
+  test("formula ham, nisbat ham bo'lmasa chat vizuali yuborilmaydi", () => {
+    assert.equal(chatVizualiniYarat({ yakuniyJavob: 'Faqat matn' }), null)
   })
 })
 

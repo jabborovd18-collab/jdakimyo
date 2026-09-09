@@ -14,6 +14,7 @@ import BoyitilganMatn from "@/components/BoyitilganMatn.jsx";
 import UsageModelsModal from "@/components/masala/UsageModelsModal";
 import { masalaPdfYukla } from "@/lib/masala-pdf.js";
 import { ovozPleyeri } from "@/lib/ovoz-pleyer.js";
+import { sokratikRejimniAniqla } from "@/lib/ai-agents/sokratik-repetitor.js";
 import {
   aiChatlarRoyxatiniOl,
   aiChatniOl,
@@ -675,6 +676,7 @@ export default function MasalaChatSahifasi() {
 
       const isFollowUp = !joriyRasm && oxirgiAiYechim && joriyMatn.length < 80 && (
         joriyMatn.includes("?") ||
+        sokratikRejimniAniqla(joriyMatn) ||
         joriyMatn.toLowerCase().includes("nega") ||
         joriyMatn.toLowerCase().includes("qanday") ||
         joriyMatn.toLowerCase().includes("boshqa") ||
@@ -701,6 +703,8 @@ export default function MasalaChatSahifasi() {
             rol: "ai",
             turi: "chat_javob",
             matn: data.javob,
+            sokratikRejim: data.sokratikRejim,
+            vizual: data.vizual,
             aiYonalish: data.aiYonalish,
             vaqt: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
           },
@@ -1074,6 +1078,15 @@ export default function MasalaChatSahifasi() {
                   </div>
 
                   <BoyitilganMatn matn={xabar.matn} className="text-xs sm:text-sm text-[var(--v3-matn)]" />
+                  {xabar.vizual?.svg && (
+                    // SVG data-URL tashqi rasm emas; Next Image uni optimizatsiya qila olmaydi.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`data:image/svg+xml;utf8,${encodeURIComponent(xabar.vizual.svg)}`}
+                      alt={xabar.vizual.sarlavha || "Formula va moddalar nisbati"}
+                      className="w-full max-w-[640px] rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon)]"
+                    />
+                  )}
                   <span className="text-[9px] text-[var(--v3-xira)] block text-right">
                     {xabar.vaqt}
                   </span>
