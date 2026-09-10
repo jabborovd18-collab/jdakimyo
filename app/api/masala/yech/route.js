@@ -7,6 +7,9 @@ import { randomUUID } from "node:crypto";
 import { after, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 import { tezlikOshdimi, AI_QOIDASI } from "@/lib/tezlik-cheklov.js";
 import { multiAgentMasalaYech, aiRepetitorChat } from "@/lib/ai-agents/masala-orkestrator.js";
 import { aiQuota } from "@/lib/ai-agents/ai-quota.js";

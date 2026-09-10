@@ -29,25 +29,17 @@ const TEKSTURA_KATTA = { yogoch: 1024, pol: 1024, devor: 512 };
 export const PROFILLAR = Object.freeze({
   telefon: profilYarat({
     nom: "telefon",
-    chiroqBudjeti: 3,
-    // DPR 3 telefonda 1.5 cap 2.25 barobar ortiq piksel chizardi.
-    pikselNisbati: 1.0,
-    // BRIF-03 — dinamik rezolyutsiya chegarasi. Telefonda nishon 30 FPS:
-    // 60 ni talab qilish rezolyutsiyani doim pastki chegarada ushlab
-    // turardi va rasm behuda buzilardi.
-    pikselOraligi: { past: 0.6, yuqori: 1.0 },
-    nishonKadrVaqti: 33.3,
-    // Telefonda anizotropiya 4 — undan yuqorisi mobil GPU da sezilarli
-    // fragment narxi qo'shadi va kichik ekranda farqi ko'rinmaydi.
-    anizotrop: 4,
-    soya: false,
-    // Eski arzon yo'l ham RoomEnvironment yaratgan; false qilish bu brifda
-    // tezlashtirish bo'lib, oldin/keyin tasvirini o'zgartirib yuborardi.
+    chiroqBudjeti: 6,
+    pikselNisbati: 1.5,
+    pikselOraligi: { past: 1.0, yuqori: 1.75 },
+    nishonKadrVaqti: 25.0,
+    anizotrop: 8,
+    soya: true,
     IBL: true,
     transmission: false,
     postprocessing: { bloom: false, ssao: false },
-    teksturaOlchami: TEKSTURA_TELEFON,
-    antialias: false,
+    teksturaOlchami: TEKSTURA_KATTA,
+    antialias: true,
   }),
   desktop: profilYarat({
     nom: "desktop",

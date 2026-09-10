@@ -490,24 +490,61 @@ export default function MasalaChatSahifasi() {
     }, 0);
   };
 
-  const handleRasmYuklash = (e) => {
+function rasmniSiqish(file, maxOlcham = 1600, sifat = 0.85) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxOlcham || height > maxOlcham) {
+          if (width > height) {
+            height = Math.round((height * maxOlcham) / width);
+            width = maxOlcham;
+          } else {
+            width = Math.round((width * maxOlcham) / height);
+            height = maxOlcham;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", sifat));
+      };
+      img.onerror = () => reject(new Error("Rasmni o'qib bo'lmadi"));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error("Faylni o'qib bo'lmadi"));
+    reader.readAsDataURL(file);
+  });
+}
+
+  const handleRasmYuklash = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast.error("Faqat rasm fayllarini yuklash mumkin (.jpg, .png, .webp)");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Rasm hajmi 5 MB dan oshmasligi kerak.");
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error("Rasm hajmi 15 MB dan oshmasligi kerak.");
       return;
     }
     setRasmNomi(file.name);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setRasmBase64(ev.target.result);
+    try {
+      const siqilgan = await rasmniSiqish(file);
+      setRasmBase64(siqilgan);
       toast.success("Rasm biriktirildi!");
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setRasmBase64(ev.target.result);
+        toast.success("Rasm biriktirildi!");
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleRasmOchirish = () => {
