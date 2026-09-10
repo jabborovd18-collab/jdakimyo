@@ -270,8 +270,9 @@ export default function MasalaChatSahifasi() {
   const aiSorovYubor = async (body, tanlanganYonalish) => {
     const controller = new AbortController();
     sorovControllerRef.current = controller;
-    const vaqtMs = MIJOZ_VAQT_CHEGARASI[tanlanganYonalish]
+    const asosiyVaqt = MIJOZ_VAQT_CHEGARASI[tanlanganYonalish]
       || MIJOZ_VAQT_CHEGARASI.avtomatik;
+    const vaqtMs = body?.rasm ? Math.max(asosiyVaqt, 55_000) : asosiyVaqt;
     const taymer = setTimeout(() => controller.abort(), vaqtMs);
 
     try {
