@@ -230,10 +230,20 @@ function KislotaQuiz() {
       ])
       const guruhMalumoti = await guruhJavobi.json()
       const quizMalumoti = await quizJavobi.json()
-      const faollar = (guruhMalumoti.guruhlar || []).filter((g) => g.faol)
+      const ruxsatChatId = String(quizMalumoti.ruxsatChatId || '')
+      const faollar = (guruhMalumoti.guruhlar || []).filter(
+        (g) => g.faol && String(g.chatId) === ruxsatChatId,
+      )
+      const quizGuruhlari = (quizMalumoti.guruhlar || []).filter(
+        (g) => String(g.chatId) === ruxsatChatId,
+      )
       setGuruhlar(faollar)
       setChatId((eski) => eski || faollar[0]?.chatId || '')
-      setHolat(quizJavobi.ok ? quizMalumoti : { xato: quizMalumoti.error })
+      setHolat(
+        quizJavobi.ok
+          ? { ...quizMalumoti, guruhlar: quizGuruhlari }
+          : { xato: quizMalumoti.error },
+      )
     } catch {
       setHolat({ xato: 'Ma\'lumot olinmadi' })
     }
