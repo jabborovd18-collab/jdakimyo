@@ -24,6 +24,7 @@ import {
 const SAYT = 'https://www.jdakimyo.uz'
 
 const BUYRUQLAR = [
+  { command: 'test', description: 'Guruhdagi ochiq testni boshlash' },
   { command: 'newquiz', description: 'Yangi quiz yaratish' },
   { command: 'myquiz', description: 'Mening quizlarim' },
   { command: 'quizstats', description: 'Quiz natijalari' },

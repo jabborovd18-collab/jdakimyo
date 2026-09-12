@@ -31,6 +31,7 @@ import {
 import { bugungiIqtibos, iqtibosMatni } from '@/lib/iqtibos'
 import { xabarYubor } from '@/lib/bildirishnoma'
 import { koprukkaUzat, kopruSozlanganmi, saytniki } from '@/lib/telegram-kopruk'
+import { guruhAiChaqirildimi } from '@/lib/telegram-yonaltirish'
 import { TANGA_TOPISH, TANGA_SAVOLGA } from '@/lib/bot-tanga'
 import {
   aiRejimdami,
@@ -124,11 +125,9 @@ export async function POST(request) {
         return NextResponse.json({ ok: true })
       }
 
-      // Guruh va kanaldagi tugmalar uchun hisob tekshirilmaydi —
-      // u yerda "ulangan hisob" tushunchasi yo'q.
-      await koprukka(yangilik, cbChat?.id, {
-        hisobTekshir: cbChat?.type === 'private',
-      })
+      // Quiz va PDF tugmalari sayt hisobiga bog'liq emas. AI hamda
+      // bildirishnoma tugmalari saytning o'z yo'lida tekshiriladi.
+      await koprukka(yangilik, cbChat?.id)
       return NextResponse.json({ ok: true })
     }
 
@@ -138,7 +137,7 @@ export async function POST(request) {
     // o'tishga majbur bo'lsa, quizning ma'nosi qolmaydi. Aynan
     // shu — botning guruhdagi asosiy jozibasi.
     if (yangilik?.poll_answer) {
-      await koprukka(yangilik, null, { hisobTekshir: false })
+      await koprukka(yangilik, null)
       return NextResponse.json({ ok: true })
     }
 
@@ -154,16 +153,9 @@ export async function POST(request) {
     // chiqarib yuboriladi.
     if (xabar.chat?.type === 'group' || xabar.chat?.type === 'supergroup') {
       const guruhMatn = (xabar.text || xabar.caption || '').trim()
-      const kichikMatn = guruhMatn.toLowerCase()
-
-      // GURUHDA JDA KIMYO AI GA MUROJAAT (Faqat aniq @jdakimyouzbot teglanganda yoki Bot xabariga Reply qilinganda)
-      const botTegQilindi =
-        kichikMatn.includes(`@${BOT_NOMI}`) ||
-        kichikMatn.includes('jdakimyouzbot') ||
-        kichikMatn.startsWith('/ai') ||
-        (Boolean(xabar.reply_to_message?.from?.is_bot) &&
-          (xabar.reply_to_message?.from?.username?.toLowerCase() === BOT_NOMI ||
-            xabar.reply_to_message?.from?.id === Number(process.env.TELEGRAM_BOT_TOKEN?.split(':')[0])))
+      // Guruhda reply tasodifiy AI xarajatini boshlamasin. Faqat
+      // aniq @teg odamning AI ni ataylab chaqirganini bildiradi.
+      const botTegQilindi = guruhAiChaqirildimi(guruhMatn, BOT_NOMI)
 
       if (botTegQilindi) {
         await guruhAiXabariniBajar({
@@ -188,7 +180,7 @@ export async function POST(request) {
       }
 
       if (guruhMatn.startsWith('/')) {
-        await koprukka(yangilik, chatId, { hisobTekshir: false })
+        await koprukka(yangilik, chatId)
       }
       return NextResponse.json({ ok: true })
     }
@@ -256,7 +248,7 @@ export async function POST(request) {
  * sababini biladi: aks holda bot butunlay jim qolib, odam "buzilibdi"
  * deb o'ylardi.
  */
-async function koprukka(yangilik, chatId, { hisobTekshir = true } = {}) {
+async function koprukka(yangilik, chatId) {
   const id = chatId ? String(chatId) : ''
 
   // Javob yozib bo'lmaydigan yangiliklar ham bor (`poll_answer` da
@@ -269,21 +261,6 @@ async function koprukka(yangilik, chatId, { hisobTekshir = true } = {}) {
       'Bunday buyruq yo\'q. Pastdagi tugmalardan foydalaning yoki /yordam yozing.',
       { klaviatura: true }
     )
-  }
-
-  // KIRISH TALABI — faqat SHAXSIY chatda. Quiz va PDF hisobga
-  // bog'langan xizmatlar: tanga sarflaydi va tarix kabinetda ko'rinadi.
-  // Guruh va quiz javoblarida esa bu tekshiruv o'rinsiz: guruhning
-  // o'zi hech qachon "ulangan" bo'lmaydi, o'quvchini esa javob
-  // berishdan oldin ro'yxatdan o'tishga majburlash quizning ma'nosini
-  // yo'qotadi.
-  //
-  // Tekshiruv ATAYLAB shu yerda, Python botda emas — u holda har
-  // handler o'zi tekshirishi kerak bo'lardi va yangi imkoniyat
-  // qo'shilganda esdan chiqib, xizmat ochilib qolardi.
-  if (hisobTekshir) {
-    const ruxsat = await botRuxsati(id)
-    if (!ruxsat.ok) return ruxsat.javob
   }
 
   const natija = await koprukkaUzat(yangilik)
@@ -301,69 +278,6 @@ async function koprukka(yangilik, chatId, { hisobTekshir = true } = {}) {
     '⚠️ Quiz va PDF xizmati hozir ishlamayapti. Birozdan keyin urinib ko\'ring.',
     { klaviatura: true }
   )
-}
-
-/**
- * Bu Telegram quiz va PDF xizmatidan foydalana oladimi?
- *
- * Uch shart: hisob ulangan bo'lsin, bloklanmagan bo'lsin va emaili
- * tasdiqlangan bo'lsin. Oxirgisi saytdagi qoida bilan bir xil —
- * tasdiqlanmagan hisob tanga ham topa olmaydi, ya'ni botda tanga
- * sarflay olishi mantiqsiz bo'lardi.
- *
- * @returns {Promise<{ok: true} | {ok: false, javob: Promise<any>}>}
- */
-async function botRuxsati(chatId) {
-  const ulangan = await prisma.telegramUlanish.findUnique({
-    where: { chatId },
-    select: {
-      user: { select: { isBanned: true, emailVerified: true } },
-    },
-  })
-
-  if (!ulangan) {
-    return {
-      ok: false,
-      javob: telegramYubor(
-        chatId,
-        '🔒 <b>Bu xizmat uchun hisob kerak</b>\n\n' +
-          'Quiz yaratish va PDF xizmatidan jdakimyo.uz saytida ro\'yxatdan ' +
-          'o\'tgan va shu botga ulangan hisob foydalana oladi.\n\n' +
-          '<b>Ulash juda oson:</b>\n' +
-          '/kod yozing — men sizga kod beraman, uni saytga kiritasiz.\n\n' +
-          'Hisobingiz bo\'lmasa, avval saytda ro\'yxatdan o\'ting.',
-        { havola: { matn: 'Ro\'yxatdan o\'tish', url: `${SAYT}/register` } }
-      ),
-    }
-  }
-
-  if (ulangan.user.isBanned) {
-    return {
-      ok: false,
-      javob: telegramYubor(
-        chatId,
-        '🚫 Hisobingiz bloklangan. Xizmatlardan foydalana olmaysiz.\n\n' +
-          'Sabab va murojaat uchun kabinetdagi bildirishnomalarni ko\'ring.',
-        { havola: { matn: 'Kabinetni ochish', url: `${SAYT}/profil` } }
-      ),
-    }
-  }
-
-  if (!ulangan.user.emailVerified) {
-    return {
-      ok: false,
-      javob: telegramYubor(
-        chatId,
-        '📧 <b>Emailingiz tasdiqlanmagan</b>\n\n' +
-          'Tasdiqlanmagan hisob tanga topa olmaydi, shuning uchun pullik ' +
-          'xizmatlar ham ochilmaydi.\n\n' +
-          'Kabinetdagi sozlamalardan tasdiqlash xatini qayta yuboring.',
-        { havola: { matn: 'Sozlamalarni ochish', url: `${SAYT}/profil/sozlama` } }
-      ),
-    }
-  }
-
-  return { ok: true }
 }
 
 /**
@@ -570,6 +484,7 @@ async function guruhOzgardi({ chatId, chat, holat, eskiHolat, kim }) {
     '👋 Salom! Men — <b>JDA KIMYO</b> boti.\n' +
       'jdakimyo.uz — o\'zbek tilidagi oliy kimyo platformasi.\n\n' +
       '<b>Shu guruhda nima qila olaman:</b>\n' +
+      '🧪 <code>/test</code> — admin ochgan kislotalar testini boshlayman\n' +
       '🧩 <code>/quiz KOD</code> — test o\'tkazaman, oxirida reyting chiqaraman\n' +
       '📊 <code>/natija</code> — oxirgi testning reytingi\n' +
       '📜 Har kuni bitta kimyoviy iqtibos yuboraman\n' +
@@ -721,10 +636,8 @@ async function bogla({ chatId, kod, username }) {
  * tanishtiruv havolalar bilan, keyin qisqa xabar klaviatura bilan
  * yuboriladi.
  *
- * Xabar nima uchun uzun: bu bot endi faqat bildirishnoma emas —
- * quiz, PDF va prezentatsiya xizmatlari bor va ularning barchasi
- * SAYT HISOBIGA bog'langan. Odam nima uchun ro'yxatdan o'tishi
- * kerakligini bilmasa, birinchi qadamdayoq to'xtaydi.
+ * Xabar xizmatlarni ikki guruhga aniq ajratadi: oddiy bot va quiz
+ * hisobsiz ishlaydi, faqat AI hamda bildirishnomalar saytga ulanadi.
  */
 async function salomlash({ chatId, ism }) {
   const ulangan = await prisma.telegramUlanish.findUnique({ where: { chatId } })
@@ -734,7 +647,7 @@ async function salomlash({ chatId, ism }) {
     await telegramYubor(
       chatId,
       `${salom}\n\n` +
-        'Hisobingiz allaqachon ulangan — hamma xizmat ochiq.\n\n' +
+        'Hisobingiz ulangan — AI va bildirishnomalar ham ochiq.\n\n' +
         '🧩 <b>Quiz yaratish</b> — test faylingizdan Telegram testlari\n' +
         '📑 <b>PDF yaratish</b> — rasmlardan bitta hujjat (bepul)\n' +
         '🎓 <b>Prezentatsiya</b> — AI yordamida kimyoviy slaydlar\n' +
@@ -755,16 +668,11 @@ async function salomlash({ chatId, ism }) {
       '📑 Rasmlaringizni bitta PDF hujjatga yig\'adi — bepul\n' +
       '🎓 Kimyoviy mavzuda prezentatsiya tayyorlaydi (PPTX va PDF)\n' +
       '🔔 Saytdagi bildirishnomalarni shu yerga yetkazadi\n\n' +
-      '<b>Foydalanish tartibi — uch qadam:</b>\n\n' +
-      '<b>1.</b> jdakimyo.uz saytida hisob oching\n' +
-      '<b>2.</b> Shu yerga <code>/kod</code> deb yozing — men sizga bir martalik ' +
-      'kod beraman, uni saytdagi <b>Sozlamalar → Telegram</b> bo\'limiga kiritasiz\n' +
-      '<b>3.</b> Tayyor — pastdagi tugmalar ishlay boshlaydi\n\n' +
-      '<b>Nega hisob kerak?</b>\n' +
-      'Quiz va prezentatsiya <b>tanga</b> bilan ishlaydi, tanga esa saytda ' +
-      'topiladi: kunlik missiyalar, bepul sandiq va testlar orqali. ' +
-      'PDF bepul, lekin u ham ulangan hisobni talab qiladi — xizmatlardan ' +
-      'foydalanish tarixi kabinetingizda saqlanadi.\n\n' +
+      '<b>Quiz yechish va oddiy bot xizmatlari uchun hisob shart emas.</b>\n' +
+      'Darhol pastdagi tugmalardan foydalanishingiz mumkin.\n\n' +
+      '<b>Faqat AI va bildirishnomalar uchun ulash kerak:</b>\n' +
+      '<code>/kod</code> yozing va berilgan kodni saytdagi ' +
+      '<b>Sozlamalar → Telegram</b> bo\'limiga kiriting.\n\n' +
       'Yangiliklar va darslar rasmiy kanalimizda.',
     {
       havolalar: [
@@ -780,7 +688,7 @@ async function salomlash({ chatId, ism }) {
   // takrorlansa, xabar oqimi bosib ketardi.
   return telegramYubor(
     chatId,
-    'Boshlash uchun <code>/kod</code> deb yozing.',
+    'Quiz yechish va oddiy xizmatlarni hoziroq boshlashingiz mumkin.',
     { klaviatura: true }
   )
 }
@@ -965,8 +873,8 @@ function yordam(p) {
   return telegramYubor(
     p.chatId,
     '<b>JDA KIMYO boti</b> — jdakimyo.uz ning rasmiy boti\n\n' +
-      'Xizmatlar ulangan hisob orqali ishlaydi. Hisobingiz bo\'lmasa, ' +
-      'jdakimyo.uz da ro\'yxatdan o\'ting va <code>/kod</code> yozing.\n\n' +
+      'Quiz yechish va oddiy bot xizmatlari hisobsiz ishlaydi. Faqat AI hamda ' +
+      'saytdagi bildirishnomalar uchun <code>/kod</code> orqali hisobni ulang.\n\n' +
       '<b>Buyruqlar</b>\n' +
       '/kod — hisobni ulash uchun kod olish\n' +
       '/xabarlar — oxirgi bildirishnomalar\n' +
