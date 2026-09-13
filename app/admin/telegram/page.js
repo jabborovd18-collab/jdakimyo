@@ -80,7 +80,7 @@ export default function AdminTelegramPage() {
           ['statistika', '📈 Statistika'],
           ['odamlar', '👥 Foydalanuvchilar'],
           ['guruhlar', '💬 Guruhlar'],
-          ['kislota-quiz', '🧩 Quiz markazi'],
+          ['quiz-markazi', '🧩 Quiz markazi'],
           ['elon', '📣 E\'lon'],
         ].map(([kalit, nom]) => (
           <button
@@ -105,7 +105,7 @@ export default function AdminTelegramPage() {
         </>
       )}
       {bolim === 'odamlar' && <Foydalanuvchilar />}
-      {bolim === 'kislota-quiz' && <KislotaQuiz />}
+      {bolim === 'quiz-markazi' && <QuizMarkazi />}
       {bolim === 'guruhlar' && (
         <>
           <Guruhlar />
@@ -204,12 +204,8 @@ export default function AdminTelegramPage() {
   )
 }
 
-/**
- * Rasmda berilgan kislota nomi–formula bankini yopiq guruhga ochadi.
- * Savollarning o'zi Render botida: panel ularni takrorlamaydi, faqat
- * qaysi guruhda va qanday tartibda ishlatilishini boshqaradi.
- */
-function KislotaQuiz() {
+/** Barcha test banklari uchun yopiq guruh boshqaruvi. */
+function QuizMarkazi() {
   const [guruhlar, setGuruhlar] = useState([])
   const [holat, setHolat] = useState(null)
   const [chatId, setChatId] = useState('')
@@ -222,7 +218,7 @@ function KislotaQuiz() {
   const [almazYoqilgan, setAlmazYoqilgan] = useState(true)
   const [engKamIshtirokchi, setEngKamIshtirokchi] = useState(3)
   const [kunlikAlmazLimiti, setKunlikAlmazLimiti] = useState(1)
-  const [darhol, setDarhol] = useState(false)
+  const [qidiruv, setQidiruv] = useState('')
   const [band, setBand] = useState(false)
 
   const yukla = useCallback(async () => {
@@ -256,7 +252,6 @@ function KislotaQuiz() {
 
   async function yubor(amal, qoshimcha = {}) {
     if (!chatId) return toast.error('Avval guruhni tanlang')
-    const darholYuborildi = qoshimcha.darhol ?? darhol
     setBand(true)
     try {
       const res = await fetch('/api/admin/telegram/kislota-quiz', {
@@ -276,7 +271,6 @@ function KislotaQuiz() {
           almazYoqilgan,
           engKamIshtirokchi: Number(engKamIshtirokchi),
           kunlikAlmazLimiti: Number(kunlikAlmazLimiti),
-          darhol,
           ...qoshimcha,
         }),
       })
@@ -289,7 +283,9 @@ function KislotaQuiz() {
             : amal === 'bank_och' ? 'Test o\'quvchilar uchun ochildi' : 'Test katalogdan yopildi'
           : amal === 'toxtat' || amal === 'yop'
           ? amal === 'yop' ? 'Test guruh uchun yopildi' : 'Test to\'xtatildi'
-          : darholYuborildi || amal === 'boshla'
+          : amal === 'kislota_yarat'
+            ? 'Kislotalar testi katalogga qo\'shildi'
+          : amal === 'boshla'
             ? 'Test guruhda boshlandi'
             : 'Test guruh uchun ochildi',
       )
@@ -300,7 +296,12 @@ function KislotaQuiz() {
   }
 
   const tanlangan = (holat?.guruhlar || []).find((g) => String(g.chatId) === chatId)
-  const taxminiyDaqiqa = Math.round(20 * (vaqtLimiti + tanaffusSoni) / 60)
+  const banklar = holat?.banklar || []
+  const ochiqBanklar = banklar.filter((q) => q.ochiq).length
+  const kislotaBankiBor = banklar.some((q) => q.tizimTuri === 'kislotalar')
+  const korinadiganBanklar = banklar.filter((q) =>
+    q.nomi.toLocaleLowerCase('uz').includes(qidiruv.trim().toLocaleLowerCase('uz')),
+  )
 
   useEffect(() => {
     if (!tanlangan) return
@@ -319,12 +320,6 @@ function KislotaQuiz() {
     setKunlikAlmazLimiti(holat.almaz.kunlikAlmazLimiti ?? 1)
   }, [holat?.almaz])
 
-  async function kodniNusxala() {
-    if (!tanlangan?.kod) return
-    await navigator.clipboard.writeText(`/start q_${tanlangan.kod}`)
-    toast.success('Shaxsiy test buyrug\'i nusxalandi')
-  }
-
   return (
     <div
       className="rounded-2xl border p-5"
@@ -338,15 +333,15 @@ function KislotaQuiz() {
           </p>
         </div>
         <span className="rounded-full border px-3 py-1 text-xs font-semibold" style={{ borderColor: 'var(--v3-chiziq)' }}>
-          {tanlangan?.faolSessiya ? '● Test ketyapti' : tanlangan?.faol ? 'Test ochiq' : 'Test yopiq'}
+          {tanlangan?.faolSessiya ? '● Test ketyapti' : tanlangan?.faol ? 'Quiz markazi faol' : 'Quiz markazi yopiq'}
         </span>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         {[
-          ['Savollar banki', '58 ta', 'Nom ↔ formula aralash'],
-          ['Har bir urinish', '20 ta', 'Har safar tasodifiy'],
-          ['Taxminiy davomiylik', `${taxminiyDaqiqa} daqiqa`, `${vaqtLimiti}s savol + ${tanaffusSoni}s tanaffus`],
+          ['Test banklari', `${banklar.length} ta`, 'Katalogdagi barcha mavzular'],
+          ['O\'quvchiga ochiq', `${ochiqBanklar} ta`, 'Guruhda /test orqali tanlanadi'],
+          ['Har bir urinish', '20 ta', 'Bankdan har safar tasodifiy'],
         ].map(([nom, qiymat, izoh]) => (
           <div key={nom} className="rounded-xl border p-3" style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}>
             <div className="text-xs" style={{ color: 'var(--v3-xira)' }}>{nom}</div>
@@ -357,8 +352,8 @@ function KislotaQuiz() {
       </div>
 
       <p className="mt-1 text-sm" style={{ color: 'var(--v3-xira)' }}>
-        Bankda 29 ta kislota juftligidan tuzilgan 58 ta aralash savol bor. Har
-        <code className="mx-1">/test</code> boshlanganda tasodifiy 20 tasi tanlanadi.
+        Yangi mavzu alohida test banki bo‘ladi. O‘quvchi <code>/test</code> yozib ochiq
+        banklardan birini tanlaydi; bir vaqtda guruhda faqat bitta test ishlaydi.
       </p>
 
       {holat?.xato ? (
@@ -367,7 +362,14 @@ function KislotaQuiz() {
         </div>
       ) : null}
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="mt-6">
+        <h3 className="text-base font-bold">Guruh va umumiy qoidalar</h3>
+        <p className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>
+          Bu sozlamalar katalogdagi barcha testlarga bir xil qo‘llanadi.
+        </p>
+      </div>
+
+      <div className="mt-3 grid gap-4 md:grid-cols-2">
         <label className="text-sm">
           <span className="mb-1 block">Telegram guruhi</span>
           <select
@@ -471,25 +473,98 @@ function KislotaQuiz() {
         </label>
       </div>
 
+      <div className="mt-5 flex flex-wrap gap-2">
+        <button
+          onClick={() => yubor('sozla')}
+          disabled={band || !chatId || !banklar.length}
+          className="rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-40"
+          style={{ background: 'var(--v3-urgu)', color: 'var(--v3-urgu-matn)' }}
+        >
+          {band ? 'Bajarilmoqda...' : 'Umumiy sozlamalarni saqlash'}
+        </button>
+        {tanlangan?.faolSessiya ? (
+          <button
+            onClick={() => yubor('toxtat')}
+            disabled={band}
+            className="rounded-xl border px-4 py-2 text-sm font-semibold disabled:opacity-40"
+            style={{ borderColor: 'var(--v3-chiziq)' }}
+          >
+            Faol testni to&apos;xtatish
+          </button>
+        ) : null}
+        {tanlangan?.faol && !tanlangan.faolSessiya ? (
+          <button
+            onClick={() => yubor('yop')}
+            disabled={band}
+            className="rounded-xl border px-4 py-2 text-sm font-semibold disabled:opacity-40"
+            style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}
+          >
+            Quiz markazini yopish
+          </button>
+        ) : null}
+      </div>
+
+      {tanlangan ? (
+        <div className="mt-4 rounded-xl border p-3 text-xs" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
+          Joriy qoida: har bir testdan 20 ta tasodifiy savol · {tanlangan.vaqtLimiti} soniya ·
+          {' '}{tanlangan.oquvchiBoshlashi ? 'o‘quvchi boshlashi mumkin' : 'faqat admin boshlaydi'} ·
+          {' '}{tanlangan.reytingniKorsat ? `eng yaxshi ${tanlangan.reytingSoni} ta natija` : 'reyting yashiriladi'}
+        </div>
+      ) : null}
+
       <div className="mt-6">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h3 className="text-sm font-bold">O&apos;quvchilar tanlaydigan testlar</h3>
+            <h3 className="text-base font-bold">Testlar katalogi</h3>
             <p className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>
-              Admin botga shaxsiy chatda yaratgan testlar shu katalogda chiqadi.
+              Har bir mavzuni alohida oching, yoping yoki darhol boshlang.
             </p>
           </div>
-          <span className="text-xs" style={{ color: 'var(--v3-xira)' }}>
-            Guruhda: <code>/test</code>
-          </span>
+          <div className="flex flex-wrap gap-2">
+            {!kislotaBankiBor ? (
+              <button
+                type="button"
+                disabled={band || !chatId}
+                onClick={() => yubor('kislota_yarat')}
+                className="rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-40"
+                style={{ borderColor: 'var(--v3-urgu)' }}
+              >
+                + Tayyor kislotalar testi
+              </button>
+            ) : null}
+            <a
+              href="https://t.me/jdakimyouzbot"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border px-3 py-2 text-xs font-semibold"
+              style={{ borderColor: 'var(--v3-chiziq)' }}
+            >
+              + Yangi test yaratish
+            </a>
+          </div>
         </div>
+        <input
+          type="search"
+          value={qidiruv}
+          onChange={(e) => setQidiruv(e.target.value)}
+          placeholder="Test nomi bo‘yicha qidirish..."
+          className="mt-3 w-full rounded-xl border px-3 py-2 text-sm"
+          style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
+        />
         <div className="mt-3 grid gap-2 md:grid-cols-2">
-          {(holat?.banklar || []).map((quiz) => (
-            <div key={quiz.id} className="flex items-center justify-between gap-3 rounded-xl border p-3" style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}>
+          {korinadiganBanklar.map((quiz) => (
+            <div key={quiz.id} className="flex flex-col justify-between gap-3 rounded-xl border p-3 sm:flex-row sm:items-center" style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}>
               <div className="min-w-0 text-sm">
-                <div className="truncate font-semibold">{quiz.nomi}</div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="truncate font-semibold">{quiz.nomi}</span>
+                  {quiz.tizimTuri ? (
+                    <span className="rounded-full border px-2 py-0.5 text-[10px]" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
+                      Tizim testi
+                    </span>
+                  ) : null}
+                </div>
                 <div className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>
-                  {quiz.savollarSoni} ta savol · {quiz.ochiq ? 'o\'quvchiga ochiq' : 'yopiq'}
+                  Bankda {quiz.savollarSoni} ta · urinishda 20 ta · {quiz.ochiq ? 'o\'quvchiga ochiq' : 'yopiq'}
                 </div>
               </div>
               <div className="flex shrink-0 gap-1.5">
@@ -514,97 +589,18 @@ function KislotaQuiz() {
               </div>
             </div>
           ))}
-          {holat && !(holat.banklar || []).length ? (
+          {holat && !banklar.length ? (
             <div className="rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
-              Hali test banki yo&apos;q. Botga shaxsiy chatda <code>/newquiz</code> yozib test yarating.
+              Hali test banki yo&apos;q. “Yangi test yaratish” orqali birinchi mavzuni kiriting.
+            </div>
+          ) : null}
+          {banklar.length && !korinadiganBanklar.length ? (
+            <div className="rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
+              Qidiruv bo‘yicha test topilmadi.
             </div>
           ) : null}
         </div>
       </div>
-
-      <label className="mt-4 flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={darhol} onChange={(e) => setDarhol(e.target.checked)} />
-        Saqlagandan keyin guruhda darhol boshlash
-      </label>
-
-      <div className="mt-5 flex flex-wrap gap-2">
-        <button
-          onClick={() => yubor('sozla')}
-          disabled={band || !chatId}
-          className="rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-40"
-          style={{ background: 'var(--v3-urgu)', color: 'var(--v3-urgu-matn)' }}
-        >
-          {band ? 'Bajarilmoqda...' : tanlangan?.faol ? 'Sozlamalarni saqlash' : 'Testni guruhga ochish'}
-        </button>
-        {tanlangan?.faolSessiya ? (
-          <button
-            onClick={() => yubor('toxtat')}
-            disabled={band}
-            className="rounded-xl border px-4 py-2 text-sm font-semibold disabled:opacity-40"
-            style={{ borderColor: 'var(--v3-chiziq)' }}
-          >
-            Faol testni to&apos;xtatish
-          </button>
-        ) : tanlangan?.faol ? (
-          <button
-            onClick={() => yubor('sozla', { darhol: true })}
-            disabled={band}
-            className="rounded-xl border px-4 py-2 text-sm font-semibold disabled:opacity-40"
-            style={{ borderColor: 'var(--v3-chiziq)' }}
-          >
-            Hozir boshlash
-          </button>
-        ) : null}
-        {tanlangan?.faol && !tanlangan.faolSessiya ? (
-          <button
-            onClick={() => yubor('yop')}
-            disabled={band}
-            className="rounded-xl border px-4 py-2 text-sm font-semibold disabled:opacity-40"
-            style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}
-          >
-            Guruh uchun yopish
-          </button>
-        ) : null}
-      </div>
-
-      {tanlangan ? (
-        <div className="mt-5 rounded-xl border p-4 text-sm" style={{ borderColor: 'var(--v3-chiziq)' }}>
-          <div><b>Ochiq test:</b> {tanlangan.nomi}</div>
-          <div><b>Yo&apos;nalish:</b> {tanlangan.yonalishNomi}</div>
-          <div><b>Urinish:</b> {tanlangan.savollarSoni} ta savol, {tanlangan.vaqtLimiti} soniya</div>
-          <div><b>Holat:</b> {tanlangan.faolSessiya ? 'test ketyapti' : tanlangan.faol ? 'boshlash mumkin' : 'guruh uchun yopiq'}</div>
-          <div><b>Boshlash:</b> {tanlangan.oquvchiBoshlashi ? 'o\'quvchi yoki admin' : 'faqat admin'}</div>
-          <div><b>Yakun:</b> {tanlangan.reytingniKorsat ? `eng yaxshi ${tanlangan.reytingSoni} ta natija` : 'reyting yashiriladi'}</div>
-          <div className="mt-3 flex flex-wrap items-center gap-2" style={{ color: 'var(--v3-xira)' }}>
-            <span>Shaxsiy chat: <code>/start q_{tanlangan.kod}</code></span>
-            <button type="button" onClick={kodniNusxala} className="rounded-lg border px-2 py-1 text-xs" style={{ borderColor: 'var(--v3-chiziq)' }}>
-              Nusxalash
-            </button>
-          </div>
-        </div>
-      ) : null}
-
-      {(holat?.guruhlar || []).length ? (
-        <div className="mt-6">
-          <h3 className="text-sm font-bold">Sozlangan guruhlar</h3>
-          <div className="mt-2 grid gap-2 md:grid-cols-2">
-            {holat.guruhlar.map((g) => (
-              <button
-                key={g.chatId}
-                type="button"
-                onClick={() => setChatId(String(g.chatId))}
-                className="rounded-xl border p-3 text-left text-sm"
-                style={{ background: 'var(--v3-fon)', borderColor: String(g.chatId) === chatId ? 'var(--v3-urgu)' : 'var(--v3-chiziq)' }}
-              >
-                <span className="font-semibold">{g.chatNomi || g.chatId}</span>
-                <span className="mt-1 block text-xs" style={{ color: 'var(--v3-xira)' }}>
-                  {g.faolSessiya ? 'Test ketyapti' : g.faol ? 'Ochiq' : 'Yopiq'} · {g.vaqtLimiti}s · {g.oquvchiBoshlashi ? 'o\'quvchi boshlaydi' : 'faqat admin'}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
 
       {(holat?.almazReytingi || []).length ? (
         <div className="mt-6">

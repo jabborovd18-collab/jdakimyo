@@ -10,7 +10,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 export const maxDuration = 30
 
 const KUTISH_MS = 20000
-const AMALLAR = new Set(['sozla', 'boshla', 'toxtat', 'yop', 'bank_och', 'bank_yop', 'bank_boshla'])
+const AMALLAR = new Set(['sozla', 'kislota_yarat', 'boshla', 'toxtat', 'yop', 'bank_och', 'bank_yop', 'bank_boshla'])
 
 async function ruxsat() {
   const { isSuperAdmin } = await checkAdminAuth()
@@ -83,11 +83,11 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Faol Telegram guruhi topilmadi' }, { status: 404 })
   }
 
-  if (tana.amal === 'sozla') {
+  if (tana.amal === 'sozla' || tana.amal === 'kislota_yarat') {
     const savollarSoni = Number(tana.savollarSoni)
     const vaqtLimiti = Number(tana.vaqtLimiti)
     if (tana.yonalish !== 'aralash' || savollarSoni !== 20) {
-      return NextResponse.json({ error: 'Kislotalar testi 58 ta aralash bankdan 20 ta savol oladi' }, { status: 400 })
+      return NextResponse.json({ error: 'Har bir urinishda 20 ta tasodifiy savol olinadi' }, { status: 400 })
     }
     if (![15, 30, 60].includes(vaqtLimiti)) {
       return NextResponse.json({ error: 'Vaqt limiti noto\'g\'ri' }, { status: 400 })
