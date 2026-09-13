@@ -283,8 +283,10 @@ function KislotaQuiz() {
       const data = await res.json()
       if (!res.ok) return toast.error(data.error || 'Amal bajarilmadi')
       toast.success(
-        amal === 'bank_och' || amal === 'bank_yop'
-          ? amal === 'bank_och' ? 'Test o\'quvchilar uchun ochildi' : 'Test katalogdan yopildi'
+        amal === 'bank_och' || amal === 'bank_yop' || amal === 'bank_boshla'
+          ? amal === 'bank_boshla'
+            ? 'Tanlangan test guruhda boshlandi'
+            : amal === 'bank_och' ? 'Test o\'quvchilar uchun ochildi' : 'Test katalogdan yopildi'
           : amal === 'toxtat' || amal === 'yop'
           ? amal === 'yop' ? 'Test guruh uchun yopildi' : 'Test to\'xtatildi'
           : darholYuborildi || amal === 'boshla'
@@ -490,15 +492,26 @@ function KislotaQuiz() {
                   {quiz.savollarSoni} ta savol · {quiz.ochiq ? 'o\'quvchiga ochiq' : 'yopiq'}
                 </div>
               </div>
-              <button
-                type="button"
-                disabled={band || !chatId}
-                onClick={() => yubor(quiz.ochiq ? 'bank_yop' : 'bank_och', { quizId: quiz.id })}
-                className="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
-                style={{ borderColor: quiz.ochiq ? 'var(--v3-chiziq)' : 'var(--v3-urgu)' }}
-              >
-                {quiz.ochiq ? 'Yopish' : 'Ochish'}
-              </button>
+              <div className="flex shrink-0 gap-1.5">
+                <button
+                  type="button"
+                  disabled={band || !chatId || !quiz.ochiq}
+                  onClick={() => yubor('bank_boshla', { quizId: quiz.id })}
+                  className="rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
+                  style={{ borderColor: 'var(--v3-urgu)' }}
+                >
+                  Boshlash
+                </button>
+                <button
+                  type="button"
+                  disabled={band || !chatId}
+                  onClick={() => yubor(quiz.ochiq ? 'bank_yop' : 'bank_och', { quizId: quiz.id })}
+                  className="rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
+                  style={{ borderColor: quiz.ochiq ? 'var(--v3-chiziq)' : 'var(--v3-urgu)' }}
+                >
+                  {quiz.ochiq ? 'Yopish' : 'Ochish'}
+                </button>
+              </div>
             </div>
           ))}
           {holat && !(holat.banklar || []).length ? (

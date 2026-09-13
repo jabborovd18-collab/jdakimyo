@@ -10,7 +10,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 export const maxDuration = 30
 
 const KUTISH_MS = 20000
-const AMALLAR = new Set(['sozla', 'boshla', 'toxtat', 'yop', 'bank_och', 'bank_yop'])
+const AMALLAR = new Set(['sozla', 'boshla', 'toxtat', 'yop', 'bank_och', 'bank_yop', 'bank_boshla'])
 
 async function ruxsat() {
   const { isSuperAdmin } = await checkAdminAuth()
