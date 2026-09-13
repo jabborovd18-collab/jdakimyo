@@ -10,7 +10,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 export const maxDuration = 30
 
 const KUTISH_MS = 20000
-const AMALLAR = new Set(['sozla', 'boshla', 'toxtat', 'yop'])
+const AMALLAR = new Set(['sozla', 'boshla', 'toxtat', 'yop', 'bank_och', 'bank_yop'])
 
 async function ruxsat() {
   const { isSuperAdmin } = await checkAdminAuth()
@@ -101,12 +101,19 @@ export async function POST(request) {
     if (![5, 10, 20].includes(Number(tana.reytingSoni))) {
       return NextResponse.json({ error: 'Reyting soni noto\'g\'ri' }, { status: 400 })
     }
+    if (![2, 3, 5, 10].includes(Number(tana.engKamIshtirokchi))) {
+      return NextResponse.json({ error: 'Minimal ishtirokchi soni noto\'g\'ri' }, { status: 400 })
+    }
+    if (![1, 2, 3].includes(Number(tana.kunlikAlmazLimiti))) {
+      return NextResponse.json({ error: 'Kunlik almaz limiti noto\'g\'ri' }, { status: 400 })
+    }
   }
 
   const natija = await botgaSorov('POST', {
     amal: tana.amal,
     chatId,
     chatNomi: guruh.nom,
+    quizId: Number(tana.quizId),
     yonalish: tana.yonalish,
     savollarSoni: Number(tana.savollarSoni),
     vaqtLimiti: Number(tana.vaqtLimiti),
@@ -115,6 +122,9 @@ export async function POST(request) {
     oquvchiBoshlashi: tana.oquvchiBoshlashi !== false,
     reytingniKorsat: tana.reytingniKorsat !== false,
     reytingSoni: Number(tana.reytingSoni),
+    almazYoqilgan: tana.almazYoqilgan !== false,
+    engKamIshtirokchi: Number(tana.engKamIshtirokchi),
+    kunlikAlmazLimiti: Number(tana.kunlikAlmazLimiti),
     darhol: Boolean(tana.darhol),
   })
 

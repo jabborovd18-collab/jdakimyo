@@ -80,7 +80,7 @@ export default function AdminTelegramPage() {
           ['statistika', '📈 Statistika'],
           ['odamlar', '👥 Foydalanuvchilar'],
           ['guruhlar', '💬 Guruhlar'],
-          ['kislota-quiz', '🧪 Kislotalar testi'],
+          ['kislota-quiz', '🧩 Quiz markazi'],
           ['elon', '📣 E\'lon'],
         ].map(([kalit, nom]) => (
           <button
@@ -219,6 +219,9 @@ function KislotaQuiz() {
   const [oquvchiBoshlashi, setOquvchiBoshlashi] = useState(true)
   const [reytingniKorsat, setReytingniKorsat] = useState(true)
   const [reytingSoni, setReytingSoni] = useState(20)
+  const [almazYoqilgan, setAlmazYoqilgan] = useState(true)
+  const [engKamIshtirokchi, setEngKamIshtirokchi] = useState(3)
+  const [kunlikAlmazLimiti, setKunlikAlmazLimiti] = useState(1)
   const [darhol, setDarhol] = useState(false)
   const [band, setBand] = useState(false)
 
@@ -270,6 +273,9 @@ function KislotaQuiz() {
           oquvchiBoshlashi,
           reytingniKorsat,
           reytingSoni: Number(reytingSoni),
+          almazYoqilgan,
+          engKamIshtirokchi: Number(engKamIshtirokchi),
+          kunlikAlmazLimiti: Number(kunlikAlmazLimiti),
           darhol,
           ...qoshimcha,
         }),
@@ -277,7 +283,9 @@ function KislotaQuiz() {
       const data = await res.json()
       if (!res.ok) return toast.error(data.error || 'Amal bajarilmadi')
       toast.success(
-        amal === 'toxtat' || amal === 'yop'
+        amal === 'bank_och' || amal === 'bank_yop'
+          ? amal === 'bank_och' ? 'Test o\'quvchilar uchun ochildi' : 'Test katalogdan yopildi'
+          : amal === 'toxtat' || amal === 'yop'
           ? amal === 'yop' ? 'Test guruh uchun yopildi' : 'Test to\'xtatildi'
           : darholYuborildi || amal === 'boshla'
             ? 'Test guruhda boshlandi'
@@ -302,6 +310,13 @@ function KislotaQuiz() {
     setReytingSoni(tanlangan.reytingSoni ?? 20)
   }, [tanlangan])
 
+  useEffect(() => {
+    if (!holat?.almaz) return
+    setAlmazYoqilgan(holat.almaz.almazYoqilgan !== false)
+    setEngKamIshtirokchi(holat.almaz.engKamIshtirokchi ?? 3)
+    setKunlikAlmazLimiti(holat.almaz.kunlikAlmazLimiti ?? 1)
+  }, [holat?.almaz])
+
   async function kodniNusxala() {
     if (!tanlangan?.kod) return
     await navigator.clipboard.writeText(`/start q_${tanlangan.kod}`)
@@ -315,7 +330,7 @@ function KislotaQuiz() {
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold">Yopiq kislotalar quiz markazi</h2>
+          <h2 className="text-lg font-bold">Yopiq quiz markazi</h2>
           <p className="mt-1 text-sm" style={{ color: 'var(--v3-xira)' }}>
             Guruhdagi test jarayoni va o&apos;quvchi ruxsatlarini shu yerdan boshqaring.
           </p>
@@ -411,17 +426,87 @@ function KislotaQuiz() {
             {[5, 10, 20].map((n) => <option key={n} value={n}>Eng yaxshi {n} ta</option>)}
           </select>
         </label>
+
+        <label className="text-sm">
+          <span className="mb-1 block">Almaz uchun minimal qatnashchi</span>
+          <select
+            value={engKamIshtirokchi}
+            onChange={(e) => setEngKamIshtirokchi(Number(e.target.value))}
+            disabled={!almazYoqilgan}
+            className="w-full rounded-xl border px-3 py-2 disabled:opacity-40"
+            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
+          >
+            {[2, 3, 5, 10].map((n) => <option key={n} value={n}>{n} o&apos;quvchi</option>)}
+          </select>
+        </label>
+
+        <label className="text-sm">
+          <span className="mb-1 block">Bir mavzudan kunlik almaz</span>
+          <select
+            value={kunlikAlmazLimiti}
+            onChange={(e) => setKunlikAlmazLimiti(Number(e.target.value))}
+            disabled={!almazYoqilgan}
+            className="w-full rounded-xl border px-3 py-2 disabled:opacity-40"
+            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
+          >
+            {[1, 2, 3].map((n) => <option key={n} value={n}>Ko&apos;pi bilan {n} ta</option>)}
+          </select>
+        </label>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
         <label className="flex items-start gap-3 rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)' }}>
           <input className="mt-1" type="checkbox" checked={oquvchiBoshlashi} onChange={(e) => setOquvchiBoshlashi(e.target.checked)} />
           <span><b>O&apos;quvchi boshlashi mumkin</b><small className="mt-1 block" style={{ color: 'var(--v3-xira)' }}>Guruhda istalgan o&apos;quvchi <code>/test</code> yozadi.</small></span>
         </label>
         <label className="flex items-start gap-3 rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)' }}>
+          <input className="mt-1" type="checkbox" checked={almazYoqilgan} onChange={(e) => setAlmazYoqilgan(e.target.checked)} />
+          <span><b>G&apos;olibga almaz berish</b><small className="mt-1 block" style={{ color: 'var(--v3-xira)' }}>Birinchi o&apos;rin serverdan 💎 +1 oladi.</small></span>
+        </label>
+        <label className="flex items-start gap-3 rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)' }}>
           <input className="mt-1" type="checkbox" checked={reytingniKorsat} onChange={(e) => setReytingniKorsat(e.target.checked)} />
           <span><b>Yakuniy reytingni ko&apos;rsatish</b><small className="mt-1 block" style={{ color: 'var(--v3-xira)' }}>Test oxirida natijalar guruhga chiqadi.</small></span>
         </label>
+      </div>
+
+      <div className="mt-6">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold">O&apos;quvchilar tanlaydigan testlar</h3>
+            <p className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>
+              Admin botga shaxsiy chatda yaratgan testlar shu katalogda chiqadi.
+            </p>
+          </div>
+          <span className="text-xs" style={{ color: 'var(--v3-xira)' }}>
+            Guruhda: <code>/test</code>
+          </span>
+        </div>
+        <div className="mt-3 grid gap-2 md:grid-cols-2">
+          {(holat?.banklar || []).map((quiz) => (
+            <div key={quiz.id} className="flex items-center justify-between gap-3 rounded-xl border p-3" style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}>
+              <div className="min-w-0 text-sm">
+                <div className="truncate font-semibold">{quiz.nomi}</div>
+                <div className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>
+                  {quiz.savollarSoni} ta savol · {quiz.ochiq ? 'o\'quvchiga ochiq' : 'yopiq'}
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={band || !chatId}
+                onClick={() => yubor(quiz.ochiq ? 'bank_yop' : 'bank_och', { quizId: quiz.id })}
+                className="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
+                style={{ borderColor: quiz.ochiq ? 'var(--v3-chiziq)' : 'var(--v3-urgu)' }}
+              >
+                {quiz.ochiq ? 'Yopish' : 'Ochish'}
+              </button>
+            </div>
+          ))}
+          {holat && !(holat.banklar || []).length ? (
+            <div className="rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
+              Hali test banki yo&apos;q. Botga shaxsiy chatda <code>/newquiz</code> yozib test yarating.
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <label className="mt-4 flex items-center gap-2 text-sm">
@@ -503,6 +588,20 @@ function KislotaQuiz() {
                   {g.faolSessiya ? 'Test ketyapti' : g.faol ? 'Ochiq' : 'Yopiq'} · {g.vaqtLimiti}s · {g.oquvchiBoshlashi ? 'o\'quvchi boshlaydi' : 'faqat admin'}
                 </span>
               </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {(holat?.almazReytingi || []).length ? (
+        <div className="mt-6">
+          <h3 className="text-sm font-bold">💎 Almaz reytingi</h3>
+          <div className="mt-2 rounded-xl border" style={{ borderColor: 'var(--v3-chiziq)' }}>
+            {holat.almazReytingi.map((r, i) => (
+              <div key={r.tgUserId} className="flex items-center justify-between border-b px-3 py-2 text-sm last:border-b-0" style={{ borderColor: 'var(--v3-chiziq)' }}>
+                <span>{i + 1}. {r.ism}</span>
+                <b>💎 {r.almaz}</b>
+              </div>
             ))}
           </div>
         </div>
