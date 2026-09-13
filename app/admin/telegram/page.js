@@ -206,7 +206,6 @@ export default function AdminTelegramPage() {
 
 /** Barcha test banklari uchun yopiq guruh boshqaruvi. */
 function QuizMarkazi() {
-  const [guruhlar, setGuruhlar] = useState([])
   const [holat, setHolat] = useState(null)
   const [chatId, setChatId] = useState('')
   const [vaqtLimiti, setVaqtLimiti] = useState(30)
@@ -223,21 +222,13 @@ function QuizMarkazi() {
 
   const yukla = useCallback(async () => {
     try {
-      const [guruhJavobi, quizJavobi] = await Promise.all([
-        fetch('/api/admin/telegram/guruhlar'),
-        fetch('/api/admin/telegram/kislota-quiz'),
-      ])
-      const guruhMalumoti = await guruhJavobi.json()
+      const quizJavobi = await fetch('/api/admin/telegram/kislota-quiz')
       const quizMalumoti = await quizJavobi.json()
       const ruxsatChatId = String(quizMalumoti.ruxsatChatId || '')
-      const faollar = (guruhMalumoti.guruhlar || []).filter(
-        (g) => g.faol && String(g.chatId) === ruxsatChatId,
-      )
       const quizGuruhlari = (quizMalumoti.guruhlar || []).filter(
         (g) => String(g.chatId) === ruxsatChatId,
       )
-      setGuruhlar(faollar)
-      setChatId((eski) => eski || faollar[0]?.chatId || '')
+      setChatId(ruxsatChatId)
       setHolat(
         quizJavobi.ok
           ? { ...quizMalumoti, guruhlar: quizGuruhlari }
@@ -251,7 +242,7 @@ function QuizMarkazi() {
   useEffect(() => { yukla() }, [yukla])
 
   async function yubor(amal, qoshimcha = {}) {
-    if (!chatId) return toast.error('Avval guruhni tanlang')
+    if (!chatId) return toast.error('Belgilangan maktab guruhi topilmadi')
     setBand(true)
     try {
       const res = await fetch('/api/admin/telegram/kislota-quiz', {
@@ -370,17 +361,18 @@ function QuizMarkazi() {
       </div>
 
       <div className="mt-3 grid gap-4 md:grid-cols-2">
-        <label className="text-sm">
-          <span className="mb-1 block">Telegram guruhi</span>
-          <select
-            value={chatId}
-            onChange={(e) => setChatId(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2"
+        <div className="text-sm">
+          <span className="mb-1 block">Quiz ishlaydigan yagona guruh</span>
+          <a
+            href={`https://t.me/${holat?.ruxsatUsername || 'yoshkimyogarlar_48Maktab'}`}
+            target="_blank"
+            rel="noreferrer"
+            className="block w-full rounded-xl border px-3 py-2 font-semibold"
             style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
           >
-            {guruhlar.map((g) => <option key={g.id} value={g.chatId}>{g.nom || g.chatId}</option>)}
-          </select>
-        </label>
+            @yoshkimyogarlar_48Maktab
+          </a>
+        </div>
 
         <label className="text-sm">
           <span className="mb-1 block">Har savol uchun vaqt</span>
