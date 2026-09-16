@@ -272,7 +272,9 @@ export default function MasalaChatSahifasi() {
     sorovControllerRef.current = controller;
     const asosiyVaqt = MIJOZ_VAQT_CHEGARASI[tanlanganYonalish]
       || MIJOZ_VAQT_CHEGARASI.avtomatik;
-    const vaqtMs = body?.rasm ? Math.max(asosiyVaqt, 55_000) : asosiyVaqt;
+    // Server rasmli OCR uchun uchta qisqa provider urinishiga 75 soniya
+    // ajratadi; brauzer undan oldin uzsa muvaffaqiyatli fallback ham yo'qoladi.
+    const vaqtMs = body?.rasm ? Math.max(asosiyVaqt, 85_000) : asosiyVaqt;
     const taymer = setTimeout(() => controller.abort(), vaqtMs);
 
     try {

@@ -208,8 +208,9 @@ export default function JdaKimyoAiAdminPage() {
               <option value={24}>24 soat</option><option value={168}>7 kun</option><option value={720}>30 kun</option>
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
-            <Stat nom="Jami urinish" qiymat={dashboard.jami} izoh={`Namuna: ${dashboard.namunaSoni}`} />
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-7">
+            <Stat nom="Jami so‘rov" qiymat={dashboard.jamiSorov ?? dashboard.jami} izoh={dashboard.namunaCheklangan ? "Oxirgi 5 000 urinish namunasi" : "Foydalanuvchi so‘rovlari"} />
+            <Stat nom="Provider urinish" qiymat={dashboard.jamiUrinish ?? dashboard.namunaSoni} izoh={`Tahlil namunasi: ${dashboard.namunaSoni}`} />
             <Stat nom="Muvaffaqiyat" qiymat={`${dashboard.muvaffaqiyatFoizi}%`} />
             <Stat nom="Xato" qiymat={`${dashboard.xatoFoizi}%`} />
             <Stat nom="Fallback" qiymat={`${dashboard.fallbackFoizi}%`} />
@@ -222,7 +223,8 @@ export default function JdaKimyoAiAdminPage() {
               <div className="mt-3 space-y-2">
                 {Object.entries(malumot.reyestr.modellar).map(([alias, model]) => {
                   const provayder = alias.replace(/(Murakkab|Zaxira|Tezkor|Asosiy|Matn|Rasm)$/, "").toLowerCase();
-                  const tekshiruv = korik.find((qator) => qator.provayder === provayder);
+                  const tekshiruv = korik.find((qator) => qator.alias === alias)
+                    || korik.find((qator) => qator.provayder === provayder);
                   return <div key={alias} className="flex items-center justify-between gap-3 rounded-lg p-3" style={panelUslubi}>
                     <div className="min-w-0"><div className="text-sm font-bold">{alias}</div><div className="truncate text-xs" style={xiraUslub}>{model}</div></div>
                     <span className="text-xs font-bold" style={{ color: tekshiruv ? holatRangi(tekshiruv.holat) : "var(--v3-xira)" }}>{tekshiruv ? `${tekshiruv.holat} · ${tekshiruv.sarfMs} ms` : "tekshirilmagan"}</span>
@@ -282,7 +284,7 @@ export default function JdaKimyoAiAdminPage() {
 
       {bolim === "sifat" && <div className="space-y-4">
         <Panel><h2 className="mb-3 font-bold">Sifat siyosati va ogohlantirish chegaralari</h2><div className="grid gap-3 sm:grid-cols-2"><Toggle label="Deterministik server tekshiruvi" checked={config.quality.deterministicCheck} disabled={!yozishMumkin} onChange={(v) => configOzgar("quality.deterministicCheck", v)} /><Toggle label="Formula normalizatsiyasi" checked={config.quality.formulaNormalization} disabled={!yozishMumkin} onChange={(v) => configOzgar("quality.formulaNormalization", v)} /></div><div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"><SonMaydoni label="Xato foizi" value={config.alerts.errorRatePercent} min={1} max={100} disabled={!yozishMumkin} onChange={(v) => configOzgar("alerts.errorRatePercent", v)} /><SonMaydoni label="Fallback foizi" value={config.alerts.fallbackRatePercent} min={1} max={100} disabled={!yozishMumkin} onChange={(v) => configOzgar("alerts.fallbackRatePercent", v)} /><SonMaydoni label="Tezkor P95 (ms)" value={config.alerts.quickP95Ms} min={1000} disabled={!yozishMumkin} onChange={(v) => configOzgar("alerts.quickP95Ms", v)} /><SonMaydoni label="Oddiy P95 (ms)" value={config.alerts.normalP95Ms} min={1000} disabled={!yozishMumkin} onChange={(v) => configOzgar("alerts.normalP95Ms", v)} /><SonMaydoni label="Chuqur P95 (ms)" value={config.alerts.deepP95Ms} min={1000} disabled={!yozishMumkin} onChange={(v) => configOzgar("alerts.deepP95Ms", v)} /></div></Panel>
-        <Panel><div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="font-bold">Deterministik kimyo va formula sinovlari</h2><p className="mt-1 text-sm" style={xiraUslub}>Molyar massa, Pearson kresti, server dalili va LaTeX qatorlari bazasiz tekshiriladi.</p></div>{malumot.huquqlar.sinash && <button onClick={sifatniSinash} disabled={Boolean(amal)} className="rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-50" style={urguTugma}>{amal === "eval" ? "Sinov ketmoqda..." : "Sifat sinovini boshlash"}</button>}</div></Panel>
+        <Panel><div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="font-bold">Deterministik kimyo va formula sinovlari</h2><p className="mt-1 text-sm" style={xiraUslub}>Bu sinov tashqi AI ni chaqirmaydi: kimyo dvigateli va 13 ta fixture benchmarkni tekshiradi. Jonli modelning rasm hamda JSON holati “Provayderlarni tekshirish” orqali sinaladi.</p></div>{malumot.huquqlar.sinash && <button onClick={sifatniSinash} disabled={Boolean(amal)} className="rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-50" style={urguTugma}>{amal === "eval" ? "Sinov ketmoqda..." : "Sifat sinovini boshlash"}</button>}</div></Panel>
         <Panel><h2 className="font-bold">Sinovlar tarixi</h2><div className="mt-3 space-y-2">{malumot.oxirgiSinovlar.length === 0 && <p className="text-sm" style={xiraUslub}>Hali sinov bajarilmagan.</p>}{malumot.oxirgiSinovlar.map((sinov) => <div key={sinov.id} className="flex items-center justify-between rounded-lg p-3 text-sm" style={panelUslubi}><span>v{sinov.revision} · {new Date(sinov.createdAt).toLocaleString("uz-UZ")}</span><b style={{ color: sinov.failed ? "#ef4444" : "#22c55e" }}>{sinov.passed}/{sinov.totalCases} o‘tdi</b></div>)}</div></Panel>
       </div>}
 
