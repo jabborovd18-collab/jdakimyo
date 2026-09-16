@@ -18,9 +18,9 @@ const { OLIMPIADA_SYSTEM_PROMPT } = esmRequire(
   'lib/ai-agents/agent-olimpiada.js',
   ['OLIMPIADA_SYSTEM_PROMPT'],
 )
-const { aiModelChaqir, aiProvayderKorigi, AiGatewayXatosi, aiMasalaNatijasiniTekshir } = esmRequire(
+const { aiModelChaqir, aiProvayderKorigi, AiGatewayXatosi, aiMasalaNatijasiniTekshir, aiGatewayChegaralariniOl } = esmRequire(
   'lib/ai-agents/ai-gateway.js',
-  ['aiModelChaqir', 'aiProvayderKorigi', 'AiGatewayXatosi', 'aiMasalaNatijasiniTekshir'],
+  ['aiModelChaqir', 'aiProvayderKorigi', 'AiGatewayXatosi', 'aiMasalaNatijasiniTekshir', 'aiGatewayChegaralariniOl'],
 )
 const { AI_SUHBAT_JSON_SXEMASI, AI_YECHIM_JSON_SXEMASI } = esmRequire(
   'lib/ai-agents/ai-javob-sxema.js',
@@ -184,6 +184,52 @@ describe('AI role limiti', () => {
 })
 
 describe('AI gateway urinish chegarasi', () => {
+  test("bazadagi eski 8/14 tezkor limit Gemini javobini erta uzmaydi", () => {
+    const chegaralar = aiGatewayChegaralariniOl({
+      yonalish: 'tezkor',
+      sozlama: { urinishChegarasi: 2, urinishVaqtiMs: 8000, umumiyVaqtMs: 14000, tokenChegarasi: 800 },
+    })
+    assert.equal(chegaralar.urinishVaqtiMs, 14000)
+    assert.equal(chegaralar.umumiyVaqtMs, 30000)
+    assert.equal(chegaralar.urinishChegarasi, 2)
+    assert.equal(aiGatewayChegaralariniOl({ yonalish: 'oddiy' }).umumiyVaqtMs, 45000)
+  })
+
+  test("Groq GPT-OSS suhbatda qat'iy va yopiq JSON sxemasini yuboradi", async () => {
+    const eskiFetch = global.fetch
+    const eskiGroq = process.env.GROQ_API_KEY
+    const eskiGroq2 = process.env.GROQ_API_KEY_2
+    const eskiModel = process.env.GROQ_FAST_MODEL
+    let sorov = null
+    try {
+      process.env.GROQ_API_KEY = 'suhbat-sinov-kaliti'
+      delete process.env.GROQ_API_KEY_2
+      delete process.env.GROQ_FAST_MODEL
+      global.fetch = async (_url, sozlamalar) => {
+        sorov = JSON.parse(sozlamalar.body)
+        return { ok: true, status: 200, json: async () => ({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ muvaffaqiyatli: true, turi: 'suhbat', matn: 'Aniq modda nomini tekshirib olaylik.' }) } }], usage: {} }) }
+      }
+      const javob = await aiModelChaqir('nitrozolni formulasi qanday', {
+        yonalish: 'tezkor',
+        kutilganJavobTuri: 'suhbat',
+        runtimeSozlama: { enabled: true, routing: { tezkor: ['groqTezkor'] }, directions: { tezkor: { urinishChegarasi: 1, urinishVaqtiMs: 8000, umumiyVaqtMs: 14000, tokenChegarasi: 800 } } },
+      })
+      assert.equal(javob.turi, 'suhbat')
+      assert.equal(sorov.response_format.type, 'json_schema')
+      assert.equal(sorov.response_format.json_schema.strict, true)
+      assert.equal(sorov.response_format.json_schema.schema.additionalProperties, false)
+      assert.deepEqual(sorov.response_format.json_schema.schema.required, ['muvaffaqiyatli', 'turi', 'matn'])
+    } finally {
+      global.fetch = eskiFetch
+      if (eskiGroq === undefined) delete process.env.GROQ_API_KEY
+      else process.env.GROQ_API_KEY = eskiGroq
+      if (eskiGroq2 === undefined) delete process.env.GROQ_API_KEY_2
+      else process.env.GROQ_API_KEY_2 = eskiGroq2
+      if (eskiModel === undefined) delete process.env.GROQ_FAST_MODEL
+      else process.env.GROQ_FAST_MODEL = eskiModel
+    }
+  })
+
   test('provayderlar xato bersa ham ikki martadan ortiq so\'rov yubormaydi', async () => {
     const eskiFetch = global.fetch
     const eskiWarn = console.warn
