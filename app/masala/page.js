@@ -64,7 +64,7 @@ const ISHLASH_YONALISHLARI = [
 
 const MIJOZ_VAQT_CHEGARASI = {
   avtomatik: 55_000,
-  tezkor: 18_000,
+  tezkor: 34_000,
   oddiy: 48_000,
   murakkab: 55_000,
 };
