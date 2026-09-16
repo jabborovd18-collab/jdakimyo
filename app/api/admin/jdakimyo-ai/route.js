@@ -143,7 +143,7 @@ export async function POST(request) {
           adminId: auth.user.id,
           action: "ai_provider_check",
           targetType: "ai_gateway",
-          details: JSON.stringify({ natijalar: hisobot.map(({ provayder, holat, sarfMs }) => ({ provayder, holat, sarfMs })) }),
+          details: JSON.stringify({ natijalar: hisobot.map(({ alias, provayder, model, holat, rasmSinovi, sarfMs }) => ({ alias, provayder, model, holat, rasmSinovi, sarfMs })) }),
         },
       });
       return NextResponse.json({ muvaffaqiyatli: true, hisobot });

@@ -9,16 +9,16 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 90;
 import { tezlikOshdimi, AI_QOIDASI } from "@/lib/tezlik-cheklov.js";
 import { multiAgentMasalaYech, aiRepetitorChat } from "@/lib/ai-agents/masala-orkestrator.js";
 import { aiQuota } from "@/lib/ai-agents/ai-quota.js";
 import { aiHodisalarniYoz } from "@/lib/ai-agents/ai-telemetriya.js";
 import { aiSozlamaniOl } from "@/lib/ai-agents/ai-config.js";
 import { xotiraMatniniTozala } from "@/lib/ai-agents/ai-security.js";
+import { AI_SAYT_RASM_BAYT_CHEGARASI, aiRasmDataUrliniTekshir } from "@/lib/ai-agents/ai-rasm.js";
 
 const MATN_CHEGARASI = 4000;
-const RASM_BAYT_CHEGARASI = 4 * 1024 * 1024; // 4 MB
 
 export function xotiraKontekstiniTozala(xotira) {
   if (!xotira || typeof xotira !== "object") return null;
@@ -196,11 +196,11 @@ export async function POST(request) {
     }
 
     if (rasm) {
-      const taxminiyBayt = (rasm.length * 3) / 4;
-      if (typeof rasm !== "string" || taxminiyBayt > RASM_BAYT_CHEGARASI) {
+      const rasmTekshiruvi = aiRasmDataUrliniTekshir(rasm, AI_SAYT_RASM_BAYT_CHEGARASI);
+      if (!rasmTekshiruvi.yaroqli) {
         return NextResponse.json(
-          { xato: "Rasm hajmi 4 MB dan oshmasligi kerak." },
-          { status: 413 }
+          { xato: rasmTekshiruvi.sabab },
+          { status: /hajmi|katta/i.test(rasmTekshiruvi.sabab) ? 413 : 400 }
         );
       }
     }
