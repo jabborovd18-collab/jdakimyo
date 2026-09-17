@@ -10,9 +10,9 @@ const { aiKunlikLimit } = esmRequire(
   'lib/ai-agents/ai-quota-qoida.js',
   ['aiKunlikLimit'],
 )
-const { aiYonalishniAniqlash, masalaTuriniAniqlash } = esmRequire(
+const { AI_YONALISH_SOZLAMALARI, aiYonalishniAniqlash, masalaTuriniAniqlash } = esmRequire(
   'lib/ai-agents/ai-yonalish.js',
-  ['aiYonalishniAniqlash', 'masalaTuriniAniqlash'],
+  ['AI_YONALISH_SOZLAMALARI', 'aiYonalishniAniqlash', 'masalaTuriniAniqlash'],
 )
 const { OLIMPIADA_SYSTEM_PROMPT } = esmRequire(
   'lib/ai-agents/agent-olimpiada.js',
@@ -184,6 +184,10 @@ describe('AI role limiti', () => {
 })
 
 describe('AI gateway urinish chegarasi', () => {
+  test("tezkor yo'nalish uchinchi zaxira provayderga yo'l ochadi", () => {
+    assert.equal(AI_YONALISH_SOZLAMALARI.tezkor.urinishChegarasi, 3)
+  })
+
   test("bazadagi eski 8/14 tezkor limit Gemini javobini erta uzmaydi", () => {
     const chegaralar = aiGatewayChegaralariniOl({
       yonalish: 'tezkor',
@@ -230,7 +234,7 @@ describe('AI gateway urinish chegarasi', () => {
     }
   })
 
-  test('provayderlar xato bersa ham ikki martadan ortiq so\'rov yubormaydi', async () => {
+  test("provayderlar xato bersa ham tezkor yo'l uch martadan ortiq so'rov yubormaydi", async () => {
     const eskiFetch = global.fetch
     const eskiWarn = console.warn
     const eskiMuhit = {
@@ -260,7 +264,46 @@ describe('AI gateway urinish chegarasi', () => {
         aiModelChaqir('sinov', { yonalish: 'tezkor', jsonRejim: false }),
         (error) => error instanceof AiGatewayXatosi && error.kod === 'BARCHA_URINISH_XATO',
       )
-      assert.equal(chaqiriqlar, 2)
+      assert.equal(chaqiriqlar, 3)
+    } finally {
+      global.fetch = eskiFetch
+      console.warn = eskiWarn
+      for (const [kalit, qiymat] of Object.entries(eskiMuhit)) {
+        if (qiymat === undefined) delete process.env[kalit]
+        else process.env[kalit] = qiymat
+      }
+    }
+  })
+
+  test("tezkor matn Groq va Gemini xatosidan so'ng OpenRouter zaxirasiga o'tadi", async () => {
+    const eskiFetch = global.fetch
+    const eskiWarn = console.warn
+    const eskiMuhit = {
+      GROQ_API_KEY: process.env.GROQ_API_KEY,
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+      OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+    }
+    const chaqiriqlar = []
+    try {
+      process.env.GROQ_API_KEY = 'uchinchi-groq'
+      process.env.GEMINI_API_KEY = 'uchinchi-gemini'
+      process.env.OPENROUTER_API_KEY = 'uchinchi-openrouter'
+      console.warn = () => {}
+      global.fetch = async (url) => {
+        const manzil = String(url)
+        chaqiriqlar.push(manzil)
+        if (manzil.includes('groq.com')) return { ok: false, status: 400, json: async () => ({ error: { message: 'sinov 400' } }) }
+        if (manzil.includes('googleapis.com')) return { ok: false, status: 503, json: async () => ({ error: { message: 'sinov 503' } }) }
+        return { ok: true, status: 200, json: async () => ({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ muvaffaqiyatli: true, turi: 'suhbat', matn: 'H2O — suv.' }) } }], usage: {} }) }
+      }
+      const javob = await aiModelChaqir('H2O nima?', {
+        yonalish: 'tezkor',
+        kutilganJavobTuri: 'suhbat',
+        runtimeSozlama: { enabled: true, routing: { tezkor: ['groqTezkor', 'geminiAsosiy', 'openrouterMatn'] } },
+      })
+      assert.equal(javob.matn, 'H2O — suv.')
+      assert.equal(chaqiriqlar.length, 3)
+      assert.match(chaqiriqlar[2], /openrouter\.ai/)
     } finally {
       global.fetch = eskiFetch
       console.warn = eskiWarn
@@ -611,6 +654,37 @@ describe('AI gateway urinish chegarasi', () => {
     }
   })
 
+  test("Gemini tezkor matn kesilsa fikrlash tokenlari uchun kattaroq limit bilan tiklanadi", async () => {
+    const eskiFetch = global.fetch
+    const eskiGemini = process.env.GEMINI_API_KEY
+    const sorovlar = []
+    try {
+      process.env.GEMINI_API_KEY = 'tezkor-kesilish-kaliti'
+      global.fetch = async (_url, sozlamalar) => {
+        sorovlar.push(JSON.parse(sozlamalar.body))
+        if (sorovlar.length === 1) return { ok: true, status: 200, json: async () => ({
+          candidates: [{ finishReason: 'MAX_TOKENS', content: { parts: [{ text: '{"muvaffaqiyatli":true' }] } }],
+          usageMetadata: {},
+        }) }
+        return { ok: true, status: 200, json: async () => ({
+          candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ muvaffaqiyatli: true, turi: 'suhbat', matn: 'H2O — suv.' }) }] } }],
+          usageMetadata: {},
+        }) }
+      }
+      const javob = await aiModelChaqir('H2O nima?', {
+        yonalish: 'tezkor',
+        kutilganJavobTuri: 'suhbat',
+        runtimeSozlama: { enabled: true, routing: { tezkor: ['geminiAsosiy'] }, directions: { tezkor: { urinishChegarasi: 1 } } },
+      })
+      assert.equal(javob.matn, 'H2O — suv.')
+      assert.deepEqual(sorovlar.map((sorov) => sorov.generationConfig.maxOutputTokens), [2000, 4000])
+    } finally {
+      global.fetch = eskiFetch
+      if (eskiGemini === undefined) delete process.env.GEMINI_API_KEY
+      else process.env.GEMINI_API_KEY = eskiGemini
+    }
+  })
+
   test("takroriy MAX_TOKENS sababi va jami sarfi telemetriyaga tushadi", async () => {
     const eskiFetch = global.fetch
     const eskiGemini = process.env.GEMINI_API_KEY
@@ -654,10 +728,12 @@ describe('AI gateway urinish chegarasi', () => {
     try {
       process.env.GEMINI_API_KEY = 'model-tiklash-kaliti'
       process.env.GEMINI_MODEL = 'gemini-eski-sinov'
-      global.fetch = async (url) => {
+      global.fetch = async (url, sozlamalar) => {
         const manzil = String(url)
         manzillar.push(manzil)
-        if (manzil.includes('/models?')) return { ok: true, status: 200, json: async () => ({ models: [{ name: 'models/gemini-3.8-flash', supportedGenerationMethods: ['generateContent'] }] }) }
+        assert.equal(manzil.includes('?key='), false)
+        assert.equal(sozlamalar.headers['x-goog-api-key'], 'model-tiklash-kaliti')
+        if (manzil.endsWith('/models')) return { ok: true, status: 200, json: async () => ({ models: [{ name: 'models/gemini-3.8-flash', supportedGenerationMethods: ['generateContent'] }] }) }
         if (manzil.includes('gemini-eski-sinov')) return { ok: false, status: 404, json: async () => ({ error: { message: 'model is no longer available; use gemini-3.8-flash' } }) }
         return { ok: true, status: 200, json: async () => ({ modelVersion: 'gemini-3.8-flash-001', candidates: [{ finishReason: 'STOP', content: { parts: [{ text: 'Tiklandi' }] } }], usageMetadata: {} }) }
       }
@@ -668,7 +744,7 @@ describe('AI gateway urinish chegarasi', () => {
         telemetriya: (hodisa) => hodisalar.push(hodisa),
       })
       assert.equal(javob, 'Tiklandi')
-      assert.equal(manzillar.some((manzil) => manzil.includes('/models?')), true)
+      assert.equal(manzillar.some((manzil) => manzil.endsWith('/models')), true)
       assert.equal(manzillar.some((manzil) => manzil.includes('gemini-3.8-flash')), true)
       assert.equal(hodisalar[0].model, 'gemini-3.8-flash-001')
     } finally {
@@ -738,6 +814,35 @@ describe('AI gateway urinish chegarasi', () => {
       global.fetch = eskiFetch
       if (eskiGemini === undefined) delete process.env.GEMINI_API_KEY
       else process.env.GEMINI_API_KEY = eskiGemini
+      if (eskiOpenRouter === undefined) delete process.env.OPENROUTER_API_KEY
+      else process.env.OPENROUTER_API_KEY = eskiOpenRouter
+    }
+  })
+
+  test("admin ko'rigi DeepSeekga sxemani tushuntiradi va OpenRouter matnga rasm yubormaydi", async () => {
+    const eskiFetch = global.fetch
+    const eskiDeepSeek = process.env.DEEPSEEK_API_KEY
+    const eskiOpenRouter = process.env.OPENROUTER_API_KEY
+    try {
+      process.env.DEEPSEEK_API_KEY = 'korik-deepseek-kaliti'
+      process.env.OPENROUTER_API_KEY = 'korik-openrouter-matn-kaliti'
+      global.fetch = async (url, sozlamalar) => {
+        const body = JSON.parse(sozlamalar.body)
+        assert.match(body.messages[0].content, /"muvaffaqiyatli"/)
+        assert.match(body.messages[0].content, /"matn"/)
+        if (String(url).includes('openrouter.ai')) {
+          assert.equal(typeof body.messages[1].content, 'string')
+          assert.equal(body.messages[1].content.includes('image_url'), false)
+        }
+        return { ok: true, status: 200, json: async () => ({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ muvaffaqiyatli: true, turi: 'suhbat', matn: 'H2O — suv.' }) } }], usage: {} }) }
+      }
+      const hisobot = await aiProvayderKorigi({ runtimeSozlama: { routing: { tezkor: ['deepseekZaxira', 'openrouterMatn'] } } })
+      assert.deepEqual(hisobot.map((qator) => qator.alias), ['deepseekZaxira', 'openrouterMatn'])
+      assert.equal(hisobot.every((qator) => qator.holat === 'ishlayapti' && qator.rasmSinovi === false), true)
+    } finally {
+      global.fetch = eskiFetch
+      if (eskiDeepSeek === undefined) delete process.env.DEEPSEEK_API_KEY
+      else process.env.DEEPSEEK_API_KEY = eskiDeepSeek
       if (eskiOpenRouter === undefined) delete process.env.OPENROUTER_API_KEY
       else process.env.OPENROUTER_API_KEY = eskiOpenRouter
     }
