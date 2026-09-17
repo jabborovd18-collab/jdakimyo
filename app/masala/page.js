@@ -10,6 +10,7 @@ import Link from "next/link";
 import FonTanlagich, { useFon } from "@/components/FonTanlagich";
 import Ikon from "@/components/Ikon";
 import LatexMatn from "@/components/LatexMatn.jsx";
+import LatexBoyMatn from "@/components/LatexBoyMatn.jsx";
 import BoyitilganMatn from "@/components/BoyitilganMatn.jsx";
 import UsageModelsModal from "@/components/masala/UsageModelsModal";
 import { masalaPdfYukla } from "@/lib/masala-pdf.js";
@@ -1303,7 +1304,7 @@ function rasmniSiqish(file, maxOlcham = 1600, sifat = 0.85) {
                           <span>{b.sarlavha || `${i + 1}-Bosqich:`}</span>
                         </strong>
                         <p className="text-[var(--v3-matn)] leading-relaxed">
-                          {b.tushuntirish || b.matn}
+                          <LatexBoyMatn matn={b.tushuntirish || b.matn || ""} />
                         </p>
                         {b.formula && (
                           <div className="p-2 rounded-lg bg-[var(--v3-yuza)] text-center font-mono font-bold text-[var(--v3-urgu)] overflow-x-auto">
@@ -1357,7 +1358,7 @@ function rasmniSiqish(file, maxOlcham = 1600, sifat = 0.85) {
                       <Ikon nom="tasdiq" olcham={13} /> Yakuniy Javob:
                     </span>
                     <strong className="text-[var(--v3-matn)] font-black text-sm sm:text-base">
-                      {xabar.yechim.yakuniyJavob}
+                      <LatexBoyMatn matn={xabar.yechim.yakuniyJavob} />
                     </strong>
                   </div>
                 )}

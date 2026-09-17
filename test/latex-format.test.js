@@ -23,6 +23,30 @@ test("aralash chat matnidagi yopishgan formulalar ikkita blok bo'lib renderlanad
   assert.deepEqual(bolaklar.filter((x) => x.turi === "formula").map((x) => x.matn), ["x^2=4", "x=2"]);
 });
 
+test("izohdagi delimitersiz mhchem formulasi xom buyruq bo'lib qolmaydi", () => {
+  const bolaklar = latexliMatnniBol(String.raw`Aspirin formulasi \ce{C9H8O4} bo'lgani uchun molyar massa hisoblanadi.`);
+  assert.deepEqual(bolaklar.filter((x) => x.turi === "formula").map((x) => x.matn), [String.raw`\ce{C9H8O4}`]);
+  assert.doesNotMatch(bolaklar.filter((x) => x.turi === "matn").map((x) => x.matn).join(""), /\\ce/);
+  assert.doesNotThrow(() => katex.renderToString(bolaklar[1].matn, { throwOnError: true }));
+});
+
+test("izohdagi delimitersiz amal va indekslar KaTeX bo'laklariga ajraladi", () => {
+  const bolaklar = latexliMatnniBol(String.raw`m = n \times M_{aspirin} formulasi qo'llaniladi.`);
+  assert.deepEqual(bolaklar.filter((x) => x.turi === "formula").map((x) => x.matn), [String.raw`\times`, String.raw`M_{aspirin}`]);
+  assert.doesNotMatch(bolaklar.filter((x) => x.turi === "matn").map((x) => x.matn).join(""), /\\times|M_\{/);
+  for (const bolak of bolaklar.filter((x) => x.turi === "formula")) {
+    assert.doesNotThrow(() => katex.renderToString(bolak.matn, { throwOnError: true }));
+  }
+});
+
+test("delimitersiz kasr va ichki zaryadli mhchem ham to'liq ajratiladi", () => {
+  const bolaklar = latexliMatnniBol(String.raw`Nisbat \frac{m}{M}, ion esa \ce{Fe^{3+}}.`);
+  assert.deepEqual(bolaklar.filter((x) => x.turi === "formula").map((x) => x.matn), [String.raw`\frac{m}{M}`, String.raw`\ce{Fe^{3+}}`]);
+  for (const bolak of bolaklar.filter((x) => x.turi === "formula")) {
+    assert.doesNotThrow(() => katex.renderToString(bolak.matn, { throwOnError: true }));
+  }
+});
+
 test("Telegram matnida xom LaTeX va dollar belgilari qolmaydi", () => {
   const toza = latexliMatnniOddiylashtir(
     String.raw`Natija: $$\frac{C_0}{2}=0.4$$$$t=\frac{\ln 2}{k}\approx2.77\text{ s}$$`,

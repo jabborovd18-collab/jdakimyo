@@ -7,7 +7,9 @@
 
 import React, { useMemo } from "react";
 import katex from "katex";
+import "katex/contrib/mhchem";
 import "katex/dist/katex.min.css";
+import LatexBoyMatn from "@/components/LatexBoyMatn.jsx";
 
 export default function BoyitilganMatn({ matn = "", className = "" }) {
   const renderedElements = useMemo(() => {
@@ -115,10 +117,10 @@ function renderMarkdownQalin(text) {
     if (p.startsWith("**") && p.endsWith("**")) {
       return (
         <strong key={i} className="font-bold text-[var(--v3-matn)]">
-          {p.slice(2, -2)}
+          <LatexBoyMatn matn={p.slice(2, -2)} />
         </strong>
       );
     }
-    return p;
+    return <LatexBoyMatn key={i} matn={p} />;
   });
 }
