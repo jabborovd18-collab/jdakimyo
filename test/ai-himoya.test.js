@@ -1010,6 +1010,12 @@ describe('Deterministik kimyo hakami va benchmark', () => {
     assert.equal(molyarMassaniHisobla({ formula: 'H2O' }).molyarMassa, 18.015)
   })
 
+  test("aspirin misolida molyar massa va uch mol massasi aniq chiqadi", () => {
+    const molyarMassa = molyarMassaniHisobla({ formula: 'C9H8O4' }).molyarMassa
+    assert.equal(molyarMassa, 180.159)
+    assert.equal(Number((3 * molyarMassa).toFixed(2)), 540.48)
+  })
+
   test("vosita dispatcher noma'lum nom va yaroqsiz parametrni xavfsiz rad etadi", () => {
     assert.equal(deterministikVositaniBajar({ nom: 'kod_bajar', argumentlar: {} }).muvaffaqiyatli, false)
     assert.equal(deterministikVositaniBajar({ nom: 'ph_hisobla', argumentlar: {} }).muvaffaqiyatli, false)
