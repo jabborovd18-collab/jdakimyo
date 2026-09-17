@@ -701,7 +701,9 @@ function rasmniSiqish(file, maxOlcham = 1600, sifat = 0.85) {
     setYuklanmoqda(true);
 
     const kutishHolati = {
-      avtomatik: "So'rov turi serverda aniqlanmoqda...",
+      avtomatik: joriyRasm
+        ? "Rasmdagi kimyo masalasi ko'rib chiqilmoqda..."
+        : "Kimyoviy savol yoki masala ko'rib chiqilmoqda...",
       tezkor: "Tezkor javob tayyorlanmoqda...",
       oddiy: "Kimyoviy masala yechilmoqda...",
       murakkab: "Chuqur tahlil va tekshiruv bajarilmoqda...",
