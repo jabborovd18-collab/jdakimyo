@@ -1,0 +1,2697 @@
+[
+ {
+  "fayl": "ppt/slides/slide1.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.52,
+     "w": 29.8,
+     "h": 4.57
+    },
+    "matn": [
+     [
+      {
+       "matn": "SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Kolloid Kimyo: Sirt Hodisalari Termodinamikasi, Adsorbsiya Izotermalari va Amaliy Tizimlar",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 3",
+    "joy": {
+     "x": 2.54,
+     "y": 6.86,
+     "w": 28.79,
+     "h": 10.41
+    },
+    "matn": [
+     [
+      {
+       "matn": "MAVZU REJASI VA ILMIY PROGRAMMA:",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "1. ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#C85A17",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sirt erkin energiyasi, sirt tarangligi va termodinamik asoslar (Gibbs tenglamasi).",
+       "olcham": 14.0,
+       "rang": "#EAEEF3",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "2. ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#C85A17",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sirt tarangligiga ta'sir etuvchi omillar va Antonov qoidasi.",
+       "olcham": 14.0,
+       "rang": "#EAEEF3",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "3. ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#C85A17",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Egri sirtlar termodinamikasi: Laplas va Kelvin (Tomson) tenglamalari.",
+       "olcham": 14.0,
+       "rang": "#EAEEF3",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "4. ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#C85A17",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sorbsiya jarayonlari: Fizikaviy adsorbsiya, xemosorbsiya va kapillyar kondensatsiyalanish.",
+       "olcham": 14.0,
+       "rang": "#EAEEF3",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "5. ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#C85A17",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sirt-aktiv (SAM), sirt-inert (SIM) va sirt-nofaol (SNM) moddalar. Traube-Dyuklo qoidasi.",
+       "olcham": 14.0,
+       "rang": "#EAEEF3",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "6. ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#C85A17",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Monomolekulyar adsorbsiya nazariyalari: Gibbs va Lengmyur adsorbsiya izotermalari.",
+       "olcham": 14.0,
+       "rang": "#EAEEF3",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "7. ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#C85A17",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Polimolekulyar adsorbsiya nazariyalari: Freyndlih, Polyani va BET (Brunauer-Emmett-Teller) modellari.",
+       "olcham": 14.0,
+       "rang": "#EAEEF3",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "8. ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#C85A17",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Qattiq adsorbentlar va eritmalardan adsorbsiya: Panet-Fayans, Rebinder qoidalari va xromatografiya.",
+       "olcham": 14.0,
+       "rang": "#EAEEF3",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": []
+ },
+ {
+  "fayl": "ppt/slides/slide2.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "1. Sirt Qatlamidagi Ortiqcha Erkin Energiya va Sirt Tarangligi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 14.22,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Molekulalararo o'zaro ta'sir va kompensatsiyasizlik: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Hajmdagi molekula (A) barcha yo'nalishlarda teng kuchlar bilan tortiladi (sum F = 0). Sirt qatlamidagi molekula (B) esa suyuqlik ichiga tortiladi va uning kuch maydoni kompensatsiyalanmagan.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Sirt erkin energiyasi (Gs): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Molekulani hajmdan sirtga chiqarish uchun sirt tortishish kuchlariga qarshi ish bajarilishi kerak. Bu ish sirtda ortiqcha erkin energiya (Gs) ko'rinishida to'planadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Sirt tarangligi (sigma): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sirt yuzasini 1 m2 ga oshirish uchun sarflanadigan solishtirma erkin sirt energiya yoki sirtga urinma yo'nalishda ta'sir etuvchi kuchdir [mN/m yoki J/m2].",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 18.41,
+     "y": 4.83,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Sirt erkin energiyasi tenglamasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 18.41,
+     "y": 8.38,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Termodinamikaning I va II qonuni birlashuvi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 13",
+    "joy": {
+     "x": 18.41,
+     "y": 12.19,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Sirt tarangligining termodinamik ta'rifi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image1.png",
+    "x": 18.54,
+    "y": 5.59,
+    "w": 12.7,
+    "h": 1.78
+   },
+   {
+    "fayl": "image2.png",
+    "x": 18.54,
+    "y": 9.14,
+    "w": 12.7,
+    "h": 2.03
+   },
+   {
+    "fayl": "image3.png",
+    "x": 18.54,
+    "y": 12.95,
+    "w": 12.7,
+    "h": 4.32
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide3.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "2. Sirt Tarangligiga Ta'sir Etuvchi Fizik-Kimyoviy Omillar",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 14.22,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "1. Modda kimyoviy tabiati va qutbliligi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Molekulalararo bog'lanish qancha kuchli bo'lsa (vodorod bog'lar, ionli bog'lar), sirt tarangligi shuncha yuqori bo'ladi. Suvda sigma = 72.8 mN/m, simobda sigma = 475 mN/m.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "2. Harorat ta'siri (T): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Harorat ortishi bilan molekulalar issiqlik harakati kuchayadi, molekulalararo tortishish zaiflashadi va sirt tarangligi chiziqli kamayadi. Kritik haroratda (Tk) sigma = 0 bo'ladi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "3. Antonov qoidasi (Ikki suyuqlik chegarasi): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "O'zaro cheklangan eruvchan ikki suyuqlik chegarasidagi sirt tarangligi ularning to'yingan faza sirt tarangliklari ayirmasiga teng.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 18.41,
+     "y": 4.83,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Sirt tarangligining haroratga bog'liqligi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 18.41,
+     "y": 8.89,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Antonov qoidasi tenglamasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image4.png",
+    "x": 18.54,
+    "y": 5.59,
+    "w": 12.7,
+    "h": 2.29
+   },
+   {
+    "fayl": "image5.png",
+    "x": 18.54,
+    "y": 9.65,
+    "w": 12.7,
+    "h": 2.29
+   },
+   {
+    "fayl": "image6.png",
+    "x": 18.29,
+    "y": 12.83,
+    "w": 13.21,
+    "h": 4.57
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide4.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "3. Sirt-Aktiv Moddalar va Traube-Dyuklo Qoidasi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Sirt Aktivligi (g): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Erigan moddaning sirt tarangligini pasaytirish qobiliyati. g = -d(sigma)/dC (C -> 0 sharoitida).",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Traube-Dyuklo Qoidasi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Bir xil gomologik qatordagi sirt-aktiv moddalarning (spirtlar, yog' kislotalari) uglevodorod zanjiri bitta -CH2- guruhga uzayganda, ularning sirt aktivligi (g) 3.0-3.5 baravar ortadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Fizikaviy sababi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Uglevodorod radikali suv muhitidan sirt qatlamiga gipofobik kuchlar ta'sirida siqib chiqariladi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Rebinder bo'yicha sirt aktivlik ta'rifi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 17.65,
+     "y": 8.38,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Traube-Dyuklo koeffitsienti:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image7.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 2.03
+   },
+   {
+    "fayl": "image8.png",
+    "x": 17.78,
+    "y": 9.14,
+    "w": 13.46,
+    "h": 1.78
+   },
+   {
+    "fayl": "image9.png",
+    "x": 17.53,
+    "y": 11.56,
+    "w": 13.97,
+    "h": 5.84
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide5.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "4. Egri Sirtlar Termodinamikasi: Laplas va Kelvin Tenglamalari",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 14.22,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Egri sirt ostidagi kapillyar bosim (Laplas): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Suyuqlik sirti egrilanganda (tomchi, pufakcha, kapillyar menisk) sirt taranglik kuchlari natijasida qo'shimcha Laplas bosimi (Delta P) hosil bo'ladi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Botiq va qabariq menisklar: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Qabariq sirtda (tomchi) ichki bosim ortadi (Delta P > 0). Botiq sirtda (kapillyar) bosim pasayadi (Delta P < 0), bu esa kapillyar ko'tarilishga sabab bo'ladi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Kelvin (Tomson) tenglamasi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Kichik tomchilar ustidagi to'yingan bug' bosimi (Pr) tebranmas tekis sirt ustidagi bug' bosimidan (P0) yuqori bo'ladi. Botiq kapillyarlarda esa bug' bosimi pasayadi (kapillyar kondensatlanish).",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 18.41,
+     "y": 4.83,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Laplas tenglamasi (Sferik sirt):",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 18.41,
+     "y": 9.14,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Kelvin (Tomson) tenglamasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image10.png",
+    "x": 18.54,
+    "y": 5.59,
+    "w": 12.7,
+    "h": 2.54
+   },
+   {
+    "fayl": "image11.png",
+    "x": 18.54,
+    "y": 9.91,
+    "w": 12.7,
+    "h": 3.3
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide6.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "5. Sorbsiya Hodisalarining Mexanizmi va Qiyosiy Tavsifi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.29,
+     "y": 4.83,
+     "w": 8.74,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "1. Adsorbsiya (Sirtqi) ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Moddaning fazalar ajralish sirtida (qattiq/gaz, qattiq/suyuqlik) to'planish jarayoni.\n\n• Sirtqi hodisa\n• Tez muvozanatga erishadi\n• Qaytardir (desorbsiya)",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 12.55,
+     "y": 4.83,
+     "w": 8.74,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "2. Absorbsiya (Hajmiy) ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Yutilayotgan moddaning ikkinchi faza (suyuqlik yoki qattiq jism) hajmi bo'ylab tekis tarqalishi.\n\n• Diffuziya bilan bog'liq\n• Sekin boradi\n• Boshqalar: Xemosorbsiya",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 9",
+    "joy": {
+     "x": 22.81,
+     "y": 4.83,
+     "w": 8.74,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "3. Kapillyar Kondensatsiyalanish ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "G'ovak adsorbentlarda botiq menisklar hosil bo'lishi natijasida bug'ning P < P0 bosimda suyuqlikka aylanishi.\n\n• Kelvin tenglamasi\n• Histerezis sirtalari",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": []
+ },
+ {
+  "fayl": "ppt/slides/slide7.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "6. Adsorbsiyaning Miqdoriy Ko'rsatkichlari va Absolyut Adsorbsiya",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 14.22,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Asosiy tushunchalar: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Adsorbent — sirtida adsorbsiya sodir bo'ladigan qattiq yoki suyuq modda.\nAdsorbtiv — adsorbsiyalanuvchi modda.\nAdsorbat — adsorbsiyalangan modda.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "1. Absolyut Adsorbsiya (a): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Adsorbentning birlik massasi (m) yoki birlik sirt yuzasida (S) to'plangan adsorbatning mol miqdori.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "2. Ortiqcha Gibbs Adsorbsiyasi (G): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sirt qatlamidagi modda miqdorining hajm rejalashtirilgan konsentratsiyasidan ortiqcha farqi [mol/m2].",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 18.41,
+     "y": 4.83,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Absolyut adsorbsiya (a):",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 18.41,
+     "y": 9.14,
+     "w": 12.95,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Gibbs ortiqcha adsorbsiyasi (G):",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image12.png",
+    "x": 18.54,
+    "y": 5.59,
+    "w": 12.7,
+    "h": 2.54
+   },
+   {
+    "fayl": "image13.png",
+    "x": 18.54,
+    "y": 9.91,
+    "w": 12.7,
+    "h": 2.54
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide8.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "7. Gibbsning Fundamental Termodinamik Adsorbsiya Tenglamasi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Gibbs tenglamasi va uning mohiyati: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sirt tarangligining o'zgarishi (d_sigma/dC) bilan sirtda modda to'planishi (G) o'rtasidagi fundamental termodinamik bog'liqlikni ifodalaydi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Musbat adsorbsiya (G > 0): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Agar d_sigma/dC < 0 bo'lsa (SAM), G > 0 bo'ladi. Modda sirtda to'planadi va sirt tarangligini pasaytiradi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Manfiy adsorbsiya (G < 0): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Agar d_sigma/dC > 0 bo'lsa (SIM), G < 0 bo'ladi. Modda hajmga o'tadi va sirtda kamayadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Gibbs tenglamasi (Konsentratsiyali):",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 17.65,
+     "y": 9.14,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Gibbs tenglamasi (Aktivlikli):",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image14.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 2.54
+   },
+   {
+    "fayl": "image15.png",
+    "x": 17.78,
+    "y": 9.91,
+    "w": 13.46,
+    "h": 2.54
+   },
+   {
+    "fayl": "image16.png",
+    "x": 17.53,
+    "y": 13.08,
+    "w": 13.97,
+    "h": 4.32
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide9.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "8. Shishkovskiy Tenglamasi va Molekula O'lchamlarini Aniqlash",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Shishkovskiy tenglamasi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "B. Shishkovskiy (1908) sirt-aktiv moddalar konsentratsiyasi ortishi bilan sirt taranglik pasayishini empirik ravishda ifodaladi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Gibbs va Lengmyur bilan birlashuvi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Shishkovskiy konstanta B = G_max * R * T ekanligi isbotlandi va Gibbs tenglamasidan Lengmyur izotermasiga o'tish imkonini berdi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Molekula parametrlarini hisoblash: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "G_max qiymatidan molekulaning sirtda egallagan ko'ndalang kesim yuzasi (S0) va sirt qatlamining qalinligi (l) aniqlanadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Shishkovskiy empirik tenglamasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 17.65,
+     "y": 8.38,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Gibbs-Lengmyur birlashgan tenglamasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 13",
+    "joy": {
+     "x": 17.65,
+     "y": 12.7,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Molekula o'lchamlari formulalari:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image17.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 2.03
+   },
+   {
+    "fayl": "image18.png",
+    "x": 17.78,
+    "y": 9.14,
+    "w": 13.46,
+    "h": 2.79
+   },
+   {
+    "fayl": "image19.png",
+    "x": 17.78,
+    "y": 13.46,
+    "w": 13.46,
+    "h": 3.3
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide10.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "9. Lengmyurning Monomolekulyar Adsorbsiya Nazariyasi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Lengmyur Postulatlari (1915): ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "1. Adsorbsiya adsorbent sirtidagi diskret faol markazlarda sodir bo'ladi.\n2. Har bir faol markaz faqat bitta adsorbat molekulasini tuta oladi (monoqavat).\n3. Faol markazlar energetik jihatdan teng qiymatlidir va bir-biriga ta'sir etmaydi.\n4. Jarayon dinagmik muvozanatga ega: Adsorbsiya tezligi = Desorbsiya tezligi.",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Lengmyur Adsorbsiya Izotermasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 17.65,
+     "y": 8.64,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Sirt to'lish darajasi (theta):",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image20.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 2.29
+   },
+   {
+    "fayl": "image21.png",
+    "x": 17.78,
+    "y": 9.4,
+    "w": 13.46,
+    "h": 2.29
+   },
+   {
+    "fayl": "image22.png",
+    "x": 17.53,
+    "y": 12.32,
+    "w": 13.97,
+    "h": 5.08
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide11.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "10. Lengmyur Izotermasining Sohalari va Linearizatsiyasi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "1. Genri sohasi (C -> 0): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Juda kam konsentratsiyada K*C << 1, shunda G = G_max * K * C = K_H * C. Adsorbsiya konsentratsiyaga to'g'ri mutanosib.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "2. To'yinish sohasi (C -> inf): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Yuqori konsentratsiyada K*C >> 1, shunda G = G_max. Adsorbent sirti to'liq monoqavat bilan qoplanadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "3. Chiziqli tenglama (Linearizatsiya): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Tajriba ma'lumotlaridan G_max va K doimiylarini grafik usulda aniqlash uchun 1/G ga nisbatan 1/C grafigi chiziladi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Lengmyur chiziqli shakli:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 17.65,
+     "y": 8.64,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Genri sohasi chegarasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 13",
+    "joy": {
+     "x": 17.65,
+     "y": 12.45,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "To'yinish sohasi chegarasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image23.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 2.29
+   },
+   {
+    "fayl": "image24.png",
+    "x": 17.78,
+    "y": 9.4,
+    "w": 13.46,
+    "h": 2.29
+   },
+   {
+    "fayl": "image25.png",
+    "x": 17.78,
+    "y": 13.21,
+    "w": 13.46,
+    "h": 2.29
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide12.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "11. Freyndlihning Empirik Adsorbsiya Izotermasi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Freyndlih tenglamasi (1909): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "G'ovak va energetik jihatdan bir jinsli bo'lmagan adsorbentlarda o'rtacha konsentratsiyalar sohasida adsorbsiyani ifodalovchi empirik darajali tenglama.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Tenglama doimiylari: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "beta — adsorbsion sig'im koeffitsienti;\n1/n — adsorbent sirtining energetik bir jinsli emaslik koeffitsienti (0.1 < 1/n < 0.7).",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Qo'llanish chegarasi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Juda kichik va juda yuqori konsentratsiyalarda (to'yinishda) bajarilmaydi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Freyndlih darajali tenglamasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 17.65,
+     "y": 8.64,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Logarifmik chiziqli shakli:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image26.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 2.29
+   },
+   {
+    "fayl": "image27.png",
+    "x": 17.78,
+    "y": 9.4,
+    "w": 13.46,
+    "h": 2.29
+   },
+   {
+    "fayl": "image28.png",
+    "x": 17.53,
+    "y": 12.32,
+    "w": 13.97,
+    "h": 5.08
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide13.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "12. BET Polimolekulyar Adsorbsiya Modellari",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "BET Nazariyasi (Brunauer, Emmett, Teller, 1938): ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "1. Adsorbsiya polimolekulyar (ko'p qatlamli) xarakterga ega.\n2. Birinchi qatlam adsorbsiya energiyasi (E1) adsorbent bilan ta'sirga bog'liq.\n3. Ikkinchi va keyingi qatlamlar kondensatlanish issiqligiga (EL) teng deb qaraladi.",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "S-simon izoterma va amaliy ahamiyati: ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Kukunlar va g'ovak adsorbentlarning solishtirma sirt yuzasini (S_sol) aniqlashda standart xalqaro usul hisoblanadi.",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "BET Chiziqli Tenglamasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image29.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 3.05
+   },
+   {
+    "fayl": "image30.png",
+    "x": 17.53,
+    "y": 9.27,
+    "w": 13.97,
+    "h": 8.13
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide14.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "13. Qattiq Adsorbentlar va G'ovaklik Strukturasi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "1. Gidrofil (Qutbli) Adsorbentlar: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sirtida qutbli guruhlar bo'lgan adsorbentlar (Silikagel SiO2, Alyumogel Al2O3, gil minerallari). Suv va qutbli moddalarni yaxshi adsorbsiyalaydi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "2. Gidrofob (Qutbsiz) Adsorbentlar: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sirtida qutbsiz atomlar bo'lgan adsorbentlar (Aktivlangan ko'mir, soot, grafit). Organik moddalarni suvli eritmalardan yaxshi tutadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "3. IUPAC bo'yicha G'ovaklar Tasnifi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "• Mikrog'ovaklar: r < 2 nm\n• Mezog'ovaklar: 2 nm < r < 50 nm\n• Makrog'ovaklar: r > 50 nm",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Rebinder qutblar tenglashuv qoidasi:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 17.78,
+     "y": 9.14,
+     "w": 13.46,
+     "h": 8.13
+    },
+    "matn": [
+     [
+      {
+       "matn": "P.A. Rebinder Qoidasi: ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Adsorbsiya jarayoni faza chegara sirtlarining qutbliliklar farqi (Delta E) kamayishi yo'nalishida boradi.\n\nEritmadan adsorbsiyalanish uchun erigan modda va adsorbent qutbliliklari o'xshash, erituvchiniki esa ulardan farqli bo'lishi kerak.",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image31.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 2.79
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide15.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "14. Eritmalardan Ionli Adsorbsiya va Panet-Fayans Qoidasi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Ionli Adsorbsiya Xususiyatlari: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Qattiq adsorbent sirtida elektrod potentsiali va elektr ikki qatlami (EDL) hosil bo'lishi bilan kechadigan tanlanma (selektiv) adsorbsiya.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Panet-Fayans Selektivlik Qoidasi: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Qattiq kristall adsorbent sirtiga birinchi navbatda uning kristall panjarasi tarkibiga kiruvchi yoki u bilan qiyin eriydigan birikma hosil qiluvchi ionlar adsorbsiyalanadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Ionitlar (Ion almashgichlar): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Kationitlar (kation almashuvchi) va Anionitlar (anion almashuvchi) g'ovak polimer va minerallar.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.65,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Liotrop Kationlar Qatori:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 10",
+    "joy": {
+     "x": 17.65,
+     "y": 9.14,
+     "w": 13.72,
+     "h": 0.89
+    },
+    "matn": [
+     [
+      {
+       "matn": "Liotrop Anionlar Qatori:",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 13",
+    "joy": {
+     "x": 17.78,
+     "y": 13.21,
+     "w": 13.46,
+     "h": 4.06
+    },
+    "matn": [
+     [
+      {
+       "matn": "Liotrop (Hofmeyster) Qatorlar: ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Bir xil valentli ionlarning gidratlanish radiusi kamayishi bilan ularning adsorbsiyalanish qobiliyati ortadi.",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": [
+   {
+    "fayl": "image32.png",
+    "x": 17.78,
+    "y": 5.59,
+    "w": 13.46,
+    "h": 2.54
+   },
+   {
+    "fayl": "image33.png",
+    "x": 17.78,
+    "y": 9.91,
+    "w": 13.46,
+    "h": 2.54
+   }
+  ]
+ },
+ {
+  "fayl": "ppt/slides/slide16.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "15. Xromatografik Ajratish Usullari va Ularning Mexanizmi",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "M.S. Tsvet Kashfiyoti (1903): ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Osimlik pigmentlarini (xlorofill, karotin) bo'r ustunida (CaCO3) adsorbsion ajratish orqali xromatografiya usuliga asos solindi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Xromatografiya Klassifikatsiyasi: ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "1. Adsorbsion xromatografiya (G_max va K farqi bo'yicha)\n2. Tasimlash xromatografiyasi (Eruvchanlik farqi)\n3. Ion almashinish xromatografiyasi\n4. Eksklyuzion (Gel-filtratsiya) xromatografiya",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Zamonaviy HPLC va GC: ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Yuqori samarali suyuqlik (HPLC) va gaz xromatografiyasi analitik kimyoning eng sezgir usullari hisoblanadi.",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.78,
+     "y": 4.83,
+     "w": 13.46,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Xromatografik Ustun Mexanizmi: ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Harakatchan faza (eluyent) va qo'zg'almas faza (adsorbent) o'rtasida moddalar uzluksiz adsorbsiya va desorbsiyalanadi.\n\nAdsorbsiyalanish koeffitsienti kichik moddalar ustundan birinchi bo'lib ajralib chiqadi.",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": []
+ },
+ {
+  "fayl": "ppt/slides/slide17.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "16. Adsorbsiyaning Tibbiyot va Biologiyadagi Roli",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Enterosorbsiya va Gemosorbsiya: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Oshqozon-ichak va qondan toksinlar, zaharlar, allergenlar hamda og'ir metallarni faollangan ko'mir va sintetik sorbentlar (Sorbent SKN, AUA) yordamida ajratib olish.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Biologik Membranalar: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Hujayra membranasi lipid bimodal va oqsil qatlamlaridan tashkil topgan bo me'yoriy fermentativ va retseptor jarayonlar sirt hodisalariga asoslanadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Dori Moddalari Tasiri: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Parchalanish va so'rilish tezgini oshirish uchun fermentativ va dori preparatlari mikrog'ovak tashuvchilarda immobilizatsiyalanadi.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.78,
+     "y": 4.83,
+     "w": 13.46,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Tibbiyotda Qo'llaniladigan Sorbentlar: ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "• Faollangan ko'mir (Aktivlashtirilgan uglerod)\n• Smekta, Politrepan (Gil minerallari)\n• Silikagelli enterosorbentlar (Polisorb)\n• Selektiv immunasorbentlar",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": []
+ },
+ {
+  "fayl": "ppt/slides/slide18.xml",
+  "shakllar": [
+   {
+    "tur": null,
+    "nom": "TextBox 1",
+    "joy": {
+     "x": 2.03,
+     "y": 1.02,
+     "w": 29.72,
+     "h": 1.02
+    },
+    "matn": [
+     [
+      {
+       "matn": "KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 2",
+    "joy": {
+     "x": 2.03,
+     "y": 1.78,
+     "w": 29.72,
+     "h": 2.03
+    },
+    "matn": [
+     [
+      {
+       "matn": "17. Adsorbsiyaning Sanoat va Ekologiyadagi Amaliy Roli",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 5",
+    "joy": {
+     "x": 2.54,
+     "y": 4.83,
+     "w": 13.72,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Gazlarni va Havo Muhitini Tozalash: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sanoat chiqindi gazlarini H2S, SO2, CO2 va zaqarlantiruvchi moddalardan tozalash. Protivogazlarda (Zelinskiy protivogazi) gazlarni tutib qolish.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Suv va Oqovalarni Tozalash: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Ichimlik suvi hamda sanoat oqova suvlarini neft mahsulotlari, bo'yoqlar, fenollar va sirt-aktiv moddalardan adsorbsion tozalash.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ],
+     [
+      {
+       "matn": "Geterogen Kataliz va Flotatsiya: ",
+       "olcham": 14.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "Sanoat sintetik reaksiyalarining 80% gacha qismi katallizator sirtidagi adsorbsiya orqali boradi. Ma'danlarni boyitishda flotatsiya jarayoni.",
+       "olcham": 14.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   },
+   {
+    "tur": null,
+    "nom": "TextBox 7",
+    "joy": {
+     "x": 17.78,
+     "y": 4.83,
+     "w": 13.46,
+     "h": 12.45
+    },
+    "matn": [
+     [
+      {
+       "matn": "Sanoat Texnologiyalari: ",
+       "olcham": 13.0,
+       "qalin": true,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      },
+      {
+       "matn": "• Koks gazidan benzol va toluol ajratib olish\n• Shakar va moylarni rangsizlantirish\n• Molekulyar elaklar (seolitlar) yordamida gazlarni quritish va fraksiyalash",
+       "olcham": 13.0,
+       "rang": "#0F2027",
+       "shrift": "Times New Roman"
+      }
+     ]
+    ]
+   }
+  ],
+  "rasmlar": []
+ }
+]

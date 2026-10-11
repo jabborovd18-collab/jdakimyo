@@ -1,0 +1,8 @@
+# Python kutubxonalari — ./ornat.sh o'rnatadi, repoda saqlanmaydi
+pylib/
+# Kesilgan shriftlar — tools/fontlar.py yasaydi
+shriftlar/
+__pycache__/
+*.pyc
+# Rasm kesish keshidagi vaqtinchalik fayllar
+chiqish/.rasm-kesh/
