@@ -33,13 +33,12 @@ from theme import (  # noqa: E402
     MAVZU_SUKUT,
     PAST,
     SAHIFA,
-    SHRIFT_SUKUT,
     YUQORI,
     ZAXIRA_SHRIFTLAR,
     mavzuOl,
     rang,
-    sarlavhaOlchami,
-    shriftOilasi,
+    sarlavhaOlchami as sarlavhaOlchamiXom,
+    shriftProfili,
 )
 
 KENG, BALAND = SAHIFA
@@ -53,27 +52,42 @@ ALMASHTIRISH = {0x02BB: "\u2019", 0x02BC: "\u2019", 0x2032: "\u2019", 0x2093: "x
 
 _ogohlantirishlar = []
 _shrift_korpus = {}
-
-# ─── To'qnashuv o'lchagichi ─────────────────────────────────────────
-# Har bir chizilgan matn va rasm chegarasi shu yerga yozib boriladi.
-# `tools/tekshir.py` ularni solishtirib, ustma-ust tushgan joylarni
-# topadi. "Yozuvlar ustma-ust tushgan" shikoyatini ko'z bilan emas,
-# son bilan tekshirish uchun kerak: 25 slaydda ko'zga ilinmaydigan
-# bitta to'qnashuv ham bor.
-_qutilar = []
-_joriy_sahifa = 0
+_KOEFF = 1.0          # joriy shrift profilining o'lcham koeffitsiyenti
+PROFIL = "times"
 
 
-def qutilarniOl():
-    return list(_qutilar)
+def _o(olcham):
+    """O'lchamga profil koeffitsiyentini qo'llaydi.
+
+    QOIDA: barcha funksiyalar XOM o'lcham qabul qiladi, koeffitsiyent
+    esa faqat matn ibtidoiy funksiyalarida (yoz, matnKengligi, ...)
+    qo'llanadi. Joylashuv hisobida kerak bo'lsa shu yordamchi
+    chaqiriladi — shunda o'lchash va chizish hech qachon ajralib
+    qolmaydi (aks holda matn ustma-ust tushardi).
+    """
+    return olcham * _KOEFF
+
+
+def sarlavhaOlchami(matn, muqova=False):
+    """Sarlavha o'lchami (profil koeffitsiyenti bilan)."""
+    return _o(sarlavhaOlchamiXom(matn, muqova=muqova))
+
+
+def satrBalandligi(olcham, k):
+    """Bir qator matn egallaydigan vertikal balandlik."""
+    return _o(olcham) * k
 
 
 # ─── Shriftlar ──────────────────────────────────────────────────────
 
-def shriftlarniYukla(oila=None):
-    """Berilgan shrift oilasining rollarini ro'yxatdan o'tkazadi."""
-    for kalit, fayl in shriftOilasi(oila).items():
-        if kalit == "nom":
+def shriftlarniYukla(profil="times"):
+    """Shrift profilini yuklaydi va o'lcham koeffitsiyentini o'rnatadi."""
+    global _KOEFF, PROFIL
+    PROFIL = (profil or "times").strip().lower()
+    tanlangan = shriftProfili(PROFIL)
+    _KOEFF = float(tanlangan.get("olcham-koeff", 1.0))
+    for kalit, fayl in tanlangan.items():
+        if kalit in ("nom", "olcham-koeff"):
             continue
         yol = os.path.join(SHRIFT_PAPKA, fayl)
         if not os.path.exists(yol):
@@ -120,6 +134,7 @@ def shriftTaqsimi(matn, asosiy):
 
 def matnKengligi(matn, shrift, olcham, tracking=0):
     """Matn kengligi — zaxira shriftga o'tishni hisobga olgan holda."""
+    olcham = _o(olcham)
     keng = 0
     for bolak, shr in shriftTaqsimi(matn, shrift):
         keng += pdfmetrics.stringWidth(bolak, shr, olcham) + tracking * len(bolak)
@@ -152,7 +167,7 @@ def matnBalandligi(matn, shrift, olcham, kenglik, qatorOraliq=1.45):
     to'planib pastda katta bo'shliq qoladi. Balandlikni oldin bilib
     olsak, blokni maydonga taqsimlab qo'yish mumkin.
     """
-    return len(qatorlargaBol(matn, shrift, olcham, kenglik)) * olcham * qatorOraliq
+    return len(qatorlargaBol(matn, shrift, olcham, kenglik)) * _o(olcham) * qatorOraliq
 
 
 def ogohlantirishlarniOl():
@@ -163,6 +178,7 @@ def ogohlantirishlarniOl():
 
 def yoz(c, x, y, matn, shrift, olcham, rangQiymat, tracking=0, alpha=1):
     """Bitta qator matn. `tracking` — harflar orasi."""
+    olcham = _o(olcham)
     c.saveState()
     if alpha != 1:
         c.setFillAlpha(alpha)
@@ -178,14 +194,6 @@ def yoz(c, x, y, matn, shrift, olcham, rangQiymat, tracking=0, alpha=1):
             c.drawString(joriy, y, bolak)
             joriy += pdfmetrics.stringWidth(bolak, shr, olcham)
     c.restoreState()
-
-    # O'lchagich uchun chegara: matnning haqiqiy egallagan maydoni.
-    # Pastga 0.24·o'lcham (tushuvchi harflar: y, g, p), yuqoriga 0.78.
-    if matn:
-        _qutilar.append({
-            "sahifa": _joriy_sahifa, "tur": "matn", "x": x, "y": y - olcham * 0.24,
-            "w": joriy - x, "h": olcham * 1.02, "matn": str(matn)[:60], "shrift": shrift,
-        })
     return str(matn)
 
 
@@ -210,6 +218,7 @@ def boyitmaBloki(c, x, y, runs, olcham, kenglik, qatorOraliq=1.5, alpha=1):
     aks holda qatorlar kenglikdan chiqib ketadi yoki juda erta
     bo'linadi. Shuning uchun so'zlar o'z uslubi bilan saqlanadi.
     """
+    olcham = _o(olcham)
     sozlar = []
     for matn, shrift, rangQiymat in runs:
         for i, soz in enumerate(str(matn).split(" ")):
@@ -246,6 +255,7 @@ def boyitmaBloki(c, x, y, runs, olcham, kenglik, qatorOraliq=1.5, alpha=1):
 
 def boyitmaBalandligi(runs, olcham, kenglik, qatorOraliq=1.5):
     """Aralash abzats balandligi — matnBloki bilan bir xil qoidalar."""
+    olcham = _o(olcham)
     sozlar = []
     for matn, shrift, _ in runs:
         for soz in str(matn).split(" "):
@@ -263,6 +273,19 @@ def boyitmaBalandligi(runs, olcham, kenglik, qatorOraliq=1.5):
     if joriy:
         qatorlar += 1
     return max(1, qatorlar) * olcham * qatorOraliq
+
+
+def yorliqOraligi(olcham):
+    """Kichik yorliqdan keyin sarlavha uchun kerakli vertikal oraliq.
+
+    NEGA HISOBLANADI, QAT'IY EMAS: yorliq 12pt, sarlavha esa 74pt
+    bo'lishi mumkin. Qat'iy 46pt siljishda sarlavha harflarining
+    yuqori qismi (ascender ≈ 0,73 em) yorliqning ustiga chiqib,
+    matnlar ustma-ust tushadi — bu PDF'da xato bermaydi, faqat
+    proyektorda ko'rinadi. Oraliq shuning uchun sarlavha o'lchamidan
+    hisoblanadi.
+    """
+    return olcham * 0.78 + 8
 
 
 def rangAralash(hex1, hex2, t):
@@ -310,15 +333,6 @@ def nur(c, x, y, radius, rangQiymat, alpha=0.08, qatlam=44):
     c.restoreState()
 
 
-def yorliqOraligi(olcham):
-    """Kichik ustki yorliq bilan sarlavha orasidagi zarur oraliq.
-
-    Sarlavhaning ko'tarilish zonasi (ascent ≈ 0.78·o'lcham) yorliqning
-    pastki chegarasidan pastga tushmasligi kerak.
-    """
-    return olcham * 0.82 + 13
-
-
 def ingichka(c, x1, y1, x2, y2, rangQiymat, qalinlik=0.7, alpha=1):
     c.saveState()
     c.setStrokeColor(rang(rangQiymat))
@@ -330,10 +344,6 @@ def ingichka(c, x1, y1, x2, y2, rangQiymat, qalinlik=0.7, alpha=1):
 
 
 def yumaloqKarta(c, x, y, keng, baland, mavzu, alpha=1, radius=18, chegara=True, toRang=None):
-    _qutilar.append({
-        "sahifa": _joriy_sahifa, "tur": "karta", "x": x, "y": y,
-        "w": keng, "h": baland, "matn": "", "shrift": "",
-    })
     c.saveState()
     if alpha != 1:
         c.setFillAlpha(alpha)
@@ -348,14 +358,83 @@ def yumaloqKarta(c, x, y, keng, baland, mavzu, alpha=1, radius=18, chegara=True,
         c.restoreState()
 
 
-def rasmOlchami(yol):
-    """Rasmning haqiqiy o'lchami (nuqtada) — nisbatni saqlash uchun."""
+_rasm_kesh = {}
+_kesilgan_papka = None
+
+
+def rasmMalumoti(yol):
+    """Rasmning o'lchami va foni yorqinligi (0-255)."""
+    if yol in _rasm_kesh:
+        return _rasm_kesh[yol]
     try:
         from PIL import Image
         with Image.open(yol) as im:
-            return im.size
+            olcham = im.size
+            kichik = im.convert("L").resize((24, 16))
+            baytlar = kichik.tobytes()
+            yorqinlik = sum(baytlar) / len(baytlar)
     except Exception:
-        return None
+        olcham, yorqinlik = None, 255
+    _rasm_kesh[yol] = (olcham, yorqinlik)
+    return _rasm_kesh[yol]
+
+
+def rasmOlchami(yol):
+    """Rasmning haqiqiy o'lchami (nuqtada) — nisbatni saqlash uchun."""
+    return rasmMalumoti(yol)[0]
+
+
+def kesilganNusxa(yol, nisbat):
+    """Rasmni kerakli nisbatga o'rtasidan kesib, vaqtinchalik fayl qaytaradi.
+
+    NEGA KERAK. Karta to'lishi uchun rasmni "kattaroq qilib, chetini
+    qirqish" mumkin — lekin bunda PDF obyektining qutisi kartadan
+    katta qoladi. Hamma ko'rish dasturlari buni qirqib ko'rsatadi,
+    ammo to'qnashuvni tekshiruvchi asbob ham, ba'zi eksport vositalari
+    ham kartadan tashqaridagi qismni "bor" deb hisoblaydi. Shuning
+    uchun rasm oldindan haqiqiy (pikselda) kesiladi: quti = karta.
+    """
+    if nisbat <= 0:
+        return yol
+    global _kesilgan_papka
+    if _kesilgan_papka is None:
+        _kesilgan_papka = os.path.join(ILDIZ, "chiqish", ".rasm-kesh")
+    os.makedirs(_kesilgan_papka, exist_ok=True)
+    nom = f"{hash((yol, round(nisbat, 3))) & 0xFFFFFFFF:08x}.jpg"
+    chiqish = os.path.join(_kesilgan_papka, nom)
+    if os.path.exists(chiqish):
+        return chiqish
+    try:
+        from PIL import Image
+        with Image.open(yol) as im:
+            im = im.convert("RGB")
+            w, h = im.size
+            joriy = w / h
+            if joriy > nisbat:          # juda keng -> yon tomonini kesamiz
+                yangiW = int(round(h * nisbat))
+                chap = (w - yangiW) // 2
+                im = im.crop((chap, 0, chap + yangiW, h))
+            else:                        # juda baland -> yuqori/pastini kesamiz
+                yangiH = int(round(w / nisbat))
+                tepa = (h - yangiH) // 2
+                im = im.crop((0, tepa, w, tepa + yangiH))
+            im.save(chiqish, "JPEG", quality=92)
+        return chiqish
+    except Exception:
+        return yol
+
+
+def rasmToqmi(yol):
+    """Rasm foni to'qmi?
+
+    NEGA KERAK: taqdimotda ikki xil rasm bor — oq fonda tayyorlangan
+    formula/grafiklar (LaTeX, matplotlib) va to'q fonda yasalgan
+    illyustratsiyalar. Formulaga oq karta kerak (to'q fonda ular
+    "teshik" bo'lib ko'rinadi), illyustratsiya esa oq kartaga solinsa
+    xunuk chiqadi — atrofida oq hoshiya paydo bo'ladi. Fon yorqinligi
+    bo'yicha o'zi aniqlanadi.
+    """
+    return rasmMalumoti(yol)[1] < 128
 
 
 # ─── Taqdimot ───────────────────────────────────────────────────────
@@ -424,11 +503,11 @@ class Taqdimot:
             y -= yorliqOraligi(olcham)
         for qator in qatorlargaBol(sarlavha, "sarlavha-j", olcham, kenglik):
             yoz(c, CHEKKA, y, qator, "sarlavha-j", olcham, m["matn"])
-            y -= olcham * 1.18
+            y -= satrBalandligi(olcham, 1.18)
         return y - 12
 
     # ── Rasm kartasi va ustuni ──
-    def rasmKartasi(self, x, y, keng, baland, yol, izoh=None, soya=1.0):
+    def rasmKartasi(self, x, y, keng, baland, yol, izoh=None):
         """Rasmni oq yumaloq karta ichida chizadi.
 
         NEGA OQ KARTA: taqdimotdagi diagramma va formulalar oq fonda
@@ -437,37 +516,63 @@ class Taqdimot:
         joylashtirilgan "formula taxtasi"ga aylantiradi.
         """
         c, m = self.c, self.mavzu
+        toqRasm = rasmToqmi(yol)
+        # To'q rasm — oq karta chizilmaydi (atrofida oq hoshiya
+        # qolmasligi uchun). Oq rasm — karta chiziladi.
+        if toqRasm:
+            c.saveState()
+            for i, kuch in enumerate((0.10, 0.08, 0.06)):
+                c.setFillColor(rang("#000000"))
+                c.setFillAlpha(kuch)
+                c.roundRect(x - i, y - 3 - i, keng + 2 * i, baland + 2 * i, 12 + i, stroke=0, fill=1)
+            c.restoreState()
+
         # Soya: oq mavzuda oq karta oq fonda ko'rinmay qolardi. Yumshoq
         # soya kartani ko'tarib, ikkala mavzuda ham "sahifa ustidagi
         # qog'oz" taassurotini beradi.
         for i, kuch in enumerate((0.06, 0.05, 0.04)):
             c.saveState()
             c.setFillColor(rang("#000000"))
-            c.setFillAlpha((kuch if m["toqmi"] else kuch * 1.6) * soya)
+            c.setFillAlpha(kuch if m["toqmi"] else kuch * 1.6)
             c.roundRect(x - i, y - 3 - i, keng + 2 * i, baland + 2 * i, 12 + i, stroke=0, fill=1)
             c.restoreState()
+        if not toqRasm:
+            c.saveState()
+            c.setFillColor(rang(m["karta-oq"]))
+            c.roundRect(x, y, keng, baland, 12, stroke=0, fill=1)
+            c.restoreState()
+
+        # Ramka: oq rasmda — karta chegarasi, to'q rasmda — urg'u
+        # rangidagi ingichka kontur (rasmni fondan ajratib turadi).
         c.saveState()
-        c.setFillColor(rang(m["karta-oq"]))
-        c.roundRect(x, y, keng, baland, 12, stroke=0, fill=1)
-        c.restoreState()
-        c.saveState()
-        c.setStrokeColor(rang(m["yuza-chiziq"]))
-        c.setLineWidth(0.8 if m["toqmi"] else 1.2)
+        if toqRasm:
+            c.setStrokeColor(rang(m["urgu"]))
+            c.setStrokeAlpha(0.45)
+            c.setLineWidth(1.1)
+        else:
+            c.setStrokeColor(rang(m["yuza-chiziq"]))
+            c.setLineWidth(0.8 if m["toqmi"] else 1.2)
         c.roundRect(x, y, keng, baland, 12, stroke=1, fill=0)
         c.restoreState()
 
         from reportlab.lib.utils import ImageReader
         if os.path.exists(yol):
-            img = ImageReader(yol)
-            iw, ih = img.getSize()
-            nisbat = min((keng - 16) / iw, (baland - 12) / ih)
-            w, h = iw * nisbat, ih * nisbat
-            self.c.drawImage(img, x + (keng - w) / 2, y + (baland - h) / 2, w, h, mask="auto")
-
-        _qutilar.append({
-            "sahifa": _joriy_sahifa, "tur": "rasm", "x": x, "y": y,
-            "w": keng, "h": baland, "matn": os.path.basename(yol), "shrift": "",
-        })
+            self.c.saveState()
+            yolu = self.c.beginPath()
+            yolu.roundRect(x, y, keng, baland, 12)
+            self.c.clipPath(yolu, stroke=0, fill=0)
+            if toqRasm:
+                # Illyustratsiya kartani to'liq qoplaydi: rasm piksel
+                # darajasida kesiladi, shuning uchun qutisi kartaga teng.
+                kesilgan = kesilganNusxa(yol, keng / baland)
+                self.c.drawImage(ImageReader(kesilgan), x, y, keng, baland, mask="auto")
+            else:
+                img = ImageReader(yol)
+                iw, ih = img.getSize()
+                nisbat = min((keng - 16) / iw, (baland - 12) / ih)
+                w, h = iw * nisbat, ih * nisbat
+                self.c.drawImage(img, x + (keng - w) / 2, y + (baland - h) / 2, w, h, mask="auto")
+            self.c.restoreState()
 
     def rasmUstuni(self, rasmlar, x, y, kenglik, balandlik):
         """Rasmlar ustuni: balandliklar mazmunga qarab taqsimlanadi.
@@ -521,49 +626,84 @@ class Taqdimot:
             kurs -= ora
 
     # ── Slayd turlari ──
+    def fon(self, s):
+        """Faqat fon — slayd mazmunisiz.
+
+        NEGA KERAK: PPTX'da gradient fon yo'q, shuning uchun u rasm
+        sifatida qo'yiladi. Fon rasmi shu slayd turidan yasaladi — ya'ni
+        PPTX foni PDF fonining AYNAN o'zi bo'ladi, taxminiy nusxasi emas.
+        """
+        self.fonniYoz()
+
     def muqova(self, s):
         c, m = self.c, self.mavzu
         gradient(c, 0, 0, KENG, BALAND, [m["fon"][0], m["fon-burchak"][0], m["fon"][1]], burchak=38)
         nur(c, KENG * 0.82, BALAND * 0.72, 520, m["urgu"], alpha=m["lak-kuch"] * 3.4)
         nur(c, KENG * 0.14, BALAND * 0.16, 560, m["urgu-2"], alpha=m["lak-kuch"] * 2.2)
 
-        c.saveState()
-        c.setStrokeColor(rang(m["urgu"]))
-        c.setStrokeAlpha(0.35)
-        c.setLineWidth(1.1)
-        c.circle(KENG - 132, BALAND - 128, 62, stroke=1, fill=0)
-        c.setStrokeAlpha(0.16)
-        c.circle(KENG - 132, BALAND - 128, 92, stroke=1, fill=0)
-        c.restoreState()
+        # Rasm bo'lmasa — dekorativ halqalar; rasm bo'lsa — o'ngda
+        # katta illyustratsiya (muqova "jurnal muqovasi" ko'rinishini
+        # oladi va mavzuni bir qarashda ko'rsatadi).
+        rasmBormi = bool(s.get("illustratsiya"))
+        if not rasmBormi:
+            c.saveState()
+            c.setStrokeColor(rang(m["urgu"]))
+            c.setStrokeAlpha(0.35)
+            c.setLineWidth(1.1)
+            c.circle(KENG - 132, BALAND - 128, 62, stroke=1, fill=0)
+            c.setStrokeAlpha(0.16)
+            c.circle(KENG - 132, BALAND - 128, 92, stroke=1, fill=0)
+            c.restoreState()
+
+        if rasmBormi:
+            yol = self.yoq(s["illustratsiya"]["fayl"])
+            kengR = KENG * 0.38
+            balandR = kengR * 0.585
+            xR = KENG - CHEKKA - kengR
+            yR = PAST + 132
+            c.saveState()
+            c.setFillColor(rang("#000000"))
+            c.setFillAlpha(0.22)
+            c.roundRect(xR - 4, yR - 6, kengR + 8, balandR + 8, 20, stroke=0, fill=1)
+            c.restoreState()
+            c.saveState()
+            yolu = c.beginPath()
+            yolu.roundRect(xR, yR, kengR, balandR, 16)
+            c.clipPath(yolu, stroke=0, fill=0)
+            from reportlab.lib.utils import ImageReader
+            if os.path.exists(yol):
+                img = ImageReader(yol)
+                iw, ih = img.getSize()
+                nisbat = max(kengR / iw, balandR / ih)
+                w, h = iw * nisbat, ih * nisbat
+                c.drawImage(img, xR + (kengR - w) / 2, yR + (balandR - h) / 2, w, h, mask="auto")
+            c.restoreState()
+            if s["illustratsiya"].get("izoh"):
+                yoz(c, xR, yR - 20, s["illustratsiya"]["izoh"], "matn", 13, m["xira"], alpha=0.9)
 
         y = BALAND - YUQORI - 40
-        olchamMuqova = sarlavhaOlchami(s["sarlavha"], True)
+        olcham = sarlavhaOlchami(s["sarlavha"], True)
         if s.get("yorliq"):
             self.kichikYorliq(CHEKKA, y, s["yorliq"])
-            y -= yorliqOraligi(olchamMuqova)
+            y -= yorliqOraligi(olcham)
         else:
             y -= 20
 
-        kengSarlavha = KENG - CHEKKA * 2 - (470 if s.get("rasm") else 0)
-        for qator in qatorlargaBol(s["sarlavha"], "sarlavha-j", olchamMuqova, kengSarlavha):
-            yoz(c, CHEKKA, y, qator, "sarlavha-j", olchamMuqova, m["matn"])
-            y -= olchamMuqova * 1.12
+        # Matn kengligi rasmning chap chegarasidan hisoblanadi: foizda
+        # olingan kenglik rasm ustuniga kirib ketardi (sinovda aynan
+        # shunday bo'ldi — muqova ostidagi izoh rasmni bosgan).
+        sarlavhaKeng = ((KENG - CHEKKA - KENG * 0.38 - 26 - CHEKKA)
+                        if rasmBormi else (KENG - CHEKKA * 2))
+        for qator in qatorlargaBol(s["sarlavha"], "sarlavha-j", olcham, sarlavhaKeng):
+            yoz(c, CHEKKA, y, qator, "sarlavha-j", olcham, m["matn"])
+            y -= satrBalandligi(olcham, 1.12)
 
         y -= 6
         ingichka(c, CHEKKA, y, CHEKKA + 132, y, m["urgu"], 3)
         y -= 40
-
-        # Hero rasm: muqovaning o'ng tomoni. Matn kengligi shunga
-        # qarab qisqartiriladi — aks holda sarlavha rasm ustiga chiqadi.
-        matnKeng = KENG - CHEKKA * 2 - 120
-        if s.get("rasm"):
-            kengRasm, balandRasm = 430, 350
-            xRasm = KENG - CHEKKA - kengRasm
-            yRasm = PAST + 118
-            self.rasmKartasi(xRasm, yRasm, kengRasm, balandRasm, self.yoq(s["rasm"]), soya=0.10)
-            matnKeng = xRasm - CHEKKA - 46
         if s.get("kichik"):
-            y = matnBloki(c, CHEKKA, y, s["kichik"], "matn", 23, m["xira"], matnKeng, 1.4)
+            y = matnBloki(c, CHEKKA, y, s["kichik"], "matn", 20, m["xira"],
+                          sarlavhaKeng if rasmBormi else KENG - CHEKKA * 2 - 120, 1.4)
 
         past = PAST + 40
         ingichka(c, CHEKKA, past + 46, KENG - CHEKKA, past + 46, m["chiziq"], 0.8, 0.6)
@@ -612,51 +752,69 @@ class Taqdimot:
     def bolim(self, s):
         """Bo'lim ajratgichi — chapda sarlavha, o'ngda raqam va rasm.
 
-        NEGA RASM SHU YERDA. Bo'lim slaydlari — taqdimotning eng
-        "bo'sh" sahifalari: faqat sarlavha va raqam. Har bir bo'lim
-        mavzusiga mos tasvir qo'yilsa, tomoshabin yangi qismga
-        qadam qo'yganini ko'radi va slayd "nafas oladi".
+        NEGA RASM SHU YERDA. Bo'lim slaydlari — taqdimotning eng "bo'sh"
+        sahifalari: faqat sarlavha, kichik izoh va katta raqam. Har bir
+        bo'lim o'z tasvirini olsa, tomoshabin yangi qismga qadam
+        qo'yganini ko'radi va slayd "nafas oladi".
 
-        Rasm bo'lsa raqam kichraytirilib yuqoriga chiqariladi:
-        ikkalasi ham katta bo'lsa, sahifa og'irlashib ketadi.
+        NEGA RAQAM KICHRAYADI. Rasm bilan birga 300pt'lik raqam ham
+        qolsa, sahifa og'irlashib ketadi va ikki element raqobatlashadi.
+        Rasm bo'lganda raqam yuqori o'ng burchakdagi muhrga aylanadi;
+        rasm bo'lmasa — avvalgidek katta suv belgisi bo'lib qoladi.
         """
         c, m = self.c, self.mavzu
         self.fonniYoz()
 
         raqam = str(s.get("raqam") or f"{self.raqam:02d}")
-        rasmli = bool(s.get("rasm"))
+        illustratsiya = s.get("illustratsiya")
 
-        if rasmli:
-            # Raqam — yuqori o'ng burchakdagi muhr
-            olcham = 150
-            kengR = matnKengligi(raqam, "serif-q", olcham)
-            yoz(c, KENG - CHEKKA - kengR, BALAND - 150, raqam, "serif-q", olcham, m["urgu"], alpha=0.30)
-            ingichka(c, KENG - CHEKKA - kengR, BALAND - 162, KENG - CHEKKA, BALAND - 162, m["urgu"], 1.4, 0.45)
+        if illustratsiya:
+            olcham = 128
+            keng_ = matnKengligi(raqam, "serif-q", olcham)
+            yoz(c, KENG - CHEKKA - keng_, BALAND - 178, raqam, "serif-q", olcham,
+                m["urgu"], alpha=0.34)
+            ingichka(c, KENG - CHEKKA - keng_, BALAND - 190, KENG - CHEKKA,
+                     BALAND - 190, m["urgu"], 1.4, 0.45)
 
-            kengRasm, balandRasm = 400, 335
-            xRasm = KENG - CHEKKA - kengRasm
-            yRasm = BALAND * 0.5 - balandRasm / 2 - 34
-            self.rasmKartasi(xRasm, yRasm, kengRasm, balandRasm, self.yoq(s["rasm"]), soya=0.10)
-            kenglik = xRasm - CHEKKA - 56
+            kengR = KENG * 0.34
+            balandR = kengR * 0.585
+            xR = KENG - CHEKKA - kengR
+            yR = BALAND * 0.5 - balandR / 2 - 42
+            self.rasmKartasi(xR, yR, kengR, balandR, self.yoq(illustratsiya["fayl"]),
+                             izoh=illustratsiya.get("izoh"))
+            kenglik = xR - CHEKKA - 50
         else:
             olcham = 300 if len(raqam) <= 2 else 220
-            kengR = matnKengligi(raqam, "serif-q", olcham)
-            x_ = KENG - CHEKKA - kengR + 46
+            keng_ = matnKengligi(raqam, "serif-q", olcham)
+            x_ = KENG - CHEKKA - keng_ + 46
             yoz(c, x_, BALAND * 0.5 - olcham * 0.34, raqam, "serif-q", olcham, m["urgu"], alpha=0.14)
-            ingichka(c, KENG - CHEKKA - kengR * 0.94, BALAND * 0.5 - olcham * 0.42,
+            ingichka(c, KENG - CHEKKA - keng_ * 0.94, BALAND * 0.5 - olcham * 0.42,
                      KENG - CHEKKA + 20, BALAND * 0.5 - olcham * 0.42, m["urgu"], 1.2, 0.35)
             kenglik = KENG * 0.52
+
+        # Sarlavha o'lchami ustunga qarab tanlanadi: "Sirt
+        # termodinamikasi" 62pt'da "Sirt / termodinamikasi" bo'lib
+        # bo'linib qolgan edi (rasm ustunni toraytirgani uchun).
+        # Qoida: eng kami qator beradigan o'lchamlar ichidan eng
+        # yirigi olinadi — ya'ni qisqa sarlavha bitta qatorda turadi,
+        # uzun sarlavha esa iloji boricha yirik qoladi.
+        olcham = 62
+        if illustratsiya:
+            zina = (62, 56, 50, 46)
+            qatorSonlari = {o: len(qatorlargaBol(s["sarlavha"], "sarlavha-j", o, kenglik)) for o in zina}
+            engKam = min(qatorSonlari.values())
+            olcham = max(o for o, soni in qatorSonlari.items() if soni == engKam)
 
         y = BALAND * 0.5 + 96
         if s.get("yorliq"):
             self.kichikYorliq(CHEKKA, y, s["yorliq"])
-            y -= yorliqOraligi(62)
-        for qator in qatorlargaBol(s["sarlavha"], "sarlavha-j", 62, kenglik):
-            yoz(c, CHEKKA, y, qator, "sarlavha-j", 62, m["matn"])
-            y -= 74
+            y -= yorliqOraligi(olcham)
+        for qator in qatorlargaBol(s["sarlavha"], "sarlavha-j", olcham, kenglik):
+            yoz(c, CHEKKA, y, qator, "sarlavha-j", olcham, m["matn"])
+            y -= satrBalandligi(olcham, 1.19)
         ingichka(c, CHEKKA, y - 4, CHEKKA + 108, y - 4, m["urgu"], 3)
         if s.get("izoh"):
-            matnBloki(c, CHEKKA, y - 50, s["izoh"], "matn", 23, m["xira"], kenglik, 1.45)
+            matnBloki(c, CHEKKA, y - 50, s["izoh"], "matn", 24, m["xira"], kenglik, 1.45)
         self.ramka()
 
     def mavzu(self, s):
@@ -670,41 +828,47 @@ class Taqdimot:
         c, m = self.c, self.mavzu
         self.fonniYoz()
 
-        rasmlar = s.get("rasmlar") or []
+        # Illustratsiya — mavzuni ko'rsatib beruvchi katta rasm. U
+        # ustunning BOSHIDA turadi, formulalar esa ostida: ko'z avval
+        # "nima haqida" ekanini ko'radi, keyin "qanday hisoblanadi".
+        rasmlar = list(s.get("rasmlar") or [])
+        if s.get("illustratsiya"):
+            rasmlar = [s["illustratsiya"]] + rasmlar
         kengMatn = (KENG - CHEKKA * 2) * (0.52 if rasmlar else 1.0)
         kengRasm = (KENG - CHEKKA * 2) * 0.44
         xRasm = KENG - CHEKKA - kengRasm
 
         # — sarlavha —
         y = BALAND - YUQORI - 84
-        sarlavha = s["sarlavha"]
-        olchamSarlavha = sarlavhaOlchami(sarlavha)
         if s.get("bolim"):
             self.kichikYorliq(CHEKKA, y, s["bolim"])
-            y -= yorliqOraligi(olchamSarlavha)
+            y -= yorliqOraligi(sarlavhaOlchami(s["sarlavha"]))
         raqam = s.get("raqam")
+        sarlavha = s["sarlavha"]
         if raqam is not None:
             raqamMatn = f"{raqam:02d}" if isinstance(raqam, int) else str(raqam)
             kengRaqam = matnKengligi(raqamMatn, "serif-q", 40) + 16
             yoz(c, CHEKKA, y - 2, raqamMatn, "serif-q", 40, m["urgu"])
             sarlavhaKeng = kengMatn - kengRaqam
-            olcham = olchamSarlavha
+            olcham = sarlavhaOlchami(sarlavha)
             kurs = y
             for qator in qatorlargaBol(sarlavha, "sarlavha-j", olcham, sarlavhaKeng):
                 yoz(c, CHEKKA + kengRaqam, kurs, qator, "sarlavha-j", olcham, m["matn"])
-                kurs -= olcham * 1.16
+                kurs -= satrBalandligi(olcham, 1.16)
             y = kurs - 6
         else:
-            olcham = olchamSarlavha
+            olcham = sarlavhaOlchami(sarlavha)
             for qator in qatorlargaBol(sarlavha, "sarlavha-j", olcham, kengMatn):
                 yoz(c, CHEKKA, y, qator, "sarlavha-j", olcham, m["matn"])
-                y -= olcham * 1.16
+                y -= satrBalandligi(olcham, 1.16)
             y -= 6
         ingichka(c, CHEKKA, y - 6, CHEKKA + 96, y - 6, m["urgu"], 2.6)
         y -= 34
 
         # — matn bloklari —
-        pastki = PAST + 38
+        # Matn maydoni kolontitul chizig'idan (PAST - 4) 18pt yuqorida
+        # tugaydi: matn hech qachon kolontitulga tegmaydi.
+        pastki = PAST + 14
         bloklar = s.get("bandlar") or []
         runs = []
         for b in bloklar:
@@ -721,12 +885,15 @@ class Taqdimot:
         # pastdagi kolontitul ustiga tushib qolardi (sinovda shunday
         # bo'ldi — matn "ko'ndalang" so'zidan keyin kesilgan edi).
         mavjud = y - pastki
-        for olchamMatn in (19, 18, 17, 16, 15, 14):
+        # Zanjir oxirigacha boradi: 4 ta uzun blokli slaydlarda 14pt
+        # yetmasligi mumkin edi (Times profilida aynan shunday bo'ldi —
+        # matn kolontitul ustiga tushdi).
+        for olchamMatn in (19, 18, 17, 16, 15, 14, 13, 12.5, 12, 11.5):
             olchamlangan = [boyitmaBalandligi(r, olchamMatn, kengMatn - 22, 1.5) for r in runs]
             jami = sum(olchamlangan)
-            if jami + 6 * max(0, len(runs) - 1) <= mavjud or olchamMatn <= 14:
+            if jami + 5 * max(0, len(runs) - 1) <= mavjud or olchamMatn <= 11.5:
                 break
-        qadam = max(6, min(24, (mavjud - jami) / max(1, len(runs) - 1))) if len(runs) > 1 else 0
+        qadam = max(5, min(24, (mavjud - jami) / max(1, len(runs) - 1))) if len(runs) > 1 else 0
         kurs = y - max(0, min(16, (mavjud - jami - qadam * max(0, len(runs) - 1)) * 0.35))
         for r in runs:
             c.saveState()
@@ -775,7 +942,7 @@ class Taqdimot:
             c.restoreState()
             c.restoreState()
             yangi = matnBloki(c, CHEKKA + 34, y, band, "matn", BAND_OLCHAM, m["matn"], kenglik, BAND_QATOR)
-            y = yangi - BAND_OLCHAM * 0.55 - oraliq
+            y = yangi - _o(BAND_OLCHAM) * 0.55 - oraliq
         if s.get("izoh"):
             matnBloki(c, CHEKKA, max(y - 12, PAST + 34), s["izoh"], "matn", 19, m["xira"], kenglik, 1.45)
         if s.get("rasm"):
@@ -799,7 +966,7 @@ class Taqdimot:
         oraliq = 22
         keng = (KENG - CHEKKA * 2 - oraliq * (soni - 1)) / soni
         past = PAST + 42
-        mavjudTola = y - past - 14
+        mavjud = y - past - 14
 
         def kerakli(olchamSarlavha, olchamMatn, olchamBelgi):
             h = 46 + (olchamBelgi + 8 if any(k.get("belgi") for k in kartalar) else 0)
@@ -810,26 +977,10 @@ class Taqdimot:
             return h
 
         # Pog'onali kichraytirish: matn sig'adigan eng yirik o'lcham tanlanadi
-        for olchamSarlavha, olchamMatn, olchamBelgi in ((23, 17.5, 30), (21, 16.5, 27), (19.5, 15.5, 25), (18, 14.5, 23), (17, 13.5, 22)):
+        for olchamSarlavha, olchamMatn, olchamBelgi in ((23, 17.5, 30), (21, 16.5, 27), (19.5, 15.5, 25), (18, 14.5, 23)):
             baland = kerakli(olchamSarlavha, olchamMatn, olchamBelgi)
-            if baland <= mavjudTola or olchamMatn <= 13.5:
+            if baland <= mavjud or olchamMatn <= 14.5:
                 break
-
-        # Rasm tasmasi — faqat kartochkalardan KEYIN qolgan joyga.
-        # Avval qat'iy 168pt berilgan edi va uzun matnli kartochkalar
-        # tasma ostiga oqib tushardi (o'lchagich topdi). Endi tasma
-        # "qolgan joydan" oladi, yetmasa umuman chizilmaydi: mazmun
-        # har doim bezakdan muhim.
-        past = PAST + 42
-        tasmaBaland = 0
-        if s.get("rasm"):
-            qolgan = mavjudTola - baland - 26
-            if qolgan >= 96:
-                tasmaBaland = int(min(168, qolgan))
-                self.rasmTasmasi(self.yoq(s["rasm"]), CHEKKA, past, KENG - CHEKKA * 2, tasmaBaland)
-                past += tasmaBaland + 26
-        mavjud = y - past - 14
-        # Yakuniy himoya: karta hech qachon mavjud joydan oshmaydi
         baland = min(baland, mavjud)
         past = past + max(0, (mavjud - baland) * 0.30)
 
@@ -846,48 +997,12 @@ class Taqdimot:
             yy = past + baland - 66
             if karta.get("belgi"):
                 yoz(c, x + 24, yy, str(karta["belgi"]), "sarlavha-j", olchamBelgi, m["urgu"], alpha=0.9)
-                yy -= olchamBelgi + 8
+                yy -= _o(olchamBelgi) + 8
             yy = matnBloki(c, x + 24, yy, karta.get("sarlavha", ""), "sarlavha-q", olchamSarlavha,
                            m["matn"], keng - 48, 1.25)
             yy -= 9
             matnBloki(c, x + 24, yy, karta.get("matn", ""), "matn", olchamMatn, m["xira"], keng - 48, 1.5)
         self.ramka()
-
-    def rasmTasmasi(self, yol, x, y, keng, baland):
-        """Keng rasm tasmasi: rasm kartani to'ldiradi (qirqiladi).
-
-        NEGA QIRQILADI: manba rasmlar har xil nisbatda. Tasma
-        balandligi qat'iy bo'lgani uchun rasm "cover" usulida
-        qirqiladi — aks holda tasma ostida bo'sh chiziq qolardi.
-        """
-        c, m = self.c, self.mavzu
-        from reportlab.lib.utils import ImageReader
-        for i, kuch in enumerate((0.06, 0.05, 0.04)):
-            c.saveState()
-            c.setFillColor(rang("#000000"))
-            c.setFillAlpha(kuch if m["toqmi"] else kuch * 1.6)
-            c.roundRect(x - i, y - 3 - i, keng + 2 * i, baland + 2 * i, 12 + i, stroke=0, fill=1)
-            c.restoreState()
-        if os.path.exists(yol):
-            img = ImageReader(yol)
-            iw, ih = img.getSize()
-            nisbat = max(keng / iw, baland / ih)
-            w, h = iw * nisbat, ih * nisbat
-            c.saveState()
-            yol_ = c.beginPath()
-            yol_.roundRect(x, y, keng, baland, 12)
-            c.clipPath(yol_, stroke=0, fill=0)
-            c.drawImage(img, x + (keng - w) / 2, y + (baland - h) / 2, w, h, mask="auto")
-            c.restoreState()
-        c.saveState()
-        c.setStrokeColor(rang(m["yuza-chiziq"]))
-        c.setLineWidth(0.8 if m["toqmi"] else 1.2)
-        c.roundRect(x, y, keng, baland, 12, stroke=1, fill=0)
-        c.restoreState()
-        _qutilar.append({
-            "sahifa": _joriy_sahifa, "tur": "rasm", "x": x, "y": y,
-            "w": keng, "h": baland, "matn": os.path.basename(yol), "shrift": "",
-        })
 
     def raqam(self, s):
         c, m = self.c, self.mavzu
@@ -914,11 +1029,12 @@ class Taqdimot:
             c.restoreState()
             olcham = 76 if len(str(r.get("qiymat", ""))) <= 5 else 56
             tepa = asos + kartaBaland - 46
-            yoz(c, x + 26, tepa - olcham * 0.78, str(r.get("qiymat", "")), "serif-q", olcham, m["urgu"])
+            asosiy = tepa - _o(olcham) * 0.78
+            yoz(c, x + 26, asosiy, str(r.get("qiymat", "")), "serif-q", olcham, m["urgu"])
             if r.get("birlik"):
                 yoz(c, x + 26 + matnKengligi(str(r["qiymat"]), "serif-q", olcham) + 8,
-                    tepa - olcham * 0.78, str(r["birlik"]), "matn-o", 22, m["urgu"], alpha=0.85)
-            matnBloki(c, x + 26, tepa - olcham * 0.78 - 40, r.get("izoh", ""), "matn", 19, m["xira"], keng - 52, 1.45)
+                    asosiy, str(r["birlik"]), "matn-o", 22, m["urgu"], alpha=0.85)
+            matnBloki(c, x + 26, asosiy - 40, r.get("izoh", ""), "matn", 19, m["xira"], keng - 52, 1.45)
         if s.get("izoh"):
             matnBloki(c, CHEKKA, PAST + 12, s["izoh"], "matn", 18.5, m["xira-2"], KENG - CHEKKA * 2, 1.45)
         self.ramka()
@@ -984,11 +1100,11 @@ class Taqdimot:
         y = BALAND * 0.60 + 24
         if s.get("yorliq"):
             keng = matnKengligi(str(s["yorliq"]).upper(), "matn-yarim", 12.5, 2.6)
-            self.kichikYorliq(markaz - keng / 2, y + yorliqOraligi(62) - 6, s["yorliq"])
+            self.kichikYorliq(markaz - keng / 2, y + yorliqOraligi(62), s["yorliq"])
         for qator in qatorlargaBol(s["sarlavha"], "sarlavha-j", 62, KENG - CHEKKA * 2):
             keng = matnKengligi(qator, "sarlavha-j", 62)
             yoz(c, markaz - keng / 2, y, qator, "sarlavha-j", 62, m["matn"])
-            y -= 74
+            y -= satrBalandligi(62, 1.19)
         ingichka(c, markaz - 66, y + 22, markaz + 66, y + 22, m["urgu"], 3)
         y -= 26
         for qator in s.get("bandlar") or []:
@@ -1000,6 +1116,7 @@ class Taqdimot:
             yoz(c, markaz - keng / 2, PAST + 26, s["izoh"], "matn-o", 16, m["xira-2"])
 
     CHIZUVCHILAR = {
+        "fon": fon,
         "muqova": muqova, "reja": reja, "bolim": bolim, "mavzu": mavzu,
         "kartochka": kartochka, "matn": matn, "raqam": raqam, "ikki": ikki,
         "sitata": sitata, "yakun": yakun,
@@ -1018,8 +1135,6 @@ class Taqdimot:
                 raise SystemExit(f"Noma'lum slayd turi: «{tur}». Ruxsat etilgan: "
                                  + ", ".join(self.CHIZUVCHILAR))
             self.raqam += 1
-            global _joriy_sahifa
-            _joriy_sahifa = self.raqam
             chizuvchi(self, s)
             self.c.showPage()
         self.c.save()
@@ -1030,7 +1145,7 @@ def main():
     ap.add_argument("manba", help="kontent JSON fayli")
     ap.add_argument("-o", "--chiqish", default=None)
     ap.add_argument("--mavzu", default=None, help="siyoh | oq | neon")
-    ap.add_argument("--shrift", default=None, help="zamonaviy | times")
+    ap.add_argument("--shrift", default=None, help="times | zamonaviy (sukut: times)")
     args = ap.parse_args()
 
     with open(args.manba, encoding="utf-8") as f:
@@ -1040,8 +1155,8 @@ def main():
         "chiqish", os.path.splitext(os.path.basename(args.manba))[0] + ".pdf")
     os.makedirs(os.path.dirname(os.path.abspath(chiqish)), exist_ok=True)
 
-    oila = args.shrift or kontent.get("meta", {}).get("shrift") or SHRIFT_SUKUT
-    shriftlarniYukla(oila)
+    profil = args.shrift or kontent.get("meta", {}).get("shrift") or "times"
+    shriftlarniYukla(profil)
     kontent_papka = os.path.dirname(os.path.abspath(args.manba))
     taqdimot = Taqdimot(kontent.get("meta"), args.mavzu or kontent.get("meta", {}).get("mavzu_kalit"),
                         kontent_papka)
@@ -1049,7 +1164,7 @@ def main():
     taqdimot.yasa(slaydlar, chiqish)
 
     print(f"✅ {len(slaydlar)} slayd -> {chiqish}  "
-          f"(mavzu: {taqdimot.mavzu['nom']}, shrift: {shriftOilasi(oila)['nom']})")
+          f"(mavzu: {taqdimot.mavzu['nom']}, shrift: {shriftProfili(PROFIL)['nom']})")
     for ogoh in ogohlantirishlarniOl():
         print(f"  ⚠ {ogoh}")
 

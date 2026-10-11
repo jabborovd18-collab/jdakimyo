@@ -24,6 +24,42 @@ def emu_sm(qiymat):
     return round(int(qiymat) / EMU * 2.54, 2)
 
 
+def rang_ol(ota):
+    """`a:solidFill/a:srgbClr@val` -> "#RRGGBB" (yo'q bo'lsa None)."""
+    if ota is None:
+        return None
+    tugun = ota.find(f"{A}solidFill/{A}srgbClr")
+    return "#" + tugun.get("val") if tugun is not None else None
+
+
+def shakl_korinishi(shakl):
+    """Shakl geometriyasi, to'ldirishi va chizig'i."""
+    spPr = shakl.find(f"{P}spPr")
+    if spPr is None:
+        spPr = shakl.find(f".//{A}spPr")
+    natija = {"geom": None, "to": None, "chiziq": None, "qalinlik": None, "shaffoflik": 0}
+    if spPr is None:
+        return natija
+    geom = spPr.find(f"{A}prstGeom")
+    if geom is not None:
+        natija["geom"] = geom.get("prst")
+    chiziq = spPr.find(f"{A}ln")
+    # To'ldirish: ba'zi shakllarda to'g'ridan-to'g'ri, ba'zilarida emas
+    for bola in spPr:
+        if bola.tag == f"{A}solidFill":
+            natija["to"] = rang_ol(spPr)
+            tugun = bola.find(f"{A}srgbClr")
+            if tugun is not None:
+                alfa = tugun.find(f"{A}alpha")
+                if alfa is not None:
+                    natija["shaffoflik"] = round(100 - int(alfa.get("val")) / 1000)
+    if chiziq is not None:
+        natija["chiziq"] = rang_ol(chiziq)
+        if chiziq.get("w"):
+            natija["qalinlik"] = round(int(chiziq.get("w")) / 12700 * 0.75, 2)  # EMU -> pt (72dpi)
+    return natija
+
+
 def shakl_matni(shakl):
     """Shakldagi matn va uning uslubi (o'lcham, qalin, rang)."""
     bloklar = []
@@ -54,6 +90,21 @@ def shakl_matni(shakl):
     return bloklar
 
 
+def paragraf_sozlamalari(shakl):
+    """Abzatslar: tekislash va qator oralig'i (ko'rinish chizish uchun)."""
+    natija = []
+    for par in shakl.iter(f"{A}p"):
+        pPr = par.find(f"{A}pPr")
+        sozlama = {"markaz": False, "qatorPt": None}
+        if pPr is not None:
+            sozlama["markaz"] = pPr.get("algn") == "ctr"
+            ln = pPr.find(f"{A}lnSpc/{A}spcPts")
+            if ln is not None:
+                sozlama["qatorPt"] = int(ln.get("val")) / 100
+        natija.append(sozlama)
+    return natija
+
+
 def slaydni_oqi(z, nom, rels):
     xml = ET.fromstring(z.read(nom))
     natija = {"fayl": nom, "shakllar": [], "rasmlar": []}
@@ -70,11 +121,21 @@ def slaydni_oqi(z, nom, rels):
                 "w": emu_sm(ext.get("cx")), "h": emu_sm(ext.get("cy")),
             }
         matn = shakl_matni(shakl)
-        if matn or tur:
-            natija["shakllar"].append({
-                "tur": tur, "nom": nv.get("name") if nv is not None else None,
-                "joy": joy, "matn": matn,
-            })
+        natija["shakllar"].append({
+            "tur": tur, "nom": nv.get("name") if nv is not None else None,
+            "joy": joy, "matn": matn,
+            "korinish": shakl_korinishi(shakl),
+            "abzats": paragraf_sozlamalari(shakl),
+        })
+    fon = xml.find(f".//{P}bg/{P}bgPr")
+    if fon is not None:
+        blip = fon.find(f"{A}blipFill/{A}blip")
+        if blip is not None:
+            natija["fon"] = rels.get(blip.get(f"{R}embed"))
+        tugun = fon.find(f"{A}solidFill/{A}srgbClr")
+        if tugun is not None:
+            natija["fon-rang"] = "#" + tugun.get("val")
+
     for pic in xml.iter(f"{P}pic"):
         blip = pic.find(f".//{A}blip")
         if blip is None:

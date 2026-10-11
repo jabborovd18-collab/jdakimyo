@@ -10,14 +10,18 @@ bitta lug'at yozish kifoya.
 
 from reportlab.lib.colors import HexColor
 
-# ─── Shrift oilalari ────────────────────────────────────────────────
-# Har bir oila — bir xil ROL nomlari uchun boshqa shrift fayllari.
-# Slaydlar "sarlavha-j", "matn" kabi rollar bilan ishlaydi, ya'ni
-# shriftni almashtirish uchun dvigatelga tegish shart emas.
-SHRIFT_OILALARI = {
-    # Zamonaviy: geometrik sarlavha + toza matn + serif urg'u
+# ─── Shrift profillari ──────────────────────────────────────────────
+# Profil — bu "qaysi rol qaysi shrift faylidan olinadi" jadvali.
+# Ikki profil bor: zamonaviy (sans, ekran uchun) va times (Times New
+# Roman metrikasi — ilmiy ish, himoya, chop etish uchun).
+#
+# `olcham-koeff`: Times torroq va x-balandligi kichikroq, shuning uchun
+# bir xil nuqtada u sans shriftdan kichikroq ko'rinadi. Koeffitsiyent
+# barcha matn o'lchamlariga birdek qo'llanadi — shunda joylashuv
+# hisob-kitoblari ham, chizish ham mos qoladi.
+SHRIFT_PROFILLARI = {
     "zamonaviy": {
-        "nom": "Zamonaviy (Manrope + Inter + Playfair)",
+        "nom": "Zamonaviy (Manrope + Inter)",
         "matn": "Inter-Regular.ttf",
         "matn-o": "Inter-Medium.ttf",
         "matn-yarim": "Inter-SemiBold.ttf",
@@ -29,39 +33,38 @@ SHRIFT_OILALARI = {
         "serif": "Playfair-Regular.ttf",
         "serif-q": "Playfair-Bold.ttf",
         "belgi": "NotoSansMath-Regular.ttf",
+        "olcham-koeff": 1.0,
     },
-    # Times: Times New Roman bilan BIR XIL metrikaga ega ochiq shrift
-    # (Tinos — Apache litsenziyasi). O'lchamlar mos, ya'ni matn
-    # joylashuvi o'zgarmaydi: Word'da Times bilan terilgan hujjat
-    # kabi ko'rinadi. Times New Roman'ning o'zi Monotype'niki va
-    # uni tarqatib bo'lmaydi; Tinos — uning rasmiy metrik egizagi.
-    # To'rt ko'rinish bor (Regular, Bold, Italic, BoldItalic), shuning
-    # uchun "medium" va "semibold" rollari Bold'ga tushadi.
     "times": {
-        "nom": "Times (Times New Roman o'lchamli)",
+        "nom": "Times New Roman (Tinos)",
+        # Tinos — Times New Roman bilan metrik mos ochiq shrift (Monotype
+        # metrikasi): satr uzunligi, harf kengliklari bir xil. Shu sababli
+        # matn Word'dagi Times nusxasi bilan bir xil joylashadi.
         "matn": "Tinos-Regular.ttf",
         "matn-o": "Tinos-Regular.ttf",
         "matn-yarim": "Tinos-Bold.ttf",
         "matn-q": "Tinos-Bold.ttf",
         "matn-j": "Tinos-Bold.ttf",
-        "sarlavha": "Tinos-Regular.ttf",
+        "sarlavha": "Tinos-Bold.ttf",
         "sarlavha-q": "Tinos-Bold.ttf",
         "sarlavha-j": "Tinos-Bold.ttf",
         "serif": "Tinos-Regular.ttf",
         "serif-q": "Tinos-Bold.ttf",
         "belgi": "NotoSansMath-Regular.ttf",
+        "olcham-koeff": 1.10,
     },
 }
 
-SHRIFT_SUKUT = "zamonaviy"
+SHRIFT_SUKUT = "times"
 
 
-def shriftOilasi(kalit):
-    return SHRIFT_OILALARI.get((kalit or "").strip().lower(), SHRIFT_OILALARI[SHRIFT_SUKUT])
+def shriftProfili(kalit):
+    return SHRIFT_PROFILLARI.get((kalit or "").strip().lower(),
+                                 SHRIFT_PROFILLARI[SHRIFT_SUKUT])
 
 
-# Orqaga moslik: eski chaqiruvlar `SHRIFTLAR` ni o'qiydi.
-SHRIFTLAR = SHRIFT_OILALARI[SHRIFT_SUKUT]
+# Orqaga moslik uchun: ba'zi joylar shu nom bilan chaqiradi.
+SHRIFTLAR = SHRIFT_PROFILLARI["zamonaviy"]
 
 ZAXIRA_SHRIFTLAR = ("belgi",)
 

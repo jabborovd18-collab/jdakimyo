@@ -10,6 +10,7 @@ Shriftlar tasodifan tanlanmagan:
   Manrope      — muqova va sarlavha; geometrikroq, "premium" ohang
   Playfair     — serif urg'u (iqtibos, katta raqam)
   Noto Sans Math — zaxira: ∠ ⇌ ≡ → ≈ kabi belgilar
+  Tinos        — Times New Roman metrikasi (Monotype); TNR o'rniga
 
 O'zgartirish kerak bo'lsa FAQAT `MANBALAR` va `NUSXALANADIGAN` shu
 faylda tahrirlanadi — qolgan modullar shu yerdan oladi.
@@ -48,9 +49,11 @@ MANBALAR = {
 }
 
 # Variable bo'lmagan shriftlar — shunchaki nusxalanadi.
+#   NotoSansMath — ∠ ⇌ ≡ → ≈ kabi belgilar (zaxira)
+#   Tinos        — Times New Roman metrikasi (ilmiy ish, himoya uchun)
 NUSXALANADIGAN = [
-    "NotoSansMath-Regular.ttf",   # zaxira: ∠ ⇌ ≡ → ≈
-    "Tinos-Regular.ttf",          # Times New Roman metrik egizagi
+    "NotoSansMath-Regular.ttf",
+    "Tinos-Regular.ttf",
     "Tinos-Bold.ttf",
     "Tinos-Italic.ttf",
     "Tinos-BoldItalic.ttf",
@@ -113,7 +116,7 @@ if __name__ == "__main__":
 
     print("\nBelgilar tekshiruvi (asosiy shriftlar):")
     for nom, yetmayapti in belgilarniTekshir():
-        if nom.startswith(("NotoSansMath", "Tinos")):
+        if nom.startswith("NotoSansMath"):
             continue
         if yetmayapti:
             print(f"  ⚠ {nom}: {' '.join(yetmayapti)}  → zaxira shriftdan olinadi")

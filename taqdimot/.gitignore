@@ -1,9 +1,18 @@
-# Python kutubxonalari — `./ornat.sh` o'rnatadi, repoda saqlanmaydi.
+# Mahalliy kutubxonalar — `./ornat.sh` tiklaydi
 pylib/
+node_modules/
 shriftlar/
 __pycache__/
-tools/__pycache__/
+*.pyc
+# Yasalgan mavzu JSON'i — tools/theme-chiqar.py beradi
+kontent/theme.json
+# Rasm kesish keshidagi vaqtinchalik fayllar
+chiqish/.rasm-kesh/
+# Tekshiruv uchun oraliq rasmlar (umumiy varaq va taqqoslash saqlanadi)
+chiqish/sirt-hodisalari-*-[0-9][0-9].png
+chiqish/pptx-geometriya/
+chiqish/fonlar/_*
+chiqish/rasm-kichik/
 
-# Har bir sahifaning alohida PNG ko'rinishi — har yasashda qayta hosil
-# bo'ladi, repoda faqat umumiy varaqlar qoladi.
+# Sahifa ko'rinishlari (tekshiruv uchun oraliq rasmlar)
 chiqish/sahifalar/

@@ -25,7 +25,8 @@ META = {
     "muallif": "",
     "tashkilot": "",
     "sana": "2026",
-    "mavzu_kalit": "siyoh",
+    "mavzu_kalit": "neon",
+    "shrift": "times",
 }
 
 SLAYDLAR = [
@@ -35,7 +36,10 @@ SLAYDLAR = [
         "yorliq": "Kolloid kimyo · Maʼruza",
         "sarlavha": "Sirt hodisalari va adsorbsiya",
         "kichik": "Sirt hodisalari termodinamikasi, adsorbsiya izotermalari va amaliy tizimlar",
-        "rasm": "rasmlar/hero-sirt.jpg",
+        "illustratsiya": {
+            "fayl": "rasmlar/gen-sirt-tarangligi.jpg",
+            "izoh": "Suv sirtidagi parda: sirt tarangligi qoʼshimcha bosimni koʼtaradi",
+        },
     },
     # ── 2. Reja ────────────────────────────────────────────────────
     {
@@ -60,7 +64,7 @@ SLAYDLAR = [
         "yorliq": "Birinchi qism",
         "sarlavha": "Sirt termodinamikasi",
         "izoh": "Sirt energiyasi, sirt tarangligi, sirt-aktiv moddalar va egri sirtlar",
-        "rasm": "rasmlar/bolim-1-termodinamika.jpg",
+        "illustratsiya": {"fayl": "rasmlar/bolim-1-termodinamika.jpg", "izoh": "Yuzaki parda — sirt tarangligi kuchi"},
     },
     {
         "tur": "mavzu",
@@ -132,6 +136,10 @@ SLAYDLAR = [
             {"bosh": "Kelvin (Tomson) tenglamasi",
              "matn": "Kichik tomchilar ustidagi toʼyingan bugʼ bosimi (Pr) tekis sirt ustidagi bosimdan (P₀) yuqori boʼladi. Botiq kapillyarlarda esa bugʼ bosimi pasayadi — kapillyar kondensatlanish shu asosda kechadi."},
         ],
+        "illustratsiya": {
+            "fayl": "rasmlar/gen-kapillyar.jpg",
+            "izoh": "Kapillyar koʼtarilish: botiq menisk va Laplas bosimi",
+        },
         "rasmlar": [
             {"fayl": "rasmlar/egri-sirt-kapillyar.jpg", "izoh": "Kapillyar koʼtarilish va menisk"},
             {"fayl": "rasmlar/image10.png", "izoh": "Laplas tenglamasi (sferik sirt)"},
@@ -145,7 +153,7 @@ SLAYDLAR = [
         "yorliq": "Ikkinchi qism",
         "sarlavha": "Sorbsiya va adsorbsiya asoslari",
         "izoh": "Jarayonlar tasnifi, miqdoriy koʼrsatkichlar va Gibbs tenglamasi",
-        "rasm": "rasmlar/bolim-2-sorbsiya.jpg",
+        "illustratsiya": {"fayl": "rasmlar/bolim-2-sorbsiya.jpg", "izoh": "Gʼovak adsorbent sirtida toʼplanish"},
     },
     {
         "tur": "kartochka",
@@ -204,7 +212,7 @@ SLAYDLAR = [
         "yorliq": "Uchinchi qism",
         "sarlavha": "Monomolekulyar adsorbsiya",
         "izoh": "Shishkovskiy tenglamasi, Lengmyur nazariyasi va izoterma sohalari",
-        "rasm": "rasmlar/bolim-3-monomolekulyar.jpg",
+        "illustratsiya": {"fayl": "rasmlar/bolim-3-monomolekulyar.jpg", "izoh": "Tartiblangan monoqavat"},
     },
     {
         "tur": "mavzu",
@@ -271,7 +279,7 @@ SLAYDLAR = [
         "yorliq": "Toʼrtinchi qism",
         "sarlavha": "Polimolekulyar modellar va adsorbentlar",
         "izoh": "Freyndlih, BET nazariyasi, gʼovaklik tasnifi va Rebinder qoidasi",
-        "rasm": "rasmlar/bolim-4-polimolekulyar.jpg",
+        "illustratsiya": {"fayl": "rasmlar/bolim-4-polimolekulyar.jpg", "izoh": "Mikro, mezo va makrogʼovaklar"},
     },
     {
         "tur": "mavzu",
@@ -325,6 +333,10 @@ SLAYDLAR = [
             {"bosh": "Rebinder qoidasi",
              "matn": "Adsorbsiya faza chegaralarining qutbliliklari farqi kamayishi yoʼnalishida boradi."},
         ],
+        "illustratsiya": {
+            "fayl": "rasmlar/gen-adsorbent.jpg",
+            "izoh": "Gʼovak adsorbent kesimi: mikrokovaklar va tutilgan molekulalar",
+        },
         "rasmlar": [
             {"fayl": "rasmlar/image31.png", "izoh": "Rebinder qutblar tenglashtirish qoidasi"},
         ],
@@ -336,7 +348,7 @@ SLAYDLAR = [
         "yorliq": "Beshinchi qism",
         "sarlavha": "Eritmalardan adsorbsiya va qoʼllanish",
         "izoh": "Ionli adsorbsiya, xromatografiya, tibbiyot va sanoat",
-        "rasm": "rasmlar/bolim-5-qollanish.jpg",
+        "illustratsiya": {"fayl": "rasmlar/bolim-5-qollanish.jpg", "izoh": "Xromatografik ustun"},
     },
     {
         "tur": "mavzu",
@@ -359,50 +371,64 @@ SLAYDLAR = [
         ],
     },
     {
-        "tur": "kartochka",
-        "kichik": "Xromatografiya",
+        "tur": "mavzu",
+        "bolim": "Xromatografiya",
+        "raqam": 15,
         "sarlavha": "Xromatografik ajratish usullari",
-        "rasm": "rasmlar/bolim-5-qollanish.jpg",
-        "kartalar": [
-            {"belgi": "01", "sarlavha": "Tsvet kashfiyoti (1903)",
-             "matn": "M.S. Tsvet osimlik pigmentlarini (xlorofill, karotin) boʼr ustunida (CaCO₃) adsorbsion ajratib, xromatografiya usuliga asos soldi."},
-            {"belgi": "02", "sarlavha": "Klassifikatsiya",
+        "bandlar": [
+            {"bosh": "M.S. Tsvet kashfiyoti (1903)",
+             "matn": "Oʼsimlik pigmentlarini (xlorofill, karotin) boʼr ustunida (CaCO₃) adsorbsion ajratib, xromatografiya usuliga asos soldi."},
+            {"bosh": "Klassifikatsiya",
              "matn": "Adsorbsion (Gmax va K farqi), taqsimlash (eruvchanlik farqi), ion almashinish va eksklyuzion (gel-filtratsiya) xromatografiyalari."},
-            {"belgi": "03", "sarlavha": "HPLC va GC",
-             "matn": "Yuqori samarali suyuqlik va gaz xromatografiyasi — analitik kimyoning eng sezgir usullari."},
-            {"belgi": "04", "sarlavha": "Ustun mexanizmi",
-             "matn": "Harakatchan faza (eluyent) va qoʼzgʼalmas faza (adsorbent) oʼrtasida uzluksiz adsorbsiya-desorbsiya boradi. Koeffitsiyenti kichik modda ustundan birinchi chiqadi."},
+            {"bosh": "Zamonaviy usullar",
+             "matn": "Yuqori samarali suyuqlik (HPLC) va gaz xromatografiyasi — analitik kimyoning eng sezgir usullari."},
+            {"bosh": "Ustun mexanizmi",
+             "matn": "Harakatchan faza (eluyent) va qoʼzgʼalmas faza (adsorbent) oʼrtasida uzluksiz adsorbsiya-desorbsiya boradi: koeffitsiyenti kichik modda ustundan birinchi chiqadi."},
         ],
+        "illustratsiya": {
+            "fayl": "rasmlar/gen-xromatografiya.jpg",
+            "izoh": "Ajralish ustuni: komponentlar rangli zonalarga boʼlinadi",
+        },
     },
     {
-        "tur": "kartochka",
-        "kichik": "Amaliyot",
+        "tur": "mavzu",
+        "bolim": "Amaliy tatbiq",
+        "raqam": 16,
         "sarlavha": "Adsorbsiyaning tibbiyotdagi roli",
-        "kartalar": [
-            {"belgi": "01", "sarlavha": "Entero- va gemosorbsiya",
+        "bandlar": [
+            {"bosh": "Entero- va gemosorbsiya",
              "matn": "Oshqozon-ichak yoʼlidan va qondan toksinlar, zaharli moddalar, allergenlar hamda ogʼir metallarni ajratib olish."},
-            {"belgi": "02", "sarlavha": "Biologik membranalar",
-             "matn": "Hujayra membranasi lipid ikki qavat va oqsil qatlamlaridan tuzilgan; fermentativ va retseptor jarayonlari sirt hodisalariga asoslanadi."},
-            {"belgi": "03", "sarlavha": "Dori tashuvchilari",
+            {"bosh": "Biologik membranalar",
+             "matn": "Hujayra membranasi lipid ikki qavat va oqsil qatlamlaridan tuzilgan: fermentativ va retseptor jarayonlari sirt hodisalariga asoslanadi."},
+            {"bosh": "Dori tashuvchilari",
              "matn": "Preparatlarning soʼrilishini oshirish uchun ular mikrogʼovak tashuvchilarda immobilizatsiyalanadi."},
-            {"belgi": "04", "sarlavha": "Sorbentlar",
+            {"bosh": "Tibbiy sorbentlar",
              "matn": "Aktivlangan koʼmir, smekta va politrepan, silikagelli enterosorbentlar (Polisorb), selektiv immunasorbentlar."},
         ],
+        "illustratsiya": {
+            "fayl": "rasmlar/gen-tibbiyot.jpg",
+            "izoh": "Enterosorbent: gʼovak yuza toksinlarni ushlab qoladi",
+        },
     },
     {
-        "tur": "kartochka",
-        "kichik": "Amaliyot",
+        "tur": "mavzu",
+        "bolim": "Amaliy tatbiq",
+        "raqam": 17,
         "sarlavha": "Sanoat va ekologiyadagi amaliy roli",
-        "kartalar": [
-            {"belgi": "01", "sarlavha": "Gazlarni tozalash",
+        "bandlar": [
+            {"bosh": "Gazlarni tozalash",
              "matn": "Chiqindi gazlarni H₂S, SO₂, CO₂ va zaharli moddalardan tozalash; sanoat protivogazlarida gazlarni tutib qolish."},
-            {"belgi": "02", "sarlavha": "Suvni tozalash",
+            {"bosh": "Suvni tozalash",
              "matn": "Ichimlik suvi va oqova suvlarni neft mahsulotlari, boʼyoqlar, fenollar hamda sirt-aktiv moddalardan tozalash."},
-            {"belgi": "03", "sarlavha": "Geterogen kataliz",
+            {"bosh": "Geterogen kataliz",
              "matn": "Sanoat sintez reaksiyalarining 80% gacha qismi katalizator sirtidagi adsorbsiya orqali boradi."},
-            {"belgi": "04", "sarlavha": "Texnologiyalar",
+            {"bosh": "Sanoat texnologiyalari",
              "matn": "Koks gazidan benzol va toluol ajratish, shakar va moylarni rangsizlantirish, molekulyar elaklar (seolitlar) bilan gazlarni quritish."},
         ],
+        "illustratsiya": {
+            "fayl": "rasmlar/gen-sanoat.jpg",
+            "izoh": "Adsorbsion tozalash minorasi: iflos gaz — toza gaz",
+        },
     },
     # ── Yakun ──────────────────────────────────────────────────────
     {
