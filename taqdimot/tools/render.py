@@ -478,6 +478,16 @@ class Taqdimot:
             kurs -= ora
 
     # ── Slayd turlari ──
+    def fon(self, s):
+        """Faqat fon — slayd mazmunisiz.
+
+        NEGA KERAK: PPTX'da gradient fon yo'q, shuning uchun u rasm
+        sifatida qo'yiladi. Fon rasmi shu slayd turidan yasaladi —
+        ya'ni PPTX foni PDF fonining AYNAN o'zi bo'ladi, taxminiy
+        nusxasi emas.
+        """
+        self.fonniYoz()
+
     def muqova(self, s):
         c, m = self.c, self.mavzu
         gradient(c, 0, 0, KENG, BALAND, [m["fon"][0], m["fon-burchak"][0], m["fon"][1]], burchak=38)
@@ -870,6 +880,7 @@ class Taqdimot:
             yoz(c, markaz - keng / 2, PAST + 26, s["izoh"], "matn-o", 16, m["xira-2"])
 
     CHIZUVCHILAR = {
+        "fon": fon,
         "muqova": muqova, "reja": reja, "bolim": bolim, "mavzu": mavzu,
         "kartochka": kartochka, "matn": matn, "raqam": raqam, "ikki": ikki,
         "sitata": sitata, "yakun": yakun,

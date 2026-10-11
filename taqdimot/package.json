@@ -1,0 +1,12 @@
+{
+  "name": "sirt-hodisalari-taqdimot",
+  "private": true,
+  "type": "module",
+  "description": "PPTX chiqaruvchi uchun kutubxona. PDF tomoni Python'da (tools/render.py).",
+  "scripts": {
+    "pptx": "node tools/pptx-yasa.mjs"
+  },
+  "dependencies": {
+    "pptxgenjs": "^3.12.0"
+  }
+}

@@ -16,9 +16,16 @@ Sayt loyihasidan **mustaqil** papka: `npm`, Prisma va Next.js kerak emas.
 | `sirt-hodisalari-oq.pdf` | Oq fon, bordo urg'u | Ilmiy jurnal uslubi, chop etish |
 | `sirt-hodisalari-neon.pdf` | Binafsha gradient | Konferensiya-zal, zamonaviy |
 
+**Tahrirlanadigan PPTX** (`sirt-hodisalari-{siyoh,oq,neon}.pptx`) — xuddi shu
+dizayn, lekin PowerPoint'da tahrirlash mumkin: matn, rasm va shakllar alohida
+obyektlar. Tayyor PDF'dan keyin, mazmunni qo'lda tuzatish kerak bo'lganda
+olinadi.
+
 Yordamchi fayllar:
 - `umumiy-*.png` — butun taqdimot bitta varaqda (tez ko'rib chiqish)
 - `mavzular-taqqos.png` — uchala mavzu yonma-yon (tanlash uchun)
+- `pptx-varaq-{siyoh,oq,neon}.png` — tayyor PPTX ning sxematik ko'rinishi
+  (PowerPoint'siz tekshirish uchun)
 
 Slaydlar **vektor PDF**: matn haqiqiy matn bo'lib qoladi (nusxa ko'chirish,
 qidirish mumkin), formulalar esa piksellashtirilmaydi.
@@ -63,6 +70,10 @@ python3 tools/preview.py chiqish/yangi.pdf --umumiy chiqish/yangi-umumiy.png
 | `tools/pptx-oqi.py` | PPTX mazmunini o'qish (manba bilan solishtirish uchun) |
 | `tools/kontent-yasa.py` | Kontentni yasaydi — **matn shu yerda tahrirlanadi** |
 | `kontent/taqdimot.json` | Yasalgan kontent (render.py shuni o'qiydi) |
+| `tools/pptx-yasa.mjs` | JSON → tahrirlanadigan PPTX (pptxgenjs) |
+| `tools/pptx-fon.py` | PPTX uchun fon rasmini yasaydi |
+| `tools/pptx-tekshir.py` | PPTX geometriyasini o'lchaydi (chegara, ustma-ust tushish) |
+| `tools/pptx-korinish.py` | PPTX → PNG sxematik ko'rinish (ko'z bilan tekshirish) |
 | `kontent/rasmlar/` | PPTX dan olingan 33 rasm |
 | `manba/` | Asl PDF va PPTX (solishtirish uchun) |
 
@@ -96,6 +107,37 @@ Yangi mavzu — bitta lug'at yozish kifoya, dvigatelga tegish shart emas.
 - Bo'sh joy bloklar orasiga teng taqsimlanadi
 - Pastdagi chiziq taqdimotning qancha qismi o'tganini ko'rsatadi
 - Shriftda yo'q belgi zaxira shriftdan olinadi; topilmasa — ogohlantiradi
+
+---
+
+## PPTX (tahrirlanadigan nusxa)
+
+```bash
+cd taqdimot
+npm run pptx                                   # sukut bo'yicha «siyoh» mavzusi
+node tools/pptx-yasa.mjs --mavzu oq            # mavzu tanlash
+node tools/pptx-yasa.mjs --mavzu neon --chiqish chiqish/test.pptx
+
+python3 tools/pptx-tekshir.py chiqish/sirt-hodisalari-siyoh.pptx \
+    --kontent kontent/taqdimot.json            # o'lchov tekshiruvi
+python3 tools/pptx-korinish.py chiqish/sirt-hodisalari-siyoh.pptx \
+    --varaq chiqish/varaq.png                  # 25 slayd bitta rasmda
+```
+
+**Nega ikki xil tekshiruv.** PowerPoint bu muhitda yo'q, shuning uchun PPTX
+ko'z bilan ko'rilmaydi. `pptx-tekshir.py` slayd XML'idagi haqiqiy
+koordinatalarni o'lchaydi va uch turdagi nuqsonni topadi: shakl slayd
+chegarasidan chiqib ketishi, matn qutilarining ustma-ust tushishi, matnning
+shakl yoki rasmni bosishi. `pptx-korinish.py` esa shu koordinatalardan
+sxematik rasm chizadi — joylashuvni ko'z bilan chamalash uchun. Ko'rinish
+**Arial** o'rnida taxminiy shrift bilan chiziladi va matn o'rashi taxminiy,
+shuning uchun u faqat geometriya uchun mezon; matnning aniq ko'rinishi
+PowerPoint'da boshqacha bo'lishi mumkin.
+
+**PDF bilan bir xilligi:** rang, shrift va o'lchamlar ikkala dvigatelda ham
+`kontent/theme.json` dan olinadi (`tools/theme-chiqar.py` uni `theme.py` dan
+yasaydi) — qo'lda ikki joyda rang saqlanmaydi. Fon rasmi `tools/pptx-fon.py`
+bilan oldindan yasaladi, chunki pptxgenjs gradientni to'liq takrorlay olmaydi.
 
 ---
 

@@ -1,0 +1,11 @@
+# Mahalliy kutubxonalar — `./ornat.sh` tiklaydi
+pylib/
+node_modules/
+__pycache__/
+shriftlar/
+kontent/theme.json
+
+# Tekshiruv uchun oraliq rasmlar (varaq rasmlari saqlanadi)
+chiqish/sirt-hodisalari-*-[0-9][0-9].png
+chiqish/pptx-geometriya/
+chiqish/fonlar/_*
