@@ -4,7 +4,9 @@ Asl PPTX (18 slayd, to'q ko'k fon, bo'sh kartochkalar) **25 slaydli premium
 taqdimotga** aylantirildi: uch mavzu uslubi, **Times New Roman** shrifti,
 formulalar va grafiklar saqlangan, oltita yangi illyustratsiya qo'shilgan.
 
-Sayt loyihasidan **mustaqil** papka: `npm`, Prisma va Next.js kerak emas.
+Sayt loyihasidan **mustaqil** papka: Next.js, Prisma va bazasi kerak emas.
+PDF tomoni sof Python; PPTX tomoni esa bitta Node kutubxonasi
+(`pptxgenjs`) bilan ishlaydi.
 
 ---
 
@@ -16,9 +18,19 @@ Sayt loyihasidan **mustaqil** papka: `npm`, Prisma va Next.js kerak emas.
 | `sirt-hodisalari-oq.pdf` | Oq fon, bordo urg'u — ilmiy jurnal, chop etish |
 | `sirt-hodisalari-neon.pdf` | Binafsha gradient, moviy urg'u — konferensiya-zal |
 
+**Tahrirlanadigan PPTX** (`sirt-hodisalari-{siyoh,oq,neon}.pptx`) — xuddi shu
+dizayn, lekin PowerPoint'da tahrirlash mumkin: matn, rasm va shakllar alohida
+obyektlar. Mazmunni qo'lda tuzatish kerak bo'lganda shu nusxa olinadi.
+Shrift profili, illyustratsiyalar va ranglar PDF bilan **bir manbadan**
+(`tools/theme.py`, `kontent/taqdimot.json`) olinadi.
+
 Yordamchi fayllar:
 - `umumiy-*.png` — butun taqdimot bitta varaqda (tez ko'rib chiqish)
 - `mavzular-taqqos.png` — uchala mavzu yonma-yon (tanlash uchun)
+- `pptx-varaq-{siyoh,oq,neon}.png` — PPTX ning sxematik ko'rinishi
+  (PowerPoint'siz ko'z bilan tekshirish uchun)
+- `fonlar/fon-*.png` — PPTX ga qo'yiladigan gradient fonlar (PDF dvigateli
+  yasaydi, shuning uchun ikki nusxadagi fon bir xil)
 
 Slaydlar **vektor PDF**: matn haqiqiy matn bo'lib qoladi (nusxa ko'chirish,
 qidirish mumkin), formulalar piksellashtirilmaydi.
@@ -124,9 +136,13 @@ cd taqdimot
 ./ornat.sh                       # kutubxonalar + shriftlar (bir marta)
 
 python3 tools/kontent-yasa.py    # kontent -> kontent/taqdimot.json (matn shu yerda)
-python3 tools/render.py kontent/taqdimot.json -o chiqish/yangi.pdf --mavzu neon
+python3 tools/render.py kontent/taqdimot.json -o chiqish/yangi.pdf --mavzu neon --shrift times
 python3 tools/ustma-ust.py chiqish/yangi.pdf          # joylashuvni tekshirish
 python3 tools/preview.py chiqish/yangi.pdf --umumiy chiqish/umumiy.png
+
+python3 tools/pptx-rasm.py                             # kichraytirilgan rasmlar
+node tools/pptx-yasa.mjs --mavzu neon --shrift times  # tahrirlanadigan nusxa
+python3 tools/pptx-tekshir.py chiqish/sirt-hodisalari-neon.pptx --kontent kontent/taqdimot.json
 ```
 
 | Fayl | Nima uchun |
@@ -136,10 +152,61 @@ python3 tools/preview.py chiqish/yangi.pdf --umumiy chiqish/umumiy.png
 | `tools/fontlar.py` | Variable shriftdan og'irliklarni kesadi, Tinos/Noto nusxalaydi |
 | `tools/ustma-ust.py` | Ustma-ust tushish va rasm↔matn to'qnashuvini topadi |
 | `tools/preview.py` | PDF → PNG: sahifalar, umumiy varaq, taqqoslash |
+| `tools/pptx-yasa.mjs` | JSON → tahrirlanadigan PPTX (pptxgenjs, Node) |
+| `tools/pptx-tekshir.py` | PPTX geometriyasini o'lchaydi (chegara, ustma-ust, bosish) |
+| `tools/pptx-korinish.py` | PPTX → sxematik varaq rasm |
+| `tools/pptx-fon.py` | PPTX uchun gradient fon rasmi (PDF dvigatelidan) |
+| `tools/rasm-fon.py` | Rasm fonining to'qligini o'lchaydi (`kontent/rasm-fon.json`) |
+| `tools/pptx-rasm.py` | PPTX uchun rasm nusxalarini kichraytiradi (hajm uchun) |
 | `tools/pptx-oqi.py` | PPTX mazmunini o'qish (manba bilan solishtirish) |
 | `tools/kontent-yasa.py` | Kontentni yasaydi — **matn shu yerda tahrirlanadi** |
 | `kontent/rasmlar/` | 33 asl + 6 yangi illyustratsiya |
 | `manba/` | Asl PDF va PPTX |
+
+---
+
+## PPTX (tahrirlanadigan nusxa)
+
+```bash
+npm run pptx -- --mavzu neon --shrift times      # tayyorlash
+npm run pptx -- --mavzu oq                       # shrift: sukut (times)
+
+python3 tools/pptx-tekshir.py chiqish/sirt-hodisalari-neon.pptx \
+    --kontent kontent/taqdimot.json              # geometriya o'lchovi
+python3 tools/pptx-korinish.py chiqish/sirt-hodisalari-neon.pptx \
+    --varaq chiqish/varaq.png                    # 25 slayd bitta rasmda
+```
+
+**Bir manba, ikki chiqish.** Rang va shrift faqat `tools/theme.py` da yoziladi;
+`tools/theme-chiqar.py` uni `kontent/theme.json` ga chiqaradi va Node tomoni
+shundan o'qiydi. `--shrift times` da PPTX **Times New Roman** oilasini
+ishlatadi (PowerPoint'da o'rnatilgan bo'ladi; yetishmagan ⇌ ∠ belgisini
+PowerPoint o'zi zaxira shriftdan oladi), o'lchamlar esa PDF dagi kabi 1,10
+koeffitsiyent bilan kattalashtiriladi. Shu tufayli ikki nusxa bir xil
+ko'rinadi.
+
+**Illyustratsiyalar.** Muqovadagi va mavzu slaydlaridagi rasmlar PPTX'ga ham
+tushadi. To'q fonli illyustratsiya oq karta ichiga solinmaydi: u rasm
+qutisining ichida `cover` rejimida kesiladi (PDF dagi piksel kesish bilan bir
+xil natija). Rasmning fon to'qligini Node o'zi o'lchay olmaydi — shuning
+uchun `tools/rasm-fon.py` buni bir marta o'lchab, `kontent/rasm-fon.json` ga
+yozadi.
+
+**Hajm.** Illyustratsiyalar 1408×768 va ~2 MB (PNG) — PPTX ularni ichiga
+olsa fayl 16 MB bo'lardi. `tools/pptx-rasm.py` slaydda ko'rinadigan
+o'lchamdan kattaroq rasmlarni kichraytirib (JPEG, sifat 88)
+`chiqish/rasm-kichik/` ga yozadi va PPTX ularni ishlatadi: fayl **~4 MB**,
+slaydda ko'zga farq yo'q. Nusxa bo'lmasa asl rasm ishlatiladi.
+
+**Nega ikki xil tekshiruv.** PowerPoint bu muhitda yo'q, shuning uchun PPTX
+ko'z bilan ko'rilmaydi. `pptx-tekshir.py` slayd XML'idagi haqiqiy
+koordinatalarni o'lchaydi va uch turdagi nuqsonni topadi: shakl slayd
+chegarasidan chiqib ketishi, matn qutilarining ustma-ust tushishi, matnning
+shakl yoki rasmni bosishi. `pptx-korinish.py` esa shu koordinatalardan
+sxematik rasm chizadi — joylashuvni ko'z bilan chamalash uchun; matn o'rashi
+taxminiy, shuning uchun u faqat geometriya mezoni.
+
+Uchala mavzu uchun javob: **25 slayd, 0 nuqson**.
 
 ---
 
@@ -150,6 +217,8 @@ Yangi mavzu — bitta lug'at yozish kifoya.
 
 **Shriftlar:** Manrope/Inter/Playfair (zamonaviy), Tinos (times),
 Noto Sans Math (zaxira: ∠ ⇌ ≡ → ≈). Hammasi ochiq litsenziyada.
+PPTX tomonida "times" profili `Times New Roman` nomini ishlatadi —
+foydalanuvchi so'ragan shriftning o'zi.
 
 **Slayd turlari:** `muqova`, `reja`, `bolim`, `mavzu`, `kartochka`,
 `matn`, `raqam`, `ikki`, `sitata`, `yakun`.
