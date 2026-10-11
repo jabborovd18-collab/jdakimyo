@@ -22,7 +22,7 @@ export default function LatexMatn({ matn = "", inline = true, className = "" }) 
         html: katex.renderToString(toza, {
           displayMode: !inline,
           throwOnError: true,
-          output: "htmlAndMathml",
+          output: "html",
           trust: false,
         }),
         zaxira: "",
@@ -43,6 +43,11 @@ export default function LatexMatn({ matn = "", inline = true, className = "" }) 
   return (
     <span
       className={`katex-render inline-block ${className}`}
+      style={{
+        WebkitFontSmoothing: "antialiased",
+        MozOsxFontSmoothing: "grayscale",
+        textRendering: "geometricPrecision",
+      }}
       dangerouslySetInnerHTML={{ __html: render.html }}
     />
   );

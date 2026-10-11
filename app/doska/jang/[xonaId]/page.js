@@ -11,7 +11,7 @@ import Link from "next/link";
 import Ikon from "@/components/Ikon";
 
 const YANGILANISH_MS = 2000;
-const SAVOL_VAQTI_SONIYA = 45;
+const SAVOL_VAQTI_SONIYA = 30; // Qat'iy 30 soniya qoidasi
 
 export default function OquvchiJangSahifasi() {
   const params = useParams();
@@ -34,6 +34,8 @@ export default function OquvchiJangSahifasi() {
   const [tanlangan, setTanlangan] = useState(null);
   const [yuborilmoqda, setYuborilmoqda] = useState(false);
   const [tahlil, setTahlil] = useState(null);
+  const [umumiySarflanganVaqt, setUmumiySarflanganVaqt] = useState(0);
+  const [qoidaBuzildiXabari, setQoidaBuzildiXabari] = useState("");
 
   // LocalStorage dan qatnashchiId va joriyIndex ni tiklash
   useEffect(() => {
@@ -83,17 +85,19 @@ export default function OquvchiJangSahifasi() {
     return () => clearInterval(interval);
   }, [qatnashchiId, yangilaOquvchi]);
 
-  // ─── TAYMER (HAR BIR SAVOLGA 45 SONIYA) ───
+  // ─── TAYMER (HAR BIR SAVOLGA QAT'IY 30 SONIYA) ───
   useEffect(() => {
     if (holat?.holat !== "jang" || holat?.tugatdi) return;
 
     setQolganVaqt(SAVOL_VAQTI_SONIYA);
     setTanlangan(null);
+    setQoidaBuzildiXabari("");
 
     const timer = setInterval(() => {
       setQolganVaqt((v) => {
         if (v <= 1) {
           // Vaqt tugaganda keyingi savolga o'tish
+          setUmumiySarflanganVaqt((prev) => prev + SAVOL_VAQTI_SONIYA);
           setJoriyIndex((idx) => {
             if (holat?.savollar && idx + 1 < holat.savollar.length) {
               return idx + 1;
@@ -102,7 +106,12 @@ export default function OquvchiJangSahifasi() {
             fetch("/api/doska/jang", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ action: "oquvchiTugatdi", xonaId, qatnashchiId }),
+              body: JSON.stringify({
+                action: "oquvchiTugatdi",
+                xonaId,
+                qatnashchiId,
+                sarflanganVaqtSoniya: umumiySarflanganVaqt + SAVOL_VAQTI_SONIYA,
+              }),
             })
               .then(() => yangilaOquvchi())
               .catch(() => {});
@@ -115,7 +124,7 @@ export default function OquvchiJangSahifasi() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [joriyIndex, holat?.holat, holat?.tugatdi, holat?.savollar, xonaId, qatnashchiId, yangilaOquvchi]);
+  }, [joriyIndex, holat?.holat, holat?.tugatdi, holat?.savollar, xonaId, qatnashchiId, yangilaOquvchi, umumiySarflanganVaqt]);
 
   // ─── JAMOA VA XONAGA QO'SHILISH ───
   const qoshil = async (e) => {
@@ -152,53 +161,91 @@ export default function OquvchiJangSahifasi() {
   };
 
   // ─── SAVOLGA JAVOB BERISH ───
-  const javobBer = async (variantIndex) => {
-    if (tanlangan !== null || yuborilmoqda) return;
-    const joriySavol = holat?.savollar?.[joriyIndex];
-    if (!joriySavol) return;
+  const javobBer = useCallback(
+    async (variantIndex, qoidaBuzildimi = false) => {
+      if (tanlangan !== null || yuborilmoqda) return;
+      const joriySavol = holat?.savollar?.[joriyIndex];
+      if (!joriySavol) return;
 
-    // Haptic tebranish (agar telefon qo'llab-quvvatlasa)
-    if (typeof navigator !== "undefined" && navigator.vibrate) {
-      navigator.vibrate(40);
-    }
+      // Haptic tebranish (agar telefon qo'llab-quvvatlasa)
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(qoidaBuzildimi ? [100, 50, 100] : 40);
+      }
 
-    setTanlangan(variantIndex);
-    setYuborilmoqda(true);
+      const sarflangan = Math.min(SAVOL_VAQTI_SONIYA, Math.max(1, SAVOL_VAQTI_SONIYA - qolganVaqt));
+      setUmumiySarflanganVaqt((prev) => prev + sarflangan);
+      setTanlangan(variantIndex);
+      setYuborilmoqda(true);
 
-    try {
-      await fetch("/api/doska/jang", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "javob",
-          xonaId,
-          qatnashchiId,
-          savolId: joriySavol.id,
-          tanlanganIndex: variantIndex,
-        }),
-      });
+      try {
+        await fetch("/api/doska/jang", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "javob",
+            xonaId,
+            qatnashchiId,
+            savolId: joriySavol.id,
+            tanlanganIndex: qoidaBuzildimi ? -1 : variantIndex,
+            sarflanganVaqtSoniya: sarflangan,
+            qoidaBuzildi: qoidaBuzildimi,
+          }),
+        });
 
-      // 600 ms "Qabul qilindi" deb turib, keyingi savolga o'tadi
-      setTimeout(() => {
-        if (joriyIndex + 1 < holat.savollar.length) {
-          setJoriyIndex((i) => i + 1);
-        } else {
-          // Oxirgi savolga ham javob berildi — testni yakunlash
-          fetch("/api/doska/jang", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "oquvchiTugatdi", xonaId, qatnashchiId }),
-          })
-            .then(() => yangilaOquvchi())
-            .catch(() => {});
-        }
-        setTanlangan(null);
+        // 600 ms "Qabul qilindi" deb turib, keyingi savolga o'tadi
+        setTimeout(() => {
+          if (joriyIndex + 1 < (holat?.savollar?.length || 0)) {
+            setJoriyIndex((i) => i + 1);
+          } else {
+            // Oxirgi savolga ham javob berildi — testni yakunlash
+            fetch("/api/doska/jang", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "oquvchiTugatdi",
+                xonaId,
+                qatnashchiId,
+                sarflanganVaqtSoniya: umumiySarflanganVaqt + sarflangan,
+              }),
+            })
+              .then(() => yangilaOquvchi())
+              .catch(() => {});
+          }
+          setTanlangan(null);
+          setYuborilmoqda(false);
+        }, 600);
+      } catch {
         setYuborilmoqda(false);
-      }, 600);
-    } catch {
-      setYuborilmoqda(false);
-    }
-  };
+      }
+    },
+    [tanlangan, yuborilmoqda, holat?.savollar, joriyIndex, qolganVaqt, umumiySarflanganVaqt, xonaId, qatnashchiId, yangilaOquvchi]
+  );
+
+  // ─── ANTI-CHEAT & ANTI-CHATGPT HIMOYA TIZIMI (QOIDA 1) ───
+  // Agar o'quvchi boshqa ilovaga o'tsa yoki skrinshot olsa: savol 0 ball bilan bekor qilinadi
+  useEffect(() => {
+    if (holat?.holat !== "jang" || holat?.tugatdi || tanlangan !== null || yuborilmoqda) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        setQoidaBuzildiXabari("⚠️ Qoida buzilishi: Ilovadan chiqish yoki ChatGPTga o'tish taqiqlangan! Savol 0 ball bilan bekor qilindi.");
+        javobBer(-1, true);
+      }
+    };
+
+    const handleBlur = () => {
+      setQoidaBuzildiXabari("⚠️ Qoida buzilishi: Ekranni almashtirish aniqlandi! Joriy savol 0 ball bilan bekor qilindi.");
+      javobBer(-1, true);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, [holat?.holat, holat?.tugatdi, tanlangan, yuborilmoqda, javobBer]);
 
   // ─── TAHLILNI OLISH (TEST TUGAGACH) ───
   const tahlilniYukla = async () => {
@@ -381,8 +428,22 @@ export default function OquvchiJangSahifasi() {
             <div className="text-5xl font-black font-mono text-white">
               {holat?.ball} <span className="text-base font-normal text-slate-400">ball</span>
             </div>
-            <div className="text-xs text-slate-300 mt-2">
-              Jamoangiz kolbasiga qo&apos;shildi!
+            <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-800 text-xs">
+              <div className="p-2 rounded-xl bg-slate-900/80">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Sarflangan vaqt:</span>
+                <span className="font-mono font-bold text-sky-400 text-sm">
+                  {holat?.sarflanganVaqtSoniya || umumiySarflanganVaqt} soniya
+                </span>
+              </div>
+              <div className="p-2 rounded-xl bg-slate-900/80">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Qoidabuzarlik:</span>
+                <span className="font-mono font-bold text-amber-400 text-sm">
+                  {holat?.qoidabuzarliklar || 0} ta
+                </span>
+              </div>
+            </div>
+            <div className="text-[11px] text-slate-300 mt-3 bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-900/60">
+              ⏱️ <b>Nizom:</b> Ballar teng bo&apos;lsa, kamroq vaqt sarflagan jamoa yuqori o&apos;rinni egallaydi!
             </div>
           </div>
 
@@ -475,6 +536,13 @@ export default function OquvchiJangSahifasi() {
           <div className="mb-3 py-1.5 px-3 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] text-center font-bold flex items-center justify-center gap-1.5">
             <Ikon nom="ogohlantirish" olcham={14} className="shrink-0" />
             <span>Tarmoq aloqasi tiklanmoqda... Javoblaringiz saqlanmoqda</span>
+          </div>
+        )}
+
+        {qoidaBuzildiXabari && (
+          <div className="mb-3 py-2 px-3.5 rounded-xl bg-red-950/80 border border-red-500/80 text-red-200 text-xs text-center font-bold animate-pulse flex items-center justify-center gap-2">
+            <Ikon nom="ogohlantirish" olcham={16} className="shrink-0 text-red-400" />
+            <span>{qoidaBuzildiXabari}</span>
           </div>
         )}
 

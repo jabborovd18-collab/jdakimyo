@@ -12,8 +12,20 @@ import Ikon from "@/components/Ikon";
 
 const YANGILANISH_MS = 2000;
 
+const SHABLON_NOM_TOPLAMLARI = [
+  { nom: "Adsorbsiya", jamoalar: ["Adsorbentlar", "Adsorbatlar", "Desorbsiya", "G'ovaklar"] },
+  { nom: "Sirt xossalari", jamoalar: ["Gidrofillar", "Gidrofoblar", "Amfifillar", "Mitsellalar"] },
+  { nom: "Buyuk Olimlar", jamoalar: ["Lengmyurchilar", "Freyndlixchilar", "BET jamoasi", "Gibbschilar"] },
+  { nom: "Ionlar & Zaryad", jamoalar: ["Kationlar", "Anionlar", "Radikallar", "Komplekslar"] },
+  { nom: "Kinetika", jamoalar: ["Katalizatorlar", "Ingibitorlar", "Aktivatorlar", "Promotorlar"] },
+  { nom: "Fizikaviy kimyo", jamoalar: ["Kvantlar", "Fotonlar", "Orbitallar", "Izotoplar"] },
+];
+
 export default function JamoalarJangiTab({ mavzuId }) {
   const [jamoalarSoni, setJamoalarSoni] = useState(2);
+  const [jamoaNomlari, setJamoaNomlari] = useState(["Adsorbentlar", "Adsorbatlar", "Desorbsiya", "G'ovaklar"]);
+  const [tahrirlanayotganJamoaId, setTahrirlanayotganJamoaId] = useState(null);
+  const [vaqtinchalikNom, setVaqtinchalikNom] = useState("");
   const [xona, setXona] = useState(null);
   const [qrKodlar, setQrKodlar] = useState({});
   const [yuklanmoqda, setYuklanmoqda] = useState(false);
@@ -21,6 +33,8 @@ export default function JamoalarJangiTab({ mavzuId }) {
   const [moderatsiyaOchiq, setModeratsiyaOchiq] = useState(false);
   const [ovozFaol, setOvozFaol] = useState(true);
   const [toliqEkran, setToliqEkran] = useState(false);
+  const [aloqaBor, setAloqaBor] = useState(true);
+  const [sensorQulfi, setSensorQulfi] = useState(false);
 
   const xonaIdRef = useRef(null);
   xonaIdRef.current = xona?.xonaId;
@@ -65,6 +79,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
           action: "yaratish",
           mavzuId,
           jamoalarSoni: soni,
+          jamoaNomlari: jamoaNomlari.slice(0, soni),
         }),
       });
       const d = await res.json();
@@ -94,6 +109,30 @@ export default function JamoalarJangiTab({ mavzuId }) {
     }
   };
 
+  // ─── LOBBYDA JAMOA NOMINI YANGILASH ───
+  const jamoaNominiSaqla = async (jamoaId, yangiNom) => {
+    if (!xona || !yangiNom.trim()) return;
+    try {
+      const res = await fetch("/api/doska/jang", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "nomniYangila",
+          xonaId: xona.xonaId,
+          jamoaId,
+          yangiNom: yangiNom.trim(),
+        }),
+      });
+      const d = await res.json();
+      if (res.ok && d.holat) {
+        setXona(d.holat);
+        setTahrirlanayotganJamoaId(null);
+      }
+    } catch {
+      // xato
+    }
+  };
+
   // ─── DOSKA HOLATINI DOIMIY SO'RASH (POLLING) ───
   const yangilaDoska = useCallback(async () => {
     if (!xonaIdRef.current) return;
@@ -101,6 +140,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
       const res = await fetch(`/api/doska/jang?xonaId=${xonaIdRef.current}&rol=doska`);
       const d = await res.json();
       if (res.ok && d.holat) {
+        setAloqaBor(true);
         // Ball oshgan bo'lsa yoqimli audio effekt berish
         let yangiBallBor = false;
         d.holat.jamoalar.forEach((j) => {
@@ -114,9 +154,11 @@ export default function JamoalarJangiTab({ mavzuId }) {
         }
 
         setXona(d.holat);
+      } else {
+        setAloqaBor(false);
       }
     } catch {
-      // jim
+      setAloqaBor(false);
     }
   }, []);
 
@@ -220,7 +262,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
           </div>
         )}
 
-        <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 mb-8 max-w-md mx-auto">
+        <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 mb-6 max-w-md mx-auto">
           <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
             Jamoalar sonini tanlang:
           </label>
@@ -237,6 +279,50 @@ export default function JamoalarJangiTab({ mavzuId }) {
               >
                 {son} ta jamoa
               </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Jamoalar nomlari va shablonlar */}
+        <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 mb-8 max-w-xl mx-auto text-left">
+          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+            Jamoalar nomlari (Shablon tanlang yoki tahrirlang):
+          </label>
+
+          {/* Tezkor kimyoviy shablonlar */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {SHABLON_NOM_TOPLAMLARI.map((sh, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setJamoaNomlari([...sh.jamoalar])}
+                className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-emerald-500/50 transition"
+              >
+                {sh.nom}
+              </button>
+            ))}
+          </div>
+
+          {/* Har bir jamoa uchun alohida nom maydoni */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {Array.from({ length: jamoalarSoni }).map((_, idx) => (
+              <div key={idx}>
+                <span className="block text-[11px] text-slate-400 font-bold mb-1">
+                  {idx + 1}-jamoa:
+                </span>
+                <input
+                  type="text"
+                  value={jamoaNomlari[idx] || ""}
+                  onChange={(e) => {
+                    const nusxa = [...jamoaNomlari];
+                    nusxa[idx] = e.target.value;
+                    setJamoaNomlari(nusxa);
+                  }}
+                  placeholder={`${idx + 1}-jamoa nomi`}
+                  maxLength={25}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm font-semibold focus:outline-none focus:border-emerald-500 transition"
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -339,9 +425,53 @@ export default function JamoalarJangiTab({ mavzuId }) {
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
                   {j.id}-Jamoa
                 </span>
-                <h3 className="text-2xl font-black text-white mb-4" style={{ color: j.hex }}>
-                  {j.nom}
-                </h3>
+
+                {tahrirlanayotganJamoaId === j.id ? (
+                  <div className="flex items-center gap-1.5 mb-4 w-full max-w-[200px]">
+                    <input
+                      type="text"
+                      value={vaqtinchalikNom}
+                      onChange={(e) => setVaqtinchalikNom(e.target.value)}
+                      maxLength={25}
+                      className="flex-1 px-2.5 py-1 rounded-xl bg-slate-950 border border-emerald-500 text-white text-sm font-bold focus:outline-none"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") jamoaNominiSaqla(j.id, vaqtinchalikNom);
+                        if (e.key === "Escape") setTahrirlanayotganJamoaId(null);
+                      }}
+                    />
+                    <button
+                      onClick={() => jamoaNominiSaqla(j.id, vaqtinchalikNom)}
+                      className="p-1 rounded-lg bg-emerald-600 text-white font-bold"
+                      title="Saqlash"
+                    >
+                      <Ikon nom="tasdiq" olcham={14} />
+                    </button>
+                    <button
+                      onClick={() => setTahrirlanayotganJamoaId(null)}
+                      className="p-1 rounded-lg bg-slate-800 text-slate-400"
+                      title="Bekor qilish"
+                    >
+                      <Ikon nom="yopish" olcham={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className="flex items-center justify-center gap-1.5 mb-4 group cursor-pointer"
+                    onClick={() => {
+                      setTahrirlanayotganJamoaId(j.id);
+                      setVaqtinchalikNom(j.nom);
+                    }}
+                    title="Nomni o'zgartirish uchun bosing"
+                  >
+                    <h3 className="text-2xl font-black text-white hover:opacity-90 transition" style={{ color: j.hex }}>
+                      {j.nom}
+                    </h3>
+                    <span className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-white p-1 rounded transition text-xs">
+                      ✎
+                    </span>
+                  </div>
+                )}
 
                 {/* QR KOD */}
                 <div className="bg-white p-3.5 rounded-2xl shadow-xl mb-4">
@@ -405,11 +535,38 @@ export default function JamoalarJangiTab({ mavzuId }) {
   // 3. JONLI JANG (KOLBALAR POYGASI) VA YAKUNLANISH
   // ═══════════════════════════════════════════════════════════════════════
   const yakunlangan = xona.holat === "yakunlandi";
-  const tartiblanganJamoalar = [...xona.jamoalar].sort((a, b) => b.ball - a.ball);
+  const tartiblanganJamoalar = [...xona.jamoalar].sort((a, b) => {
+    if (b.ball !== a.ball) return b.ball - a.ball;
+    return (a.sarflanganVaqt || 0) - (b.sarflanganVaqt || 0);
+  });
   const golib = tartiblanganJamoalar[0];
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${sensorQulfi ? "pointer-events-none select-none" : ""}`}>
+      {/* ═══ OFFLINE XAVF BILDIRISHNOMASI ═══ */}
+      {!aloqaBor && (
+        <div className="py-2.5 px-4 rounded-2xl bg-amber-950/90 border border-amber-500/80 text-amber-200 text-xs text-center font-bold animate-pulse flex items-center justify-center gap-2">
+          <Ikon nom="ogohlantirish" olcham={16} className="text-amber-400 shrink-0" />
+          <span>📡 Smart doska server bilan aloqasi uzildi. Qayta ulanmoqda... (O&apos;quvchilar javoblari xotirada saqlanadi)</span>
+        </div>
+      )}
+
+      {/* ═══ SENSOR QULFI BILDIRISHNOMASI ═══ */}
+      {sensorQulfi && (
+        <div className="py-2.5 px-4 rounded-2xl bg-sky-950/90 border border-sky-500/80 text-sky-200 text-xs text-center font-bold flex items-center justify-between gap-2 pointer-events-auto">
+          <div className="flex items-center gap-2">
+            <Ikon nom="qulf" olcham={16} className="text-sky-400 shrink-0" />
+            <span>🔒 Doska sensor himoyasi faol: tasodifiy teginishlar bloklandi.</span>
+          </div>
+          <button
+            onClick={() => setSensorQulfi(false)}
+            className="px-3 py-1 rounded-xl bg-sky-600 text-white font-bold text-xs"
+          >
+            Qulfni ochish
+          </button>
+        </div>
+      )}
+
       {/* ═══ YUQORI DOSKA BOSHQARUVI ═══ */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 flex flex-wrap items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3">
@@ -430,7 +587,21 @@ export default function JamoalarJangiTab({ mavzuId }) {
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pointer-events-auto">
+          {/* Sensor himoyasi (Palm rejection) */}
+          <button
+            onClick={() => setSensorQulfi(!sensorQulfi)}
+            className={`px-3 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${
+              sensorQulfi
+                ? "bg-amber-500/20 border-amber-500 text-amber-300 ring-2 ring-amber-500/30"
+                : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"
+            }`}
+            title="Doskaga tasodifiy teginishdan himoyalanish"
+          >
+            <Ikon nom={sensorQulfi ? "qulf" : "ochiq"} olcham={16} />
+            <span>{sensorQulfi ? "🔒 Himoya faol" : "🔓 Sensor himoyasi"}</span>
+          </button>
+
           {/* Ovoz tugmasi */}
           <button
             onClick={() => setOvozFaol(doskaAudio.holatniAlmashtir())}
@@ -546,7 +717,15 @@ export default function JamoalarJangiTab({ mavzuId }) {
           <p className="text-slate-200 text-base mt-2">
             To&apos;plangan umumiy ball:{" "}
             <span className="font-mono font-black text-white text-2xl">{golib.ball} ball</span>
+            <span className="text-slate-400 text-sm ml-3 font-mono">
+              (⏱️ {golib.sarflanganVaqt || 0} soniya)
+            </span>
           </p>
+          {golib.vaqtUstunligi && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-300 text-xs font-bold mt-2">
+              <span>⏱️ Ballar teng — kamroq vaqt sarflagani hisobiga g&apos;olib!</span>
+            </div>
+          )}
 
           {/* O'rinlar taqsimoti */}
           <div className="flex flex-wrap items-center justify-center gap-4 mt-6 pt-6 border-t border-slate-800/80">
@@ -562,6 +741,12 @@ export default function JamoalarJangiTab({ mavzuId }) {
                 />
                 <span className="font-bold" style={{ color: j.hex }}>{j.nom}</span>
                 <span className="font-mono text-slate-300 font-bold">{j.ball} ball</span>
+                <span className="text-xs font-mono text-slate-400">⏱️ {j.sarflanganVaqt || 0}s</span>
+                {j.vaqtUstunligi && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    ⏱️ Vaqt ustunligi!
+                  </span>
+                )}
               </div>
             ))}
           </div>
@@ -595,9 +780,10 @@ export default function JamoalarJangiTab({ mavzuId }) {
                 <div className="text-4xl font-black font-mono text-white mt-1">
                   {j.ball} <span className="text-xs font-normal text-slate-400">ball</span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1">
+                <div className="text-[11px] text-slate-400 mt-1 flex items-center justify-center gap-1.5 flex-wrap">
                   <span>{j.azolariSoni || 0} o&apos;quvchi</span> •{" "}
-                  <span className="font-mono text-slate-300">o&apos;rtacha {j.ortachaBall || 0} b.</span>
+                  <span className="font-mono text-slate-300">o&apos;rtacha {j.ortachaBall || 0} b.</span> •{" "}
+                  <span className="font-mono text-cyan-400 font-semibold">⏱️ {j.sarflanganVaqt || 0}s</span>
                 </div>
               </div>
 

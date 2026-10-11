@@ -15,6 +15,7 @@ import {
   jangniTugat,
   tahlilniOlish,
   oquvchiTugatdi,
+  jamoaNominiYangila,
 } from "@/lib/doska-jang-boshqaruvchi";
 
 export async function GET(req) {
@@ -67,17 +68,23 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { action, xonaId, mavzuId, jamoalarSoni, ism, jamoaId, qatnashchiId, savolId, tanlanganIndex } = body;
+    const { action, xonaId, mavzuId, jamoalarSoni, jamoaNomlari, jamoaId, yangiNom, ism, qatnashchiId, savolId, tanlanganIndex, sarflanganVaqtSoniya, qoidaBuzildi } = body;
 
     // 1) Yangi xona yaratish (O'qituvchi doskada bosganda)
     if (action === "yaratish") {
-      const xona = yangiXonaYarat(mavzuId, jamoalarSoni);
+      const xona = yangiXonaYarat(mavzuId, jamoalarSoni, jamoaNomlari);
       const holat = doskaHolatiniOlish(xona.xonaId);
       return NextResponse.json({ ok: true, xonaId: xona.xonaId, holat });
     }
 
     if (!xonaId) {
       return NextResponse.json({ error: "Xona kodi ko'rsatilmadi" }, { status: 400 });
+    }
+
+    // 1.1) Jamoa nomini yangilash
+    if (action === "nomniYangila") {
+      const holat = jamoaNominiYangila(xonaId, jamoaId, yangiNom);
+      return NextResponse.json({ ok: true, holat });
     }
 
     // 2) O'quvchi xonaga qo'shilishi (QR kod orqali)
@@ -94,7 +101,7 @@ export async function POST(req) {
 
     // 4) Savolga javob yuborish
     if (action === "javob") {
-      const natija = javobniQabulQil(xonaId, qatnashchiId, savolId, tanlanganIndex);
+      const natija = javobniQabulQil(xonaId, qatnashchiId, savolId, tanlanganIndex, sarflanganVaqtSoniya, qoidaBuzildi);
       return NextResponse.json(natija);
     }
 
@@ -112,7 +119,7 @@ export async function POST(req) {
 
     // 7) O'quvchi barcha savollarni yakunlaganini bildirish
     if (action === "oquvchiTugatdi") {
-      const natija = oquvchiTugatdi(xonaId, qatnashchiId);
+      const natija = oquvchiTugatdi(xonaId, qatnashchiId, sarflanganVaqtSoniya);
       return NextResponse.json(natija);
     }
 

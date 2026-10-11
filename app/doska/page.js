@@ -16,7 +16,7 @@ export default function SmartDoskaBoshSahifa() {
 
   const filtrlanganMavzular = useMemo(() => {
     const q = qidiruv.toLowerCase().trim();
-    if (!q) return DOSKA_MAVZULARI;
+    if (!q) return [];
     return DOSKA_MAVZULARI.filter(
       (m) =>
         m.nomi.toLowerCase().includes(q) ||
@@ -88,118 +88,167 @@ export default function SmartDoskaBoshSahifa() {
           )}
         </div>
 
-        {/* ═══ MAVZULAR RO'YXATI / KARTALARI ═══ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filtrlanganMavzular.map((mavzu) => {
-            const faol = mavzu.holat === "faol";
-            return (
-              <div
-                key={mavzu.id}
-                className={`relative flex flex-col justify-between rounded-3xl p-6 border transition-all duration-200 ${
-                  faol
-                    ? "bg-slate-900/80 border-slate-700/80 hover:border-emerald-500/80 hover:shadow-2xl hover:shadow-emerald-950/30 group"
-                    : "bg-slate-900/40 border-slate-800/60 opacity-75"
-                }`}
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <span className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/60 inline-flex items-center justify-center text-emerald-400">
-                      {mavzu.rang === "emerald" ? (
-                        <Ikon nom="kolba" olcham={24} />
-                      ) : mavzu.rang === "purple" ? (
-                        <Ikon nom="atom" olcham={24} className="text-purple-400" />
-                      ) : (
-                        <Ikon nom="chaqmoq" olcham={24} className="text-amber-400" />
+        {/* ═══ MAVZULAR RO'YXATI: FAQAT QIDIRUV KADA CHIQADI ═══ */}
+        {!qidiruv.trim() ? (
+          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center max-w-2xl mx-auto my-6 shadow-2xl">
+            <span className="w-16 h-16 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 inline-flex items-center justify-center text-emerald-400 mb-4 shadow-lg shadow-emerald-950/50">
+              <Ikon nom="qidiruv" olcham={32} />
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-white mb-2">
+              Mavzuni topish uchun qidiring
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed mb-6">
+              Smart Doskada darsni boshlash uchun yuqoridagi qidiruv maydoniga mavzu nomi, olim yoki fan nomini yozing, yoki quyidagi teglardan birini bosing:
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {[
+                "Adsorbsiya",
+                "Lengmyur",
+                "Freyndlix",
+                "BET",
+                "Gibbs",
+                "Kelvin",
+                "Traube",
+                "Kolloid kimyo",
+                "Regressiya",
+              ].map((teg) => (
+                <button
+                  key={teg}
+                  onClick={() => setQidiruv(teg)}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-emerald-950/80 border border-slate-700/60 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 text-xs font-semibold transition"
+                >
+                  #{teg}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : filtrlanganMavzular.length === 0 ? (
+          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 text-center max-w-md mx-auto my-6">
+            <p className="text-sm font-bold text-slate-300 mb-1">Mos mavzu topilmadi</p>
+            <p className="text-xs text-slate-400 mb-4">
+              &quot;{qidiruv}&quot; so&apos;rovi bo&apos;yicha hech narsa chiqmadi. Boshqa kalit so&apos;z bilan urinib ko&apos;ring.
+            </p>
+            <button
+              onClick={() => setQidiruv("")}
+              className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:text-white"
+            >
+              Qidiruvni tozalash
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {filtrlanganMavzular.map((mavzu) => {
+              const faol = mavzu.holat === "faol";
+              return (
+                <div
+                  key={mavzu.id}
+                  className={`relative flex flex-col justify-between rounded-3xl p-6 border transition-all duration-200 ${
+                    faol
+                      ? "bg-slate-900/80 border-slate-700/80 hover:border-emerald-500/80 hover:shadow-2xl hover:shadow-emerald-950/30 group"
+                      : "bg-slate-900/40 border-slate-800/60 opacity-75"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <span className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/60 inline-flex items-center justify-center text-emerald-400">
+                        {mavzu.rang === "emerald" ? (
+                          <Ikon nom="kolba" olcham={24} />
+                        ) : mavzu.rang === "purple" ? (
+                          <Ikon nom="atom" olcham={24} className="text-purple-400" />
+                        ) : (
+                          <Ikon nom="chaqmoq" olcham={24} className="text-amber-400" />
+                        )}
+                      </span>
+                      <span
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                          faol
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                            : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                        }`}
+                      >
+                        {faol ? "Faol interaktiv" : "Tez kunda"}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition">
+                      {mavzu.nomi}
+                    </h3>
+                    <p className="text-sm text-slate-300 leading-relaxed mb-4">
+                      {mavzu.qisqa}
+                    </p>
+
+                    <div className="space-y-1.5 text-xs text-slate-400 mb-5 pb-4 border-b border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400">Ustoz:</span>
+                        {mavzu.oqituvchiUserId ? (
+                          <Link
+                            href={`/profil/${mavzu.oqituvchiUserId}`}
+                            className="text-emerald-400 hover:underline font-medium"
+                          >
+                            {mavzu.oqituvchi}
+                          </Link>
+                        ) : (
+                          <span className="text-slate-200 font-medium">{mavzu.oqituvchi}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400">Fan:</span>
+                        <span className="text-slate-200 font-medium">{mavzu.fan}</span>
+                      </div>
+                      {faol && (
+                        <div className="flex items-center gap-3 pt-1 text-emerald-400 font-medium">
+                          <span className="inline-flex items-center gap-1">
+                            <Ikon nom="tasdiq" olcham={12} />
+                            <span>{mavzu.savollarSoni} ta test</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Ikon nom="tasdiq" olcham={12} />
+                            <span>{mavzu.formulalar.length} ta formula</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Ikon nom="tasdiq" olcham={12} />
+                            <span>Jamoalar jangi</span>
+                          </span>
+                        </div>
                       )}
-                    </span>
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                        faol
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                          : "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                      }`}
-                    >
-                      {faol ? "Faol interaktiv" : "Tez kunda"}
-                    </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 mb-6">
+                      {mavzu.teglar.map((teg) => (
+                        <span
+                          key={teg}
+                          className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700/50"
+                        >
+                          #{teg}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition">
-                    {mavzu.nomi}
-                  </h3>
-                  <p className="text-sm text-slate-300 leading-relaxed mb-4">
-                    {mavzu.qisqa}
-                  </p>
-
-                  <div className="space-y-1.5 text-xs text-slate-400 mb-5 pb-4 border-b border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400">Ustoz:</span>
-                      {mavzu.oqituvchiUserId ? (
-                        <Link
-                          href={`/profil/${mavzu.oqituvchiUserId}`}
-                          className="text-emerald-400 hover:underline font-medium"
-                        >
-                          {mavzu.oqituvchi}
-                        </Link>
-                      ) : (
-                        <span className="text-slate-200 font-medium">{mavzu.oqituvchi}</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400">Fan:</span>
-                      <span className="text-slate-200 font-medium">{mavzu.fan}</span>
-                    </div>
-                    {faol && (
-                      <div className="flex items-center gap-3 pt-1 text-emerald-400 font-medium">
-                        <span className="inline-flex items-center gap-1">
-                          <Ikon nom="tasdiq" olcham={12} />
-                          <span>{mavzu.savollarSoni} ta test</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <Ikon nom="tasdiq" olcham={12} />
-                          <span>{mavzu.formulalar.length} ta formula</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <Ikon nom="tasdiq" olcham={12} />
-                          <span>Jamoalar jangi</span>
-                        </span>
-                      </div>
+                  <div>
+                    {faol ? (
+                      <Link
+                        href={`/doska/mavzu/${mavzu.id}`}
+                        className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-950/50 transition group"
+                      >
+                        <span>Doskani ochish</span>
+                        <Ikon nom="ong" olcham={16} className="group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    ) : (
+                      <button
+                        disabled
+                        className="w-full py-3 px-4 rounded-xl bg-slate-800/50 border border-slate-800 text-slate-400 font-medium text-sm cursor-not-allowed"
+                      >
+                        Jarayonda (Tez kunda)
+                      </button>
                     )}
                   </div>
-
-                  <div className="flex flex-wrap gap-1.5 mb-6">
-                    {mavzu.teglar.map((teg) => (
-                      <span
-                        key={teg}
-                        className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700/50"
-                      >
-                        #{teg}
-                      </span>
-                    ))}
-                  </div>
                 </div>
-
-                <div>
-                  {faol ? (
-                    <Link
-                      href={`/doska/mavzu/${mavzu.id}`}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-950/50 transition group"
-                    >
-                      <span>Doskani ochish</span>
-                      <Ikon nom="ong" olcham={16} className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  ) : (
-                    <button
-                      disabled
-                      className="w-full py-3 px-4 rounded-xl bg-slate-800/50 border border-slate-800 text-slate-400 font-medium text-sm cursor-not-allowed"
-                    >
-                      Jarayonda (Tez kunda)
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ═══ UNDOV BILAN YOZILGAN ADMIN BILAN BOG'LANISH BLOKI ═══ */}

@@ -13,6 +13,14 @@
 
 import { useState, useMemo } from "react";
 import LatexMatn from "@/components/LatexMatn";
+import {
+  LENGMYUR_PRESETLARI,
+  FREYNDLIX_PRESETLARI,
+  LengmyurIzotermaGrafik,
+  FreyndlixIzotermaGrafik,
+  BetIzotermaGrafik,
+  KelvinGisterezisGrafik,
+} from "./IzotermaGrafiklar";
 
 // Turli modullarning ob'ekt kalitlarini aniqlash (universitet darajasidagi barqarorlik)
 function getMaydonlar(qator) {
@@ -26,6 +34,132 @@ function getMaydonlar(qator) {
   const keys = Object.keys(qator);
   return { xKey: keys[0] || "x", yKey: keys[1] || "y" };
 }
+
+// ═══ 7 TA ILMIY MODULNING CHUQUR NAZARIY MA'LUMOTLAR LUG'ATI ═══
+const CHUQUR_NAZARIYA_LUGATI = {
+  "lengmyur-regressiya": {
+    nomi: "Lengmyur Monomolekulyar Adsorbsiya Nazariyasi",
+    keltiribChiqarilishi:
+      "Irving Lengmyur (1916, Nobel mukofoti 1932) gaz va qattiq jism chegarasidagi kinetik muvozanatni tahlil qildi. Adsorbsiya tezligi erkin markazlar ulushi (1 - θ) va konsentratsiyaga to'g'ri mutanosib: v_ads = k_a · C · (1 - θ). Desorbsiya tezligi esa band markazlar ulushiga mutanosib: v_des = k_d · θ · e^(-E/RT). Dinamik muvozanatda v_ads = v_des tenglashib, θ = (K·C) / (1 + K·C) kelib chiqadi. Bu yerda K = k_a / k_d muvozanat doimiysi. Monoqavat to'yinish sig'imi a_m bo'lganda: a = (a_m · K · C) / (1 + K · C).",
+    hadlar: [
+      { belgi: "C_e", nom: "Muvozanat konsentratsiyasi (yoki P gaz bosimi)", birlik: "mmol/L (yoki Pa)", izoh: "Eritmadagi erkin qolgan adsorbat miqdori" },
+      { belgi: "a", nom: "Adsorbsiya miqdori", birlik: "mmol/g", izoh: "1 gramm adsorbent yuzasiga birikkan modda mol miqdori" },
+      { belgi: "a_m", nom: "Maksimal monoqavat sig'imi", birlik: "mmol/g", izoh: "Barcha faol markazlar to'lgandagi chegaraviy plato" },
+      { belgi: "K", nom: "Lengmyur adsorbsiya doimiysi", birlik: "L/mmol", izoh: "Adsorbent va adsorbatning o'zaro yaqinlik (affinitet) o'lchovi" },
+      { belgi: "θ", nom: "Sirtning qoplanish darajasi", birlik: "0..1 (yoki %)", izoh: "θ = a / a_m nisbati" },
+    ],
+    amaliyot:
+      "Tibbiyotda gematsorbsiya (qonni zaharli toksinlardan tozalash), sanoatda faollashtirilgan ko'mir yordamida zaharli gazlarni yutish va fermentativ kinetikada Mixaelis-Menten modeli sifatida keng qo'llaniladi.",
+    iupacTasnifi:
+      "IUPAC tasnifi bo'yicha I turdagi izoterma. Faqat mikrog'ovakli (r < 2 nm) adsorbentlar yoki kimyosorbtsiyada qat'iy to'yinish platosiga ega bo'ladi.",
+    metodikTavsiya:
+      "O'quvchilarga C_e → ∞ ga intilganda a qiymati a_m platosiga intilishini, Hanes-Woolf chiziqli grafigida esa qiyalik burchagi aynan 1/a_m ga teng ekanini ko'rsating.",
+  },
+  "freyndlix-regressiya": {
+    nomi: "Freyndlix Empirik va Geterogen Sirt Modeli",
+    keltiribChiqarilishi:
+      "Gerbert Freyndlix (1909) real adsorbentlar yuzasi energetik jihatdan nobirjinsli ekanini ko'rsatdi. Zeldovich va Temkin nazariyasiga ko'ra, sirt markazlarining adsorbsiya energiyasi eksponentsial taqsimotga bo'ysunganda (q_i = q_0 - α·ln θ), barcha markazlar bo'yicha integrallash natijasida a = K_F · C^(1/n) logarifmik darajali tenglamasi kelib chiqadi. Chiziqlashtirilgan shakli: lg a = lg K_F + (1/n) · lg C_e.",
+    hadlar: [
+      { belgi: "K_F", nom: "Freyndlix sig'im doimiysi", birlik: "(mmol/g)·(L/mmol)^(1/n)", izoh: "Adsorbentning shartli adsorbsion sig'imi" },
+      { belgi: "1/n", nom: "Geterogenlik ko'rsatkichi (qiyalik)", birlik: "0..1 (o'lchovsiz)", izoh: "0.1 < 1/n < 0.5 — qulay yuqori adsorbsiya; 1/n = 1 — chiziqli Genri sohasi; 1/n > 1 — noqulay" },
+      { belgi: "n", nom: "Adsorbsiya intensivligi", birlik: "n > 1", izoh: "Jarayonning o'z-o'zidan termodinamik borish qobiliyati" },
+    ],
+    amaliyot:
+      "Oqova suvlarni bo'yoqlardan, og'ir metall kationlaridan (Pb²⁺, Cd²⁺, Cu²⁺) tozalashda tabiiy minerallar (bentonit, tseolit, montmorillonit gillar) tahlilida standart model hisoblanadi.",
+    iupacTasnifi:
+      "Chegaraviy to'yinish platosiga ega emas. Faqat o'rtacha konsentratsiyalarda tajribaga mos keladi (C → 0 da hosila cheksizga intilishi, C → ∞ da esa cheksiz o'sishi uning fizik chegarasi hisoblanadi).",
+    metodikTavsiya:
+      "Doskada energetik relyefni namoyish qiling: konsentratsiya past bo'lganda avval chuqur potensial o'ralar (65 kJ/mol), konsentratsiya oshgach esa sayoz o'ralar to'lishini ta'kidlang.",
+  },
+  "bet-modeli": {
+    nomi: "BET (Brunauer-Emmett-Teller) Ko'p Qatlamli Adsorbsiya Modeli",
+    keltiribChiqarilishi:
+      "1938 yilda S. Brunauer, P. Emmett va E. Teller tomonidan taklif etilgan. Gaz molekulalari faqat qattiq jism bilan emas, balki bir-biri bilan ham Van-der-Vaals kuchlari orqali ta'sirlashib, ko'p qatlamli kondensatsiyani yuzaga keltiradi. 1-qavat adsorbsiya issiqligi E_1, keyingi barcha qatlamlar esa gazning kondensatsiya issiqligiga (E_L) teng deb olinadi. Cheksiz qatlamlar geometrik progressiya yig'indisi orqali: p / [a·(p_0 - p)] = 1/(a_m · C) + [(C - 1)/(a_m · C)] · (p / p_0).",
+    hadlar: [
+      { belgi: "p / p_0", nom: "Nisbiy to'yingan bug' bosimi", birlik: "0..1 (o'lchovsiz)", izoh: "Gaz bosimining to'yingan bug' bosimiga nisbati" },
+      { belgi: "a_m", nom: "Monomolekulyar qatlam sig'imi", birlik: "mmol/g", izoh: "Sirt to'liq bitta molekula qatlami bilan qoplangandagi miqdor" },
+      { belgi: "C_BET", nom: "BET doimiysi", birlik: "C ≈ e^((E_1 - E_L)/RT)", izoh: "1-qatlam va keyingi qatlamlar adsorbsiya energiyasi farqi" },
+      { belgi: "S_BET", nom: "Haqiqiy solishtirma sirt maydoni", birlik: "m²/g", izoh: "S_BET = a_m · N_A · ω (azot uchun ω = 0.162 nm²)" },
+      { belgi: "ω_(N2)", nom: "Azot molekulasi ko'ndalang kesim yuzi", birlik: "0.162 nm²", izoh: "77 K dagi suyuq azot molekulasining xalqaro standarti" },
+    ],
+    amaliyot:
+      "Dunyo bo'ylab barcha nanomateriallar (MOF metall-organik karkaslar, grafen, nanotrubkalar, aerogellar, silikagellar va neftni qayta ishlash kreking katalizatorlari) sirtini o'lchashning yagona rasmiy standarti.",
+    iupacTasnifi:
+      "IUPAC II turdagi (makrog'ovaklar) va IV turdagi (mezog'ovaklar) izotermalarning boshlang'ich qismiga mos keladi. ISO 9277 standarti bo'yicha chiziqlilik faqat 0.05 ≤ p/p_0 ≤ 0.35 oralig'ida kafolatlanadi.",
+    metodikTavsiya:
+      "O'quvchilarga C_BET > 50 bo'lganda II tur (keskin tizza nuqtasi), C_BET < 2 bo'lganda esa III tur (egriliksiz to'g'ridan-to'g'ri ko'p qatlam) hosil bo'lishini slayderda ko'rsating.",
+  },
+  "gibbs-sirt-taranglik": {
+    nomi: "Gibbs Fundamental Sirt Adsorbsiyasi & Shishkovskiy Tenglamasi",
+    keltiribChiqarilishi:
+      "J. Willard Gibbs (1878) sirt fazasi termodinamikasidan kelib chiqib, dG = -S dT + V dP + σ ds + Σ μ_i dn_i tenglamasini taklif qildi. Izotermik holatda sirt bosimi dσ = -Σ Γ_i dμ_i ga teng. Eritmadagi erkin SFM uchun dμ = RT · d(ln C) bo'lgani sababli: Γ = -(C / RT) · (dσ / dC). B. Shishkovskiy (1908) tajribada σ = σ_0 - B · ln(1 + A·C) qonuniyatini kashf etdi. Uning hosilasi dσ/dC = -(A·B)/(1 + A·C) ni Gibbs tenglamasiga qo'ysak, Lengmyur izotermasi formulasi kelib chiqadi: Γ = Γ_∞ · (A·C)/(1 + A·C).",
+    hadlar: [
+      { belgi: "Γ", nom: "Sirt ortiqchaligi (adsorbsiya)", birlik: "µmol/m²", izoh: "Sirt qatlamidagi modda konsentratsiyasining hajmga nisbatan ortiqchaligi" },
+      { belgi: "σ", nom: "Sirt taranglik koeffitsiyenti", birlik: "mN/m (yoki dyn/sm)", izoh: "Toza suv: 72.8 mN/m (298 K da)" },
+      { belgi: "dσ/dC", nom: "Sirt faolligi hosilasi", birlik: "mN·L/(m·mol)", izoh: "SFM konsentratsiyasi ortishi bilan sirt taranglik pasayish tezligi" },
+      { belgi: "s_0", nom: "Bitta molekula egallagan minimal yuza", birlik: "nm² (yoki Å²)", izoh: "s_0 = 1 / (Γ_∞ · N_A) zich monoqatlamda" },
+      { belgi: "KBM (CMC)", nom: "Kritik misella hosil bo'lish konsentratsiyasi", birlik: "mol/L", izoh: "Sirt to'yib, eritmada sferik misellalar shakllanish boshlanishi" },
+    ],
+    amaliyot:
+      "Dori vositalarini organizmga nishonli yetkazuvchi misellyar eritmalar, shampun va yuvish vositalari, oziq-ovqat emulsiyalari (mayonez, sut) va flotatsiya orqali rudalarni boyitish sanoati.",
+    iupacTasnifi:
+      "Suyuqlik-gaz va suyuqlik-suyuqlik chegarasidagi hodisa. KBM ga qadar sirt taranglik keskin pasayadi, KBM dan keyin esa deyarli doimiy (plato) bo'lib qoladi.",
+    metodikTavsiya:
+      "Dyu Nui halqasini uzish kuchi F = 4πRσ ekanini va C ≥ 0.05 mol/L bo'lganda sirtda palisad tik turib, suv ichida sferik misellalar aylana boshlashini vizual ko'rsating.",
+  },
+  "kelvin-kapillyar": {
+    nomi: "Kelvin Tenglamasi & Mezog'ovaklar Kapillyar Gisterezisi",
+    keltiribChiqarilishi:
+      "Uilyam Tomson (Lord Kelvin, 1871) botiq menisk ostidagi suyuqlik ustuni tekis sirtga nisbatan manfiy Laplas bosimiga ega ekanini isbotladi: ΔP = -(2σ / r) · cos θ. Kimyoviy potensiallar tengligidan RT · ln(p / p_0) = -ΔP · V_m kelib chiqadi. Natijada Kelvin tenglamasi: ln(p / p_0) = -(2σ · V_m) / (r · R · T) · cos θ. Bu tenglama botiq meniskda to'yingan bug' bosimi tekis sirtdagiga qaraganda sezilarli past ekanini va bug' p/p_0 < 1 da suyuqlikka aylanishini (kapillyar kondensatsiya) tushuntiradi.",
+    hadlar: [
+      { belgi: "r", nom: "Mezog'ovakning samarali radiusi", birlik: "nm (10⁻⁹ m)", izoh: "Mezog'ovaklar o'lchami: 2 nm ≤ r ≤ 50 nm" },
+      { belgi: "V_m", nom: "Suyuqlikning molyar hajmi", birlik: "18·10⁻⁶ m³/mol (suv uchun)", izoh: "1 mol suyuqlik egallagan hajm" },
+      { belgi: "θ", nom: "Ho'llashning chekka burchagi", birlik: "gradus", izoh: "To'liq ho'llaganda θ = 0°, cos θ = 1" },
+      { belgi: "p / p_0", nom: "Kondensatsiya nisbiy bosimi", birlik: "0..1", izoh: "G'ovak ichida suyuqlik paydo bo'ladigan bosim" },
+      { belgi: "2/r", nom: "Meniskning o'rtacha egriligi", birlik: "nm⁻¹", izoh: "Radius qancha kichik bo'lsa, egrilik va tortishish shuncha kuchli" },
+    ],
+    amaliyot:
+      "Silikagelli nam quritgichlar, gaz separatorlari, binolarning g'ovakli devorlarida namlik to'planishini hisoblash hamda BJH usuli bilan materiallarning g'ovak o'lchamlari taqsimotini aniqlash.",
+    iupacTasnifi:
+      "IUPAC IV va V turdagi izotermalar. Adsorbsiya va desorbsiya egri chiziqlari bir-biriga to'g'ri kelmasdan, gisterezis halqasini (H1 silindr, H2 butilka, H3/H4 yoriqsimon g'ovaklar) hosil qiladi.",
+    metodikTavsiya:
+      "Adsorbsiyada silindrsimon plyonka qalinlashishi (egrilik radiusi r), desorbsiyada esa yarimsferik menisk (egrilik radiusi 2r) orqali bug'lanish ro'y berishini va shuning uchun desorbsiya har doim pastroq bosimda kechishini ta'kidlang.",
+  },
+  "termodinamika-izosterik": {
+    nomi: "Adsorbsiya Termodinamikasi & Izosterik Issiqlik (q_st)",
+    keltiribChiqarilishi:
+      "Adsorbsiya jarayoni doimiy adsorbsiya miqdorida (a = const) Klauzius-Klapeyron tenglamasiga bo'ysunadi: (∂ ln P / ∂ T)_a = q_st / (R·T²). Bu yerdan (∂ ln P / ∂(1/T))_a = -q_st / R. Ikki xil harorat (T_1 va T_2) dagi muvozanat bosimlari p_1 va p_2 ma'lum bo'lsa, izosterik issiqlik integral formulasi: q_st = R · [T_1 · T_2 / (T_2 - T_1)] · ln(p_2 / p_1). Termodinamik funksiyalar: ΔH = -q_st (doimo ekzotermik ΔH < 0); ΔG° = -RT·ln K < 0 (spontan); ΔS = (ΔH - ΔG) / T < 0 (gaz molekulalari sirtga bog'langach, erkinlik darajasi 3D dan 2D ga tushadi, tartiblilik ortadi).",
+    hadlar: [
+      { belgi: "q_st", nom: "Izosterik adsorbsiya issiqligi", birlik: "kJ/mol", izoh: "Doimiy qoplanishda sirtga birikish paytida ajraladigan haqiqiy issiqlik" },
+      { belgi: "ΔH", nom: "Adsorbsiya entalpiyasi", birlik: "kJ/mol", izoh: "ΔH = -q_st (Fizisorbtsiya: < 42 kJ/mol; Xemiksorbtsiya: > 84 kJ/mol)" },
+      { belgi: "ΔG", nom: "Gibbs erkin energiyasi", birlik: "kJ/mol", izoh: "O'z-o'zidan borishi uchun har doim ΔG < 0 bo'lishi shart" },
+      { belgi: "ΔS", nom: "Adsorbsiya entropiyasi", birlik: "J/(mol·K)", izoh: "Erkinlik darajalari kamaygani uchun doimo manfiy (ΔS < 0)" },
+    ],
+    amaliyot:
+      "Sanoatda adsorbentlarni regeneratsiya (qayta tiklash) qilish haroratini tanlash, gaz niqoblarining qizib ketish xavfini hisoblash va kalorimetrik reaktorlar loyihalash.",
+    iupacTasnifi:
+      "Fizikaviy va kimyoviy adsorbsiyani bir-biridan ajratishning bosh mezonidir. Harorat oshirilganda Le Shatelye printsipiga binoan ekzotermik adsorbsiya muvozanati desorbsiya tomon siljiydi.",
+    metodikTavsiya:
+      "Simobli termometr ustuni q_st ga qarab ko'tarilishini va Le Shatelye printsipiga ko'ra T_1 dan T_2 ga qizdirilganda nima sababdan bosim p_1 dan p_2 ga oshib, gaz desorbsiyalanishini tushuntiring.",
+  },
+  "dyuklo-traube-qoidasi": {
+    nomi: "Dyuklo-Traube Qoidasi & Sirt Faolligi Gomologiyasi",
+    keltiribChiqarilishi:
+      "E. Dyuklo (1871) va I. Traube (1891) bir asosli to'yingan yog' kislotalari, alifatik spirtlar va aminlarning suvli eritmalarini o'rganib, sirt faolligi G = -lim(C→0) (dσ/dC) har bir qo'shimcha -CH₂- guruhi hisobiga β ≈ 3.0–3.5 (o'rtacha 3.2) barobar ortishini kashf etdilar: G_(n+1) / G_n = β ≈ 3.2. I. Lengmyur bunga termodinamik tushuntirish berdi: bitta -CH₂- guruhini suv hajmidan sirtga o'tkazishdagi erkin energiya yutug'i W = Δ(ΔG°) = -RT · ln β ≈ -8.314 · 298 · ln(3.2) ≈ -3.2 kJ/mol ga teng.",
+    hadlar: [
+      { belgi: "G_0", nom: "Boshlang'ich sirt faolligi", birlik: "mN·L/(m·mol)", izoh: "G = -dσ/dC (C → 0 dagi boshlang'ich qiyalik tangensi)" },
+      { belgi: "β", nom: "Traube koeffitsiyenti", birlik: "≈ 3.2 karra", izoh: "Gomologik qatorda har bir keyingi a'zoning sirt faolligi ortish karraligi" },
+      { belgi: "W (ΔΔG°)", nom: "-CH₂- guruhining adsorbsiya ishi", birlik: "≈ -3.2 kJ/mol", izoh: "Gidrofob zanjir uzayganda suvdan siqib chiqarilish termodinamik yutug'i" },
+      { belgi: "n", nom: "Uglevodorod zanjiridagi uglerodlar soni", birlik: "dona", izoh: "Chumoli (1), Sirka (2), Propion (3), Moy (4), Valerian (5)" },
+    ],
+    amaliyot:
+      "Biotexnologiyada va farmakologiyada dorilarning hujayra membranalaridan o'tuvchanligini (Overton qoidasi), antiseptiklar va gerbitsidlarning biologik faolligini prognozlash.",
+    iupacTasnifi:
+      "Faqat suvli (qutbli) eritmalarda amal qiladi. Qutbsiz organik erituvchilarda (benzol, geksan) aksincha teskari Traube effekti (qutbli boshchalar sirtga intilishi) kuzatiladi.",
+    metodikTavsiya:
+      "Suvning vodorod bog'lari kuchli ekani, uzun uglevodorod zanjiri suv strukturasiga xalaqit bergani sababli termodinamika uni 'tashqariga' (sirtga) itarib chiqarishini (gidrofob samara) ta'kidlang.",
+  },
+};
 
 export default function FormulalarTab({ mavzu }) {
   const modullar = mavzu.chuqurModullar || [];
@@ -47,8 +181,20 @@ export default function FormulalarTab({ mavzu }) {
 
   // Simulyatsiya slayderlari va sozlamalari
   const [lengmyurTransformatsiya, setLengmyurTransformatsiya] = useState("hanes"); // "hanes" | "lineweaver" | "eadie"
+  const [lengmyurPresetIdx, setLengmyurPresetIdx] = useState(0);
+  const [lengmyurC, setLengmyurC] = useState(0.05); // mol/L (konsentratsiya)
+  const [lengmyurT, setLengmyurT] = useState(298); // K (harorat)
+  const [lengmyurBonusMol, setLengmyurBonusMol] = useState(0); // doskadan qo'lda qo'shilgan
+  const [lengmyurTaqqosla, setLengmyurTaqqosla] = useState(false); // Freyndlix bilan solishtirish
+  const [freyndlixPresetIdx, setFreyndlixPresetIdx] = useState(0);
+  const [freyndlixC, setFreyndlixC] = useState(0.05); // mol/L
+  const [freyndlixN, setFreyndlixN] = useState(0.55); // 1/n geterogenlik darajasi
+  const [freyndlixTaqqosla, setFreyndlixTaqqosla] = useState(false); // Lengmyur bilan solishtirish
+  const [betPnisbiy, setBetPnisbiy] = useState(0.18); // p / p0
+  const [betCParam, setBetCParam] = useState(120); // C parametri
   const [gibbsC, setGibbsC] = useState(0.02); // mol/L
   const [kelvinR, setKelvinR] = useState(4); // nm
+  const [kelvinGovakTuri, setKelvinGovakTuri] = useState("silindr"); // "silindr" | "butilka" | "yoriq"
   const [termoT1, setTermoT1] = useState(273); // K
   const [termoT2, setTermoT2] = useState(298); // K
   const [traubeKislotaIdx, setTraubeKislotaIdx] = useState(2); // Propion kislota
@@ -179,6 +325,56 @@ export default function FormulalarTab({ mavzu }) {
     };
   }, [faolModul, jadvalMalumotlar, lengmyurTransformatsiya]);
 
+  // Lengmyur dinamik muvozanat hisoblari
+  const faolLengmyurPreset = LENGMYUR_PRESETLARI[lengmyurPresetIdx] || LENGMYUR_PRESETLARI[0];
+  const lengmyurAm = faolLengmyurPreset.am;
+
+  const lengmyurK = useMemo(() => {
+    const K0 = faolLengmyurPreset.K || 30; // 298 K da muvozanat doimiysi
+    const Q = 25000; // J/mol (adsorbsiya issiqligi)
+    const R = 8.314;
+    return K0 * Math.exp((Q / R) * (1 / (lengmyurT || 298) - 1 / 298));
+  }, [lengmyurT, faolLengmyurPreset.K]);
+
+  const lengmyurTheta = useMemo(() => {
+    const baza = (lengmyurK * lengmyurC) / (1 + lengmyurK * lengmyurC);
+    return Math.min(1, Math.max(0, baza + lengmyurBonusMol * 0.04));
+  }, [lengmyurK, lengmyurC, lengmyurBonusMol]);
+
+  const lengmyurA = useMemo(() => {
+    return (lengmyurAm * lengmyurK * lengmyurC) / (1 + lengmyurK * lengmyurC);
+  }, [lengmyurAm, lengmyurK, lengmyurC]);
+
+  const lengmyurVads = useMemo(() => (40 * lengmyurC * (1 - lengmyurTheta)).toFixed(2), [lengmyurC, lengmyurTheta]);
+  const lengmyurVdes = useMemo(() => {
+    const k_d = (40 / (lengmyurK || 1)) * (lengmyurT / 298);
+    return (k_d * lengmyurTheta).toFixed(2);
+  }, [lengmyurK, lengmyurT, lengmyurTheta]);
+
+  // Freyndlix energetik relyef markazlari va hisoblari
+  const faolFreyndlixPreset = FREYNDLIX_PRESETLARI[freyndlixPresetIdx] || FREYNDLIX_PRESETLARI[0];
+  const freyndlixA = useMemo(() => {
+    return faolFreyndlixPreset.Kf * Math.pow(Math.max(0.0001, freyndlixC), freyndlixN);
+  }, [faolFreyndlixPreset.Kf, freyndlixC, freyndlixN]);
+
+  const freyndlixMarkazlar = useMemo(() => {
+    const n = freyndlixN || 1.8;
+    return Array.from({ length: 16 }).map((_, idx) => {
+      const ulush = idx / 15;
+      const energiya = Math.round(65 - Math.pow(ulush, 1 / n) * 50);
+      const kritikC = 0.005 + Math.pow(ulush, 1 / n) * 0.12;
+      const band = freyndlixC >= kritikC;
+      return { idx, energiya, band, kritikC };
+    });
+  }, [freyndlixC, freyndlixN]);
+
+  // BET ko'p qatlamli qoplanishi
+  const betTheta = useMemo(() => {
+    const x = Math.min(0.96, Math.max(0.01, betPnisbiy));
+    const C = betCParam;
+    return (C * x) / ((1 - x) * (1 + (C - 1) * x));
+  }, [betPnisbiy, betCParam]);
+
   if (!faolModul) {
     return <div className="text-slate-400 p-8 text-center">Modul mavjud emas</div>;
   }
@@ -307,34 +503,195 @@ export default function FormulalarTab({ mavzu }) {
            ═══════════════════════════════════════════════════════════════════ */}
         {ichkiRejim === "animatsiya" && (
           <div className="space-y-6">
-            {/* 1 & 2: LENGMYUR VA FREYNDLIX ANIMATSIYASI */}
-            {(faolModul.id === "lengmyur-regressiya" || faolModul.id === "freyndlix-regressiya") && (
-              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                    {faolModul.id === "lengmyur-regressiya"
-                      ? "Energetik bir jinsli sirtda monoqavat hosil bo'lishi"
-                      : "Geterogen sirtda turli chuqurlikdagi markazlar to'lishi"}
-                  </h4>
-                  <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-xl border border-emerald-800/40">
-                    {faolModul.id === "lengmyur-regressiya" ? "1 Markaz = 1 Molekula" : "Chuqur → Sayoz markazlar"}
+            {/* 1: LENGMYUR DINAMIK MUVOZANAT KINETIKASI (v_ads = v_des) */}
+            {faolModul.id === "lengmyur-regressiya" && (
+              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-base font-bold text-white flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Dinamik Muvozanat Kinetikasi: v_ads = v_des va Plato To&apos;yinishi
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Energetik bir jinsli sirtda har bir faol markazga faqat bitta molekula birikishi mumkin.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setLengmyurBonusMol((b) => Math.min(10, b + 1))}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition flex items-center gap-1.5"
+                    >
+                      <span>+ Molekula tashlash</span>
+                    </button>
+                    <button
+                      onClick={() => setLengmyurBonusMol(0)}
+                      className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-300 font-bold text-xs transition"
+                      title="Qayta tiklash"
+                    >
+                      <span>Tozalash</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 1.1 Haqiqiy laboratoriya tizimi shablonlari */}
+                <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                    <span className="flex items-center gap-1.5 text-emerald-400">
+                      <span>⚗️ Haqiqiy Laboratoriya Tizimi:</span>
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+                      {faolLengmyurPreset.tavsif}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {LENGMYUR_PRESETLARI.map((pr, idx) => (
+                      <button
+                        key={pr.id}
+                        type="button"
+                        onClick={() => {
+                          setLengmyurPresetIdx(idx);
+                          setLengmyurC(pr.C);
+                        }}
+                        className={`p-2.5 rounded-xl text-left border transition ${
+                          lengmyurPresetIdx === idx
+                            ? "bg-emerald-950 border-emerald-400 text-white ring-2 ring-emerald-500/40"
+                            : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
+                        }`}
+                      >
+                        <div className="text-xs font-bold text-white truncate">{pr.nom.split("+")[0]}</div>
+                        <div className="text-[10px] text-emerald-400 font-medium truncate">+{pr.nom.split("+")[1]}</div>
+                        <div className="text-[9px] text-slate-400 font-mono mt-1">a_m={pr.am} • K={pr.K}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Slayderlar bloki */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900/60 p-5 rounded-2xl border border-slate-800">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-bold text-slate-300">
+                      <span>Konsentratsiya / Bosim (C yoki P):</span>
+                      <span className="font-mono text-emerald-400 font-bold">{lengmyurC} mol/L</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.005"
+                      max="0.25"
+                      step="0.005"
+                      value={lengmyurC}
+                      onChange={(e) => setLengmyurC(Number(e.target.value))}
+                      className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-500">
+                      <span>0.005 (Sayoz eritma)</span>
+                      <span>0.25 (To&apos;yingan eritma)</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-bold text-slate-300">
+                      <span>Harorat (T):</span>
+                      <span className="font-mono text-cyan-400 font-bold">{lengmyurT} K ({lengmyurT - 273} °C)</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="273"
+                      max="373"
+                      step="2"
+                      value={lengmyurT}
+                      onChange={(e) => setLengmyurT(Number(e.target.value))}
+                      className="w-full accent-cyan-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-500">
+                      <span>273 K (0 °C — Kuchli adsorbsiya)</span>
+                      <span>373 K (100 °C — Desorbsiya ustun)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 1.2 Jonli SVG Izoterma grafigi & Solishtirish */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setLengmyurTaqqosla(!lengmyurTaqqosla)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${
+                        lengmyurTaqqosla
+                          ? "bg-amber-950/80 border-amber-500 text-amber-300 ring-2 ring-amber-500/30"
+                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <span>⚖️ Freyndlix bilan solishtirish (Overlay)</span>
+                      <span className="font-mono text-[10px]">{lengmyurTaqqosla ? "Yoqilgan" : "O'chiq"}</span>
+                    </button>
+                  </div>
+
+                  <LengmyurIzotermaGrafik
+                    am={lengmyurAm}
+                    K={Math.round(lengmyurK)}
+                    joriyC={lengmyurC}
+                    joriyA={lengmyurA}
+                    theta={lengmyurTheta}
+                    taqqosla={lengmyurTaqqosla}
+                    nInv={freyndlixN}
+                  />
+                </div>
+
+                {/* Dinamik tezliklar & muvozanat indikatori */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Adsorbsiya tezligi (v_ads)</div>
+                    <div className="text-2xl font-mono font-black text-sky-400 my-1">
+                      {lengmyurVads} <span className="text-xs font-normal text-slate-400">mol/(m²·s)</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">v_ads = k_a · C · (1 − θ)</div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Desorbsiya tezligi (v_des)</div>
+                    <div className="text-2xl font-mono font-black text-rose-400 my-1">
+                      {lengmyurVdes} <span className="text-xs font-normal text-slate-400">mol/(m²·s)</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">v_des = k_d · θ · e^(−E/RT)</div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Qoplanish darajasi (θ)</div>
+                    <div className="text-2xl font-mono font-black text-emerald-400 my-1">
+                      {(lengmyurTheta * 100).toFixed(1)}%
+                    </div>
+                    <div className="text-[10px] text-slate-400">θ = a / a_max ({Math.round(lengmyurTheta * 16)}/16 markaz)</div>
+                  </div>
+                </div>
+
+                {/* Dinamik muvozanat holati banner */}
+                <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="text-slate-300 font-medium">Kinetik holat:</span>
+                  </div>
+                  <span className="font-bold text-emerald-400">
+                    {Math.abs(Number(lengmyurVads) - Number(lengmyurVdes)) < 0.6
+                      ? "⚖️ Dinamik muvozanat qaror topgan (v_ads ≈ v_des)"
+                      : Number(lengmyurVads) > Number(lengmyurVdes)
+                      ? "📥 Adsorbsiya ustun — yangi molekulalar sirtga yopishmoqda"
+                      : "📤 Desorbsiya ustun — harorat tufayli molekulalar uzilmoqda"}
                   </span>
                 </div>
 
                 {/* Sirt animatsiyasi (2D mikroskopik kataklar) */}
                 <div className="relative w-full aspect-[16/7] bg-slate-900/90 rounded-2xl border border-slate-800 overflow-hidden p-6 flex flex-col justify-end">
                   {/* Gaz / Eritma fazasidagi erkin molekulalar */}
-                  <div className="absolute inset-x-0 top-3 h-28 overflow-hidden pointer-events-none">
-                    {Array.from({ length: 16 }).map((_, i) => (
+                  <div className="absolute inset-x-0 top-2 h-28 overflow-hidden pointer-events-none">
+                    {Array.from({ length: Math.min(24, Math.round(lengmyurC * 100) + 4) }).map((_, i) => (
                       <span
                         key={i}
                         className="absolute w-3.5 h-3.5 rounded-full bg-sky-400/80 shadow-lg shadow-sky-400/50 animate-bounce"
                         style={{
-                          left: `${i * 6.2 + 3}%`,
-                          top: `${(i % 3) * 24 + 10}px`,
-                          animationDuration: `${1.4 + (i % 5) * 0.3}s`,
-                          animationDelay: `${i * 0.15}s`,
+                          left: `${(i * 4.3 + 3) % 94}%`,
+                          top: `${(i % 3) * 22 + 6}px`,
+                          animationDuration: `${Math.max(0.6, 2.2 - (lengmyurT - 273) * 0.012)}s`,
+                          animationDelay: `${i * 0.08}s`,
                         }}
                       />
                     ))}
@@ -343,26 +700,26 @@ export default function FormulalarTab({ mavzu }) {
                   {/* Qattiq adsorbent sirti va faol markazlar */}
                   <div className="relative z-10">
                     <div className="text-[11px] font-bold text-slate-400 mb-2 flex justify-between">
-                      <span>Adsorbent kristalli sirti (Faol markazlar):</span>
+                      <span>Adsorbent kristalli sirti (16 ta bir jinsli markaz):</span>
                       <span className="text-emerald-400 font-mono">
-                        {faolModul.id === "lengmyur-regressiya" ? "Monoqavat to'yinishi (θ = a/a_m)" : "Geterogen taqsimot"}
+                        {Math.round(lengmyurTheta * 16)} ta band • {16 - Math.round(lengmyurTheta * 16)} ta erkin
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-8 gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800">
+                    <div className="grid grid-cols-8 gap-2 p-2.5 rounded-xl bg-slate-950 border border-slate-800">
                       {Array.from({ length: 16 }).map((_, i) => {
-                        const band = i < 11;
+                        const band = i < Math.round(lengmyurTheta * 16);
                         return (
                           <div
                             key={i}
-                            className={`h-14 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all duration-500 ${
+                            className={`h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all duration-300 ${
                               band
                                 ? "bg-gradient-to-t from-emerald-600 to-teal-500 text-slate-950 shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-300"
                                 : "bg-slate-900 text-slate-400 border border-dashed border-slate-700"
                             }`}
                           >
-                            <span className="text-base">{band ? "●" : "○"}</span>
-                            <span className="text-[9px] font-mono mt-0.5 opacity-80">
+                            <span className="text-sm">{band ? "●" : "○"}</span>
+                            <span className="text-[8px] font-mono mt-0.5 opacity-80">
                               {band ? "Band" : "Bo'sh"}
                             </span>
                           </div>
@@ -372,96 +729,350 @@ export default function FormulalarTab({ mavzu }) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 text-xs text-slate-300 leading-relaxed">
-                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                    <b className="text-white block mb-1">Lengmyur izohi:</b>
-                    Har bir markaz band bo&apos;lgach, konsentratsiyani qancha oshirmang, yangi molekula yopisha olmaydi (gorizontal plato $\Gamma_\infty$).
-                  </div>
-                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                    <b className="text-white block mb-1">Freyndlix izohi:</b>
-                    Sirt nobirjinsli bo&apos;lgani uchun avval eng yuqori adsorbsiya issiqligiga ega markazlar to&apos;ladi, keyin sekin-asta zaif markazlar band bo&apos;ladi.
-                  </div>
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                  💡 <b>Lengmyur qoidasi:</b> Konsentratsiyani qancha oshirmang, barcha 16 ta markaz to&apos;lgach, sirt to&apos;yinadi va adsorbsiya gorizontal platoga ($\Gamma_\infty$) chiqadi. Yangi qatlam hosil bo&apos;lmaydi.
                 </div>
               </div>
             )}
 
-            {/* 3: BET KO'P QATLAMLI ANIMATSIYASI */}
-            {faolModul.id === "bet-modeli" && (
-              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                    Azot gazi (77 K) ko&apos;p qatlamli fizik kondensatsiyasi
+            {/* 2: FREYNDLIX GETEROGEN SIRTI & POTENSIAL O'RALAR (ENERGY LANDSCAPE) */}
+            {faolModul.id === "freyndlix-regressiya" && (
+              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                    Geterogen Sirt: Energetik Potensial Relyef va 1/n Koeffitsiyenti
                   </h4>
-                  <span className="text-xs font-mono text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-xl border border-cyan-800/40">
-                    1-qavat → 2-qavat → n-qavat
-                  </span>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Real adsorbentlar sirti nobirjinsli bo&apos;lib, dastlab eng chuqur (yuqori energiyali) markazlar to&apos;ladi, keyin sayoz markazlar band bo&apos;ladi.
+                  </p>
                 </div>
 
-                <div className="relative w-full aspect-[16/7] bg-slate-900/90 rounded-2xl border border-slate-800 p-6 flex flex-col justify-end">
-                  <div className="space-y-2">
-                    {/* 3-qavat */}
-                    <div className="flex justify-center gap-3 opacity-60">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="w-10 h-8 rounded-lg bg-sky-300 flex items-center justify-center text-[10px] font-bold text-slate-900 shadow">
-                          N₂
-                        </div>
-                      ))}
-                    </div>
-                    {/* 2-qavat */}
-                    <div className="flex justify-center gap-3 opacity-80">
-                      {Array.from({ length: 8 }).map((_, i) => (
-                        <div key={i} className="w-10 h-8 rounded-lg bg-sky-400 flex items-center justify-center text-[10px] font-bold text-slate-900 shadow">
-                          N₂
-                        </div>
-                      ))}
-                    </div>
-                    {/* 1-monoqavat */}
-                    <div className="flex justify-center gap-3">
-                      {Array.from({ length: 10 }).map((_, i) => (
-                        <div key={i} className="w-10 h-8 rounded-lg bg-emerald-400 flex items-center justify-center text-[10px] font-bold text-slate-950 shadow-lg ring-2 ring-emerald-300">
-                          N₂ (1)
-                        </div>
-                      ))}
-                    </div>
-                    {/* Adsorbent sirti */}
-                    <div className="h-4 bg-slate-950 border-t-2 border-slate-700 rounded text-center text-[10px] text-slate-400 font-mono">
-                      Adsorbent qattiq yuzasi
-                    </div>
+                {/* 2.1 Haqiqiy laboratoriya tizimi shablonlari */}
+                <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                    <span className="flex items-center gap-1.5 text-amber-400">
+                      <span>⚗️ Haqiqiy Geterogen Laboratoriya Tizimi:</span>
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+                      {faolFreyndlixPreset.tavsif}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {FREYNDLIX_PRESETLARI.map((pr, idx) => (
+                      <button
+                        key={pr.id}
+                        type="button"
+                        onClick={() => {
+                          setFreyndlixPresetIdx(idx);
+                          setFreyndlixC(pr.C);
+                          setFreyndlixN(pr.nInv);
+                        }}
+                        className={`p-2.5 rounded-xl text-left border transition ${
+                          freyndlixPresetIdx === idx
+                            ? "bg-amber-950 border-amber-400 text-white ring-2 ring-amber-500/40"
+                            : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
+                        }`}
+                      >
+                        <div className="text-xs font-bold text-white truncate">{pr.nom.split("+")[0]}</div>
+                        <div className="text-[10px] text-amber-400 font-medium truncate">+{pr.nom.split("+")[1]}</div>
+                        <div className="text-[9px] text-slate-400 font-mono mt-1">K_F={pr.Kf} • 1/n={pr.nInv}</div>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-300 mt-4 leading-relaxed text-center">
-                  BET modelida birinchi qatlamdan keyingi qatlamlar adsorbatning o&apos;zaro tortishishi (kondensatsiya) hisobiga yig&apos;iladi va g&apos;ovaklar to&apos;ladi.
-                </p>
-              </div>
-            )}
-
-            {/* 4: GIBBS SIRT TARANGLIK VA SFM ANIMATSIYASI */}
-            {faolModul.id === "gibbs-sirt-taranglik" && (
-              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  <div className="lg:col-span-6 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                        SFM Konsentratsiyasi (C):
-                      </label>
-                      <span className="font-mono text-emerald-400 font-bold text-sm">
-                        {gibbsC} mol/L
-                      </span>
+                {/* Slayderlar */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900/60 p-5 rounded-2xl border border-slate-800">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-bold text-slate-300">
+                      <span>Konsentratsiya (C):</span>
+                      <span className="font-mono text-amber-400 font-bold">{freyndlixC} mol/L</span>
                     </div>
                     <input
                       type="range"
-                      min="0.001"
-                      max="0.1"
-                      step="0.002"
-                      value={gibbsC}
-                      onChange={(e) => setGibbsC(Number(e.target.value))}
+                      min="0.005"
+                      max="0.15"
+                      step="0.005"
+                      value={freyndlixC}
+                      onChange={(e) => setFreyndlixC(Number(e.target.value))}
+                      className="w-full accent-amber-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-500">
+                      <span>0.005 (Faqat chuqur o&apos;ralar to&apos;ladi)</span>
+                      <span>0.15 (Sayoz o&apos;ralar ham to&apos;ladi)</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-bold text-slate-300">
+                      <span>Geterogenlik darajasi (1/n):</span>
+                      <span className="font-mono text-emerald-400 font-bold">{freyndlixN}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.2"
+                      max="1.3"
+                      step="0.05"
+                      value={freyndlixN}
+                      onChange={(e) => setFreyndlixN(Number(e.target.value))}
                       className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
                     />
+                    <div className="flex justify-between text-[10px] text-slate-500">
+                      <span>1/n &lt; 1 (Qulay geterogen sirt)</span>
+                      <span>1/n = 1 (Ideal Lengmyur)</span>
+                    </div>
+                  </div>
+                </div>
 
-                    <div className="grid grid-cols-3 gap-2.5 pt-3">
-                      <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                {/* 2.2 Jonli SVG Izoterma grafigi & Solishtirish */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setFreyndlixTaqqosla(!freyndlixTaqqosla)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${
+                        freyndlixTaqqosla
+                          ? "bg-emerald-950/80 border-emerald-500 text-emerald-300 ring-2 ring-emerald-500/30"
+                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <span>⚖️ Lengmyur bilan solishtirish (Overlay)</span>
+                      <span className="font-mono text-[10px]">{freyndlixTaqqosla ? "Yoqilgan" : "O'chiq"}</span>
+                    </button>
+                  </div>
+
+                  <FreyndlixIzotermaGrafik
+                    kf={faolFreyndlixPreset.Kf}
+                    nInv={freyndlixN}
+                    joriyC={freyndlixC}
+                    joriyA={freyndlixA}
+                    taqqosla={freyndlixTaqqosla}
+                  />
+                </div>
+
+                {/* POTENSIAL O'RALAR RELYEFI (ENERGY LANDSCAPE VIZUALI) */}
+                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-3">
+                    <span>Faol markazlarning potensial energiyasi E (kJ/mol):</span>
+                    <span className="text-amber-400 font-mono">
+                      {freyndlixMarkazlar.filter((m) => m.band).length} / 16 markaz band
+                    </span>
+                  </div>
+
+                  {/* 16 ta ustunlik energetik profil */}
+                  <div className="grid grid-cols-8 sm:grid-cols-16 gap-1.5 items-end h-44 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    {freyndlixMarkazlar.map((m) => {
+                      const balandlikFoiz = Math.max(15, Math.min(100, (m.energiya / 65) * 100));
+                      return (
+                        <div key={m.idx} className="flex flex-col items-center justify-end h-full">
+                          {m.band && (
+                            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow shadow-amber-400/80 mb-1 animate-pulse" />
+                          )}
+                          <div
+                            className={`w-full rounded-t-lg transition-all duration-300 ${
+                              m.band
+                                ? "bg-gradient-to-t from-amber-600 to-yellow-400 border-t-2 border-yellow-200"
+                                : "bg-slate-800/80 border-t-2 border-slate-600"
+                            }`}
+                            style={{ height: `${balandlikFoiz}%` }}
+                            title={`Markaz #${m.idx + 1}: E = ${m.energiya} kJ/mol (${m.band ? "Band" : "Bo'sh"})`}
+                          />
+                          <span className="text-[8px] font-mono text-slate-500 mt-1">{m.energiya}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between text-[10px] text-slate-400 mt-2 px-1">
+                    <span>← Eng kuchli faol markazlar (E ≈ 65 kJ/mol)</span>
+                    <span>Zaif markazlar (E ≈ 15 kJ/mol) →</span>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                  💡 <b>Freyndlix siri:</b> Sirt bir jinsli bo&apos;lmagani sababli adsorbsiya issiqligi doimiy emas, balki qoplanish darajasi oshgani sari logarifmik kamayadi. Shu sababli Freyndlix tenglamasida qat&apos;iy to&apos;yinish platosi mavjud emas.
+                </div>
+              </div>
+            )}
+
+            {/* 3: BET KO'P QATLAMLI MODELI & ISO 9277 O'LCHOV OYNASI */}
+            {faolModul.id === "bet-modeli" && (
+              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                    Azot Gazi (77 K) Ko&apos;p Qatlamli Kondensatsiyasi & Solishtirma Sirt Maydoni (S_BET)
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Birinchi qatlam to&apos;lgach, adsorbat molekulalari bir-biri ustiga minib, ko&apos;p qatlamli fizik kondensatsiyani yuzaga keltiradi.
+                  </p>
+                </div>
+
+                {/* Slayderlar */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900/60 p-5 rounded-2xl border border-slate-800">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-bold text-slate-300">
+                      <span>Nisbiy bug&apos; bosimi (p / p₀):</span>
+                      <span className="font-mono text-cyan-400 font-bold">{betPnisbiy}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.01"
+                      max="0.95"
+                      step="0.01"
+                      value={betPnisbiy}
+                      onChange={(e) => setBetPnisbiy(Number(e.target.value))}
+                      className="w-full accent-cyan-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-500">
+                      <span>0.01 (Monoqavat oldi)</span>
+                      <span>0.15 (Monoqavat to&apos;ldi)</span>
+                      <span>0.95 (Kapillyar toshish)</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-bold text-slate-300">
+                      <span>C_BET parametri (Energetik tortishish):</span>
+                      <span className="font-mono text-emerald-400 font-bold">{betCParam}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="5"
+                      max="250"
+                      step="5"
+                      value={betCParam}
+                      onChange={(e) => setBetCParam(Number(e.target.value))}
+                      className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-500">
+                      <span>C &lt; 2 (III tur izoterma)</span>
+                      <span>C &gt; 50 (Klassik II tur izoterma)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ISO 9277 O'lchov oynasi bildirishnomasi */}
+                {betPnisbiy >= 0.05 && betPnisbiy <= 0.35 ? (
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-xs flex items-center justify-between">
+                    <span className="font-bold">
+                      ✓ IUPAC & ISO 9277 standarti: Solishtirma sirt maydonini (S_BET) hisoblash uchun qat&apos;iy chiziqli interval (0.05 ≤ p/p₀ ≤ 0.35).
+                    </span>
+                    <span className="font-mono font-bold bg-emerald-900/60 px-2 py-0.5 rounded text-[11px]">
+                      θ = {betTheta.toFixed(2)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs flex items-center justify-between">
+                    <span>
+                      {betPnisbiy < 0.05
+                        ? "Bosim past: birinchi monoqavat hali yetarli to'lmagan."
+                        : "Bosim yuqori: ko'p qatlamli kondensatsiya va g'ovaklar to'lishi BET chiziqliligini buzadi."}
+                    </span>
+                    <span className="font-mono text-slate-300 text-[11px]">θ = {betTheta.toFixed(2)}</span>
+                  </div>
+                )}
+
+                {/* BET Jonli SVG Izoterma grafigi */}
+                <BetIzotermaGrafik betPnisbiy={betPnisbiy} betCParam={betCParam} betTheta={betTheta} />
+
+                {/* QATLAMLI KO'RGALMA ANIMATSIYASI */}
+                <div className="relative w-full aspect-[16/8] bg-slate-900/90 rounded-2xl border border-slate-800 p-6 flex flex-col justify-end">
+                  <div className="space-y-2">
+                    {/* 3-qavat */}
+                    {betPnisbiy > 0.45 && (
+                      <div className="flex justify-center gap-3 transition-opacity duration-300 opacity-60">
+                        {Array.from({ length: Math.min(6, Math.round((betPnisbiy - 0.45) * 12)) }).map((_, i) => (
+                          <div key={i} className="w-10 h-7 rounded-lg bg-indigo-300 flex items-center justify-center text-[10px] font-bold text-slate-900 shadow">
+                            N₂ (3)
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 2-qavat */}
+                    {betPnisbiy > 0.25 && (
+                      <div className="flex justify-center gap-3 transition-opacity duration-300 opacity-80">
+                        {Array.from({ length: Math.min(10, Math.round((betPnisbiy - 0.2) * 14)) }).map((_, i) => (
+                          <div key={i} className="w-10 h-7 rounded-lg bg-sky-400 flex items-center justify-center text-[10px] font-bold text-slate-900 shadow">
+                            N₂ (2)
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 1-monoqavat */}
+                    <div className="flex justify-center gap-2.5">
+                      {Array.from({ length: 12 }).map((_, i) => {
+                        const band = i / 12 <= Math.min(1, betPnisbiy / 0.18);
+                        return (
+                          <div
+                            key={i}
+                            className={`w-9 h-8 rounded-lg flex items-center justify-center text-[9px] font-bold transition-all duration-300 ${
+                              band
+                                ? "bg-emerald-400 text-slate-950 shadow-lg ring-2 ring-emerald-300"
+                                : "bg-slate-900 text-slate-500 border border-dashed border-slate-700"
+                            }`}
+                          >
+                            {band ? "N₂" : "○"}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Adsorbent qattiq yuzasi */}
+                    <div className="h-5 bg-slate-950 border-t-2 border-slate-700 rounded text-center text-[10px] text-slate-400 font-mono flex items-center justify-center">
+                      Adsorbent qattiq sirti (S_BET = a_m · N_A · σ_N2)
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                  💡 <b>BET modeli postulati:</b> Birinchi qatlamdagi issiqlik $q_1$ adsorbent-adsorbat ta&apos;siriga teng bo&apos;lsa, 2- va undan keyingi barcha qatlamlardagi issiqlik adsorbatning sof suyuqlanish (kondensatsiya) issiqligiga ($q_L$) teng hisoblanadi.
+                </div>
+              </div>
+            )}
+
+            {/* 4: GIBBS SIRT TARANGLIK, SFM PALISADI VA KBM MITSELLALARI */}
+            {faolModul.id === "gibbs-sirt-taranglik" && (
+              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Gibbs Adsorbsiya Tenglamasi, Langmyur Palisadi va KBM (Mitsellalar)
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    SFM konsentratsiyasi ortishi bilan suvning sirt tarangligi pasayadi. Sirt to&apos;yingach (KBM), eritma ichida sferik mitsellalar paydo bo&apos;ladi.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  <div className="lg:col-span-6 space-y-4">
+                    <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <div className="flex justify-between items-center text-xs font-bold text-slate-300">
+                        <span>SFM Konsentratsiyasi (C):</span>
+                        <span className="font-mono text-emerald-400 font-bold text-sm">
+                          {gibbsC} mol/L
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.001"
+                        max="0.1"
+                        step="0.002"
+                        value={gibbsC}
+                        onChange={(e) => setGibbsC(Number(e.target.value))}
+                        className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-500">
+                        <span>0.001 (Yotgan molekulalar)</span>
+                        <span>0.05 (KBM / CMC chegarasi)</span>
+                        <span>0.1 (Mitsellalar to&apos;ri)</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt taranglik (σ)</div>
                         <div className="text-xl font-mono font-black text-amber-400 my-1">
                           {gibbsNatija?.sigma.toFixed(1)} <span className="text-[10px] font-normal text-slate-400">mN/m</span>
@@ -469,7 +1080,7 @@ export default function FormulalarTab({ mavzu }) {
                         <div className="text-[9px] text-slate-400">Suv: 72.8 mN/m</div>
                       </div>
 
-                      <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt bosimi (π)</div>
                         <div className="text-xl font-mono font-black text-sky-400 my-1">
                           {(72.8 - (gibbsNatija?.sigma || 72.8)).toFixed(1)} <span className="text-[10px] font-normal text-slate-400">mN/m</span>
@@ -477,7 +1088,7 @@ export default function FormulalarTab({ mavzu }) {
                         <div className="text-[9px] text-slate-400">π = σ₀ − σ</div>
                       </div>
 
-                      <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt ortiqchaligi (Γ)</div>
                         <div className="text-xl font-mono font-black text-emerald-400 my-1">
                           {gibbsNatija?.gammaMkmol.toFixed(2)} <span className="text-[10px] font-normal text-slate-400">µmol/m²</span>
@@ -485,60 +1096,171 @@ export default function FormulalarTab({ mavzu }) {
                         <div className="text-[9px] text-slate-400">s = {gibbsNatija?.s0.toFixed(2)} nm²</div>
                       </div>
                     </div>
+
+                    {/* Dyuy Nui halqasining uzilish kuchi */}
+                    <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="text-slate-400 font-bold block">Dyuy Nui halqasi uzilish kuchi (F):</span>
+                        <span className="text-[10px] text-slate-500">R = 1 sm (F = 4πRσ)</span>
+                      </div>
+                      <span className="font-mono font-bold text-amber-400 text-sm">
+                        {(4 * Math.PI * 0.01 * (gibbsNatija?.sigma || 72.8)).toFixed(2)} mN
+                      </span>
+                    </div>
+
+                    {gibbsC >= 0.05 ? (
+                      <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-semibold">
+                        ✨ KBM (CMC) oshildi! Sirt to&apos;liq to&apos;yindi. Yangi SFM molekulalari suv ichida Mitsellalar hosil qilmoqda.
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 text-xs">
+                        KBM gacha bo&apos;lgan soha: konsentratsiya oshgani sari SFM sirtda tik turib, Langmyur palisadini qurmoqda.
+                      </div>
+                    )}
                   </div>
 
-                  {/* SFM molekulalari sirtga terilishi vizuali */}
-                  <div className="lg:col-span-6 bg-slate-900 rounded-2xl p-6 border border-slate-800 text-center">
-                    <div className="text-xs font-bold text-slate-400 mb-4">
-                      Suv sirti va Sirt Faol Modda (Gidrofil boshcha + Gidrofob dumcha):
+                  {/* SFM molekulalari va suv tubidagi Mitsellalar animatsiyasi */}
+                  <div className="lg:col-span-6 bg-slate-900 rounded-2xl p-5 border border-slate-800 text-center">
+                    <div className="text-xs font-bold text-slate-300 mb-3 flex justify-between">
+                      <span>Suv-havo chegarasi & Suv hajmi:</span>
+                      <span className="text-emerald-400 font-mono">
+                        {gibbsC >= 0.05 ? "Sirt to'yingan + Mitsellalar" : "Palisad shakllanishi"}
+                      </span>
                     </div>
 
-                    <div className="relative w-full h-36 bg-blue-900/30 border-t-2 border-blue-400 rounded-b-2xl overflow-hidden flex items-start justify-center gap-2 pt-1">
-                      {Array.from({ length: 12 }).map((_, i) => {
-                        return (
-                          <div
-                            key={i}
-                            className="flex flex-col items-center transition-all duration-300"
-                            style={{ opacity: i / 12 < (gibbsC / 0.1) * 1.2 ? 1 : 0.2 }}
-                          >
-                            <div className="w-1 h-8 bg-amber-400 rounded" />
-                            <div className="w-3.5 h-3.5 rounded-full bg-blue-400 border border-white shadow" />
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="text-[11px] text-slate-400 mt-2">
-                      Konsentratsiya oshgani sari SFM sirtni to&apos;liq qoplab, suvning sirt tarangligini keskin pasaytiradi.
+                    <div className="relative w-full h-56 bg-gradient-to-b from-blue-950/40 via-blue-900/30 to-slate-950 border-t-2 border-cyan-400 rounded-b-2xl overflow-hidden flex flex-col justify-between p-3">
+                      {/* Sirt qatlamidagi SFM (Gidrofil boshcha + Gidrofob dumcha) */}
+                      <div className="flex items-start justify-center gap-2 pt-0.5">
+                        {Array.from({ length: 14 }).map((_, i) => {
+                          const faol = i / 14 < Math.min(1, (gibbsC / 0.05) * 1.05);
+                          return (
+                            <div
+                              key={i}
+                              className="flex flex-col items-center transition-all duration-300"
+                              style={{ opacity: faol ? 1 : 0.2 }}
+                            >
+                              <div
+                                className="w-1 bg-amber-400 rounded transition-all"
+                                style={{ height: faol ? "24px" : "12px" }}
+                              />
+                              <div className="w-3.5 h-3.5 rounded-full bg-cyan-400 border border-white shadow" />
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Suv ichidagi sferik Mitsellalar (agar C >= 0.05 bo'lsa) */}
+                      {gibbsC >= 0.05 ? (
+                        <div className="flex justify-around items-center py-4 transition-all duration-500">
+                          {[1, 2, 3].map((mIdx) => (
+                            <div
+                              key={mIdx}
+                              className="relative w-16 h-16 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center animate-spin"
+                              style={{ animationDuration: `${6 + mIdx * 2}s` }}
+                              title="Sferik Mitsella (Gidrofob yadro ichkarida, gidrofil boshchalar tashqarida)"
+                            >
+                              {/* 8 ta boshcha aylanada */}
+                              {Array.from({ length: 8 }).map((_, bIdx) => {
+                                const burchak = (bIdx / 8) * 2 * Math.PI;
+                                const bx = Math.cos(burchak) * 24;
+                                const by = Math.sin(burchak) * 24;
+                                return (
+                                  <div
+                                    key={bIdx}
+                                    className="absolute w-2.5 h-2.5 rounded-full bg-cyan-400 border border-white shadow"
+                                    style={{
+                                      transform: `translate(${bx}px, ${by}px)`,
+                                    }}
+                                  />
+                                );
+                              })}
+                              <span className="text-[8px] font-bold text-amber-300 font-mono">Mitsella</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-slate-500 italic py-6">
+                          Suv hajmi: Hali mitsellalar yo&apos;q (C &lt; KBM)
+                        </div>
+                      )}
+
+                      <div className="text-[10px] text-slate-400 border-t border-slate-800/80 pt-1.5 flex justify-between">
+                        <span>Havo (Gidrofob dumi) ↑</span>
+                        <span>Suv (Gidrofil boshi) ↓</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* 5: KELVIN KAPILYAR KONDENSATSIYA */}
+            {/* 5: KELVIN KAPILYAR KONDENSATSIYA & G'OVAK MORFOLOGIYASI */}
             {faolModul.id === "kelvin-kapillyar" && (
-              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800">
+              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse" />
+                    Kelvin Tenglamasi, Botiq Menisk & Kapillyar Gisterezis (IUPAC IV Tur)
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Botiq menisk ustida to&apos;yingan bug&apos; bosimi past bo&apos;lgani sababli bug&apos; p/p₀ &lt; 1 nisbiy bosimdayoq suyuqlikka aylanadi.
+                  </p>
+                </div>
+
+                {/* G'ovak turi tanlash */}
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="text-xs font-bold text-slate-400">G&apos;ovak morfologiyasi:</span>
+                  {[
+                    { id: "silindr", nom: "Silindrsimon (H1)", tavsif: "Klassik trubka" },
+                    { id: "butilka", nom: "Butilka bo'g'zi (H2)", tavsif: "Ink-bottle" },
+                    { id: "yoriq", nom: "Yoriqsimon (H3/H4)", tavsif: "Slit-pore" },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setKelvinGovakTuri(t.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                        kelvinGovakTuri === t.id
+                          ? "bg-sky-950 border-sky-400 text-white ring-2 ring-sky-500/40"
+                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      {t.nom}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Kelvin Jonli SVG Gisterezis grafigi */}
+                <KelvinGisterezisGrafik
+                  r={kelvinR}
+                  pNisbiy={kelvinNatija?.pNisbiy || 0.58}
+                  govakTuri={kelvinGovakTuri}
+                />
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                   <div className="lg:col-span-6 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                        Mezog&apos;ovak radiusi (r):
-                      </label>
-                      <span className="font-mono text-emerald-400 font-bold text-sm">
-                        {kelvinR} nm (Mezog&apos;ovak 2–50 nm)
-                      </span>
+                    <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <div className="flex justify-between items-center text-xs font-bold text-slate-300">
+                        <span>Mezog&apos;ovak radiusi (r):</span>
+                        <span className="font-mono text-emerald-400 font-bold text-sm">
+                          {kelvinR} nm (Mezog&apos;ovak 2–50 nm)
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1.5"
+                        max="20"
+                        step="0.5"
+                        value={kelvinR}
+                        onChange={(e) => setKelvinR(Number(e.target.value))}
+                        className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-500">
+                        <span>1.5 nm (Tor — past p/p₀ da to&apos;ladi)</span>
+                        <span>20 nm (Keng — p/p₀ ≈ 1 ga yaqinlashadi)</span>
+                      </div>
                     </div>
-                    <input
-                      type="range"
-                      min="1.5"
-                      max="20"
-                      step="0.5"
-                      value={kelvinR}
-                      onChange={(e) => setKelvinR(Number(e.target.value))}
-                      className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
-                    />
 
-                    <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                    <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                       <div className="text-xs text-slate-400 uppercase font-bold">
                         Kondensatsiya boshlanadigan nisbiy bosim (p / p₀):
                       </div>
@@ -549,127 +1271,182 @@ export default function FormulalarTab({ mavzu }) {
                         Botiq menisk tufayli bug&apos; {kelvinNatija?.pNisbiy.toFixed(2)} nisbiy bosimdayoq suyuqlikka aylanadi!
                       </div>
                     </div>
+
+                    <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300">
+                      💡 <b>Gisterezis siri:</b> Adsorbsiya devor plyonkasi qalinlashishi ($r_k$) orqali boradi; Desorbsiya esa yarimsferik botiq menisk ($2 r_k$) orqali kechadi. Shuning uchun desorbsiya doimo pastroq bosimda sodir bo&apos;ladi!
+                    </div>
                   </div>
 
-                  {/* Kapillyar trubka vizuali */}
+                  {/* Kapillyar trubka & g'ovak vizuali */}
                   <div className="lg:col-span-6 bg-slate-900 rounded-2xl p-6 border border-slate-800 text-center">
-                    <div className="text-xs font-bold text-slate-400 mb-3">
-                      Botiq meniskli silindrsimon mezog&apos;ovak:
+                    <div className="text-xs font-bold text-slate-300 mb-3">
+                      {kelvinGovakTuri === "silindr"
+                        ? "Silindrsimon mezog'ovak (Botiq menisk):"
+                        : kelvinGovakTuri === "butilka"
+                        ? "Butilka bo'g'zi (Ink-bottle) mezog'ovagi:"
+                        : "Yoriqsimon mezog'ovak (Parallel devorlar):"}
                     </div>
-                    <div className="w-32 h-44 mx-auto border-x-4 border-slate-600 bg-slate-950 relative rounded-b-xl overflow-hidden flex flex-col justify-end">
-                      <div className="h-28 bg-blue-600/80 relative">
+
+                    <div className="w-36 h-48 mx-auto border-x-4 border-slate-600 bg-slate-950 relative rounded-b-xl overflow-hidden flex flex-col justify-end">
+                      {kelvinGovakTuri === "butilka" && (
+                        <div className="absolute top-0 inset-x-0 h-10 border-x-[12px] border-slate-700 pointer-events-none" />
+                      )}
+                      <div
+                        className="bg-sky-600/80 relative transition-all duration-300"
+                        style={{ height: `${Math.min(90, Math.max(30, (1 - (kelvinNatija?.pNisbiy || 0.5)) * 120))}%` }}
+                      >
+                        {/* Botiq menisk egriligi */}
                         <div className="absolute -top-3 inset-x-0 h-6 bg-slate-950 rounded-b-[100%]" />
                       </div>
                     </div>
-                    <div className="text-[11px] text-slate-400 mt-3">
-                      Botiq menisk ustida bug&apos; bosimi past bo&apos;lgani sababli kapillyar kondensatsiya yuz beradi (IUPAC IV tur).
+
+                    <div className="text-[11px] text-slate-400 mt-3 font-mono">
+                      Radius r = {kelvinR} nm • Menisk egriligi = {(2 / kelvinR).toFixed(2)} nm⁻¹
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* 6: TERMODINAMIKA & IZOSTERIK ISSIQLIK */}
+            {/* 6: ADSORBSIYA TERMODINAMIKASI & VIRTUAL KALORIMETR */}
             {faolModul.id === "termodinamika-izosterik" && (
               <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-                    Klapeiron-Klauzius analogi: q_st va termodinamik energetik balans
-                  </h4>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-base font-bold text-white flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                      Adsorbsiya Termodinamikasi & Mikrokalorimetr (q_st, ΔH, ΔG, ΔS)
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Klapeiron-Klauzius tenglamasi orqali ikki xil izotermadan izosterik adsorbsiya issiqligi (q_st) hisoblanadi.
+                    </p>
+                  </div>
                   <span className="text-xs font-mono text-amber-400 bg-amber-950/60 px-3 py-1 rounded-xl border border-amber-800/40">
                     Ekzotermik: ΔH &lt; 0, q_st &gt; 0
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                   <div className="lg:col-span-6 space-y-4">
-                    <div>
-                      <div className="flex justify-between text-xs font-bold text-slate-300 mb-1">
-                        <span>1-Izoterma harorati (T₁):</span>
-                        <span className="font-mono text-cyan-400">{termoT1} K ({termoT1 - 273} °C)</span>
+                    <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-4">
+                      <div>
+                        <div className="flex justify-between text-xs font-bold text-slate-300 mb-1">
+                          <span>1-Izoterma harorati (T₁):</span>
+                          <span className="font-mono text-cyan-400">{termoT1} K ({termoT1 - 273} °C)</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="250"
+                          max="310"
+                          value={termoT1}
+                          onChange={(e) => setTermoT1(Math.min(termoT2 - 5, Number(e.target.value)))}
+                          className="w-full accent-cyan-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                        />
                       </div>
-                      <input
-                        type="range"
-                        min="250"
-                        max="310"
-                        value={termoT1}
-                        onChange={(e) => setTermoT1(Math.min(termoT2 - 5, Number(e.target.value)))}
-                        className="w-full accent-cyan-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
-                      />
+
+                      <div>
+                        <div className="flex justify-between text-xs font-bold text-slate-300 mb-1">
+                          <span>2-Izoterma harorati (T₂):</span>
+                          <span className="font-mono text-rose-400">{termoT2} K ({termoT2 - 273} °C)</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="280"
+                          max="360"
+                          value={termoT2}
+                          onChange={(e) => setTermoT2(Math.max(termoT1 + 5, Number(e.target.value)))}
+                          className="w-full accent-rose-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                        />
+                      </div>
                     </div>
 
-                    <div>
-                      <div className="flex justify-between text-xs font-bold text-slate-300 mb-1">
-                        <span>2-Izoterma harorati (T₂):</span>
-                        <span className="font-mono text-rose-400">{termoT2} K ({termoT2 - 273} °C)</span>
+                    {/* Natijaviy Energetik Kartalar */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                        <div className="text-[10px] text-slate-400 uppercase font-bold">Izosterik Issiqlik (q_st)</div>
+                        <div className="text-2xl font-mono font-black text-amber-400 my-1">
+                          {termoNatija?.qst.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
+                        </div>
+                        <span className="text-[10px] text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-800/40">
+                          {termoNatija?.qst < 42 ? "Fizisorbtsiya (Van-der-Vaals)" : "Ximisorbtsiya (Kimyoviy)"}
+                        </span>
                       </div>
-                      <input
-                        type="range"
-                        min="280"
-                        max="360"
-                        value={termoT2}
-                        onChange={(e) => setTermoT2(Math.max(termoT1 + 5, Number(e.target.value)))}
-                        className="w-full accent-rose-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
-                      />
+
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                        <div className="text-[10px] text-slate-400 uppercase font-bold">Entalpiya (ΔH)</div>
+                        <div className="text-2xl font-mono font-black text-rose-400 my-1">
+                          {termoNatija?.deltaH.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400">ΔH = −q_st (Ekzotermik)</div>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                        <div className="text-[10px] text-slate-400 uppercase font-bold">Erkin energiya (ΔG)</div>
+                        <div className="text-2xl font-mono font-black text-purple-400 my-1">
+                          {termoNatija?.deltaG.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400">&lt; 0 (Spontan / O&apos;z-o&apos;zidan)</div>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                        <div className="text-[10px] text-slate-400 uppercase font-bold">Entropiya (ΔS)</div>
+                        <div className="text-2xl font-mono font-black text-sky-400 my-1">
+                          {termoNatija?.deltaS.toFixed(1)} <span className="text-xs text-slate-400 font-normal">J/(mol·K)</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400">&lt; 0 (Erkinlik yo&apos;qoladi)</div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Natijaviy Energetik Kartalar */}
-                  <div className="lg:col-span-6 grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Izosterik Issiqlik (q_st)</div>
-                      <div className="text-2xl font-mono font-black text-amber-400 my-1">
-                        {termoNatija?.qst.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
-                      </div>
-                      <span className="text-[10px] text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-800/40">
-                        {termoNatija?.qst < 42 ? "Fizisorbtsiya (Van-der-Vaals)" : "Ximisorbtsiya (Kimyoviy)"}
-                      </span>
+                  {/* VIRTUAL MIKROKALORIMETR & TERMOMETR */}
+                  <div className="lg:col-span-6 bg-slate-900 rounded-2xl p-6 border border-slate-800 text-center">
+                    <div className="text-xs font-bold text-slate-300 mb-4 flex justify-between">
+                      <span>Mikrokalorimetrik ampula:</span>
+                      <span className="text-amber-400 font-mono">Issiqlik ajralishi</span>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Entalpiya o&apos;zgarishi (ΔH)</div>
-                      <div className="text-2xl font-mono font-black text-rose-400 my-1">
-                        {termoNatija?.deltaH.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
+                    <div className="flex items-center justify-center gap-8 py-3">
+                      {/* Adsorbent kolbasi */}
+                      <div className="relative w-28 h-36 border-4 border-slate-600 rounded-b-3xl bg-slate-950 p-2 flex flex-col justify-end items-center">
+                        <div className="w-full h-14 bg-gradient-to-t from-emerald-900/60 to-emerald-700/40 rounded-b-2xl border-t border-emerald-500/50 flex items-center justify-center text-[10px] font-bold text-emerald-300">
+                          Adsorbent
+                        </div>
+                        <div className="absolute top-2 w-16 h-1 bg-amber-400/80 rounded animate-ping" />
                       </div>
-                      <div className="text-[10px] text-slate-400">ΔH = -q_st (Ekzotermik)</div>
+
+                      {/* Simobli termometr ustuni */}
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-36 bg-slate-950 border-2 border-slate-600 rounded-full relative flex flex-col justify-end p-0.5">
+                          <div
+                            className="w-full bg-gradient-to-t from-rose-600 to-amber-400 rounded-full transition-all duration-500"
+                            style={{ height: `${Math.min(95, Math.max(25, ((termoNatija?.qst || 30) / 60) * 80))}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-mono font-bold text-amber-400 mt-2">
+                          q_st = {termoNatija?.qst.toFixed(1)} kJ
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Erkin energiya (ΔG)</div>
-                      <div className="text-2xl font-mono font-black text-purple-400 my-1">
-                        {termoNatija?.deltaG.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400">&lt; 0 (O&apos;z-o&apos;zidan boradi)</div>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Entropiya o&apos;zgarishi (ΔS)</div>
-                      <div className="text-2xl font-mono font-black text-sky-400 my-1">
-                        {termoNatija?.deltaS.toFixed(1)} <span className="text-xs text-slate-400 font-normal">J/(mol·K)</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400">Erkinlik darajasi pasayadi</div>
+                    <div className="text-[11px] text-slate-400 mt-2">
+                      💡 <b>Le Shatelye printsipi:</b> Adsorbsiya ekzotermik bo&apos;lgani sababli, harorat T₁ dan T₂ ga oshirilganda adsorbent yuzasidagi molekulalar ajralib ketadi (desorbsiya kuchayadi).
                     </div>
                   </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300 leading-relaxed">
-                  💡 <b>Le Shatelye printsipi:</b> Adsorbsiya ekzotermik bo&apos;lgani sababli, harorat T₁={termoT1} K dan T₂={termoT2} K ga ko&apos;tarilganda adsorbent sirtidagi moddalar desorbsiyalanadi.
                 </div>
               </div>
             )}
 
-            {/* 7: DYUKLO-TRAUBE QOIDASI & GOMOLOGIK QATOR */}
+            {/* 7: DYUKLO-TRAUBE QOIDASI & GIDROFOB ZANJIR ZINAPOYASI */}
             {faolModul.id === "dyuklo-traube-qoidasi" && (
               <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Yog&apos; kislotalari gomologik qatori: Har bir -CH₂- guruhi sirt faolligini 3.2 barobar oshiradi
+                    Dyuklo-Traube Qoidasi: Har bir -CH₂- guruhi sirt faolligini 3.2 barobar oshiradi
                   </h4>
-                  <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-xl border border-emerald-800/40">
-                    β ≈ 3.0 – 3.5
-                  </span>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Yog&apos; kislotalari gomologik qatorida uglevodorod zanjiri qancha uzun bo&apos;lsa, suv uni shuncha kuchli sirtga itarib chiqaradi (Gidrofob samara).
+                  </p>
                 </div>
 
                 {/* Kislotani tanlash */}
@@ -697,21 +1474,23 @@ export default function FormulalarTab({ mavzu }) {
                 {/* Slayder va hisob-kitob */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                   <div className="lg:col-span-6 space-y-4">
-                    <div className="flex justify-between items-center text-xs font-bold text-slate-300">
-                      <span>Konsentratsiya (C):</span>
-                      <span className="font-mono text-emerald-400 text-sm">{traubeC} mol/L</span>
+                    <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <div className="flex justify-between items-center text-xs font-bold text-slate-300">
+                        <span>Konsentratsiya (C):</span>
+                        <span className="font-mono text-emerald-400 text-sm font-bold">{traubeC} mol/L</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.002"
+                        max="0.08"
+                        step="0.002"
+                        value={traubeC}
+                        onChange={(e) => setTraubeC(Number(e.target.value))}
+                        className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                      />
                     </div>
-                    <input
-                      type="range"
-                      min="0.002"
-                      max="0.08"
-                      step="0.002"
-                      value={traubeC}
-                      onChange={(e) => setTraubeC(Number(e.target.value))}
-                      className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
-                    />
 
-                    <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt taranglik (σ)</div>
                         <div className="text-2xl font-mono font-black text-amber-400 my-1">
@@ -721,12 +1500,23 @@ export default function FormulalarTab({ mavzu }) {
                       </div>
 
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
-                        <div className="text-[10px] text-slate-400 uppercase font-bold">Boshlang&apos;ich Sirt Faolligi (G₀)</div>
+                        <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt Faolligi (G₀)</div>
                         <div className="text-2xl font-mono font-black text-emerald-400 my-1">
                           {traubeNatija?.faollik} <span className="text-xs font-normal text-slate-400">mN·L/(m·mol)</span>
                         </div>
-                        <div className="text-[10px] text-slate-400">G = -dσ/dC (C→0)</div>
+                        <div className="text-[10px] text-slate-400">G = −dσ/dC (C→0)</div>
                       </div>
+                    </div>
+
+                    {/* Energetik zinapoya */}
+                    <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs">
+                      <div className="flex items-center justify-between font-bold text-emerald-300 mb-1">
+                        <span>Traube energetik tejamkorligi:</span>
+                        <span className="font-mono">Δ(ΔG°) ≈ −3.2 kJ/mol</span>
+                      </div>
+                      <p className="text-slate-400 text-[11px] leading-relaxed">
+                        Har bir $-\text{CH}_2-$ guruhi suvning vodorod bog&apos;larini buzmaslik uchun sirtga intiladi va sirt faolligini 3.2 barobar ko&apos;paytiradi.
+                      </p>
                     </div>
                   </div>
 
@@ -734,7 +1524,7 @@ export default function FormulalarTab({ mavzu }) {
                   <div className="lg:col-span-6 bg-slate-900 rounded-2xl p-4 border border-slate-800">
                     <div className="text-xs font-bold text-slate-400 mb-2 flex justify-between">
                       <span>Gomologik qatorda σ(C) ning pasayishi:</span>
-                      <span className="text-emerald-400 font-mono">Traube qoidasi</span>
+                      <span className="text-emerald-400 font-mono">β ≈ 3.2 qoidasi</span>
                     </div>
 
                     <div className="relative w-full aspect-[16/10]">
@@ -787,6 +1577,37 @@ export default function FormulalarTab({ mavzu }) {
                 </div>
               </div>
             )}
+            {/* HAR BIR MODULGA MOS TEZKOR ILMIY GLOSSARIY & PARAMETRLAR */}
+            {(() => {
+              const nazariya = CHUQUR_NAZARIYA_LUGATI[faolModul.id] || CHUQUR_NAZARIYA_LUGATI["lengmyur-regressiya"];
+              return (
+                <div className="bg-slate-950/80 rounded-2xl p-5 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>📖</span> Formuladagi fizik parametrlar va o&apos;lchov birliklari:
+                    </span>
+                    <button
+                      onClick={() => setIchkiRejim("nazariya")}
+                      className="text-[11px] font-bold text-slate-400 hover:text-emerald-400 transition"
+                    >
+                      Batafsil nazariya & keltirib chiqarilishi →
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    {nazariya.hadlar.map((h, i) => (
+                      <div key={i} className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="font-mono font-bold text-emerald-400 text-sm">{h.belgi}</span>
+                          <span className="font-mono text-[10px] text-cyan-300 bg-slate-950 px-1.5 py-0.5 rounded">{h.birlik}</span>
+                        </div>
+                        <div className="font-semibold text-slate-200 text-[11px]">{h.nom}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">{h.izoh}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -1061,41 +1882,96 @@ export default function FormulalarTab({ mavzu }) {
         {/* ═══════════════════════════════════════════════════════════════════
             REJIM 4: ILMIY FARAZLAR VA METODIK TAHLIL
            ═══════════════════════════════════════════════════════════════════ */}
-        {ichkiRejim === "nazariya" && (
-          <div className="space-y-6">
-            <div className="bg-slate-950 rounded-2xl p-6 border border-slate-800">
-              <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-4">
-                Modelning Nazariy Farazlari va Cheklovlari:
-              </h4>
+        {ichkiRejim === "nazariya" && (() => {
+          const nazariya = CHUQUR_NAZARIYA_LUGATI[faolModul.id] || CHUQUR_NAZARIYA_LUGATI["lengmyur-regressiya"];
+          return (
+            <div className="space-y-6">
+              {/* 1. KELTIRIB CHIQARILISHI VA FIZIK MANTIQ */}
+              <div className="bg-slate-950 rounded-2xl p-6 border border-slate-800 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                  <span>🔬 Fundamental Nazariy Keltirib Chiqarilishi:</span>
+                </div>
+                <h4 className="text-lg font-bold text-white">
+                  {nazariya.nomi}
+                </h4>
+                <p className="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
+                  {nazariya.keltiribChiqarilishi}
+                </p>
+              </div>
 
-              <ul className="space-y-3 text-xs text-slate-300 leading-relaxed">
-                {faolModul.farazlar.map((f, i) => (
-                  <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800/60">
-                    <span className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
-                      {i + 1}
-                    </span>
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              {/* 2. FORMULADAGI FIZIK HADLAR VA O'LCHOV BIRLIKLARI (GLOSSARIY) */}
+              <div className="bg-slate-950 rounded-2xl p-6 border border-slate-800 space-y-4">
+                <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                  Formuladagi Fizik Parametrlar, Hadlar va SI Birliklari:
+                </h4>
+                <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/40">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 bg-slate-900/80 text-slate-400 font-mono">
+                        <th className="p-3 w-28">Belgi</th>
+                        <th className="p-3">Fizik Kattalik Nomi</th>
+                        <th className="p-3 w-36">O&apos;lchov Birligi</th>
+                        <th className="p-3">Ilmiy Ma&apos;nosi & Izoh</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {nazariya.hadlar.map((h, i) => (
+                        <tr key={i} className="hover:bg-slate-900/60">
+                          <td className="p-3 font-mono font-bold text-emerald-400 text-sm">{h.belgi}</td>
+                          <td className="p-3 font-bold text-white">{h.nom}</td>
+                          <td className="p-3 font-mono text-cyan-300 text-xs">{h.birlik}</td>
+                          <td className="p-3 text-slate-300 text-xs">{h.izoh}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-                <b className="text-white block mb-1">Amaliyotda qo&apos;llanishi:</b>
-                Sanoatda gazlarni tozalash, qon plazmasi gemosorbsiyasi, gaz niqoblari va xromatografiya ustunlarida aynan ushbu tenglamalardan foydalaniladi.
+              {/* 3. MODELNING NAZARIY FARAZLARI (POSTULATLAR) */}
+              <div className="bg-slate-950 rounded-2xl p-6 border border-slate-800">
+                <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-4">
+                  Modelning Asosiy Farazlari va Cheklovlari (Postulatlar):
+                </h4>
+
+                <ul className="space-y-3 text-xs text-slate-300 leading-relaxed">
+                  {faolModul.farazlar.map((f, i) => (
+                    <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800/60">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+                        {i + 1}
+                      </span>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-                <b className="text-white block mb-1">IUPAC Izoterma tasnifi:</b>
-                Mikrog&apos;ovaklar uchun I tur, mezog&apos;ovaklar (kapillyar gisterezis) uchun IV tur, ko&apos;p qatlamli gaz adsorbsiyasi uchun esa II va VI tur izotermalar mos keladi.
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-                <b className="text-white block mb-1">O&apos;qituvchiga metodik tavsiya:</b>
-                Dars vaqtida doskaga chiqib, tajriba jadvalidagi sonlarni o&apos;zgartiring — o&apos;quvchilar burchak tangensi qanday siljishini o&apos;z ko&apos;zlari bilan ko&apos;radi.
+
+              {/* 4. MODULGA XOS AMALIYOT, IUPAC TASNIFI VA METODIKA (DINAMIK KARTALAR) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                    <span>🏭 Amaliyotda qo&apos;llanishi:</span>
+                  </div>
+                  <p className="text-slate-300 leading-relaxed">{nazariya.amaliyot}</p>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="flex items-center gap-2 text-sky-400 font-bold">
+                    <span>📐 IUPAC & Standart tasnifi:</span>
+                  </div>
+                  <p className="text-slate-300 leading-relaxed">{nazariya.iupacTasnifi}</p>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold">
+                    <span>🎓 O&apos;qituvchiga metodik tavsiya:</span>
+                  </div>
+                  <p className="text-slate-300 leading-relaxed">{nazariya.metodikTavsiya}</p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );

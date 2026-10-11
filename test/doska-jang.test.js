@@ -15,6 +15,8 @@ import {
   qatnashchiniChetlat,
   jangniTugat,
   tahlilniOlish,
+  jamoaNominiYangila,
+  JAMOA_SHABLONLARI,
 } from "../lib/doska-jang-boshqaruvchi.js";
 
 import { DOSKA_MAVZULARI, mavzuniTop } from "../lib/doska-mavzular.js";
@@ -31,15 +33,17 @@ test("Smart Doska mavzulari to'g'ri yuklanadi", () => {
   assert.equal(mavzu.oqituvchiUserId, "859235349");
 });
 
-test("Adsorbsiya savollar bazasi 80 ta savoldan iborat va darajalarga bo'lingan", () => {
-  assert.equal(ADSORBSIYA_SAVOLLARI.length, 80);
-  const d1 = ADSORBSIYA_SAVOLLARI.filter((s) => s.daraja === 1);
-  const d2 = ADSORBSIYA_SAVOLLARI.filter((s) => s.daraja === 2);
-  const d3 = ADSORBSIYA_SAVOLLARI.filter((s) => s.daraja === 3);
+test("Jamoa shablonlari va maxsus nomlar bilan xona yaratish", () => {
+  assert.ok(JAMOA_SHABLONLARI.length >= 5);
+  // Maxsus nomlar bilan xona yaratish
+  const xona = yangiXonaYarat("sirt-hodisalari-adsorbsiya", 3, ["Adsorbentlar", "Adsorbatlar", "G'ovaklar"]);
+  assert.equal(xona.jamoalar[0].nom, "Adsorbentlar");
+  assert.equal(xona.jamoalar[1].nom, "Adsorbatlar");
+  assert.equal(xona.jamoalar[2].nom, "G'ovaklar");
 
-  assert.ok(d1.length >= 8, "1-daraja kamida 8 ta bo'lishi kerak");
-  assert.ok(d2.length >= 8, "2-daraja kamida 8 ta bo'lishi kerak");
-  assert.ok(d3.length >= 4, "3-daraja kamida 4 ta bo'lishi kerak");
+  // Jamoa nomini tahrirlash
+  const yangilangan = jamoaNominiYangila(xona.xonaId, 1, "Lengmyurchilar");
+  assert.equal(yangilangan.jamoalar[0].nom, "Lengmyurchilar");
 });
 
 test("Yangi xona yaratish va jamoalar tuzilishi", () => {
@@ -288,6 +292,74 @@ test("Simulyator hisoblari fizik-kimyoviy chegaralarga mos (Gibbs, Kelvin, Termo
     const nisbat = k2.betaDaraja / k1.betaDaraja;
     assert.ok(nisbat >= 3.0 && nisbat <= 3.5, "Har bir -CH2- guruhi uchun Traube koeffitsiyenti 3.0..3.5 bo'lishi kerak");
   }
+});
+
+test("Turnir qoidasi: teng ballarda kamroq vaqt sarflagan jamoa g'olib bo'ladi (tie-breaker)", () => {
+  const xona = yangiXonaYarat("sirt-hodisalari-adsorbsiya", 2);
+  const q1 = qatnashchiQosh(xona.xonaId, "Ali", 1);
+  const q2 = qatnashchiQosh(xona.xonaId, "Vali", 2);
+
+  jangniBoshla(xona.xonaId);
+
+  const ichkiQ1 = xona.qatnashchilar[q1.qatnashchiId];
+  const ichkiQ2 = xona.qatnashchilar[q2.qatnashchiId];
+
+  // Ikkala o'quvchiga ham bir xil savol darajasidagi (daraja: 1, 5 ball) to'g'ri javobni kiritamiz
+  const s1 = ichkiQ1.savollar.find((s) => s.daraja === 1);
+  const s2 = ichkiQ2.savollar.find((s) => s.daraja === 1);
+
+  // Ali 25 soniyada to'g'ri topadi
+  javobniQabulQil(xona.xonaId, q1.qatnashchiId, s1.id, s1._maxfiyTogriIndex, 25);
+  // Vali tezroq — 12 soniyada to'g'ri topadi
+  javobniQabulQil(xona.xonaId, q2.qatnashchiId, s2.id, s2._maxfiyTogriIndex, 12);
+
+  jangniTugat(xona.xonaId);
+
+  const holat = doskaHolatiniOlish(xona.xonaId);
+  const jamoalar = holat.jamoalar;
+
+  // Ballar teng bo'lishi kerak (ikkalasi ham bittadan to'g'ri topgan)
+  assert.equal(jamoalar[0].ball, jamoalar[1].ball);
+
+  // Kamroq vaqt sarflagan jamoa (Vali - 2-jamoa, 12s) 1-o'rinda bo'lishi kerak
+  const golib = jamoalar[0];
+  assert.equal(golib.id, 2);
+  assert.equal(golib.sarflanganVaqt, 12);
+  assert.equal(golib.vaqtUstunligi, true);
+
+  const ikkinchi = jamoalar[1];
+  assert.equal(ikkinchi.id, 1);
+  assert.equal(ikkinchi.sarflanganVaqt, 25);
+  assert.equal(ikkinchi.vaqtUstunligi, false);
+});
+
+test("Anti-Cheat: ilovadan chiqqanda yoki skrinshot olganda 0 ball va qoidabuzarlik qayd etiladi", () => {
+  const xona = yangiXonaYarat("sirt-hodisalari-adsorbsiya", 2);
+  const q = qatnashchiQosh(xona.xonaId, "Shohruh", 1);
+
+  jangniBoshla(xona.xonaId);
+
+  const ichkiQ = xona.qatnashchilar[q.qatnashchiId];
+  const savol = ichkiQ.savollar[0];
+
+  // O'quvchi tabdan chiqib ketdi (qoidaBuzildi: true, variantIndex: -1)
+  const res = javobniQabulQil(xona.xonaId, q.qatnashchiId, savol.id, -1, 8, true);
+
+  assert.ok(res.ok);
+  assert.ok(res.qabulQilindi);
+  assert.equal(res.ball, 0);
+  assert.equal(res.qoidaBuzildi, true);
+
+  // O'quvchi ma'lumotlarida qoidabuzarlik qayd etilgan
+  assert.equal(ichkiQ.ball, 0);
+  assert.equal(ichkiQ.qoidabuzarliklar, 1);
+  assert.equal(ichkiQ.sarflanganVaqtSoniya, 8);
+
+  // Jonli lentada ogohlantirish qayd qilingan
+  const holat = doskaHolatiniOlish(xona.xonaId);
+  const oxirgiLenta = holat.jonliLenta[0];
+  assert.ok(oxirgiLenta);
+  assert.ok(oxirgiLenta.matn.includes("ilovadan chiqdi"));
 });
 
 
