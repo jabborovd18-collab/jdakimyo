@@ -1,0 +1,9 @@
+# Python kutubxonalari — `./ornat.sh` o'rnatadi, repoda saqlanmaydi.
+pylib/
+shriftlar/
+__pycache__/
+tools/__pycache__/
+
+# Har bir sahifaning alohida PNG ko'rinishi — har yasashda qayta hosil
+# bo'ladi, repoda faqat umumiy varaqlar qoladi.
+chiqish/sahifalar/
