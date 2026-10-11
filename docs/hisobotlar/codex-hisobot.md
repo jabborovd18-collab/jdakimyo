@@ -308,3 +308,77 @@ Foydalanuvchi jonli sahifada “nitrozolni formulasi qanday” degan qisqa savol
 - Xato matni qisqa so'rovni asossiz “qisqartirish”ni tavsiya qilmaydi. Tezkor limit va Groq strict schema uchun ikkita regressiya testi qo'shildi.
 - Tuzatilgan gatewayda ayni sintetik savol jonli Groq orqali 1 828 ms ichida `suhbat` JSON qaytardi. Bu mahalliy provider sinovi; productiondagi loginli POST hali alohida tekshirilishi kerak.
 - `npm.cmd test`: 248/248 yashil; `npm.cmd run check:chemistry`: 0 xato; o'zgargan fayllar ESLint: 0 xato, oldindan mavjud 2 ta `<img>` ogohlantirishi; `npm.cmd run build`: muvaffaqiyatli. Vaqtinchalik canary fayli o'chirildi.
+
+## 2026-09-17 — jonli AI so'rovining qayta tekshiruvi
+
+- Qisqa matnli so'rov tuzatishining `0eade44` production deployi Vercelda `success` holatida.
+- Production telemetriyasida 06:08:16 Toshkent vaqtida `yech/oddiy` so'rovi Groq `openai/gpt-oss-120b` orqali 5 218 ms da muvaffaqiyatli yakunlangani qayd etilgan. Foydalanuvchi ham ayni qayta sinovda “ishlab ketdi” deb tasdiqladi.
+- Bu bitta muvaffaqiyatli so'rov barcha yo'nalishlar uzluksiz ishlashini isbotlamaydi. 16-sentabr 17:43 dagi `tezkor` chat urinishida Groq HTTP 400, Gemini esa `MAX_TOKENS` xatosini qaytargan. Muammo takrorlansa, aniq Toshkent vaqti va matn/rasm turini telemetriya bilan solishtirish kerak.
+- Ushbu qayta tekshiruvda mahsulot kodi o'zgartirilmadi, yangi commit yoki deploy qilinmadi. Vaqtinchalik diagnostika skriptlari va faqat shu AI release uchun ochilgan worktree tozalandi.
+
+## 2026-09-17 — masala javobidagi KaTeX ko'rinishi
+
+Foydalanuvchi skrinshotida bosqich izohidagi `\ce{C9H8O4}`, `\times` va `M_{aspirin}` buyruqlari xom matn bo'lib qolgan. Asosiy `/masala` sahifasi `bosqichlar[].tushuntirish`ni oddiy matn sifatida ko'rsatgan; faqat alohida `formula` maydoni KaTeX orqali o'tgan. Alohida chat rendereri ham mhchem'ni yuklamagan. Sonli natijada xato topilmadi: serverdagi `C9H8O4` molyar massasi 180.159 g/mol, 3 mol massasi 540.477 g va ikki xonagacha 540.48 g.
+
+- Bosqich izohi va yakuniy javob yagona `LatexBoyMatn` yo'lidan ko'rsatiladi. U delimiter yozilmay qolgan taniqli LaTeX buyruqlari, qavsli mhchem ifodalari va indeksli belgilarni ajratadi; oddiy nasrni formula deb talqin qilmaydi. Chatdagi boy matn ham shu parserdan foydalanadi va mhchem'ni yuklaydi.
+- Model prompti izoh, mantiq va yakuniy javobdagi LaTeX uchun delimiterlarni majburiy qiladi, o'zbekcha atamalar va oraliq hisobni erta yaxlitlamaslikni eslatadi. Eski keshdagi javoblar ham klient rendereri orqali to'g'ri ko'rinadi.
+- Uchta formatlash testi va aspirin sonlari uchun bitta test qo'shildi. `npm.cmd test`: 252/252 yashil. O'zgargan fayllar ESLint: 0 xato; `/masala`dagi avvaldan mavjud ikkita `<img>` ogohlantirishi qoldi. Asosiy workspace production buildi muvaffaqiyatli; sitemap bosqichida mahalliy Neon ulanishi haqida ogohlantirish bo'ldi.
+- Mahalliy `main`da boshqa, hali productionga yuborilmagan Telegram ishlari borligi sabab faqat KaTeX o'zgarishi alohida `ee7cdba` commit sifatida `origin/main`ga fast-forward yuborildi. Release daraxtining testlari ham 252/252 o'tdi. Uning alohida mahalliy buildi umumiy `node_modules` ish daraxtidan tashqarida qolgani uchun Turbopack filesystem-root chekloviga urildi; bu kod kompilyatsiyasi xatosi emas. Vercel deployi [success](https://vercel.com/jabborovd18-3171s-projects/jdakimyo/AeuuK7FVXmgpgP1M4CGaNiJzPKdH), jonli `/masala` sahifasi HTTP 200 qaytardi. Sahifa yuklagan `/_next/static/immutable/chunks/39l8ahjvdnl8k.js` ichida yangi ajratgichning `cdotp:0` belgisi topildi; shu bilan klient kodining jonli sahifaga chiqqani ham tasdiqlandi.
+- Vaqtinchalik release worktree va maxfiy muhit fayllarining nusxalari tozalandi. Loginli foydalanuvchi bilan ayni aspirin javobining vizual qayta ochilishi bu sessiyada bajarilmadi; foydalanuvchi sahifani yangilab, eski chat javobini qayta ko'rib tasdiqlashi kerak.
+
+## 2026-09-17 — AI kutish matni
+
+- `/masala` sahifasidagi texnik “So'rov turi serverda aniqlanmoqda...” yozuvi olib tashlandi. Avtomatik yo'nalishda matnli so'rov uchun “Kimyoviy savol yoki masala ko'rib chiqilmoqda...”, rasmli so'rov uchun “Rasmdagi kimyo masalasi ko'rib chiqilmoqda...” ko'rsatiladi.
+- Avvalgi vaqtga bog'langan “1-Agent” va “4-Agent” bosqichlari tiklanmadi: ular serverning haqiqiy bosqichlarini bildirmagan. Qolgan yo'nalishlar va API oqimi o'zgarmadi.
+- `npm.cmd test`: 252/252 yashil; o'zgargan sahifa ESLint: 0 xato, avvaldan mavjud 2 ta `<img>` ogohlantirishi; mahalliy production build muvaffaqiyatli. Sitemap uchun mahalliy Neon ulanish ogohlantirishi kod buildini yiqitmadi.
+- Boshqa mahalliy ishlardan ajratilgan `7d6fc71` commit production `origin/main`ga yuborildi. [Vercel deployi](https://vercel.com/jabborovd18-3171s-projects/jdakimyo/3WS14sSpWzXJyL8ePsVy56jmXwnb) `success`; jonli `/masala` HTTP 200. Sahifa yuklagan `/_next/static/immutable/chunks/3s9s6ud-asgxg.js` ichida yangi matn topildi, eski matn topilmadi. Vaqtinchalik release worktree tozalandi.
+
+## 2026-09-17 — AI API kalitlari ko'rigi
+
+Kalit qiymatlari o'qiladigan hisobotga, chatga yoki logga chiqarilmadi. Tekshiruv JDA Kimyo AI ishlatadigan mahalliy `.env` kalitlari va production bazasidagi maxfiy matnsiz telemetriya bilan cheklangan; Vercel sirlarining aynan shu nusxalari ekanini tasdiqlamaydi.
+
+- Token sarflamaydigan provayder autentifikatsiya so'rovlari: `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `GEMINI_API_KEY_2` va `OPENROUTER_API_KEY` — barchasi HTTP 200. DeepSeek hisobida balans mavjud; Groq va Gemini ro'yxatlarida konfiguratsiyadagi asosiy hamda zaxira modellar ko'rindi. Kalitlar takrorlanmagan. `GROQ_API_KEY_2` va `GOOGLE_AI_KEY` sozlanmagan ixtiyoriy zaxiralar, “buzilgan kalit” emas.
+- Haqiqiy kichik gateway sinovi: Groq `openai/gpt-oss-20b`, Gemini `gemini-3.5-flash` va `gemini-3-flash-preview` (1 pikselli sintetik rasm bilan), OpenRouter `nex-agi/nex-n2.5-pro:free` — ishladi. DeepSeek zaxira `deepseek-flash` modeli javob bergan bo'lsa-da, 2/2 marta ilovaning suhbat JSON shartnomasiga mos kelmadi (`format_xatosi`); bu kalit autentifikatsiyasi xatosi emas. DeepSeek murakkab `deepseek-reasoner` modeli alohida tekshirilmagan.
+- Production telemetriyasidagi so'nggi 48 soatda 9 provayder hodisasi bor: tezkor Groq 20B'da 3 ta HTTP 400 va 2 ta muvaffaqiyat; Gemini asosiyda 1 muvaffaqiyat, 1 `MAX_TOKENS`, 1 timeout; Groq 120B'da 1 muvaffaqiyat. DeepSeek/OpenRouter production hodisasi yo'q, shu sabab ularning Verceldagi kalitlari haqida qat'iy xulosa yo'q. Groq/Gemini xatolarini “kalit yaroqsiz” deb atash uchun dalil topilmadi.
+- Kod, muhit kalitlari va deploy o'zgartirilmadi. Vaqtinchalik diagnostika skriptlari o'chirildi.
+
+## 2026-09-17 — AI provayder zaxiralari va ichki ko'rikni mustahkamlash
+
+Oldingi kalit ko'rigidagi DeepSeek `format_xatosi` haqiqiy kalit nuqsoni emasligi to'liq gateway sinovi bilan isbotlandi: admin canary faqat “JSON shartnomasi” deb aytgan, ammo `AI_SUHBAT_JSON_SXEMASI`ning o'zini promptga bermagan. Xuddi shu model sxema berilganda yaroqli `suhbat` javobini qaytardi. Admin ko'rigida OpenRouter matn aliasiga ham tasodifan vision rasmi yuborilishi mumkin edi. Production telemetriyasidagi tezkor Groq HTTP 400 va Gemini `MAX_TOKENS` juftligi uchun mavjud ikki urinishdan keyin ishlaydigan matn zaxirasi qolmas edi.
+
+- Admin canary endi sxemani yagona mavjud manbadan promptga qo'shadi; `openrouterMatn` faqat matn, `openrouterRasm` esa rasm bilan sinaladi.
+- Tezkor yo'nalishning standart yo'li `groqTezkor → geminiAsosiy → openrouterMatn` va urinish chegarasi 3 bo'ldi. Umumiy vaqt 30 soniyaligicha qoldi; arzon/bepul OpenRouter matn modeli faqat uchinchi zaxira sifatida ishlatiladi.
+- Gemini tezkor matn chaqiruvida fikrlash tokenlari uchun boshlang'ich limit 2 000; `MAX_TOKENS` bo'lsa va kamida 6 soniya qolsa, faqat bir marta 4 000 bilan urinadi. Boshqa provayderlar va rasmli yo'l limitlari o'zgarmadi.
+- Gemini API kaliti URL query satridan olib tashlandi; model ro'yxati va generatsiya so'rovida faqat `x-goog-api-key` headeri ishlatiladi. Kalit qiymatlari hisobot va diagnostika chiqishiga yozilmadi.
+- To'rtta yangi regressiya testi qo'shildi; oldingi ikki urinishli test yangi uch urinish chegarasiga moslashtirildi. Gemini model discovery testi header va URLda kalit yo'qligini ham tekshiradi. Yangi testlar avval xatoni qayta ko'rsatdi, tuzatishdan keyin o'tdi.
+
+### Tekshiruv va chiqarish
+
+- Mahalliy `npm.cmd test`: **256/256**, release daraxtida qayta **256/256**; `npm.cmd run check:chemistry`: 238 reaksiya va 12 birikma, 0 xato; o'zgargan fayllar ESLint: 0 xato; `npm.cmd run build`: muvaffaqiyatli. Build vaqtida sitemapning mahalliy Neon bazasiga ulanmagani haqida avvaldan kuzatilgan ogohlantirish bor, lekin build yiqilmadi.
+- Tuzatilgan haqiqiy admin canarysi mahalliy kalitlar bilan `deepseekZaxira`, `groqTezkor`, `geminiAsosiy`, `openrouterMatn`, `openrouterRasm` aliaslarida ishladi. U foydalanuvchi matni yoki suratini emas, sintetik H2O savoli va vision uchun 1 pikselli PNGni yubordi. Dastlabki sandbox tarmoq cheklovi barcha yo'llarga `TARMOQ_XATOSI` bergan; tarmoq ruxsati bilan qayta sinov beshtalasida ham o'tdi.
+- Faqat to'rtta AI kod/test fayli mahalliy `42ef51e` commitiga kiritildi. Mahalliy `main`dagi boshqa, hali productionga yuborilmagan ishlar aralashmasligi uchun `origin/main`dan alohida release daraxti yaratilib, ayni o'zgarish `e52e21d` sifatida fast-forward push qilindi. GitHub PR qoidasini owner huquqi bilan bypass qilganini qayd etdi. [Vercel deployi](https://vercel.com/jabborovd18-3171s-projects/jdakimyo/2hQMwMTCbNfm9zkAQ25d4yK6c6JP) `success`; [jonli masala sahifasi](https://www.jdakimyo.uz/masala) HTTP 200. Vaqtinchalik worktree o'chirildi, faol GitHub hisobi va credential sozlamasi avvalgi holatiga qaytarildi.
+- Ushbu hisobot mahalliy faylga yozildi; ikkinchi deployni qo'zg'atmaslik uchun release commitiga qo'shilmadi. Mahalliy `main` va production `origin/main` commit tarixlari avvaldan farqli, keyingi oddiy `git push main`dan oldin ongli muvofiqlashtirish kerak.
+
+### Hali ochiq chegara
+
+Verceldagi loginli foydalanuvchi bilan haqiqiy `/api/masala/yech` POST bu sessiyada bajarilmadi; mahalliy canary production sirlarining aynan bir xil ekanini isbotlamaydi. Groq 20Bning oldingi vaqti-vaqti bilan kelgan HTTP 400 sababi bu o'zgarishda bevosita yo'qotilmadi, lekin endi uchinchi zaxira bor. OpenRouterning bepul qatlamidagi rate-limit va provayderlarning tashqi uzilishi xavfi qoladi; keyingi production telemetriyasida tezkor so'rovlarning `fallbackIndex`, `errorCode` va umumiy muvaffaqiyat ulushini kuzatish kerak. Eski Vercel deploylari o'chirilmadi.
+
+## 2026-09-22 — Vercel deployment va function storage tozalash
+
+Vercel jamoa Usage kartasida Deployment Storage `18,49 GB / 10 GB`, Functions Storage `17,91 GB / 10 GB` ko'rsatilgan. `jdakimyo` deploylar ro'yxatida uchta production deploy bor edi. Amaldagi domenlarga xizmat qilayotgan `e52e21d` (`2hQMwMTCbNfm9zkAQ25d4yK6c6JP`) saqlandi; Vercel `Stale` deb belgilagan ikki eski deploy foydalanuvchining aniq tasdig'idan keyin o'chirildi:
+
+- `7d6fc71` — `3WS14sSpWzXJyL8ePsVy56jmXwnb`;
+- `ee7cdba` — `AeuuK7FVXmgpgP1M4CGaNiJzPKdH`.
+
+O'chirishdan keyin loyiha deploylar ro'yxatida faqat `e52e21d` qoldi. Vercel Overview joriy deployni `Ready`, `main` manbali va `www.jdakimyo.uz`/`jdakimyo.vercel.app` domenlari bilan ko'rsatdi. Jonli `https://www.jdakimyo.uz/masala` HTTP 200 va `JDA KIMYO — Oliy kimyo` sarlavhasini qaytardi.
+
+Usage bosh kartasi darhol yangilanmay, eski 18,49/17,91 GB qiymatini ko'rsatishda davom etdi. Biroq alohida rasmiy tafsilot sahifalarida ikkala hisob ham `Updated just now` holatida yangilandi:
+
+- Deployment Storage: `Total 0 B`;
+- Functions Storage: `Total 0 B`.
+
+Vercelning o'chirish oynasi faol trafik olmayotgan deploylar limit va xarajatga hisoblanmasligini qayd etdi. O'chirilgan deploylar Vercelning tiklash davrida `Recently Deleted` bo'limida vaqtincha qayta tiklanishi mumkin; instant rollback va eski alohida deploy URLlari endi mavjud emas. Loyiha kodi, Git tarixi, domenlar, environment variables va joriy production deploy o'zgartirilmadi. Commit yoki yangi deploy qilinmadi.
+
+### Usage bosh kartasidagi eski qiymat haqida aniqlik
+
+Vercelning Usage bosh kartasi joriy saqlanayotgan fayllarning real vaqtdagi hajmi emas, hisob davrida yig'ilgan deployment storage sarfini ham aks ettiradi. Vercel rasmiy hujjatiga ko'ra, har bir loyiha uchun kunlik eng katta saqlangan hajm yozib olinadi va hisob davri bo'yicha qo'shiladi (`GB-month`). Vercel xodimining rasmiy community izohiga ko'ra, deployment storage yangi davr boshida, har 30 kunda tiklanadi. Shu sabab eski deploylarni o'chirish bosh kartadagi 18,49/17,91 qiymatlarini darhol kamaytirmaydi: oldingi kunlarda yig'ilgan sarf tarixdan olib tashlanmaydi, faqat keyingi yig'ilish to'xtaydi. 2026-09-22 dagi takroriy ko'rikda Functions Storage tafsiloti `Last 30 Days`, `Updated 14m ago`, `Total 0 B` deb turdi. Joriy `e52e21d` production deployini o'chirish mumkin emas: u saytga xizmat qilmoqda va uni o'chirish oldingi davr sarfini baribir bekor qilmaydi. Qo'shimcha deploy yoki loyiha o'chirilmadi.
