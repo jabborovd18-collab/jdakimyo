@@ -1,0 +1,230 @@
+
+==========================================================================================
+1-SLAYD   (rasmlar: 0)
+==========================================================================================
+[y=1.52 ] SIRT HODISALARI VA ADSORBSIYA
+[y=1.52 ] Kolloid Kimyo: Sirt Hodisalari Termodinamikasi, Adsorbsiya Izotermalari va Amaliy Tizimlar
+[y=6.86 ] MAVZU REJASI VA ILMIY PROGRAMMA:
+[y=6.86 14pt Q #C85A17] 1. Sirt erkin energiyasi, sirt tarangligi va termodinamik asoslar (Gibbs tenglamasi).
+[y=6.86 14pt Q #C85A17] 2. Sirt tarangligiga ta'sir etuvchi omillar va Antonov qoidasi.
+[y=6.86 14pt Q #C85A17] 3. Egri sirtlar termodinamikasi: Laplas va Kelvin (Tomson) tenglamalari.
+[y=6.86 14pt Q #C85A17] 4. Sorbsiya jarayonlari: Fizikaviy adsorbsiya, xemosorbsiya va kapillyar kondensatsiyalanish.
+[y=6.86 14pt Q #C85A17] 5. Sirt-aktiv (SAM), sirt-inert (SIM) va sirt-nofaol (SNM) moddalar. Traube-Dyuklo qoidasi.
+[y=6.86 14pt Q #C85A17] 6. Monomolekulyar adsorbsiya nazariyalari: Gibbs va Lengmyur adsorbsiya izotermalari.
+[y=6.86 14pt Q #C85A17] 7. Polimolekulyar adsorbsiya nazariyalari: Freyndlih, Polyani va BET (Brunauer-Emmett-Teller) modellari.
+[y=6.86 14pt Q #C85A17] 8. Qattiq adsorbentlar va eritmalardan adsorbsiya: Panet-Fayans, Rebinder qoidalari va xromatografiya.
+
+==========================================================================================
+2-SLAYD   (rasmlar: 3)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 1. Sirt Qatlamidagi Ortiqcha Erkin Energiya va Sirt Tarangligi
+[y=4.83 14pt Q #0F2027] Molekulalararo o'zaro ta'sir va kompensatsiyasizlik: Hajmdagi molekula (A) barcha yo'nalishlarda teng kuchlar bilan tortiladi (sum F = 0). Sirt qatlamidagi molekula (B) esa suyuqlik ichiga tortiladi va uning kuch maydoni kompensatsiyalanmagan.
+[y=4.83 14pt Q #0F2027] Sirt erkin energiyasi (Gs): Molekulani hajmdan sirtga chiqarish uchun sirt tortishish kuchlariga qarshi ish bajarilishi kerak. Bu ish sirtda ortiqcha erkin energiya (Gs) ko'rinishida to'planadi.
+[y=4.83 14pt Q #0F2027] Sirt tarangligi (sigma): Sirt yuzasini 1 m2 ga oshirish uchun sarflanadigan solishtirma erkin sirt energiya yoki sirtga urinma yo'nalishda ta'sir etuvchi kuchdir [mN/m yoki J/m2].
+[y=4.83 ] Sirt erkin energiyasi tenglamasi:
+[y=8.38 ] Termodinamikaning I va II qonuni birlashuvi:
+[y=12.19 ] Sirt tarangligining termodinamik ta'rifi:
+
+==========================================================================================
+3-SLAYD   (rasmlar: 3)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 2. Sirt Tarangligiga Ta'sir Etuvchi Fizik-Kimyoviy Omillar
+[y=4.83 14pt Q #0F2027] 1. Modda kimyoviy tabiati va qutbliligi: Molekulalararo bog'lanish qancha kuchli bo'lsa (vodorod bog'lar, ionli bog'lar), sirt tarangligi shuncha yuqori bo'ladi. Suvda sigma = 72.8 mN/m, simobda sigma = 475 mN/m.
+[y=4.83 14pt Q #0F2027] 2. Harorat ta'siri (T): Harorat ortishi bilan molekulalar issiqlik harakati kuchayadi, molekulalararo tortishish zaiflashadi va sirt tarangligi chiziqli kamayadi. Kritik haroratda (Tk) sigma = 0 bo'ladi.
+[y=4.83 14pt Q #0F2027] 3. Antonov qoidasi (Ikki suyuqlik chegarasi): O'zaro cheklangan eruvchan ikki suyuqlik chegarasidagi sirt tarangligi ularning to'yingan faza sirt tarangliklari ayirmasiga teng.
+[y=4.83 ] Sirt tarangligining haroratga bog'liqligi:
+[y=8.89 ] Antonov qoidasi tenglamasi:
+
+==========================================================================================
+4-SLAYD   (rasmlar: 3)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 3. Sirt-Aktiv Moddalar va Traube-Dyuklo Qoidasi
+[y=4.83 14pt Q #0F2027] Sirt Aktivligi (g): Erigan moddaning sirt tarangligini pasaytirish qobiliyati. g = -d(sigma)/dC (C -> 0 sharoitida).
+[y=4.83 14pt Q #0F2027] Traube-Dyuklo Qoidasi: Bir xil gomologik qatordagi sirt-aktiv moddalarning (spirtlar, yog' kislotalari) uglevodorod zanjiri bitta -CH2- guruhga uzayganda, ularning sirt aktivligi (g) 3.0-3.5 baravar ortadi.
+[y=4.83 14pt Q #0F2027] Fizikaviy sababi: Uglevodorod radikali suv muhitidan sirt qatlamiga gipofobik kuchlar ta'sirida siqib chiqariladi.
+[y=4.83 ] Rebinder bo'yicha sirt aktivlik ta'rifi:
+[y=8.38 ] Traube-Dyuklo koeffitsienti:
+
+==========================================================================================
+5-SLAYD   (rasmlar: 2)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 4. Egri Sirtlar Termodinamikasi: Laplas va Kelvin Tenglamalari
+[y=4.83 14pt Q #0F2027] Egri sirt ostidagi kapillyar bosim (Laplas): Suyuqlik sirti egrilanganda (tomchi, pufakcha, kapillyar menisk) sirt taranglik kuchlari natijasida qo'shimcha Laplas bosimi (Delta P) hosil bo'ladi.
+[y=4.83 14pt Q #0F2027] Botiq va qabariq menisklar: Qabariq sirtda (tomchi) ichki bosim ortadi (Delta P > 0). Botiq sirtda (kapillyar) bosim pasayadi (Delta P < 0), bu esa kapillyar ko'tarilishga sabab bo'ladi.
+[y=4.83 14pt Q #0F2027] Kelvin (Tomson) tenglamasi: Kichik tomchilar ustidagi to'yingan bug' bosimi (Pr) tebranmas tekis sirt ustidagi bug' bosimidan (P0) yuqori bo'ladi. Botiq kapillyarlarda esa bug' bosimi pasayadi (kapillyar kondensatlanish).
+[y=4.83 ] Laplas tenglamasi (Sferik sirt):
+[y=9.14 ] Kelvin (Tomson) tenglamasi:
+
+==========================================================================================
+6-SLAYD   (rasmlar: 0)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 5. Sorbsiya Hodisalarining Mexanizmi va Qiyosiy Tavsifi
+[y=4.83 13pt Q #0F2027] 1. Adsorbsiya (Sirtqi) Moddaning fazalar ajralish sirtida (qattiq/gaz, qattiq/suyuqlik) to'planish jarayoni.
+
+• Sirtqi hodisa
+• Tez muvozanatga erishadi
+• Qaytardir (desorbsiya)
+[y=4.83 13pt Q #0F2027] 2. Absorbsiya (Hajmiy) Yutilayotgan moddaning ikkinchi faza (suyuqlik yoki qattiq jism) hajmi bo'ylab tekis tarqalishi.
+
+• Diffuziya bilan bog'liq
+• Sekin boradi
+• Boshqalar: Xemosorbsiya
+[y=4.83 13pt Q #0F2027] 3. Kapillyar Kondensatsiyalanish G'ovak adsorbentlarda botiq menisklar hosil bo'lishi natijasida bug'ning P < P0 bosimda suyuqlikka aylanishi.
+
+• Kelvin tenglamasi
+• Histerezis sirtalari
+
+==========================================================================================
+7-SLAYD   (rasmlar: 2)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 6. Adsorbsiyaning Miqdoriy Ko'rsatkichlari va Absolyut Adsorbsiya
+[y=4.83 14pt Q #0F2027] Asosiy tushunchalar: Adsorbent — sirtida adsorbsiya sodir bo'ladigan qattiq yoki suyuq modda.
+Adsorbtiv — adsorbsiyalanuvchi modda.
+Adsorbat — adsorbsiyalangan modda.
+[y=4.83 14pt Q #0F2027] 1. Absolyut Adsorbsiya (a): Adsorbentning birlik massasi (m) yoki birlik sirt yuzasida (S) to'plangan adsorbatning mol miqdori.
+[y=4.83 14pt Q #0F2027] 2. Ortiqcha Gibbs Adsorbsiyasi (G): Sirt qatlamidagi modda miqdorining hajm rejalashtirilgan konsentratsiyasidan ortiqcha farqi [mol/m2].
+[y=4.83 ] Absolyut adsorbsiya (a):
+[y=9.14 ] Gibbs ortiqcha adsorbsiyasi (G):
+
+==========================================================================================
+8-SLAYD   (rasmlar: 3)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 7. Gibbsning Fundamental Termodinamik Adsorbsiya Tenglamasi
+[y=4.83 14pt Q #0F2027] Gibbs tenglamasi va uning mohiyati: Sirt tarangligining o'zgarishi (d_sigma/dC) bilan sirtda modda to'planishi (G) o'rtasidagi fundamental termodinamik bog'liqlikni ifodalaydi.
+[y=4.83 14pt Q #0F2027] Musbat adsorbsiya (G > 0): Agar d_sigma/dC < 0 bo'lsa (SAM), G > 0 bo'ladi. Modda sirtda to'planadi va sirt tarangligini pasaytiradi.
+[y=4.83 14pt Q #0F2027] Manfiy adsorbsiya (G < 0): Agar d_sigma/dC > 0 bo'lsa (SIM), G < 0 bo'ladi. Modda hajmga o'tadi va sirtda kamayadi.
+[y=4.83 ] Gibbs tenglamasi (Konsentratsiyali):
+[y=9.14 ] Gibbs tenglamasi (Aktivlikli):
+
+==========================================================================================
+9-SLAYD   (rasmlar: 3)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 8. Shishkovskiy Tenglamasi va Molekula O'lchamlarini Aniqlash
+[y=4.83 14pt Q #0F2027] Shishkovskiy tenglamasi: B. Shishkovskiy (1908) sirt-aktiv moddalar konsentratsiyasi ortishi bilan sirt taranglik pasayishini empirik ravishda ifodaladi.
+[y=4.83 14pt Q #0F2027] Gibbs va Lengmyur bilan birlashuvi: Shishkovskiy konstanta B = G_max * R * T ekanligi isbotlandi va Gibbs tenglamasidan Lengmyur izotermasiga o'tish imkonini berdi.
+[y=4.83 14pt Q #0F2027] Molekula parametrlarini hisoblash: G_max qiymatidan molekulaning sirtda egallagan ko'ndalang kesim yuzasi (S0) va sirt qatlamining qalinligi (l) aniqlanadi.
+[y=4.83 ] Shishkovskiy empirik tenglamasi:
+[y=8.38 ] Gibbs-Lengmyur birlashgan tenglamasi:
+[y=12.7 ] Molekula o'lchamlari formulalari:
+
+==========================================================================================
+10-SLAYD   (rasmlar: 3)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 9. Lengmyurning Monomolekulyar Adsorbsiya Nazariyasi
+[y=4.83 13pt Q #0F2027] Lengmyur Postulatlari (1915): 1. Adsorbsiya adsorbent sirtidagi diskret faol markazlarda sodir bo'ladi.
+2. Har bir faol markaz faqat bitta adsorbat molekulasini tuta oladi (monoqavat).
+3. Faol markazlar energetik jihatdan teng qiymatlidir va bir-biriga ta'sir etmaydi.
+4. Jarayon dinagmik muvozanatga ega: Adsorbsiya tezligi = Desorbsiya tezligi.
+[y=4.83 ] Lengmyur Adsorbsiya Izotermasi:
+[y=8.64 ] Sirt to'lish darajasi (theta):
+
+==========================================================================================
+11-SLAYD   (rasmlar: 3)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 10. Lengmyur Izotermasining Sohalari va Linearizatsiyasi
+[y=4.83 14pt Q #0F2027] 1. Genri sohasi (C -> 0): Juda kam konsentratsiyada K*C << 1, shunda G = G_max * K * C = K_H * C. Adsorbsiya konsentratsiyaga to'g'ri mutanosib.
+[y=4.83 14pt Q #0F2027] 2. To'yinish sohasi (C -> inf): Yuqori konsentratsiyada K*C >> 1, shunda G = G_max. Adsorbent sirti to'liq monoqavat bilan qoplanadi.
+[y=4.83 14pt Q #0F2027] 3. Chiziqli tenglama (Linearizatsiya): Tajriba ma'lumotlaridan G_max va K doimiylarini grafik usulda aniqlash uchun 1/G ga nisbatan 1/C grafigi chiziladi.
+[y=4.83 ] Lengmyur chiziqli shakli:
+[y=8.64 ] Genri sohasi chegarasi:
+[y=12.45 ] To'yinish sohasi chegarasi:
+
+==========================================================================================
+12-SLAYD   (rasmlar: 3)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 11. Freyndlihning Empirik Adsorbsiya Izotermasi
+[y=4.83 14pt Q #0F2027] Freyndlih tenglamasi (1909): G'ovak va energetik jihatdan bir jinsli bo'lmagan adsorbentlarda o'rtacha konsentratsiyalar sohasida adsorbsiyani ifodalovchi empirik darajali tenglama.
+[y=4.83 14pt Q #0F2027] Tenglama doimiylari: beta — adsorbsion sig'im koeffitsienti;
+1/n — adsorbent sirtining energetik bir jinsli emaslik koeffitsienti (0.1 < 1/n < 0.7).
+[y=4.83 14pt Q #0F2027] Qo'llanish chegarasi: Juda kichik va juda yuqori konsentratsiyalarda (to'yinishda) bajarilmaydi.
+[y=4.83 ] Freyndlih darajali tenglamasi:
+[y=8.64 ] Logarifmik chiziqli shakli:
+
+==========================================================================================
+13-SLAYD   (rasmlar: 2)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 12. BET Polimolekulyar Adsorbsiya Modellari
+[y=4.83 13pt Q #0F2027] BET Nazariyasi (Brunauer, Emmett, Teller, 1938): 1. Adsorbsiya polimolekulyar (ko'p qatlamli) xarakterga ega.
+2. Birinchi qatlam adsorbsiya energiyasi (E1) adsorbent bilan ta'sirga bog'liq.
+3. Ikkinchi va keyingi qatlamlar kondensatlanish issiqligiga (EL) teng deb qaraladi.
+[y=4.83 13pt Q #0F2027] S-simon izoterma va amaliy ahamiyati: Kukunlar va g'ovak adsorbentlarning solishtirma sirt yuzasini (S_sol) aniqlashda standart xalqaro usul hisoblanadi.
+[y=4.83 ] BET Chiziqli Tenglamasi:
+
+==========================================================================================
+14-SLAYD   (rasmlar: 1)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 13. Qattiq Adsorbentlar va G'ovaklik Strukturasi
+[y=4.83 14pt Q #0F2027] 1. Gidrofil (Qutbli) Adsorbentlar: Sirtida qutbli guruhlar bo'lgan adsorbentlar (Silikagel SiO2, Alyumogel Al2O3, gil minerallari). Suv va qutbli moddalarni yaxshi adsorbsiyalaydi.
+[y=4.83 14pt Q #0F2027] 2. Gidrofob (Qutbsiz) Adsorbentlar: Sirtida qutbsiz atomlar bo'lgan adsorbentlar (Aktivlangan ko'mir, soot, grafit). Organik moddalarni suvli eritmalardan yaxshi tutadi.
+[y=4.83 14pt Q #0F2027] 3. IUPAC bo'yicha G'ovaklar Tasnifi: • Mikrog'ovaklar: r < 2 nm
+• Mezog'ovaklar: 2 nm < r < 50 nm
+• Makrog'ovaklar: r > 50 nm
+[y=4.83 ] Rebinder qutblar tenglashuv qoidasi:
+[y=9.14 13pt Q #0F2027] P.A. Rebinder Qoidasi: Adsorbsiya jarayoni faza chegara sirtlarining qutbliliklar farqi (Delta E) kamayishi yo'nalishida boradi.
+
+Eritmadan adsorbsiyalanish uchun erigan modda va adsorbent qutbliliklari o'xshash, erituvchiniki esa ulardan farqli bo'lishi kerak.
+
+==========================================================================================
+15-SLAYD   (rasmlar: 2)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 14. Eritmalardan Ionli Adsorbsiya va Panet-Fayans Qoidasi
+[y=4.83 14pt Q #0F2027] Ionli Adsorbsiya Xususiyatlari: Qattiq adsorbent sirtida elektrod potentsiali va elektr ikki qatlami (EDL) hosil bo'lishi bilan kechadigan tanlanma (selektiv) adsorbsiya.
+[y=4.83 14pt Q #0F2027] Panet-Fayans Selektivlik Qoidasi: Qattiq kristall adsorbent sirtiga birinchi navbatda uning kristall panjarasi tarkibiga kiruvchi yoki u bilan qiyin eriydigan birikma hosil qiluvchi ionlar adsorbsiyalanadi.
+[y=4.83 14pt Q #0F2027] Ionitlar (Ion almashgichlar): Kationitlar (kation almashuvchi) va Anionitlar (anion almashuvchi) g'ovak polimer va minerallar.
+[y=4.83 ] Liotrop Kationlar Qatori:
+[y=9.14 ] Liotrop Anionlar Qatori:
+[y=13.21 13pt Q #0F2027] Liotrop (Hofmeyster) Qatorlar: Bir xil valentli ionlarning gidratlanish radiusi kamayishi bilan ularning adsorbsiyalanish qobiliyati ortadi.
+
+==========================================================================================
+16-SLAYD   (rasmlar: 0)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 15. Xromatografik Ajratish Usullari va Ularning Mexanizmi
+[y=4.83 14pt Q #0F2027] M.S. Tsvet Kashfiyoti (1903): Osimlik pigmentlarini (xlorofill, karotin) bo'r ustunida (CaCO3) adsorbsion ajratish orqali xromatografiya usuliga asos solindi.
+[y=4.83 13pt Q #0F2027] Xromatografiya Klassifikatsiyasi: 1. Adsorbsion xromatografiya (G_max va K farqi bo'yicha)
+2. Tasimlash xromatografiyasi (Eruvchanlik farqi)
+3. Ion almashinish xromatografiyasi
+4. Eksklyuzion (Gel-filtratsiya) xromatografiya
+[y=4.83 13pt Q #0F2027] Zamonaviy HPLC va GC: Yuqori samarali suyuqlik (HPLC) va gaz xromatografiyasi analitik kimyoning eng sezgir usullari hisoblanadi.
+[y=4.83 13pt Q #0F2027] Xromatografik Ustun Mexanizmi: Harakatchan faza (eluyent) va qo'zg'almas faza (adsorbent) o'rtasida moddalar uzluksiz adsorbsiya va desorbsiyalanadi.
+
+Adsorbsiyalanish koeffitsienti kichik moddalar ustundan birinchi bo'lib ajralib chiqadi.
+
+==========================================================================================
+17-SLAYD   (rasmlar: 0)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 16. Adsorbsiyaning Tibbiyot va Biologiyadagi Roli
+[y=4.83 14pt Q #0F2027] Enterosorbsiya va Gemosorbsiya: Oshqozon-ichak va qondan toksinlar, zaharlar, allergenlar hamda og'ir metallarni faollangan ko'mir va sintetik sorbentlar (Sorbent SKN, AUA) yordamida ajratib olish.
+[y=4.83 14pt Q #0F2027] Biologik Membranalar: Hujayra membranasi lipid bimodal va oqsil qatlamlaridan tashkil topgan bo me'yoriy fermentativ va retseptor jarayonlar sirt hodisalariga asoslanadi.
+[y=4.83 14pt Q #0F2027] Dori Moddalari Tasiri: Parchalanish va so'rilish tezgini oshirish uchun fermentativ va dori preparatlari mikrog'ovak tashuvchilarda immobilizatsiyalanadi.
+[y=4.83 13pt Q #0F2027] Tibbiyotda Qo'llaniladigan Sorbentlar: • Faollangan ko'mir (Aktivlashtirilgan uglerod)
+• Smekta, Politrepan (Gil minerallari)
+• Silikagelli enterosorbentlar (Polisorb)
+• Selektiv immunasorbentlar
+
+==========================================================================================
+18-SLAYD   (rasmlar: 0)
+==========================================================================================
+[y=1.02 ] KOLLEID KIMYO: SIRT HODISALARI VA ADSORBSIYA
+[y=1.78 ] 17. Adsorbsiyaning Sanoat va Ekologiyadagi Amaliy Roli
+[y=4.83 14pt Q #0F2027] Gazlarni va Havo Muhitini Tozalash: Sanoat chiqindi gazlarini H2S, SO2, CO2 va zaqarlantiruvchi moddalardan tozalash. Protivogazlarda (Zelinskiy protivogazi) gazlarni tutib qolish.
+[y=4.83 14pt Q #0F2027] Suv va Oqovalarni Tozalash: Ichimlik suvi hamda sanoat oqova suvlarini neft mahsulotlari, bo'yoqlar, fenollar va sirt-aktiv moddalardan adsorbsion tozalash.
+[y=4.83 14pt Q #0F2027] Geterogen Kataliz va Flotatsiya: Sanoat sintetik reaksiyalarining 80% gacha qismi katallizator sirtidagi adsorbsiya orqali boradi. Ma'danlarni boyitishda flotatsiya jarayoni.
+[y=4.83 13pt Q #0F2027] Sanoat Texnologiyalari: • Koks gazidan benzol va toluol ajratib olish
+• Shakar va moylarni rangsizlantirish
+• Molekulyar elaklar (seolitlar) yordamida gazlarni quritish va fraksiyalash
