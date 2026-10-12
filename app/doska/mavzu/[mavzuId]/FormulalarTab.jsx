@@ -11,7 +11,7 @@
 // 7. Dyuklo-Traube Qoidasi & Gomologik Qator Sirt Faolligi (β ≈ 3.2)
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import LatexMatn from "@/components/LatexMatn";
 import {
   LENGMYUR_PRESETLARI,
@@ -20,6 +20,9 @@ import {
   FreyndlixIzotermaGrafik,
   BetIzotermaGrafik,
   KelvinGisterezisGrafik,
+  TermodinamikaIzosterikGrafik,
+  TraubeIzotermaGrafik,
+  TRAUBE_KISLOTALAR,
 } from "./IzotermaGrafiklar";
 
 // Turli modullarning ob'ekt kalitlarini aniqlash (universitet darajasidagi barqarorlik)
@@ -161,10 +164,81 @@ const CHUQUR_NAZARIYA_LUGATI = {
   },
 };
 
+// ═══ 7 TA ILMIY MODUL UCHUN INTERAKTIV LABORATORIYA YO'RIQNOMALARI & PROTOKOLLARI ═══
+const MODUL_LAB_YORIQNOMALARI = {
+  "lengmyur-regressiya": {
+    nomi: "1-Modul: Lengmyur Monomolekulyar Adsorbsiya Tajribasi",
+    qadamlar: [
+      { raqam: 1, sarlavha: "Adsorbent namunasini tanlang", matn: "Tepadagi 4 ta real presetdan birini tanlang (masalan, BAU-A ko'mir + Benzol yoki Tseolit + CO₂). Har birining o'z a_m va K parametrlari bor." },
+      { raqam: 2, sarlavha: "Konsentratsiya va Haroratni o'zgartiring", matn: "Konsentratsiya (C) slayderini suring: past konsentratsiyada chiziqli Genri sohasi, yuqori konsentratsiyada gorizontal to'yinish platosini kuzating." },
+      { raqam: 3, sarlavha: "Sirt to'lishi va Kinetik muvozanat", matn: "16 ta faol markazning to'lishini (θ) va adsorbsiya (v_ads) hamda desorbsiya (v_des) tezliklari tenglashgan dinamik muvozanat holatini tekshiring." },
+      { raqam: 4, sarlavha: "Freyndlix bilan taqqoslang", matn: "⚖️ Freyndlix bilan solishtirish tugmasini yoqing: geterogen modelda platoga ega emasligini Lengmyur bilan solishtiring." },
+    ],
+    xulosa: "Maksimal monoqavat to'lgach (θ = 1.0), yangi qatlam hosil bo'lmaydi va adsorbsiya a_m platosiga chiqadi.",
+  },
+  "freyndlix-regressiya": {
+    nomi: "2-Modul: Freyndlix Geterogen Sirt Tajribasi",
+    qadamlar: [
+      { raqam: 1, sarlavha: "Tuproq yoki Mineralli Sorbentni tanlang", matn: "Qora tuproq gumusi, daryo loyqasi yoki torf filtrini tanlang." },
+      { raqam: 2, sarlavha: "1/n intensivlik darajasini sinang", matn: "1/n < 1 bo'lganda egri chiziq qabariq bo'ladi: avval yuqori energiyali chuqur markazlar (65 kJ/mol), keyin sayoz markazlar to'ladi." },
+      { raqam: 3, sarlavha: "Energetik relyefni kuzating", matn: "Pastdagi 16 ta potensial o'ralar profilida sirtning notekis to'lish dinamikasini ko'ring." },
+    ],
+    xulosa: "Sirt energetik jihatdan bir xil emasligi sababli qat'iy to'yinish platosi mavjud emas, adsorbsiya logarifmik o'sadi.",
+  },
+  "bet-modeli": {
+    nomi: "3-Modul: BET Ko'p Qatlamli Adsorbsiya & Solishtirma Sirt Maydoni (S_BET)",
+    qadamlar: [
+      { raqam: 1, sarlavha: "Nisbiy bug' bosimini (p/p₀) oshiring", matn: "p/p₀ slayderini 0.01 dan 0.95 gacha suring: 1-qatlam, 2-qatlam va 3-qatlamlarning ketma-ket to'planishini kuzating." },
+      { raqam: 2, sarlavha: "B nuqtasini aniqlang", matn: "p/p₀ ≈ 0.15 atrofidagi B nuqtada monomolekulyar qatlam to'liq to'ladi (θ = 1.0). Undan so'ng polimolekulyar kondensatsiya boshlanadi." },
+      { raqam: 3, sarlavha: "ISO 9277 standart zonasini tekshiring", matn: "Chiziqli regressiya darchasi aynan 0.05 ≤ p/p₀ ≤ 0.35 oralig'ida bo'lgandagina S_BET aniq chiqishiga e'tibor bering." },
+    ],
+    xulosa: "Azot gazi (77 K, ω = 0.162 nm²) orqali nanog'ovak adsorbentning haqiqiy solishtirma sirti (m²/g) topiladi.",
+  },
+  "gibbs-sirt-taranglik": {
+    nomi: "4-Modul: Gibbs Sirt Taranglik & KBM Mitsellalari Tajribasi",
+    qadamlar: [
+      { raqam: 1, sarlavha: "SFM konsentratsiyasini oshiring", matn: "Konsentratsiya (C) oshishi bilan suv sirt tarangligi 72.8 mN/m dan 28 mN/m gacha pasayishini kuzating." },
+      { raqam: 2, sarlavha: "Palisad va Sirt ortiqchaligini ko'ring", matn: "SFM molekulalari sirtga joylashib, gidrofil boshchasi suvda, gidrofob dumi havoda tik turishini kuzating." },
+      { raqam: 3, sarlavha: "KBM (Kritik Mitsella Hosil Bo'lishi) nuqtasini toping", matn: "C ≥ 0.05 mol/L da sirt to'yingach, suv ichida aylanuvchi sferik mitsellalar paydo bo'lishini ko'ring." },
+    ],
+    xulosa: "dσ/dC < 0 bo'lgani sababli sirt ortiqchaligi musbat (Γ > 0). KBM dan keyin sirt taranglik o'zgarmas bo'lib qoladi.",
+  },
+  "kelvin-kapillyar": {
+    nomi: "5-Modul: Kelvin Kapillyar Kondensatsiya & Gisterezis Tajribasi",
+    qadamlar: [
+      { raqam: 1, sarlavha: "G'ovak morfologiyasini tanlang", matn: "Silindrsimon (H1), Butilka bo'g'zi (H2) yoki Yoriqsimon (H3/H4) mezog'ovak turini tanlang." },
+      { raqam: 2, sarlavha: "Radius (r) slayderini o'zgartiring", matn: "Radius qancha tor (kichik) bo'lsa, kondensatsiya shuncha past nisbiy bosimda (p/p₀ < 1) boshlanadi." },
+      { raqam: 3, sarlavha: "Gisterezis sirtmog'ini tahlil qiling", matn: "Adsorbsiya silindr plyonkasi orqali, Desorbsiya esa botiq yarimsferik menisk orqali kechishi sababli ikkita shox hosil bo'ladi." },
+    ],
+    xulosa: "Botiq menisk ustida to'yingan bug' bosimi tekis sirtdagidan past bo'lgani sababli gaz p/p₀ < 1 dayoq suyuqlikka aylanadi.",
+  },
+  "termodinamika-izosterik": {
+    nomi: "6-Modul: Adsorbsiya Termodinamikasi & Mikrokalorimetriya",
+    qadamlar: [
+      { raqam: 1, sarlavha: "T₁ va T₂ haroratlarini belgilang", matn: "Birinchi izoterma (T₁) va ikkinchi izoterma (T₂) haroratlarini o'zgartiring." },
+      { raqam: 2, sarlavha: "Klapeyron-Klauzius izosterasini tahlil qiling", matn: "a = 2.0 mmol/g darajasidagi gorizontal kesimda bosim p₁ dan p₂ ga siljishini kuzating." },
+      { raqam: 3, sarlavha: "Termodinamik kattaliklarni baholang", matn: "q_st (izosterik issiqlik), ΔH (entalpiya < 0), ΔG (erkin energiya < 0) va ΔS (entropiya < 0) o'zgarishini ko'ring." },
+      { raqam: 4, sarlavha: "Mikrokalorimetr va Termometrni kuzating", matn: "Adsorbsiya paytida ajralgan issiqlik tufayli simobli termometr ustuni ko'tarilishini kuzating." },
+    ],
+    xulosa: "Adsorbsiya har doim ekzotermik (ΔH < 0, q_st > 0). Harorat oshganda Le Shatelye printsipiga ko'ra desorbsiya kuchayadi.",
+  },
+  "dyuklo-traube-qoidasi": {
+    nomi: "7-Modul: Dyuklo-Traube Qoidasi & Sirt Faolligi Gomologik Tajribasi",
+    qadamlar: [
+      { raqam: 1, sarlavha: "Gomologik kislotani tanlang", matn: "Chumoli (n=1), Sirka (n=2), Propion (n=3), Moy (n=4) yoki Valerian (n=5) kislotalaridan birini bosing. Molekula dumi uzunligi o'zgarishini ko'ring." },
+      { raqam: 2, sarlavha: "Konsentratsiya (C) slayderini suring", matn: "Konsentratsiya ortishi bilan suv-havo chegarasida palisad zichlashishi va sirt taranglik pasayishini kuzating." },
+      { raqam: 3, sarlavha: "Stalagmometr tomchilarini hisoblang", matn: "Sirt taranglik pasayganda tomchilar massasi kamayib, tomish tezligi va tomchilar soni keskin ko'payishini ko'ring." },
+      { raqam: 4, sarlavha: "Traube koeffitsiyenti β ≈ 3.2 ni isbotlang", matn: "Har bir -CH₂- guruhi qo'shilganda suv molekulalari dumni siqib chiqarishi tufayli sirt faolligi 3.2 barobar ortadi (W ≈ 3.2 kJ/mol)." },
+    ],
+    xulosa: "Gidrofob samara: uglevodorod zanjiri uzayishi bilan molekulaning suvdan sirtga itarib chiqarilishi geometrik progressiyada kuchayadi.",
+  },
+};
+
 export default function FormulalarTab({ mavzu }) {
   const modullar = mavzu.chuqurModullar || [];
   const [faolModulId, setFaolModulId] = useState(modullar[0]?.id || "");
   const [ichkiRejim, setIchkiRejim] = useState("animatsiya"); // "animatsiya" | "jadval" | "regressiya" | "nazariya"
+  const [yoriqnomaOchiq, setYoriqnomaOchiq] = useState(true);
 
   const faolModul = modullar.find((m) => m.id === faolModulId) || modullar[0];
 
@@ -196,9 +270,10 @@ export default function FormulalarTab({ mavzu }) {
   const [kelvinR, setKelvinR] = useState(4); // nm
   const [kelvinGovakTuri, setKelvinGovakTuri] = useState("silindr"); // "silindr" | "butilka" | "yoriq"
   const [termoT1, setTermoT1] = useState(273); // K
-  const [termoT2, setTermoT2] = useState(298); // K
   const [traubeKislotaIdx, setTraubeKislotaIdx] = useState(2); // Propion kislota
   const [traubeC, setTraubeC] = useState(0.02); // mol/L
+  const [traubeTomchilarSoni, setTraubeTomchilarSoni] = useState(0);
+  const [traubeAvtoTomizish, setTraubeAvtoTomizish] = useState(false);
 
   // Tajriba jadvalini o'zgartirish
   const qatorOzgartir = (modulId, index, maydon, yangiQiymat) => {
@@ -375,22 +450,34 @@ export default function FormulalarTab({ mavzu }) {
     return (C * x) / ((1 - x) * (1 + (C - 1) * x));
   }, [betPnisbiy, betCParam]);
 
-  if (!faolModul) {
-    return <div className="text-slate-400 p-8 text-center">Modul mavjud emas</div>;
-  }
-
   // Gibbs hisobi
-  const gibbsNatija = faolModul.id === "gibbs-sirt-taranglik" ? faolModul.hisobla(gibbsC) : null;
+  const gibbsNatija = faolModul?.id === "gibbs-sirt-taranglik" ? faolModul.hisobla(gibbsC) : null;
   // Kelvin hisobi
-  const kelvinNatija = faolModul.id === "kelvin-kapillyar" ? faolModul.hisobla(kelvinR) : null;
+  const kelvinNatija = faolModul?.id === "kelvin-kapillyar" ? faolModul.hisobla(kelvinR) : null;
   // Termodinamika hisobi (273 K va 298 K dagi p1 va p2)
-  const termoNatija = faolModul.id === "termodinamika-izosterik"
+  const termoNatija = faolModul?.id === "termodinamika-izosterik"
     ? faolModul.hisobla(12.4, 38.6, termoT1, termoT2)
     : null;
   // Traube hisobi
-  const traubeNatija = faolModul.id === "dyuklo-traube-qoidasi"
+  const traubeNatija = faolModul?.id === "dyuklo-traube-qoidasi"
     ? faolModul.hisobla(traubeKislotaIdx, traubeC)
     : null;
+
+  // Traube avtomatik tomizish taymeri (sirt taranglikka proporsional chastota)
+  useEffect(() => {
+    if (!traubeAvtoTomizish || faolModul?.id !== "dyuklo-traube-qoidasi") return;
+    const sigma = traubeNatija?.sigma || 72.8;
+    // Sirt taranglik qancha past bo'lsa, tomchi shuncha tez uziladi (320ms .. 1100ms)
+    const intervalMs = Math.max(320, Math.round((sigma / 72.8) * 1100));
+    const timer = setInterval(() => {
+      setTraubeTomchilarSoni((s) => s + 1);
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [traubeAvtoTomizish, faolModul?.id, traubeNatija?.sigma]);
+
+  if (!faolModul) {
+    return <div className="text-slate-400 p-8 text-center">Modul mavjud emas</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -503,6 +590,67 @@ export default function FormulalarTab({ mavzu }) {
            ═══════════════════════════════════════════════════════════════════ */}
         {ichkiRejim === "animatsiya" && (
           <div className="space-y-6">
+            {/* 🧪 LABORATORIYA YO'RIQNOMASI VA AMALIY TOPSHIRIQLAR PROTOKOLI */}
+            {MODUL_LAB_YORIQNOMALARI[faolModul.id] && (() => {
+              const yoriq = MODUL_LAB_YORIQNOMALARI[faolModul.id];
+              return (
+                <div className="bg-slate-950 rounded-3xl p-5 sm:p-6 border border-emerald-500/30 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm">
+                        🧪
+                      </span>
+                      <div>
+                        <h4 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                          {yoriq.nomi}
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                          Smart Doska laboratoriya mashg&apos;uloti bosqichlari & amaliy yo&apos;riqnoma
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setYoriqnomaOchiq(!yoriqnomaOchiq)}
+                      className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-slate-600 text-xs text-slate-300 font-medium transition flex items-center gap-1.5"
+                    >
+                      <span>{yoriqnomaOchiq ? "Yig'ish ▲" : "Ko'rsatish ▼"}</span>
+                    </button>
+                  </div>
+
+                  {yoriqnomaOchiq && (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        {yoriq.qadamlar.map((q) => (
+                          <div
+                            key={q.raqam}
+                            className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5 relative overflow-hidden group hover:border-emerald-500/40 transition"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-600/40 text-[11px] font-bold flex items-center justify-center shrink-0">
+                                {q.raqam}
+                              </span>
+                              <span className="text-xs font-bold text-slate-200 truncate">
+                                {q.sarlavha}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 leading-relaxed">
+                              {q.matn}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="p-3 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 flex items-start gap-2.5 text-xs text-emerald-200">
+                        <span className="text-emerald-400 font-bold mt-0.5">🎯 Xulosa:</span>
+                        <span className="leading-relaxed">{yoriq.xulosa}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* 1: LENGMYUR DINAMIK MUVOZANAT KINETIKASI (v_ads = v_des) */}
             {faolModul.id === "lengmyur-regressiya" && (
               <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
@@ -1075,7 +1223,7 @@ export default function FormulalarTab({ mavzu }) {
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt taranglik (σ)</div>
                         <div className="text-xl font-mono font-black text-amber-400 my-1">
-                          {gibbsNatija?.sigma.toFixed(1)} <span className="text-[10px] font-normal text-slate-400">mN/m</span>
+                          {(gibbsNatija?.sigma ?? 72.8).toFixed(1)} <span className="text-[10px] font-normal text-slate-400">mN/m</span>
                         </div>
                         <div className="text-[9px] text-slate-400">Suv: 72.8 mN/m</div>
                       </div>
@@ -1083,7 +1231,7 @@ export default function FormulalarTab({ mavzu }) {
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt bosimi (π)</div>
                         <div className="text-xl font-mono font-black text-sky-400 my-1">
-                          {(72.8 - (gibbsNatija?.sigma || 72.8)).toFixed(1)} <span className="text-[10px] font-normal text-slate-400">mN/m</span>
+                          {(72.8 - (gibbsNatija?.sigma ?? 72.8)).toFixed(1)} <span className="text-[10px] font-normal text-slate-400">mN/m</span>
                         </div>
                         <div className="text-[9px] text-slate-400">π = σ₀ − σ</div>
                       </div>
@@ -1091,9 +1239,9 @@ export default function FormulalarTab({ mavzu }) {
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt ortiqchaligi (Γ)</div>
                         <div className="text-xl font-mono font-black text-emerald-400 my-1">
-                          {gibbsNatija?.gammaMkmol.toFixed(2)} <span className="text-[10px] font-normal text-slate-400">µmol/m²</span>
+                          {(gibbsNatija?.gammaMkmol ?? 3.4).toFixed(2)} <span className="text-[10px] font-normal text-slate-400">µmol/m²</span>
                         </div>
-                        <div className="text-[9px] text-slate-400">s = {gibbsNatija?.s0.toFixed(2)} nm²</div>
+                        <div className="text-[9px] text-slate-400">s = {(gibbsNatija?.s0 ?? 0.35).toFixed(2)} nm²</div>
                       </div>
                     </div>
 
@@ -1265,10 +1413,10 @@ export default function FormulalarTab({ mavzu }) {
                         Kondensatsiya boshlanadigan nisbiy bosim (p / p₀):
                       </div>
                       <div className="text-4xl font-mono font-black text-emerald-400 my-2">
-                        {kelvinNatija?.pNisbiy.toFixed(3)}
+                        {(kelvinNatija?.pNisbiy ?? 0.58).toFixed(3)}
                       </div>
                       <div className="text-xs text-slate-300 leading-relaxed">
-                        Botiq menisk tufayli bug&apos; {kelvinNatija?.pNisbiy.toFixed(2)} nisbiy bosimdayoq suyuqlikka aylanadi!
+                        Botiq menisk tufayli bug&apos; {(kelvinNatija?.pNisbiy ?? 0.58).toFixed(2)} nisbiy bosimdayoq suyuqlikka aylanadi!
                       </div>
                     </div>
 
@@ -1326,6 +1474,15 @@ export default function FormulalarTab({ mavzu }) {
                   </span>
                 </div>
 
+                {/* Klapeyron-Klauzius Ikkita Izoterma grafigi (T1 vs T2) */}
+                <TermodinamikaIzosterikGrafik
+                  t1={termoT1}
+                  t2={termoT2}
+                  qst={termoNatija?.qst || 32.4}
+                  p1={12.4}
+                  p2={38.6}
+                />
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                   <div className="lg:col-span-6 space-y-4">
                     <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-4">
@@ -1365,17 +1522,17 @@ export default function FormulalarTab({ mavzu }) {
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Izosterik Issiqlik (q_st)</div>
                         <div className="text-2xl font-mono font-black text-amber-400 my-1">
-                          {termoNatija?.qst.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
+                          {(termoNatija?.qst ?? 32.4).toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
                         </div>
                         <span className="text-[10px] text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-800/40">
-                          {termoNatija?.qst < 42 ? "Fizisorbtsiya (Van-der-Vaals)" : "Ximisorbtsiya (Kimyoviy)"}
+                          {(termoNatija?.qst ?? 32.4) < 42 ? "Fizisorbtsiya (Van-der-Vaals)" : "Ximisorbtsiya (Kimyoviy)"}
                         </span>
                       </div>
 
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Entalpiya (ΔH)</div>
                         <div className="text-2xl font-mono font-black text-rose-400 my-1">
-                          {termoNatija?.deltaH.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
+                          {(termoNatija?.deltaH ?? -32.4).toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
                         </div>
                         <div className="text-[10px] text-slate-400">ΔH = −q_st (Ekzotermik)</div>
                       </div>
@@ -1383,7 +1540,7 @@ export default function FormulalarTab({ mavzu }) {
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Erkin energiya (ΔG)</div>
                         <div className="text-2xl font-mono font-black text-purple-400 my-1">
-                          {termoNatija?.deltaG.toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
+                          {(termoNatija?.deltaG ?? -18.2).toFixed(1)} <span className="text-xs text-slate-400 font-normal">kJ/mol</span>
                         </div>
                         <div className="text-[10px] text-slate-400">&lt; 0 (Spontan / O&apos;z-o&apos;zidan)</div>
                       </div>
@@ -1391,7 +1548,7 @@ export default function FormulalarTab({ mavzu }) {
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Entropiya (ΔS)</div>
                         <div className="text-2xl font-mono font-black text-sky-400 my-1">
-                          {termoNatija?.deltaS.toFixed(1)} <span className="text-xs text-slate-400 font-normal">J/(mol·K)</span>
+                          {(termoNatija?.deltaS ?? -47.6).toFixed(1)} <span className="text-xs text-slate-400 font-normal">J/(mol·K)</span>
                         </div>
                         <div className="text-[10px] text-slate-400">&lt; 0 (Erkinlik yo&apos;qoladi)</div>
                       </div>
@@ -1419,11 +1576,11 @@ export default function FormulalarTab({ mavzu }) {
                         <div className="w-5 h-36 bg-slate-950 border-2 border-slate-600 rounded-full relative flex flex-col justify-end p-0.5">
                           <div
                             className="w-full bg-gradient-to-t from-rose-600 to-amber-400 rounded-full transition-all duration-500"
-                            style={{ height: `${Math.min(95, Math.max(25, ((termoNatija?.qst || 30) / 60) * 80))}%` }}
+                            style={{ height: `${Math.min(95, Math.max(25, (((termoNatija?.qst ?? 32.4) || 30) / 60) * 80))}%` }}
                           />
                         </div>
                         <span className="text-[10px] font-mono font-bold text-amber-400 mt-2">
-                          q_st = {termoNatija?.qst.toFixed(1)} kJ
+                          q_st = {(termoNatija?.qst ?? 32.4).toFixed(1)} kJ
                         </span>
                       </div>
                     </div>
@@ -1436,47 +1593,69 @@ export default function FormulalarTab({ mavzu }) {
               </div>
             )}
 
-            {/* 7: DYUKLO-TRAUBE QOIDASI & GIDROFOB ZANJIR ZINAPOYASI */}
-            {faolModul.id === "dyuklo-traube-qoidasi" && (
-              <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
-                <div>
-                  <h4 className="text-base font-bold text-white flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Dyuklo-Traube Qoidasi: Har bir -CH₂- guruhi sirt faolligini 3.2 barobar oshiradi
-                  </h4>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Yog&apos; kislotalari gomologik qatorida uglevodorod zanjiri qancha uzun bo&apos;lsa, suv uni shuncha kuchli sirtga itarib chiqaradi (Gidrofob samara).
-                  </p>
-                </div>
+            {/* 7: DYUKLO-TRAUBE QOIDASI & GOMOLOGIK QATOR SIRT FAOLLIGI */}
+            {faolModul.id === "dyuklo-traube-qoidasi" && (() => {
+              const tanlanganKislota = TRAUBE_KISLOTALAR[traubeKislotaIdx] || TRAUBE_KISLOTALAR[2];
+              const stalagmometrN = Math.round((72.8 / (traubeNatija?.sigma || 72.8)) * 25);
+              const tomchiMassasi = (((traubeNatija?.sigma || 72.8) / 72.8) * 50).toFixed(1);
+              const sirtMolekulalarSoni = Math.min(18, Math.max(3, Math.round(traubeC * 180) + tanlanganKislota.n * 2));
 
-                {/* Kislotani tanlash */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                  {(faolModul.kislotalar || []).map((k, idx) => {
-                    const faol = traubeKislotaIdx === idx;
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => setTraubeKislotaIdx(idx)}
-                        className={`p-3 rounded-2xl border text-left transition ${
-                          faol
-                            ? "bg-emerald-950 border-emerald-500 text-white ring-2 ring-emerald-500/50"
-                            : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
-                        }`}
-                      >
-                        <div className="text-[10px] text-emerald-400 font-bold uppercase">n = {k.n}</div>
-                        <div className="font-bold text-xs text-white truncate">{k.nom.split(" ")[0]}</div>
-                        <div className="text-[10px] font-mono text-slate-400">β = {k.betaDaraja}×</div>
-                      </button>
-                    );
-                  })}
-                </div>
+              return (
+                <div className="bg-slate-950 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+                  <div>
+                    <h4 className="text-base font-bold text-white flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Dyuklo-Traube Qoidasi: Har bir -CH₂- guruhi sirt faolligini 3.2 barobar oshiradi
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Yog&apos; kislotalari gomologik qatorida uglevodorod zanjiri qancha uzun bo&apos;lsa, suv uni shuncha kuchli sirtga itarib chiqaradi (Gidrofob samara).
+                    </p>
+                  </div>
 
-                {/* Slayder va hisob-kitob */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  <div className="lg:col-span-6 space-y-4">
-                    <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                  {/* 7.1 Kislotani tanlash */}
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                    {TRAUBE_KISLOTALAR.map((k, idx) => {
+                      const faol = traubeKislotaIdx === idx;
+                      return (
+                        <button
+                          key={k.formula}
+                          type="button"
+                          onClick={() => setTraubeKislotaIdx(idx)}
+                          className={`p-3 rounded-2xl border text-left transition-all ${
+                            faol
+                              ? "border-emerald-400 bg-emerald-950/70 text-white ring-2 ring-emerald-500/50 shadow-lg shadow-emerald-950/50"
+                              : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span
+                              className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded"
+                              style={{ color: k.rang, backgroundColor: `${k.rang}18` }}
+                            >
+                              n = {k.n}
+                            </span>
+                            <span className="text-[10px] font-mono text-emerald-400 font-bold">{k.beta}</span>
+                          </div>
+                          <div className="font-bold text-xs text-white truncate">{k.nom}</div>
+                          <div className="text-[10px] font-mono text-slate-300 mt-0.5">{k.formula}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 7.2 Jonli SVG Traube Izoterma Grafigi (5 ta egri chiziq va real vaqt nuqtasi) */}
+                  <TraubeIzotermaGrafik
+                    kislotaIndex={traubeKislotaIdx}
+                    joriyC={traubeC}
+                    joriySigma={traubeNatija?.sigma || 47.8}
+                    faollik={traubeNatija?.faollik || 1120}
+                  />
+
+                  {/* 7.3 Slayder va hisob-kitob kartalari */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/60 p-4 sm:p-5 rounded-2xl border border-slate-800">
+                    <div className="space-y-2">
                       <div className="flex justify-between items-center text-xs font-bold text-slate-300">
-                        <span>Konsentratsiya (C):</span>
+                        <span>Eritma konsentratsiyasi (C):</span>
                         <span className="font-mono text-emerald-400 text-sm font-bold">{traubeC} mol/L</span>
                       </div>
                       <input
@@ -1488,95 +1667,358 @@ export default function FormulalarTab({ mavzu }) {
                         onChange={(e) => setTraubeC(Number(e.target.value))}
                         className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
                       />
+                      <div className="flex justify-between text-[10px] text-slate-500">
+                        <span>0.002 mol/L (Suyultirilgan)</span>
+                        <span>0.080 mol/L (Konsentrlangan)</span>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt taranglik (σ)</div>
-                        <div className="text-2xl font-mono font-black text-amber-400 my-1">
-                          {traubeNatija?.sigma.toFixed(1)} <span className="text-xs font-normal text-slate-400">mN/m</span>
+                        <div className="text-xl font-mono font-black text-amber-400 my-0.5">
+                          {(traubeNatija?.sigma ?? 72.8).toFixed(1)} <span className="text-[10px] text-slate-400 font-normal">mN/m</span>
                         </div>
-                        <div className="text-[10px] text-slate-400">Toza suv: 72.8 mN/m</div>
+                        <div className="text-[10px] text-slate-500">Sof suv: 72.8 mN/m</div>
                       </div>
 
-                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-center">
                         <div className="text-[10px] text-slate-400 uppercase font-bold">Sirt Faolligi (G₀)</div>
-                        <div className="text-2xl font-mono font-black text-emerald-400 my-1">
-                          {traubeNatija?.faollik} <span className="text-xs font-normal text-slate-400">mN·L/(m·mol)</span>
+                        <div className="text-xl font-mono font-black text-emerald-400 my-0.5">
+                          {traubeNatija?.faollik} <span className="text-[10px] text-slate-400 font-normal">mN·L/(m·mol)</span>
                         </div>
-                        <div className="text-[10px] text-slate-400">G = −dσ/dC (C→0)</div>
+                        <div className="text-[10px] text-slate-500">G = −(dσ/dC)₀</div>
                       </div>
-                    </div>
-
-                    {/* Energetik zinapoya */}
-                    <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs">
-                      <div className="flex items-center justify-between font-bold text-emerald-300 mb-1">
-                        <span>Traube energetik tejamkorligi:</span>
-                        <span className="font-mono">Δ(ΔG°) ≈ −3.2 kJ/mol</span>
-                      </div>
-                      <p className="text-slate-400 text-[11px] leading-relaxed">
-                        Har bir $-\text{CH}_2-$ guruhi suvning vodorod bog&apos;larini buzmaslik uchun sirtga intiladi va sirt faolligini 3.2 barobar ko&apos;paytiradi.
-                      </p>
                     </div>
                   </div>
 
-                  {/* Ko'p egri chiziqli taqqoslash grafigi (SVG) */}
-                  <div className="lg:col-span-6 bg-slate-900 rounded-2xl p-4 border border-slate-800">
-                    <div className="text-xs font-bold text-slate-400 mb-2 flex justify-between">
-                      <span>Gomologik qatorda σ(C) ning pasayishi:</span>
-                      <span className="text-emerald-400 font-mono">β ≈ 3.2 qoidasi</span>
+                  {/* 7.4 Ikki ta interaktiv laboratoriya animatsiyasi */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* ANIMATSIYA 1: SUV-HAVO CHEGARASI VA GIDROFOB ZANJIR TEBRANISHI */}
+                    <div className="lg:col-span-6 bg-slate-900/90 rounded-2xl p-5 border border-slate-800 flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-300 mb-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                            <span>Molekulyar Suv-Havo Palisadi ({tanlanganKislota.nom})</span>
+                          </span>
+                          <span className="font-mono text-[11px] text-cyan-400">
+                            n = {tanlanganKislota.n} ta -CH₂-
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 leading-snug">
+                          Gidrofil qutbli boshcha (-COOH) suvda qoladi; gidrofob uglevodorod dumi esa suvning vodorod bog&apos;lari itarishi hisobiga havoga chiqadi.
+                        </p>
+                      </div>
+
+                      {/* 2D Molekulyar Chegara Ko'rinishi */}
+                      <div className="relative w-full h-44 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-end">
+                        {/* Havo fazasi (Yuqori) */}
+                        <div className="absolute top-2 left-3 text-[10px] font-bold text-slate-500 tracking-wider">
+                          HAVO FAZASI (QUTBSIZ)
+                        </div>
+                        <div className="absolute top-2 right-3 text-[10px] font-mono text-emerald-400/80">
+                          ↑ Gidrofob itarilish kuchi: W ≈ −{(tanlanganKislota.n * 3.2).toFixed(1)} kJ/mol
+                        </div>
+
+                        {/* Sirtda joylashgan kislota molekulalari palisadi */}
+                        <div className="relative z-10 w-full px-4 flex items-end justify-around pb-12">
+                          {Array.from({ length: sirtMolekulalarSoni }).map((_, mIdx) => (
+                            <div
+                              key={mIdx}
+                              className="flex flex-col items-center animate-pulse"
+                              style={{
+                                animationDuration: `${1.4 + (mIdx % 3) * 0.4}s`,
+                                animationDelay: `${mIdx * 0.08}s`,
+                              }}
+                            >
+                              {/* Gidrofob uglevodorod zanjiri dumi (n ta bo'g'in) */}
+                              <div className="flex flex-col items-center space-y-0.5 mb-0.5">
+                                {Array.from({ length: tanlanganKislota.n }).map((_, cIdx) => (
+                                  <div
+                                    key={cIdx}
+                                    className="w-2.5 h-2.5 rounded-full shadow-sm"
+                                    style={{
+                                      backgroundColor: tanlanganKislota.rang,
+                                      transform: `rotate(${cIdx % 2 === 0 ? -12 : 12}deg)`,
+                                    }}
+                                    title={`-CH2- bo'g'in ${cIdx + 1}`}
+                                  />
+                                ))}
+                              </div>
+
+                              {/* Gidrofil boshcha (-COOH) */}
+                              <div
+                                className="w-4 h-4 rounded-full bg-rose-500 border border-white/60 shadow-md flex items-center justify-center text-[7px] font-black text-white"
+                                title="-COOH karboksil boshchasi"
+                              >
+                                O
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Suv fazasi (Pastki qism to'lqini) */}
+                        <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-sky-950 via-sky-900/60 to-cyan-800/40 border-t-2 border-cyan-400/50 flex items-center justify-between px-3 text-[10px] font-bold text-cyan-300">
+                          <span>SUV FAZASI (H₂O klasterlari)</span>
+                          <span className="font-mono text-[9px] text-cyan-400/70">
+                            Zichlik: {sirtMolekulalarSoni} ta molekula sirtda
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                        💡 <b>Traube qoidasi mexanizmi:</b> Zanjir n={tanlanganKislota.n} ga teng bo&apos;lganda, har bir -CH₂- suv vodorod bog&apos;larini kamroq buzish uchun sirtga siqib chiqariladi (W ≈ {tanlanganKislota.beta} barobar kuchli sirt faollik).
+                      </div>
                     </div>
 
-                    <div className="relative w-full aspect-[16/10]">
-                      <svg className="w-full h-full" viewBox="0 0 450 250">
-                        <line x1="45" y1="20" x2="45" y2="210" stroke="#334155" strokeWidth="1.5" />
-                        <line x1="45" y1="210" x2="430" y2="210" stroke="#334155" strokeWidth="1.5" />
+                    {/* ANIMATSIYA 2: VIRTUAL TRAUBE STALAGMOMETRI (TOMCHI SANAGICH) */}
+                    <div className="lg:col-span-6 bg-slate-900/90 rounded-2xl p-5 border border-slate-800 flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-300 mb-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                            <span>Virtual Traube Stalagmometri (Tomchi usuli)</span>
+                          </span>
+                          <span className="font-mono text-[11px] text-emerald-400">
+                            Tate qonuni: P = 2πr·σ
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 leading-snug">
+                          Sirt taranglik (σ) pasayganda, tomchini ushlab turuvchi kuch kamayadi — tomchilar kichrayib, 1 ml hajmdagi tomchilar soni keskin ortadi!
+                        </p>
+                      </div>
 
-                        {[
-                          { b: 12.0, d: 8, rang: "#64748b", nom: "HCOOH" },
-                          { b: 13.0, d: 25, rang: "#38bdf8", nom: "CH₃COOH" },
-                          { b: 14.0, d: 80, rang: "#10b981", nom: "C₂H₅COOH" },
-                          { b: 14.5, d: 256, rang: "#f59e0b", nom: "C₃H₇COOH" },
-                          { b: 15.0, d: 820, rang: "#ef4444", nom: "C₄H₉COOH" },
-                        ].map((k, i) => {
-                          const pts = [];
-                          for (let step = 0; step <= 20; step++) {
-                            const cVal = (step / 20) * 0.08;
-                            const sVal = Math.max(20, 72.8 - k.b * Math.log(1 + k.d * cVal));
-                            const svgX = 45 + (cVal / 0.08) * 370;
-                            const svgY = 210 - ((sVal - 20) / (72.8 - 20)) * 180;
-                            pts.push(`${svgX.toFixed(1)},${svgY.toFixed(1)}`);
-                          }
-                          const faol = traubeKislotaIdx === i;
-                          return (
-                            <g key={i}>
-                              <polyline
-                                fill="none"
-                                stroke={k.rang}
-                                strokeWidth={faol ? "3.5" : "1.8"}
-                                strokeOpacity={faol ? 1 : 0.45}
-                                points={pts.join(" ")}
+                      {/* Stalagmometr Kapillyar & Qabul qiluvchi Menzurka Vizuali */}
+                      <div className="relative w-full h-56 bg-slate-950 rounded-xl border border-slate-800 p-3 flex items-center justify-around overflow-hidden">
+                        {/* Shisha Stalagmometr va Tomizgich */}
+                        <div className="flex flex-col items-center">
+                          {/* Keng rezervuar ampulasi */}
+                          <div className="w-11 h-14 rounded-full border-2 border-slate-500 bg-slate-900 relative flex items-center justify-center overflow-hidden shadow-inner">
+                            <div
+                              className="w-full bg-gradient-to-t from-emerald-600/70 to-cyan-500/50 transition-all duration-300"
+                              style={{ height: `${Math.max(25, 80 - Math.min(60, (traubeTomchilarSoni / stalagmometrN) * 55))}%` }}
+                            />
+                            <div className="absolute text-[8px] font-mono text-white/80 font-bold">V₁..V₂</div>
+                          </div>
+
+                          {/* Ingichka shisha kapillyar naycha */}
+                          <div className="w-2.5 h-8 border-x-2 border-slate-500 bg-slate-900/60 relative">
+                            <div className="w-full h-full bg-emerald-500/40" />
+                          </div>
+
+                          {/* Kapillyar uchi va tomchi uzilishi */}
+                          <div className="relative w-8 h-8 flex flex-col items-center justify-start">
+                            {/* Hosil bo'layotgan tomchi */}
+                            <div
+                              className={`rounded-full bg-gradient-to-b from-emerald-400 to-cyan-300 border border-white/80 shadow-md ${
+                                traubeAvtoTomizish ? "animate-pulse" : ""
+                              }`}
+                              style={{
+                                width: `${Math.max(8, Math.min(18, (traubeNatija?.sigma || 72.8) * 0.24))}px`,
+                                height: `${Math.max(10, Math.min(22, (traubeNatija?.sigma || 72.8) * 0.28))}px`,
+                              }}
+                            />
+
+                            {/* Havoda uchayotgan tomchi animatsiyasi */}
+                            {traubeAvtoTomizish && (
+                              <div
+                                className="absolute top-4 w-2.5 h-3 rounded-full bg-cyan-300/90 shadow-sm animate-bounce"
+                                style={{ animationDuration: "0.55s" }}
                               />
-                            </g>
-                          );
-                        })}
+                            )}
+                          </div>
 
-                        <text x="390" y="235" fill="#94a3b8" fontSize="10" fontWeight="bold">C (mol/L)</text>
-                        <text x="10" y="25" fill="#94a3b8" fontSize="10" fontWeight="bold">σ</text>
-                      </svg>
+                          {/* Pastki o'lchov kolbasi / menzurkasi (Qabul qiluvchi idish) */}
+                          <div className="w-14 h-14 border-2 border-slate-600 rounded-b-2xl bg-slate-900/80 relative flex flex-col justify-end p-1 overflow-hidden shadow-lg mt-1">
+                            {/* Suyuqlik sathi (yig'ilgan hajmga qarab ko'tariladi) */}
+                            <div
+                              className="w-full bg-gradient-to-t from-emerald-600 to-cyan-500 rounded-b-xl transition-all duration-300 relative flex items-center justify-center"
+                              style={{
+                                height: `${Math.min(95, Math.max(10, (traubeTomchilarSoni / stalagmometrN) * 85))}%`,
+                              }}
+                            >
+                              {traubeAvtoTomizish && (
+                                <div className="absolute top-0 w-8 h-1 bg-white/60 rounded-full animate-ping" />
+                              )}
+                            </div>
+                            <div className="absolute top-1 left-1 text-[7px] font-mono text-slate-500">1.0 ml</div>
+                            <div className="absolute top-4 left-1 text-[7px] font-mono text-slate-500">0.5 ml</div>
+                          </div>
+                        </div>
+
+                        {/* Tomchilar sanog'i va parametrlari */}
+                        <div className="space-y-2 font-mono text-xs w-48">
+                          <div className="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <div className="flex items-center justify-between text-[10px] text-slate-400">
+                              <span>Sanab olingan (N):</span>
+                              <span className="text-emerald-400 font-bold">{traubeTomchilarSoni} ta</span>
+                            </div>
+                            <div className="text-lg font-black text-emerald-400 mt-0.5">
+                              {stalagmometrN} <span className="text-[10px] text-slate-400 font-normal">ta/ml (nazariy)</span>
+                            </div>
+                            <div className="text-[9px] text-slate-500 mt-0.5">
+                              (Toza suvda 25 ta, σ pasayganda N ortadi)
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <div className="text-[10px] text-slate-400">Yig&apos;ilgan hajm:</div>
+                            <div className="text-base font-bold text-cyan-300 mt-0.5">
+                              {((traubeTomchilarSoni / stalagmometrN) * 1.0).toFixed(2)} <span className="text-[10px] text-slate-400 font-normal">ml</span>
+                            </div>
+                            <div className="text-[9px] text-slate-500">
+                              1 tomchi: {tomchiMassasi} mg
+                            </div>
+                          </div>
+
+                          {/* INTERAKTIV BOSHQARUV TUGMALARI */}
+                          <div className="flex flex-col gap-1.5 pt-1">
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setTraubeAvtoTomizish(!traubeAvtoTomizish)}
+                                className={`flex-1 py-1.5 px-2.5 rounded-lg font-bold text-[10px] transition shadow flex items-center justify-center gap-1 ${
+                                  traubeAvtoTomizish
+                                    ? "bg-amber-600 hover:bg-amber-500 text-white animate-pulse"
+                                    : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                                }`}
+                              >
+                                <span>{traubeAvtoTomizish ? "⏸ To'xtatish" : "▶ Avto-tomizish"}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setTraubeTomchilarSoni((s) => s + 1)}
+                                className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px] transition"
+                                title="Qo'lda bitta tomizish"
+                              >
+                                💧 +1
+                              </button>
+
+                              {traubeTomchilarSoni > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setTraubeTomchilarSoni(0);
+                                    setTraubeAvtoTomizish(false);
+                                  }}
+                                  className="py-1.5 px-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white text-[10px]"
+                                  title="Qayta nolga tushirish"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+
+                            <span className="text-[9px] text-slate-400 text-center font-sans">
+                              {traubeAvtoTomizish
+                                ? `⏱️ Tomish tezligi: har ${Math.round(((traubeNatija?.sigma || 72.8) / 72.8) * 1100)} ms da 1 tomchi`
+                                : "Avto rejimni yoqing yoki '+1' ni bosing"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                        💧 <b>Laboratoriya xulosasi:</b> {tanlanganKislota.nom} eritmasida sirt taranglik σ = {(traubeNatija?.sigma ?? 72.8).toFixed(1)} mN/m bo&apos;lgani sababli tomchi tezroq uziladi va tomchilar soni {stalagmometrN} taga ko&apos;payadi!
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 7.5 BARCHA 5 TA GOMOLOGIK KISLOTANING TAQQOSLASH JADVALI */}
+                  <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                        <h5 className="text-xs font-bold text-white uppercase tracking-wider">
+                          Dyuklo-Traube Gomologik Qator Tahlili & Sirt Faolligi Qiyosi (C = {traubeC} mol/L da)
+                        </h5>
+                      </div>
+                      <span className="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
+                        β = G_(n+1) / G_n ≈ 3.2
+                      </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 text-[10px] font-bold justify-center pt-2 border-t border-slate-800">
-                      <span className="text-slate-400">● HCOOH</span>
-                      <span className="text-sky-400">● CH₃COOH</span>
-                      <span className="text-emerald-400">● C₂H₅COOH</span>
-                      <span className="text-amber-400">● C₃H₇COOH</span>
-                      <span className="text-rose-400">● C₄H₉COOH</span>
+                    <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-800 bg-slate-900/80 text-slate-400 font-mono">
+                            <th className="p-3">Kislota</th>
+                            <th className="p-3">Formula</th>
+                            <th className="p-3 text-center">-CH₂- zanjir (n)</th>
+                            <th className="p-3 text-center">Sirt taranglik (σ)</th>
+                            <th className="p-3 text-center">1 ml tomchilar (N)</th>
+                            <th className="p-3 text-center">Sirt faolligi (G₀)</th>
+                            <th className="p-3 text-center">Traube karraligi (β)</th>
+                            <th className="p-3 text-center">Gidrofob ish (W)</th>
+                            <th className="p-3 text-right">Amal</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60 font-mono">
+                          {TRAUBE_KISLOTALAR.map((k, idx) => {
+                            const hisob = faolModul.hisobla(idx, traubeC);
+                            const sigma = hisob?.sigma || 72.8;
+                            const tomchiN = Math.round((72.8 / sigma) * 25);
+                            const tanlangan = traubeKislotaIdx === idx;
+                            const w = (idx * -3.2).toFixed(1);
+
+                            return (
+                              <tr
+                                key={k.formula}
+                                onClick={() => setTraubeKislotaIdx(idx)}
+                                className={`cursor-pointer transition-colors ${
+                                  tanlangan
+                                    ? "bg-emerald-950/50 text-white font-bold"
+                                    : "hover:bg-slate-900/60 text-slate-300"
+                                }`}
+                              >
+                                <td className="p-3 flex items-center gap-2">
+                                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: k.rang }} />
+                                  <span>{k.nom}</span>
+                                  {tanlangan && (
+                                    <span className="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded font-sans">
+                                      Faol
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="p-3 text-cyan-300">{k.formula}</td>
+                                <td className="p-3 text-center text-slate-400">{k.n}</td>
+                                <td className="p-3 text-center text-amber-400 font-bold">{sigma.toFixed(1)} mN/m</td>
+                                <td className="p-3 text-center text-emerald-400 font-bold">{tomchiN} ta</td>
+                                <td className="p-3 text-center text-slate-300">{hisob?.faollik}</td>
+                                <td className="p-3 text-center text-emerald-300 font-bold">{k.beta}</td>
+                                <td className="p-3 text-center text-rose-300">{w} kJ/mol</td>
+                                <td className="p-3 text-right">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setTraubeKislotaIdx(idx);
+                                    }}
+                                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition ${
+                                      tanlangan
+                                        ? "bg-emerald-600 text-white"
+                                        : "bg-slate-800 text-slate-400 hover:text-white"
+                                    }`}
+                                  >
+                                    {tanlangan ? "Tanlangan" : "Sinash"}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                      💡 <b>Xulosa:</b> Gomologik qatorda har bir -CH₂- guruhi ortishi bilan suvning vodorod bog&apos;lari qutbsiz dumchalarni sirtga itarib chiqaradi. Natijada sirt faolligi o&apos;rtacha <b>3.2 barobar</b> oshib, tomchilar soni keskin ortadi va sirt taranglik pasayadi!
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
             {/* HAR BIR MODULGA MOS TEZKOR ILMIY GLOSSARIY & PARAMETRLAR */}
             {(() => {
               const nazariya = CHUQUR_NAZARIYA_LUGATI[faolModul.id] || CHUQUR_NAZARIYA_LUGATI["lengmyur-regressiya"];

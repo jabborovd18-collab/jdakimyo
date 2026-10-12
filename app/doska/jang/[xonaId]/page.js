@@ -34,8 +34,18 @@ export default function OquvchiJangSahifasi() {
   const [tanlangan, setTanlangan] = useState(null);
   const [yuborilmoqda, setYuborilmoqda] = useState(false);
   const [tahlil, setTahlil] = useState(null);
+  const [tahlilFilter, setTahlilFilter] = useState("barchasi"); // "barchasi" | "xato" | "togri"
   const [umumiySarflanganVaqt, setUmumiySarflanganVaqt] = useState(0);
   const [qoidaBuzildiXabari, setQoidaBuzildiXabari] = useState("");
+
+  const qolganVaqtRef = useRef(SAVOL_VAQTI_SONIYA);
+  qolganVaqtRef.current = qolganVaqt;
+
+  const umumiySarflanganVaqtRef = useRef(0);
+  umumiySarflanganVaqtRef.current = umumiySarflanganVaqt;
+
+  const joriyIndexRef = useRef(0);
+  joriyIndexRef.current = joriyIndex;
 
   // LocalStorage dan qatnashchiId va joriyIndex ni tiklash
   useEffect(() => {
@@ -85,6 +95,70 @@ export default function OquvchiJangSahifasi() {
     return () => clearInterval(interval);
   }, [qatnashchiId, yangilaOquvchi]);
 
+  // ─── SAVOLGA JAVOB BERISH ───
+  const javobBer = useCallback(
+    async (variantIndex, qoidaBuzildimi = false) => {
+      if (tanlangan !== null || yuborilmoqda) return;
+      const savollarList = holat?.savollar || [];
+      const currentIdx = joriyIndexRef.current;
+      const joriySavol = savollarList[currentIdx];
+      if (!joriySavol) return;
+
+      // Haptic tebranish (agar telefon qo'llab-quvvatlasa)
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(qoidaBuzildimi ? [100, 50, 100] : 40);
+      }
+
+      const qolgan = qolganVaqtRef.current;
+      const sarflangan = Math.min(SAVOL_VAQTI_SONIYA, Math.max(1, SAVOL_VAQTI_SONIYA - qolgan));
+      setUmumiySarflanganVaqt((prev) => prev + sarflangan);
+      setTanlangan(variantIndex);
+      setYuborilmoqda(true);
+
+      try {
+        await fetch("/api/doska/jang", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "javob",
+            xonaId,
+            qatnashchiId,
+            savolId: joriySavol.id,
+            tanlanganIndex: qoidaBuzildimi ? -1 : variantIndex,
+            sarflanganVaqtSoniya: sarflangan,
+            qoidaBuzildi: qoidaBuzildimi,
+          }),
+        });
+
+        // 600 ms "Qabul qilindi" deb turib, keyingi savolga o'tadi
+        setTimeout(() => {
+          if (currentIdx + 1 < savollarList.length) {
+            setJoriyIndex(currentIdx + 1);
+          } else {
+            // Oxirgi savolga ham javob berildi — testni yakunlash
+            fetch("/api/doska/jang", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "oquvchiTugatdi",
+                xonaId,
+                qatnashchiId,
+                sarflanganVaqtSoniya: umumiySarflanganVaqtRef.current + sarflangan,
+              }),
+            })
+              .then(() => yangilaOquvchi())
+              .catch(() => {});
+          }
+          setTanlangan(null);
+          setYuborilmoqda(false);
+        }, 600);
+      } catch {
+        setYuborilmoqda(false);
+      }
+    },
+    [tanlangan, yuborilmoqda, holat?.savollar, xonaId, qatnashchiId, yangilaOquvchi]
+  );
+
   // ─── TAYMER (HAR BIR SAVOLGA QAT'IY 30 SONIYA) ───
   useEffect(() => {
     if (holat?.holat !== "jang" || holat?.tugatdi) return;
@@ -96,35 +170,56 @@ export default function OquvchiJangSahifasi() {
     const timer = setInterval(() => {
       setQolganVaqt((v) => {
         if (v <= 1) {
-          // Vaqt tugaganda keyingi savolga o'tish
-          setUmumiySarflanganVaqt((prev) => prev + SAVOL_VAQTI_SONIYA);
-          setJoriyIndex((idx) => {
-            if (holat?.savollar && idx + 1 < holat.savollar.length) {
-              return idx + 1;
-            }
-            // Agar oxirgi savolda vaqt tugasa — testni to'liq yakunlash
-            fetch("/api/doska/jang", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                action: "oquvchiTugatdi",
-                xonaId,
-                qatnashchiId,
-                sarflanganVaqtSoniya: umumiySarflanganVaqt + SAVOL_VAQTI_SONIYA,
-              }),
-            })
-              .then(() => yangilaOquvchi())
-              .catch(() => {});
-            return idx;
-          });
-          return SAVOL_VAQTI_SONIYA;
+          clearInterval(timer);
+          // Vaqt tugaganda javob berilmagan deb (-1) keyingi savolga o'tish
+          javobBer(-1, false);
+          return 0;
         }
         return v - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [joriyIndex, holat?.holat, holat?.tugatdi, holat?.savollar, xonaId, qatnashchiId, yangilaOquvchi, umumiySarflanganVaqt]);
+  }, [joriyIndex, holat?.holat, holat?.tugatdi, javobBer]);
+
+  // ─── ANTI-CHEAT & ANTI-CHATGPT HIMOYA TIZIMI (QOIDA 1) ───
+  // Faqat o'quvchi boshqa ilovaga yoki boshqa tabga o'tsagina (visibilityState === "hidden") ishlaydi.
+  // Mobil ekranga teginish, skroll yoki bildirishnomalarda ASLO noo'rin ishlamaydi (blur olib tashlandi).
+  useEffect(() => {
+    if (holat?.holat !== "jang" || holat?.tugatdi || tanlangan !== null || yuborilmoqda) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        setQoidaBuzildiXabari("⚠️ Qoida buzilishi: Ilovadan chiqish yoki ChatGPTga o'tish taqiqlangan! Savol 0 ball bilan bekor qilindi.");
+        javobBer(-1, true);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [holat?.holat, holat?.tugatdi, tanlangan, yuborilmoqda, javobBer]);
+
+  // ─── TAHLILNI OLISH (TEST TUGAGACH) ───
+  const tahlilniYukla = useCallback(async () => {
+    if (!xonaId || !qatnashchiId) return;
+    try {
+      const res = await fetch(`/api/doska/jang?xonaId=${xonaId}&qatnashchiId=${qatnashchiId}&action=tahlil`);
+      const d = await res.json();
+      if (res.ok && d.tahlil) setTahlil(d.tahlil);
+    } catch (e) {
+      alert("Tahlilni yuklashda xato: " + e.message);
+    }
+  }, [xonaId, qatnashchiId]);
+
+  // Ustoz doskada musobaqani yakunlashi bilan tahlilni avtomatik yuklab olish
+  useEffect(() => {
+    if (holat?.holat === "yakunlandi" && !tahlil && qatnashchiId) {
+      tahlilniYukla();
+    }
+  }, [holat?.holat, tahlil, qatnashchiId, tahlilniYukla]);
 
   // ─── JAMOA VA XONAGA QO'SHILISH ───
   const qoshil = async (e) => {
@@ -157,104 +252,6 @@ export default function OquvchiJangSahifasi() {
       setXato(err.message);
     } finally {
       setYuklanmoqda(false);
-    }
-  };
-
-  // ─── SAVOLGA JAVOB BERISH ───
-  const javobBer = useCallback(
-    async (variantIndex, qoidaBuzildimi = false) => {
-      if (tanlangan !== null || yuborilmoqda) return;
-      const joriySavol = holat?.savollar?.[joriyIndex];
-      if (!joriySavol) return;
-
-      // Haptic tebranish (agar telefon qo'llab-quvvatlasa)
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate(qoidaBuzildimi ? [100, 50, 100] : 40);
-      }
-
-      const sarflangan = Math.min(SAVOL_VAQTI_SONIYA, Math.max(1, SAVOL_VAQTI_SONIYA - qolganVaqt));
-      setUmumiySarflanganVaqt((prev) => prev + sarflangan);
-      setTanlangan(variantIndex);
-      setYuborilmoqda(true);
-
-      try {
-        await fetch("/api/doska/jang", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "javob",
-            xonaId,
-            qatnashchiId,
-            savolId: joriySavol.id,
-            tanlanganIndex: qoidaBuzildimi ? -1 : variantIndex,
-            sarflanganVaqtSoniya: sarflangan,
-            qoidaBuzildi: qoidaBuzildimi,
-          }),
-        });
-
-        // 600 ms "Qabul qilindi" deb turib, keyingi savolga o'tadi
-        setTimeout(() => {
-          if (joriyIndex + 1 < (holat?.savollar?.length || 0)) {
-            setJoriyIndex((i) => i + 1);
-          } else {
-            // Oxirgi savolga ham javob berildi — testni yakunlash
-            fetch("/api/doska/jang", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                action: "oquvchiTugatdi",
-                xonaId,
-                qatnashchiId,
-                sarflanganVaqtSoniya: umumiySarflanganVaqt + sarflangan,
-              }),
-            })
-              .then(() => yangilaOquvchi())
-              .catch(() => {});
-          }
-          setTanlangan(null);
-          setYuborilmoqda(false);
-        }, 600);
-      } catch {
-        setYuborilmoqda(false);
-      }
-    },
-    [tanlangan, yuborilmoqda, holat?.savollar, joriyIndex, qolganVaqt, umumiySarflanganVaqt, xonaId, qatnashchiId, yangilaOquvchi]
-  );
-
-  // ─── ANTI-CHEAT & ANTI-CHATGPT HIMOYA TIZIMI (QOIDA 1) ───
-  // Agar o'quvchi boshqa ilovaga o'tsa yoki skrinshot olsa: savol 0 ball bilan bekor qilinadi
-  useEffect(() => {
-    if (holat?.holat !== "jang" || holat?.tugatdi || tanlangan !== null || yuborilmoqda) return;
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        setQoidaBuzildiXabari("⚠️ Qoida buzilishi: Ilovadan chiqish yoki ChatGPTga o'tish taqiqlangan! Savol 0 ball bilan bekor qilindi.");
-        javobBer(-1, true);
-      }
-    };
-
-    const handleBlur = () => {
-      setQoidaBuzildiXabari("⚠️ Qoida buzilishi: Ekranni almashtirish aniqlandi! Joriy savol 0 ball bilan bekor qilindi.");
-      javobBer(-1, true);
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleBlur);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleBlur);
-    };
-  }, [holat?.holat, holat?.tugatdi, tanlangan, yuborilmoqda, javobBer]);
-
-  // ─── TAHLILNI OLISH (TEST TUGAGACH) ───
-  const tahlilniYukla = async () => {
-    try {
-      const res = await fetch(`/api/doska/jang?xonaId=${xonaId}&qatnashchiId=${qatnashchiId}&action=tahlil`);
-      const d = await res.json();
-      if (res.ok && d.tahlil) setTahlil(d.tahlil);
-    } catch (e) {
-      alert("Tahlilni yuklashda xato: " + e.message);
     }
   };
 
@@ -408,104 +405,345 @@ export default function OquvchiJangSahifasi() {
   // 4. TEST TUGAGAN YOKI XONA YAKUNLANGAN HOLAT
   // ═══════════════════════════════════════════════════════════════════════
   if (holat?.tugatdi || holat?.holat === "yakunlandi") {
+    const jamoalarRoyxati = [...(holat?.jamoalar || [])].sort((a, b) => (b.ball || 0) - (a.ball || 0));
+    const engKattaBall = Math.max(1, ...jamoalarRoyxati.map((j) => j.ball || 0));
+    const jamiSavollar = holat?.jamiSavollarSoni || 20;
+    const togriSoni = holat?.togriSoni || 0;
+    const notogriSoni = holat?.notogriSoni || 0;
+    const aniqlikFoizi = jamiSavollar > 0 ? Math.round((togriSoni / jamiSavollar) * 100) : 0;
+    const xonaYakunlangan = holat?.holat === "yakunlandi";
+
+    const korsatiladiganTahlil = (tahlil || []).filter((t) => {
+      if (tahlilFilter === "xato") return !t.togriTopdimi;
+      if (tahlilFilter === "togri") return t.togriTopdimi;
+      return true;
+    });
+
+    const xatolarSoni = (tahlil || []).filter((t) => !t.togriTopdimi).length;
+    const togrilarSoni = (tahlil || []).filter((t) => t.togriTopdimi).length;
+
     return (
-      <main className="min-h-[100dvh] p-4 sm:p-6 max-w-xl mx-auto flex flex-col justify-center bg-[#070b14] text-white select-none touch-manipulation py-8">
-        <div className="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 sm:p-8 text-center shadow-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-3 text-amber-400">
-            <Ikon nom="kubok" olcham={32} />
-          </div>
-          <h2 className="text-2xl font-black text-white mb-1">
-            Test yakunlandi!
-          </h2>
-          <p className="text-xs text-slate-400 mb-6">
-            {holat?.ism} • {holat?.jamoaNomi}
-          </p>
+      <main className="min-h-[100dvh] p-4 sm:p-6 max-w-xl mx-auto flex flex-col justify-between bg-[#070b14] text-white select-none touch-manipulation py-6 space-y-6">
+        <div className="space-y-5">
+          {/* ═══ 1. SARLAVHA VA ISHTIROKCHI KARTASI ═══ */}
+          <div className="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-3 text-amber-400 shadow-lg shadow-amber-950/40">
+              <Ikon nom="kubok" olcham={32} />
+            </div>
 
-          <div className="bg-gradient-to-br from-emerald-950/60 to-slate-950 border border-emerald-500/40 rounded-2xl p-6 mb-6">
-            <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">
-              To&apos;plangan shaxsiy ball:
+            <h2 className="text-2xl font-black text-white mb-1">
+              {xonaYakunlangan ? "Musobaqa Yakunlandi!" : "Testni Yakunladingiz!"}
+            </h2>
+
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <span className={`text-[11px] px-3 py-1 rounded-full font-bold border ${
+                xonaYakunlangan
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                  : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse"
+              }`}>
+                {xonaYakunlangan ? "🏁 Yakuniy natijalar" : "⏳ Doskada jang davom etmoqda"}
+              </span>
             </div>
-            <div className="text-5xl font-black font-mono text-white">
-              {holat?.ball} <span className="text-base font-normal text-slate-400">ball</span>
+
+            <p className="text-xs text-slate-300">
+              <b className="text-white text-sm">{holat?.ism}</b> • <span className="text-emerald-400 font-semibold">{holat?.jamoaNomi}</span>
+            </p>
+          </div>
+
+          {/* ═══ 2. SHAXSIY NATIJA VA KO'RSATKICHLAR (4 TA METRIKA) ═══ */}
+          <div className="bg-gradient-to-br from-emerald-950/60 via-slate-900 to-slate-950 border border-emerald-500/40 rounded-3xl p-6 shadow-xl">
+            <div className="text-center mb-5">
+              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">
+                To&apos;plangan shaxsiy ball:
+              </div>
+              <div className="text-5xl font-black font-mono text-white flex items-baseline justify-center gap-2">
+                <span>{holat?.ball}</span>
+                <span className="text-base font-normal text-slate-400">ball</span>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-800 text-xs">
-              <div className="p-2 rounded-xl bg-slate-900/80">
+
+            {/* 4 talik to'r (Natijalar) */}
+            <div className="grid grid-cols-2 gap-2.5 text-xs">
+              <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex flex-col justify-between">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">To&apos;g&apos;ri / Noto&apos;g&apos;ri:</span>
+                <div className="mt-1">
+                  <span className="font-mono font-bold text-emerald-400 text-sm">
+                    {togriSoni} ta
+                  </span>
+                  <span className="text-slate-500 mx-1">/</span>
+                  <span className="font-mono font-bold text-red-400 text-sm">
+                    {notogriSoni} ta
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 font-medium">
+                  {aniqlikFoizi}% aniqlik
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex flex-col justify-between">
                 <span className="text-slate-400 block text-[10px] uppercase font-bold">Sarflangan vaqt:</span>
-                <span className="font-mono font-bold text-sky-400 text-sm">
+                <div className="font-mono font-bold text-sky-400 text-base mt-1">
                   {holat?.sarflanganVaqtSoniya || umumiySarflanganVaqt} soniya
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 font-medium">
+                  {jamiSavollar} ta savol
                 </span>
               </div>
-              <div className="p-2 rounded-xl bg-slate-900/80">
-                <span className="text-slate-400 block text-[10px] uppercase font-bold">Qoidabuzarlik:</span>
-                <span className="font-mono font-bold text-amber-400 text-sm">
-                  {holat?.qoidabuzarliklar || 0} ta
+
+              <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex flex-col justify-between">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Halollik nazorati:</span>
+                <div className="mt-1 font-semibold">
+                  {(holat?.qoidabuzarliklar || 0) === 0 ? (
+                    <span className="text-emerald-400 text-xs flex items-center gap-1 font-bold">
+                      <Ikon nom="tasdiq" olcham={12} className="text-emerald-400" />
+                      Halol ishtirokchi
+                    </span>
+                  ) : (
+                    <span className="text-amber-400 text-xs font-bold">
+                      ⚠️ {holat?.qoidabuzarliklar} ta qoidabuzarlik
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] text-slate-500 mt-1">
+                  Ilovadan chiqishlar
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex flex-col justify-between">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Vaqt ustunligi:</span>
+                <div className="text-[11px] text-slate-300 font-bold mt-1">
+                  ⚖️ Nizom qoidasi
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 leading-tight">
+                  Teng ballarda vaqt hal qiladi
                 </span>
               </div>
             </div>
-            <div className="text-[11px] text-slate-300 mt-3 bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-900/60">
-              ⏱️ <b>Nizom:</b> Ballar teng bo&apos;lsa, kamroq vaqt sarflagan jamoa yuqori o&apos;rinni egallaydi!
+
+            <div className="text-[11px] text-slate-300 mt-3.5 bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-900/60 flex items-start gap-2">
+              <span className="text-sm shrink-0">⏱️</span>
+              <span><b>Nizom:</b> Agar jamoalar yoki o&apos;quvchilar ballari teng kelgan taqdirda, kamroq vaqt sarflagani yuqori o&apos;ringa chiqadi.</span>
             </div>
           </div>
 
-          {/* TAHLIL TUGMASI (AGAR XONA YAKUNLANGAN BO'LSA) */}
-          {holat?.holat === "yakunlandi" ? (
-            <div>
+          {/* ═══ 3. JONLI JAMOALAR POYGASINI KUZATISH (MINI-KOLBALAR) ═══ */}
+          <div className="bg-slate-900/95 border border-slate-800 rounded-3xl p-5 shadow-xl">
+            <div className="flex items-center justify-between mb-3.5">
+              <div className="flex items-center gap-2">
+                <Ikon nom="kolba" olcham={18} className="text-emerald-400" />
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  Jamoalar poygasi (Jonli kolbalar)
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                {xonaYakunlangan ? "Yakuniy" : "Jonli"}
+              </span>
+            </div>
+
+            <div className="space-y-2.5">
+              {jamoalarRoyxati.map((j, idx) => {
+                const ozi = j.id === holat?.jamoaId;
+                const foiz = Math.min(100, Math.round(((j.ball || 0) / engKattaBall) * 100));
+
+                return (
+                  <div
+                    key={j.id}
+                    className={`p-3 rounded-2xl border transition-all ${
+                      ozi
+                        ? "bg-slate-950 border-emerald-500/60 shadow-lg shadow-emerald-950/30 ring-1 ring-emerald-500/30"
+                        : "bg-slate-950/60 border-slate-800/80"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-mono font-bold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="font-bold text-white">
+                          {j.nom}
+                        </span>
+                        {ozi && (
+                          <span className="text-[10px] px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">
+                            Sizning jamoangiz
+                          </span>
+                        )}
+                      </div>
+                      <div className="font-mono text-right">
+                        <span className="text-emerald-400 font-bold text-sm">{j.ball || 0}</span>
+                        <span className="text-slate-400 text-[10px] ml-1">ball ({j.suyuqlikMl || j.ball || 0} ml)</span>
+                      </div>
+                    </div>
+
+                    {/* Mini suyuqlik chizig'i */}
+                    <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800/50">
+                      <div
+                        className="h-full rounded-full transition-all duration-700 bg-gradient-to-r from-emerald-500 to-teal-400"
+                        style={{ width: `${foiz}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ═══ 4. XATOLAR USTIDA ISHLASH VA TAHLIL (2-BOSQICHLI TIZIM) ═══ */}
+          {!xonaYakunlangan ? (
+            /* 1-BOSQICH: DOSKADA JANG TUGAGUNCHA XAVFSIZ KUTISH */
+            <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800 text-center shadow-xl space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center mx-auto text-sky-400">
+                <Ikon nom="qulf" olcham={22} />
+              </div>
+              <h4 className="text-sm font-bold text-white">
+                To&apos;g&apos;ri javoblar va tahlil vaqtincha yopiq
+              </h4>
+              <p className="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
+                Boshqa ishtirokchilar hali testni yechishmoqda. Halol raqobatni saqlash maqsadida, ustoz katta doskada musobaqani yakunlashi bilan barcha 20 ta savolning <b>to&apos;g&apos;ri javoblari</b> va <b>darslik slaydlari bo&apos;yicha tahlili</b> ushbu ekranda avtomatik ochiladi!
+              </p>
+              <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-800 flex items-center justify-center gap-1.5 font-medium">
+                <Ikon nom="vaqt" olcham={13} className="text-emerald-400 animate-spin" />
+                <span>Sahifani yangilash shart emas — avtomatik ochiladi</span>
+              </div>
+            </div>
+          ) : (
+            /* 2-BOSQICH: MUSOBAQA YAKUNLANGANDA OCHILADIGAN TO'LIQ TAHLIL */
+            <div className="space-y-4">
               {!tahlil ? (
                 <button
                   onClick={tahlilniYukla}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-sm shadow-lg shadow-emerald-950/60 transition active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-sm shadow-xl shadow-emerald-950/60 transition active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <Ikon nom="kitob" olcham={18} />
                   <span>Xatolar ustida ishlash (Tahlilni ko&apos;rish)</span>
                 </button>
               ) : (
-                <div className="text-left space-y-4 mt-6">
-                  <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wider">
-                    Barcha 20 ta savol tahlili:
-                  </h4>
-                  <div className="space-y-3 max-h-[60dvh] sm:max-h-96 overflow-y-auto overscroll-contain pr-1">
-                    {tahlil.map((t) => (
-                      <div
-                        key={t.id}
-                        className={`p-4 rounded-2xl border text-xs leading-relaxed ${
-                          t.togriTopdimi
-                            ? "bg-emerald-950/30 border-emerald-500/50"
-                            : "bg-red-950/30 border-red-500/50"
-                        }`}
-                      >
-                        <div className="font-bold text-white mb-2 text-sm">
-                          {t.tartibRaqam}. {t.savol}
-                        </div>
-                        <div className="space-y-1.5 mb-2">
-                          <div className="flex items-center gap-1.5 text-emerald-300 font-medium">
-                            <Ikon nom="tasdiq" olcham={14} className="shrink-0 text-emerald-400" />
-                            <span>To&apos;g&apos;ri javob: <b>{t.variantlar[t.togriIndex]}</b></span>
-                          </div>
-                          {!t.togriTopdimi && t.tanlanganIndex !== null && (
-                            <div className="flex items-center gap-1.5 text-red-300 font-medium">
-                              <Ikon nom="yopish" olcham={14} className="shrink-0 text-red-400" />
-                              <span>Siz tanlagan javob: <b>{t.variantlar[t.tanlanganIndex]}</b></span>
-                            </div>
-                          )}
-                        </div>
-                        {t.izoh && (
-                          <div className="flex items-start gap-1.5 text-[11px] text-slate-300 pt-2 border-t border-slate-800">
-                            <Ikon nom="nurlar" olcham={13} className="shrink-0 text-amber-400 mt-0.5" />
-                            <span>Izoh: {t.izoh} (Slayd: {t.slayd})</span>
-                          </div>
-                        )}
+                <div className="space-y-4">
+                  {/* Filtrlash tugmalari */}
+                  <div className="flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs">
+                    <button
+                      onClick={() => setTahlilFilter("barchasi")}
+                      className={`flex-1 py-2 px-2.5 rounded-xl font-bold transition ${
+                        tahlilFilter === "barchasi"
+                          ? "bg-slate-800 text-white shadow"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      Barchasi ({tahlil.length})
+                    </button>
+                    <button
+                      onClick={() => setTahlilFilter("xato")}
+                      className={`flex-1 py-2 px-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 ${
+                        tahlilFilter === "xato"
+                          ? "bg-red-950/80 text-red-300 border border-red-500/40 shadow"
+                          : "text-slate-400 hover:text-red-300"
+                      }`}
+                    >
+                      <span>Xatolarim</span>
+                      <span className="font-mono px-1.5 py-0.2 rounded-full bg-red-900/60 text-[10px]">
+                        {xatolarSoni}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => setTahlilFilter("togri")}
+                      className={`flex-1 py-2 px-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 ${
+                        tahlilFilter === "togri"
+                          ? "bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shadow"
+                          : "text-slate-400 hover:text-emerald-300"
+                      }`}
+                    >
+                      <span>To&apos;g&apos;ri</span>
+                      <span className="font-mono px-1.5 py-0.2 rounded-full bg-emerald-900/60 text-[10px]">
+                        {togrilarSoni}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Savollar ro'yxati */}
+                  <div className="space-y-3.5 max-h-[65dvh] overflow-y-auto overscroll-contain pr-1">
+                    {korsatiladiganTahlil.length === 0 ? (
+                      <div className="p-8 text-center text-slate-400 text-xs bg-slate-900/60 rounded-2xl border border-slate-800">
+                        Tanlangan filtr bo&apos;yicha savollar yo&apos;q
                       </div>
-                    ))}
+                    ) : (
+                      korsatiladiganTahlil.map((t) => {
+                        const sizTanlagan =
+                          t.tanlanganIndex !== null && t.tanlanganIndex >= 0
+                            ? t.variantlar[t.tanlanganIndex]
+                            : "Javob belgilanmadi / Vaqt tugadi";
+                        const togriJavob = t.variantlar[t.togriIndex];
+
+                        return (
+                          <div
+                            key={t.id}
+                            className={`p-4 rounded-2xl border text-xs leading-relaxed space-y-2.5 ${
+                              t.togriTopdimi
+                                ? "bg-emerald-950/30 border-emerald-500/40"
+                                : "bg-red-950/30 border-red-500/40"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="font-bold text-white text-sm">
+                                {t.tartibRaqam}. {t.savol}
+                              </span>
+                              <span
+                                className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                  t.togriTopdimi
+                                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                    : "bg-red-500/20 text-red-300 border-red-500/40"
+                                }`}
+                              >
+                                {t.togriTopdimi ? `+${t.ball} ball` : "0 ball"}
+                              </span>
+                            </div>
+
+                            <div className="space-y-1.5 pt-1">
+                              {/* To'g'ri javob */}
+                              <div className="flex items-center gap-2 p-2 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-300">
+                                <Ikon nom="tasdiq" olcham={14} className="shrink-0 text-emerald-400" />
+                                <span>To&apos;g&apos;ri javob: <b>{togriJavob}</b></span>
+                              </div>
+
+                              {/* Agar noto'g'ri bo'lsa, tanlangan javob */}
+                              {!t.togriTopdimi && (
+                                <div className="flex items-center gap-2 p-2 rounded-xl bg-red-950/50 border border-red-500/30 text-red-300">
+                                  <Ikon nom="yopish" olcham={14} className="shrink-0 text-red-400" />
+                                  <span>Siz tanlagan javob: <b>{sizTanlagan}</b></span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Darslik slaydi va izohi */}
+                            {t.izoh && (
+                              <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                                <div className="flex items-center gap-1.5 text-amber-400 font-semibold">
+                                  <Ikon nom="nurlar" olcham={13} />
+                                  <span>Tushuntirish (Izoh):</span>
+                                </div>
+                                <p className="text-slate-300 leading-normal pl-4">
+                                  {t.izoh}
+                                </p>
+                                {t.slayd && (
+                                  <div className="pl-4 text-[10px] text-sky-400 font-mono font-medium">
+                                    📖 Darslikdagi tegishli mavzu: Slayd #{t.slayd}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               )}
             </div>
-          ) : (
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400 leading-relaxed">
-              Boshqa o&apos;rtoqlaringiz hali yechishmoqda. Ustoz katta doskada musobaqani yakunlashi bilan to&apos;liq tahlil va to&apos;g&apos;ri javoblar ochiladi!
-            </div>
           )}
         </div>
+
+        {/* PASTKI ESLATMA */}
+        <footer className="pt-4 text-center text-[11px] text-slate-500">
+          JDA Kimyo • Smart Doska Jangi
+        </footer>
       </main>
     );
   }
@@ -564,14 +802,26 @@ export default function OquvchiJangSahifasi() {
           </div>
         </div>
 
-        {/* VAQT TAYMER CHIZIG'I */}
-        <div className="w-full bg-slate-900 rounded-full h-1.5 sm:h-2 mb-4 sm:mb-6 overflow-hidden">
-          <div
-            className={`h-full transition-all duration-1000 ${
-              qolganVaqt <= 10 ? "bg-red-500 animate-pulse" : "bg-emerald-500"
-            }`}
-            style={{ width: `${vaqtFoizi}%` }}
-          />
+        {/* VAQT TAYMERI VA RAQAMLI HISOBGICH */}
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center justify-between text-[11px] font-mono mb-1.5 px-0.5">
+            <span className="flex items-center gap-1.5 text-slate-300">
+              <Ikon nom="vaqt" olcham={13} className={qolganVaqt <= 8 ? "text-red-400 animate-spin" : "text-emerald-400"} />
+              <span>Savol taymeri:</span>
+            </span>
+            <span className={`font-bold text-xs ${qolganVaqt <= 8 ? "text-red-400 animate-pulse" : "text-emerald-400"}`}>
+              {qolganVaqt} soniya <span className="text-slate-400 font-normal text-[10px]">(har bir savolga 30s)</span>
+            </span>
+          </div>
+
+          <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+            <div
+              className={`h-full transition-all duration-1000 ${
+                qolganVaqt <= 8 ? "bg-red-500 animate-pulse" : "bg-gradient-to-r from-emerald-500 to-teal-400"
+              }`}
+              style={{ width: `${vaqtFoizi}%` }}
+            />
+          </div>
         </div>
 
         {/* SAVOL MATNI */}

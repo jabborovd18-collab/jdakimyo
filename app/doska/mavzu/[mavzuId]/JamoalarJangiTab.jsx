@@ -200,7 +200,12 @@ export default function JamoalarJangiTab({ mavzuId }) {
   // ─── JANGNI YAKUNLASH ───
   const yakunla = async () => {
     if (!xona) return;
-    if (!confirm("Haqiqatan ham musobaqani yakunlab, natijalarni e'lon qilmoqchimisiz?")) return;
+    const haliYechayotganlar = (xona.qatnashchilar || []).filter((q) => !q.tugatdi);
+    let xabar = "Haqiqatan ham musobaqani yakunlab, natijalarni e'lon qilmoqchimisiz?";
+    if (haliYechayotganlar.length > 0) {
+      xabar = `Diqqat! Hali ${haliYechayotganlar.length} nafar o'quvchi testni yechmoqda.\n\nMusobaqani muddatidan oldin yakunlasangiz, ularning joriy natijalari hisoblanadi. Yakunlashni tasdiqlaysizmi?`;
+    }
+    if (!confirm(xabar)) return;
     try {
       doskaAudio.chalGolib();
       const res = await fetch("/api/doska/jang", {
@@ -582,8 +587,8 @@ export default function JamoalarJangiTab({ mavzuId }) {
           >
             {yakunlangan ? "Musobaqa Yakunlandi" : "Jonli Musobaqa Ketmoqda"}
           </span>
-          <span className="text-xs text-slate-400 font-medium">
-            Jami: {xona.qatnashchilar.length} nafar o&apos;quvchi
+          <span className="text-xs text-slate-300 font-semibold bg-slate-950 px-3 py-1 rounded-xl border border-slate-800">
+            Topshirdi: <span className="font-mono text-emerald-400 font-bold">{(xona.qatnashchilar || []).filter((q) => q.tugatdi).length}</span> / {(xona.qatnashchilar || []).length} nafar
           </span>
         </div>
 

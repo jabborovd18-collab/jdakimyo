@@ -512,3 +512,247 @@ export function KelvinGisterezisGrafik({ r = 4, pNisbiy = 0.58, govakTuri = "sil
     </div>
   );
 }
+
+/** 5. ADSORBSIYA TERMODINAMIKASI: KLAPEYRON-KLAUZIUS IKKITA IZOTERMA GRAFIGI (T1 vs T2) */
+export function TermodinamikaIzosterikGrafik({
+  t1 = 273,
+  t2 = 298,
+  qst = 32.4,
+  p1 = 12.4,
+  p2 = 38.6,
+}) {
+  const maxP = 80;
+  const maxA = 6.0;
+  const toX = (p) => 55 + (Math.max(0, Math.min(maxP, p)) / maxP) * 440;
+  const toY = (a) => 180 - (Math.max(0, Math.min(maxA, a)) / maxA) * 150;
+
+  // T1 dagi izoterma (sovuqroq -> kuchliroq adsorbsiya, K kattaroq)
+  const qadamlar = 35;
+  const t1Nuqtalar = [];
+  const t2Nuqtalar = [];
+  const k1 = 0.18 * Math.exp(3000 / t1);
+  const k2 = 0.18 * Math.exp(3000 / t2);
+
+  for (let i = 0; i <= qadamlar; i++) {
+    const pVal = (i / qadamlar) * maxP;
+    const a1 = (5.5 * k1 * pVal) / (1 + k1 * pVal);
+    const a2 = (5.5 * k2 * pVal) / (1 + k2 * pVal);
+    t1Nuqtalar.push(`${toX(pVal).toFixed(1)},${toY(a1).toFixed(1)}`);
+    t2Nuqtalar.push(`${toX(pVal).toFixed(1)},${toY(a2).toFixed(1)}`);
+  }
+
+  const dPathT1 = `M ${t1Nuqtalar.join(" L ")}`;
+  const dPathT2 = `M ${t2Nuqtalar.join(" L ")}`;
+
+  // Izosterik chiziq (a = 2.0 mmol/g darajasidagi gorizontal kesim)
+  const aIzostera = 2.0;
+  const yIzostera = toY(aIzostera);
+  const xP1 = toX(p1);
+  const xP2 = toX(p2);
+
+  return (
+    <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+          <h5 className="text-xs font-bold text-white uppercase tracking-wider">
+            Klapeyron-Klauzius Izosterasi: q_st = R · [T₁·T₂ / (T₂−T₁)] · ln(p₂/p₁)
+          </h5>
+        </div>
+        <div className="font-mono text-[11px] text-amber-400 font-bold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
+          q_st = {qst.toFixed(1)} kJ/mol (ΔT = {t2 - t1} K)
+        </div>
+      </div>
+
+      <div className="relative w-full aspect-[2.4/1] bg-slate-950 rounded-xl border border-slate-800/80 p-2 overflow-hidden">
+        <svg viewBox="0 0 520 220" className="w-full h-full select-none">
+          {/* O'q to'rlari */}
+          {[20, 40, 60, 80].map((p) => (
+            <g key={p}>
+              <line x1={toX(p)} y1="30" x2={toX(p)} y2="180" stroke="#1e293b" strokeDasharray="3 3" />
+              <text x={toX(p)} y="196" fill="#64748b" fontSize="9" textAnchor="middle" fontFamily="monospace">
+                {p}
+              </text>
+            </g>
+          ))}
+          {[1, 2, 3, 4, 5].map((a) => (
+            <g key={a}>
+              <line x1="55" y1={toY(a)} x2="495" y2={toY(a)} stroke="#1e293b" strokeDasharray="3 3" />
+              <text x="48" y={toY(a) + 3} fill="#64748b" fontSize="9" textAnchor="end" fontFamily="monospace">
+                {a}
+              </text>
+            </g>
+          ))}
+
+          {/* Koordinata o'qlari */}
+          <line x1="55" y1="30" x2="55" y2="180" stroke="#475569" strokeWidth="1.5" />
+          <line x1="55" y1="180" x2="495" y2="180" stroke="#475569" strokeWidth="1.5" />
+          <text x="495" y="174" fill="#94a3b8" fontSize="10" textAnchor="end" fontWeight="bold">
+            p (kPa) →
+          </text>
+          <text x="60" y="24" fill="#94a3b8" fontSize="10" fontWeight="bold">
+            ↑ a (mmol/g)
+          </text>
+
+          {/* Izosterik gorizontal kesim chizig'i (a = const) */}
+          <line x1={xP1} y1={yIzostera} x2={xP2} y2={yIzostera} stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="4 2" />
+          <line x1={xP1} y1={yIzostera} x2={xP1} y2="180" stroke="#0ea5e9" strokeWidth="1.2" strokeDasharray="2 2" />
+          <line x1={xP2} y1={yIzostera} x2={xP2} y2="180" stroke="#f43f5e" strokeWidth="1.2" strokeDasharray="2 2" />
+
+          {/* T1 va T2 izotermalari */}
+          <path d={dPathT1} fill="none" stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" />
+          <text x="370" y={toY(4.9)} fill="#38bdf8" fontSize="9" fontWeight="bold">
+            T₁ = {t1} K (Kuchli adsorbsiya)
+          </text>
+
+          <path d={dPathT2} fill="none" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" />
+          <text x="400" y={toY(3.4)} fill="#fb7185" fontSize="9" fontWeight="bold">
+            T₂ = {t2} K (Desorbsiya)
+          </text>
+
+          {/* Izostera kesimi nishonlari */}
+          <circle cx={xP1} cy={yIzostera} r="5" fill="#38bdf8" stroke="#ffffff" strokeWidth="2" />
+          <circle cx={xP2} cy={yIzostera} r="5" fill="#f43f5e" stroke="#ffffff" strokeWidth="2" />
+          <text x={xP1 - 4} y={yIzostera - 8} fill="#38bdf8" fontSize="9" fontWeight="bold" textAnchor="end">
+            p₁ = {p1} kPa
+          </text>
+          <text x={xP2 + 4} y={yIzostera - 8} fill="#fb7185" fontSize="9" fontWeight="bold" textAnchor="start">
+            p₂ = {p2} kPa
+          </text>
+        </svg>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 px-1">
+        <span>💡 Harorat T₁ dan T₂ ga oshirilganda Le Shatelye printsipiga binoan a = const saqlash uchun bosim p₁ dan p₂ ga ortadi.</span>
+        <span className="font-mono text-amber-400 font-bold">ΔH = −q_st &lt; 0 (Ekzotermik)</span>
+      </div>
+    </div>
+  );
+}
+
+/** 6. DYUKLO-TRAUBE QOIDASI JONLI SVG GRAFIGI (5 TA KISLOTA VA ISHCHI NUQTA) */
+export const TRAUBE_KISLOTALAR = [
+  { nom: "Chumoli kislota", formula: "HCOOH", n: 1, b: 12.0, d: 8, rang: "#94a3b8", beta: "1.0×" },
+  { nom: "Sirka kislota", formula: "CH₃COOH", n: 2, b: 13.0, d: 25, rang: "#38bdf8", beta: "3.2×" },
+  { nom: "Propion kislota", formula: "C₂H₅COOH", n: 3, b: 14.0, d: 80, rang: "#10b981", beta: "10.2×" },
+  { nom: "Moy kislota", formula: "C₃H₇COOH", n: 4, b: 14.5, d: 256, rang: "#f59e0b", beta: "32.8×" },
+  { nom: "Valerian kislota", formula: "C₄H₉COOH", n: 5, b: 15.0, d: 820, rang: "#ef4444", beta: "105.0×" },
+];
+
+export function TraubeIzotermaGrafik({
+  kislotaIndex = 2,
+  joriyC = 0.02,
+  joriySigma = 47.8,
+  faollik = 1120,
+}) {
+  const maxC = 0.08;
+  const minSigma = 20;
+  const maxSigma = 75;
+  const toX = (c) => 55 + (Math.max(0, Math.min(maxC, c)) / maxC) * 440;
+  const toY = (s) => 180 - (Math.max(0, Math.min(maxSigma - minSigma, s - minSigma)) / (maxSigma - minSigma)) * 150;
+
+  const faolKislota = TRAUBE_KISLOTALAR[kislotaIndex] || TRAUBE_KISLOTALAR[2];
+  const joriyX = toX(joriyC);
+  const joriyY = toY(joriySigma);
+
+  return (
+    <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+          <h5 className="text-xs font-bold text-white uppercase tracking-wider">
+            Dyuklo-Traube Sirt Taranglik Grafigi: σ = σ₀ − b · ln(1 + d · C)
+          </h5>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] font-mono">
+          <span className="text-slate-400">Ishchi nuqta:</span>
+          <span
+            className="font-bold px-2 py-0.5 rounded border"
+            style={{
+              color: faolKislota.rang,
+              backgroundColor: `${faolKislota.rang}15`,
+              borderColor: `${faolKislota.rang}40`,
+            }}
+          >
+            {faolKislota.formula}: C = {joriyC} M, σ = {joriySigma.toFixed(1)} mN/m (G₀ = {faollik})
+          </span>
+        </div>
+      </div>
+
+      <div className="relative w-full aspect-[2.4/1] bg-slate-950 rounded-xl border border-slate-800/80 p-2 overflow-hidden">
+        <svg viewBox="0 0 520 220" className="w-full h-full select-none">
+          {/* Sof suv gorizontal chizig'i (sigma = 72.8) */}
+          <line x1="55" y1={toY(72.8)} x2="495" y2={toY(72.8)} stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="4 3" opacity="0.6" />
+          <text x="490" y={toY(72.8) - 4} fill="#38bdf8" fontSize="9" textAnchor="end" fontWeight="bold" opacity="0.8">
+            Sof suv: σ₀ = 72.8 mN/m
+          </text>
+
+          {/* O'q to'rlari */}
+          {[0.02, 0.04, 0.06, 0.08].map((c) => (
+            <g key={c}>
+              <line x1={toX(c)} y1="30" x2={toX(c)} y2="180" stroke="#1e293b" strokeDasharray="3 3" />
+              <text x={toX(c)} y="196" fill="#64748b" fontSize="9" textAnchor="middle" fontFamily="monospace">
+                {c} M
+              </text>
+            </g>
+          ))}
+          {[30, 40, 50, 60, 70].map((s) => (
+            <g key={s}>
+              <line x1="55" y1={toY(s)} x2="495" y2={toY(s)} stroke="#1e293b" strokeDasharray="3 3" />
+              <text x="48" y={toY(s) + 3} fill="#64748b" fontSize="9" textAnchor="end" fontFamily="monospace">
+                {s}
+              </text>
+            </g>
+          ))}
+
+          {/* Koordinata o'qlari */}
+          <line x1="55" y1="30" x2="55" y2="180" stroke="#475569" strokeWidth="1.5" />
+          <line x1="55" y1="180" x2="495" y2="180" stroke="#475569" strokeWidth="1.5" />
+          <text x="495" y="174" fill="#94a3b8" fontSize="10" textAnchor="end" fontWeight="bold">
+            Konsentratsiya C (mol/L) →
+          </text>
+          <text x="60" y="24" fill="#94a3b8" fontSize="10" fontWeight="bold">
+            ↑ Sirt taranglik σ (mN/m)
+          </text>
+
+          {/* 5 ta kislota egri chiziqlari */}
+          {TRAUBE_KISLOTALAR.map((k, i) => {
+            const pts = [];
+            const steps = 30;
+            for (let step = 0; step <= steps; step++) {
+              const cVal = (step / steps) * maxC;
+              const sVal = Math.max(minSigma, 72.8 - k.b * Math.log(1 + k.d * cVal));
+              pts.push(`${toX(cVal).toFixed(1)},${toY(sVal).toFixed(1)}`);
+            }
+            const faol = kislotaIndex === i;
+            return (
+              <g key={k.formula}>
+                <polyline
+                  fill="none"
+                  stroke={k.rang}
+                  strokeWidth={faol ? "3.5" : "1.8"}
+                  strokeOpacity={faol ? 1 : 0.35}
+                  strokeLinecap="round"
+                  points={pts.join(" ")}
+                />
+              </g>
+            );
+          })}
+
+          {/* Ishchi nuqta proyeksiyalari */}
+          <line x1={joriyX} y1={joriyY} x2={joriyX} y2="180" stroke={faolKislota.rang} strokeWidth="1.2" strokeDasharray="3 3" opacity="0.7" />
+          <line x1="55" y1={joriyY} x2={joriyX} y2={joriyY} stroke={faolKislota.rang} strokeWidth="1.2" strokeDasharray="3 3" opacity="0.7" />
+
+          {/* Ishchi nuqta */}
+          <circle cx={joriyX} cy={joriyY} r="7" fill={faolKislota.rang} opacity="0.3" className="animate-ping" />
+          <circle cx={joriyX} cy={joriyY} r="5" fill={faolKislota.rang} stroke="#ffffff" strokeWidth="2" />
+        </svg>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 px-1">
+        <span>💡 Zanjir qancha uzun bo&apos;lsa (n=1 dan n=5 ga), sirt taranglik shuncha kichik konsentratsiyadayoq keskin pasayadi (Traube qoidasi).</span>
+        <span className="font-mono text-emerald-400 font-bold">G_(n+1) / G_n = β ≈ 3.2</span>
+      </div>
+    </div>
+  );
+}
