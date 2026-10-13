@@ -1989,3 +1989,86 @@ model ArticleStat {
 
   @@index([views])
 }
+
+// ═══════════════════════════════════════════════════════════════
+// SMART DOSKA — JAMOALAR JANGI XONALARI
+// ═══════════════════════════════════════════════════════════════
+// NEGA BAZADA. Xonalar avval server xotirasidagi Map'da saqlanardi.
+// Vercel serverless'da har bir so'rov boshqa nusxaga tushishi mumkin —
+// ustoz A-nusxada xona ochar, o'quvchi so'rovi B-nusxaga tushib 404 olardi.
+// 30 o'quvchi har 2 soniyada poll qilganda bir nechta nusxa albatta
+// uyg'onadi, shuning uchun xona holati BAZADA yashashi shart.
+//
+// NEGA ALOHIDA JAVOB JADVALI. 30 o'quvchi bir vaqtda javob yuborganda
+// butun xonani o'qib-o'zgartirib-yozish (read-modify-write) ma'lumot
+// yo'qotadi (oxirgi yozgan yutadi). Har bir javob alohida qator va
+// (qatnashchiId, savolId) unikal — bir xil javob ikki marta yozilmaydi.
+//
+// JAMOA BALLARI SAQLANMAYDI. Ular qatnashchilar yig'indisidan hisoblanadi
+// (doskaHolatiniOlish'da). Aks holda bir jamoaning ikki a'zosi bir vaqtda
+// javob bersa, biri ikkinchisining ballini o'chirib yuborardi.
+
+model DoskaXona {
+  // 6 xonali PIN — o'quvchilar shu orqali kiradi
+  xonaId       String    @id
+  mavzuId      String
+  holat        String    @default("lobby") // lobby | jang | yakunlandi
+  jamoalarSoni Int
+  // [{id, nom, rang, hex, suyuqlikRang}] — ballar SAQLANMAYDI (yuqoriga qarang)
+  jamoalar       Json
+  // Oxirgi 25 ta hodisa — doskadagi jonli lenta uchun
+  jonliLenta     Json       @default("[]")
+  // Ustoz kalitining SHA-256 xeshi. Kalitning o'zi faqat xona yaratilganda
+  // BIR marta ustoz brauzeriga beriladi va boshqa hech qayerda ko'rinmaydi.
+  ustozKalitHash String
+  boshlanganVaqt DateTime?
+  yaratilganVaqt DateTime   @default(now())
+
+  qatnashchilar DoskaQatnashchi[]
+
+  @@index([yaratilganVaqt])
+}
+
+model DoskaQatnashchi {
+  id       String    @id // q_ + tasodifiy
+  xonaId   String
+  xona     DoskaXona @relation(fields: [xonaId], references: [xonaId], onDelete: Cascade)
+  ism      String
+  jamoaId  Int
+  ball     Int       @default(0)
+  // Server soati bilan o'lchangan jami vaqt (tie-breaker uchun).
+  // Mijoz yuborgan vaqtga ishonilmaydi — uni 0 qilib soxtalashtirish mumkin.
+  sarflanganVaqt   Int      @default(0)
+  qoidabuzarliklar Int      @default(0)
+  boshlanganVaqt   DateTime @default(now())
+  // Oxirgi javob (yoki jang boshi) vaqti — keyingi javobning sarflangan
+  // vaqti shu ayirma bilan o'lchanadi.
+  oxirgiSavolVaqti DateTime @default(now())
+  // O'quvchining 20 ta savoli (variantlar aralashtirilgan) + maxfiy indekslar.
+  // Faqat server o'qiydi — API orqali hech qachon to'liq berilmaydi.
+  savollar    Json
+  chetlatildi Boolean @default(false)
+  tugatdi     Boolean @default(false)
+
+  javoblar DoskaJavob[]
+
+  @@index([xonaId])
+}
+
+model DoskaJavob {
+  id             String          @id @default(cuid())
+  qatnashchiId   String
+  qatnashchi     DoskaQatnashchi @relation(fields: [qatnashchiId], references: [id], onDelete: Cascade)
+  savolId        Int
+  tanlanganIndex Int
+  togri          Boolean
+  ball           Int
+  // Server o'lchagan soniyalar (0..30)
+  sarflangan   Int      @default(0)
+  qoidaBuzildi Boolean  @default(false)
+  vaqt         DateTime @default(now())
+
+  // Bir savolga bir javob — ikkinchi urinish (yoki poyga) rad etiladi
+  @@unique([qatnashchiId, savolId])
+  @@index([qatnashchiId])
+}

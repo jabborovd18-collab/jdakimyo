@@ -99,6 +99,18 @@ export default function OquvchiJangSahifasi() {
   const joriyIndexRef = useRef(0);
   joriyIndexRef.current = joriyIndex;
 
+  // TAYMER BARQARORLIGI (K2): javobBer polling bilan qayta YARATILMASLIGI uchun
+  // holat ref orqali o'qiladi. Avval javobBer holat.savollar ga bog'langan edi —
+  // har 2 soniyadagi polling yangi massiv olib kelib taymer effect'ni qayta
+  // ishga tushirar va taymer 30 ga reset bo'lardi (o'quvchilar cheksiz vaqt olardi).
+  const holatRef = useRef(null);
+  holatRef.current = holat;
+  const tanlanganRef = useRef(null);
+  tanlanganRef.current = tanlangan;
+  const yuborilmoqdaRef = useRef(false);
+  yuborilmoqdaRef.current = yuborilmoqda;
+  const javobBerRef = useRef(null);
+
   // LocalStorage dan qatnashchiId va joriyIndex ni tiklash
   useEffect(() => {
     if (typeof window !== "undefined" && xonaId) {
@@ -158,10 +170,12 @@ export default function OquvchiJangSahifasi() {
   }, [qatnashchiId, yangilaOquvchi]);
 
   // ─── SAVOLGA JAVOB BERISH ───
+  // Barqaror callback: holat ref'dan o'qiladi, shuning uchun polling kelishi
+  // funksiyani qayta yaratmaydi va taymer reset bo'lmaydi (K2).
   const javobBer = useCallback(
     async (variantIndex, qoidaBuzildimi = false) => {
-      if (tanlangan !== null || yuborilmoqda) return;
-      const savollarList = holat?.savollar || [];
+      if (tanlanganRef.current !== null || yuborilmoqdaRef.current) return;
+      const savollarList = holatRef.current?.savollar || [];
       const currentIdx = joriyIndexRef.current;
       const joriySavol = savollarList[currentIdx];
       if (!joriySavol) return;
@@ -218,10 +232,13 @@ export default function OquvchiJangSahifasi() {
         setYuborilmoqda(false);
       }
     },
-    [tanlangan, yuborilmoqda, holat?.savollar, xonaId, qatnashchiId, yangilaOquvchi]
+    [xonaId, qatnashchiId, yangilaOquvchi]
   );
+  javobBerRef.current = javobBer;
 
   // ─── TAYMER (HAR BIR SAVOLGA QAT'IY 30 SONIYA) ───
+  // Bog'liqlikda javobBer YO'Q (ref orqali chaqiriladi): polling kelishi
+  // taymerni qayta ishga tushirmaydi — 30 soniya chinakam tugaydi (K2).
   useEffect(() => {
     if (holat?.holat !== "jang" || holat?.tugatdi) return;
 
@@ -234,7 +251,7 @@ export default function OquvchiJangSahifasi() {
         if (v <= 1) {
           clearInterval(timer);
           // Vaqt tugaganda javob berilmagan deb (-1) keyingi savolga o'tish
-          javobBer(-1, false);
+          if (javobBerRef.current) javobBerRef.current(-1, false);
           return 0;
         }
         return v - 1;
@@ -242,7 +259,7 @@ export default function OquvchiJangSahifasi() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [joriyIndex, holat?.holat, holat?.tugatdi, javobBer]);
+  }, [joriyIndex, holat?.holat, holat?.tugatdi]);
 
   // ─── ANTI-CHEAT & ANTI-CHATGPT HIMOYA TIZIMI (QOIDA 1) ───
   // Faqat o'quvchi boshqa ilovaga yoki boshqa tabga o'tsagina (visibilityState === "hidden") ishlaydi.
@@ -253,7 +270,7 @@ export default function OquvchiJangSahifasi() {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         setQoidaBuzildiXabari("⚠️ Qoida buzilishi: Ilovadan chiqish yoki ChatGPTga o'tish taqiqlangan! Savol 0 ball bilan bekor qilindi.");
-        javobBer(-1, true);
+        if (javobBerRef.current) javobBerRef.current(-1, true);
       }
     };
 
@@ -262,7 +279,7 @@ export default function OquvchiJangSahifasi() {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [holat?.holat, holat?.tugatdi, tanlangan, yuborilmoqda, javobBer]);
+  }, [holat?.holat, holat?.tugatdi, tanlangan, yuborilmoqda]);
 
   // ─── TAHLILNI OLISH (TEST TUGAGACH) ───
   const tahlilniYukla = useCallback(async () => {

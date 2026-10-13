@@ -27,6 +27,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
   const [tahrirlanayotganJamoaId, setTahrirlanayotganJamoaId] = useState(null);
   const [vaqtinchalikNom, setVaqtinchalikNom] = useState("");
   const [xona, setXona] = useState(null);
+  const [ustozKalit, setUstozKalit] = useState(null);
   const [qrKodlar, setQrKodlar] = useState({});
   const [yuklanmoqda, setYuklanmoqda] = useState(false);
   const [xato, setXato] = useState("");
@@ -45,6 +46,9 @@ export default function JamoalarJangiTab({ mavzuId }) {
     if (typeof window === "undefined") return;
     const saqlanganId = sessionStorage.getItem(`doska_ustoz_xona_${mavzuId}`);
     if (saqlanganId) {
+      // Ustoz kaliti ham shu brauzerda saqlangan — usiz boshlash/yakunlash ishlamaydi
+      const saqlanganKalit = sessionStorage.getItem(`doska_ustoz_kalit_${saqlanganId}`);
+      if (saqlanganKalit) setUstozKalit(saqlanganKalit);
       fetch(`/api/doska/jang?xonaId=${saqlanganId}&rol=doska`)
         .then((r) => r.json())
         .then(async (d) => {
@@ -86,7 +90,15 @@ export default function JamoalarJangiTab({ mavzuId }) {
       if (!res.ok) throw new Error(d.error || "Xona ochilmadi");
 
       setXona(d.holat);
-      if (typeof window !== "undefined") {
+      // Ustoz kaliti FAQAT xona yaratilganda BIR marta keladi — uni darhol saqlaymiz.
+      // Usiz bu xonani boshlab/yakunlab bo'lmaydi (boshqa brauzerdan kirgan odam boshqara olmaydi).
+      if (d.ustozKalit) {
+        setUstozKalit(d.ustozKalit);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(`doska_ustoz_xona_${mavzuId}`, d.xonaId);
+          sessionStorage.setItem(`doska_ustoz_kalit_${d.xonaId}`, d.ustozKalit);
+        }
+      } else if (typeof window !== "undefined") {
         sessionStorage.setItem(`doska_ustoz_xona_${mavzuId}`, d.xonaId);
       }
 
@@ -109,27 +121,32 @@ export default function JamoalarJangiTab({ mavzuId }) {
     }
   };
 
+  // ─── USTOZ HARAKATLARI UCHUN UMUMIY SO'ROV ───
+  // Har bir boshqaruv so'roviga ustoz kaliti qo'shiladi. Kalit yo'qolsa (masalan,
+  // sessiya tozalangan bo'lsa) server 403 qaytaradi — unda yangi xona ochish kerak.
+  const ustozSorovi = async (action, qoshimcha = {}) => {
+    const res = await fetch("/api/doska/jang", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, xonaId: xona.xonaId, ustozKalit, ...qoshimcha }),
+    });
+    const d = await res.json();
+    if (res.status === 403) {
+      throw new Error("Bu xonani boshqarish huquqi yo'q (ustoz kaliti topilmadi). Sahifani yangilab, yangi xona oching.");
+    }
+    if (!res.ok) throw new Error(d.error || "Xatolik yuz berdi");
+    if (d.holat) setXona(d.holat);
+    return d;
+  };
+
   // ─── LOBBYDA JAMOA NOMINI YANGILASH ───
   const jamoaNominiSaqla = async (jamoaId, yangiNom) => {
     if (!xona || !yangiNom.trim()) return;
     try {
-      const res = await fetch("/api/doska/jang", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "nomniYangila",
-          xonaId: xona.xonaId,
-          jamoaId,
-          yangiNom: yangiNom.trim(),
-        }),
-      });
-      const d = await res.json();
-      if (res.ok && d.holat) {
-        setXona(d.holat);
-        setTahrirlanayotganJamoaId(null);
-      }
-    } catch {
-      // xato
+      await ustozSorovi("nomniYangila", { jamoaId, yangiNom: yangiNom.trim() });
+      setTahrirlanayotganJamoaId(null);
+    } catch (e) {
+      alert(e.message);
     }
   };
 
@@ -184,14 +201,8 @@ export default function JamoalarJangiTab({ mavzuId }) {
   const startBer = async () => {
     if (!xona) return;
     try {
+      await ustozSorovi("boshlash");
       doskaAudio.chalStart();
-      const res = await fetch("/api/doska/jang", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "boshlash", xonaId: xona.xonaId }),
-      });
-      const d = await res.json();
-      if (res.ok && d.holat) setXona(d.holat);
     } catch (e) {
       alert("Xatolik: " + e.message);
     }
@@ -207,14 +218,8 @@ export default function JamoalarJangiTab({ mavzuId }) {
     }
     if (!confirm(xabar)) return;
     try {
+      await ustozSorovi("tugatish");
       doskaAudio.chalGolib();
-      const res = await fetch("/api/doska/jang", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "tugatish", xonaId: xona.xonaId }),
-      });
-      const d = await res.json();
-      if (res.ok && d.holat) setXona(d.holat);
     } catch (e) {
       alert("Xatolik: " + e.message);
     }
@@ -224,13 +229,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
   const chetlat = async (qatnashchiId, ism) => {
     if (!confirm(`${ism} ni musobaqadan chetlatib, uning ballarini jamoa hisobidan olib tashlamoqchimisiz?`)) return;
     try {
-      const res = await fetch("/api/doska/jang", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "chetlatish", xonaId: xona.xonaId, qatnashchiId }),
-      });
-      const d = await res.json();
-      if (res.ok && d.holat) setXona(d.holat);
+      await ustozSorovi("chetlatish", { qatnashchiId });
     } catch (e) {
       alert("Chetlatishda xato: " + e.message);
     }
