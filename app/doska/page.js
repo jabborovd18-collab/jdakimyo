@@ -13,18 +13,26 @@ import Ikon from "@/components/Ikon";
 
 export default function SmartDoskaBoshSahifa() {
   const [qidiruv, setQidiruv] = useState("");
+  const [faolTeg, setFaolTeg] = useState("barchasi");
 
   const filtrlanganMavzular = useMemo(() => {
+    let royxat = DOSKA_MAVZULARI;
+    if (faolTeg === "faol") {
+      royxat = royxat.filter((m) => m.holat === "faol");
+    } else if (faolTeg !== "barchasi") {
+      royxat = royxat.filter((m) => m.teglar.some((t) => t.toLowerCase() === faolTeg.toLowerCase()));
+    }
+
     const q = qidiruv.toLowerCase().trim();
-    if (!q) return [];
-    return DOSKA_MAVZULARI.filter(
+    if (!q) return royxat;
+    return royxat.filter(
       (m) =>
         m.nomi.toLowerCase().includes(q) ||
         m.oqituvchi.toLowerCase().includes(q) ||
         m.fan.toLowerCase().includes(q) ||
         m.teglar.some((t) => t.toLowerCase().includes(q))
     );
-  }, [qidiruv]);
+  }, [qidiruv, faolTeg]);
 
   return (
     <main className="min-h-screen p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto flex flex-col justify-between">
@@ -88,52 +96,53 @@ export default function SmartDoskaBoshSahifa() {
           )}
         </div>
 
-        {/* ═══ MAVZULAR RO'YXATI: FAQAT QIDIRUV KADA CHIQADI ═══ */}
-        {!qidiruv.trim() ? (
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center max-w-2xl mx-auto my-6 shadow-2xl">
-            <span className="w-16 h-16 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 inline-flex items-center justify-center text-emerald-400 mb-4 shadow-lg shadow-emerald-950/50">
-              <Ikon nom="qidiruv" olcham={32} />
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black text-white mb-2">
-              Mavzuni topish uchun qidiring
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed mb-6">
-              Smart Doskada darsni boshlash uchun yuqoridagi qidiruv maydoniga mavzu nomi, olim yoki fan nomini yozing, yoki quyidagi teglardan birini bosing:
-            </p>
+        {/* ═══ TEZKOR FILTRLAR ═══ */}
+        <div className="flex flex-wrap items-center gap-2 mb-8">
+          {[
+            { id: "barchasi", nom: "Barcha mavzular" },
+            { id: "faol", nom: "🟢 Faol interaktiv" },
+            { id: "Lengmyur", nom: "Lengmyur" },
+            { id: "Freyndlix", nom: "Freyndlix" },
+            { id: "BET", nom: "BET" },
+            { id: "Gibbs", nom: "Gibbs" },
+            { id: "Kelvin", nom: "Kelvin" },
+            { id: "Traube", nom: "Traube" },
+          ].map((teg) => {
+            const tanlangan = faolTeg === teg.id;
+            return (
+              <button
+                key={teg.id}
+                onClick={() => {
+                  setFaolTeg(teg.id);
+                  if (qidiruv) setQidiruv("");
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition border ${
+                  tanlangan
+                    ? "bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-950/50"
+                    : "bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
+                }`}
+              >
+                {teg.nom}
+              </button>
+            );
+          })}
+        </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {[
-                "Adsorbsiya",
-                "Lengmyur",
-                "Freyndlix",
-                "BET",
-                "Gibbs",
-                "Kelvin",
-                "Traube",
-                "Kolloid kimyo",
-                "Regressiya",
-              ].map((teg) => (
-                <button
-                  key={teg}
-                  onClick={() => setQidiruv(teg)}
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-emerald-950/80 border border-slate-700/60 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 text-xs font-semibold transition"
-                >
-                  #{teg}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : filtrlanganMavzular.length === 0 ? (
+        {/* ═══ MAVZULAR RO'YXATI ═══ */}
+        {filtrlanganMavzular.length === 0 ? (
           <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 text-center max-w-md mx-auto my-6">
             <p className="text-sm font-bold text-slate-300 mb-1">Mos mavzu topilmadi</p>
             <p className="text-xs text-slate-400 mb-4">
               &quot;{qidiruv}&quot; so&apos;rovi bo&apos;yicha hech narsa chiqmadi. Boshqa kalit so&apos;z bilan urinib ko&apos;ring.
             </p>
             <button
-              onClick={() => setQidiruv("")}
+              onClick={() => {
+                setQidiruv("");
+                setFaolTeg("barchasi");
+              }}
               className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:text-white"
             >
-              Qidiruvni tozalash
+              Filtrni tozalash
             </button>
           </div>
         ) : (

@@ -526,12 +526,15 @@ export function TermodinamikaIzosterikGrafik({
   const toX = (p) => 55 + (Math.max(0, Math.min(maxP, p)) / maxP) * 440;
   const toY = (a) => 180 - (Math.max(0, Math.min(maxA, a)) / maxA) * 150;
 
-  // T1 dagi izoterma (sovuqroq -> kuchliroq adsorbsiya, K kattaroq)
+  // T1 va T2 dagi muvozanat doimiylari (q_st = 32.4 kJ/mol ga asoslangan)
+  const qstBazaviy = 32400; // J/mol
+  const R = 8.314;
+  const k1 = 0.0148 * Math.exp((qstBazaviy / R) * (1 / t1 - 1 / 298));
+  const k2 = 0.0148 * Math.exp((qstBazaviy / R) * (1 / t2 - 1 / 298));
+
   const qadamlar = 35;
   const t1Nuqtalar = [];
   const t2Nuqtalar = [];
-  const k1 = 0.18 * Math.exp(3000 / t1);
-  const k2 = 0.18 * Math.exp(3000 / t2);
 
   for (let i = 0; i <= qadamlar; i++) {
     const pVal = (i / qadamlar) * maxP;
@@ -547,8 +550,11 @@ export function TermodinamikaIzosterikGrafik({
   // Izosterik chiziq (a = 2.0 mmol/g darajasidagi gorizontal kesim)
   const aIzostera = 2.0;
   const yIzostera = toY(aIzostera);
-  const xP1 = toX(p1);
-  const xP2 = toX(p2);
+  // Haqiqiy egri chiziq bilan kesishish nuqtalaridagi bosimlar:
+  const hisoblanganP1 = 2.0 / (3.5 * Math.max(0.0001, k1));
+  const hisoblanganP2 = 2.0 / (3.5 * Math.max(0.0001, k2));
+  const xP1 = toX(hisoblanganP1);
+  const xP2 = toX(hisoblanganP2);
 
   return (
     <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 space-y-3">
@@ -614,10 +620,10 @@ export function TermodinamikaIzosterikGrafik({
           <circle cx={xP1} cy={yIzostera} r="5" fill="#38bdf8" stroke="#ffffff" strokeWidth="2" />
           <circle cx={xP2} cy={yIzostera} r="5" fill="#f43f5e" stroke="#ffffff" strokeWidth="2" />
           <text x={xP1 - 4} y={yIzostera - 8} fill="#38bdf8" fontSize="9" fontWeight="bold" textAnchor="end">
-            p₁ = {p1} kPa
+            p₁ = {hisoblanganP1.toFixed(1)} kPa
           </text>
           <text x={xP2 + 4} y={yIzostera - 8} fill="#fb7185" fontSize="9" fontWeight="bold" textAnchor="start">
-            p₂ = {p2} kPa
+            p₂ = {hisoblanganP2.toFixed(1)} kPa
           </text>
         </svg>
       </div>

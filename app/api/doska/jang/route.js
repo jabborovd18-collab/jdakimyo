@@ -31,7 +31,18 @@ export async function GET(req) {
     }
 
     // 1) Test tahlili (har bir savolning to'g'ri javobi va izohi)
+    // Anti-Cheat: Tahlil faqat musobaqa doskada yakunlangandagina beriladi!
     if (action === "tahlil" && qatnashchiId) {
+      const holat = doskaHolatiniOlish(xonaId);
+      if (!holat) {
+        return NextResponse.json({ error: "Xona topilmadi" }, { status: 404 });
+      }
+      if (holat.holat !== "yakunlandi") {
+        return NextResponse.json(
+          { error: "Musobaqa hali yakunlanmagan. To'g'ri javoblar test yakunlangach ochiladi." },
+          { status: 403 }
+        );
+      }
       const tahlil = tahlilniOlish(xonaId, qatnashchiId);
       return NextResponse.json({ ok: true, tahlil });
     }
@@ -54,12 +65,27 @@ export async function GET(req) {
       return NextResponse.json({ ok: true, holat });
     }
 
-    // Odatiy qisqa tekshiruv
+    // Odatiy qisqa tekshiruv (Xona holati va faol jamoalar ro'yxati)
     const holat = doskaHolatiniOlish(xonaId);
     if (!holat) {
       return NextResponse.json({ error: "Xona topilmadi" }, { status: 404 });
     }
-    return NextResponse.json({ ok: true, holat: { xonaId: holat.xonaId, holat: holat.holat, jamoalarSoni: holat.jamoalarSoni } });
+    return NextResponse.json({
+      ok: true,
+      holat: {
+        xonaId: holat.xonaId,
+        holat: holat.holat,
+        jamoalarSoni: holat.jamoalarSoni,
+        jamoalar: holat.jamoalar.map((j) => ({
+          id: j.id,
+          nom: j.nom,
+          rang: j.rang,
+          hex: j.hex,
+          suyuqlikRang: j.suyuqlikRang,
+          azolariSoni: j.azolariSoni,
+        })),
+      },
+    });
   } catch (e) {
     return NextResponse.json({ error: e.message || "Server xatosi" }, { status: 500 });
   }
