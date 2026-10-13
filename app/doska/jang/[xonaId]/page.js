@@ -6,8 +6,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import LatexMatn from "@/components/LatexMatn";
 import Ikon from "@/components/Ikon";
 
 const YANGILANISH_MS = 2000;
@@ -16,6 +17,7 @@ const SAVOL_VAQTI_SONIYA = 30; // Qat'iy 30 soniya qoidasi
 export default function OquvchiJangSahifasi() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const xonaId = params.xonaId;
   const boshlangichJamoa = Number(searchParams.get("jamoa")) || 1;
 
@@ -24,9 +26,59 @@ export default function OquvchiJangSahifasi() {
   const [jamoaId, setJamoaId] = useState(boshlangichJamoa);
   const [qatnashchiId, setQatnashchiId] = useState(null);
   const [holat, setHolat] = useState(null); // serverdan kelgan holat
+  const [xonaInfo, setXonaInfo] = useState(null); // qo'shilishdan oldin xona ma'lumotlari
   const [yuklanmoqda, setYuklanmoqda] = useState(false);
   const [xato, setXato] = useState("");
   const [tarmoqAloqasi, setTarmoqAloqasi] = useState(true);
+
+  // Qo'shilishdan oldin xona ma'lumotlarini (jamoalar va holat) olib turish
+  useEffect(() => {
+    if (!xonaId || qatnashchiId) return;
+    let bekor = false;
+    const yuklaXonaInfo = async () => {
+      try {
+        const res = await fetch(`/api/doska/jang?xonaId=${xonaId}`);
+        const d = await res.json();
+        if (!bekor) {
+          if (res.ok && d.holat) {
+            setXonaInfo(d.holat);
+          } else if (res.status === 404) {
+            setXato(d.error || "Bunday xona topilmadi yoki muddati o'tgan");
+          }
+        }
+      } catch {
+        // tarmoq xatosi
+      }
+    };
+    yuklaXonaInfo();
+    const interval = setInterval(yuklaXonaInfo, YANGILANISH_MS);
+    return () => {
+      bekor = true;
+      clearInterval(interval);
+    };
+  }, [xonaId, qatnashchiId]);
+
+  // Jamoa ID sini xona sozlamalariga moslashtirish
+  useEffect(() => {
+    if (xonaInfo?.jamoalar && xonaInfo.jamoalar.length > 0) {
+      const mavjud = xonaInfo.jamoalar.some((j) => j.id === jamoaId);
+      if (!mavjud) {
+        setJamoaId(xonaInfo.jamoalar[0].id);
+      }
+    }
+  }, [xonaInfo, jamoaId]);
+
+  // Xonadan chiqish (boshqa PIN kiritish yoki qayta ulanish uchun)
+  const xonadanChiqish = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(`doska_q_${xonaId}`);
+      localStorage.removeItem(`doska_idx_${xonaId}`);
+    }
+    setQatnashchiId(null);
+    setHolat(null);
+    setTahlil(null);
+    router.push("/doska/join");
+  };
 
   // Test ishlash holatlari
   const [joriyIndex, setJoriyIndex] = useState(0);
@@ -74,6 +126,16 @@ export default function OquvchiJangSahifasi() {
       if (res.ok && d.holat) {
         setHolat(d.holat);
         setTarmoqAloqasi(true);
+        // Agar o'quvchi sahifani yangilagan bo'lsa va joriy savolga allaqachon javob berilgan bo'lsa,
+        // avtomatik birinchi yechilmagan savolga o'tkazish:
+        if (d.holat.savollar && d.holat.belgilanganJavoblar && !d.holat.tugatdi) {
+          const firstUnanswered = d.holat.savollar.findIndex(
+            (s) => d.holat.belgilanganJavoblar[s.id] === undefined
+          );
+          if (firstUnanswered !== -1 && firstUnanswered > joriyIndexRef.current) {
+            setJoriyIndex(firstUnanswered);
+          }
+        }
       } else if (res.status === 404) {
         // Sessiya serverda mavjud emas (muddati o'tgan yoki o'chirilgan)
         if (typeof window !== "undefined") {
@@ -259,6 +321,17 @@ export default function OquvchiJangSahifasi() {
   // 1. ISHGA TUSHISH SHAKLI (ISM VA JAMOA KIRITISH)
   // ═══════════════════════════════════════════════════════════════════════
   if (!qatnashchiId) {
+    const aktivJamoalar =
+      xonaInfo?.jamoalar && xonaInfo.jamoalar.length > 0
+        ? xonaInfo.jamoalar
+        : [
+            { id: 1, nom: "Kationlar", rang: "emerald", hex: "#10b981", azolariSoni: 0 },
+            { id: 2, nom: "Anionlar", rang: "sky", hex: "#0284c7", azolariSoni: 0 },
+          ];
+
+    const jangBoshlangan = xonaInfo?.holat === "jang";
+    const xonaYakunlangan = xonaInfo?.holat === "yakunlandi";
+
     return (
       <main className="min-h-[100dvh] p-4 sm:p-6 flex items-center justify-center bg-[#070b14] text-white select-none touch-manipulation overflow-y-auto py-8">
         <div className="w-full max-w-md bg-slate-900/95 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl my-auto">
@@ -273,8 +346,20 @@ export default function OquvchiJangSahifasi() {
           </div>
 
           {xato && (
-            <div className="mb-4 p-3 rounded-xl bg-red-950/50 border border-red-500/50 text-red-200 text-xs">
+            <div className="mb-4 p-3.5 rounded-xl bg-red-950/50 border border-red-500/50 text-red-200 text-xs">
               {xato}
+            </div>
+          )}
+
+          {jangBoshlangan && (
+            <div className="mb-4 p-3.5 rounded-xl bg-amber-950/60 border border-amber-500/60 text-amber-200 text-xs text-center font-semibold">
+              ⚠️ Musobaqa allaqachon boshlangan! Kechikkan ishtirokchilar qabul qilinmaydi.
+            </div>
+          )}
+
+          {xonaYakunlangan && (
+            <div className="mb-4 p-3.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-300 text-xs text-center font-semibold">
+              🏁 Ushbu musobaqa yakunlangan.
             </div>
           )}
 
@@ -286,6 +371,7 @@ export default function OquvchiJangSahifasi() {
               <input
                 type="text"
                 required
+                disabled={jangBoshlangan || xonaYakunlangan}
                 maxLength={30}
                 value={ism}
                 onChange={(e) => setIsm(e.target.value)}
@@ -293,36 +379,47 @@ export default function OquvchiJangSahifasi() {
                 autoComplete="name"
                 autoCapitalize="words"
                 spellCheck={false}
-                className="w-full px-4 py-3.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 text-base focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full px-4 py-3.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 text-base focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Jamoangizni tasdiqlang:
-              </label>
-              <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
-                {[
-                  { id: 1, nom: "Kationlar", rang: "emerald", hex: "#10b981" },
-                  { id: 2, nom: "Anionlar", rang: "sky", hex: "#0284c7" },
-                  { id: 3, nom: "Radikallar", rang: "amber", hex: "#f59e0b" },
-                  { id: 4, nom: "Komplekslar", rang: "rose", hex: "#f43f5e" },
-                ].map((j) => (
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                  Jamoangizni tasdiqlang:
+                </label>
+                <span className="text-[11px] text-slate-400 font-mono">
+                  {aktivJamoalar.length} ta jamoa
+                </span>
+              </div>
+
+              <div className={`grid ${aktivJamoalar.length === 2 ? "grid-cols-2" : "grid-cols-2"} gap-2 sm:gap-2.5`}>
+                {aktivJamoalar.map((j) => (
                   <button
                     key={j.id}
                     type="button"
+                    disabled={jangBoshlangan || xonaYakunlangan}
                     onClick={() => setJamoaId(j.id)}
-                    className={`p-2.5 sm:p-3 rounded-xl border text-left transition ${
+                    className={`p-2.5 sm:p-3 rounded-xl border text-left transition disabled:opacity-50 ${
                       jamoaId === j.id
                         ? "bg-slate-800 border-emerald-500 text-emerald-300 ring-2 ring-emerald-500/30"
                         : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
                     }`}
                   >
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: j.hex }} />
-                      <span className="text-[10px] text-slate-400 font-mono">{j.id}-jamoa</span>
+                    <div className="flex items-center justify-between gap-1.5 mb-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: j.hex }} />
+                        <span className="text-[10px] text-slate-400 font-mono">{j.id}-jamoa</span>
+                      </div>
+                      {typeof j.azolariSoni === "number" && (
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {j.azolariSoni} o&apos;quvchi
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xs sm:text-sm font-bold text-white truncate">{j.nom}</div>
+                    <div className="text-xs sm:text-sm font-bold text-white truncate" style={{ color: jamoaId === j.id ? "#34d399" : undefined }}>
+                      {j.nom}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -330,8 +427,8 @@ export default function OquvchiJangSahifasi() {
 
             <button
               type="submit"
-              disabled={yuklanmoqda}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 font-black text-base shadow-xl shadow-emerald-950/60 transition active:scale-[0.98] flex items-center justify-center gap-2"
+              disabled={yuklanmoqda || jangBoshlangan || xonaYakunlangan}
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 font-black text-base shadow-xl shadow-emerald-950/60 transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {yuklanmoqda ? (
                 <span>Ulanmoqda...</span>
@@ -343,6 +440,16 @@ export default function OquvchiJangSahifasi() {
               )}
             </button>
           </form>
+
+          <div className="mt-5 pt-4 border-t border-slate-800/80 text-center">
+            <Link
+              href="/doska/join"
+              className="text-xs text-slate-400 hover:text-emerald-400 transition inline-flex items-center gap-1.5"
+            >
+              <Ikon nom="chap" olcham={13} />
+              <span>Boshqa xona PIN kodini kiritish</span>
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -683,7 +790,7 @@ export default function OquvchiJangSahifasi() {
                           >
                             <div className="flex items-start justify-between gap-2">
                               <span className="font-bold text-white text-sm">
-                                {t.tartibRaqam}. {t.savol}
+                                {t.tartibRaqam}. <LatexMatn matn={t.savol} inline />
                               </span>
                               <span
                                 className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
@@ -700,14 +807,14 @@ export default function OquvchiJangSahifasi() {
                               {/* To'g'ri javob */}
                               <div className="flex items-center gap-2 p-2 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-300">
                                 <Ikon nom="tasdiq" olcham={14} className="shrink-0 text-emerald-400" />
-                                <span>To&apos;g&apos;ri javob: <b>{togriJavob}</b></span>
+                                <span>To&apos;g&apos;ri javob: <b><LatexMatn matn={togriJavob} inline /></b></span>
                               </div>
 
                               {/* Agar noto'g'ri bo'lsa, tanlangan javob */}
                               {!t.togriTopdimi && (
                                 <div className="flex items-center gap-2 p-2 rounded-xl bg-red-950/50 border border-red-500/30 text-red-300">
                                   <Ikon nom="yopish" olcham={14} className="shrink-0 text-red-400" />
-                                  <span>Siz tanlagan javob: <b>{sizTanlagan}</b></span>
+                                  <span>Siz tanlagan javob: <b><LatexMatn matn={sizTanlagan} inline /></b></span>
                                 </div>
                               )}
                             </div>
@@ -719,9 +826,9 @@ export default function OquvchiJangSahifasi() {
                                   <Ikon nom="nurlar" olcham={13} />
                                   <span>Tushuntirish (Izoh):</span>
                                 </div>
-                                <p className="text-slate-300 leading-normal pl-4">
-                                  {t.izoh}
-                                </p>
+                                <div className="text-slate-300 leading-normal pl-4">
+                                  <LatexMatn matn={t.izoh} inline />
+                                </div>
                                 {t.slayd && (
                                   <div className="pl-4 text-[10px] text-sky-400 font-mono font-medium">
                                     📖 Darslikdagi tegishli mavzu: Slayd #{t.slayd}
@@ -738,6 +845,17 @@ export default function OquvchiJangSahifasi() {
               )}
             </div>
           )}
+
+          {/* CHIQISH VA YANGI O'YIN TUGMASI */}
+          <div className="pt-2">
+            <button
+              onClick={xonadanChiqish}
+              className="w-full py-3 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition flex items-center justify-center gap-2"
+            >
+              <Ikon nom="chap" olcham={14} />
+              <span>Yangi xonaga ulanish / Chiqish</span>
+            </button>
+          </div>
         </div>
 
         {/* PASTKI ESLATMA */}
@@ -803,7 +921,7 @@ export default function OquvchiJangSahifasi() {
         </div>
 
         {/* VAQT TAYMERI VA RAQAMLI HISOBGICH */}
-        <div className="mb-4 sm:mb-6">
+        <div className="mb-3 sm:mb-4">
           <div className="flex items-center justify-between text-[11px] font-mono mb-1.5 px-0.5">
             <span className="flex items-center gap-1.5 text-slate-300">
               <Ikon nom="vaqt" olcham={13} className={qolganVaqt <= 8 ? "text-red-400 animate-spin" : "text-emerald-400"} />
@@ -824,10 +942,31 @@ export default function OquvchiJangSahifasi() {
           </div>
         </div>
 
+        {/* 20 TA SAVOLNING VISUAL INDIKATORLARI (PROGRES PANEL) */}
+        <div className="grid grid-cols-10 gap-1 sm:gap-1.5 mb-4">
+          {savollar.map((s, idx) => {
+            const javobBerildi = holat?.belgilanganJavoblar && holat.belgilanganJavoblar[s.id] !== undefined;
+            const faol = idx === joriyIndex;
+            return (
+              <div
+                key={s.id || idx}
+                className={`h-2 sm:h-2.5 rounded-full transition-all ${
+                  faol
+                    ? "bg-emerald-400 ring-2 ring-emerald-300 shadow-lg shadow-emerald-500/50 scale-105"
+                    : javobBerildi
+                    ? "bg-emerald-600/80"
+                    : "bg-slate-800"
+                }`}
+                title={`${idx + 1}-savol ${javobBerildi ? "(topshirildi)" : faol ? "(hozirgi)" : ""}`}
+              />
+            );
+          })}
+        </div>
+
         {/* SAVOL MATNI */}
         <div className="bg-slate-900/95 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl mb-3.5 sm:mb-5">
           <h3 className="text-base sm:text-xl font-bold text-white leading-snug break-words">
-            {joriySavol.savol}
+            <LatexMatn matn={joriySavol.savol} inline />
           </h3>
         </div>
 
@@ -851,7 +990,7 @@ export default function OquvchiJangSahifasi() {
                     {String.fromCharCode(65 + idx)}
                   </span>
                   <span className="text-sm sm:text-base font-semibold leading-snug break-words flex-1 pt-0.5">
-                    {vMatn}
+                    <LatexMatn matn={vMatn} inline />
                   </span>
                 </div>
               </button>

@@ -137,13 +137,13 @@ test("Chegaraviy holatlar: bir xil ismli o'quvchilar va noto'g'ri variant indeks
   const ichkiQ = xona.qatnashchilar[q1.qatnashchiId];
   const savol = ichkiQ.savollar[0];
 
-  // Noto'g'ri variant indeksi (masalan 99 yoki -1)
+  // Noto'g'ri variant indeksi (masalan 99 yoki -2)
   assert.throws(
     () => javobniQabulQil(xona.xonaId, q1.qatnashchiId, savol.id, 99),
     /Yaroqsiz variant tanlandi/
   );
   assert.throws(
-    () => javobniQabulQil(xona.xonaId, q1.qatnashchiId, savol.id, -1),
+    () => javobniQabulQil(xona.xonaId, q1.qatnashchiId, savol.id, -2),
     /Yaroqsiz variant tanlandi/
   );
 });
@@ -361,5 +361,148 @@ test("Anti-Cheat: ilovadan chiqqanda yoki skrinshot olganda 0 ball va qoidabuzar
   assert.ok(oxirgiLenta);
   assert.ok(oxirgiLenta.matn.includes("ilovadan chiqdi"));
 });
+
+test("30 soniya taymer tugaganda (-1 yuborilganda) 0 ball bilan xatosiz qabul qilinadi", () => {
+  const xona = yangiXonaYarat("sirt-hodisalari-adsorbsiya", 2);
+  const q = qatnashchiQosh(xona.xonaId, "Ulug'bek", 1);
+  jangniBoshla(xona.xonaId);
+
+  const ichkiQ = xona.qatnashchilar[q.qatnashchiId];
+  const savol = ichkiQ.savollar[0];
+
+  // 30 soniya vaqt tugadi, o'quvchi hech narsa tanlamadi (tanlanganIndex: -1, qoidaBuzildimi: false)
+  const res = javobniQabulQil(xona.xonaId, q.qatnashchiId, savol.id, -1, 30, false);
+  assert.ok(res.ok);
+  assert.ok(res.qabulQilindi);
+  assert.equal(res.ball, 0);
+  assert.equal(res.qoidaBuzildi, false);
+  assert.equal(ichkiQ.javoblar[savol.id].tanlanganIndex, -1);
+  assert.equal(ichkiQ.javoblar[savol.id].togri, false);
+  assert.equal(ichkiQ.sarflanganVaqtSoniya, 30);
+});
+
+test("30 TALABALIK AUDITORIYA SIMULYATSIYASI: QR skaner, jamoalarga taqsimlanish, parallel javoblar, moderatsiya va yakuniy tahlil", () => {
+  // 1. Ustoz 3 ta jamoa bilan xona yaratadi
+  const xona = yangiXonaYarat("sirt-hodisalari-adsorbsiya", 3, ["Adsorbentlar", "Adsorbatlar", "G'ovaklar"]);
+  const xonaId = xona.xonaId;
+  assert.equal(xona.jamoalar.length, 3);
+  assert.equal(xona.holat, "lobby");
+
+  // 2. 30 ta talaba (ism takrorlanishlari bilan: 5 ta "Jasur", 3 ta "Madina", 22 ta boshqa ismlar)
+  const ismlar = [
+    "Jasur", "Jasur", "Jasur", "Jasur", "Jasur",
+    "Madina", "Madina", "Madina",
+    "Sardor", "Nodira", "Dilshod", "Azizbek", "Shahnoza", "Bekzod", "Gulnoza",
+    "Otabek", "Zilola", "Anvar", "Kamola", "Farrux", "Malika", "Javohir",
+    "Rayhon", "Shavkat", "Mohira", "Sanjar", "Sevara", "Temur", "Munisa", "Ulug'bek"
+  ];
+  assert.equal(ismlar.length, 30);
+
+  const talabalar = [];
+  // 30 ta talaba 3 ta jamoaga (har bir jamoaga 10 tadan) taqsimlanadi
+  ismlar.forEach((ism, idx) => {
+    const jamoaId = (idx % 3) + 1;
+    const qoshilgan = qatnashchiQosh(xonaId, ism, jamoaId);
+    assert.ok(qoshilgan.qatnashchiId);
+    talabalar.push(qoshilgan);
+  });
+
+  // Takroriy ismlar to'g'ri raqamlangani tekshiriladi
+  const jasurlar = talabalar.filter((t) => t.ism.startsWith("Jasur"));
+  assert.equal(jasurlar.length, 5);
+  assert.equal(jasurlar[0].ism, "Jasur");
+  assert.equal(jasurlar[1].ism, "Jasur (2)");
+  assert.equal(jasurlar[2].ism, "Jasur (3)");
+  assert.equal(jasurlar[3].ism, "Jasur (4)");
+  assert.equal(jasurlar[4].ism, "Jasur (5)");
+
+  const madinalar = talabalar.filter((t) => t.ism.startsWith("Madina"));
+  assert.equal(madinalar.length, 3);
+  assert.equal(madinalar[0].ism, "Madina");
+  assert.equal(madinalar[1].ism, "Madina (2)");
+  assert.equal(madinalar[2].ism, "Madina (3)");
+
+  // Har bir jamoada 10 nafardan a'zo bor
+  const lobbyHolat = doskaHolatiniOlish(xonaId);
+  assert.equal(lobbyHolat.qatnashchilar.length, 30);
+  lobbyHolat.jamoalar.forEach((j) => {
+    assert.equal(j.azolariSoni, 10);
+  });
+
+  // 3. Ustoz musobaqani boshlaydi
+  jangniBoshla(xonaId);
+  const jangHolat = doskaHolatiniOlish(xonaId);
+  assert.equal(jangHolat.holat, "jang");
+
+  // Kechikkan talaba qo'shilishi bloklanadi
+  assert.throws(() => qatnashchiQosh(xonaId, "KechikkanTalaba", 1), /Musobaqa allaqachon boshlangan/);
+
+  // 4. 30 ta talaba 20 tadan savolga javob beradi (jami 600 ta javob)
+  talabalar.forEach((talaba, tIdx) => {
+    const ichkiTalaba = xona.qatnashchilar[talaba.qatnashchiId];
+    assert.equal(ichkiTalaba.savollar.length, 20);
+
+    ichkiTalaba.savollar.forEach((savol, sIdx) => {
+      // 1-talaba (Jasur) 5-savolda qoidani buzib ilovadan chiqadi
+      if (tIdx === 0 && sIdx === 4) {
+        javobniQabulQil(xonaId, talaba.qatnashchiId, savol.id, -1, 7, true);
+        return;
+      }
+
+      // 2-talaba (Jasur 2) 10-savolda taymer tugaydi (-1)
+      if (tIdx === 1 && sIdx === 9) {
+        javobniQabulQil(xonaId, talaba.qatnashchiId, savol.id, -1, 30, false);
+        return;
+      }
+
+      // Turli javob strategiyalari:
+      // Ba'zi talabalar ko'proq to'g'ri topadi, ba'zilari xato qiladi
+      const togriTopdimi = (tIdx + sIdx) % 3 !== 0; // ~66% to'g'ri javob ehtimolligi
+      const tanlangan = togriTopdimi ? savol._maxfiyTogriIndex : (savol._maxfiyTogriIndex + 1) % 4;
+      const sarflanganVaqt = 5 + ((tIdx * 3 + sIdx * 2) % 20); // 5..25 soniya
+
+      javobniQabulQil(xonaId, talaba.qatnashchiId, savol.id, tanlangan, sarflanganVaqt, false);
+    });
+
+    assert.equal(ichkiTalaba.tugatdi, true);
+    assert.equal(Object.keys(ichkiTalaba.javoblar).length, 20);
+  });
+
+  // 5. Moderatsiya: Ustoz oxirgi talabani (Ulug'bek) soxta profil deb chetlatadi
+  const oxirgiTalaba = talabalar[29];
+  const oxirgiBall = xona.qatnashchilar[oxirgiTalaba.qatnashchiId].ball;
+  const oxirgiJamoaId = oxirgiTalaba.jamoaId;
+  const oldingiJamoaBall = xona.jamoalar.find((j) => j.id === oxirgiJamoaId).ball;
+
+  qatnashchiniChetlat(xonaId, oxirgiTalaba.qatnashchiId);
+  assert.equal(xona.qatnashchilar[oxirgiTalaba.qatnashchiId].chetlatildi, true);
+
+  const yangiJamoaBall = xona.jamoalar.find((j) => j.id === oxirgiJamoaId).ball;
+  assert.equal(yangiJamoaBall, oldingiJamoaBall - oxirgiBall);
+
+  // 6. Ustoz o'yinni yakunlaydi
+  jangniTugat(xonaId);
+  const yakuniyHolat = doskaHolatiniOlish(xonaId);
+  assert.equal(yakuniyHolat.holat, "yakunlandi");
+  assert.equal(yakuniyHolat.qatnashchilar.length, 29); // 1 nafari chetlatilgan
+
+  // Shohsupa va g'olib jamoa aniqlangan
+  assert.ok(yakuniyHolat.jamoalar[0].ball >= yakuniyHolat.jamoalar[1].ball);
+  assert.ok(yakuniyHolat.jamoalar[1].ball >= yakuniyHolat.jamoalar[2].ball);
+
+  // 7. Barcha 30 ta talaba test yakunida to'liq tahlilni (tahlilniOlish) oladi
+  talabalar.forEach((talaba) => {
+    const tahlil = tahlilniOlish(xonaId, talaba.qatnashchiId);
+    assert.equal(tahlil.length, 20);
+    tahlil.forEach((t) => {
+      assert.ok(typeof t.togriIndex === "number");
+      assert.ok(t.variantlar.length === 4);
+      assert.ok(t.izoh);
+      assert.ok(typeof t.slayd === "string" && t.slayd.length > 0);
+    });
+  });
+});
+
+
 
 
