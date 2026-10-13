@@ -200,6 +200,9 @@ export default function JamoalarJangiTab({ mavzuId }) {
   // ─── JANGNI BOSHLASH (START) ───
   const startBer = async () => {
     if (!xona) return;
+    // AudioContext faqat foydalanuvchi bosgan lahzada uyg'onadi (brauzer qoidasi),
+    // shuning uchun init() await'dan OLDIN sinxron chaqiriladi — aks holda ovoz chiqmaydi.
+    doskaAudio.init();
     try {
       await ustozSorovi("boshlash");
       doskaAudio.chalStart();
@@ -217,6 +220,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
       xabar = `Diqqat! Hali ${haliYechayotganlar.length} nafar o'quvchi testni yechmoqda.\n\nMusobaqani muddatidan oldin yakunlasangiz, ularning joriy natijalari hisoblanadi. Yakunlashni tasdiqlaysizmi?`;
     }
     if (!confirm(xabar)) return;
+    doskaAudio.init();
     try {
       await ustozSorovi("tugatish");
       doskaAudio.chalGolib();
