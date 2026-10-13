@@ -124,10 +124,10 @@ function LoginForm() {
               <span className="text-2xl">📺</span>
               <span className="flex-1 min-w-0">
                 <span className="block text-sm font-semibold text-cyan-200">
-                  Elektron doska — QR bilan kirish
+                  Elektron doska — kirish shart emas
                 </span>
                 <span className="block text-xs text-cyan-400/80">
-                  Parol terilmaydi. Telefondan skanerlab tasdiqlaysiz.
+                  Ro&apos;yxatsiz ochiladi. To&apos;g&apos;ridan-to&apos;g&apos;ri darsga o&apos;ting.
                 </span>
               </span>
               <span className="text-cyan-400 group-hover:translate-x-0.5 transition-transform">→</span>

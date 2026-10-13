@@ -171,9 +171,6 @@ model User {
   yuborganSovgalar Gift[] @relation("GiftSender")
   kelganSovgalar   Gift[] @relation("GiftReceiver")
 
-  // ELEKTRON DOSKA SESSIYALARI
-  doskaSessiyalar DoskaSessiya[] @relation("DoskaFoydalanuvchi")
-
   // TELEGRAM BOT
   // Nomi `telegram` emas: yuqorida `telegram String?` bor va u
   // butunlay boshqa narsa — profildagi ijtimoiy havola.
@@ -1565,38 +1562,6 @@ model TelegramBotKod {
   createdAt  DateTime @default(now())
 
   @@index([amalQiladi])
-}
-
-// Elektron doskaga QR orqali kirish.
-//
-// NEGA KERAK. Ma'ruza zalida o'qituvchi 100 talaba oldida parol tera
-// olmaydi. Doskada QR chiqadi, o'qituvchi uni telefonidan skanerlaydi
-// va telefonda tasdiqlaydi — parol umuman terilmaydi.
-//
-// NEGA TELEFONDA TASDIQLASH SHART. QR ni zaldagi har kim skanerlashi
-// mumkin. Tasdiqlash bo'lmasa, birinchi skanerlagan odam o'qituvchi
-// hisobiga kirib olardi.
-//
-// Qiymatlar: kutilmoqda | tasdiqlangan | ishlatilgan | bekor
-model DoskaSessiya {
-  id         String    @id @default(cuid())
-  // QR ichidagi maxfiy qiymat
-  token      String    @unique
-  holat      String    @default("kutilmoqda")
-  // Tasdiqlagandan keyin to'ladi
-  userId     String?
-  // Doska sessiyasi qachon tugaydi (o'qituvchi tanlaydi)
-  tugaydi    DateTime?
-  // QR ning o'zi tez eskiradi — skanerlashga berilgan vaqt
-  amalQiladi DateTime
-  // Kim so'rayotgani telefonda ko'rsatiladi
-  qurilma    String?
-  ip         String?
-  createdAt  DateTime  @default(now())
-
-  user User? @relation("DoskaFoydalanuvchi", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([holat, amalQiladi])
 }
 
 // Do'stlar orasidagi kunlik sovg'a.
