@@ -1,7 +1,8 @@
 // app/api/auth/[...nextauth]/route.js
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { PrismaAdapter } from '@auth/prisma-adapter'
+import GoogleProvider from 'next-auth/providers/google'
+import { createCustomAuthAdapter } from '@/lib/auth-adapter'
 import { prisma } from '@/lib/prisma'
 import { verifyCredentials } from '@/lib/credentials'
 import { tokenniAlmashtir } from '@/lib/doska'
@@ -9,8 +10,16 @@ import { soravchiIp } from '@/lib/ip-cheklov'
 import { authMaxfiyKaliti } from '@/lib/auth-maxfiy-kalit'
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: createCustomAuthAdapter(),
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      // Nega allowDangerousEmailAccountLinking: Agar foydalanuvchi ilgari
+      // oddiy email/parol bilan ro'yxatdan o'tgan bo'lsa, xuddi shu email'dagi
+      // tasdiqlangan Google akkauntini xatoliksiz avtomatik bog'laydi.
+      allowDangerousEmailAccountLinking: true,
+    }),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -57,16 +66,74 @@ export const authOptions = {
     signIn: '/login',
   },
   callbacks: {
+    // BLOKLANGAN FOYDALANUVCHILARNI TO'SIQ:
+    // Google yoki boshqa provayder orqali kirganda agar hisob bloklangan bo'lsa (isBanned: true),
+    // tizimga kiritmaymiz va xatolik bilan qaytaramiz.
+    async signIn({ user, profile }) {
+      if (user?.isBanned) {
+        return '/login?error=AccessDenied'
+      }
+      const email = user?.email || profile?.email
+      if (email) {
+        try {
+          const existing = await prisma.user.findFirst({
+            where: { email: { equals: email.toLowerCase(), mode: 'insensitive' } },
+            select: { isBanned: true },
+          })
+          if (existing?.isBanned) {
+            return '/login?error=AccessDenied'
+          }
+        } catch (e) {
+          console.error('[auth] signIn tekshiruvida xatolik:', e.message)
+        }
+      }
+      return true
+    },
     async jwt({ token, user, trigger }) {
       if (user) {
-        token.userId = user.userId
-        token.username = user.username
-        token.role = user.role
-        token.fullName = user.fullName
-        token.isTeacher = user.isTeacher
-        token.isVerified = user.isVerified
+        let dbUser = user
+
+        // NextAuth v4 ba'zan adapter qaytargan qo'shimcha maydonlarni tozalab
+        // faqat standart obyekt uzatadi. Shu sababli userId yoki username
+        // bo'lmasa, bazadan zudlik bilan to'liq profilni tortib olamiz.
+        if (!dbUser.userId || !dbUser.username) {
+          try {
+            const shartlar = []
+            if (user.id) shartlar.push({ id: user.id })
+            if (user.email) shartlar.push({ email: { equals: user.email.toLowerCase(), mode: 'insensitive' } })
+
+            if (shartlar.length > 0) {
+              const fetched = await prisma.user.findFirst({
+                where: { OR: shartlar },
+                select: {
+                  id: true,
+                  userId: true,
+                  username: true,
+                  role: true,
+                  fullName: true,
+                  avatar: true,
+                  isTeacher: true,
+                  isVerified: true,
+                  isBanned: true,
+                },
+              })
+              if (fetched) dbUser = fetched
+            }
+          } catch (e) {
+            console.error('[auth] foydalanuvchini jwt uchun yuklab bo\'lmadi:', e.message)
+          }
+        }
+
+        token.sub = dbUser.id || token.sub
+        token.userId = dbUser.userId
+        token.username = dbUser.username
+        token.role = dbUser.role || 'bakalavr'
+        token.fullName = dbUser.fullName || dbUser.name || null
+        token.avatar = dbUser.avatar || dbUser.image || null
+        token.isTeacher = Boolean(dbUser.isTeacher)
+        token.isVerified = Boolean(dbUser.isVerified)
         // Doska sessiyasi bo'lsa — muddati. Oddiy kirishda `undefined`.
-        token.doskaTugaydi = user.doskaTugaydi || null
+        token.doskaTugaydi = dbUser.doskaTugaydi || null
         token.yangilangan = Date.now()
         return token
       }
@@ -97,16 +164,28 @@ export const authOptions = {
           const yangi = await prisma.user.findUnique({
             where: { id: token.sub },
             select: {
-              role: true, isTeacher: true, isVerified: true,
-              username: true, fullName: true,
+              userId: true,
+              role: true,
+              isTeacher: true,
+              isVerified: true,
+              username: true,
+              fullName: true,
+              avatar: true,
+              isBanned: true,
             },
           })
           if (yangi) {
+            // Agar hisob bloklangan bo'lsa, sessiyani darhol tugatamiz
+            if (yangi.isBanned) {
+              return {}
+            }
+            if (yangi.userId) token.userId = yangi.userId
             token.role = yangi.role
             token.isTeacher = yangi.isTeacher
             token.isVerified = yangi.isVerified
             token.username = yangi.username
             token.fullName = yangi.fullName
+            if (yangi.avatar) token.avatar = yangi.avatar
           }
           // Yozuv topilmasa token o'zgarmaydi: baza javob bermay qolganda
           // hammani tizimdan chiqarib yuborish xatoni battar qiladi.
@@ -124,6 +203,8 @@ export const authOptions = {
         session.user.username = token.username
         session.user.role = token.role
         session.user.fullName = token.fullName
+        session.user.avatar = token.avatar || null
+        session.user.image = token.avatar || null
         session.user.id = token.sub
         session.user.isTeacher = Boolean(token.isTeacher)
         session.user.isVerified = Boolean(token.isVerified)
