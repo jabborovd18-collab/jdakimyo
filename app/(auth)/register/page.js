@@ -32,13 +32,17 @@ function RegisterForm() {
     const error = searchParams?.get('error')
     if (error) {
       if (error === 'AccessDenied') {
-        toast.error('Kirish rad etildi. Hisobingiz bloklangan bo\'lishi mumkin.')
+        toast.error('Kirish rad etildi (Google hisobingiz test foydalanuvchilar ro\'yxatida yo\'q yoki hisobingiz bloklangan).')
       } else if (error === 'OAuthAccountNotLinked') {
         toast.error('Ushbu email bilan boshqa usulda ro\'yxatdan o\'tilgan.')
       } else if (error === 'Configuration') {
-        toast.error('Google OAuth sozlamalarida xatolik bor.')
+        toast.error('Google OAuth sozlamalarida xatolik bor (Client ID yoki Secret xato).')
+      } else if (error === 'OAuthCallback') {
+        toast.error('Google ma\'lumotlarini qabul qilishda xatolik yuz berdi (OAuthCallback).')
+      } else if (error === 'OAuthSignin') {
+        toast.error('Google orqali kirish boshlanmadi (OAuthSignin).')
       } else {
-        toast.error('Ro\'yxatdan o\'tishda xatolik yuz berdi')
+        toast.error(`Ro'yxatdan o'tishda xatolik: ${error}`)
       }
     }
   }, [searchParams])

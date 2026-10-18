@@ -13,8 +13,8 @@ export const authOptions = {
   adapter: createCustomAuthAdapter(),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      clientId: (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, ''),
+      clientSecret: (process.env.GOOGLE_CLIENT_SECRET || '').trim().replace(/^["']|["']$/g, ''),
       // Nega allowDangerousEmailAccountLinking: Agar foydalanuvchi ilgari
       // oddiy email/parol bilan ro'yxatdan o'tgan bo'lsa, xuddi shu email'dagi
       // tasdiqlangan Google akkauntini xatoliksiz avtomatik bog'laydi.
