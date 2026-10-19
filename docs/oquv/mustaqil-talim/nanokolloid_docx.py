@@ -4,285 +4,25 @@ Mustaqil ta'lim topshirig'i (6.1) uchun qisqa ilmiy hujjat generatori.
 Mavzu: Nanokolloid sistemalarda zarracha o'lchami, shakli va sirt
 modifikatsiyasining fizik-kimyoviy xossalarga ta'siri.
 
-Nega skript: matnni keyin tahrirlab qayta yig'ish oson bo'lsin — .docx
-qo'lda tahrirlansa, manba bilan hujjat ajralib ketadi.
-
-Formulalar Word'ning tabiiy tenglama formatida (OMML) yoziladi — ular
-Word'da "Tenglama" sifatida ochiladi, kasr, indeks va ildizlar to'g'ri
-chiziladi. Nega matn emas: "ln(c_r/c_inf)" ko'rinishidagi yozuv ilmiy
-hujjatda o'qilmaydi.
-
+Uslub va tenglama qurilmasi omml_docx.py da (yagona manba).
 Ishga tushirish:  python3 nanokolloid_docx.py
 """
-from docx import Document
-from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.oxml import OxmlElement
-from docx.oxml.ns import qn
-from docx.shared import Cm, Pt, RGBColor
-from lxml import etree
+import os
 
-FONT = "Times New Roman"
-M = "http://schemas.openxmlformats.org/officeDocument/2006/math"
-W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+from omml_docx import Hujjat, P, V, bar, frac, omath, par, seq, sqrt, sub, subsup, sup
 
-
-# ============================================================================
-# OMML (Word tenglamasi) qurish uchun mini-DSL
-# ============================================================================
-def _m(tag, *children):
-    el = etree.Element("{%s}%s" % (M, tag))
-    for c in children:
-        el.append(c)
-    return el
-
-
-def T(text, plain=False):
-    """Matematik run. plain=True — tik shrift (ln, cos, birliklar)."""
-    r = etree.Element("{%s}r" % M)
-    if plain:
-        rpr = etree.SubElement(r, "{%s}rPr" % M)
-        sty = etree.SubElement(rpr, "{%s}sty" % M)
-        sty.set("{%s}val" % M, "p")
-    t = etree.SubElement(r, "{%s}t" % M)
-    t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
-    t.text = text
-    return r
-
-
-def P(text):
-    return T(text, plain=True)
-
-
-def seq(*items):
-    """Bir nechta elementni ketma-ket joylash uchun konteyner (m:e ichiga)."""
-    return list(items)
-
-
-def _wrap(tag, items):
-    el = etree.Element("{%s}%s" % (M, tag))
-    if not isinstance(items, (list, tuple)):
-        items = [items]
-    for it in items:
-        el.append(it)
-    return el
-
-
-def frac(num, den):
-    return _m("f", _wrap("num", num), _wrap("den", den))
-
-
-def sub(base, s):
-    return _m("sSub", _wrap("e", base), _wrap("sub", s))
-
-
-def sup(base, s):
-    return _m("sSup", _wrap("e", base), _wrap("sup", s))
-
-
-def subsup(base, s, p_):
-    return _m("sSubSup", _wrap("e", base), _wrap("sub", s), _wrap("sup", p_))
-
-
-def par(items, left="(", right=")"):
-    """Avtomatik o'lchamli qavslar."""
-    d = etree.Element("{%s}d" % M)
-    dpr = etree.SubElement(d, "{%s}dPr" % M)
-    b = etree.SubElement(dpr, "{%s}begChr" % M)
-    b.set("{%s}val" % M, left)
-    e = etree.SubElement(dpr, "{%s}endChr" % M)
-    e.set("{%s}val" % M, right)
-    d.append(_wrap("e", items))
-    return d
-
-
-def sqrt(items):
-    rad = etree.Element("{%s}rad" % M)
-    rpr = etree.SubElement(rad, "{%s}radPr" % M)
-    dh = etree.SubElement(rpr, "{%s}degHide" % M)
-    dh.set("{%s}val" % M, "1")
-    rad.append(etree.Element("{%s}deg" % M))
-    rad.append(_wrap("e", items))
-    return rad
-
-
-def omath(*items):
-    om = etree.Element("{%s}oMath" % M)
-    for it in items:
-        if isinstance(it, (list, tuple)):
-            for x in it:
-                om.append(x)
-        else:
-            om.append(it)
-    return om
-
-
-# ============================================================================
-# Hujjat sozlamalari
-# ============================================================================
-doc = Document()
-for s in doc.sections:
-    s.top_margin = Cm(2)
-    s.bottom_margin = Cm(2)
-    s.left_margin = Cm(2.5)
-    s.right_margin = Cm(1.5)
-
-st = doc.styles["Normal"]
-st.font.name = FONT
-st.font.size = Pt(12)
-st.element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-st.paragraph_format.space_after = Pt(4)
-st.paragraph_format.line_spacing = 1.15
-
-for name, size in (("Heading 1", 14), ("Heading 2", 12.5)):
-    h = doc.styles[name]
-    h.font.name = FONT
-    h.font.size = Pt(size)
-    h.font.bold = True
-    h.font.color.rgb = RGBColor(0x1F, 0x3A, 0x5F)
-    h.element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-    h.paragraph_format.space_before = Pt(10)
-    h.paragraph_format.space_after = Pt(4)
-
-EQ_NO = [0]
-
-
-def p(text, bold=False, italic=False, align=None, size=None, after=None):
-    para = doc.add_paragraph()
-    run = para.add_run(text)
-    run.bold = bold
-    run.italic = italic
-    if size:
-        run.font.size = Pt(size)
-    if align == "c":
-        para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    elif align == "j":
-        para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    if after is not None:
-        para.paragraph_format.space_after = Pt(after)
-    return para
-
-
-def rich(parts, align="j", para=None):
-    """parts: [(matn, 'b'|'i'|''), ...] yoki OMML element (inline tenglama)."""
-    if para is None:
-        para = doc.add_paragraph()
-    for item in parts:
-        if isinstance(item, tuple):
-            text, fmt = item
-            r = para.add_run(text)
-            r.bold = "b" in fmt
-            r.italic = "i" in fmt
-        else:
-            para._p.append(item)  # inline m:oMath
-    if align == "j":
-        para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    return para
-
-
-def equation(om, where=None):
-    """Raqamlangan, markazlashgan tenglama: chegarasiz 2 ustunli jadval."""
-    EQ_NO[0] += 1
-    t = doc.add_table(rows=1, cols=2)
-    t.alignment = WD_TABLE_ALIGNMENT.CENTER
-    c0, c1 = t.rows[0].cells
-    c0.width = Cm(14.5)
-    c1.width = Cm(2.0)
-    c0.paragraphs[0]._p.append(om)
-    c0.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    c1.paragraphs[0].add_run("(%d)" % EQ_NO[0])
-    c1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    for c in (c0, c1):
-        c.paragraphs[0].paragraph_format.space_after = Pt(2)
-        c.paragraphs[0].paragraph_format.space_before = Pt(2)
-    if where:
-        para = doc.add_paragraph()
-        r = para.add_run("bu yerda ")
-        rich(where, para=para)
-        para.paragraph_format.space_after = Pt(6)
-    return EQ_NO[0]
-
-
-def bullets(items, style="List Bullet"):
-    for it in items:
-        para = doc.add_paragraph(style=style)
-        if isinstance(it, tuple):
-            r = para.add_run(it[0])
-            r.bold = True
-            rest = it[1]
-            if isinstance(rest, list):
-                rich(rest, para=para)
-            else:
-                para.add_run(rest)
-        elif isinstance(it, list):
-            rich(it, para=para)
-        else:
-            para.add_run(it)
-        para.paragraph_format.space_after = Pt(2)
-        para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-
-
-def shade(cell, hex_color):
-    tcPr = cell._tc.get_or_add_tcPr()
-    shd = OxmlElement("w:shd")
-    shd.set(qn("w:val"), "clear")
-    shd.set(qn("w:color"), "auto")
-    shd.set(qn("w:fill"), hex_color)
-    tcPr.append(shd)
-
-
-def table(headers, rows, widths=None):
-    t = doc.add_table(rows=1, cols=len(headers))
-    t.style = "Table Grid"
-    t.alignment = WD_TABLE_ALIGNMENT.CENTER
-    for i, h in enumerate(headers):
-        c = t.rows[0].cells[i]
-        c.text = ""
-        r = c.paragraphs[0].add_run(h)
-        r.bold = True
-        r.font.size = Pt(11)
-        c.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-        shade(c, "DCE6F1")
-    for row in rows:
-        cells = t.add_row().cells
-        for i, v in enumerate(row):
-            cells[i].text = ""
-            para = cells[i].paragraphs[0]
-            if isinstance(v, str):
-                r = para.add_run(v)
-                r.font.size = Pt(11)
-            else:  # OMML
-                para._p.append(v)
-                para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    if widths:
-        for row in t.rows:
-            for i, w in enumerate(widths):
-                row.cells[i].width = Cm(w)
-    doc.add_paragraph().paragraph_format.space_after = Pt(2)
-    return t
-
-
-# ============================================================================
-# Tez-tez ishlatiladigan belgilar
-# ============================================================================
-def var(x):
-    return T(x)
-
-
-def num(x):
-    return P(x)
-
+H = Hujjat()
+doc = H.doc
+var = V
+num = P
+p, rich, equation, bullets, table = H.p, H.rich, H.equation, H.bullets, H.table
 
 # ============================================================================
 # Sarlavha
 # ============================================================================
-p("MUSTAQIL TA'LIM TOPSHIRIG'I", bold=True, align="c", size=13, after=2)
-p("Fan: Kolloid kimyo / Nanokimyo", italic=True, align="c", size=11, after=10)
-p(
-    "NANOKOLLOID SISTEMALARDA ZARRACHA O'LCHAMI, SHAKLI VA SIRT "
-    "MODIFIKATSIYASINING FIZIK-KIMYOVIY XOSSALARGA TA'SIRI",
-    bold=True, align="c", size=14, after=10,
-)
+H.title("Kolloid kimyo / Nanokimyo",
+        "NANOKOLLOID SISTEMALARDA ZARRACHA O'LCHAMI, SHAKLI VA SIRT "
+        "MODIFIKATSIYASINING FIZIK-KIMYOVIY XOSSALARGA TA'SIRI")
 
 rich([
     ("Annotatsiya. ", "b"),
@@ -621,7 +361,6 @@ bullets([
 # ============================================================================
 # 6. Adabiyotlar
 # ============================================================================
-doc.add_heading("Foydalanilgan adabiyotlar", level=1)
 refs = [
     "Hiemenz P.C., Rajagopalan R. Principles of Colloid and Surface Chemistry. 3rd ed. – New York: Marcel Dekker, 1997.",
     "Cao G., Wang Y. Nanostructures and Nanomaterials: Synthesis, Properties and Applications. 2nd ed. – World Scientific, 2011.",
@@ -633,12 +372,6 @@ refs = [
     "Фролов Ю.Г. Курс коллоидной химии. Поверхностные явления и дисперсные системы. – М.: Химия, 2004.",
     "Ahmedov Q.R., Qurbonov A.R. Kolloid kimyo. – Toshkent: O'zbekiston, 2012.",
 ]
-for i, r in enumerate(refs, 1):
-    para = doc.add_paragraph()
-    para.add_run(f"{i}. {r}").font.size = Pt(11)
-    para.paragraph_format.space_after = Pt(2)
-    para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-
-out = __file__.rsplit("/", 1)[0] + "/Nanokolloid-sistemalar-mustaqil-ish.docx"
-doc.save(out)
-print("Saqlandi:", out, "| tenglamalar soni:", EQ_NO[0])
+H.refs(refs)
+H.save(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                    "Nanokolloid-sistemalar-mustaqil-ish.docx"))
