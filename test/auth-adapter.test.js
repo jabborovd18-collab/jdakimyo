@@ -17,6 +17,8 @@ describe('createCustomAuthAdapter', () => {
     assert.equal(typeof adapter.getUserByAccount, 'function')
     assert.equal(typeof adapter.updateUser, 'function')
     assert.equal(typeof adapter.linkAccount, 'function')
+    assert.equal(typeof adapter.unlinkAccount, 'function')
+    assert.equal(typeof adapter.getAccount, 'function')
   })
 
   test('parametrlar bo\'sh yoki null bo\'lganda xavfsiz null qaytaradi', async () => {
@@ -29,5 +31,22 @@ describe('createCustomAuthAdapter', () => {
     assert.equal(await adapter.getUserByAccount({ provider: 'google' }), null)
     assert.equal(await adapter.updateUser(null), null)
     assert.equal(await adapter.updateUser({}), null)
+    assert.equal(await adapter.unlinkAccount(null), null)
+    assert.equal(await adapter.unlinkAccount({}), null)
+    assert.equal(await adapter.getAccount(null, null), null)
+  })
+
+  test('linkAccount to\'liq bo\'lmagan ma\'lumot berilsa xatolik tashlaydi', async () => {
+    const adapter = createCustomAuthAdapter()
+    await assert.rejects(async () => {
+      await adapter.linkAccount({})
+    }, /Akkaunt ma'lumotlari to'liq emas/)
+  })
+
+  test('createUser email berilmasa xatolik tashlaydi', async () => {
+    const adapter = createCustomAuthAdapter()
+    await assert.rejects(async () => {
+      await adapter.createUser({})
+    }, /Email manzil topilmadi/)
   })
 })

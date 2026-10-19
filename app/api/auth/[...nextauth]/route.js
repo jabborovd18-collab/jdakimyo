@@ -64,24 +64,33 @@ export const authOptions = {
   },
   pages: {
     signIn: '/login',
+    error: '/login',
+  },
+  logger: {
+    error(code, metadata) {
+      console.error(`[auth-xato] ${code}:`, metadata)
+    },
+    warn(code) {
+      console.warn(`[auth-ogoh] ${code}`)
+    },
   },
   callbacks: {
     // BLOKLANGAN FOYDALANUVCHILARNI TO'SIQ:
     // Google yoki boshqa provayder orqali kirganda agar hisob bloklangan bo'lsa (isBanned: true),
-    // tizimga kiritmaymiz va xatolik bilan qaytaramiz.
+    // tizimga kiritmaymiz (false qaytaramiz — bu foydalanuvchini to'g'ri AccessDenied xatosi bilan to'xtatadi).
     async signIn({ user, profile }) {
       if (user?.isBanned) {
-        return '/login?error=AccessDenied'
+        return false
       }
       const email = user?.email || profile?.email
       if (email) {
         try {
           const existing = await prisma.user.findFirst({
-            where: { email: { equals: email.toLowerCase(), mode: 'insensitive' } },
+            where: { email: { equals: email.toLowerCase().trim(), mode: 'insensitive' } },
             select: { isBanned: true },
           })
           if (existing?.isBanned) {
-            return '/login?error=AccessDenied'
+            return false
           }
         } catch (e) {
           console.error('[auth] signIn tekshiruvida xatolik:', e.message)
