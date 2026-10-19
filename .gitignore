@@ -57,3 +57,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# python generatorlar (docs/oquv)
+__pycache__/
