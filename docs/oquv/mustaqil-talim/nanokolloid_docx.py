@@ -44,7 +44,7 @@ rich([
 # ============================================================================
 # 1. Kirish
 # ============================================================================
-doc.add_heading("1. Kirish va mavzuning dolzarbligi", level=1)
+H.h("1. Kirish va mavzuning dolzarbligi", 1)
 p(
     "Nanokolloid sistemalar — dispers fazasi 1–100 nm o'lchamli zarrachalardan "
     "iborat ultramikrogeterogen sistemalardir. Ularning o'ziga xosligi shundaki, "
@@ -62,7 +62,7 @@ p(
 # ============================================================================
 # 2. Maqsad va vazifalar
 # ============================================================================
-doc.add_heading("2. Ishning maqsadi va vazifalari", level=1)
+H.h("2. Ishning maqsadi va vazifalari", 1)
 rich([("Maqsad: ", "b"),
       ("nanokolloid zarrachalarning o'lchami, shakli va sirt modifikatsiyasi "
        "bilan ularning fizik-kimyoviy xossalari o'rtasidagi qonuniyatlarni "
@@ -78,7 +78,7 @@ bullets([
 # ============================================================================
 # 3. Reja
 # ============================================================================
-doc.add_heading("3. Ishning rejasi", level=1)
+H.h("3. Ishning rejasi", 1)
 bullets([
     ("Nanokolloid sistemalar: ", "ta'rif, tasnif, solishtirma sirt va sirt energiyasi."),
     ("Zarracha o'lchami effekti: ", "termodinamika (Gibbs–Tomson, Ostvald–Freyndlix), kinetika (Broun harakati, sedimentatsiya), kvant-o'lcham va plazmon effektlari, superparamagnetizm."),
@@ -91,10 +91,10 @@ bullets([
 # ============================================================================
 # 4. Asosiy qism
 # ============================================================================
-doc.add_heading("4. Asosiy qism", level=1)
+H.h("4. Asosiy qism", 1)
 
 # ---- 4.1 ------------------------------------------------------------------
-doc.add_heading("4.1. Nanokolloid sistemalarning umumiy tavsifi", level=2)
+H.h("4.1. Nanokolloid sistemalarning umumiy tavsifi", 2)
 p("Sferik zarracha uchun solishtirma sirt (birlik massaga to'g'ri keladigan "
   "sirt) quyidagicha aniqlanadi:", align="j", after=2)
 eq_S = equation(
@@ -118,7 +118,7 @@ p("Aynan shu energiya nanokolloidlarning termodinamik beqarorligi (agregatsiya, 
   "o'z-o'zidan sirtni kamaytirishga intiladi.", align="j")
 
 # ---- 4.2 ------------------------------------------------------------------
-doc.add_heading("4.2. Zarracha o'lchamining ta'siri", level=2)
+H.h("4.2. Zarracha o'lchamining ta'siri", 2)
 p("Termodinamik o'lcham effektlari.", bold=True, after=2)
 rich([("Eruvchanlik. ", "b"),
       ("Egri sirt ustidagi kimyoviy potensial yassi sirtdagidan yuqori bo'lgani "
@@ -226,7 +226,7 @@ table(
 )
 
 # ---- 4.3 ------------------------------------------------------------------
-doc.add_heading("4.3. Zarracha shaklining ta'siri", level=2)
+H.h("4.3. Zarracha shaklining ta'siri", 2)
 rich([
     ("Bir xil hajmdagi zarrachalarda shakl o'zgarishi sirt/hajm nisbatini, ochiq "
      "kristall yuzalar turini va zaryad taqsimotini o'zgartiradi. Asosiy "
@@ -254,7 +254,7 @@ bullets([
 ])
 
 # ---- 4.4 ------------------------------------------------------------------
-doc.add_heading("4.4. Sirt modifikatsiyasining ta'siri", level=2)
+H.h("4.4. Sirt modifikatsiyasining ta'siri", 2)
 p("DLVO nazariyasiga ko'ra ikki zarracha orasidagi natijaviy o'zaro ta'sir "
   "energiyasi elektrostatik itarilish va van-der-Vaals tortishish yig'indisidan "
   "iborat:", align="j", after=2)
@@ -305,7 +305,7 @@ table(
 )
 
 # ---- 4.5 ------------------------------------------------------------------
-doc.add_heading("4.5. Tadqiqot va nazorat usullari", level=2)
+H.h("4.5. Tadqiqot va nazorat usullari", 2)
 rich([("Kristallit o'lchami rentgen difraktogrammasidagi cho'qqi kengayishidan "
        "Sherrer tenglamasi orqali topiladi:", "")])
 equation(
@@ -338,7 +338,7 @@ table(
 )
 
 # ---- 4.6 ------------------------------------------------------------------
-doc.add_heading("4.6. Amaliy ahamiyati", level=2)
+H.h("4.6. Amaliy ahamiyati", 2)
 bullets([
     "Tibbiyot: o'lcham (10–100 nm) va PEG qobiq EPR effekti orqali o'smaga tanlab to'planishni ta'minlaydi; Au nanotayoqchalar — fototermal terapiya; Fe₃O₄ — MRT va gipertermiya.",
     "Kataliz: o'lchami 2–5 nm va aniq yuzali Pt, Pd, Au nanozarrachalar — selektiv gidrogenlash va oksidlanish.",
@@ -349,7 +349,7 @@ bullets([
 # ============================================================================
 # 5. Xulosa
 # ============================================================================
-doc.add_heading("5. Xulosa", level=1)
+H.h("5. Xulosa", 1)
 bullets([
     "Nanokolloidlarda xossalar tarkibdan ko'ra tuzilma bilan boshqariladi: o'lcham → termodinamika va kvant effektlari; shakl → anizotropiya va selektivlik; sirt → barqarorlik va funksionallik.",
     "O'lcham kichraygan sari solishtirma sirt, eruvchanlik, diffuziya va katalitik faollik ortadi, erish harorati va cho'kish tezligi pasayadi; 1–10 nm oralig'ida kvant-o'lcham effekti ustunlik qiladi.",
