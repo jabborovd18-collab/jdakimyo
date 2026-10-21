@@ -146,6 +146,8 @@ _SYM = {
     "∞": r"\infty", "≈": r"\approx", "∝": r"\propto", "·": r"\cdot", "−": "-",
     "→": r"\rightarrow", "ħ": r"\hbar", "°": r"\circ", "±": r"\pm", "≤": r"\leq",
     "≥": r"\geq", "√": r"\surd",
+    # Nega: mathtext da "%" izoh belgisi, "⁺/⁻" unicode indekslarini esa chizmaydi.
+    "%": r"\%", "⁺": "^{+}", "⁻": "^{-}",
 }
 
 

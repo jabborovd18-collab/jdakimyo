@@ -266,7 +266,7 @@ equation(
 )
 bullets([
     ("Gel-elektroforez: ", "zaryad/uzunlik nisbati doimiy bo'lgani uchun erkin eritmada harakatchanlik uzunlikka bog'liq emas; agaroza/poliakrilamid gelida elakdan o'tish (reptatsiya) tufayli harakatchanlik lg(uzunlik) ga teskari proporsional — fragmentlar o'lcham bo'yicha ajraladi."),
-    ("Erish (denaturatsiya) harorati: ", "T_m ion kuchi oshishi bilan ortadi (qarshi ionlar fosfatlar itarilishini ekranlaydi) va GC-juftlar ulushi bilan chiziqli bog'liq; gipoxrom effekt (260 nm da yutilish ≈ 40 % ortadi) orqali kuzatiladi."),
+    ("Erish (denaturatsiya) harorati: ", "Tₘ ion kuchi oshishi bilan ortadi (qarshi ionlar fosfatlar itarilishini ekranlaydi) va GC-juftlar ulushi bilan chiziqli bog'liq; gipoxrom effekt (260 nm da yutilish ≈ 40 % ortadi) orqali kuzatiladi."),
     ("Kolloid komplekslar: ", "DNK–kationli lipid (lipopleks), DNK–polikation (polipleks), DNK–Au nanozarracha konyugatlari — gen terapiyasi va biosensorikaning asosi; ularning barqarorligi DLVO va polielektrolit nazariyasi bilan tavsiflanadi."),
 ])
 
@@ -295,7 +295,7 @@ equation(
 )
 bullets([
     ("Lipid bikatlam va liposomalar: ", "qalinligi ≈ 4–5 nm; sun'iy vezikulalar (liposomalar, 50–200 nm) — dori va mRNK yetkazishning asosiy kolloid tashuvchisi; PEG-lipidlar sterik stabilizatsiya beradi (\"stealth\" liposomalar)."),
-    ("Suyuq-mozaik model va fazaviy o'tishlar: ", "bikatlam ikki o'lchamli suyuqlik; lipidlar lateral diffuziya qiladi (D ≈ 10⁻⁸ sm²/s), gel ↔ suyuq-kristall o'tish harorati T_m dum uzunligi bilan ortadi, to'yinmaganlik va xolesterin bilan o'zgaradi; raftlar — kolloid mikrofazalar."),
+    ("Suyuq-mozaik model va fazaviy o'tishlar: ", "bikatlam ikki o'lchamli suyuqlik; lipidlar lateral diffuziya qiladi (D ≈ 10⁻⁸ sm²/s), gel ↔ suyuq-kristall o'tish harorati Tₘ dum uzunligi bilan ortadi, to'yinmaganlik va xolesterin bilan o'zgaradi; raftlar — kolloid mikrofazalar."),
     ("Sirt zaryadi: ", "fosfatidilserin, fosfatidilinozitol va sialik kislotalar tufayli hujayra sirti manfiy (ζ ≈ −10…−30 mV); bu hujayralar agregatsiyasini oldini oladi va kationli nanozarracha/oqsillarning adsorbsiyasini belgilaydi."),
 ])
 rich([("Membrana potensiali. ", "b"),
@@ -330,7 +330,7 @@ table(
         ["Osmometriya, Donnan dializi", "M, A₂, zaryad", "oqsil, polielektrolit"],
         ["DLS / ζ-potensial", "gidrodinamik radius, agregatsiya, sirt zaryadi", "oqsil, liposoma, hujayra"],
         ["Viskozimetriya", "[η], shakl, denaturatsiya", "DNK, fibrillyar oqsil"],
-        ["UV-Vis, CD, fluoressensiya", "konformatsiya, T_m, bog'lanish", "oqsil, nuklein kislota"],
+        ["UV-Vis, CD, fluoressensiya", "konformatsiya, Tₘ, bog'lanish", "oqsil, nuklein kislota"],
         ["SPR, ITC, QCM", "adsorbsiya, bog'lanish doimiylari", "ferment–substrat, ligand–retseptor"],
         ["Krio-TEM, AFM, fluoressent mikroskopiya", "morfologiya, bikatlam, raftlar", "membrana, liposoma, DNK"],
         ["Patch-clamp, Lengmyur tarozisi", "membrana potensiali, monoqavat bosimi", "hujayra, lipid monoqavat"],
