@@ -358,6 +358,8 @@ class Hujjat:
     def _markup(self, parts):
         out = []
         for item in parts:
+            if isinstance(item, str):
+                item = (item, "")
             if isinstance(item, tuple):
                 text, fmt = item
                 s = _esc(text)
@@ -406,6 +408,8 @@ class Hujjat:
         if para is None:
             para = self.doc.add_paragraph()
         for item in parts:
+            if isinstance(item, str):  # nega: ro'yxatda yalang'och satr — oddiy matn
+                item = (item, "")
             if isinstance(item, tuple):
                 text, fmt = item
                 r = para.add_run(text)
