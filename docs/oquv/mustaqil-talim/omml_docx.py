@@ -113,14 +113,23 @@ def sqrt(items):
     return rad
 
 
-def bar(items):
-    """Ustki chiziq (o'rtacha qiymat, v̄ kabi)."""
+def _acc(items, ch):
     acc = _el("acc")
     apr = etree.SubElement(acc, "{%s}accPr" % M)
     chr_ = etree.SubElement(apr, "{%s}chr" % M)
-    chr_.set("{%s}val" % M, "\u0305")
+    chr_.set("{%s}val" % M, ch)
     acc.append(_wrap("e", items))
     return acc
+
+
+def bar(items):
+    """Ustki chiziq (o'rtacha qiymat, v̄ kabi)."""
+    return _acc(items, "\u0305")
+
+
+def dot(items):
+    """Ustki nuqta (vaqt bo'yicha hosila: siljish tezligi γ̇)."""
+    return _acc(items, "\u0307")
 
 
 def omath(*items):
@@ -147,7 +156,7 @@ _SYM = {
     "→": r"\rightarrow", "ħ": r"\hbar", "°": r"\circ", "±": r"\pm", "≤": r"\leq",
     "≥": r"\geq", "√": r"\surd",
     # Nega: mathtext da "%" izoh belgisi, "⁺/⁻" unicode indekslarini esa chizmaydi.
-    "%": r"\%", "⁺": "^{+}", "⁻": "^{-}",
+    "%": r"\%", "⁺": "^{+}", "⁻": "^{-}", "≪": r"\ll ", "≫": r"\gg ",
 }
 
 
@@ -206,7 +215,8 @@ def _tex(el, mode="text"):
     if tag == "rad":
         return r"\sqrt{%s}" % inner("e")
     if tag == "acc":
-        return r"\bar{%s}" % inner("e")
+        ch = el.find("{%s}accPr/{%s}chr" % (M, M)).get("{%s}val" % M)
+        return r"\%s{%s}" % ("dot" if ch == "\u0307" else "bar", inner("e"))
     if tag == "oMath":
         return "".join(_tex(c, mode) for c in el)
     return ""
