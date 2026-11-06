@@ -1,109 +1,64 @@
 // components/ProfilHamkorlikBanner.jsx
 "use client"
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { useSession } from 'next-auth/react'
-import Ikon from '@/components/Ikon'
+import Link from "next/link"
+import Ikon from "@/components/Ikon"
 
 export default function ProfilHamkorlikBanner() {
-  const { data: session } = useSession()
-  const [vaqtMatni, setVaqtMatni] = useState('')
-
-  // Foydalanuvchi super admin ekanligini aniqlash
-  const userRole = session?.user?.role?.toLowerCase() || ''
-  const username = session?.user?.username?.toLowerCase() || ''
-  const email = session?.user?.email?.toLowerCase() || ''
-  const isSuperAdmin = ['admin', 'superadmin', 'moderator'].includes(userRole) ||
-    ['diyorbek_jabborov', 'jabborov', 'diyorbek'].includes(username) ||
-    ['diyorbekjabborov84@gmail.com', 'jabborovd18@gmail.com', 'diyorbekjabborov12@gmail.com'].includes(email)
-
-  useEffect(() => {
-    function hisobla() {
-      const hozir = new Date()
-      // Bugungi sinov 17:00 da boshlanadi va 00:00 da natijalar e'lon qilinadi
-      const boshlanish = new Date(hozir)
-      boshlanish.setHours(17, 0, 0, 0)
-      const tugash = new Date(hozir)
-      tugash.setHours(24, 0, 0, 0)
-
-      if (hozir < boshlanish) {
-        const farq = boshlanish - hozir
-        const h = Math.floor(farq / (1000 * 60 * 60))
-        const m = Math.floor((farq % (1000 * 60 * 60)) / (1000 * 60))
-        setVaqtMatni(`17:00 da ochiladi (${h}s ${m}d qoldi)`)
-      } else if (hozir < tugash) {
-        setVaqtMatni('⚡ Hozir faol! (Natijalar 00:00 da)')
-      } else {
-        setVaqtMatni('🏁 Natijalar e\'lon qilindi')
-      }
-    }
-
-    hisobla()
-    const timer = setInterval(hisobla, 5000)
-    return () => clearInterval(timer)
-  }, [])
-
   return (
-    <div className="relative overflow-hidden rounded-2xl border-2 border-amber-500/40 bg-gradient-to-r from-[var(--v3-yuza-2)] via-[var(--v3-yuza)] to-[var(--v3-yuza-2)] p-4 sm:p-5 shadow-lg transition-all hover:border-amber-400/60">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="relative overflow-hidden rounded-3xl border border-yellow-500/30 bg-gradient-to-r from-[#0b1437]/90 via-[#0e1d4d]/90 to-[#0b1437]/90 p-5 sm:p-6 shadow-xl transition-all hover:border-yellow-400/50 backdrop-blur-md">
+      {/* Orqa fon nurlari */}
+      <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-yellow-500/10 blur-2xl pointer-events-none" />
+      <div className="absolute -left-10 -bottom-10 w-44 h-44 rounded-full bg-blue-600/15 blur-2xl pointer-events-none" />
+
+      <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
         {/* Chap qism: Belgilar va ma'lumot */}
-        <div className="flex items-start sm:items-center gap-3.5 min-w-0">
-          <div className="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0 shadow-sm text-xl">
-            🧪
+        <div className="flex items-start gap-4 min-w-0">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-500/40 flex items-center justify-center text-yellow-400 shrink-0 shadow-md mt-0.5">
+            <Ikon nom="sertifikat" olcham={24} />
           </div>
 
-          <div className="min-w-0 space-y-1">
+          <div className="min-w-0 space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] font-extrabold uppercase tracking-wide px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950">
-                🏆 SEA Kimyo & JDA Kimyo
+              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 text-[11px] font-extrabold uppercase tracking-wide">
+                <Ikon nom="atom" olcham={12} />
+                <span>Milliy Sertifikat &amp; Rasch IRT</span>
               </span>
-              <span className="text-xs font-semibold text-amber-400 flex items-center gap-1 font-mono">
-                <Ikon nom="soat" olcham={12} />
-                <span>{vaqtMatni || 'Bugun 17:00 da'}</span>
+              <span className="text-xs font-semibold text-blue-300/90 flex items-center gap-1 font-mono">
+                <Ikon nom="tasdiq" olcham={12} />
+                <span>BMBA Davlat Standarti (70 ball)</span>
               </span>
             </div>
 
-            <h3 className="text-base sm:text-lg font-extrabold text-[var(--v3-matn)] leading-tight">
-              Milliy Sertifikat Sinov Testi #2
+            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug">
+              Kimyo Fani Bo&apos;yicha Milliy Sertifikat Diagnostikasi
             </h3>
 
-            <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
-              40 ta rasmiy savol • 100 daqiqa • Haqiqiy imtihon andozasi (bilimni sinash va mustahkamlash uchun)
+            <p className="text-xs sm:text-sm text-blue-200/85 leading-relaxed max-w-2xl">
+              Haqiqiy davlat imtihon andozasidagi 40 ta savol: Georg Rasch psixometrik modeli (&theta; logiti),
+              Wright Map shkalasi, ochiq hisoblash topshiriqlari va rasmiy QR-kodli A4 sertifikat.
             </p>
           </div>
         </div>
 
         {/* O'ng qism: Harakat tugmalari */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto shrink-0 pt-1 md:pt-0">
-          {isSuperAdmin && (
-            <Link
-              href="/sea-ms-sinov?adminTest=true"
-              className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95"
-            >
-              <span>👑 Super Admin Sinovi</span>
-              <Ikon nom="ong" olcham={13} />
-            </Link>
-          )}
-
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto shrink-0 pt-2 lg:pt-0">
           <Link
-            href="/sea-ms-sinov"
-            className="px-5 py-2.5 rounded-xl bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] font-bold text-xs shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-1.5 active:scale-95"
+            href="/milliy-sertifikat"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 text-slate-950 font-extrabold text-xs shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 border border-yellow-300"
           >
-            <span>Sinov Sahifasiga O&apos;tish</span>
+            <Ikon nom="chaqmoq" olcham={14} />
+            <span>Sinovni Boshlash</span>
             <Ikon nom="ong" olcham={13} />
           </Link>
 
-          <a
-            href="https://t.me/AlchemistryIQ"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3.5 py-2.5 rounded-xl bg-[var(--v3-yuza-2)] hover:bg-[var(--v3-chiziq)] text-[var(--v3-matn)] border border-[var(--v3-chiziq)] text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
-            title="SEA Kimyo Telegram kanali"
+          <Link
+            href="/milliy-sertifikat#mezonlar"
+            className="px-4 py-2.5 rounded-xl bg-blue-950/70 hover:bg-blue-900/80 text-blue-200 hover:text-white border border-blue-700/50 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
           >
-            <Ikon nom="telegram" olcham={15} />
-            <span className="hidden lg:inline">@AlchemistryIQ</span>
-          </a>
+            <Ikon nom="kitob" olcham={14} />
+            <span>Darajalar &amp; Mezonlar</span>
+          </Link>
         </div>
       </div>
     </div>

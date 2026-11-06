@@ -2197,3 +2197,17 @@ html[data-fon] body {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
 }
 
+
+
+/* ═══ Akademik Shrift (Times New Roman klassik uslub) ═══ */
+.v3,
+.v3-serif,
+[data-fon],
+[data-fon] h1,
+[data-fon] h2,
+[data-fon] h3,
+[data-fon] h4,
+[data-fon] h5,
+[data-fon] h6 {
+  font-family: "Times New Roman", Times, Georgia, serif !important;
+}

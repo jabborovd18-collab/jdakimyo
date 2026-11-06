@@ -9,7 +9,6 @@ import StarsDisplay from '@/components/StarsDisplay'
 import DailyQuoteCard from '@/components/DailyQuoteCard'
 import PlantWidget from '@/components/PlantWidget'
 import ActivityHeatmap from '@/components/ActivityHeatmap'
-import LabWidget from '@/components/LabWidget'
 import ProfilPostlar from '@/components/ProfilPostlar'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 import EmailTasdiqlash from '@/components/EmailTasdiqlash'
@@ -115,7 +114,7 @@ export default function ProfilDashboard() {
       {/* Email Tasdiqlash ogohlantirishi */}
       <EmailTasdiqlash />
 
-      {/* ═══ MAVSUMIY HAMKORLIK BANNERI (AlchemIQ va boshqalar) ═══ */}
+      {/* ═══ MILLIY SERTIFIKAT VA RASCH DIAGNOSTIKASI BANNERI ═══ */}
       <ProfilHamkorlikBanner />
 
       {/* ═══ HERO SECTION ═══ */}
@@ -277,9 +276,7 @@ export default function ProfilDashboard() {
       {/* Faollik Grafigi */}
       <ActivityHeatmap />
 
-      {/* Laboratoriya Inventar Vidjeti */}
-      <LabWidget />
-
+      
       {/* Daily Missions */}
       <DailyMissions onStatsUpdate={fetchProfile} />
 

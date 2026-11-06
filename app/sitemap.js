@@ -34,14 +34,16 @@ const ASOSIY = [
   // bosh sahifadan keyingi o'rinda: sun'iy intellekt qidiruvi saytni
   // aynan shu sahifadan tanishi kerak.
   { yol: '/jda-kimyo', muhimlik: 0.9, yangilanish: 'monthly' },
+  { yol: '/milliy-sertifikat', muhimlik: 0.9, yangilanish: 'daily' },
   { yol: '/ishlashi', muhimlik: 0.6, yangilanish: 'monthly' },
-  { yol: '/oquv', muhimlik: 0.9, yangilanish: 'weekly' },
-  { yol: '/ilmiy', muhimlik: 0.9, yangilanish: 'weekly' },
+
+
   // `/birikmalar` olib tashlandi: u endi /ilmiy/birikmalar ga 301
   // bilan yo'naltiriladi. Katalogning o'zi sitemap-royxat.json orqali
   // ro'yxatga tushadi, shuning uchun bu yerda takrorlash shart emas.
-  { yol: '/oquv/video-darsliklar', muhimlik: 0.8, yangilanish: 'weekly' },
-  { yol: '/laboratoriya', muhimlik: 0.7, yangilanish: 'weekly' },
+
+  { yol: '/doska', muhimlik: 0.8, yangilanish: 'weekly' },
+  { yol: '/kochat', muhimlik: 0.7, yangilanish: 'weekly' },
   { yol: '/kanallar', muhimlik: 0.7, yangilanish: 'daily' },
   { yol: '/hamkorlik', muhimlik: 0.6, yangilanish: 'monthly' },
   { yol: '/hamkorlik/sayt-hamkorlari', muhimlik: 0.5, yangilanish: 'monthly' },

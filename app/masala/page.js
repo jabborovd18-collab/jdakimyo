@@ -96,6 +96,80 @@ function chatKontekstiniYig(xabarlar, profil) {
 }
 
 export default function MasalaChatSahifasi() {
+  const [fonKaliti] = useFon();
+
+  return (
+    <main data-fon={fonKaliti} className="v3 min-h-screen flex flex-col font-serif bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 text-white">
+      {/* HEADER */}
+      <header className="border-b border-purple-800/40 bg-purple-950/80 backdrop-blur-xl sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-sm text-purple-300 hover:text-white transition">
+            <Ikon nom="chap" olcham={18} />
+            <span>Bosh sahifa</span>
+          </Link>
+          <div className="text-sm font-bold bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent">
+            JDA KIMYO AI
+          </div>
+        </div>
+      </header>
+
+      {/* QULFLANGAN EKRAN */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="max-w-md w-full p-8 rounded-3xl border border-purple-700/50 bg-gradient-to-br from-purple-900/50 to-slate-900/70 backdrop-blur-xl text-center space-y-5 shadow-2xl">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-purple-800/40 border border-purple-500/50 flex items-center justify-center text-yellow-400">
+            <Ikon nom="qulf" olcham={32} />
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-yellow-500/40 bg-yellow-500/10 text-xs font-semibold text-yellow-300">
+            <Ikon nom="qulf" olcham={12} />
+            <span>Faqat Premium</span>
+          </div>
+
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent">
+            JDA Kimyo AI Qulflangan
+          </h1>
+
+          <p className="text-sm text-purple-200/80 leading-relaxed">
+            JDA Kimyo AI sun&apos;iy intellekt repetitori faqat Premium a&apos;zolar uchun taqdim etiladi.
+          </p>
+
+          <div className="p-4 rounded-xl border border-yellow-500/30 bg-purple-950/60 text-xs text-purple-100 leading-relaxed">
+            Premiumni faollashtirish uchun Telegram orqali{" "}
+            <a
+              href="https://t.me/diyorbek_jabborov"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-yellow-400 font-bold underline hover:text-yellow-300"
+            >
+              @diyorbek_jabborov
+            </a>{" "}
+            ga yozing.
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5">
+            <a
+              href="https://t.me/diyorbek_jabborov"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-bold text-xs hover:opacity-95 transition flex items-center justify-center gap-2 shadow-lg"
+            >
+              <Ikon nom="telegram" olcham={15} />
+              <span>@diyorbek_jabborov ga yozish</span>
+            </a>
+            <Link
+              href="/"
+              className="w-full py-2.5 px-4 rounded-xl border border-purple-700/50 bg-purple-900/30 text-xs text-purple-200 hover:text-white hover:bg-purple-800/40 transition text-center"
+            >
+              Bosh sahifa
+            </Link>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function _EskiMasalaChatSahifasi() {
   const [fonKaliti, fonniOzgartir] = useFon();
   const [rejim, setRejim] = useState("toliq");
   const [ishlashYonalishi, setIshlashYonalishi] = useState("avtomatik");

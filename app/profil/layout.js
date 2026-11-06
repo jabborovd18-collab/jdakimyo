@@ -119,7 +119,6 @@ export default function ProfilLayout({ children }) {
   if (ustozPaneliOchiqmi(user)) {
     panels.push({ href: '/ustoz', label: 'Ustoz paneli', ikon: 'ustoz' })
   }
-  panels.push({ href: '/laboratoriya', label: 'Laboratoriyam', ikon: 'kolba' })
 
   const isActive = (item) => {
     if (item.exact) return pathname === item.href

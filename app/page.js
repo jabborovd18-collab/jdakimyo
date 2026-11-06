@@ -1,65 +1,16 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useEffect, useRef } from "react"
-
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useSession, signOut } from "next-auth/react"
-import { ustozPaneliOchiqmi, isPartnerRole } from "@/lib/roles"
-import HAJM from "@/lib/ilmiy-hajm.json"
-import { BAZA } from "@/lib/sayt-malumot"
-import { FANLAR, fanHavolasi, ochiqFanlarSoni } from "@/lib/fanlar"
-import TasdiqBelgisi from "@/components/TasdiqBelgisi"
+import { ustozPaneliOchiqmi, isAdminRole } from "@/lib/roles"
+import { NOM, TARIF, YARATUVCHI } from "@/lib/sayt-malumot"
 import Ikon from "@/components/Ikon"
-import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import TasdiqBelgisi from "@/components/TasdiqBelgisi"
+import { useFon } from "@/components/FonTanlagich"
 import { useBildirishnomaSanoq } from "@/lib/use-bildirishnoma"
+import { darajaHolati } from "@/lib/daraja"
 
-/* ═══════════════════════════════════════════════════════════════════════
-   BOSH SAHIFA — v3.0.0
-
-   NIMA O'ZGARDI VA NEGA.
-
-   1) Sayt endi "kompleks birikmalar sayti" emas. Koordinatsion kimyo —
-      fanlardan bittasi. Shuning uchun bosh sahifadagi asosiy harakat
-      "bo'limga kirish" emas, FAN TANLASH. Aylanuvchi [Co(NH₃)₆]³⁺ modeli
-      olib tashlandi: u bitta fanning belgisi edi va butun platformani
-      o'sha fan bilan tenglashtirib qo'yardi. O'rniga — yetti fan
-      tugunidan iborat halqa, ya'ni sahifaning o'z mazmuni.
-
-   2) Emoji yo'q. Sabablari `components/Ikon.jsx` da yozilgan: emoji har
-      tizimda boshqacha chiziladi, rangi qattiq yozilgan va chiziq
-      qalinligi yo'q. Barcha belgilar endi `currentColor` bilan
-      chiziladigan SVG.
-
-   3) Ranglar sinf ichida emas, CSS o'zgaruvchisida (`lib/sahifa-fon.js`).
-      Shu sababli bu sahifada fon almashtirish ISHLAYDI — saytning qolgan
-      qismida ishlamaydi va ishlay olmaydi ham (`lib/interfeys.js` dagi
-      izohga qarang: ranglar 585 faylda qattiq yozilgan). v3 dan keyin
-      yoziladigan sahifalar shu qoida bilan yoziladi.
-
-   MANZILLAR KO'CHIRILMADI: `/oquv`, `/ilmiy` va ularning ostidagi 117
-   sahifa o'z joyida. `/fan/koordinatsion-kimyo` — ular ustidagi qobiq.
-   ══════════════════════════════════════════════════════════════════════ */
-
-// Lentadagi formulalar. Ilgari hammasi koordinatsion birikma edi; endi
-// har bir fandan bittadan — lenta ham platformaning qamrovini aytadi.
-const LENTA = [
-  "[Co(NH₃)₆]³⁺", "C₆H₆", "ΔG = ΔH − TΔS", "Fe₂O₃", "ATP",
-  "[Fe(CN)₆]⁴⁻", "pH = pKₐ + lg([A⁻]/[HA])", "γ · dA", "CH₃COOH",
-  "[Cu(H₂O)₄]²⁺", "N₂ + 3H₂ ⇌ 2NH₃", "C₆H₁₂O₆", "[PtCl₄]²⁻", "K = e^(−ΔG/RT)",
-]
-
-/**
- * Yaratuvchining rasmi.
- *
- * XATO USHLAGICHI SAQLANDI. Rasm `public/yaratuvchi.jpg` da turadi va
- * repozitoriyga qo'lda qo'yiladi. `onError` yolg'iz yetarli emas: sahifa
- * serverda chizilgani uchun brauzer rasmni React gidratlanishidan OLDIN
- * yuklashni boshlaydi va fayl yo'q bo'lsa xato ushlagich ulanmasidan
- * oldin sodir bo'ladi. `naturalWidth === 0` — yuklanib bo'lgan rasmda
- * "yiqildi" degani.
- *
- * Zaxira endi emoji emas, ikonka: qolgan sahifa bilan bir uslubda.
- */
 function YaratuvchiRasmi() {
   const [xato, setXato] = useState(false)
   const rasmRef = useRef(null)
@@ -70,10 +21,10 @@ function YaratuvchiRasmi() {
   }, [])
 
   return (
-    <div className="v3-avatar shrink-0">
+    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-yellow-500/60 shadow-xl shadow-yellow-500/20 shrink-0">
       {xato ? (
-        <span className="v3-avatar-zaxira">
-          <Ikon nom="odam" olcham={34} qalin={1.3} />
+        <span className="w-full h-full bg-yellow-500/20 flex items-center justify-center text-yellow-400">
+          <Ikon nom="odam" olcham={32} qalin={1.5} />
         </span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
@@ -89,409 +40,228 @@ function YaratuvchiRasmi() {
   )
 }
 
-/**
- * Yetti fan tuguni bo'lgan halqa — hero'ning o'ng tomoni.
- *
- * Bu bezak emas, sahifaning asosiy g'oyasining rasmi: markazda platforma,
- * atrofida fanlar, ochig'i yorqin va markazga to'liq chiziq bilan ulangan,
- * qolganlari xira va uzuq chiziq bilan. Ya'ni odam matnni o'qimasdan ham
- * "bitta fan tayyor, oltitasi kutilmoqda" degan xabarni oladi.
- *
- * Nuqtalar joyi FANLAR ro'yxatidan hisoblanadi — fan qo'shilsa halqa
- * o'zi qayta taqsimlanadi, qo'lda koordinata yozilmaydi.
- */
-function FanHalqasi() {
-  const R = 138
-  const C = 175
-
-  const tugunlar = FANLAR.map((fan, i) => {
-    const burchak = (-90 + (360 / FANLAR.length) * i) * (Math.PI / 180)
-    return {
-      fan,
-      x: C + R * Math.cos(burchak),
-      y: C + R * Math.sin(burchak),
-    }
-  })
-
-  return (
-    <div className="v3-halqa" role="img" aria-label={`Yetti fan: ${ochiqFanlarSoni()} tasi ochiq, qolgani tayyorlanmoqda`}>
-      <svg viewBox="0 0 350 350" className="w-full h-full">
-        {/* Halqa chizig'i */}
-        <circle cx={C} cy={C} r={R} className="v3-halqa-chiziq" />
-        <circle cx={C} cy={C} r={R - 26} className="v3-halqa-sweep" />
-
-        {/* Markazdan tugunlarga */}
-        {tugunlar.map(({ fan, x, y }) => (
-          <line
-            key={`l-${fan.slug}`}
-            x1={C} y1={C} x2={x} y2={y}
-            className={fan.holat === "ochiq" ? "v3-nur-ochiq" : "v3-nur-yopiq"}
-          />
-        ))}
-
-        {/* Markaz */}
-        <circle cx={C} cy={C} r="30" className="v3-yadro-halo" />
-        <circle cx={C} cy={C} r="21" className="v3-yadro" />
-        <text x={C} y={C + 4} textAnchor="middle" className="v3-yadro-matn">JDA</text>
-
-        {/* Tugunlar */}
-        {tugunlar.map(({ fan, x, y }, i) => (
-          <g key={fan.slug}>
-            {fan.holat === "ochiq" && (
-              <circle cx={x} cy={y} r="20" className="v3-tugun-halo" />
-            )}
-            <circle
-              cx={x} cy={y} r="9"
-              className={fan.holat === "ochiq" ? "v3-tugun-ochiq" : "v3-tugun-yopiq"}
-              style={{ animationDelay: `${i * 260}ms` }}
-            />
-          </g>
-        ))}
-      </svg>
-
-      <div className="v3-halqa-izoh">
-        <span className="v3-nuqta" />
-        <span>
-          <strong>Koordinatsion kimyo</strong> — ochiq
-        </span>
-      </div>
-    </div>
-  )
-}
-
-/** Fan kartasi. Ochig'i havola, yopig'i esa izoh ochadigan tugma. */
-function FanKarta({ fan, raqam, kengmi }) {
-  const [izoh, setIzoh] = useState(false)
-  const ochiq = fan.holat === "ochiq"
-
-  const ichi = (
-    <>
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <span className="v3-raqam">{String(raqam).padStart(2, "0")}</span>
-        <span className={`v3-holat ${ochiq ? "is-ochiq" : ""}`}>
-          <Ikon nom={ochiq ? "ochiq" : "qulf"} olcham={13} qalin={1.8} />
-          {ochiq ? "Ochiq" : "Tayyorlanmoqda"}
-        </span>
-      </div>
-
-      <div className={kengmi ? "md:flex md:items-end md:justify-between md:gap-10" : ""}>
-        <div className={kengmi ? "md:max-w-2xl" : ""}>
-          <div className="v3-nishon mb-2">{fan.qisqa}</div>
-          <h3 className={`v3-fan-nom ${kengmi ? "text-2xl md:text-3xl" : "text-xl"}`}>
-            {fan.nom}
-          </h3>
-          <p className="v3-fan-tavsif">{fan.tavsif}</p>
-        </div>
-
-        {kengmi && (
-          <div className="hidden md:block shrink-0 text-right">
-            <div className="v3-formula text-lg">{fan.belgi}</div>
-            <div className="v3-nishon mt-2">{fan.bolimlar.length} bo{"'"}lim</div>
-          </div>
-        )}
-      </div>
-
-      {!kengmi && <div className="v3-formula mt-4">{fan.belgi}</div>}
-
-      {ochiq && (
-        <div className="v3-fan-oyoq">
-          <span>Fanga kirish</span>
-          <Ikon nom="ong" olcham={17} />
-        </div>
-      )}
-
-      {!ochiq && izoh && (
-        <p className="v3-fan-izoh">
-          Bu fan hali yozilmagan. Materiallar tayyor bo{"'"}lgach qulf ochiladi va
-          bosh sahifada e{"'"}lon qilinadi.
-        </p>
-      )}
-    </>
-  )
-
-  if (ochiq) {
-    return (
-      <Link
-        href={fanHavolasi(fan)}
-        data-reveal
-        className={`v3-fan-karta is-ochiq ${kengmi ? "lg:col-span-3" : ""}`}
-      >
-        {ichi}
-      </Link>
-    )
-  }
-
-  return (
-    <button
-      type="button"
-      data-reveal
-      onClick={() => setIzoh((v) => !v)}
-      aria-expanded={izoh}
-      className="v3-fan-karta is-yopiq text-left"
-    >
-      {ichi}
-    </button>
-  )
-}
-
-/** Umumiy bo'lim plitkasi */
-function BolimKarta({ href, ikon, nom, tavsif, nishon, urgulimi }) {
-  return (
-    <Link href={href} data-reveal className={`v3-bolim ${urgulimi ? "is-urguli" : ""}`}>
-      <span className="v3-bolim-ikon">
-        <Ikon nom={ikon} olcham={22} qalin={1.5} />
-      </span>
-      <span className="flex-1 min-w-0">
-        <span className="flex items-center gap-2 flex-wrap">
-          <span className="v3-bolim-nom">{nom}</span>
-          {nishon && <span className="v3-chip">{nishon}</span>}
-        </span>
-        <span className="v3-bolim-tavsif">{tavsif}</span>
-      </span>
-      <span className="v3-bolim-ong">
-        <Ikon nom="ong" olcham={17} />
-      </span>
-    </Link>
-  )
-}
-
-export default function Home() {
+export default function BoshSahifa() {
   const { data: session, status } = useSession()
-  const [fon, fonTanla] = useFon()
-  const [mobilOgoh, setMobilOgoh] = useState(false)
+  const [fon] = useFon()
   const [menyu, setMenyu] = useState(false)
-  const [mobilNav, setMobilNav] = useState(false)
+  const [profilData, setProfilData] = useState(null)
+  const [qidiruv, setQidiruv] = useState("")
 
-  const role = session?.user?.role
-  const isAdmin = ["admin", "superadmin", "moderator"].includes(role)
-  // Ustozlik alohida bayroq: rol satriga qarash adminlarni panelidan
-  // mahrum qilardi (rol bitta bo'lgani uchun).
-  const isTeacher = ustozPaneliOchiqmi(session?.user)
-  const isHamkor = isPartnerRole(role)
-
-  // O'qilmagan xabar sanog'i sarlavhadagi chat tugmasi uchun. Mehmonlar
-  // uchun o'chirilgan: ular uchun so'rov faqat 401 qaytaradi.
-  const { sanoq } = useBildirishnomaSanoq(Boolean(session))
-  const oqilmaganChat = sanoq.chat || 0
-
-  useReveal()
+  const bildirishnoma = useBildirishnomaSanoq(Boolean(session))
+  const oqilmaganChat = bildirishnoma?.chat || 0
 
   useEffect(() => {
-    const mobil = window.innerWidth < 768
-    if (mobil && !localStorage.getItem("mobileWarningDismissed")) setMobilOgoh(true)
-  }, [])
+    if (!session?.user) return
+    let bekor = false
 
-  const ogohYop = () => {
-    localStorage.setItem("mobileWarningDismissed", "true")
-    setMobilOgoh(false)
-  }
+    async function yuklaProfil() {
+      try {
+        const res = await fetch("/api/profil")
+        if (!res.ok) return
+        const data = await res.json()
+        if (!bekor && data?.user) {
+          setProfilData(data.user)
+        }
+      } catch {
+        // Tarmoq xatosi bo'lsa session ma'lumotlariga suyaniladi
+      }
+    }
+
+    yuklaProfil()
+    return () => {
+      bekor = true
+    }
+  }, [session])
 
   const bosHarf = () => {
-    const n = session?.user?.fullName || session?.user?.username
-    return n ? n.charAt(0).toUpperCase() : "U"
+    const ism = session?.user?.fullName || session?.user?.username || "U"
+    return ism.charAt(0).toUpperCase()
   }
 
-  // Bosh menyu — faqat UMUMIY bo'limlar. Fanga tegishli havolalar
-  // (birikmalar, tahlil, chuqurlashgan) endi bu yerda emas, fan
-  // sahifasining ichida: aks holda menyu bitta fanning menyusiga
-  // aylanib qoladi.
-  const navHavolalar = [
-    { href: "/#fanlar", label: "Fanlar" },
-    { href: "/masala", label: "AI Masalalar (Beta)" },
-    { href: "/ilmiy/maqolalar/muhokama", label: "Dolzarb mavzular" },
-    { href: "/laboratoriya", label: "Laboratoriya" },
-    { href: "/doska", label: "Smart Doska" },
-    // Bo'lim nomi "video-darsliklar" bo'lsa ham, videolar hali TAYYOR EMAS
-    // (o'sha sahifada "tez kunda" deb turibdi). Menyuda "Video" deyish —
-    // bosilgach yo'q narsani va'da qilish demak.
-    { href: "/oquv/video-darsliklar", label: "Testlar" },
-    { href: "/kanallar", label: "Kanallar" },
-  ]
+  const rolPanellari = useMemo(() => {
+    if (!session?.user) return []
+    const panellar = []
+    if (isAdminRole(session.user.role)) {
+      panellar.push({ href: "/admin", ikon: "qalqon", label: "Boshqaruv" })
+    }
+    if (ustozPaneliOchiqmi(session.user)) {
+      panellar.push({ href: "/ustoz", ikon: "ustoz", label: "Ustoz paneli" })
+    }
+    return panellar
+  }, [session])
 
-  const rolPanellari = [
-    isAdmin && { href: "/admin", ikon: "qalqon", label: "Admin panel" },
-    isTeacher && { href: "/ustoz", ikon: "ustoz", label: "Ustoz paneli" },
-    isHamkor && { href: "/hamkorlar", ikon: "hamkor", label: "Hamkor paneli" },
-  ].filter(Boolean)
+  const qidiruvBajar = (e) => {
+    e.preventDefault()
+    if (!qidiruv.trim()) return
+    window.location.href = `/qidiruv?q=${encodeURIComponent(qidiruv.trim())}`
+  }
 
-  const kabinet = session
-    ? {
-        href: "/profil",
-        ikon: "odam",
-        nom: "Shaxsiy kabinet",
-        tavsif: "Profil, statistika, yutuqlar, do'stlar va sertifikatlar",
-        nishon: null,
-      }
-    : {
-        href: "/register",
-        ikon: "yulduz",
-        nom: "Ro'yxatdan o'tish",
-        tavsif: "Hisob yarating, progressingizni kuzating va yutuq to'plang",
-        nishon: "Bepul",
-      }
+  const userCoins = profilData?.coins ?? 0
+  const userGems = profilData?.gems ?? 0
+  const userStars = profilData?.stars ?? 0
+  const userStreak = profilData?.streak ?? 0
+  const userDaraja = darajaHolati(userStars)
 
   return (
-    <main data-fon={fon} className="v3 min-h-screen overflow-x-hidden">
+    <main
+      data-fon={fon}
+      style={{ fontFamily: '"Times New Roman", Times, Georgia, serif' }}
+      className="v3 min-h-screen flex flex-col font-serif bg-gradient-to-b from-[#0b0d2d] via-[#081845] via-35% via-[#051135] to-[#020514] text-white relative overflow-x-hidden"
+    >
+      {/* ─── FON EFFEKTLARI (TO'Q MOVİY-SAFIR AMBIENT NURLAR) ─── */}
+      <div className="absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* ═══ MOBIL OGOHLANTIRISH ═══ */}
-      {mobilOgoh && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 v3-parda">
-          <div className="v3-modal v3-tushish">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="v3-modal-ikon">
-                <Ikon nom="doska" olcham={20} />
+      {/* ─── 1. SARLAVHA (HEADER) ─── */}
+      <header className="border-b border-blue-900/50 bg-[#070c29]/80 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
+            <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-slate-950 shadow-lg shadow-yellow-500/20 group-hover:scale-105 transition-transform">
+              <Ikon nom="atom" olcham={18} qalin={2} />
+            </span>
+            <span className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent tracking-tight">
+              {NOM}
+            </span>
+          </Link>
+
+          {/* Qidiruv satri */}
+          <form
+            onSubmit={qidiruvBajar}
+            className="hidden md:flex items-center flex-1 max-w-md mx-6"
+          >
+            <div className="relative w-full">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400">
+                <Ikon nom="qidiruv" olcham={16} />
               </span>
-              <div>
-                <h3 className="font-bold text-[15px]">Mobil qurilma aniqlandi</h3>
-                <p className="v3-xira text-xs">Muhim ma{"'"}lumot</p>
-              </div>
+              <input
+                type="text"
+                value={qidiruv}
+                onChange={(e) => setQidiruv(e.target.value)}
+                placeholder="Mavzular, sinflar, formulalar qidirish..."
+                className="w-full pl-10 pr-4 py-2 rounded-xl border border-purple-700/50 bg-purple-900/30 text-white placeholder-purple-300/50 text-sm focus:border-yellow-400 focus:outline-none transition-colors backdrop-blur-sm"
+              />
             </div>
+          </form>
 
-            <p className="text-sm leading-relaxed v3-xira mb-5">
-              Sayt kompyuterlar uchun to{"'"}liq moslashgan. Mobil qurilmalarda
-              ayrim bo{"'"}limlarda — ayniqsa 3D modellar va laboratoriyada —
-              sekinlashish kuzatilishi mumkin.
-            </p>
-
-            <button onClick={ogohYop} className="v3-tugma-asosiy w-full justify-center">
-              Tushundim, davom etish
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ SARLAVHA ═══ */}
-      <header className="v3-header">
-        <div className="v3-konteyner flex items-center justify-between gap-3 py-3.5">
-
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => setMobilNav((v) => !v)}
-              className="v3-ikon-tugma md:hidden"
-              aria-label="Menyu"
-              aria-expanded={mobilNav}
+          {/* O'ng tomon navigatsiya va profil */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dolzarb"
+              className="px-3.5 py-1.5 bg-[#0e163b]/60 hover:bg-[#142055]/80 border border-blue-800/50 rounded-xl text-xs font-semibold text-blue-200 hover:text-white transition-all hidden sm:inline-flex items-center gap-1.5 backdrop-blur-sm"
+              title="Dolzarb mavzular"
             >
-              <Ikon nom={mobilNav ? "yopish" : "menyu"} olcham={19} />
-            </button>
-
-            <Link href="/" className="flex items-center gap-2.5 shrink-0">
-              <span className="v3-logo" aria-hidden="true" />
-              <span className="v3-logo-matn">JDA KIMYO</span>
+              <Ikon nom="muhokama" olcham={15} />
+              <span>Dolzarb</span>
             </Link>
-          </div>
 
-          <nav className="hidden md:flex items-center gap-0.5">
-            {navHavolalar.map((h) => (
-              <Link key={h.href} href={h.href} className="v3-nav">
-                {h.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-1.5">
             {rolPanellari.map((p) => (
-              <Link key={p.href} href={p.href} className="v3-rol-tugma" title={p.label}>
-                <Ikon nom={p.ikon} olcham={16} />
+              <Link
+                key={p.href}
+                href={p.href}
+                className="px-3 py-1.5 bg-[#0e163b]/60 hover:bg-[#142055]/80 border border-blue-800/50 rounded-xl text-xs font-semibold text-blue-200 hover:text-white transition-all hidden sm:inline-flex items-center gap-1.5 backdrop-blur-sm"
+                title={p.label}
+              >
+                <Ikon nom={p.ikon} olcham={15} />
                 <span className="hidden xl:inline">{p.label}</span>
               </Link>
             ))}
 
-            <FonTanlagich fon={fon} tanla={fonTanla} />
-
-            <Link href="/qidiruv" className="v3-qidiruv">
-              <Ikon nom="qidiruv" olcham={17} />
-              <span className="hidden lg:inline">Qidiruv</span>
-              <kbd className="hidden lg:inline-block">⌘K</kbd>
-            </Link>
-
-            {/* Shaxsiy chat. Sarlavhadagi umumiy menyuda emas, aynan shu
-                yerda: u bo'lim emas, hisobga bog'liq harakat — mehmonga
-                ko'rsatiladigan joyi yo'q. Mobilda ham qoladi (yashirilmaydi),
-                chunki yangi xabar kelganini shu nishon bildiradi. */}
             {session && (
               <Link
                 href="/chat"
-                className="v3-ikon-tugma v3-sanoqli"
+                className="relative p-2 rounded-xl border border-purple-700/50 bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 hover:text-white transition"
                 title="Xabarlar"
-                aria-label={
-                  oqilmaganChat > 0
-                    ? `Xabarlar — ${oqilmaganChat} ta o'qilmagan`
-                    : "Xabarlar"
-                }
               >
                 <Ikon nom="xabar" olcham={17} />
                 {oqilmaganChat > 0 && (
-                  <span className="v3-sanoq">{oqilmaganChat > 99 ? "99+" : oqilmaganChat}</span>
+                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 bg-rose-600 text-[10px] font-bold rounded-full text-white">
+                    {oqilmaganChat > 99 ? "99+" : oqilmaganChat}
+                  </span>
                 )}
               </Link>
             )}
 
             {status === "loading" ? (
-              <div className="v3-yuklanmoqda" />
+              <div className="w-8 h-8 rounded-full border border-purple-700 animate-pulse" />
             ) : session ? (
               <div className="relative">
-                <button onClick={() => setMenyu((v) => !v)} className="v3-profil-tugma" aria-expanded={menyu}>
-                  <span className="v3-bosharf">{bosHarf()}</span>
-                  <span className="hidden sm:inline max-w-[110px] truncate">
+                <button
+                  onClick={() => setMenyu((v) => !v)}
+                  className="flex items-center gap-2 p-1.5 pr-2.5 rounded-xl border border-purple-700/50 bg-purple-900/40 hover:bg-purple-800/60 transition"
+                  aria-expanded={menyu}
+                >
+                  <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-yellow-500 to-amber-600 text-slate-950 font-bold flex items-center justify-center text-xs">
+                    {bosHarf()}
+                  </span>
+                  <span className="hidden sm:inline max-w-[120px] truncate text-xs font-semibold text-purple-100">
                     {session.user?.fullName || session.user?.username}
                   </span>
-                  <Ikon nom="past" olcham={15} className={menyu ? "rotate-180 transition-transform" : "transition-transform"} />
+                  <Ikon
+                    nom="past"
+                    olcham={13}
+                    className={`transition-transform duration-200 text-purple-300 ${
+                      menyu ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
 
                 {menyu && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setMenyu(false)} />
-                    <div className="v3-menyu v3-tushish absolute right-0 mt-2 w-[268px] z-50 overflow-hidden">
-
-                      <div className="v3-menyu-bosh">
-                        <span className="v3-bosharf v3-bosharf-katta">{bosHarf()}</span>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setMenyu(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-64 z-50 rounded-2xl border border-purple-700/60 bg-gradient-to-br from-purple-950 to-slate-950 p-2 shadow-2xl backdrop-blur-xl">
+                      <div className="flex items-center gap-3 p-2.5 border-b border-purple-800/50">
+                        <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 text-slate-950 font-bold flex items-center justify-center text-base">
+                          {bosHarf()}
+                        </span>
                         <div className="min-w-0">
-                          <div className="font-semibold truncate text-[14px]">
+                          <div className="font-bold truncate text-sm text-white">
                             {session.user?.fullName || session.user?.username}
                           </div>
-                          <div className="v3-xira text-xs truncate">@{session.user?.username}</div>
-                          <div className="v3-id">ID {session.user?.userId}</div>
+                          <div className="text-purple-300 text-xs truncate">
+                            @{session.user?.username}
+                          </div>
                         </div>
                       </div>
 
-                      <div className="p-1.5">
-                        {rolPanellari.map((p) => (
-                          <Link key={p.href} href={p.href} onClick={() => setMenyu(false)} className="v3-menyu-qator is-urguli">
-                            <Ikon nom={p.ikon} olcham={17} />
-                            <span className="flex-1 text-[13px] font-semibold">{p.label}</span>
-                            <Ikon nom="ong" olcham={15} />
-                          </Link>
-                        ))}
-
-                        {[
-                          { href: "/profil", ikon: "odam", label: "Shaxsiy kabinet" },
-                          { href: "/chat", ikon: "xabar", label: "Xabarlarim", soni: oqilmaganChat },
-                          { href: "/profil/quizlar", ikon: "quiz", label: "Test natijalarim" },
-                          { href: "/profil/yutuqlar", ikon: "yulduz", label: "Yutuqlarim" },
-                          { href: "/profil/dostlar", ikon: "odamlar", label: "Do'stlarim" },
-                          { href: "/laboratoriya", ikon: "kolba", label: "Laboratoriyam" },
-                        ].map((m) => (
-                          <Link key={m.href} href={m.href} onClick={() => setMenyu(false)} className="v3-menyu-qator">
-                            <Ikon nom={m.ikon} olcham={17} />
-                            <span className="flex-1 text-[13px]">{m.label}</span>
-                            {m.soni > 0 ? (
-                              <span className="v3-sanoq is-qatorda">
-                                {m.soni > 99 ? "99+" : m.soni}
-                              </span>
-                            ) : (
-                              <Ikon nom="ong" olcham={15} className="v3-strelka" />
-                            )}
-                          </Link>
-                        ))}
-                      </div>
-
-                      <div className="v3-menyu-oyoq">
-                        <button
-                          onClick={() => { setMenyu(false); signOut({ callbackUrl: "/" }) }}
-                          className="v3-menyu-qator is-xavf w-full"
+                      <div className="p-1 space-y-1">
+                        <Link
+                          href="/profil"
+                          onClick={() => setMenyu(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-purple-900/50 text-xs font-medium text-purple-100 hover:text-white transition"
                         >
-                          <Ikon nom="chiqish" olcham={17} />
-                          <span className="flex-1 text-left text-[13px] font-semibold">Chiqish</span>
+                          <Ikon nom="odam" olcham={15} />
+                          <span>Shaxsiy kabinet</span>
+                        </Link>
+                        <Link
+                          href="/profil/quizlar"
+                          onClick={() => setMenyu(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-purple-900/50 text-xs font-medium text-purple-100 hover:text-white transition"
+                        >
+                          <Ikon nom="quiz" olcham={15} />
+                          <span>Test natijalarim</span>
+                        </Link>
+                        <Link
+                          href="/profil/yutuqlar"
+                          onClick={() => setMenyu(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-purple-900/50 text-xs font-medium text-purple-100 hover:text-white transition"
+                        >
+                          <Ikon nom="yulduz" olcham={15} />
+                          <span>Yutuqlarim</span>
+                        </Link>
+                        <div className="my-1 border-t border-purple-800/50" />
+                        <button
+                          onClick={() => signOut({ callbackUrl: "/" })}
+                          className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-rose-950/40 text-xs font-medium text-rose-300 hover:text-rose-200 transition w-full text-left"
+                        >
+                          <Ikon nom="chiqish" olcham={15} />
+                          <span>Chiqish</span>
                         </button>
                       </div>
                     </div>
@@ -499,440 +269,466 @@ export default function Home() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-1.5">
-                {/* Elektron doska: o'qituvchi auditoriyada `jdakimyo.uz` deb
-                    kiradi va shu yerga tushadi. Yo'l aynan shu yerdan
-                    ko'rinmasa, QR tizimini topib bo'lmaydi. */}
-                <Link href="/doska" className="v3-ikon-tugma v3-mobil-yashir" title="Elektron doska">
-                  <Ikon nom="doska" olcham={17} />
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/auth/login"
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl border border-purple-700/60 bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 hover:text-white transition"
+                >
+                  Kirish
                 </Link>
-                {/* Tor ekranda faqat asosiy harakat qoladi — "Kirish"
-                    mobil menyuda. Ikkalasi ham turganda sarlavha 375px
-                    ekranga sig'masdi va tugma chetdan chiqib ketardi. */}
-                <Link href="/login" className="v3-tugma v3-mobil-yashir">Kirish</Link>
-                <Link href="/register" className="v3-tugma-asosiy">
-                  <span className="hidden sm:inline">Ro{"'"}yxatdan o{"'"}tish</span>
-                  <span className="sm:hidden">Boshlash</span>
+                <Link
+                  href="/auth/register"
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-bold transition shadow-md shadow-yellow-500/20"
+                >
+                  Ro&apos;yxatdan o&apos;tish
                 </Link>
               </div>
             )}
           </div>
         </div>
-
-        {/* Mobil navigatsiya */}
-        <div className={`md:hidden v3-mobil-nav ${mobilNav ? "is-ochiq" : ""}`}>
-          <nav className="v3-konteyner flex flex-col gap-0.5 py-2.5">
-            {navHavolalar.map((h) => (
-              <Link key={h.href} href={h.href} onClick={() => setMobilNav(false)} className="v3-mobil-qator">
-                {h.label}
-              </Link>
-            ))}
-            {session && (
-              <Link
-                href="/chat"
-                onClick={() => setMobilNav(false)}
-                className="v3-mobil-qator flex items-center gap-2"
-              >
-                <span className="flex-1">Xabarlar</span>
-                {oqilmaganChat > 0 && (
-                  <span className="v3-sanoq is-qatorda">
-                    {oqilmaganChat > 99 ? "99+" : oqilmaganChat}
-                  </span>
-                )}
-              </Link>
-            )}
-            <Link href="/doska" onClick={() => setMobilNav(false)} className="v3-mobil-qator">
-              Elektron doska
-            </Link>
-            <Link href="/hamkorlik" onClick={() => setMobilNav(false)} className="v3-mobil-qator">
-              Hamkorlik
-            </Link>
-            {/* Sarlavhadagi "Kirish" tor ekranda yashirilgan — yo'l shu yerda */}
-            {!session && status !== "loading" && (
-              <Link href="/login" onClick={() => setMobilNav(false)} className="v3-mobil-qator">
-                Kirish
-              </Link>
-            )}
-          </nav>
-        </div>
       </header>
 
-      {/* ═══ HERO ═══ */}
-      <section className="relative overflow-hidden">
-        <div className="v3-nur v3-nur-a" aria-hidden="true" />
-        <div className="v3-nur v3-nur-b" aria-hidden="true" />
-        <div className="v3-tor-fon" aria-hidden="true" />
-
-        <div className="v3-konteyner relative z-10 py-16 md:py-24">
-          <div className="grid lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-10 items-center">
-
-            <div>
-              {session ? (
-                <Link href="/profil" className="v3-salom">
-                  <span className="v3-bosharf">{bosHarf()}</span>
-                  <span>
-                    Xush kelibsiz,{" "}
-                    <strong>{session.user?.fullName || session.user?.username}</strong>
+      {/* ─── 2. SHAXSIY KABINET VIDJETI (KO'RINARLI HERO BO'LIMI) ─── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-2 w-full relative z-10">
+        {session ? (
+          <div className="p-5 md:p-6 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121646]/70 via-[#0a183d]/70 to-[#07112c]/70 backdrop-blur-md shadow-2xl shadow-blue-950/40 flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center font-bold text-xl text-black shadow-lg shadow-yellow-500/30 shrink-0">
+                {bosHarf()}
+              </div>
+              <div>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h2 className="text-lg md:text-xl font-bold text-white">
+                    {session.user?.fullName || session.user?.username}
+                  </h2>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full border border-yellow-500/40 bg-yellow-500/10 text-yellow-300 font-semibold">
+                    {userDaraja.daraja}-daraja
                   </span>
-                  <Ikon nom="ong" olcham={15} />
-                </Link>
-              ) : (
-                <div className="v3-eyebrow">
-                  <span className="v3-nuqta" />
-                  O{"'"}zbek tilidagi oliy kimyo platformasi
                 </div>
-              )}
+                <div className="text-xs text-blue-200/80 mt-1">
+                  @{session.user?.username} · ID: {session.user?.userId}
+                </div>
+              </div>
+            </div>
 
-              {/* Ikki qator ikkita BLOK span bilan berilgan, `<br>` bilan
-                  emas. `<br>` da qulay o'qigich sarlavhani "Oliy
-                  kimyofanlar bo'yicha" deb bir so'zga yopishtirib o'qirdi —
-                  blok elementlar orasiga esa bo'shliq qo'yiladi. */}
-              <h1 className="v3-h1">
-                <span className="v3-urgu-matn block">Oliy kimyo</span>
-                <span className="block">fanlar bo{"'"}yicha</span>
-              </h1>
-
-              <p className="v3-lid">
-                Koordinatsion kimyo to{"'"}liq ochiq: nazariyadan tahlil
-                usullarigacha, 3D modellar va testlar bilan. Qolgan fanlar
-                navbat bilan qo{"'"}shiladi — har biri o{"'"}z daraxti bilan.
-              </p>
-
-              <div className="flex flex-wrap gap-3 mb-11">
-                <a href="#fanlar" className="v3-tugma-asosiy v3-katta">
-                  Fanlarni ko{"'"}rish
-                  <Ikon nom="past" olcham={17} />
-                </a>
-                <Link href="/ishlashi" className="v3-tugma v3-katta">
-                  <Ikon nom="kitob" olcham={17} />
-                  Sayt qanday ishlaydi
-                </Link>
-                {/* "JDA KIMYO nima?" sahifasiga bosh sahifadan havola
-                    BO'LISHI SHART: qidiruv roboti sayt bo'ylab havola
-                    bo'yicha yuradi va eng ko'p vaznni bosh sahifadan
-                    chiqqan havolaga beradi. */}
-                <Link href="/jda-kimyo" className="v3-tugma v3-katta">
-                  <Ikon nom="atom" olcham={17} />
-                  JDA KIMYO nima?
-                </Link>
+            {/* Hisob ko'rsatkichlari va kabinetga o'tish */}
+            <div className="flex items-center gap-4 md:gap-6 flex-wrap text-xs">
+              <div className="flex items-center gap-1.5 bg-[#091333]/80 px-3 py-1.5 rounded-xl border border-blue-900/50">
+                <span className="text-amber-400">
+                  <Ikon nom="tanga" olcham={16} />
+                </span>
+                <span className="text-blue-100">
+                  <strong className="text-sm font-bold text-white">{userCoins}</strong> tanga
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-[#091333]/80 px-3 py-1.5 rounded-xl border border-blue-900/50">
+                <span className="text-cyan-400">
+                  <Ikon nom="olmos" olcham={16} />
+                </span>
+                <span className="text-blue-100">
+                  <strong className="text-sm font-bold text-white">{userGems}</strong> olmos
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-[#091333]/80 px-3 py-1.5 rounded-xl border border-blue-900/50">
+                <span className="text-yellow-400">
+                  <Ikon nom="yulduz" olcham={16} />
+                </span>
+                <span className="text-blue-100">
+                  <strong className="text-sm font-bold text-white">{userStars}</strong> yulduz
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-[#091333]/80 px-3 py-1.5 rounded-xl border border-blue-900/50">
+                <span className="text-orange-400">
+                  <Ikon nom="olov" olcham={16} />
+                </span>
+                <span className="text-blue-100">
+                  <strong className="text-sm font-bold text-white">{userStreak}</strong> kun
+                </span>
               </div>
 
-              {/* Sonlar `lib/ilmiy-hajm.json` dan — sahifa qo'shilganda
-                  o'zi yangilanadi. Quiz savollari bazada bo'lgani uchun
-                  (sahifa "use client") pastga yaxlitlangan son turadi:
-                  o'sib borsa ham to'g'ri bo'lib qolaveradi. */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px v3-sonlar">
-                {[
-                  { son: String(HAJM.birikmalar), nom: "Birikma" },
-                  { son: String(HAJM.usullar), nom: "Tahlil usuli" },
-                  { son: String(HAJM.mavzular), nom: "Chuqur mavzu" },
-                  { son: BAZA.savollar, nom: "Test savoli" },
-                ].map((s) => (
-                  <div key={s.nom} className="v3-son">
-                    <div className="v3-son-qiymat"><CountUp value={s.son} /></div>
-                    <div className="v3-son-nom">{s.nom}</div>
-                  </div>
+              <Link
+                href="/profil"
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black transition shadow-lg shadow-yellow-500/20 ml-auto md:ml-2 flex items-center gap-1.5"
+              >
+                <Ikon nom="odam" olcham={14} />
+                <span>Shaxsiy kabinet</span>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121646]/70 via-[#0a183d]/70 to-[#07112c]/70 backdrop-blur-md shadow-2xl shadow-blue-950/40 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-600/20 border border-yellow-600/30 rounded-full text-xs font-semibold text-yellow-300 mb-3 backdrop-blur-sm">
+                <Ikon nom="atom" olcham={14} />
+                <span>ILMIY VA ZAMONAVIY TA&apos;LIM PLATFORMASI</span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">
+                <span className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent">
+                  {NOM}
+                </span>{" "}
+                ta&apos;lim portali
+              </h1>
+              <p className="text-sm text-blue-100/90 mt-2 max-w-2xl leading-relaxed">
+                Maktab darsliklari, oliy kimyo video ma&apos;ruzalari va milliy sertifikat (Rasch IRT modeli) tayyorgarligi.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <Link
+                href="/auth/login"
+                className="px-5 py-2.5 text-xs font-semibold rounded-xl border border-blue-700/60 bg-[#09153a]/60 hover:bg-[#0c1f54]/70 text-blue-200 hover:text-white transition backdrop-blur-sm"
+              >
+                Kirish
+              </Link>
+              <Link
+                href="/auth/register"
+                className="px-5 py-2.5 text-xs font-bold rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black transition shadow-lg shadow-yellow-500/20"
+              >
+                Ro&apos;yxatdan o&apos;tish
+              </Link>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ─── 3. ASOSIY TA'LIM DARVOZALARI (6 TA ASOSIY BO'LIM) ─── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full relative z-10 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* 1. MAKTAB KIMYOSI */}
+          <div className="p-5 sm:p-7 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0b1a3d]/50 to-[#070f2b]/40 hover:border-yellow-400/50 transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1">
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600/30 to-indigo-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 group-hover:text-yellow-400 transition-colors">
+                  <Ikon nom="maktab" olcham={24} />
+                </div>
+                <span className="px-3.5 py-1 bg-yellow-600/20 text-yellow-300 border border-yellow-600/30 rounded-full text-xs font-semibold backdrop-blur-sm">
+                  7–11 sinflar
+                </span>
+              </div>
+
+              <Link href="/maktabkimyo">
+                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-yellow-400 transition-colors">
+                  Maktab kimyosi
+                </h3>
+              </Link>
+
+              {/* Tezkor sinf tugmalari */}
+              <div className="flex items-center gap-2 mt-4 flex-wrap">
+                {["7", "8", "9", "10", "11"].map((sinf) => (
+                  <Link
+                    key={sinf}
+                    href={`/maktabkimyo/${sinf}sinf`}
+                    className="px-3 py-1 rounded-lg border border-blue-700/50 bg-[#09153a]/60 hover:bg-yellow-500/20 hover:border-yellow-400/50 text-xs font-semibold text-blue-200 hover:text-yellow-300 transition"
+                  >
+                    {sinf}-sinf
+                  </Link>
                 ))}
               </div>
             </div>
 
-            <div className="flex justify-center lg:justify-end">
-              <FanHalqasi />
+            <Link
+              href="/maktabkimyo"
+              className="mt-6 pt-4 border-t border-blue-900/40 flex items-center justify-between text-xs font-semibold text-yellow-400 hover:text-yellow-300 transition"
+            >
+              <span>Maktab bo&apos;limiga kirish</span>
+              <Ikon nom="ong" olcham={15} />
+            </Link>
+          </div>
+
+          {/* 2. OLIY KIMYO */}
+          <Link
+            href="/oliykimyo"
+            className="p-5 sm:p-7 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0b1a3d]/50 to-[#070f2b]/40 hover:border-yellow-400/50 transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600/30 to-cyan-600/30 border border-blue-500/40 flex items-center justify-center text-blue-300 group-hover:text-yellow-400 transition-colors">
+                  <Ikon nom="oliy" olcham={24} />
+                </div>
+                <span className="px-3.5 py-1 bg-blue-600/20 text-blue-300 border border-blue-600/30 rounded-full text-xs font-semibold backdrop-blur-sm">
+                  Video ma&apos;ruzalar
+                </span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-yellow-400 transition-colors">
+                Oliy kimyo
+              </h3>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-blue-900/40 flex items-center justify-between text-xs font-semibold text-yellow-400 group-hover:text-yellow-300 transition">
+              <span>Fanlarni ochish</span>
+              <Ikon nom="ong" olcham={15} />
+            </div>
+          </Link>
+
+          {/* 3. MILLIY SERTIFIKAT SINOV TESTI */}
+          <Link
+            href="/milliy-sertifikat"
+            className="p-5 sm:p-7 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0b1a3d]/50 to-[#070f2b]/40 hover:border-yellow-400/50 transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600/30 to-teal-600/30 border border-emerald-500/40 flex items-center justify-center text-emerald-300 group-hover:text-yellow-400 transition-colors">
+                  <Ikon nom="sertifikat" olcham={24} />
+                </div>
+                <span className="px-3.5 py-1 bg-emerald-600/20 text-emerald-300 border border-emerald-600/30 rounded-full text-xs font-semibold backdrop-blur-sm">
+                  Rasch IRT modeli
+                </span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-yellow-400 transition-colors">
+                Milliy sertifikat sinov testi
+              </h3>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-blue-900/40 flex items-center justify-between text-xs font-semibold text-yellow-400 group-hover:text-yellow-300 transition">
+              <span>Test tizimiga o&apos;tish</span>
+              <Ikon nom="ong" olcham={15} />
+            </div>
+          </Link>
+
+          {/* 4. BOSHQA TESTLAR */}
+          <Link
+            href="/testlar"
+            className="p-5 sm:p-7 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0b1a3d]/50 to-[#070f2b]/40 hover:border-yellow-400/50 transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-600/30 to-rose-600/30 border border-pink-500/40 flex items-center justify-center text-pink-300 group-hover:text-yellow-400 transition-colors">
+                  <Ikon nom="quiz" olcham={24} />
+                </div>
+                <span className="px-3.5 py-1 bg-pink-600/20 text-pink-300 border border-pink-600/30 rounded-full text-xs font-semibold backdrop-blur-sm">
+                  Amaliy mashqlar
+                </span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-yellow-400 transition-colors">
+                Boshqa testlar
+              </h3>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-blue-900/40 flex items-center justify-between text-xs font-semibold text-yellow-400 group-hover:text-yellow-300 transition">
+              <span>Testlar katalogi</span>
+              <Ikon nom="ong" olcham={15} />
+            </div>
+          </Link>
+
+          {/* 5. LABORATORIYA MASHG'ULOTLARI (VIDEOLAR VA QO'LLANMALAR) */}
+          <Link
+            href="/laboratoriya"
+            className="p-5 sm:p-7 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0b1a3d]/50 to-[#070f2b]/40 hover:border-yellow-400/50 transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-600/30 to-teal-600/30 border border-cyan-500/40 flex items-center justify-center text-cyan-300 group-hover:text-yellow-400 transition-colors">
+                  <Ikon nom="kolba" olcham={24} />
+                </div>
+                <span className="px-3.5 py-1 bg-cyan-600/20 text-cyan-300 border border-cyan-600/30 rounded-full text-xs font-semibold backdrop-blur-sm">
+                  Videolar va qo&apos;llanmalar
+                </span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-yellow-400 transition-colors">
+                Laboratoriya mashg&apos;ulotlari
+              </h3>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-blue-900/40 flex items-center justify-between text-xs font-semibold text-yellow-400 group-hover:text-yellow-300 transition">
+              <span>Mashg&apos;ulotlarni ochish</span>
+              <Ikon nom="ong" olcham={15} />
+            </div>
+          </Link>
+
+          {/* 6. KIMYO LABORATORIYA MAHSULOTLARINING SOTUVI */}
+          <Link
+            href="/dokon"
+            className="p-5 sm:p-7 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0b1a3d]/50 to-[#070f2b]/40 hover:border-yellow-400/50 transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-600/30 to-yellow-600/30 border border-amber-500/40 flex items-center justify-center text-amber-300 group-hover:text-yellow-400 transition-colors">
+                  <Ikon nom="savat" olcham={24} />
+                </div>
+                <span className="px-3.5 py-1 bg-amber-600/20 text-amber-300 border border-amber-600/30 rounded-full text-xs font-semibold backdrop-blur-sm">
+                  Jihozlar va reaktivlar
+                </span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-yellow-400 transition-colors">
+                Kimyo laboratoriya mahsulotlarining sotuvi
+              </h3>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-blue-900/40 flex items-center justify-between text-xs font-semibold text-yellow-400 group-hover:text-yellow-300 transition">
+              <span>Mahsulotlar katalogi</span>
+              <Ikon nom="ong" olcham={15} />
+            </div>
+          </Link>
+        </div>
+
+        {/* 5. JDA KIMYO AI — TO'LIQ QULFLANGAN VA FAQAT PREMIUM */}
+        <div className="p-5 sm:p-7 rounded-3xl border-2 border-yellow-500/40 bg-gradient-to-br from-yellow-950/20 via-[#0e1742]/50 to-[#060c24]/70 backdrop-blur-md shadow-2xl relative overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-600/30 border border-yellow-500/50 flex items-center justify-center text-yellow-400 shrink-0 shadow-lg shadow-yellow-500/20">
+                <Ikon nom="qulf" olcham={28} />
+              </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent">
+                  JDA Kimyo AI
+                </h3>
+                <span className="px-3 py-0.5 rounded-full border border-yellow-500/50 bg-yellow-500/20 text-yellow-300 text-xs font-bold flex items-center gap-1.5">
+                  <Ikon nom="qulf" olcham={12} />
+                  <span>PREMIUM</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Telegram orqali bog'lanish harakati */}
+            <div className="flex flex-col sm:flex-row md:flex-col items-stretch sm:items-center md:items-end gap-2 shrink-0">
+              <div className="text-xs text-yellow-200/90 text-left md:text-right">
+                Premiumni faollashtirish uchun:
+              </div>
+              <a
+                href="https://t.me/diyorbek_jabborov"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20"
+              >
+                <Ikon nom="telegram" olcham={15} />
+                <span>@diyorbek_jabborov ga yozish</span>
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══ FORMULALAR LENTASI ═══ */}
-      <div className="v3-lenta-qobiq">
-        <div className="v3-lenta">
-          {[...LENTA, ...LENTA].map((f, i) => (
-            <span key={i} className="v3-lenta-band">
-              {f}
-              <span className="v3-lenta-ajratgich">/</span>
+      {/* ─── 4. PLATFORMA ASBOBLARI VA HAMJAMIYAT (3 TA TOZA MODUL) ─── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link
+            href="/dolzarb"
+            className="p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/50 transition-all flex items-center gap-3 backdrop-blur-sm group"
+          >
+            <span className="p-2.5 rounded-xl bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 shrink-0 group-hover:scale-105 transition-transform">
+              <Ikon nom="muhokama" olcham={18} />
             </span>
-          ))}
-        </div>
-      </div>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-yellow-400 transition-colors">
+                Dolzarb mavzular
+              </div>
+              <div className="text-[11px] text-blue-300">Savol-javob</div>
+            </div>
+          </Link>
 
-      {/* ═══ FANLAR ═══ */}
-      <section id="fanlar" className="v3-konteyner py-16 md:py-24 scroll-mt-20">
-        <div className="v3-bosh" data-reveal>
-          <div>
-            <div className="v3-nishon mb-2">Bo{"'"}lim 01</div>
-            <h2 className="v3-h2">Fanlar</h2>
-          </div>
-          <p className="v3-bosh-izoh">
-            Har bir fan o{"'"}z o{"'"}quv va ilmiy daraxtiga ega. Hozircha{" "}
-            <strong>{ochiqFanlarSoni()} ta fan ochiq</strong>, qolgani
-            tayyorlanmoqda — qulf materiallar yozilgach ochiladi.
-          </p>
-        </div>
+          <Link
+            href="/kochat"
+            className="p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/50 transition-all flex items-center gap-3 backdrop-blur-sm group"
+          >
+            <span className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
+              <Ikon nom="kristall" olcham={18} />
+            </span>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-yellow-400 transition-colors">
+                Kimyogar ko&apos;chati
+              </div>
+              <div className="text-[11px] text-blue-300">Gamifikatsiya</div>
+            </div>
+          </Link>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {FANLAR.map((fan, i) => (
-            <FanKarta
-              key={fan.slug}
-              fan={fan}
-              raqam={i + 1}
-              kengmi={fan.holat === "ochiq"}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ UMUMIY BO'LIMLAR ═══ */}
-      <section className="v3-konteyner pb-16 md:pb-24">
-        <div className="v3-bosh" data-reveal>
-          <div>
-            <div className="v3-nishon mb-2">Bo{"'"}lim 02</div>
-            <h2 className="v3-h2">Umumiy bo{"'"}limlar</h2>
-          </div>
-          <p className="v3-bosh-izoh">
-            Bular fanga bog{"'"}liq emas — qaysi fanni o{"'"}rgansangiz ham bir xil
-            ishlaydi.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <BolimKarta
-            href={kabinet.href}
-            ikon={kabinet.ikon}
-            nom={kabinet.nom}
-            tavsif={kabinet.tavsif}
-            nishon={kabinet.nishon}
-            urgulimi
-          />
-
-          {rolPanellari.map((p) => (
-            <BolimKarta
-              key={p.href}
-              href={p.href}
-              ikon={p.ikon}
-              nom={p.label}
-              tavsif={
-                p.href === "/admin"
-                  ? "Foydalanuvchilar, kontent va tizim sozlamalari"
-                  : p.href === "/ustoz"
-                  ? "Guruhlar, vazifalar, natijalar va talabalar"
-                  : "Kanal, lenta va video darsliklaringiz"
-              }
-              nishon="Sizga ochiq"
-              urgulimi
-            />
-          ))}
-
-          <BolimKarta
-            href="/masala"
-            ikon="kolba"
-            nom="AI Masalalar Yechuvchisi"
-            tavsif="3 xil yondashuv: yashirin tuzoqlar, formulalar va to'liq master yechim"
-            nishon="Beta"
-            urgulimi
-          />
-          <BolimKarta
-            href="/laboratoriya"
-            ikon="kolba"
-            nom="Virtual laboratoriya"
-            tavsif="Reagent yig'ing, jihoz oling va tajriba o'tkazing — 200 dan ortiq reaksiya"
-            nishon="3D"
-          />
-          <BolimKarta
-            href="/oquv/video-darsliklar"
-            ikon="quiz"
-            nom="Testlar"
-            tavsif="440+ savol, ustozlar tuzgan testlar, natijalar PDF shaklida. Video darsliklar tayyorlanmoqda"
-          />
-          <BolimKarta
-            href="/ilmiy/maqolalar/muhokama"
-            ikon="muhokama"
-            nom="Dolzarb mavzular"
-            tavsif="Savol bering, tajriba ulashing va boshqalar bilan muhokama qiling"
-            nishon="Jonli"
-          />
-          <BolimKarta
-            href="/kanallar"
-            ikon="kanal"
-            nom="Kanallar"
-            tavsif="Ustoz va tashkilotlarning kanallari: postlar, videolar, obuna"
-          />
-          <BolimKarta
-            href="/doska"
-            ikon="doska"
-            nom="Elektron doska"
-            tavsif="Auditoriya uchun: QR orqali kiring va sinfga ko'rsating"
-          />
-          <BolimKarta
-            href="/hamkorlik"
-            ikon="hamkor"
-            nom="Hamkorlik"
-            tavsif="Jamoaga taklif, savol-javob, bog'lanish va yangiliklar"
-          />
+          <Link
+            href="/chat"
+            className="p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/50 transition-all flex items-center gap-3 backdrop-blur-sm group"
+          >
+            <span className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+              <Ikon nom="xabar" olcham={18} />
+            </span>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-yellow-400 transition-colors">
+                Ilmiy chat
+              </div>
+              <div className="text-[11px] text-blue-300">Hamjamiyat</div>
+            </div>
+          </Link>
         </div>
       </section>
 
-      {/* ═══ OYOQ ═══ */}
-      <footer className="v3-oyoq">
-        <div className="v3-konteyner py-12">
-          <div className="v3-oyoq-karta">
+      {/* ─── 5. YARATUVCHI FOOTER (ASL ESKI USLUBDAGI YARATUVCHI KARTASI) ─── */}
+      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/90 backdrop-blur-xl py-12 text-xs text-blue-200 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0a1738]/50 to-[#070e28]/40 backdrop-blur-md shadow-2xl">
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
-
+              {/* Yaratuvchi ma'lumotlari */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
                 <YaratuvchiRasmi />
                 <div className="min-w-0">
-                  <div className="v3-nishon mb-1.5">Yaratuvchi</div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-yellow-500/40 bg-yellow-500/10 text-xs font-semibold text-yellow-300 mb-2">
+                    Sayt yaratuvchisi
+                  </div>
                   <div className="flex items-center gap-2 justify-center sm:justify-start">
-                    <h4 className="font-bold text-lg">Diyorbek Jabborov</h4>
+                    <h4 className="font-bold text-lg text-white">Diyorbek Jabborov</h4>
                     <TasdiqBelgisi tasdiqlangan olcham="katta" jonli />
                   </div>
-                  <p className="v3-xira text-sm mt-0.5">
-                    Kimyo o{"'"}qituvchisi · platforma asoschisi
+                  <p className="text-blue-200/80 text-sm mt-0.5">
+                    Kimyo o&apos;qituvchisi · platforma asoschisi
                   </p>
 
-                  <div className="flex flex-wrap gap-2 mt-4 justify-center sm:justify-start">
-                    <Link href="/profil/343229943" className="v3-oyoq-havola">
+                  <div className="flex flex-wrap gap-2.5 mt-4 justify-center sm:justify-start">
+                    <Link
+                      href="/profil/343229943"
+                      className="px-3.5 py-1.5 rounded-xl border border-blue-800/50 bg-[#09153a]/60 hover:border-yellow-400/50 hover:bg-[#0c1f54]/70 text-blue-200 hover:text-white transition flex items-center gap-1.5"
+                    >
                       <Ikon nom="odam" olcham={15} />
-                      Profil
+                      <span>Profil</span>
                     </Link>
-                    <a href="https://t.me/diyorbek_jabborov" target="_blank" rel="noopener noreferrer" className="v3-oyoq-havola">
+                    <a
+                      href="https://t.me/diyorbek_jabborov"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-1.5 rounded-xl border border-blue-800/50 bg-[#09153a]/60 hover:border-yellow-400/50 hover:bg-[#0c1f54]/70 text-blue-200 hover:text-white transition flex items-center gap-1.5"
+                    >
                       <Ikon nom="telegram" olcham={15} />
-                      Telegram
+                      <span>Telegram</span>
                     </a>
-                    <a href="mailto:jabborovd18@gmail.com" className="v3-oyoq-havola">
+                    <a
+                      href="mailto:jabborovd18@gmail.com"
+                      className="px-3.5 py-1.5 rounded-xl border border-blue-800/50 bg-[#09153a]/60 hover:border-yellow-400/50 hover:bg-[#0c1f54]/70 text-blue-200 hover:text-white transition flex items-center gap-1.5"
+                    >
                       <Ikon nom="pochta" olcham={15} />
-                      Email
+                      <span>Email</span>
                     </a>
-                    <a href="https://t.me/jdakimyouzbot" target="_blank" rel="noopener noreferrer" className="v3-oyoq-havola">
+                    <a
+                      href="https://t.me/jdakimyouzbot"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-1.5 rounded-xl border border-blue-800/50 bg-[#09153a]/60 hover:border-yellow-400/50 hover:bg-[#0c1f54]/70 text-blue-200 hover:text-white transition flex items-center gap-1.5"
+                    >
                       <Ikon nom="bot" olcham={15} />
-                      Bot
+                      <span>Bot</span>
                     </a>
                   </div>
                 </div>
               </div>
 
+              {/* O'ng tomon: Versiya, JDA KIMYO nima, copyright */}
               <div className="flex flex-col items-center md:items-end gap-2 shrink-0">
-                <span className="v3-versiya">
-                  <span className="v3-nuqta" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-800/50 bg-[#09153a]/60 text-xs font-semibold text-blue-200">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   v3.0.0
                 </span>
-                <Link href="/jda-kimyo" className="v3-oyoq-havola">
+                <Link
+                  href="/jda-kimyo"
+                  className="text-xs text-yellow-400 hover:text-yellow-300 font-semibold flex items-center gap-1 mt-1 transition"
+                >
                   <Ikon nom="atom" olcham={15} />
-                  JDA KIMYO nima?
+                  <span>JDA KIMYO nima?</span>
                 </Link>
-                <p className="v3-xira text-xs">© 2026 JDA KIMYO</p>
-                <p className="v3-xira text-[11px]">Oliy kimyo platformasi</p>
+                <p className="text-blue-300/70 text-xs mt-1">© 2026 JDA KIMYO</p>
+                <p className="text-blue-300/50 text-[11px]">Kimyo ta&apos;lim platformasi</p>
               </div>
             </div>
           </div>
         </div>
       </footer>
-
     </main>
   )
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
-   Scroll bo'yicha ochilish
-   ══════════════════════════════════════════════════════════════════════ */
-function useReveal() {
-  useEffect(() => {
-    const els = document.querySelectorAll("[data-reveal]")
-    if (!els.length) return
-
-    const kam = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (kam || typeof IntersectionObserver === "undefined") {
-      els.forEach((el) => el.classList.add("v3-korindi"))
-      return
-    }
-
-    const io = new IntersectionObserver(
-      (yozuvlar) => {
-        yozuvlar.forEach((y) => {
-          if (y.isIntersecting) {
-            y.target.classList.add("v3-korindi")
-            io.unobserve(y.target)
-          }
-        })
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    )
-
-    els.forEach((el) => io.observe(el))
-
-    // Zaxira: fon tabida (document.hidden) IntersectionObserver umuman
-    // ishlamaydi — kontent opacity:0 holida ko'rinmay qolmasligi uchun
-    // majburan ochamiz.
-    const zaxira = setTimeout(() => {
-      els.forEach((el) => el.classList.add("v3-korindi"))
-      io.disconnect()
-    }, 1500)
-
-    return () => {
-      clearTimeout(zaxira)
-      io.disconnect()
-    }
-  }, [])
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
-   Ko'rinishga kirganda sanab chiqadigan raqam
-   ══════════════════════════════════════════════════════════════════════ */
-function CountUp({ value, duration = 1200 }) {
-  const moslik = /^(\d+)(.*)$/.exec(value)
-  const nishon = moslik ? parseInt(moslik[1], 10) : null
-  const qoshimcha = moslik ? moslik[2] : ""
-
-  const [ekran, setEkran] = useState(nishon === null ? value : `0${qoshimcha}`)
-  const ref = useRef(null)
-
-  useEffect(() => {
-    if (nishon === null) return
-    const el = ref.current
-    if (!el) return
-
-    const kam = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (kam || typeof IntersectionObserver === "undefined") {
-      setEkran(`${nishon}${qoshimcha}`)
-      return
-    }
-
-    let kadr = null
-    let ketmoqda = false
-
-    const io = new IntersectionObserver(
-      (yozuvlar) => {
-        if (!yozuvlar[0].isIntersecting) return
-        io.disconnect()
-        ketmoqda = true
-
-        const bosh = performance.now()
-        const qadam = (hozir) => {
-          const p = Math.min((hozir - bosh) / duration, 1)
-          const yumshoq = 1 - Math.pow(1 - p, 3)
-          setEkran(`${Math.round(nishon * yumshoq)}${qoshimcha}`)
-          if (p < 1) kadr = requestAnimationFrame(qadam)
-        }
-        kadr = requestAnimationFrame(qadam)
-      },
-      { threshold: 0.4 }
-    )
-
-    io.observe(el)
-
-    // Zaxira: fon tabida raqam "0" bo'lib qotib qolmasligi uchun
-    const zaxira = setTimeout(() => {
-      if (!ketmoqda) {
-        io.disconnect()
-        setEkran(`${nishon}${qoshimcha}`)
-      }
-    }, 1500)
-
-    return () => {
-      clearTimeout(zaxira)
-      io.disconnect()
-      if (kadr) cancelAnimationFrame(kadr)
-    }
-  }, [nishon, qoshimcha, duration])
-
-  return <span ref={ref}>{ekran}</span>
 }

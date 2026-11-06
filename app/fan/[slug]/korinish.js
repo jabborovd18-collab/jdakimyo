@@ -23,8 +23,9 @@ export default function Korinish({ fan }) {
   const { data: session } = useSession()
   const [fon, fonTanla] = useFon()
 
-  const asosiylar = fan.bolimlar.filter((b) => b.asosiy)
-  const qolganlar = fan.bolimlar.filter((b) => !b.asosiy)
+  const bolimlar = fan.bolimlar || []
+  const asosiylar = bolimlar.filter((b) => b.asosiy)
+  const qolganlar = bolimlar.filter((b) => !b.asosiy)
 
   // Yon ustundagi "boshqa fanlar" ro'yxati — hozircha hammasi yopiq,
   // shuning uchun ular havola emas, holat ko'rsatkichi.

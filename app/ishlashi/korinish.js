@@ -80,12 +80,12 @@ const XARITA = [
     ],
   },
   {
-    ikon: "kolba",
-    nom: "Virtual laboratoriya",
+    ikon: "doska",
+    nom: "Smart Elektron doska",
     izoh:
       "Sayt ichidagi alohida dunyo: reagent yig'asiz, jihoz olasiz va tajriba o'tkazasiz. Reaksiya nima berishini oldindan aytib bo'lmaydi — ko'rasiz.",
-    havola: "/laboratoriya",
-    havolaNom: "Laboratoriyaga kirish",
+    havola: "/doska",
+    havolaNom: "Doskaga kirish",
     qatorlar: [
       { matn: `${BAZA.katalog} modda va jihoz katalogi`, tayyor: true },
       { matn: `${BAZA.reaksiyalar} reaksiya, tenglama va kuzatuv bilan`, tayyor: true },
@@ -173,7 +173,7 @@ const YOLLAR = [
       { matn: "Hisob oching — natijalaringiz saqlanib boradi", havola: "/register" },
       { matn: "O'quv bo'limdan boshlang: klassifikatsiya va nomlanish", havola: "/oquv" },
       { matn: "Har mavzudan keyin testdan o'ting", havola: "/oquv/video-darsliklar/quiz" },
-      { matn: "Laboratoriyada o'rgangan reaksiyangizni sinab ko'ring", havola: "/laboratoriya" },
+      { matn: "Smart doskada mavzularni interaktiv ko'ring", havola: "/doska" },
     ],
   },
   {

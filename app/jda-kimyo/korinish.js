@@ -59,13 +59,12 @@ const IMKONIYATLAR = [
       `${HAJM.mavzular} ta chuqurlashgan mavzu va ${HAJM.birikmalar} ta birikma sahifasi.`,
   },
   {
-    ikon: 'kolba',
-    nom: 'Virtual laboratoriya',
-    havola: '/laboratoriya',
+    ikon: 'doska',
+    nom: 'Smart Elektron doska',
+    havola: '/doska',
     izoh:
-      "Brauzerdagi 3D xona: reagent tanlanadi, idishga quyiladi, natija " +
-      `ko'rsatiladi. ${BAZA.reaksiyalar} reaksiya — tenglama, kuzatuv va ` +
-      'xavfsizlik belgilari bilan.',
+      "Dars va ma'ruzalar uchun sensor doska va proyektor rejimi: formulalar, " +
+      "izotermalar va mikroskopik modellarni to'liq ekranda interaktiv tahlil qilish.",
   },
   {
     ikon: 'quiz',
