@@ -280,7 +280,7 @@ export default function MilliySertifikatBoshSahifa() {
                     <div className="p-2.5 rounded-xl bg-[#070f2b]/60 border border-blue-800/30">
                       <div className="text-[11px] text-blue-300/70">Savollar</div>
                       <div className="text-sm font-bold text-white font-mono mt-0.5">
-                        {v.savollarSoni} ta
+                        {v.holat === "ochiq" ? `${v.savollarSoni} ta` : "—"}
                       </div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-[#070f2b]/60 border border-blue-800/30">
@@ -313,13 +313,19 @@ export default function MilliySertifikatBoshSahifa() {
 
                 {/* Harakat tugmasi */}
                 <div className="mt-6 pt-4 border-t border-blue-900/40 flex items-center gap-3">
-                  <Link
-                    href={`/milliy-sertifikat/${v.slug}`}
-                    className="flex-1 py-3 px-4 text-xs font-bold rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black transition shadow-md shadow-yellow-500/20 flex items-center justify-center gap-2 group-hover:scale-[1.01]"
-                  >
-                    <Ikon nom="play" olcham={15} />
-                    <span>Sinovni boshlash</span>
-                  </Link>
+                  {v.holat === "ochiq" ? (
+                    <Link
+                      href={`/milliy-sertifikat/${v.slug}`}
+                      className="flex-1 py-3 px-4 text-xs font-bold rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black transition shadow-md shadow-yellow-500/20 flex items-center justify-center gap-2 group-hover:scale-[1.01]"
+                    >
+                      <Ikon nom="play" olcham={15} />
+                      <span>Sinovni boshlash</span>
+                    </Link>
+                  ) : (
+                    <span className="flex-1 py-3 px-4 text-xs font-bold rounded-xl border border-blue-800/60 text-blue-300 text-center">
+                      Savollar tayyorlanmoqda
+                    </span>
+                  )}
                 </div>
               </div>
             ))}

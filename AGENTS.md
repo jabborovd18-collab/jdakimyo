@@ -35,6 +35,7 @@ Mavjud yagona manbalar — yangi jadval yaratishdan oldin shularni tekshiring:
 | `lib/lab-inventar.js` | Inventarni o'zgartirishning YAGONA yo'li |
 | `lib/lab-tenglama.js` | Tenglamadan kalit ajratish |
 | `data/reactions/` → `Reaction` jadvali | Kimyoning o'zi: tenglama, kuzatuv, `hazards`, harorat |
+| `lib/rasch-model.js` (`DARAJA_CHEGARALARI`) | Milliy sertifikat darajalari va ball chegaralari |
 
 **Buzilganda nima bo'lgan:**
 - `portlash.js` kimyoni qo'lda takrorlagan (`2Na + 2H₂O` tenglamasi va

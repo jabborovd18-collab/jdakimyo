@@ -9,14 +9,15 @@ import {
   ommaviySavol,
 } from "../lib/milliy-sertifikat-boshqaruvchi.js"
 import { imzolaSessiya, ochSessiya } from "../lib/milliy-sertifikat-sessiya.js"
-import { getSavollarBySlug } from "../data/milliy-sertifikat/savollar-ombromi.js"
 import { generatsiyaMilliySertifikatPDFBaytlar } from "../lib/milliy-sertifikat-pdf.js"
 
 test("Milliy sertifikat boshqaruvchisi — boshlaSessiya", () => {
-  const sessiya = boshlaSessiya("milliy-sertifikat-simulyator", {
-    ism: "Alisher",
-    familiya: "Navoiy",
-  })
+  const katalog = [{ slug: "milliy-sertifikat-simulyator", nom: "Sinov", holat: "ochiq", savollarSoni: 40, vaqtMin: 100 }]
+  const sessiya = boshlaSessiya(
+    "milliy-sertifikat-simulyator",
+    { ism: "Alisher", familiya: "Navoiy" },
+    katalog
+  )
 
   assert.equal(sessiya.slug, "milliy-sertifikat-simulyator")
   assert.equal(sessiya.savollarSoni, 40)
@@ -43,18 +44,18 @@ test("Sessiya tokeni — soxtalashtirilsa ochilmaydi", () => {
 })
 
 test("Brauzerga yuboriladigan savollarda javob yo'q", () => {
-  for (const slug of [
-    "rasch-diagnostika",
-    "milliy-sertifikat-simulyator",
-    "milliy-sertifikat-simulyator-2",
-    "attestatsiya-sinov",
-  ]) {
-    for (const savol of getSavollarBySlug(slug).map(ommaviySavol)) {
-      assert.equal("correct" in savol, false)
-      assert.equal("altCorrect" in savol, false)
-      assert.equal("explanation" in savol, false)
-    }
-  }
+  const savol = ommaviySavol({
+    id: 1,
+    question: "Savol",
+    options: ["a", "b"],
+    correct: 1,
+    altCorrect: "b",
+    explanation: "izoh",
+  })
+  assert.equal("correct" in savol, false)
+  assert.equal("altCorrect" in savol, false)
+  assert.equal("explanation" in savol, false)
+  assert.equal(savol.javobIndeks, true)
 })
 
 test("Imtihon sahifasi javoblar moduliga bog'lanmagan", () => {

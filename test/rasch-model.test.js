@@ -143,15 +143,6 @@ test('Rasch va BMBA savollar ombori — tekshirJavob va getSavollarBySlug', asyn
   assert.equal(tekshirJavob(variantIndeks, 'a'), true)
   assert.equal(tekshirJavob(variantIndeks, 'B'), false)
 
-  // getSavollarBySlug tekshiruvi
-  const diag = getSavollarBySlug('rasch-diagnostika')
-  assert.equal(diag.length, 30)
-
-  const ms1 = getSavollarBySlug('milliy-sertifikat-simulyator')
-  assert.equal(ms1.length, 40)
-  assert.equal(ms1[0].turi, 'variant')
-  assert.equal(ms1[35].turi, 'ochiq') // 36-savol ochiq
-
-  const ms2 = getSavollarBySlug('milliy-sertifikat-simulyator-2')
-  assert.equal(ms2.length, 40)
+  // Noma'lum sinov boshqa sinovning savollarini qaytarmasligi kerak
+  assert.deepEqual(getSavollarBySlug('bunday-sinov-yoq'), [])
 })

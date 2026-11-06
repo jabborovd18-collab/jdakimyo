@@ -113,6 +113,7 @@ model User {
   // QUIZ VA SERTIFIKATLAR
   quizResults  QuizResult[]
   certificates Certificate[]
+  msUrinishlar MsUrinish[]
 
   // Admin sifatida bergan sertifikatlar
   issuedCertificates Certificate[] @relation("CertificateIssuer")
@@ -280,7 +281,8 @@ model QuizResult {
   completedAt    DateTime @default(now())
 }
 
-// Sertifikatni FAQAT admin beradi va hamma ma'lumotni admin panelda kiritadi.
+// Sertifikatni admin beradi. Yagona istisno: tayyorgarlik sinovi (JDA-MS-*),
+// uni ball serverda hisoblangandan keyin lib/milliy-sertifikat-yakunlash.js yozadi.
 // Avval sahifada foydalanuvchining o'zi ism va ball yozib PDF yasay olardi —
 // u bazaga umuman yozilmasdi, ya'ni sertifikat hech narsani tasdiqlamasdi.
 model Certificate {
@@ -322,6 +324,53 @@ model Certificate {
   @@index([fan])
   @@index([issuedById])
   @@index([status])
+}
+
+// Tayyorgarlik sinovining xom natijasi. Nega kerak: savol qiyinligini kalibrlash
+// uchun har bir savolga berilgan javob saqlanishi shart, QuizResult esa faqat
+// umumiy ballni biladi. Mehmon urinishida userId bo'sh qoladi.
+model MsUrinish {
+  id        String  @id @default(cuid())
+  sessiyaId String  @unique
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  slug      String
+
+  // Nega bor: keyingi urinishda o'quvchi javoblarni ko'rgan bo'ladi, kalibrlash
+  // faqat birinchisini oladi. Mehmonda noma'lum.
+  urinishTartibi Int?
+
+  theta          Float
+  se             Float
+  shkalaBalli    Float
+  daraja         String
+  rawScore       Int
+  jamiSavollar   Int
+  sarflanganVaqt Int
+  kechikkan      Boolean  @default(false)
+  boshlanganVaqt DateTime
+  yakunlanganVaqt DateTime @default(now())
+
+  javoblar MsJavob[]
+
+  @@index([slug])
+  @@index([userId, slug])
+}
+
+model MsJavob {
+  id        String    @id @default(cuid())
+  urinishId String
+  urinish   MsUrinish @relation(fields: [urinishId], references: [id], onDelete: Cascade)
+
+  // "slug#id": variantlar bog'langanda bir savol bir nechta sinovda turishi mumkin
+  savolKalit   String
+  togri        Boolean
+  javobBerildi Boolean
+  // O'sha paytdagi qiymat: bank qayta kalibrlangach eski natijani tushuntirish uchun
+  qiyinlik     Float
+
+  @@unique([urinishId, savolKalit])
+  @@index([savolKalit])
 }
 
 // ═══════════════════════════════════════════════════════════════
