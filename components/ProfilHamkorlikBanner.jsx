@@ -26,17 +26,17 @@ export default function ProfilHamkorlikBanner() {
               </span>
               <span className="text-xs font-semibold text-blue-300/90 flex items-center gap-1 font-mono">
                 <Ikon nom="tasdiq" olcham={12} />
-                <span>BMBA Davlat Standarti (70 ball)</span>
+                <span>Tayyorgarlik sinovi</span>
               </span>
             </div>
 
             <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug">
-              Kimyo Fani Bo&apos;yicha Milliy Sertifikat Diagnostikasi
+              Kimyodan Milliy Sertifikatga Tayyorgarlik
             </h3>
 
             <p className="text-xs sm:text-sm text-blue-200/85 leading-relaxed max-w-2xl">
-              Haqiqiy davlat imtihon andozasidagi 40 ta savol: Georg Rasch psixometrik modeli (&theta; logiti),
-              Wright Map shkalasi, ochiq hisoblash topshiriqlari va rasmiy QR-kodli A4 sertifikat.
+              Milliy sertifikat formatidagi 40 ta savol: Georg Rasch modeli (&theta; logiti), Wright Map
+              shkalasi, ochiq hisoblash topshiriqlari va taxminiy daraja.
             </p>
           </div>
         </div>

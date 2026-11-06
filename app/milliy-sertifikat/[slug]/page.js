@@ -8,17 +8,9 @@ import { useRouter } from "next/navigation"
 import Ikon from "@/components/Ikon"
 import {
   MILLIY_SERTIFIKAT_VARIANTLARI,
-  SERTIFIKAT_DARAJALARI
+  SERTIFIKAT_DARAJALARI,
+  TAYYORGARLIK_OGOHLANTIRISH
 } from "@/lib/milliy-sertifikat-data"
-import {
-  getSavollarBySlug,
-  tekshirJavob
-} from "@/data/milliy-sertifikat/savollar-ombromi"
-import {
-  hisoblaRaschTheta,
-  tuzWrightMap
-} from "@/lib/rasch-model"
-import { hisoblaYakuniyNatija } from "@/lib/milliy-sertifikat-boshqaruvchi"
 import { yuklabOlishMilliySertifikatPDF } from "@/lib/milliy-sertifikat-pdf"
 import KimyoJadvallarModal from "@/components/milliy-sertifikat/KimyoJadvallarModal"
 import VirtualSonlarKlaviatura from "@/components/milliy-sertifikat/VirtualSonlarKlaviatura"
@@ -52,10 +44,13 @@ export default function MilliySertifikatTestXonasi({ params }) {
     )
   }, [slug])
 
-  // Savollar to'plami
-  const savollar = useMemo(() => {
-    return getSavollarBySlug(slug)
-  }, [slug])
+  // Savollar serverdan keladi va ularda javob yo'q (AGENTS.md 2-band)
+  const [savollar, setSavollar] = useState([])
+  const [sessiyaHolat, setSessiyaHolat] = useState("yuklanmoqda") // "yuklanmoqda" | "tayyor" | "xato"
+  const [xatoMatn, setXatoMatn] = useState("")
+  const [yuborilmoqda, setYuborilmoqda] = useState(false)
+  const tokenRef = useRef(null)
+  const yuborilmoqdaRef = useRef(false)
 
   const limitSoniya = (testInfo?.vaqtMin || 100) * 60
 
@@ -80,54 +75,80 @@ export default function MilliySertifikatTestXonasi({ params }) {
     javoblarRef.current = javoblar
   }, [javoblar])
 
-  // LocalStorage kalitlari
+  // LocalStorage kaliti
   const storageKalit = `jda_ms_test_${slug}`
-  const timerKalit = `jda_ms_start_${slug}`
 
-  // 1. Dastlabki yuklash: LocalStorage'dan tiklash
+  const sessiyaniOch = useCallback(
+    async (eskiToken) => {
+      const res = await fetch("/api/milliy-sertifikat/boshlash", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, token: eskiToken }),
+      })
+      const d = await res.json().catch(() => null)
+      if (!res.ok || !d?.token) {
+        throw new Error(d?.error || "Sinovni yuklab bo'lmadi")
+      }
+      return d
+    },
+    [slug]
+  )
+
+  // 1. Sessiyani ochish. Qolgan vaqtni server aytadi: brauzer soatini o'zgartirib
+  // vaqtni cho'zib bo'lmasligi kerak.
   useEffect(() => {
-    try {
-      const saqlangan = localStorage.getItem(storageKalit)
-      if (saqlangan) {
-        const parsed = JSON.parse(saqlangan)
-        if (parsed.javoblar) setJavoblar(parsed.javoblar)
-        if (parsed.belgilar) setBelgilar(parsed.belgilar)
+    let bekor = false
+
+    async function yukla() {
+      let saqlangan = null
+      try {
+        saqlangan = JSON.parse(localStorage.getItem(storageKalit) || "null")
+      } catch {
+        // ignore
       }
 
-      let startTs = localStorage.getItem(timerKalit)
-      if (!startTs || isNaN(parseInt(startTs, 10))) {
-        startTs = Date.now().toString()
-        localStorage.setItem(timerKalit, startTs)
-      }
+      try {
+        const d = await sessiyaniOch(saqlangan?.token)
+        if (bekor) return
 
-      const elapsed = Math.max(0, Math.floor((Date.now() - parseInt(startTs, 10)) / 1000))
-      const qolgan = Math.max(0, limitSoniya - elapsed)
-      setQolganVaqt(qolgan)
-
-      if (qolgan <= 0) {
-        testniYakunla()
+        tokenRef.current = d.token
+        setSavollar(d.savollar)
+        setQolganVaqt(d.qolganSoniya)
+        // Token o'zgarmagan bo'lsa, bu o'sha sinov: javoblar tiklanadi
+        if (saqlangan?.token === d.token) {
+          setJavoblar(saqlangan.javoblar || {})
+          setBelgilar(saqlangan.belgilar || {})
+        }
+        setSessiyaHolat("tayyor")
+      } catch (e) {
+        if (bekor) return
+        setXatoMatn(e.message)
+        setSessiyaHolat("xato")
       }
-    } catch {
-      // ignore
     }
-  }, [slug, limitSoniya])
+
+    yukla()
+    return () => {
+      bekor = true
+    }
+  }, [storageKalit, sessiyaniOch])
 
   // Javoblar va belgilar o'zgarganda saqlash
   useEffect(() => {
-    if (yakunlandi) return
+    if (yakunlandi || sessiyaHolat !== "tayyor") return
     try {
       localStorage.setItem(
         storageKalit,
-        JSON.stringify({ javoblar, belgilar })
+        JSON.stringify({ token: tokenRef.current, javoblar, belgilar })
       )
     } catch {
       // ignore
     }
-  }, [javoblar, belgilar, storageKalit, yakunlandi])
+  }, [javoblar, belgilar, storageKalit, yakunlandi, sessiyaHolat])
 
   // 2. Taymer hisobi
   useEffect(() => {
-    if (yakunlandi) return
+    if (yakunlandi || sessiyaHolat !== "tayyor") return
 
     const interval = setInterval(() => {
       setQolganVaqt((prev) => {
@@ -141,7 +162,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [yakunlandi])
+  }, [yakunlandi, sessiyaHolat])
 
   // 3. Variant javobini tanlash
   const javobTanla = useCallback(
@@ -198,7 +219,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
         // Agar options matnlar bo'lsa (0, 1, 2, 3)
         if (["A", "B", "C", "D"].includes(harf)) {
           e.preventDefault()
-          if (typeof joriy?.correct === "number") {
+          if (joriy?.javobIndeks) {
             const ind = ["A", "B", "C", "D"].indexOf(harf)
             javobTanla(ind)
           } else {
@@ -220,70 +241,73 @@ export default function MilliySertifikatTestXonasi({ params }) {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [joriyIndex, savollar, javobTanla, tasdiqModali, navigatsiyaModali, jadvallarModali, zoomRasm, yakunlandi])
 
-  // 6. Testni yakunlash va Rasch IRT baholash
-  const testniYakunla = () => {
-    const oxirgiJavoblar = javoblarRef.current || {}
+  // 6. Testni yakunlash: ball va daraja serverda hisoblanadi
+  const testniYakunla = async () => {
+    if (yuborilmoqdaRef.current || !tokenRef.current) return
+    yuborilmoqdaRef.current = true
+    setYuborilmoqda(true)
+    setXatoMatn("")
 
-    // Sarflangan vaqt
-    let sarflanganVaqt = limitSoniya - qolganVaqt
     try {
-      const startTs = localStorage.getItem(timerKalit)
-      if (startTs) {
-        sarflanganVaqt = Math.floor((Date.now() - parseInt(startTs, 10)) / 1000)
+      const res = await fetch("/api/milliy-sertifikat/yakunlash", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: tokenRef.current,
+          javoblar: javoblarRef.current || {},
+        }),
+      })
+      const d = await res.json().catch(() => null)
+
+      if (!res.ok || !d?.natija) {
+        if (d?.takroriy) {
+          try {
+            localStorage.removeItem(storageKalit)
+          } catch {}
+        }
+        setXatoMatn(d?.error || "Natijani olib bo'lmadi. Qayta urinib ko'ring.")
+        setTasdiqModali(true)
+        return
       }
-    } catch {}
 
-    // Tozalash
-    try {
-      localStorage.removeItem(storageKalit)
-      localStorage.removeItem(timerKalit)
-    } catch {}
-
-    // To'liq Rasch IRT va BMBA boshqaruvchi hisobi
-    const aniqIsm = (foydalanuvchiIsmi || session?.user?.name || "Ishtirokchi").trim()
-    const yakuniy = hisoblaYakuniyNatija(savollar, oxirgiJavoblar, sarflanganVaqt, {
-      ism: aniqIsm,
-    })
-
-    if (yakuniy?.sertifikat) {
       try {
-        fetch("/api/milliy-sertifikat/saqlash", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            certId: yakuniy.sertifikat.certId,
-            fullName: aniqIsm,
-            daraja: yakuniy.daraja,
-            shkalaBalli: yakuniy.shkalaBalli,
-            theta: yakuniy.theta,
-            se: yakuniy.se,
-            infitMnsq: yakuniy.infitMnsq,
-            outfitMnsq: yakuniy.outfitMnsq,
-            rawScore: yakuniy.rawScore,
-            jamiSavollar: yakuniy.jamiSavollar,
-            sarflanganVaqt,
-            examSlug: slug,
-            examName: testInfo?.nom,
-            imtiyoz: yakuniy.imtiyoz,
-          }),
-        }).catch(() => {})
+        localStorage.removeItem(storageKalit)
       } catch {}
+      tokenRef.current = null
+
+      setNatija({ ...d.natija, total: d.natija.jamiSavollar })
+      setTasdiqModali(false)
+      setYakunlandi(true)
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    } catch {
+      // Javoblar joyida qoladi, foydalanuvchi qayta yubora oladi
+      setXatoMatn("Internet bilan aloqa uzildi. Qayta urinib ko'ring.")
+      setTasdiqModali(true)
+    } finally {
+      yuborilmoqdaRef.current = false
+      setYuborilmoqda(false)
     }
+  }
 
-    setNatija({
-      ...yakuniy,
-      rawScore: yakuniy.rawScore,
-      total: yakuniy.jamiSavollar,
-      topshirilganVaqt: new Date().toLocaleTimeString("uz-UZ", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      savollarSoni: savollar.length,
-    })
-
-    setTasdiqModali(false)
-    setYakunlandi(true)
-    window.scrollTo({ top: 0, behavior: "smooth" })
+  // Natijadan keyin yangi sessiya bilan qayta boshlash
+  const qaytaBoshla = async () => {
+    setSessiyaHolat("yuklanmoqda")
+    setYakunlandi(false)
+    setNatija(null)
+    setJavoblar({})
+    setBelgilar({})
+    setJoriyIndex(0)
+    setXatoMatn("")
+    try {
+      const d = await sessiyaniOch(null)
+      tokenRef.current = d.token
+      setSavollar(d.savollar)
+      setQolganVaqt(d.qolganSoniya)
+      setSessiyaHolat("tayyor")
+    } catch (e) {
+      setXatoMatn(e.message)
+      setSessiyaHolat("xato")
+    }
   }
 
   // Hisoblagichlar
@@ -339,7 +363,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
             </div>
           </div>
 
-          {/* ═══ RASMIY SERTIFIKAT BANNERI ═══ */}
+          {/* ═══ NATIJA BANNERI ═══ */}
           <div className="p-4 sm:p-8 rounded-3xl border-2 border-yellow-500/40 bg-gradient-to-br from-[#101b4b]/95 via-[#0b163d]/95 to-[#060c25]/95 shadow-2xl relative overflow-hidden">
             <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-yellow-500/10 blur-2xl pointer-events-none" />
 
@@ -347,21 +371,21 @@ export default function MilliySertifikatTestXonasi({ params }) {
               <div className="space-y-3 max-w-xl">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-yellow-500/15 border border-yellow-500/30 text-yellow-300 text-xs font-bold">
                   <Ikon nom="sertifikat" olcham={16} />
-                  <span>JDA KIMYO • Georg Rasch IRT &amp; BMBA Baholash Tizimi</span>
+                  <span>JDA KIMYO • Georg Rasch IRT • Tayyorgarlik sinovi</span>
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-                  Milliy Sertifikat Sinov Natijasi
+                  Tayyorgarlik Sinovi Natijasi
                 </h1>
 
                 <p className="text-xs sm:text-sm text-blue-200/90 leading-relaxed">
-                  {testInfo.nom}. Psixometrik tahlil va Wright Map algoritmlari yordamida bilimingiz logit o&apos;lchovida tasdiqlandi.
+                  {testInfo.nom}. {TAYYORGARLIK_OGOHLANTIRISH}
                 </p>
 
                 <div className="p-3.5 rounded-2xl bg-blue-950/60 border border-blue-800/60 text-xs space-y-1 text-blue-200">
                   <div className="flex items-center gap-2 text-yellow-300 font-bold">
                     <Ikon nom="kubok" olcham={14} />
-                    <span>Davlat Standarti Imtiyozi:</span>
+                    <span>Daraja haqida:</span>
                   </div>
                   <p>{natija.imtiyoz}</p>
                 </div>
@@ -374,7 +398,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
                         <Ikon nom="odam" olcham={13} />
                         <span>Sertifikatda chop etiladigan F.I.SH. (Ism va familiya):</span>
                       </span>
-                      <span className="text-[10px] text-yellow-300/80 font-mono">Rasmiy hujjat</span>
+                      <span className="text-[10px] text-yellow-300/80 font-mono">JDA Kimyo</span>
                     </div>
                     <input
                       type="text"
@@ -395,18 +419,6 @@ export default function MilliySertifikatTestXonasi({ params }) {
                             body: JSON.stringify({
                               certId: natija.sertifikat.certId,
                               fullName: natija.sertifikat.fullName,
-                              daraja: natija.daraja,
-                              shkalaBalli: natija.shkalaBalli,
-                              theta: natija.theta,
-                              se: natija.se,
-                              infitMnsq: natija.infitMnsq,
-                              outfitMnsq: natija.outfitMnsq,
-                              rawScore: natija.rawScore,
-                              jamiSavollar: natija.jamiSavollar,
-                              sarflanganVaqt: natija.sarflanganVaqt,
-                              examSlug: slug,
-                              examName: testInfo?.nom,
-                              imtiyoz: natija.imtiyoz,
                             }),
                           }).catch(() => {})
                         }
@@ -425,7 +437,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
                       className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 text-slate-950 font-bold text-xs shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 border border-yellow-300"
                     >
                       <Ikon nom="sertifikat" olcham={16} />
-                      <span>Rasmiy Sertifikatni Yuklab Olish (PDF)</span>
+                      <span>JDA Kimyo Sertifikatini Yuklab Olish (PDF)</span>
                     </button>
 
                     <Link
@@ -437,17 +449,17 @@ export default function MilliySertifikatTestXonasi({ params }) {
                       <Ikon nom="tashqi" olcham={13} />
                     </Link>
                   </div>
-                ) : (
+                ) : natija.sertifikatIzoh ? (
                   <div className="text-xs text-rose-300/90 pt-1">
-                    Sertifikat olish uchun kamida 46% (32.2 ball) to&apos;plash talab etiladi.
+                    {natija.sertifikatIzoh}
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Daraja va Ball Badji */}
               <div className="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-yellow-400/50 bg-[#09153a]/90 shadow-xl min-w-[200px] text-center shrink-0">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-yellow-400">
-                  Sertifikat Darajasi
+                  Taxminiy Daraja
                 </span>
                 <div className="text-5xl font-black text-white mt-1 bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">
                   {natija.daraja}
@@ -458,8 +470,8 @@ export default function MilliySertifikatTestXonasi({ params }) {
 
                 <div className="mt-4 pt-3 border-t border-blue-800/80 w-full space-y-1 text-xs">
                   <div className="flex justify-between text-blue-300">
-                    <span>BMBA shkalasi:</span>
-                    <strong className="text-white font-mono">{natija.shkalaBalli} / 70 ball</strong>
+                    <span>Taxminiy ball:</span>
+                    <strong className="text-white font-mono">{natija.shkalaBalli} ball</strong>
                   </div>
                   <div className="flex justify-between text-blue-300">
                     <span>To&apos;g&apos;ri javoblar:</span>
@@ -558,16 +570,22 @@ export default function MilliySertifikatTestXonasi({ params }) {
               <div className="space-y-4">
                 {savollar
                   .map((s, index) => {
-                    const berilgan = javoblar[s.id]
-                    const togri = tekshirJavob(s, berilgan)
-                    return { s, index, berilgan, togri }
+                    const tahlil = natija.savolNatijalari[index]
+                    return {
+                      s,
+                      index,
+                      berilgan: tahlil.berilganJavob,
+                      togri: tahlil.togri,
+                      togriJavob: tahlil.togriJavob,
+                      izoh: tahlil.explanation,
+                    }
                   })
                   .filter(({ togri }) => {
                     if (savolFiltr === "togri") return togri
                     if (savolFiltr === "xato") return !togri
                     return true
                   })
-                  .map(({ s, index, berilgan, togri }) => {
+                  .map(({ s, index, berilgan, togri, togriJavob, izoh }) => {
                     return (
                       <div
                         key={s.id}
@@ -641,7 +659,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
                                 togri ? "text-emerald-400" : "text-rose-400"
                               }`}
                             >
-                              {berilgan !== undefined && berilgan !== ""
+                              {berilgan !== null && berilgan !== ""
                                 ? String(berilgan)
                                 : "Javob berilmagan"}
                             </strong>
@@ -650,16 +668,16 @@ export default function MilliySertifikatTestXonasi({ params }) {
                           <div className="flex items-center justify-between">
                             <span className="text-blue-300">To&apos;g&apos;ri javob:</span>
                             <strong className="text-emerald-400 font-mono text-sm">
-                              {typeof s.correct === "number" && s.options
-                                ? `${["A", "B", "C", "D"][s.correct]} (${s.options[s.correct]})`
-                                : String(s.correct)}
+                              {typeof togriJavob === "number" && s.options
+                                ? `${["A", "B", "C", "D"][togriJavob]} (${s.options[togriJavob]})`
+                                : String(togriJavob)}
                             </strong>
                           </div>
 
-                          {s.explanation && (
+                          {izoh && (
                             <div className="mt-2 pt-2 border-t border-blue-900/50 text-[11px] text-blue-200/90 leading-relaxed">
                               <span className="font-bold text-yellow-300">Ilmiy izoh: </span>
-                              {s.explanation}
+                              {izoh}
                             </div>
                           )}
                         </div>
@@ -673,14 +691,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
           {/* Pastki tugmalar */}
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-blue-900/60">
             <button
-              onClick={() => {
-                setYakunlandi(false)
-                setNatija(null)
-                setJavoblar({})
-                setBelgilar({})
-                setQolganVaqt(limitSoniya)
-                setJoriyIndex(0)
-              }}
+              onClick={qaytaBoshla}
               className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-lg transition flex items-center justify-center gap-2"
             >
               <Ikon nom="qayta" olcham={16} />
@@ -709,6 +720,24 @@ export default function MilliySertifikatTestXonasi({ params }) {
               className="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain border border-blue-800"
             />
           </div>
+        )}
+      </main>
+    )
+  }
+
+  if (sessiyaHolat !== "tayyor") {
+    return (
+      <main
+        className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center"
+        style={{ background: "var(--v3-fon)", color: "var(--v3-matn)" }}
+      >
+        <p className="text-sm">
+          {sessiyaHolat === "xato" ? xatoMatn : "Sinov yuklanmoqda..."}
+        </p>
+        {sessiyaHolat === "xato" && (
+          <Link href="/milliy-sertifikat" className="text-sm underline">
+            Sinovlar ro&apos;yxatiga qaytish
+          </Link>
         )}
       </main>
     )
@@ -888,7 +917,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
 
               {/* ═══ INTERAKTIV JAVOB BERISH QISMI ═══ */}
               <div className="pt-2 border-t border-blue-900/60">
-                {/* 1-HOLAT: OCHIQ SONLI MASALA (BMBA 36-40) */}
+                {/* 1-HOLAT: OCHIQ SONLI MASALA (36-40) */}
                 {joriySavol.turi === "ochiq" ? (
                   <div className="space-y-4">
                     <div className="p-3.5 rounded-2xl bg-blue-950/60 border border-blue-800/60 text-xs text-blue-200 space-y-1">
@@ -956,7 +985,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
                     >
                       {(joriySavol.options || ["A", "B", "C", "D"]).map(
                         (variant, vIdx) => {
-                          const isOptionIndex = typeof joriySavol.correct === "number"
+                          const isOptionIndex = Boolean(joriySavol.javobIndeks)
                           const isSelected = isOptionIndex
                             ? joriyJavob === vIdx
                             : joriyJavob === variant
@@ -1199,7 +1228,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
                 Testni rostdan ham yakunlaysizmi?
               </h3>
               <p className="text-xs text-blue-200/80">
-                Yakunlaganingizdan so&apos;ng Georg Rasch IRT modeli bo&apos;yicha bilim darajangiz (θ) va sertifikat darajangiz hisoblanadi.
+                Yakunlaganingizdan so&apos;ng Georg Rasch IRT modeli bo&apos;yicha bilim darajangiz (θ) va taxminiy darajangiz hisoblanadi.
               </p>
             </div>
 
@@ -1224,6 +1253,12 @@ export default function MilliySertifikatTestXonasi({ params }) {
               </div>
             )}
 
+            {xatoMatn && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-[11px] text-rose-200">
+                {xatoMatn}
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button
                 type="button"
@@ -1236,9 +1271,10 @@ export default function MilliySertifikatTestXonasi({ params }) {
               <button
                 type="button"
                 onClick={testniYakunla}
-                className="py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md transition"
+                disabled={yuborilmoqda}
+                className="py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-60 text-slate-950 font-bold text-xs shadow-md transition"
               >
-                Ha, yakunlash
+                {yuborilmoqda ? "Hisoblanmoqda..." : "Ha, yakunlash"}
               </button>
             </div>
           </div>

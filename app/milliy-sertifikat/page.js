@@ -66,7 +66,7 @@ export default function MilliySertifikatBoshSahifa() {
                 </span>
               </div>
               <div className="text-xs text-blue-300/80">
-                Georg Rasch logit modeli va BMBA davlat standarti
+                Georg Rasch logit modeli asosidagi tayyorgarlik sinovlari
               </div>
             </div>
           </div>
@@ -136,9 +136,9 @@ export default function MilliySertifikatBoshSahifa() {
                 <Ikon nom="medal" olcham={20} />
               </div>
               <div className="text-sm sm:text-lg font-bold text-white font-mono">
-                A+ / 70 ball
+                A+ / 70+ ball
               </div>
-              <div className="text-[10px] sm:text-[11px] text-blue-300/80">BMBA mezonlari</div>
+              <div className="text-[10px] sm:text-[11px] text-blue-300/80">Rasmiy shkala</div>
             </div>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function MilliySertifikatBoshSahifa() {
               <span>Sinov yo&apos;nalishlari va simulyatorlar</span>
             </h3>
             <p className="text-xs text-blue-300/80">
-              Ilmiy diagnostika, davlat standarti yoki o&apos;qituvchilar attestatsiyasini tanlang
+              Diagnostika, milliy sertifikatga tayyorgarlik yoki attestatsiya sinovini tanlang
             </p>
           </div>
 
@@ -361,18 +361,18 @@ export default function MilliySertifikatBoshSahifa() {
         </div>
       </section>
 
-      {/* ─── 6. BMBA SERTIFIKAT DARAJALARI VA IMTIYOZLAR MEZONI ─── */}
+      {/* ─── 6. SERTIFIKAT DARAJALARI ─── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full relative z-10 space-y-4">
         <div className="text-center max-w-xl mx-auto space-y-1.5">
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs font-semibold">
             <Ikon nom="medal" olcham={13} />
-            <span>Davlat Standarti</span>
+            <span>Rasmiy shkala</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-bold text-white">
-            Milliy sertifikat darajalari va imtiyozlar mezonlari
+            Milliy sertifikat darajalari
           </h3>
           <p className="text-xs text-blue-200/80">
-            To&apos;plangan θ (logit), shkala balli va beriladigan davlat imtiyozlari
+            Natijangiz taxminiy: bu sinov davlat sertifikati bermaydi
           </p>
         </div>
 
@@ -387,12 +387,8 @@ export default function MilliySertifikatBoshSahifa() {
                   {d.daraja}
                 </span>
                 <span className="text-xs font-bold font-mono px-2.5 py-0.5 rounded-full bg-black/30 border border-white/10">
-                  {d.foiz}
+                  {d.shkala}
                 </span>
-              </div>
-              <div className="flex items-center justify-between text-[11px] font-mono text-white/70">
-                <span>Shkala: <b className="text-white">{d.shkala}</b></span>
-                <span className="text-yellow-400">{d.theta}</span>
               </div>
               <p className="text-xs text-white/90 leading-relaxed pt-1 border-t border-white/10">
                 {d.imtiyoz}

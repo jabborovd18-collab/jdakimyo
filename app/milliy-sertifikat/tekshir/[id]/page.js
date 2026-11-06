@@ -4,13 +4,14 @@
 import { use, useState, useEffect, useMemo } from "react"
 import Link from "next/link"
 import Ikon from "@/components/Ikon"
-import { SERTIFIKAT_DARAJALARI } from "@/lib/milliy-sertifikat-data"
+import { TAYYORGARLIK_OGOHLANTIRISH } from "@/lib/milliy-sertifikat-data"
 
 export default function SertifikatTekshirishSahifasi({ params }) {
   const unwrappedParams = typeof params?.then === "function" ? use(params) : params
   const certId = (unwrappedParams?.id || "JDA-MS-2026-00000").trim().toUpperCase()
 
   const [bazaMalumot, setBazaMalumot] = useState(null)
+  const [yaroqli, setYaroqli] = useState(false)
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export default function SertifikatTekshirishSahifasi({ params }) {
           const d = await res.json()
           if (!bekor && d?.certificate) {
             setBazaMalumot(d.certificate)
+            setYaroqli(Boolean(d.valid))
           }
         }
       } catch {}
@@ -33,10 +35,6 @@ export default function SertifikatTekshirishSahifasi({ params }) {
     }
   }, [certId])
 
-  // Sertifikat haqiqiy ekanini tasdiqlovchi ma'lumot
-  // Reestr format: JDA-MS-YYYY-XXXXX yoki MS-
-  const isIdValid = certId.startsWith("JDA-MS-") || certId.startsWith("MS-")
-
   // Description ichidagi qo'shimcha parametrlar
   const extra = useMemo(() => {
     if (!bazaMalumot?.description) return null
@@ -46,6 +44,29 @@ export default function SertifikatTekshirishSahifasi({ params }) {
       return null
     }
   }, [bazaMalumot])
+
+  // Nega alohida holat: avval sahifa bazada YO'Q raqamni ham "haqiqiy" deb
+  // ko'rsatardi. Tasdiq faqat bazadagi yaroqli yozuvdan chiqadi.
+  if (yuklanmoqda || !bazaMalumot || !yaroqli) {
+    return (
+      <main
+        className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center"
+        style={{ background: "var(--v3-fon)", color: "var(--v3-matn)" }}
+      >
+        <p className="text-sm font-mono">{certId}</p>
+        <p className="text-base font-bold">
+          {yuklanmoqda
+            ? "Tekshirilmoqda..."
+            : bazaMalumot
+              ? "Bu sertifikat endi amalda emas"
+              : "Bunday raqamli sertifikat topilmadi"}
+        </p>
+        <Link href="/milliy-sertifikat" className="text-sm underline">
+          Sinovlar sahifasiga qaytish
+        </Link>
+      </main>
+    )
+  }
 
   return (
     <main
@@ -67,7 +88,7 @@ export default function SertifikatTekshirishSahifasi({ params }) {
         </Link>
 
         <div className="text-xs font-mono text-yellow-300">
-          Davlat Reestri Tekshiruvi
+          JDA Kimyo Tekshiruvi
         </div>
       </header>
 
@@ -80,20 +101,20 @@ export default function SertifikatTekshirishSahifasi({ params }) {
 
           <div className="space-y-1.5">
             <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-400">
-              Rasmiy Davlat Reestri Tasdig&apos;i
+              JDA Kimyo Bazasida Topildi
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
               Sertifikat Haqiqiy va Faol
             </h1>
             <p className="text-xs text-blue-200/80 max-w-md mx-auto">
-              Ushbu hujjat JDA KIMYO platformasida Georg Rasch IRT psixometrik modeli va BMBA davlat standarti bo&apos;yicha topshirilgan va qayd etilgan.
+              Ushbu natija JDA Kimyo platformasida Georg Rasch IRT modeli asosida qayd etilgan.
             </p>
           </div>
 
           {/* Sertifikat Ma'lumotlari Jadvali */}
           <div className="p-4 sm:p-5 rounded-2xl bg-blue-950/60 border border-blue-800/60 text-left space-y-3 text-xs sm:text-sm">
             <div className="flex justify-between items-center border-b border-blue-900/50 pb-2">
-              <span className="text-blue-300">Reestr Raqami:</span>
+              <span className="text-blue-300">Sertifikat Raqami:</span>
               <strong className="text-yellow-300 font-mono font-bold">{certId}</strong>
             </div>
 
@@ -111,12 +132,12 @@ export default function SertifikatTekshirishSahifasi({ params }) {
 
             <div className="flex justify-between items-center border-b border-blue-900/50 pb-2">
               <span className="text-blue-300">Baholash Modeli:</span>
-              <span className="text-cyan-300 font-semibold">Georg Rasch IRT &amp; BMBA</span>
+              <span className="text-cyan-300 font-semibold">Georg Rasch IRT</span>
             </div>
 
             {bazaMalumot?.grade && (
               <div className="flex justify-between items-center border-b border-blue-900/50 pb-2">
-                <span className="text-blue-300">Sertifikat Darajasi:</span>
+                <span className="text-blue-300">Taxminiy Daraja:</span>
                 <span className="px-2.5 py-0.5 rounded-full bg-yellow-400 text-slate-950 font-extrabold text-xs">
                   {bazaMalumot.grade} daraja ({bazaMalumot.score || 0} ball)
                 </span>
@@ -141,7 +162,11 @@ export default function SertifikatTekshirishSahifasi({ params }) {
 
             <div className="flex justify-between items-center">
               <span className="text-blue-300">Amal qilish muddati:</span>
-              <strong className="text-white font-mono">3 yil (2026–2029)</strong>
+              <strong className="text-white font-mono">
+                {bazaMalumot.expiresAt
+                  ? new Date(bazaMalumot.expiresAt).toLocaleDateString("uz-UZ")
+                  : "Muddatsiz"}
+              </strong>
             </div>
           </div>
 
@@ -149,10 +174,10 @@ export default function SertifikatTekshirishSahifasi({ params }) {
           <div className="p-4 rounded-2xl bg-gradient-to-r from-yellow-500/15 to-amber-500/10 border border-yellow-500/30 text-left space-y-1.5 text-xs text-blue-100">
             <div className="flex items-center gap-2 text-yellow-300 font-bold">
               <Ikon nom="sertifikat" olcham={15} />
-              <span>Qonuniy Imtiyoz Kafolati:</span>
+              <span>Muhim:</span>
             </div>
             <p className="leading-relaxed">
-              Vazirlar Mahkamasi qaroriga muvofiq, ushbu sertifikat OTM kirish imtihonlarida maksimal ball hamda pedagog xodimlar uchun 50% ustama olish huquqini beradi.
+              {TAYYORGARLIK_OGOHLANTIRISH}
             </p>
           </div>
 
@@ -170,7 +195,7 @@ export default function SertifikatTekshirishSahifasi({ params }) {
 
       {/* Footer */}
       <footer className="text-center text-[11px] text-blue-300/70 border-t border-blue-900/40 pt-4 relative z-10">
-        JDA KIMYO &copy; 2026. Georg Rasch IRT va BMBA davlat standarti bo&apos;yicha rasmiy sertifikatlash tizimi.
+        JDA KIMYO &copy; 2026. Milliy sertifikatga tayyorgarlik platformasi.
       </footer>
     </main>
   )

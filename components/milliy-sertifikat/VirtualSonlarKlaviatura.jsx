@@ -4,7 +4,7 @@
 import Ikon from "@/components/Ikon"
 
 /**
- * Ochiq sonli masalalar (BMBA 36-40) uchun teginishga qulay virtual raqamlar klaviaturasi.
+ * Ochiq sonli masalalar (36-40) uchun teginishga qulay virtual raqamlar klaviaturasi.
  * Mobil, planshet va kompyuterda bir xil barqaror ishlaydi.
  */
 export default function VirtualSonlarKlaviatura({

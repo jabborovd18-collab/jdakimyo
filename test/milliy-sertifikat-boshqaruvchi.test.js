@@ -1,11 +1,15 @@
 // test/milliy-sertifikat-boshqaruvchi.test.js
 import test from "node:test"
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import {
   boshlaSessiya,
   hisoblaYakuniyNatija,
   generatsiyaSertifikatId,
+  ommaviySavol,
 } from "../lib/milliy-sertifikat-boshqaruvchi.js"
+import { imzolaSessiya, ochSessiya } from "../lib/milliy-sertifikat-sessiya.js"
+import { getSavollarBySlug } from "../data/milliy-sertifikat/savollar-ombromi.js"
 import { generatsiyaMilliySertifikatPDFBaytlar } from "../lib/milliy-sertifikat-pdf.js"
 
 test("Milliy sertifikat boshqaruvchisi — boshlaSessiya", () => {
@@ -20,6 +24,43 @@ test("Milliy sertifikat boshqaruvchisi — boshlaSessiya", () => {
   assert.equal(sessiya.holat, "jarayonda")
   assert.equal(sessiya.foydalanuvchi.ism, "Alisher")
   assert.equal(typeof sessiya.sessiyaId, "string")
+  assert.equal(boshlaSessiya("bunday-test-yoq"), null)
+})
+
+test("Sessiya tokeni — soxtalashtirilsa ochilmaydi", () => {
+  const malumot = { sid: "a", slug: "rasch-diagnostika", uid: "u1", bosh: 1, tugash: 2 }
+  const token = imzolaSessiya(malumot, "sir")
+
+  assert.deepEqual(ochSessiya(token, "sir"), malumot)
+  assert.equal(ochSessiya(token, "boshqa-sir"), null)
+  assert.equal(ochSessiya(token + "x", "sir"), null)
+  assert.equal(ochSessiya("yaroqsiz", "sir"), null)
+  assert.equal(ochSessiya(undefined, "sir"), null)
+
+  // Vaqtni cho'zish: ma'lumot o'zgarsa, eski imzo unga mos kelmaydi
+  const soxta = Buffer.from(JSON.stringify({ ...malumot, tugash: 9e15 })).toString("base64url")
+  assert.equal(ochSessiya(`${soxta}.${token.split(".")[1]}`, "sir"), null)
+})
+
+test("Brauzerga yuboriladigan savollarda javob yo'q", () => {
+  for (const slug of [
+    "rasch-diagnostika",
+    "milliy-sertifikat-simulyator",
+    "milliy-sertifikat-simulyator-2",
+    "attestatsiya-sinov",
+  ]) {
+    for (const savol of getSavollarBySlug(slug).map(ommaviySavol)) {
+      assert.equal("correct" in savol, false)
+      assert.equal("altCorrect" in savol, false)
+      assert.equal("explanation" in savol, false)
+    }
+  }
+})
+
+test("Imtihon sahifasi javoblar moduliga bog'lanmagan", () => {
+  const manba = readFileSync("app/milliy-sertifikat/[slug]/page.js", "utf8")
+  assert.equal(manba.includes("savollar-ombromi"), false)
+  assert.equal(manba.includes("milliy-sertifikat-boshqaruvchi"), false)
 })
 
 test("Milliy sertifikat boshqaruvchisi — hisoblaYakuniyNatija va Rasch IRT", () => {
@@ -52,8 +93,7 @@ test("Milliy sertifikat boshqaruvchisi — hisoblaYakuniyNatija va Rasch IRT", (
 
   assert.equal(natijaAlochi.rawScore, 7)
   assert.equal(natijaAlochi.jamiSavollar, 8)
-  assert.equal(natijaAlochi.shkalaBalli >= 52.5, true, "BMBA shkalasida yuqori ball olishi kerak")
-  assert.equal(["A+", "A"].includes(natijaAlochi.daraja), true)
+  assert.equal(natijaAlochi.shkalaBalli >= 60, true, "Yuqori ball olishi kerak")
   assert.equal(Boolean(natijaAlochi.sertifikat), true, "Sertifikat berilishi shart")
   assert.equal(natijaAlochi.sertifikat.fullName, "Aziz Rahimov")
   assert.equal(natijaAlochi.sertifikat.certId.startsWith("JDA-MS-"), true)
@@ -89,7 +129,7 @@ test("Milliy sertifikat seriya generatori — JDA-MS-YYYY-XXXXX formati", () => 
   assert.notEqual(id1, id2, "Har bir seriya raqami unikal bo'lishi kerak")
 })
 
-test("Milliy sertifikat rasmiy PDF generatori — vektorli A4 fayl", async () => {
+test("Sertifikat PDF generatori — vektorli A4 fayl", async () => {
   const baytlar = await generatsiyaMilliySertifikatPDFBaytlar({
     certId: "JDA-MS-2026-TEST1",
     fullName: "Diyorbek Jabborov",
@@ -97,7 +137,6 @@ test("Milliy sertifikat rasmiy PDF generatori — vektorli A4 fayl", async () =>
     shkalaBalli: "68.5",
     theta: "+1.85",
     se: "0.32",
-    imtiyoz: "Davlat OTMlariga kirish imtihonlarida maksimal ball imtiyozi beriladi.",
     issuedAt: new Date().toISOString(),
   })
 

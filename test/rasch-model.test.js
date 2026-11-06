@@ -47,7 +47,7 @@ test('Rasch modeli — Newton-Raphson konvergentsiyasi va baholash', () => {
   assert.equal(natijaKuchli.rawScore, 8)
   assert.equal(natijaKuchli.foiz, 80)
   assert.equal(natijaKuchli.theta > 1.0, true, "Kuchli o'quvchi thetasi musbat va yuqori bo'lishi kerak")
-  assert.equal(['A+', 'A'].includes(natijaKuchli.daraja), true)
+  assert.equal(natijaKuchli.daraja, aniqlaDaraja(natijaKuchli.shkalaBalli).daraja)
   assert.equal(natijaKuchli.se > 0 && natijaKuchli.se < 1.5, true)
 
   // O'rta o'quvchi: 5 ta osonini to'g'ri, 5 ta qiyinini xato
@@ -56,7 +56,7 @@ test('Rasch modeli — Newton-Raphson konvergentsiyasi va baholash', () => {
 
   assert.equal(natijaOrta.rawScore, 5)
   assert.equal(Math.abs(natijaOrta.theta) < 0.6, true, "O'rta o'quvchi thetasi 0 atrofida bo'lishi kerak")
-  assert.equal(['B+', 'B', 'C+'].includes(natijaOrta.daraja), true)
+  assert.equal(natijaOrta.daraja, aniqlaDaraja(natijaOrta.shkalaBalli).daraja)
 
   // Chekka holat: barchasi to'g'ri (10/10)
   const javoblarMaks = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -69,6 +69,24 @@ test('Rasch modeli — Newton-Raphson konvergentsiyasi va baholash', () => {
   const natijaNol = hisoblaRaschTheta(savollar, javoblarNol)
   assert.equal(natijaNol.daraja, 'Qoniqarsiz')
   assert.equal(natijaNol.theta < -2.5, true)
+})
+
+test('Rasch modeli — daraja faqat ball bilan, rasmiy chegaralarda belgilanadi', () => {
+  const holatlar = [
+    [100, 'A+'], [70, 'A+'], [69.9, 'A'], [65, 'A'], [64.9, 'B+'], [60, 'B+'],
+    [59.9, 'B'], [55, 'B'], [54.9, 'C+'], [50, 'C+'], [49.9, 'C'], [46, 'C'],
+    [45.9, 'Qoniqarsiz'], [0, 'Qoniqarsiz'],
+  ]
+  for (const [ball, kutilgan] of holatlar) {
+    assert.equal(aniqlaDaraja(ball).daraja, kutilgan, `${ball} ball`)
+  }
+})
+
+test('Rasch modeli — ball 70 da kesilmaydi', () => {
+  const savollar = Array.from({ length: 40 }, (_, i) => ({ id: i, qiyinlik: 0 }))
+  const natija = hisoblaRaschTheta(savollar, Array(40).fill(1))
+  assert.equal(natija.shkalaBalli > 70, true)
+  assert.equal(natija.shkalaBalli <= 100, true)
 })
 
 test('Rasch modeli — Wright Map tuzilishi', () => {
