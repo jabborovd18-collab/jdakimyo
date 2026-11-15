@@ -2,6 +2,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAdminAuth } from '@/lib/admin-auth'
+import { buildSiteSettingsData } from '@/lib/admin-yordamchi'
+import { TARIF } from '@/lib/sayt-malumot'
 
 // GET - Sozlamalarni olish
 export async function GET() {
@@ -19,7 +21,7 @@ export async function GET() {
         data: {
           id: 'main',
           siteName: 'JDA KIMYO',
-          siteDescription: 'Koordinatsion kimyo platformasi'
+          siteDescription: TARIF
         }
       })
     }
@@ -43,8 +45,8 @@ export async function PUT(request) {
     }
 
     const data = await request.json()
+    const cleanData = buildSiteSettingsData(data)
 
-    // Oldindan mavjudmi tekshirish
     const existing = await prisma.siteSettings.findUnique({
       where: { id: 'main' }
     })
@@ -53,31 +55,13 @@ export async function PUT(request) {
     if (existing) {
       settings = await prisma.siteSettings.update({
         where: { id: 'main' },
-        data: {
-          siteName: data.siteName,
-          siteDescription: data.siteDescription,
-          logo: data.logo || null,
-          favicon: data.favicon || null,
-          maintenanceMode: data.maintenanceMode || false,
-          maintenanceMessage: data.maintenanceMessage || null,
-          footerText: data.footerText || null,
-          contactEmail: data.contactEmail || null,
-          contactPhone: data.contactPhone || null,
-          telegramGroup: data.telegramGroup || null,
-          instagramLink: data.instagramLink || null,
-          defaultXpCommon: parseInt(data.defaultXpCommon) || 10,
-          defaultXpRare: parseInt(data.defaultXpRare) || 50,
-          defaultXpEpic: parseInt(data.defaultXpEpic) || 100,
-          defaultXpLegendary: parseInt(data.defaultXpLegendary) || 500,
-          questionsPerQuiz: parseInt(data.questionsPerQuiz) || 20,
-          quizTimeLimit: data.quizTimeLimit ? parseInt(data.quizTimeLimit) : null
-        }
+        data: cleanData
       })
     } else {
       settings = await prisma.siteSettings.create({
         data: {
           id: 'main',
-          ...data
+          ...cleanData
         }
       })
     }

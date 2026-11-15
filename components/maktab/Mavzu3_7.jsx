@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { canvasOlchami, kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -85,13 +85,13 @@ export default function Mavzu3_7() {
     },
     {
       savol: "Ohakli suvni (Ca(OH)₂) loyqalatib, oq cho'kma (CaCO₃↓) hosil qiluvchi gaz qaysi?",
-      variantlar: ["CO₂ (Karbonat angidrid)", "CO (Is gazi)", "O₂ (Kislorod)", "H₂ (Vodorod)"],
+      variantlar: ["H₂ (Vodorod)", "CO₂ (Karbonat angidrid)", "CO (Is gazi)", "O₂ (Kislorod)"],
       togriJavob: "CO₂ (Karbonat angidrid)",
       izoh: "CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O reaksiyasi karbonat angidrid gazini aniqlashning sifat reaksiyasidir.",
     },
     {
       savol: "Suvsiz oq mis(II) sulfat (CuSO₄) kukuniga suv tekkanda qanday o'zgarish yuz beradi?",
-      variantlar: ["Moviy-ko'k rangli mis kuporosiga (CuSO₄·5H₂O) aylanadi", "Qorayib ketadi", "Gazga aylanadi", "O'zgarmaydi"],
+      variantlar: ["Gazga aylanadi", "O'zgarmaydi", "Moviy-ko'k rangli mis kuporosiga (CuSO₄·5H₂O) aylanadi", "Qorayib ketadi"],
       togriJavob: "Moviy-ko'k rangli mis kuporosiga (CuSO₄·5H₂O) aylanadi",
       izoh: "Suvsiz oq CuSO₄ suvni yutib ko'k rangli kristallogidrat hosil qiladi.",
     },
@@ -113,8 +113,7 @@ export default function Mavzu3_7() {
 
     const chiz = () => {
       t += 0.07
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -157,11 +156,11 @@ export default function Mavzu3_7() {
       ctx.textAlign = "center"
       ctx.fillText(tenglama, cx, h * 0.9)
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, sintezModda])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -175,8 +174,7 @@ export default function Mavzu3_7() {
     const canvas = oksidSuvCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -226,8 +224,7 @@ export default function Mavzu3_7() {
     const canvas = neytralCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -279,8 +276,7 @@ export default function Mavzu3_7() {
     const canvas = chokmaCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -340,8 +336,7 @@ export default function Mavzu3_7() {
     const canvas = parchCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -399,8 +394,7 @@ export default function Mavzu3_7() {
     const canvas = fotoCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -434,10 +428,10 @@ export default function Mavzu3_7() {
   // 4 TA SMART DOSKA O'YINI
   // ═══════════════════════════════════════════════════════════════════════════
   const konstruktorSavollar = [
-    { savol: "So'ndirilmagan ohak (CaO) suvga (H₂O) solinganda qanday murakkab modda hosil bo'ladi?", variantlar: ["Ca(OH)₂ — So'ndirilgan ohak (Asos)", "CaCO₃ — Ohaktosh", "CaCl₂ — Kalsiy xlorid", "CO₂ — Gaz"], togri: "Ca(OH)₂ — So'ndirilgan ohak (Asos)" },
+    { savol: "So'ndirilmagan ohak (CaO) suvga (H₂O) solinganda qanday murakkab modda hosil bo'ladi?", variantlar: ["CaCO₃ — Ohaktosh", "CaCl₂ — Kalsiy xlorid", "CO₂ — Gaz", "Ca(OH)₂ — So'ndirilgan ohak (Asos)"], togri: "Ca(OH)₂ — So'ndirilgan ohak (Asos)" },
     { savol: "Magniy tasmasi (Mg) kislorodda (O₂) yondirilganda qanday oq kukun hosil bo'ladi?", variantlar: ["MgO (Magniy oksid)", "Mg(OH)₂", "MgCO₃", "MgCl₂"], togri: "MgO (Magniy oksid)" },
-    { savol: "Yashil malaxit ((CuOH)₂CO₃) qizdirib parchalanganda birdaniga nechta yangi murakkab modda hosil bo'ladi?", variantlar: ["3 ta: CuO (qora), H₂O va CO₂", "Faqat 1 ta Cu", "2 ta oddiy modda", "Hech narsa hosil bo'lmaydi"], togri: "3 ta: CuO (qora), H₂O va CO₂" },
-    { savol: "O'simliklar bargida CO₂ va H₂O dan quyosh nuri yordamida qaysi murakkab organik modda sintezlanadi?", variantlar: ["C₆H₁₂O₆ (Glyukoza)", "NaCl (Osh tuzi)", "H₂SO₄ (Sulfat kislota)", "CaO (Ohak)"], togri: "C₆H₁₂O₆ (Glyukoza)" },
+    { savol: "Yashil malaxit ((CuOH)₂CO₃) qizdirib parchalanganda birdaniga nechta yangi murakkab modda hosil bo'ladi?", variantlar: ["Hech narsa hosil bo'lmaydi", "3 ta: CuO (qora), H₂O va CO₂", "Faqat 1 ta Cu", "2 ta oddiy modda"], togri: "3 ta: CuO (qora), H₂O va CO₂" },
+    { savol: "O'simliklar bargida CO₂ va H₂O dan quyosh nuri yordamida qaysi murakkab organik modda sintezlanadi?", variantlar: ["H₂SO₄ (Sulfat kislota)", "CaO (Ohak)", "C₆H₁₂O₆ (Glyukoza)", "NaCl (Osh tuzi)"], togri: "C₆H₁₂O₆ (Glyukoza)" },
   ]
   const [kIdx, setKIdx] = useState(0)
   const [kTanlov, setKTanlov] = useState(null)
@@ -457,10 +451,10 @@ export default function Mavzu3_7() {
   const [trTugadi, setTrTugadi] = useState(false)
 
   const balansSavollar = [
-    { savol: "?Mg + O₂ → 2MgO tenglamada magniy oldiga qaysi koeffitsiyent qo'yiladi?", variantlar: ["2", "1", "3", "4"], togri: "2" },
+    { savol: "?Mg + O₂ → 2MgO tenglamada magniy oldiga qaysi koeffitsiyent qo'yiladi?", variantlar: ["1", "3", "4", "2"], togri: "2" },
     { savol: "4P + ?O₂ → 2P₂O₅ tenglamada kislorod (O₂) oldiga qaysi koeffitsiyent qo'yiladi?", variantlar: ["5", "2", "4", "10"], togri: "5" },
-    { savol: "4Al + 3O₂ → ?Al₂O₃ tenglamada alyuminiy oksid oldiga qaysi koeffitsiyent qo'yiladi?", variantlar: ["2", "1", "3", "4"], togri: "2" },
-    { savol: "CuSO₄ + ?NaOH → Cu(OH)₂↓ + Na₂SO₄ tenglamada NaOH oldidagi koeffitsiyentni toping:", variantlar: ["2", "1", "3", "4"], togri: "2" },
+    { savol: "4Al + 3O₂ → ?Al₂O₃ tenglamada alyuminiy oksid oldiga qaysi koeffitsiyent qo'yiladi?", variantlar: ["4", "2", "1", "3"], togri: "2" },
+    { savol: "CuSO₄ + ?NaOH → Cu(OH)₂↓ + Na₂SO₄ tenglamada NaOH oldidagi koeffitsiyentni toping:", variantlar: ["3", "4", "2", "1"], togri: "2" },
   ]
   const [bIdx, setBIdx] = useState(0)
   const [bTanlov, setBTanlov] = useState(null)
@@ -469,8 +463,8 @@ export default function Mavzu3_7() {
 
   const duelSavollari = [
     { s: "CaO + H₂O reaksiyasida nima hosil bo'ladi?", v: ["Ca(OH)₂", "CaCO₃", "CaCl₂"], j: "Ca(OH)₂" },
-    { s: "SO₃ + H₂O reaksiyasida qaysi kislota olinadi?", v: ["H₂SO₄", "HCl", "HNO₃"], j: "H₂SO₄" },
-    { s: "CuSO₄ + 2NaOH reaksiyasida qanday rangli cho'kma tushadi?", v: ["Havorang Cu(OH)₂↓", "Qora CuO", "Sariq PbI₂"], j: "Havorang Cu(OH)₂↓" },
+    { s: "SO₃ + H₂O reaksiyasida qaysi kislota olinadi?", v: ["HNO₃", "H₂SO₄", "HCl"], j: "H₂SO₄" },
+    { s: "CuSO₄ + 2NaOH reaksiyasida qanday rangli cho'kma tushadi?", v: ["Qora CuO", "Sariq PbI₂", "Havorang Cu(OH)₂↓"], j: "Havorang Cu(OH)₂↓" },
     { s: "Ohaktosh (CaCO₃) 1000°C da qizdirilsa qaysi gaz chiqadi?", v: ["CO₂↑", "H₂↑", "Cl₂↑"], j: "CO₂↑" },
   ]
   const [g1Idx, setG1Idx] = useState(0)
@@ -929,7 +923,7 @@ export default function Mavzu3_7() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g1Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g1Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g1Idx].v, duelSavollari[g1Idx].s, g1Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"
@@ -957,7 +951,7 @@ export default function Mavzu3_7() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g2Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g2Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g2Idx].v, duelSavollari[g2Idx].s, g2Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"

@@ -32,6 +32,7 @@ export default function UstozSozlamaPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('basic')
+  const [newSpecialty, setNewSpecialty] = useState('')
   const [stats, setStats] = useState({ students: 0, groups: 0, quizzes: 0, assignments: 0 })
 
   const [formData, setFormData] = useState({
@@ -157,11 +158,11 @@ export default function UstozSozlamaPage() {
 
   // ═══ HELPER FUNKSIYALAR ═══
   const addSpecialty = () => {
-    const kiritma = prompt('Mutaxassislikni kiriting (masalan: Koordinatsion kimyo):')
-    const specialty = kiritma?.trim()
-    if (!specialty) return
-    // Takrorni registrga qaramay tekshiramiz: avval "Kimyo" va "kimyo"
-    // ikkita alohida yozuv bo'lib qo'shilib ketardi.
+    const specialty = newSpecialty.trim()
+    if (!specialty) {
+      toast.error('Mutaxassislik nomini kiriting')
+      return
+    }
     const bormi = formData.specialties.some(
       (s) => s.toLowerCase() === specialty.toLowerCase()
     )
@@ -170,6 +171,7 @@ export default function UstozSozlamaPage() {
       return
     }
     setFormData((oldin) => ({ ...oldin, specialties: [...oldin.specialties, specialty] }))
+    setNewSpecialty('')
   }
 
   const removeSpecialty = (idx) => {
@@ -542,13 +544,27 @@ export default function UstozSozlamaPage() {
 
               {/* Mutaxassisliklar */}
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm text-purple-300 font-semibold">
-                    🎯 Mutaxassisliklar
-                  </label>
+                <label className="text-sm text-purple-300 font-semibold block mb-2">
+                  🎯 Mutaxassisliklar
+                </label>
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={newSpecialty}
+                    onChange={(e) => setNewSpecialty(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addSpecialty()
+                      }
+                    }}
+                    placeholder="Masalan: Koordinatsion kimyo..."
+                    className="flex-1 px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white text-sm outline-none"
+                  />
                   <button
+                    type="button"
                     onClick={addSpecialty}
-                    className="px-3 py-1 bg-green-600/20 hover:bg-green-600/30 border border-green-600/50 rounded-lg text-xs text-green-400"
+                    className="px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/50 rounded-lg text-xs text-green-400 font-semibold shrink-0"
                   >
                     + Qo'shish
                   </button>

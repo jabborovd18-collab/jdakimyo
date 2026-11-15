@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { canvasOlchami, kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -122,10 +122,10 @@ export default function Mavzu3_1() {
     {
       savol: "Suvning qizdirish egri chizig'ida 0°C va 100°C da harorat nega vaqtincha o'zgarmay turadi?",
       variantlar: [
-        "Issiqlik zarrachalararo bog'larni uzishga sarflanadi",
-        "Goreлка o'chib qoladi",
-        "Zarrachalar to'xtab qoladi",
         "Modda massasi kamayadi",
+        "Issiqlik zarrachalararo bog'larni uzishga sarflanadi",
+        "Gorelka o'chib qoladi",
+        "Zarrachalar to'xtab qoladi",
       ],
       togriJavob: "Issiqlik zarrachalararo bog'larni uzishga sarflanadi",
       izoh: "Faza o'tish nuqtasida berilgan energiya zarrachalararo tortishish kuchlarini yengishga ketadi.",
@@ -133,10 +133,10 @@ export default function Mavzu3_1() {
     {
       savol: "Toza suvga osh tuzi (NaCl) qo'shilsa, uning muzlash va qaynash harorati qanday o'zgaradi?",
       variantlar: [
-        "Muzlash 0°C dan pasayadi, qaynash 100°C dan ko'tariladi",
-        "Ikkalasi ham 50°C ga tushadi",
         "Hech qanday o'zgarish bo'lmaydi",
         "Suv darhol muzlab qoladi",
+        "Muzlash 0°C dan pasayadi, qaynash 100°C dan ko'tariladi",
+        "Ikkalasi ham 50°C ga tushadi",
       ],
       togriJavob: "Muzlash 0°C dan pasayadi, qaynash 100°C dan ko'tariladi",
       izoh: "Aralashmalar sof moddaning erish nuqtasini pasaytiradi va qaynash nuqtasini oshiradi.",
@@ -159,8 +159,7 @@ export default function Mavzu3_1() {
 
     const chiz = () => {
       t += 0.025
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
 
       ctx.fillStyle = "#030714"
@@ -269,11 +268,11 @@ export default function Mavzu3_1() {
           : "#f43f5e"
       ctx.fillText(turMatn, kx + kw / 2, ky + 215)
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, tanlanganEl])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -293,8 +292,7 @@ export default function Mavzu3_1() {
 
     const chiz = () => {
       t += 0.05
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -404,11 +402,11 @@ export default function Mavzu3_1() {
         h * 0.25
       )
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, namuna, bolgaUrildi])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -427,8 +425,7 @@ export default function Mavzu3_1() {
 
     const chiz = () => {
       t += 0.08
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -482,11 +479,11 @@ export default function Mavzu3_1() {
       ctx.font = "bold 17px 'Times New Roman', serif"
       ctx.fillText(`Ion: ${tanlanganIon.ion}  |  λ = ${tanlanganIon.toqin}`, w * 0.62, h * 0.6)
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, tanlanganIon])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -506,8 +503,7 @@ export default function Mavzu3_1() {
 
     const chiz = () => {
       if (reaksiyaFaol) t += 0.05
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -570,11 +566,11 @@ export default function Mavzu3_1() {
         h * 0.93
       )
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, ishqorMetall, reaksiyaFaol])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -593,8 +589,7 @@ export default function Mavzu3_1() {
 
     const chiz = () => {
       t += 0.03
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -695,11 +690,11 @@ export default function Mavzu3_1() {
         ctx.fillText("Ozon (O₃) — 3O₂ → 2O₃ (Chaqmoq)", cx2, h * 0.86)
       }
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, allotropTur])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -713,8 +708,7 @@ export default function Mavzu3_1() {
     const canvas = tarqalishCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -770,11 +764,11 @@ export default function Mavzu3_1() {
   // 1-O'YIN: BELGINI TOP (LOTINCHA NOM VA KIMYOVIY BELGI)
   // ═══════════════════════════════════════════════════════════════════════════
   const belgiSavollari = [
-    { savol: "Temir (Ferrum) elementining kimyoviy belgisi qaysi?", variantlar: ["Fe", "Cu", "F", "Ag"], togri: "Fe" },
+    { savol: "Temir (Ferrum) elementining kimyoviy belgisi qaysi?", variantlar: ["Cu", "F", "Ag", "Fe"], togri: "Fe" },
     { savol: "Mis (Cuprum) elementining kimyoviy belgisi qaysi?", variantlar: ["Cu", "Ca", "C", "Co"], togri: "Cu" },
-    { savol: "Kumush (Argentum) elementining kimyoviy belgisi qaysi?", variantlar: ["Ag", "Au", "Al", "Ar"], togri: "Ag" },
-    { savol: "Oltin (Aurum) elementining kimyoviy belgisi qaysi?", variantlar: ["Au", "Ag", "Fe", "Hg"], togri: "Au" },
-    { savol: "Simob (Hydrargyrum) elementining kimyoviy belgisi qaysi?", variantlar: ["Hg", "H", "He", "Pb"], togri: "Hg" },
+    { savol: "Kumush (Argentum) elementining kimyoviy belgisi qaysi?", variantlar: ["Ar", "Ag", "Au", "Al"], togri: "Ag" },
+    { savol: "Oltin (Aurum) elementining kimyoviy belgisi qaysi?", variantlar: ["Fe", "Hg", "Au", "Ag"], togri: "Au" },
+    { savol: "Simob (Hydrargyrum) elementining kimyoviy belgisi qaysi?", variantlar: ["H", "He", "Pb", "Hg"], togri: "Hg" },
     { savol: "Qo'rg'oshin (Plumbum) elementining kimyoviy belgisi qaysi?", variantlar: ["Pb", "P", "Pt", "Sn"], togri: "Pb" },
   ]
   const [bIdx, setBIdx] = useState(0)
@@ -824,17 +818,17 @@ export default function Mavzu3_1() {
   const labSavollari = [
     {
       savol: "Noma'lum metall suvga tashlanganda suv yuzasida yugurib H₂ ajratdi va alangani yorqin SARIQ rangga bo'yadi. Bu qaysi element?",
-      variantlar: ["Na (Natriy)", "Cu (Mis)", "Fe (Temir)", "Si (Kremniy)"],
+      variantlar: ["Si (Kremniy)", "Na (Natriy)", "Cu (Mis)", "Fe (Temir)"],
       togri: "Na (Natriy)",
     },
     {
       savol: "Tuz namunasi Bunzen alangasiga tutilganda alanga ZUMRAD YASHIL rangga kirdi. Namunada qaysi element ioni bor?",
-      variantlar: ["Cu²⁺ (Mis)", "Na⁺ (Natriy)", "K⁺ (Kaliy)", "Ca²⁺ (Kalsiy)"],
+      variantlar: ["K⁺ (Kaliy)", "Ca²⁺ (Kalsiy)", "Cu²⁺ (Mis)", "Na⁺ (Natriy)"],
       togri: "Cu²⁺ (Mis)",
     },
     {
       savol: "Qaysi metallmas element istisno tariqasida elektr tokini yaxshi o'tkazadi?",
-      variantlar: ["C (Grafit)", "S (Oltingugurt)", "P (Fosfor)", "O₂ (Kislorod)"],
+      variantlar: ["S (Oltingugurt)", "P (Fosfor)", "O₂ (Kislorod)", "C (Grafit)"],
       togri: "C (Grafit)",
     },
     {
@@ -853,8 +847,8 @@ export default function Mavzu3_1() {
   // ═══════════════════════════════════════════════════════════════════════════
   const duelSavollari = [
     { s: "Yer qobig'ida eng ko'p tarqalgan (49%) element?", v: ["O (Kislorod)", "Fe (Temir)", "Au (Oltin)"], j: "O (Kislorod)" },
-    { s: "Kaliy (K⁺) tuzlari alangani qanday rangga bo'yaydi?", v: ["Binafsha", "Sariq", "Yashil"], j: "Binafsha" },
-    { s: "Qaysi element yarimo'tkazgich (metalloid) hisoblanadi?", v: ["Si (Kremniy)", "Cu (Mis)", "S (Oltingugurt)"], j: "Si (Kremniy)" },
+    { s: "Kaliy (K⁺) tuzlari alangani qanday rangga bo'yaydi?", v: ["Yashil", "Binafsha", "Sariq"], j: "Binafsha" },
+    { s: "Qaysi element yarimo'tkazgich (metalloid) hisoblanadi?", v: ["Cu (Mis)", "S (Oltingugurt)", "Si (Kremniy)"], j: "Si (Kremniy)" },
     { s: "2Na + 2H₂O reaksiyasida qanday gaz ajralib chiqadi?", v: ["H₂ (Vodorod)", "O₂ (Kislorod)", "CO₂"], j: "H₂ (Vodorod)" },
   ]
   const [g1Idx, setG1Idx] = useState(0)
@@ -1396,7 +1390,7 @@ export default function Mavzu3_1() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g1Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g1Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g1Idx].v, duelSavollari[g1Idx].s, g1Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"
@@ -1427,7 +1421,7 @@ export default function Mavzu3_1() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g2Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g2Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g2Idx].v, duelSavollari[g2Idx].s, g2Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"

@@ -1,13 +1,13 @@
 "use client"
 
+import { umumiyAudio } from "@/lib/maktab-animatsiya"
 import Ikon from "@/components/Ikon"
 
 export function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)
@@ -68,12 +68,12 @@ export function SmartDoskaNavigatsiya({
   toliqEkranniUlash,
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 flex-wrap bg-[#060c24]/90 p-2 rounded-2xl border border-blue-800/70 shadow-xl">
+    <div className="flex items-center justify-between gap-2.5 flex-wrap bg-[#060c24]/95 p-2 rounded-2xl border border-blue-800/70 shadow-xl touch-manipulation">
       <div className="flex items-center gap-2 flex-wrap">
         {toliqEkran && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0a153a] border border-yellow-500/40 mr-1">
-            <span className="text-xs font-bold text-yellow-400">{mavzuRaqam}</span>
-            <span className="text-sm font-bold text-white">{mavzuNom}</span>
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#0a153a] border border-yellow-500/40 mr-1">
+            <span className="text-sm font-bold text-yellow-400">{mavzuRaqam}</span>
+            <span className="text-sm sm:text-base font-bold text-white">{mavzuNom}</span>
           </div>
         )}
 
@@ -84,13 +84,13 @@ export function SmartDoskaNavigatsiya({
               setAsosiyBolim("takrorlash")
               tovushChiqar("bosqich")
             }}
-            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 ${
+            className={`min-h-[48px] px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold transition flex items-center gap-2 touch-manipulation ${
               asosiyBolim === "takrorlash"
-                ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md"
-                : "bg-[#091336] text-amber-300 hover:text-white"
+                ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md ring-2 ring-yellow-300/50"
+                : "bg-[#091336] border border-blue-800/50 text-amber-300 hover:border-amber-400/60 hover:text-white"
             }`}
           >
-            <Ikon nom="chaqmoq" olcham={17} />
+            <Ikon nom="chaqmoq" olcham={18} />
             <span>Takrorlash</span>
           </button>
         )}
@@ -101,13 +101,13 @@ export function SmartDoskaNavigatsiya({
             setAsosiyBolim("animatsiyalar")
             tovushChiqar("bosqich")
           }}
-          className={`min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 ${
+          className={`min-h-[48px] px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold transition flex items-center gap-2 touch-manipulation ${
             asosiyBolim === "animatsiyalar"
-              ? "bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-950 shadow-md"
-              : "bg-[#091336] text-blue-200 hover:text-white"
+              ? "bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-950 shadow-md ring-2 ring-yellow-300/50"
+              : "bg-[#091336] border border-blue-800/50 text-blue-100 hover:border-yellow-400/60 hover:text-white"
           }`}
         >
-          <Ikon nom="atom" olcham={17} />
+          <Ikon nom="atom" olcham={18} />
           <span>Ko&apos;rgazma</span>
         </button>
 
@@ -117,13 +117,13 @@ export function SmartDoskaNavigatsiya({
             setAsosiyBolim("oyinlar")
             tovushChiqar("bosqich")
           }}
-          className={`min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 ${
+          className={`min-h-[48px] px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold transition flex items-center gap-2 touch-manipulation ${
             asosiyBolim === "oyinlar"
-              ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-md"
-              : "bg-[#091336] text-blue-200 hover:text-white"
+              ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-md ring-2 ring-emerald-300/50"
+              : "bg-[#091336] border border-blue-800/50 text-blue-100 hover:border-emerald-400/60 hover:text-white"
           }`}
         >
-          <Ikon nom="doska" olcham={17} />
+          <Ikon nom="doska" olcham={18} />
           <span>O&apos;yinlar</span>
         </button>
       </div>
@@ -131,9 +131,9 @@ export function SmartDoskaNavigatsiya({
       <button
         type="button"
         onClick={toliqEkranniUlash}
-        className="min-h-[44px] px-4 py-2 rounded-xl border border-yellow-500/50 bg-yellow-500/15 hover:bg-yellow-500/25 text-yellow-300 font-bold text-xs sm:text-sm transition flex items-center gap-2 shrink-0"
+        className="min-h-[48px] px-5 py-2.5 rounded-xl border border-yellow-500/60 bg-yellow-500/15 hover:bg-yellow-500/25 text-yellow-300 font-bold text-sm sm:text-base transition flex items-center gap-2 shrink-0 touch-manipulation"
       >
-        <Ikon nom={toliqEkran ? "kichraytirish" : "kengaytirish"} olcham={17} />
+        <Ikon nom={toliqEkran ? "kichraytirish" : "kengaytirish"} olcham={18} />
         <span>{toliqEkran ? "Kichraytirish" : "To'liq ekran"}</span>
       </button>
     </div>

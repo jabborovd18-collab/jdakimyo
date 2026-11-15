@@ -149,7 +149,12 @@ export default function BildirishnomalarPage() {
             }`
 
             return b.havola ? (
-              <Link key={b.id} href={b.havola} onClick={() => bittasiniBelgila(b.id)} className={`block ${wrapperClass}`}>
+              <Link
+                key={b.id}
+                href={b.havola}
+                onClick={() => !b.oqilgan && bittasiniBelgila(b.id)}
+                className={`block ${wrapperClass}`}
+              >
                 {ichi}
               </Link>
             ) : (

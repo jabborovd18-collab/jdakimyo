@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoskaQoshimcha"
@@ -24,10 +25,10 @@ const takrorlashSavollari1_2 = [
     savol: "Antuan Lavuazye 101 kunlik tajribasida qanday asbob va usul bilan haqiqatni isbotladi?",
     izoh: "Lavuazye germetik yopiq 'Pelikan' kolbasida qaynatib, suv va bo'shagan kolba massasini o'ta aniq analitik tarozida o'lchab isbotladi (149.85g + 0.15g = 150.00g).",
     variantlar: [
+      { matn: "Boshqa alximiklarning gapiga ishonish orqali", togri: false },
       { matn: "Germetik yopiq Pelikan kolbasi va analitik tarozi bilan", togri: true },
       { matn: "Faqat ko'z bilan qarab chamalash orqali", togri: false },
       { matn: "Suvni muzlatkichda muzlatib ko'rish orqali", togri: false },
-      { matn: "Boshqa alximiklarning gapiga ishonish orqali", togri: false },
     ],
   },
   {
@@ -35,10 +36,10 @@ const takrorlashSavollari1_2 = [
     savol: "Lavuazye va Karl Sheele tajribalari suvning qaysi muhim xususiyatini isbotlab berdi?",
     izoh: "Suv tabiatdagi universal erituvchidir. U uzoq vaqt davomida hatto qattiq shisha idishni ham mikroskopik darajada yuvib erita oladi!",
     variantlar: [
-      { matn: "Suv universal erituvchi bo'lib, hatto shishani ham erita oladi", togri: true },
-      { matn: "Suv hech qachon qaynay olmaydi", togri: false },
       { matn: "Suv shishani qattiqroq qilib qo'yadi", togri: false },
       { matn: "Suv faqat gazga aylana oladi", togri: false },
+      { matn: "Suv universal erituvchi bo'lib, hatto shishani ham erita oladi", togri: true },
+      { matn: "Suv hech qachon qaynay olmaydi", togri: false },
     ],
   },
   {
@@ -46,10 +47,10 @@ const takrorlashSavollari1_2 = [
     savol: "Tajribangiz ketma-ket bir necha bor o'xshamasa, tadqiqotchiga xos qaysi fazilat talab etiladi?",
     izoh: "Sheele 12 kun, Lavuazye esa 101 kun sabr bilan kuzatgan. Sabr-toqat va qat'iyatlilik tadqiqotchining eng zarur xususiyatidir!",
     variantlar: [
-      { matn: "Sabr-toqat va Qat'iyatlilik bilan xatoni tahlil qilish", togri: true },
       { matn: "Natijani daftarga yolg'ondan yozib qo'yish", togri: false },
       { matn: "Tajribani darhol tashlab laboratoriyadan ketish", togri: false },
       { matn: "Asboblarni sindirib tashlash", togri: false },
+      { matn: "Sabr-toqat va Qat'iyatlilik bilan xatoni tahlil qilish", togri: true },
     ],
   },
 ]
@@ -58,9 +59,8 @@ const takrorlashSavollari1_2 = [
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)
@@ -381,11 +381,11 @@ export default function Mavzu1_3() {
       ctx.stroke()
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, shakarTuri, haroratDarajasi, aralashAktiv, eriganQism, otganVaqt, tajribaKetmoqda])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -530,11 +530,11 @@ export default function Mavzu1_3() {
       })
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, probirkaSilkitilmoqda, kopikKorsat])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -582,9 +582,12 @@ export default function Mavzu1_3() {
   ]
 
   const [tanlanganZanjir, setTanlanganZanjir] = useState([])
-  const [aralashBosqichlar, setAralashBosqichlar] = useState(() =>
-    [...metodBosqichlari].sort(() => Math.random() - 0.5)
-  )
+  const [zanjirRaund, setZanjirRaund] = useState(0)
+  const aralashBosqichlar = variantlarniAralashtir(
+    metodBosqichlari,
+    "Ilmiy metod zanjiri",
+    zanjirRaund
+  ).map((x) => x.item)
   const [zanjirTugadi, setZanjirTugadi] = useState(false)
 
   const bosqichTanlash = (bosqich) => {
@@ -608,7 +611,7 @@ export default function Mavzu1_3() {
 
   const zanjirniQayta = () => {
     setTanlanganZanjir([])
-    setAralashBosqichlar([...metodBosqichlari].sort(() => Math.random() - 0.5))
+    setZanjirRaund((r) => r + 1)
     setZanjirTugadi(false)
   }
 
@@ -623,9 +626,9 @@ export default function Mavzu1_3() {
       holat: "Ali issiq suvga 10 g shakar soldi, sovuq suvga esa atigi 2 g shakar solib vaqtni o'lchadi.",
       savol: "Ushbu tajribada qaysi qoida buzilgan?",
       variantlar: [
+        { matn: "Suv rangi o'zgarmagani uchun xato", togri: false, izoh: "Shakar eriganda suv rangi o'zgarmaydi." },
         { matn: "O'zgarmas sharoit buzilgan: Modda massalari teng bo'lishi shart edi!", togri: true, izoh: "Shakar miqdori har xil bo'lsa, haroratning ta'sirini xolis aniqlab bo'lmaydi." },
         { matn: "Hech qanday xato yo'q, mukammal tajriba", togri: false, izoh: "Massalar har xil bo'lgani uchun tajriba natijasi soxta chiqadi." },
-        { matn: "Suv rangi o'zgarmagani uchun xato", togri: false, izoh: "Shakar eriganda suv rangi o'zgarmaydi." },
       ],
     },
     {
@@ -634,9 +637,9 @@ export default function Mavzu1_3() {
       holat: "Vali qum-shakar solingan stakanni qoshiq bilan tez aralashtirdi, yaxlit qandli stakanni esa tekkizmasdan qoldirdi.",
       savol: "Nega Valining xulosasi ilmiy jihatdan xato?",
       variantlar: [
-        { matn: "Aralashtirish qo'shimcha o'zgaruvchi bo'lib kirdi va adolatli taqqoslashni buzdi!", togri: true, izoh: "Faqat maydalik solishtirilayotganda, aralashtirish ikkala idishda ham bir xil bo'lishi shart!" },
         { matn: "Qoshiq temirdan bo'lgani uchun", togri: false, izoh: "Qoshiq materiali asosiy sabab emas." },
         { matn: "Qand shirin bo'lgani uchun", togri: false, izoh: "Ta'mning bunga aloqasi yo'q." },
+        { matn: "Aralashtirish qo'shimcha o'zgaruvchi bo'lib kirdi va adolatli taqqoslashni buzdi!", togri: true, izoh: "Faqat maydalik solishtirilayotganda, aralashtirish ikkala idishda ham bir xil bo'lishi shart!" },
       ],
     },
     {
@@ -656,9 +659,9 @@ export default function Mavzu1_3() {
       holat: "Hasan stakanlarga qarab: 'Menimcha issiq suvdagisi tezroq eridi, ko'zim bilan ko'rdim' dedi, lekin vaqtni o'lchamadi.",
       savol: "Hasanning eng katta ilmiy kamchiligi nima?",
       variantlar: [
+        { matn: "Shakarni yemagani", togri: false, izoh: "Laboratoriyada moddalarni tatib ko'rish qat'iyan taqiqlanadi!" },
         { matn: "Aniq o'lchov asbobi (sekundomer) ishlatilmadi, shunchaki subyektiv ko'zga tayanildi!", togri: true, izoh: "Kimyo fani son va aniq o'lchovlarga tayanadi, taxmin bilan ilmiy xulosa qilinmaydi!" },
         { matn: "Stakanni ushlab ko'rmagani", togri: false, izoh: "Ko'z bilan ko'rish yetarli emas, aniq son kerak." },
-        { matn: "Shakarni yemagani", togri: false, izoh: "Laboratoriyada moddalarni tatib ko'rish qat'iyan taqiqlanadi!" },
       ],
     },
   ]

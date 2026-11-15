@@ -9,7 +9,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import {
-  ChatXatosi, MAX_UZUNLIK, ODAM, blokHolati, qatnashchimi, sherik, yozishMumkinmi,
+  ChatXatosi, MAX_QADALGAN_SUHBAT, MAX_UZUNLIK, ODAM, blokHolati, qatnashchimi, sherik, yozishMumkinmi,
 } from '@/lib/chat'
 import { xabarYubor } from '@/lib/bildirishnoma'
 
@@ -46,6 +46,11 @@ export async function GET(request, { params }) {
         where: { conversationId: id },
         orderBy: { createdAt: 'asc' },
         take: 200,
+        include: {
+          replyTo: {
+            select: { id: true, matn: true, ochirilgan: true, senderId: true },
+          },
+        },
       }),
       blokHolati(menId, sherikId),
     ])
@@ -56,12 +61,16 @@ export async function GET(request, { params }) {
       data: { oqilgan: true },
     })
 
+    const qadalganVaqt = suhbat.user1Id === menId ? suhbat.user1PinnedAt : suhbat.user2PinnedAt
+
     return NextResponse.json({
       success: true,
       suhbat: {
         id: suhbat.id,
         holat: suhbat.holat,
         menBoshladim: suhbat.boshlovchiId === menId,
+        qadalgan: Boolean(qadalganVaqt),
+        qadalganVaqt,
         odam,
       },
       blok,
@@ -72,6 +81,14 @@ export async function GET(request, { params }) {
         meniki: x.senderId === menId,
         oqilgan: x.oqilgan,
         createdAt: x.createdAt,
+        replyTo: x.replyTo
+          ? {
+              id: x.replyTo.id,
+              matn: x.replyTo.ochirilgan ? null : x.replyTo.matn,
+              ochirilgan: x.replyTo.ochirilgan,
+              meniki: x.replyTo.senderId === menId,
+            }
+          : null,
       })),
     })
   } catch (error) {
@@ -95,7 +112,7 @@ export async function POST(request, { params }) {
     const suhbat = await suhbatniTekshir(id, menId)
     const sherikId = sherik(suhbat, menId)
 
-    const { matn } = await request.json()
+    const { matn, replyToId } = await request.json()
     const toza = String(matn || '').trim()
     if (!toza) return NextResponse.json({ error: 'Xabar bo\'sh' }, { status: 400 })
     if (toza.length > MAX_UZUNLIK) {
@@ -113,13 +130,29 @@ export async function POST(request, { params }) {
     // keyin ham bloklanishi mumkin
     await yozishMumkinmi(menId, sherikId)
 
+    let replyTarget = null
+    if (typeof replyToId === 'string' && replyToId.trim()) {
+      replyTarget = await prisma.message.findFirst({
+        where: { id: replyToId.trim(), conversationId: id },
+        select: { id: true, matn: true, ochirilgan: true, senderId: true },
+      })
+      if (!replyTarget) {
+        return NextResponse.json({ error: 'Javob berilayotgan xabar topilmadi' }, { status: 400 })
+      }
+    }
+
     // So'rov paytida faqat BOSHLOVCHI yoza oladi... aslida teskarisi:
     // qabul qiluvchi javob yozsa, bu so'rovni qabul qilgani bo'ladi.
     const yangiHolat =
       suhbat.holat === 'sorov' && suhbat.boshlovchiId !== menId ? 'faol' : suhbat.holat
 
     const xabar = await prisma.message.create({
-      data: { conversationId: id, senderId: menId, matn: toza },
+      data: {
+        conversationId: id,
+        senderId: menId,
+        matn: toza,
+        ...(replyTarget ? { replyToId: replyTarget.id } : {}),
+      },
     })
 
     await prisma.conversation.update({
@@ -149,6 +182,14 @@ export async function POST(request, { params }) {
         ochirilgan: false,
         oqilgan: false,
         createdAt: xabar.createdAt,
+        replyTo: replyTarget
+          ? {
+              id: replyTarget.id,
+              matn: replyTarget.ochirilgan ? null : replyTarget.matn,
+              ochirilgan: replyTarget.ochirilgan,
+              meniki: replyTarget.senderId === menId,
+            }
+          : null,
       },
       holat: yangiHolat,
     })
@@ -173,6 +214,65 @@ export async function PUT(request, { params }) {
     const suhbat = await suhbatniTekshir(id, menId)
 
     const { amal } = await request.json()
+
+    if (amal === 'qada' || amal === 'qadashdan_ol') {
+      if (suhbat.holat === 'rad') {
+        return NextResponse.json({ error: 'Rad etilgan suhbatni qadab bo\'lmaydi' }, { status: 400 })
+      }
+      const pinMaydon = suhbat.user1Id === menId ? 'user1PinnedAt' : 'user2PinnedAt'
+
+      if (amal === 'qada') {
+        if (suhbat[pinMaydon]) {
+          return NextResponse.json({
+            success: true,
+            holat: suhbat.holat,
+            qadalgan: true,
+            qadalganVaqt: suhbat[pinMaydon],
+            message: 'Suhbat allaqachon qadalgan',
+          })
+        }
+
+        const yangi = await prisma.$transaction(async (tx) => {
+          const qadalganSoni = await tx.conversation.count({
+            where: {
+              holat: { not: 'rad' },
+              OR: [
+                { user1Id: menId, user1PinnedAt: { not: null } },
+                { user2Id: menId, user2PinnedAt: { not: null } },
+              ],
+            },
+          })
+          if (qadalganSoni >= MAX_QADALGAN_SUHBAT) {
+            throw new ChatXatosi(`Ko'pi bilan ${MAX_QADALGAN_SUHBAT} ta suhbatni qadash mumkin`, 400)
+          }
+          return tx.conversation.update({
+            where: { id },
+            data: { [pinMaydon]: new Date() },
+          })
+        })
+
+        return NextResponse.json({
+          success: true,
+          holat: yangi.holat,
+          qadalgan: true,
+          qadalganVaqt: yangi[pinMaydon],
+          message: 'Suhbat yuqoriga qadaldi',
+        })
+      }
+
+      const yangi = await prisma.conversation.update({
+        where: { id },
+        data: { [pinMaydon]: null },
+      })
+
+      return NextResponse.json({
+        success: true,
+        holat: yangi.holat,
+        qadalgan: false,
+        qadalganVaqt: null,
+        message: 'Suhbat qadashdan olindi',
+      })
+    }
 
     // So'rovga faqat QABUL QILUVCHI javob beradi
     if (suhbat.boshlovchiId === menId) {

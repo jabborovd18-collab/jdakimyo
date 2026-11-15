@@ -1,14 +1,14 @@
 "use client"
 
+import { kadrSora, kadrniBekorQil, umumiyAudio } from "@/lib/maktab-animatsiya"
 import { useState, useEffect, useRef } from "react"
 import Ikon from "@/components/Ikon"
 
 function ovoz(turi) {
   if (typeof window === "undefined") return
   try {
-    const Ctx = window.AudioContext || window.webkitAudioContext
-    if (!Ctx) return
-    const ctx = new Ctx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)
@@ -501,11 +501,11 @@ export function QoshimchaKorgazma({ mavzu, rejim }) {
       ctx.fillText(cfg.formula, CX, H - 15)
 
       ctx.restore()
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [mavzu, rejim, faol, cfg])
 
   if (!cfg) return null

@@ -3,33 +3,52 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { korinadimi, tozala } from '@/lib/maxfiylik'
 
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
-    const query = searchParams.get('q')
+    const query = (searchParams.get('q') || '').trim()
 
-    if (!query || query.length < 2) {
+    if (query.length < 2 || query.length > 100) {
       return NextResponse.json({ users: [] })
     }
 
-    // Foydalanuvchilarni qidirish (username, fullName, email bo'yicha)
+    // Ikki tomonlama bloklangan foydalanuvchilar qidiruvda ham ko'rinmaydi
+    const bloklar = await prisma.userBlock.findMany({
+      where: {
+        OR: [
+          { blockerId: session.user.id },
+          { blockedId: session.user.id }
+        ]
+      },
+      select: { blockerId: true, blockedId: true }
+    })
+    const istisnoIdlar = Array.from(
+      new Set([
+        session.user.id,
+        ...bloklar.map((b) => (b.blockerId === session.user.id ? b.blockedId : b.blockerId))
+      ])
+    )
+
+    // Qisman email qidiruvi manzilni taxmin qilishga yo'l ochmasligi uchun email faqat to'liq moslikda
     const users = await prisma.user.findMany({
       where: {
         AND: [
-          { id: { not: session.user.id } }, // O'zini chiqarib tashlash
+          { id: { notIn: istisnoIdlar } },
+          { isBanned: false },
           {
             OR: [
               { username: { contains: query, mode: 'insensitive' } },
               { fullName: { contains: query, mode: 'insensitive' } },
-              { email: { contains: query, mode: 'insensitive' } },
-              { userId: { contains: query } }
+              { email: { equals: query, mode: 'insensitive' } },
+              { userId: { contains: query, mode: 'insensitive' } }
             ]
           }
         ]
@@ -44,6 +63,7 @@ export async function GET(request) {
         university: true,
         role: true,
         bio: true,
+        privacySettings: true,
         // Do'stlik holatini tekshirish
         friendships1: {
           where: { user2Id: session.user.id },
@@ -88,15 +108,20 @@ export async function GET(request) {
         requestId = user.sentRequests[0].id
       }
 
+      const dostmi = status === 'friend'
+      const maxfiylik = tozala(user.privacySettings)
+      const profilOchiq = korinadimi(maxfiylik, 'profil', { ozimniki: false, dost: dostmi })
+
       return {
         id: user.id,
         userId: user.userId,
         username: user.username,
         fullName: user.fullName,
+        isVerified: user.isVerified,
         avatar: user.avatar,
         university: user.university,
         role: user.role,
-        bio: user.bio,
+        bio: profilOchiq ? user.bio : null,
         status,
         requestId
       }

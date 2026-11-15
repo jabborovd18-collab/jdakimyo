@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { canvasOlchami, kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -103,13 +103,13 @@ export default function Mavzu3_4() {
     },
     {
       savol: "Xona haroratida suyuq holatda bo'ladigan yagona metall va yagona metallmasni belgilang:",
-      variantlar: ["Hg (Simob) va Br₂ (Brom)", "Fe (Temir) va S (Oltingugurt)", "Ga (Galliy) va Cl₂ (Xlor)", "Cu (Mis) va I₂ (Yod)"],
+      variantlar: ["Cu (Mis) va I₂ (Yod)", "Hg (Simob) va Br₂ (Brom)", "Fe (Temir) va S (Oltingugurt)", "Ga (Galliy) va Cl₂ (Xlor)"],
       togriJavob: "Hg (Simob) va Br₂ (Brom)",
       izoh: "Simob (-39°C da eriydi) va Brom (-7°C da eriydi) xona haroratida suyuqlikdir.",
     },
     {
       savol: "Rux (Zn) yoki Magniy (Mg) xlorid kislotaga (HCl) tushirilganda qanday gaz pufakchalari ajraladi?",
-      variantlar: ["Vodorod (H₂↑)", "Kislorod (O₂↑)", "Karbonat angidrid (CO₂↑)", "Xlor (Cl₂↑)"],
+      variantlar: ["Karbonat angidrid (CO₂↑)", "Xlor (Cl₂↑)", "Vodorod (H₂↑)", "Kislorod (O₂↑)"],
       togriJavob: "Vodorod (H₂↑)",
       izoh: "Zn + 2HCl → ZnCl₂ + H₂↑ reaksiyasida vodorod gazi ajralib chiqadi.",
     },
@@ -131,8 +131,7 @@ export default function Mavzu3_4() {
 
     const chiz = () => {
       t += 0.03
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -206,11 +205,11 @@ export default function Mavzu3_4() {
         h * 0.72
       )
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, tanlanganKatak])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -224,8 +223,7 @@ export default function Mavzu3_4() {
     const canvas = radiusCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -312,8 +310,7 @@ export default function Mavzu3_4() {
 
     const chiz = () => {
       t += 0.04
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -386,11 +383,11 @@ export default function Mavzu3_4() {
         ctx.fillText(g.holat, x, botY + 26)
       })
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -412,8 +409,7 @@ export default function Mavzu3_4() {
     const canvas = inertCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -458,8 +454,7 @@ export default function Mavzu3_4() {
     const canvas = bashoratCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -520,8 +515,7 @@ export default function Mavzu3_4() {
     const canvas = oksidCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -545,10 +539,10 @@ export default function Mavzu3_4() {
   // 4 TA SMART DOSKA O'YINI
   // ═══════════════════════════════════════════════════════════════════════════
   const manzilSavollar = [
-    { savol: "3-davr, I A guruhda joylashgan (3 ta qobiq, tashqi qobiqda 1 ta elektron) element qaysi?", variantlar: ["Na (Natriy, Z=11)", "Li (Litiy, Z=3)", "K (Kaliy, Z=19)", "Mg (Magniy, Z=12)"], togri: "Na (Natriy, Z=11)" },
+    { savol: "3-davr, I A guruhda joylashgan (3 ta qobiq, tashqi qobiqda 1 ta elektron) element qaysi?", variantlar: ["Li (Litiy, Z=3)", "K (Kaliy, Z=19)", "Mg (Magniy, Z=12)", "Na (Natriy, Z=11)"], togri: "Na (Natriy, Z=11)" },
     { savol: "2-davr, IV A guruhda joylashgan organik hayot asosi bo'lgan element qaysi?", variantlar: ["C (Uglerod, Z=6)", "Si (Kremniy, Z=14)", "N (Azot, Z=7)", "O (Kislorod, Z=8)"], togri: "C (Uglerod, Z=6)" },
-    { savol: "3-davr, VII A guruhda joylashgan sariq-yashil zaharli gaz qaysi?", variantlar: ["Cl (Xlor, Z=17)", "F (Ftor, Z=9)", "S (Oltingugurt, Z=16)", "Ar (Argon, Z=18)"], togri: "Cl (Xlor, Z=17)" },
-    { savol: "4-davr, II A guruhda joylashgan suyak va ohaktosh tarkibiga kiruvchi element?", variantlar: ["Ca (Kalsiy, Z=20)", "K (Kaliy, Z=19)", "Mg (Magniy, Z=12)", "Fe (Temir, Z=26)"], togri: "Ca (Kalsiy, Z=20)" },
+    { savol: "3-davr, VII A guruhda joylashgan sariq-yashil zaharli gaz qaysi?", variantlar: ["Ar (Argon, Z=18)", "Cl (Xlor, Z=17)", "F (Ftor, Z=9)", "S (Oltingugurt, Z=16)"], togri: "Cl (Xlor, Z=17)" },
+    { savol: "4-davr, II A guruhda joylashgan suyak va ohaktosh tarkibiga kiruvchi element?", variantlar: ["Mg (Magniy, Z=12)", "Fe (Temir, Z=26)", "Ca (Kalsiy, Z=20)", "K (Kaliy, Z=19)"], togri: "Ca (Kalsiy, Z=20)" },
   ]
   const [mIdx, setMIdx] = useState(0)
   const [mTanlov, setMTanlov] = useState(null)
@@ -568,10 +562,10 @@ export default function Mavzu3_4() {
   const [oTugadi, setOTugadi] = useState(false)
 
   const qonuniyatSavollar = [
-    { savol: "Davriy jadvalda davr raqami atom tuzilishidagi nimani bildiradi?", variantlar: ["Elektron qobiqlar (pog'onalar) sonini", "Protonlar sonini", "Neytronlar sonini", "Molekuladagi atomlar sonini"], togri: "Elektron qobiqlar (pog'onalar) sonini" },
+    { savol: "Davriy jadvalda davr raqami atom tuzilishidagi nimani bildiradi?", variantlar: ["Protonlar sonini", "Neytronlar sonini", "Molekuladagi atomlar sonini", "Elektron qobiqlar (pog'onalar) sonini"], togri: "Elektron qobiqlar (pog'onalar) sonini" },
     { savol: "Asosiy guruhcha (A guruh) elementlarida guruh raqami nimaga teng?", variantlar: ["Tashqi qobiqdagi valent elektronlar soniga", "Yadrodagi neytronlar soniga", "Qobiqlar soniga", "Zichlikka"], togri: "Tashqi qobiqdagi valent elektronlar soniga" },
-    { savol: "I A guruhda yuqoridan pastga (Li → Na → K → Rb) tushgan sari atom radiusi qanday o'zgaradi?", variantlar: ["Kattalashadi (qobiqlar soni ortadi)", "Kichrayadi", "O'zgarmaydi", "Nolga teng bo'ladi"], togri: "Kattalashadi (qobiqlar soni ortadi)" },
-    { savol: "D.I. Mendeleyev 'Eka-kremniy' deb bashorat qilgan element keyinchalik qanday nom oldi?", variantlar: ["Germaniy (Ge)", "Galliy (Ga)", "Skandiy (Sc)", "Geliy (He)"], togri: "Germaniy (Ge)" },
+    { savol: "I A guruhda yuqoridan pastga (Li → Na → K → Rb) tushgan sari atom radiusi qanday o'zgaradi?", variantlar: ["Nolga teng bo'ladi", "Kattalashadi (qobiqlar soni ortadi)", "Kichrayadi", "O'zgarmaydi"], togri: "Kattalashadi (qobiqlar soni ortadi)" },
+    { savol: "D.I. Mendeleyev 'Eka-kremniy' deb bashorat qilgan element keyinchalik qanday nom oldi?", variantlar: ["Skandiy (Sc)", "Geliy (He)", "Germaniy (Ge)", "Galliy (Ga)"], togri: "Germaniy (Ge)" },
   ]
   const [qIdx, setQIdx] = useState(0)
   const [qTanlov, setQTanlov] = useState(null)
@@ -580,8 +574,8 @@ export default function Mavzu3_4() {
 
   const duelSavollari = [
     { s: "Davriy jadvalda nechta davr (gorizontal qator) bor?", v: ["7 ta davr", "18 ta davr", "10 ta davr"], j: "7 ta davr" },
-    { s: "Qaysi element 1-davr VIII A guruhda joylashgan?", v: ["He (Geliy)", "Ne (Neon)", "H (Vodorod)"], j: "He (Geliy)" },
-    { s: "Al (Alyuminiy, Z=13) nechta elektron qobiqqa ega?", v: ["3 ta (2, 8, 3)", "2 ta", "4 ta"], j: "3 ta (2, 8, 3)" },
+    { s: "Qaysi element 1-davr VIII A guruhda joylashgan?", v: ["H (Vodorod)", "He (Geliy)", "Ne (Neon)"], j: "He (Geliy)" },
+    { s: "Al (Alyuminiy, Z=13) nechta elektron qobiqqa ega?", v: ["2 ta", "4 ta", "3 ta (2, 8, 3)"], j: "3 ta (2, 8, 3)" },
     { s: "VII A guruh elementlari qanday nomlanadi?", v: ["Galogenlar", "Ishqoriy metallar", "Inert gazlar"], j: "Galogenlar" },
   ]
   const [g1Idx, setG1Idx] = useState(0)
@@ -1024,7 +1018,7 @@ export default function Mavzu3_4() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g1Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g1Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g1Idx].v, duelSavollari[g1Idx].s, g1Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"
@@ -1052,7 +1046,7 @@ export default function Mavzu3_4() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g2Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g2Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g2Idx].v, duelSavollari[g2Idx].s, g2Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"

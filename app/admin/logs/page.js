@@ -18,21 +18,27 @@ const ACTION_ICONS = {
   'create_mission': '🎯',
   'create_achievement': '🏆',
   'award_achievement': '🎁',
+  'ms_jadval_saqlandi': '🗓️',
+  'ms_natija_elon': '📣',
+  'ms_natija_yashirildi': '🙈',
   'default': '📋'
 }
 
 const ACTION_COLORS = {
+  'ms_natija_elon': 'text-emerald-400 bg-emerald-600/20 border-emerald-600/30',
+  'ms_natija_yashirildi': 'text-amber-400 bg-amber-600/20 border-amber-600/30',
+  'ms_': 'text-indigo-400 bg-indigo-600/20 border-indigo-600/30',
   'ban': 'text-red-400 bg-red-600/20 border-red-600/30',
   'unban': 'text-green-400 bg-green-600/20 border-green-600/30',
   'delete': 'text-red-400 bg-red-600/20 border-red-600/30',
   'create': 'text-green-400 bg-green-600/20 border-green-600/30',
   'update': 'text-blue-400 bg-blue-600/20 border-blue-600/30',
   'change': 'text-yellow-400 bg-yellow-600/20 border-yellow-600/30',
-  'award': 'text-purple-400 bg-purple-600/20 border-purple-600/30',
+  'award': 'text-[var(--v3-urgu)] bg-[var(--v3-yuza-2)] border-[var(--v3-chiziq-2)]',
   'resolve': 'text-green-400 bg-green-600/20 border-green-600/30',
   'dismiss': 'text-gray-400 bg-gray-600/20 border-gray-600/30',
   'cleanup': 'text-orange-400 bg-orange-600/20 border-orange-600/30',
-  'default': 'text-purple-400 bg-purple-600/20 border-purple-600/30'
+  'default': 'text-[var(--v3-xira)] bg-[var(--v3-yuza-2)] border-[var(--v3-chiziq)]'
 }
 
 export default function AdminLogsPage() {
@@ -54,6 +60,13 @@ export default function AdminLogsPage() {
   const [showCleanupModal, setShowCleanupModal] = useState(false)
   const [cleanupDays, setCleanupDays] = useState(90)
   const [isCleaning, setIsCleaning] = useState(false)
+
+  useEffect(() => {
+    const paramTarget = new URLSearchParams(window.location.search).get('targetType')
+    if (paramTarget) {
+      setTargetTypeFilter(paramTarget)
+    }
+  }, [])
 
   useEffect(() => {
     fetchLogs()
@@ -95,7 +108,6 @@ export default function AdminLogsPage() {
   }
 
   const handleCleanup = async () => {
-    if (!confirm(`Haqiqatan ham ${cleanupDays} kundan eski loglarni o'chirmoqchimisiz?\nBu amal qaytarib bo'lmaydi!`)) return
     
     setIsCleaning(true)
     try {
@@ -161,7 +173,7 @@ export default function AdminLogsPage() {
       case 'admin':
         return 'bg-orange-600/20 text-orange-400 border-orange-600/30'
       case 'moderator':
-        return 'bg-purple-600/20 text-purple-400 border-purple-600/30'
+        return 'bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] border-[var(--v3-chiziq-2)]'
       default:
         return 'bg-gray-600/20 text-gray-400 border-gray-600/30'
     }
@@ -208,7 +220,7 @@ export default function AdminLogsPage() {
               👑 SUPER ADMIN
             </span>
           </h1>
-          <p className="text-purple-300 mt-1">
+          <p className="text-[var(--v3-xira)] mt-1">
             Barcha admin harakatlarini kuzatish va audit qilish
           </p>
         </div>
@@ -248,12 +260,12 @@ export default function AdminLogsPage() {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-700/50 rounded-xl p-4">
+        <div className="v3-panel-karta p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-xl">👥</div>
+            <div className="w-10 h-10 rounded-lg bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xl">👥</div>
             <div>
-              <div className="text-2xl font-bold text-purple-400">{stats.uniqueAdmins || 0}</div>
-              <div className="text-xs text-purple-300/70">Faol adminlar</div>
+              <div className="text-2xl font-bold text-[var(--v3-urgu)]">{stats.uniqueAdmins || 0}</div>
+              <div className="text-xs text-[var(--v3-xira)]">Faol adminlar</div>
             </div>
           </div>
         </div>
@@ -273,18 +285,18 @@ export default function AdminLogsPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4 space-y-4">
+      <div className="v3-panel-karta p-4 space-y-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="🔍 Amal, admin yoki tafsilot bo'yicha qidirish..."
-            className="flex-1 px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
+            className="v3-kiritish flex-1"
           />
           <button
             type="submit"
-            className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold"
+            className="v3-tugma v3-tugma-asosiy"
           >
             Qidirish
           </button>
@@ -294,7 +306,7 @@ export default function AdminLogsPage() {
           <select
             value={adminFilter}
             onChange={(e) => { setAdminFilter(e.target.value); setPagination(p => ({ ...p, page: 1 })) }}
-            className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+            className="v3-kiritish"
           >
             <option value="all">👤 Barcha adminlar</option>
             {admins.map(a => (
@@ -307,29 +319,38 @@ export default function AdminLogsPage() {
           <select
             value={targetTypeFilter}
             onChange={(e) => { setTargetTypeFilter(e.target.value); setPagination(p => ({ ...p, page: 1 })) }}
-            className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+            className="v3-kiritish"
           >
-            <option value="all">📦 Barcha turlar</option>
-            <option value="user">👤 Foydalanuvchi</option>
-            <option value="report">📋 Report</option>
-            <option value="settings">⚙️ Sozlamalar</option>
-            <option value="quiz">📝 Quiz</option>
-            <option value="compound">🧪 Birikma</option>
-            <option value="system">🖥️ Tizim</option>
+            <option value="all">Barcha turlar</option>
+            <option value="MsImtihon">Milliy Sertifikat</option>
+            <option value="User">Foydalanuvchi</option>
+            <option value="Certificate">Sertifikat</option>
+            <option value="QuizQuestion">Quiz savoli</option>
+            <option value="Reaction">Reaksiya</option>
+            <option value="DailyQuote">Kunlik iqtibos</option>
+            <option value="DailyMission">Kunlik missiya</option>
+            <option value="ForumPost">Forum posti</option>
+            <option value="ChatReport">Chat shikoyati</option>
+            <option value="Channel">Hamkor kanal</option>
+            <option value="Telegram">Telegram</option>
+            <option value="ai_gateway">JDAKIMYO AI</option>
+            <option value="report">Shikoyat (report)</option>
+            <option value="settings">Sozlamalar</option>
+            <option value="system">Tizim</option>
           </select>
 
           <input
             type="date"
             value={dateFrom}
             onChange={(e) => { setDateFrom(e.target.value); setPagination(p => ({ ...p, page: 1 })) }}
-            className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+            className="v3-kiritish"
             placeholder="Dan"
           />
           <input
             type="date"
             value={dateTo}
             onChange={(e) => { setDateTo(e.target.value); setPagination(p => ({ ...p, page: 1 })) }}
-            className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+            className="v3-kiritish"
             placeholder="Gacha"
           />
 
@@ -352,19 +373,19 @@ export default function AdminLogsPage() {
       </div>
 
       {/* Logs Table */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl overflow-hidden">
+      <div className="v3-panel-karta overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-purple-300">⏳ Yuklanmoqda...</div>
+          <div className="p-12 text-center text-[var(--v3-xira)]">⏳ Yuklanmoqda...</div>
         ) : logs.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-6xl mb-4">📋</div>
             <h3 className="text-xl font-bold text-white mb-2">Loglar topilmadi</h3>
-            <p className="text-purple-300">Filtrlarni o'zgartirib ko'ring</p>
+            <p className="text-[var(--v3-xira)]">Filtrlarni o'zgartirib ko'ring</p>
           </div>
         ) : (
-          <div className="divide-y divide-purple-800/30">
+          <div className="divide-y divide-[var(--v3-chiziq)]">
             {logs.map((log) => (
-              <div key={log.id} className="p-4 hover:bg-purple-950/30 transition-colors">
+              <div key={log.id} className="p-4 hover:bg-[var(--v3-yuza-2)] transition-colors">
                 <div className="flex items-start gap-4">
                   {/* Icon */}
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 border ${getActionColor(log.action)}`}>
@@ -377,10 +398,10 @@ export default function AdminLogsPage() {
                       <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${getActionColor(log.action)}`}>
                         {log.action}
                       </span>
-                      <span className="text-xs text-purple-500">
+                      <span className="text-xs text-[var(--v3-xira)]">
                         {log.targetType} {log.targetId && `#${log.targetId.substring(0, 8)}`}
                       </span>
-                      <span className="text-xs text-purple-400 ml-auto" title={formatDate(log.createdAt)}>
+                      <span className="text-xs text-[var(--v3-xira)] ml-auto" title={formatDate(log.createdAt)}>
                         {formatRelativeTime(log.createdAt)}
                       </span>
                     </div>
@@ -404,7 +425,7 @@ export default function AdminLogsPage() {
 
                     {/* Details */}
                     {log.details && (
-                      <div className="text-sm text-purple-300 bg-purple-950/30 rounded-lg p-2 mt-2">
+                      <div className="text-sm text-[var(--v3-matn)] bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-lg p-2 mt-2">
                         {log.details}
                       </div>
                     )}
@@ -417,15 +438,15 @@ export default function AdminLogsPage() {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-purple-800/50">
-            <div className="text-sm text-purple-400">
+          <div className="flex items-center justify-between p-4 border-t border-[var(--v3-chiziq)]">
+            <div className="text-sm text-[var(--v3-xira)]">
               {pagination.total} ta logdan {(pagination.page - 1) * pagination.limit + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} ko'rsatilmoqda
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
                 disabled={pagination.page === 1}
-                className="px-3 py-1 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="v3-tugma text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 ← Oldingi
               </button>
@@ -435,7 +456,7 @@ export default function AdminLogsPage() {
               <button
                 onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
                 disabled={pagination.page === pagination.totalPages}
-                className="px-3 py-1 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="v3-tugma text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Keyingi →
               </button>
@@ -446,16 +467,16 @@ export default function AdminLogsPage() {
 
       {/* Top Actions */}
       {stats.topActions && stats.topActions.length > 0 && (
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-6">
+        <div className="v3-panel-karta p-6">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <span>⚡</span> Eng ko'p bajarilgan amallar (Top 10)
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {stats.topActions.map((action, idx) => (
-              <div key={idx} className="bg-purple-950/30 rounded-lg p-3 border border-purple-700/30">
+              <div key={idx} className="bg-[var(--v3-yuza-2)] rounded-lg p-3 border border-[var(--v3-chiziq)]">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-lg">{getActionIcon(action.action)}</span>
-                  <span className="text-xs text-purple-400 truncate">{action.action}</span>
+                  <span className="text-xs text-[var(--v3-xira)] truncate">{action.action}</span>
                 </div>
                 <div className="text-xl font-bold text-white">{action._count}</div>
               </div>
@@ -467,7 +488,7 @@ export default function AdminLogsPage() {
       {/* CLEANUP MODAL */}
       {showCleanupModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-red-700/50 rounded-2xl p-6 max-w-md w-full">
+          <div className="bg-[var(--v3-fon)] border border-red-500/40 rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <span>🧹</span> Eski loglarni tozalash
             </h3>
@@ -479,7 +500,7 @@ export default function AdminLogsPage() {
             </div>
 
             <div className="mb-4">
-              <label className="text-sm text-purple-300 mb-2 block">
+              <label className="text-sm text-[var(--v3-xira)] mb-2 block">
                 Necha kundan eski loglarni o'chirish?
               </label>
               <div className="grid grid-cols-4 gap-2 mb-3">
@@ -490,7 +511,7 @@ export default function AdminLogsPage() {
                     className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                       cleanupDays === days
                         ? 'bg-red-600 text-white'
-                        : 'bg-purple-800/50 text-purple-300 hover:bg-purple-700/50'
+                        : 'bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] border border-[var(--v3-chiziq)] hover:text-[var(--v3-matn)]'
                     }`}
                   >
                     {days} kun
@@ -502,19 +523,19 @@ export default function AdminLogsPage() {
                 value={cleanupDays}
                 onChange={(e) => setCleanupDays(parseInt(e.target.value) || 90)}
                 min="1"
-                className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                className="v3-kiritish w-full"
                 placeholder="Yoki o'z soningizni kiriting..."
               />
             </div>
 
-            <div className="bg-purple-950/30 rounded-lg p-3 mb-4 text-sm text-purple-300">
+            <div className="bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-lg p-3 mb-4 text-sm text-[var(--v3-xira)]">
               💡 <strong>Maslahat:</strong> Odatda 90 kunlik loglar saqlanadi. Disk joyini tejash uchun eski loglarni muntazam tozalab turing.
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setShowCleanupModal(false)}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white"
+                className="v3-tugma flex-1 justify-center"
               >
                 Bekor qilish
               </button>

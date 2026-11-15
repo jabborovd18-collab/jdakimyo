@@ -9,7 +9,8 @@ import { boshlaSessiya, hisoblaYakuniyNatija, ommaviySavol } from "../lib/milliy
 import { tekshirBank } from "../lib/milliy-sertifikat-bank.js"
 import { javoblarCsv } from "../lib/milliy-sertifikat-eksport.js"
 import { MILLIY_SERTIFIKAT_VARIANTLARI } from "../lib/milliy-sertifikat-data.js"
-import { getSavollarBySlug } from "../data/milliy-sertifikat/savollar-ombromi.js"
+import { sinovKatalogi } from "../lib/milliy-sertifikat-katalog.js"
+import { bankSavoli, getSavollarBySlug } from "../data/milliy-sertifikat/savollar-ombromi.js"
 
 const SIR = "sinov-siri"
 const DIAG = "rasch-diagnostika"
@@ -153,33 +154,41 @@ test("Yakunlash — o'sha sessiyani qayta yuborib bo'lmaydi", async () => {
   assert.equal(db.baza.urinishlar.length, 1)
 })
 
-test("Yakunlash — mehmon, begona token va kechikish sertifikat olmaydi", async () => {
-  const holatlar = [
-    { nom: "mehmon", s: sessiya({ uid: null }), userId: null, izoh: /tizimga kirib/ },
-    { nom: "begona", s: sessiya({ uid: "boshqa" }), userId: "u1", izoh: /tizimga kirib/ },
-    { nom: "chiqib ketgan", s: sessiya(), userId: null, izoh: /tizimga kirib/ },
-    { nom: "kechikkan", s: sessiya(), userId: "u1", hozir: 1000 + 3700e3, izoh: /Vaqt tugaganidan/ },
+test("Yakunlash — mehmon va begona sessiya 401 bilan rad etiladi, kechikish esa sertifikat olmaydi", async () => {
+  const radHolatlar = [
+    { nom: "mehmon", s: sessiya({ uid: null }), userId: null },
+    { nom: "begona", s: sessiya({ uid: "boshqa" }), userId: "u1" },
+    { nom: "chiqib ketgan", s: sessiya(), userId: null },
   ]
-  for (const h of holatlar) {
+  for (const h of radHolatlar) {
     const db = soxtaBaza()
     const javob = await yakunlaSinov({
       db, sessiya: h.s, javoblar: togriJavoblar(h.s), userId: h.userId,
-      toliqIsm: "Ali", sir: SIR, hozir: h.hozir ?? 5000,
+      toliqIsm: "Ali", sir: SIR, hozir: 5000,
     })
-    assert.equal(javob.status, 200, h.nom)
-    assert.equal(javob.body.natija.sertifikat, null, h.nom)
-    assert.match(javob.body.natija.sertifikatIzoh, h.izoh, h.nom)
+    assert.equal(javob.status, 401, h.nom)
+    assert.equal(javob.body.loginKerak, true, h.nom)
     assert.equal(db.baza.sertifikatlar.length, 0, h.nom)
-    assert.equal(db.baza.urinishlar.length, 1, h.nom)
+    assert.equal(db.baza.natijalar.length, 0, h.nom)
+    assert.equal(db.baza.urinishlar.length, 0, h.nom)
   }
-})
 
-test("Yakunlash — begona foydalanuvchi urinishi unga yozilmaydi", async () => {
-  const db = soxtaBaza()
-  const s = sessiya({ uid: "boshqa" })
-  await yakunlaSinov({ db, sessiya: s, javoblar: {}, userId: "u1", toliqIsm: "Ali", sir: SIR, hozir: 5000 })
-  assert.equal(db.baza.urinishlar[0].userId, null)
-  assert.equal(db.baza.urinishlar[0].urinishTartibi, null)
+  const kechikishDb = soxtaBaza()
+  const kechikish = await yakunlaSinov({
+    db: kechikishDb,
+    sessiya: sessiya(),
+    javoblar: togriJavoblar(sessiya()),
+    userId: "u1",
+    toliqIsm: "Ali",
+    sir: SIR,
+    hozir: 1000 + 3700e3,
+  })
+  assert.equal(kechikish.status, 200)
+  assert.equal(kechikish.body.natija.sertifikat, null)
+  assert.match(kechikish.body.natija.sertifikatIzoh, /Vaqt tugaganidan/)
+  assert.equal(kechikishDb.baza.sertifikatlar.length, 0)
+  assert.equal(kechikishDb.baza.urinishlar.length, 1)
+  assert.equal(kechikishDb.baza.urinishlar[0].userId, "u1")
 })
 
 test("Yakunlash — urinish jadvali yiqilsa ham o'quvchi natijasini oladi", async () => {
@@ -208,9 +217,9 @@ test("Yakunlash — ikkinchi urinish tartibi oshadi", async () => {
   assert.deepEqual(db.baza.urinishlar.map((u) => u.urinishTartibi), [1, 2])
 })
 
-test("Savol banki — ochiq sinovlarda xato yo'q", () => {
+test("Savol banki — savol qo'shilgan sinovlarda xato yo'q", () => {
   const rasmBormi = (rasm) => existsSync(join("public", rasm))
-  for (const variant of MILLIY_SERTIFIKAT_VARIANTLARI.filter((v) => v.holat === "ochiq")) {
+  for (const variant of MILLIY_SERTIFIKAT_VARIANTLARI.filter((v) => getSavollarBySlug(v.slug).length > 0)) {
     const { xatolar } = tekshirBank(variant, getSavollarBySlug(variant.slug), rasmBormi)
     assert.deepEqual(xatolar, [], variant.slug)
   }
@@ -230,7 +239,7 @@ test("Savol banki — darvoza nuqsonlarni tutadi", () => {
 })
 
 test("Bo'sh bank — sinovlar yopiq, eski savollar qaytib kelmagan", () => {
-  for (const variant of MILLIY_SERTIFIKAT_VARIANTLARI) {
+  for (const variant of sinovKatalogi()) {
     if (getSavollarBySlug(variant.slug).length === 0) {
       assert.equal(variant.holat === "ochiq", false, variant.slug)
       assert.equal(boshlaSessiya(variant.slug), null, variant.slug)
@@ -247,6 +256,42 @@ test("Bo'sh bank — ochiq qolgan sessiya yiqilmaydi va hech narsa yozilmaydi", 
   assert.equal(javob.status, 410)
   assert.equal(db.baza.natijalar.length, 0)
   assert.equal(db.baza.urinishlar.length, 0)
+})
+
+test("Katalog — sinov bank to'lganda o'zi ochiladi, chala bo'lsa yopiq", () => {
+  const holat = (savollar) =>
+    sinovKatalogi((slug) => (slug === DIAG ? savollar : [])).find((v) => v.slug === DIAG).holat
+
+  assert.equal(holat(SAVOLLAR), "ochiq")
+  assert.equal(holat(SAVOLLAR.slice(0, 12)), "tayyorlanmoqda")
+  assert.equal(holat([]), "tayyorlanmoqda")
+  assert.equal(holat(SAVOLLAR.map((s) => ({ ...s, qiyinlik: undefined }))), "tayyorlanmoqda")
+})
+
+test("Katalog — ochilgan sinovni boshlash mumkin", () => {
+  const katalog = sinovKatalogi((slug) => (slug === DIAG ? SAVOLLAR : []))
+  assert.equal(boshlaSessiya(DIAG, {}, katalog).savollarSoni, 30)
+  assert.equal(boshlaSessiya("attestatsiya-sinov", {}, katalog), null)
+})
+
+test("Qiyinlik — kalibrlangan qiymat taxmindan ustun", () => {
+  assert.equal(bankSavoli({ id: 1, daraja: "oson" }).qiyinlik, -1.5)
+  assert.equal(bankSavoli({ id: 1, daraja: "qiyin" }).qiyinlik, 1.5)
+  assert.equal(bankSavoli({ id: 1, daraja: "oson", qiyinlik: 0.4 }).qiyinlik, 0.4)
+  assert.equal(bankSavoli({ id: 1, daraja: "oson", qiyinlik: 0.4 }, { 1: -0.9 }).qiyinlik, -0.9)
+  assert.equal(bankSavoli({ id: 1 }).qiyinlik, undefined)
+})
+
+test("Natija — ball oralig'i va ishonchsiz belgisi", () => {
+  const savollar = sessiyaSavollari(SAVOLLAR, "sid-1", SIR)
+  const togri = Object.fromEntries(savollar.map((s, i) => [s.id, i >= 15 ? s.correct : (s.correct + 1) % 4]))
+  const teskari = hisoblaYakuniyNatija(savollar, togri, 100)
+  assert.equal(teskari.ishonchsiz, true, "Oson xato, qiyin to'g'ri bo'lsa belgilanadi")
+
+  const tartibli = Object.fromEntries(savollar.map((s, i) => [s.id, i < 15 ? s.correct : (s.correct + 1) % 4]))
+  const oddiy = hisoblaYakuniyNatija(savollar, tartibli, 100)
+  assert.equal(oddiy.ishonchsiz, false)
+  assert.equal(oddiy.ballPast < oddiy.shkalaBalli && oddiy.shkalaBalli < oddiy.ballYuqori, true)
 })
 
 test("Sessiya savollari — brauzerga javob ketmaydi, indeks belgisi qoladi", () => {

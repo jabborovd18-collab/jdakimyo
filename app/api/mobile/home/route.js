@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/api-auth'
 import { prisma } from '@/lib/prisma'
+import { QUIZ_NATIJA_TARTIBI } from '@/lib/quiz-natija-boshqaruv'
 
 // CORS preflight (sarlavhalar next.config.mjs da)
 export { OPTIONS } from '@/lib/cors'
@@ -18,7 +19,8 @@ export async function GET(request) {
 
     const userId = auth.id
 
-    const [user, quizAgg, bestQuiz, leaders, recentQuizzes] = await Promise.all([
+    const [user, quizAgg, bestQuiz, leaders, recentQuizzes, certificatesCount] =
+      await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -40,14 +42,14 @@ export async function GET(request) {
 
       // O'tkazilgan testlar soni va o'rtacha natija
       prisma.quizResult.aggregate({
-        where: { userId },
+        where: { userId, isHidden: false },
         _count: { id: true },
         _avg: { percentage: true },
       }),
 
       // Eng yaxshi natija
       prisma.quizResult.findFirst({
-        where: { userId },
+        where: { userId, isHidden: false },
         orderBy: { percentage: 'desc' },
         select: { percentage: true, quizName: true, completedAt: true },
       }),
@@ -68,11 +70,13 @@ export async function GET(request) {
       }),
 
       prisma.quizResult.findMany({
-        where: { userId },
-        orderBy: { completedAt: 'desc' },
+        where: { userId, isHidden: false },
+        orderBy: QUIZ_NATIJA_TARTIBI,
         take: 5,
-        select: { id: true, quizName: true, percentage: true, completedAt: true },
+        select: { id: true, quizName: true, percentage: true, isPinned: true, completedAt: true },
       }),
+
+      prisma.certificate.count({ where: { userId } }),
     ])
 
     if (!user) {
@@ -107,6 +111,7 @@ export async function GET(request) {
         myWeeklyStars: user.weeklyStars,
       },
       recentQuizzes,
+      certificatesCount,
     })
   } catch (error) {
     console.error('[Mobile home]', error)

@@ -4,6 +4,7 @@
 // "Asoslar" (Darslik 80-bet)
 // 6 ta interaktiv Canvas Ko'rgazma + 4 ta Smart-doska O'yini
 // ============================================================
+import { kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir, indekslanganVariantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import { useState, useEffect, useRef } from 'react'
 import Ikon from '@/components/Ikon'
 import OtganDarsniTakrorlash from '@/components/maktab/OtganDarsniTakrorlash'
@@ -12,9 +13,8 @@ import { SmartDoskaNavigatsiya } from '@/components/maktab/SmartDoskaYordamchi'
 function tovushChiqar(turi) {
     if (typeof window === 'undefined') return
     try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext
-        if (!AudioCtx) return
-        const ctx = new AudioCtx()
+        const ctx = umumiyAudio()
+        if (!ctx) return
         const now = ctx.currentTime
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
@@ -59,10 +59,10 @@ const TAKROPI_5_1 = [
     {
         savol: "Konsentrlangan sulfat kislotani (H₂SO₄) suv bilan suyultirishning to'g'ri va xavfsiz qoidasi qaysi?",
         variantlar: [
+            "Farqi yo'q",
             "Suv ustiga kislotani ingichka oqim bilan aralashtirib quyish",
             "Kislota ustiga suvni birdan quyish",
             "Yopiq probirkada qaynagan suv bilan chayqatish",
-            "Farqi yo'q"
         ],
         togriJavob: "Suv ustiga kislotani ingichka oqim bilan aralashtirib quyish",
         izoh: "Avval suv, keyin kislota! Kislotaga suv quyilsa, yengil suv sirtda qaynab, kislotani atrofga sachratadi."
@@ -154,10 +154,10 @@ function AsosTuzilishiCanvas() {
             ctx.font = 'bold 14px "Times New Roman", serif'
             ctx.fillText(`Gidroksoguruh (-OH) doim I valentli! Metall valentligi = ${asos.ohSoni} → OH guruhlari soni = ${asos.ohSoni}`, 280, 276)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [asos])
 
     return (
@@ -169,7 +169,9 @@ function AsosTuzilishiCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={295} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={295} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     {ASOSLAR_ROYXATI.map((a) => (
@@ -272,10 +274,10 @@ function IshqorEruvchanlikCanvas() {
                 274
             )
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [namuna])
 
     return (
@@ -287,7 +289,9 @@ function IshqorEruvchanlikCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={295} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={295} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     <div className="grid grid-cols-2 gap-2">
@@ -385,10 +389,10 @@ function IshqorOlinishiCanvas() {
             ctx.font = 'bold 14px "Times New Roman", serif'
             ctx.fillText("DIQQAT: CuO va Fe₂O₃ suvda ERIMAYDI, shuning uchun ulardan suv qo'shib asos olib bo'lmaydi!", 280, 272)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [usul])
 
     return (
@@ -400,7 +404,9 @@ function IshqorOlinishiCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5 font-serif">
                     {ISHQOR_USULLARI.map((u) => (
@@ -490,10 +496,10 @@ function ChokmaAsosSinteziCanvas() {
             ctx.font = 'bold 14px "Times New Roman", serif'
             ctx.fillText("Qoida: Suvda erimaydigan asoslarni olish uchun ERUVCHAN TUZ + ISHQOR reaksiyasi o'tkaziladi!", 280, 272)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [reaksiya])
 
     return (
@@ -505,7 +511,9 @@ function ChokmaAsosSinteziCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     {CHOKMA_REAKSIYALAR.map((r) => (
@@ -599,10 +607,10 @@ function AsosTermikParchalanishCanvas() {
             ctx.font = 'bold 14px "Times New Roman", serif'
             ctx.fillText("Erimaydigan asoslar qizdirilganda OKSID va SUVGA parchalanadi (NaOH va KOH parchalanmaydi!)", 280, 276)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [qizdirish])
 
     return (
@@ -624,7 +632,9 @@ function AsosTermikParchalanishCanvas() {
                 </button>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -690,10 +700,10 @@ function OhakliSuvTestCanvas() {
                 272
             )
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [puflash])
 
     return (
@@ -711,7 +721,9 @@ function OhakliSuvTestCanvas() {
                 </button>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -802,12 +814,12 @@ function IshqorTasnifOyini() {
 // 2-O'YIN: Me(OH)ₙ FORMULA KONSTRUKTORI
 // ============================================================
 const FORMULA_ASOS_SAVOLLAR = [
-    { nom: "Temir (III) gidroksidning to'g'ri kimyoviy formulasini toping:", javob: "Fe(OH)₃", variantlar: ["FeOH", "Fe(OH)₂", "Fe(OH)₃", "Fe₃OH"] },
+    { nom: "Temir (III) gidroksidning to'g'ri kimyoviy formulasini toping:", javob: "Fe(OH)₃", variantlar: ["Fe(OH)₃", "Fe₃OH", "FeOH", "Fe(OH)₂"] },
     { nom: "Kalsiy gidroksid (so'ndirilgan ohak) formulasini toping:", javob: "Ca(OH)₂", variantlar: ["CaOH", "Ca(OH)₂", "Ca₂OH", "CaO"] },
-    { nom: "Kaliy gidroksid (o'yuvchi kaliy) formulasini toping:", javob: "KOH", variantlar: ["KOH", "K(OH)₂", "Ca(OH)₂", "NaOH"] },
-    { nom: "Mis (I) gidroksid va Mis (II) gidroksid formulalari juftligini toping:", javob: "CuOH va Cu(OH)₂", variantlar: ["CuOH va Cu(OH)₂", "Cu₂OH va CuOH", "Cu(OH)₂ va Cu(OH)₃", "CoOH va Co(OH)₂"] },
-    { nom: "Alyuminiy gidroksidning to'g'ri formulasi qaysi (Al — III valentli)?", javob: "Al(OH)₃", variantlar: ["AlOH", "Al(OH)₂", "Al(OH)₃", "Al₃(OH)"] },
-    { nom: "Asoslar tarkibidagi gidroksoguruh (-OH) ning valentligi doim nechaga teng?", javob: "I valentli", variantlar: ["I valentli", "II valentli", "III valentli", "O'zgaruvchan"] },
+    { nom: "Kaliy gidroksid (o'yuvchi kaliy) formulasini toping:", javob: "KOH", variantlar: ["Ca(OH)₂", "NaOH", "KOH", "K(OH)₂"] },
+    { nom: "Mis (I) gidroksid va Mis (II) gidroksid formulalari juftligini toping:", javob: "CuOH va Cu(OH)₂", variantlar: ["Cu₂OH va CuOH", "Cu(OH)₂ va Cu(OH)₃", "CoOH va Co(OH)₂", "CuOH va Cu(OH)₂"] },
+    { nom: "Alyuminiy gidroksidning to'g'ri formulasi qaysi (Al — III valentli)?", javob: "Al(OH)₃", variantlar: ["Al(OH)₃", "Al₃(OH)", "AlOH", "Al(OH)₂"] },
+    { nom: "Asoslar tarkibidagi gidroksoguruh (-OH) ning valentligi doim nechaga teng?", javob: "I valentli", variantlar: ["O'zgaruvchan", "I valentli", "II valentli", "III valentli"] },
 ]
 
 function FormulaKonstruktorOyini() {
@@ -845,7 +857,7 @@ function FormulaKonstruktorOyini() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -888,9 +900,9 @@ function FormulaKonstruktorOyini() {
 const CHOKMA_OYIN_SAVOLLAR = [
     { savol: "Mis (II) sulfat eritmasiga (CuSO₄) o'yuvchi natriy (NaOH) qo'shilganda qanday rangli cho'kma tushadi?", javob: "Havorang (moviy) Cu(OH)₂↓ cho'kmasi", variantlar: ["Havorang (moviy) Cu(OH)₂↓ cho'kmasi", "Qo'ng'ir Fe(OH)₃↓ cho'kmasi", "Oq Mg(OH)₂↓ cho'kmasi", "Qora CuO cho'kmasi"] },
     { savol: "Moviy rangli Cu(OH)₂ cho'kmasi qizdirilganda qanday moddalarga parchalanadi?", javob: "Qora rangli CuO va H₂O ga", variantlar: ["Toza Cu va O₂ ga", "Qora rangli CuO va H₂O ga", "CuSO₄ va H₂ ga", "Parchalanmaydi"] },
-    { savol: "Tiniq ohakli suv — Ca(OH)₂ orqali karbonat angidrid (CO₂) o'tkazilsa nima kuzatiladi?", javob: "Oq rangli CaCO₃↓ cho'kmasi tushib, eritma loyqalanadi", variantlar: ["Eritma qizil rangga kiradi", "Oq rangli CaCO₃↓ cho'kmasi tushib, eritma loyqalanadi", "Vodorod gazi chiqadi", "O'zgarish bo'lmaydi"] },
-    { savol: "Nima uchun Mis (II) oksidga (CuO) suv qo'shib Cu(OH)₂ olib bo'lmaydi?", javob: "Chunki CuO suvda erimaydi va suv bilan reaksiyaga kirishmaydi", variantlar: ["Chunki CuO gaz modda", "Chunki CuO suvda erimaydi va suv bilan reaksiyaga kirishmaydi", "Chunki CuO kislotali oksid", "Chunki portlab ketadi"] },
-    { savol: "2Fe(OH)₃ qizdirilganda qaysi oksid va suvga parchalanadi?", javob: "Fe₂O₃ + 3H₂O", variantlar: ["FeO + H₂O", "Fe₂O₃ + 3H₂O", "2Fe + 3H₂O", "Fe₃O₄ + H₂"] },
+    { savol: "Tiniq ohakli suv — Ca(OH)₂ orqali karbonat angidrid (CO₂) o'tkazilsa nima kuzatiladi?", javob: "Oq rangli CaCO₃↓ cho'kmasi tushib, eritma loyqalanadi", variantlar: ["O'zgarish bo'lmaydi", "Eritma qizil rangga kiradi", "Oq rangli CaCO₃↓ cho'kmasi tushib, eritma loyqalanadi", "Vodorod gazi chiqadi"] },
+    { savol: "Nima uchun Mis (II) oksidga (CuO) suv qo'shib Cu(OH)₂ olib bo'lmaydi?", javob: "Chunki CuO suvda erimaydi va suv bilan reaksiyaga kirishmaydi", variantlar: ["Chunki CuO kislotali oksid", "Chunki portlab ketadi", "Chunki CuO gaz modda", "Chunki CuO suvda erimaydi va suv bilan reaksiyaga kirishmaydi"] },
+    { savol: "2Fe(OH)₃ qizdirilganda qaysi oksid va suvga parchalanadi?", javob: "Fe₂O₃ + 3H₂O", variantlar: ["Fe₂O₃ + 3H₂O", "2Fe + 3H₂O", "Fe₃O₄ + H₂", "FeO + H₂O"] },
 ]
 
 function RangliChokmalarOyini() {
@@ -928,7 +940,7 @@ function RangliChokmalarOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -969,10 +981,10 @@ function RangliChokmalarOyini() {
 // 4-O'YIN: JAMOALAR DUELI (1-GURUH VS 2-GURUH)
 // ============================================================
 const DUEL_5_2 = [
-    { savol: "Suvda eriydigan asoslar bir so'z bilan nima deb ataladi?", variantlar: ["Kislotalar", "Ishqorlar", "Oksidlar", "Tuzlar"], javob: 1 },
+    { savol: "Suvda eriydigan asoslar bir so'z bilan nima deb ataladi?", variantlar: ["Ishqorlar", "Oksidlar", "Tuzlar", "Kislotalar"], javob: 0 },
     { savol: "Asoslar suvda eriganda qaysi manfiy ionni hosil qiladi?", variantlar: ["H⁺", "OH⁻ (Gidroksid ioni)", "Cl⁻", "SO₄²⁻"], javob: 1 },
-    { savol: "Qaysi asos havorang (moviy) iviq cho'kma hisoblanadi?", variantlar: ["NaOH", "Cu(OH)₂", "Fe(OH)₃", "KOH"], javob: 1 },
-    { savol: "2Na + 2H₂O reaksiyasida NaOH bilan birga qaysi gaz chiqadi?", variantlar: ["O₂↑", "H₂↑", "CO₂↑", "Cl₂↑"], javob: 1 },
+    { savol: "Qaysi asos havorang (moviy) iviq cho'kma hisoblanadi?", variantlar: ["KOH", "NaOH", "Cu(OH)₂", "Fe(OH)₃"], javob: 2 },
+    { savol: "2Na + 2H₂O reaksiyasida NaOH bilan birga qaysi gaz chiqadi?", variantlar: ["CO₂↑", "Cl₂↑", "O₂↑", "H₂↑"], javob: 3 },
     { savol: "Qo'ng'ir-zang rangli suvda erimaydigan asosni toping:", variantlar: ["Fe(OH)₃", "Cu(OH)₂", "Ca(OH)₂", "NaOH"], javob: 0 },
     { savol: "O'yuvchi natriyning kimyoviy formulasi qaysi?", variantlar: ["KOH", "NaOH", "Na₂CO₃", "NaHCO₃"], javob: 1 },
 ]
@@ -984,7 +996,9 @@ function JamoalarDueli5_2() {
     const [navbat, setNavbat] = useState(1)
     const [natija, setNatija] = useState(null)
 
-    const joriy = DUEL_5_2[idx]
+    const xomJoriy = DUEL_5_2[idx]
+    const aralash = indekslanganVariantlarniAralashtir(xomJoriy, idx)
+    const joriy = { ...xomJoriy, variantlar: aralash.variantlar, javob: aralash.togri }
 
     const javobBer = (i) => {
         if (natija !== null) return

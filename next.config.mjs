@@ -4,32 +4,88 @@ const nextConfig = {
     // @sparticuz/chromium binary fayllarni fs orqali topadi; statik tracer bu
     // yo'lni ko'rmaydi, shuning uchun faqat PDF functionga aniq qo'shamiz.
     '/api/masala/pdf': ['./node_modules/@sparticuz/chromium/bin/**/*'],
+    // Sertifikat PDF va Telegram bot shriftlar hamda hamkorlik rasmlarini fs orqali o'qiydi
+    '/api/sertifikat/[certId]/pdf': [
+      './public/fonts/**/*',
+      './public/images/hamkorlik/**/*',
+    ],
+    '/api/telegram/webhook': [
+      './public/fonts/**/*',
+      './public/images/hamkorlik/**/*',
+    ],
+    '/api/admin/milliy-sertifikat': [
+      './public/fonts/**/*',
+      './public/images/hamkorlik/**/*',
+    ],
+    '/api/admin/certificates': [
+      './public/fonts/**/*',
+      './public/images/hamkorlik/**/*',
+    ],
+    '/api/admin/mavsumiyhamkor': [
+      './public/fonts/**/*',
+      './public/images/hamkorlik/**/*',
+    ],
   },
   async redirects() {
     return [
-      // /birikmalar HECH QACHON ishlamagan: sahifa `/api/compounds` dan
-      // ma'lumot so'rardi, lekin bunday API yozilmagan va `Compound`
-      // jadvali bo'sh. Ya'ni ziyoratchi doim bo'sh ro'yxat ko'rardi,
-      // sitemap esa uni 0.9 muhimlik bilan Google'ga taklif qilardi.
+      // /oquv va /ilmiy v4 da butunlay olib tashlangan.
       //
-      // Haqiqiy katalog — /ilmiy/birikmalar: 34 ta to'ldirilgan sahifa,
-      // har biri o'z sarlavhasi bilan. Shu yerga yo'naltiramiz.
-      //
-      // `permanent: true` — Next.js buni 308 bilan qaytaradi (301 emas,
-      // farqi: 308 so'rov usulini saqlaydi). Qidiruv tizimlari uchun
-      // ikkisi bir xil: eski manzil ro'yxatdan o'chadi va vazni
-      // yangisiga o'tadi. Vaqtinchalik (307/302) bo'lsa Google eskisini
-      // saqlab qolardi.
+      // Yo'naltirish MAJBURIY va DOIMIY qoladi: eski manzillar bildirishnomalar
+      // va chat xabarlarida MATN sifatida saqlangan va Google indeksida turibdi.
+      // Tartib muhim: aniq manzillar umumiy qoidadan oldin turishi shart.
       {
-        source: '/birikmalar',
-        destination: '/ilmiy/birikmalar',
+        source: '/oquv/video-darsliklar/ustoz-quiz/:id',
+        destination: '/testlar/ustoz/:id',
         permanent: true,
       },
-      // Ichki sahifalar ham. Bazasi bo'sh bo'lgani uchun bu manzillar
-      // hech qachon mavjud bo'lmagan — hammasi katalogga boradi.
       {
-        source: '/birikmalar/:id',
-        destination: '/ilmiy/birikmalar',
+        source: '/oquv/video-darsliklar/ustoz-quiz',
+        destination: '/testlar/ustoz',
+        permanent: true,
+      },
+      {
+        source: '/oquv/video-darsliklar/ustoz-yopiq-quiz/:id',
+        destination: '/testlar/yozma/:id',
+        permanent: true,
+      },
+      {
+        source: '/oquv/video-darsliklar/ustoz-yopiq-quiz',
+        destination: '/testlar/yozma',
+        permanent: true,
+      },
+      {
+        source: '/oquv/video-darsliklar/:path*',
+        destination: '/testlar',
+        permanent: true,
+      },
+      {
+        source: '/oquv/:path*',
+        destination: '/maktabkimyo',
+        permanent: true,
+      },
+      {
+        source: '/ilmiy/maqolalar/muhokama/:id',
+        destination: '/dolzarb/:id',
+        permanent: true,
+      },
+      {
+        source: '/ilmiy/maqolalar/muhokama',
+        destination: '/dolzarb',
+        permanent: true,
+      },
+      {
+        source: '/ilmiy/:path*',
+        destination: '/oliykimyo',
+        permanent: true,
+      },
+      {
+        source: '/birikmalar/:path*',
+        destination: '/oliykimyo',
+        permanent: true,
+      },
+      {
+        source: '/laboratoriya/3d/:path*',
+        destination: '/laboratoriya',
         permanent: true,
       },
       // Chat kabinetdan chiqib, o'z bo'limiga (/chat) o'tdi.
@@ -54,6 +110,16 @@ const nextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          // Kamera faqat o'z domenimizda (/doska/skaner QR skaneri uchun) ruxsat etiladi
+          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=()' },
+        ],
+      },
       {
         // *.vercel.app — SAYTNING UCHINCHI NUSXASI.
         //

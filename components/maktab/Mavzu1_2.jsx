@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { kadrSora, kadrniBekorQil, umumiyAudio } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import {
   SmartDoskaNavigatsiya,
@@ -26,10 +27,10 @@ const takrorlashSavollari1_1 = [
     savol: "Temir mix nam havoda qolganda ustida qizg'ish zang paydo bo'ldi. Bu qanday hodisa?",
     izoh: "Temir havodagi kislorod va suv bilan birikib, yangi modda (Fe2O3) hosil qiladi. Yangi modda hosil bo'lishi — kimyoviy o'zgarish belgisidir!",
     variantlar: [
+      { matn: "Holat o'zgarmadi", togri: false },
       { matn: "Kimyoviy o'zgarish (reaksiya)", togri: true },
       { matn: "Fizik o'zgarish", togri: false },
       { matn: "Oddiy ifloslanish", togri: false },
-      { matn: "Holat o'zgarmadi", togri: false },
     ],
   },
   {
@@ -37,10 +38,10 @@ const takrorlashSavollari1_1 = [
     savol: "Kislotaga metall bo'lagi tashlanganda kuchli ko'pirish yuz berdi. Bu reaksiyaning qaysi belgisidir?",
     izoh: "Gaz pufakchalarining shiddat bilan ajralishi kimyoviy reaksiya yuz berganini ko'rsatuvchi 4 ta asosiy belgidan biridir.",
     variantlar: [
-      { matn: "Gaz ajralishi", togri: true },
-      { matn: "Muzlash hodisasi", togri: false },
       { matn: "Moddaning bug'lanishi", togri: false },
       { matn: "Faqat harorat tushishi", togri: false },
+      { matn: "Gaz ajralishi", togri: true },
+      { matn: "Muzlash hodisasi", togri: false },
     ],
   },
   {
@@ -48,10 +49,10 @@ const takrorlashSavollari1_1 = [
     savol: "Kimyo fani nimani o'rganadi?",
     izoh: "Kimyo — tabiatdagi moddalar, ularning tarkibi, tuzilishi, xossalari hamda boshqa moddalarga aylanishini o'rganuvchi asosiy fandir.",
     variantlar: [
-      { matn: "Moddalar, ularning xossalari va bir-biriga aylanishini", togri: true },
       { matn: "Faqat tirik organizmlarning ko'payishini", togri: false },
       { matn: "Faqat osmon jismlari harakatini", togri: false },
       { matn: "Faqat elektr to'kining kuchini", togri: false },
+      { matn: "Moddalar, ularning xossalari va bir-biriga aylanishini", togri: true },
     ],
   },
 ]
@@ -60,9 +61,8 @@ const takrorlashSavollari1_1 = [
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)
@@ -455,11 +455,11 @@ export default function Mavzu1_2() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, pelikanOlov, pelikanKun, lupaAktiv])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -612,11 +612,11 @@ export default function Mavzu1_2() {
       })
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, sheeleKun, sheeleQaynamoqda])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -792,11 +792,11 @@ export default function Mavzu1_2() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, namunaTuri, suvHarorati, aralashtirilmoqda, eriganFoiz])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -967,11 +967,11 @@ export default function Mavzu1_2() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, taroziQadam])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1025,9 +1025,9 @@ export default function Mavzu1_2() {
       vaziyat: "Tajribangiz 5 marta ketma-ket kutilgan natijani bermadi, cho'kma hosil bo'lmadi. Haqiqiy tadqiqotchi sifatida nima qilasiz?",
       fazilat: "Qat'iyatlilik va Sabr-toqat",
       variantlar: [
+        { matn: "Uskunalarni yig'ishtirib, fanni o'rganishni tashlab ketaman", togri: false, izoh: "Tadqiqotchi qiyinchilik oldida chekinmaydi!" },
         { matn: "Taslim bo'lmasdan xatolarni tahlil qilaman va yangi gipoteza bilan qayta o'tkazaman", togri: true, izoh: "Karl Sheele va Lavuazye oylab sabr bilan qayta-qayta tekshirgan!" },
         { matn: "Kutilgan natijani daftarga soxtalashtirib yozib qo'yaman", togri: false, izoh: "Ilm-fanda yolg'on va natijani o'zgartirish qat'iyan man etiladi!" },
-        { matn: "Uskunalarni yig'ishtirib, fanni o'rganishni tashlab ketaman", togri: false, izoh: "Tadqiqotchi qiyinchilik oldida chekinmaydi!" },
       ],
     },
     {
@@ -1035,9 +1035,9 @@ export default function Mavzu1_2() {
       vaziyat: "Eritmaga indikator tomizganingizda kutilmagan to'q yashil rang chiqdi. Olim nima qilishi kerak?",
       fazilat: "Qiziquvchanlik va Halollik",
       variantlar: [
-        { matn: "Kutilmagan hodisaning sababini qunt bilan o'rganaman va boricha qayd etaman", togri: true, izoh: "Ko'plab buyuk kashfiyotlar kutilmagan hodisalarni o'rganishdan boshlangan!" },
         { matn: "Hech kim ko'rmasligi uchun idishni tezda yuvib tashlayman", togri: false, izoh: "Bu yangi kashfiyot imkoniyatini yo'qotish demakdir." },
         { matn: "Do'stlarimdan javobni ko'chirib, to'g'ri deb yozaman", togri: false, izoh: "Tadqiqotchi o'z tajribasiga ishonishi va halol bo'lishi shart." },
+        { matn: "Kutilmagan hodisaning sababini qunt bilan o'rganaman va boricha qayd etaman", togri: true, izoh: "Ko'plab buyuk kashfiyotlar kutilmagan hodisalarni o'rganishdan boshlangan!" },
       ],
     },
     {
@@ -1055,9 +1055,9 @@ export default function Mavzu1_2() {
       vaziyat: "101 kunlik uzoq tajribada natijalarni qanday qayd etib borish lozim?",
       fazilat: "Mas'uliyat va Aniqlik",
       variantlar: [
+        { matn: "Faqat o'zimga yoqqan kunlarni yozib, qolganini o'tkazib yuboraman", togri: false, izoh: "Uzluksiz kuzatuv bo'lmasa tajriba xulosasi ishonchsiz bo'ladi." },
         { matn: "Har kuni harorat, tarozi ko'rsatkichi va o'zgarishlarni kunda-kunga aniq yozib boraman", togri: true, izoh: "Laboratoriya jurnali — tadqiqotchining eng ishonchli guvohidir!" },
         { matn: "Faqat 101-kuni eslaganlarimni taxminan yozib qo'yaman", togri: false, izoh: "Inson xotirasi mayda detallarni unutadi, yozma jurnal shart." },
-        { matn: "Faqat o'zimga yoqqan kunlarni yozib, qolganini o'tkazib yuboraman", togri: false, izoh: "Uzluksiz kuzatuv bo'lmasa tajriba xulosasi ishonchsiz bo'ladi." },
       ],
     },
   ]
@@ -1193,11 +1193,11 @@ export default function Mavzu1_2() {
       )
 
       ctx.restore()
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, stakanHajm, stakanYopildi])
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1292,11 +1292,11 @@ export default function Mavzu1_2() {
       )
 
       ctx.restore()
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, misIdishTur, misQizdirilmoqda])
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1311,17 +1311,17 @@ export default function Mavzu1_2() {
     {
       savol: "10.0 g mis (Cu) ochiq havoda qizdirilganda 2.5 g kislorod (O₂) bilan birikdi. Hosil bo'lgan qora mis(II) oksid (CuO) massasi qancha?",
       togri: "12.5 g",
-      variantlar: ["12.5 g", "7.5 g", "10.0 g", "25.0 g"],
+      variantlar: ["25.0 g", "12.5 g", "7.5 g", "10.0 g"],
     },
     {
       savol: "Germetik yopiq kolba ichida 5 g ko'mir yondi (umumiy massa 200 g edi). Yongandan so'ng yopiq kolba tarozida necha gramm ko'rsatadi?",
       togri: "200 g",
-      variantlar: ["200 g", "195 g", "205 g", "0 g"],
+      variantlar: ["205 g", "0 g", "200 g", "195 g"],
     },
     {
       savol: "500 ml havoda taxminan 21% kislorod (O₂) bor. Sham yopiq stakanda o'chgach, suv necha ml hajmga ko'tariladi?",
       togri: "~100 ml (1/5 qism)",
-      variantlar: ["~100 ml (1/5 qism)", "500 ml (to'liq)", "250 ml (yarmi)", "0 ml"],
+      variantlar: ["500 ml (to'liq)", "250 ml (yarmi)", "0 ml", "~100 ml (1/5 qism)"],
     },
   ]
   const [hisobIndeks, setHisobIndeks] = useState(0)
@@ -1332,12 +1332,12 @@ export default function Mavzu1_2() {
   // 4-O'YIN: JAMOALAR DUELI (1-GURUH VS 2-GURUH)
   // ─────────────────────────────────────────────────────────────────────────
   const duel12Savollar = [
-    { savol: "Lavuazye suvni Pelikan kolbasida necha kun qaynatgan?", javob: "101 kun", variantlar: ["12 kun", "101 kun"] },
-    { savol: "Karl Sheele qor suvini necha kun qaynatib shisha erishini isbotlagan?", javob: "12 kun", variantlar: ["12 kun", "101 kun"] },
-    { savol: "Pelikan kolbasidagi oq cho'kma aslida nima edi?", javob: "Erigan shisha", variantlar: ["Tuproq", "Erigan shisha"] },
-    { savol: "Tabiatdagi eng universal erituvchi suyuqlik qaysi?", javob: "Suv (H₂O)", variantlar: ["Suv (H₂O)", "Simob (Hg)"] },
+    { savol: "Lavuazye suvni Pelikan kolbasida necha kun qaynatgan?", javob: "101 kun", variantlar: ["101 kun", "12 kun"] },
+    { savol: "Karl Sheele qor suvini necha kun qaynatib shisha erishini isbotlagan?", javob: "12 kun", variantlar: ["101 kun", "12 kun"] },
+    { savol: "Pelikan kolbasidagi oq cho'kma aslida nima edi?", javob: "Erigan shisha", variantlar: ["Erigan shisha", "Tuproq"] },
+    { savol: "Tabiatdagi eng universal erituvchi suyuqlik qaysi?", javob: "Suv (H₂O)", variantlar: ["Simob (Hg)", "Suv (H₂O)"] },
     { savol: "Yopiq idishda kimyoviy reaksiya borsa umumiy massa nima bo'ladi?", javob: "O'zgarmaydi", variantlar: ["O'zgarmaydi", "Yo'qoladi"] },
-    { savol: "Sham yopiq stakan ostida o'chishiga nima tugashi sabab bo'ladi?", javob: "Kislorod (O₂)", variantlar: ["Kislorod (O₂)", "Azot (N₂)"] },
+    { savol: "Sham yopiq stakan ostida o'chishiga nima tugashi sabab bo'ladi?", javob: "Kislorod (O₂)", variantlar: ["Azot (N₂)", "Kislorod (O₂)"] },
   ]
   const [duel12Indeks, setDuel12Indeks] = useState(0)
   const [g1Ball12, setG1Ball12] = useState(0)

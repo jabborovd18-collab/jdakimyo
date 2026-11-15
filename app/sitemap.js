@@ -35,6 +35,8 @@ const ASOSIY = [
   // aynan shu sahifadan tanishi kerak.
   { yol: '/jda-kimyo', muhimlik: 0.9, yangilanish: 'monthly' },
   { yol: '/milliy-sertifikat', muhimlik: 0.9, yangilanish: 'daily' },
+  { yol: '/sertifikat', muhimlik: 0.7, yangilanish: 'monthly' },
+  { yol: '/milliy-sertifikat/tekshir', muhimlik: 0.6, yangilanish: 'monthly' },
   { yol: '/ishlashi', muhimlik: 0.6, yangilanish: 'monthly' },
 
 

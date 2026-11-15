@@ -22,7 +22,7 @@ const ODAM = {
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -64,7 +64,7 @@ export async function GET() {
     })
   } catch (error) {
     console.error('[Sovga GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Sovg\'alarni yuklashda xatolik' }, { status: 500 })
   }
 }
 
@@ -72,8 +72,11 @@ export async function GET() {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: "Elektron doskada sovg'a yuborib bo'lmaydi" }, { status: 403 })
     }
 
     const { dostId } = await request.json()
@@ -107,8 +110,11 @@ export async function POST(request) {
 export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: "Elektron doskada sovg'a qabul qilib bo'lmaydi" }, { status: 403 })
     }
 
     const { id } = await request.json()

@@ -1,29 +1,19 @@
 // components/SertifikatYuklab.jsx
 "use client"
 //
-// Sertifikatni PDF qilib yuklab olish tugmasi.
-//
-// Tekshirish sahifasida ham turadi, ya'ni sertifikatni FAQAT egasi emas,
-// havolani ochgan har kim yuklab oladi. Nega shunday: sertifikat
-// ko'rsatish uchun beriladi — ish beruvchi yoki o'qituvchi uni qo'lida
-// saqlab qo'ymoqchi bo'lishi tabiiy. Bu yerda maxfiy narsa yo'q: sahifada
-// ko'rinib turgan ma'lumot PDF ga tushadi, xolos.
-//
-// Bekor qilingan yoki muddati o'tgan sertifikat ham yuklanadi — PDF da
-// uning holati yozilgan bo'ladi va uni yashirish aldashga yo'l ochardi.
+// Sertifikatni PDF qilib yuklab olish tugmasi (MS va umumiy sertifikatlar uchun).
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import Ikon from './Ikon'
+import { sertifikatYuklabOlishUniversal } from '@/lib/sertifikat-yuklab-mijoz'
 
-export default function SertifikatYuklab({ sertifikat, sinf = '' }) {
+export default function SertifikatYuklab({ sertifikat, customRank = null, sinf = '' }) {
   const [yasalmoqda, setYasalmoqda] = useState(false)
 
   const yuklab = async () => {
     setYasalmoqda(true)
     try {
-      // pdf-lib, fontkit, qrcode va DejaVu shriftlari birgalikda katta
-      // hajm — shuning uchun faqat bosilganda yuklanadi
-      const { sertifikatPDFYuklab } = await import('@/lib/sertifikat-pdf')
-      await sertifikatPDFYuklab(sertifikat)
+      await sertifikatYuklabOlishUniversal(sertifikat, customRank)
     } catch (error) {
       toast.error('PDF yasashda xatolik: ' + error.message)
     } finally {
@@ -33,11 +23,17 @@ export default function SertifikatYuklab({ sertifikat, sinf = '' }) {
 
   return (
     <button
+      type="button"
       onClick={yuklab}
       disabled={yasalmoqda}
-      className={`px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold text-sm disabled:opacity-50 ${sinf}`}
+      title="PDF yuklab olish"
+      className={
+        sinf ||
+        'ms-tugma-oltin px-5 py-2.5 rounded-xl border border-amber-200/80 font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50'
+      }
     >
-      {yasalmoqda ? '⏳ Tayyorlanmoqda...' : '📄 PDF yuklab olish'}
+      <Ikon nom="fayl" olcham={16} />
+      <span>{yasalmoqda ? 'Yuklanmoqda...' : 'PDF'}</span>
     </button>
   )
 }

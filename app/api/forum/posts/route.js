@@ -8,10 +8,11 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { maqolaIdlar } from '@/lib/maqolalar'
 import {
   POST_SELECT, POST_MAX, TITLE_MAX,
   cleanText, tezlikChekloviOshdimi, postniTayyorla,
-  royxatParametrlari, mavzularniOl,
+  royxatParametrlari, mavzularniOl, taqiqXabari,
 } from '@/lib/forum'
 
 // ─── GET: mavzular ro'yxati ───
@@ -26,9 +27,9 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url)
     const articleId = searchParams.get('articleId') // null bo'lsa — umumiy lenta
-    const { sort, limit, offset } = royxatParametrlari(searchParams, { articleId })
+    const { sort, limit, offset, q } = royxatParametrlari(searchParams, { articleId })
 
-    const natija = await mavzularniOl({ articleId, sort, limit, offset, userId })
+    const natija = await mavzularniOl({ articleId, sort, limit, offset, userId, q })
 
     return NextResponse.json({ success: true, ...natija })
   } catch (error) {
@@ -45,13 +46,14 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Yozish uchun tizimga kiring' }, { status: 401 })
     }
 
-    // Bloklangan foydalanuvchi yoza olmasligi kerak
+    // Bloklangan yoki yozish taqiqlangan foydalanuvchi yoza olmasligi kerak
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { isBanned: true },
+      select: { isBanned: true, chatBlockedUntil: true, chatBlockedReason: true },
     })
-    if (!user || user.isBanned) {
-      return NextResponse.json({ error: 'Hisobingiz bloklangan' }, { status: 403 })
+    const taqiq = taqiqXabari(user)
+    if (taqiq) {
+      return NextResponse.json({ error: taqiq }, { status: 403 })
     }
 
     const tezlik = await tezlikChekloviOshdimi(session.user.id)
@@ -65,7 +67,7 @@ export async function POST(request) {
 
     // Javobmi yoki yangi mavzumi?
     let parentId = null
-    let articleId = body.articleId ? String(body.articleId) : null
+    let articleId = body.articleId ? String(body.articleId).trim() : null
     let title = null
 
     if (body.parentId) {
@@ -81,6 +83,10 @@ export async function POST(request) {
       parentId = parent.parentId || parent.id
       articleId = parent.articleId
     } else {
+      // Soxta articleId bilan yashirin postlar yaratib bo'lmasin
+      if (articleId && !maqolaIdlar.includes(articleId)) {
+        return NextResponse.json({ error: 'Maqola topilmadi' }, { status: 400 })
+      }
       // Yangi mavzu — umumiy lentada sarlavha majburiy
       if (!articleId) {
         const sarlavha = cleanText(body.title, { max: TITLE_MAX, min: 5, label: 'Sarlavha' })
@@ -101,12 +107,12 @@ export async function POST(request) {
         content: matn.value,
         status: 'pending',
       },
-      select: { ...POST_SELECT, status: true },
+      select: { ...POST_SELECT, status: true, authorId: true },
     })
 
     return NextResponse.json({
       success: true,
-      post: postniTayyorla(post, new Set()),
+      post: postniTayyorla(post, new Set(), session.user.id),
       message: 'Yuborildi. Admin tasdiqlagandan keyin barchaga ko\'rinadi.',
     })
   } catch (error) {

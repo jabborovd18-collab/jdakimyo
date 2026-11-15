@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react'
 import ProfileCollection from '@/components/ProfileCollection'
 import FriendRequests from '@/components/FriendRequests'
 import FriendSearch from '@/components/FriendSearch'
-import Ikon from '@/components/Ikon'
 
 export default function DostlarPage() {
   const [takliflar, setTakliflar] = useState([])

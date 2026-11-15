@@ -3,25 +3,24 @@
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import Ikon from "@/components/Ikon"
-import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import { useFon } from "@/components/FonTanlagich"
 import { FANLAR, fanHavolasi } from "@/lib/fanlar"
 
 /**
  * Fan sahifasining ko'rinishi.
  *
- * NEGA `page.js` DAN AJRATILGAN. Sahifaga `useSession` va fon tanlagich
+ * NEGA `page.js` DAN AJRATILGAN. Sahifaga `useSession` va yagona V4 fon
  * kerak, ya'ni u mijoz komponenti. Lekin `"use client"` yozilgan fayl
  * `metadata` eksport qila olmaydi — natijada sahifa butun saytga umumiy
  * sarlavha bilan indekslanardi. Shuning uchun `page.js` server bo'lib
  * qoladi (sarlavha, canonical, `generateStaticParams`), ko'rinish esa shu
  * yerda. Bu naqsh loyihada allaqachon 54 ta sahifada ishlatilgan.
  *
- * RANGLAR faqat `--v3-*` o'zgaruvchilari orqali (app/globals.css). Tailwind
- * rang sinfi yozilsa, "kunduz" fonida sahifa buziladi.
+ * RANGLAR faqat `--v3-*` o'zgaruvchilari orqali (app/globals.css).
  */
 export default function Korinish({ fan }) {
   const { data: session } = useSession()
-  const [fon, fonTanla] = useFon()
+  const [fon] = useFon()
 
   const bolimlar = fan.bolimlar || []
   const asosiylar = bolimlar.filter((b) => b.asosiy)
@@ -51,8 +50,6 @@ export default function Korinish({ fan }) {
               <Ikon nom="ong" olcham={15} />
               Barcha fanlar
             </Link>
-
-            <FonTanlagich fon={fon} tanla={fonTanla} />
 
             <Link href="/qidiruv" className="v3-qidiruv">
               <Ikon nom="qidiruv" olcham={17} />

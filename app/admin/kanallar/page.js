@@ -45,14 +45,14 @@ export default function AdminKanallarPage() {
     }
   }
 
-  if (yuklanmoqda) return <div className="text-purple-300 py-10 text-center">⏳ Yuklanmoqda...</div>
+  if (yuklanmoqda) return <div className="text-[var(--v3-xira)] py-10 text-center">Yuklanmoqda...</div>
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-white">📢 Kanallar</h1>
-          <p className="text-sm text-purple-300 mt-1 max-w-2xl">
+          <p className="text-sm text-[var(--v3-xira)] mt-1 max-w-2xl">
             Kanalni faqat siz ochasiz va egasini tayinlaysiz — shu bilan
             unvon ham beriladi. Hamkor kanalni to'ldiradi, manzil va
             ochiqlik sizda qoladi.
@@ -99,17 +99,17 @@ export default function AdminKanallarPage() {
       )}
 
       {(malumot?.kanallar || []).length === 0 ? (
-        <div className="text-center py-14 bg-slate-900/40 border border-purple-800/50 rounded-2xl">
+        <div className="v3-panel-karta text-center py-14">
           <div className="text-5xl mb-3">📢</div>
           <h2 className="text-lg font-bold mb-1">Hali kanal yo'q</h2>
-          <p className="text-sm text-purple-300">
+          <p className="text-sm text-[var(--v3-xira)]">
             Birinchi kanalni oching va egasini tayinlang.
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {malumot.kanallar.map((k) => (
-            <div key={k.id} className="rounded-2xl border border-purple-800/50 bg-slate-900/50 p-5">
+            <div key={k.id} className="v3-panel-karta p-5">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -130,11 +130,11 @@ export default function AdminKanallarPage() {
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-purple-400 mt-1">
+                  <div className="text-[11px] text-[var(--v3-xira)] mt-1">
                     Egasi: {k.ega.fullName || k.ega.username} (@{k.ega.username}, {k.ega.role}) ·{' '}
                     /kanallar/{k.slug} · {sana(k.createdAt)}
                   </div>
-                  <div className="text-[11px] text-purple-300 mt-1.5">
+                  <div className="text-[11px] text-[var(--v3-xira)] mt-1.5">
                     👥 {k.obunachilar} obunachi · 📝 {k.postSoni} post · 🎬 {k.videoSoni} video
                   </div>
                 </div>
@@ -142,7 +142,7 @@ export default function AdminKanallarPage() {
                 <div className="flex gap-1.5 flex-wrap">
                   <Link
                     href={`/kanallar/${k.slug}`}
-                    className="px-3 py-1.5 rounded-lg bg-purple-800/60 border border-purple-600/50 text-xs font-semibold"
+                    className="v3-tugma text-xs px-3 py-1.5"
                   >
                     Ko'rish
                   </Link>
@@ -196,17 +196,19 @@ function YangiKanal({ nomzodlar, turlar, ishlamoqda, onYopish, onYuborish }) {
   })
 
   return (
-    <div className="rounded-2xl border border-purple-700/50 bg-slate-900/60 p-5 space-y-3">
+    <div className="v3-panel-karta p-5 space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-white">Yangi kanal</h3>
-        <button onClick={onYopish} className="text-purple-400 hover:text-white">✕</button>
+        <h3 className="font-bold text-[var(--v3-matn)]">Yangi kanal</h3>
+        <button type="button" onClick={onYopish} className="v3-tugma px-2 py-1 text-xs">
+          Yopish
+        </button>
       </div>
 
       <input
         value={nom}
         onChange={(e) => setNom(e.target.value)}
         placeholder="Kanal nomi"
-        className="w-full px-4 py-2.5 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+        className="v3-kiritish w-full"
       />
 
       <textarea
@@ -214,59 +216,64 @@ function YangiKanal({ nomzodlar, turlar, ishlamoqda, onYopish, onYuborish }) {
         onChange={(e) => setTavsif(e.target.value)}
         rows={2}
         placeholder="Tavsif (ixtiyoriy — keyin hamkor o'zi to'ldiradi)"
-        className="w-full px-4 py-2.5 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500 resize-y"
+        className="v3-kiritish w-full resize-y"
       />
 
       <div className="flex gap-2 flex-wrap">
         {turlar.map((t) => (
           <button
             key={t.id}
+            type="button"
             onClick={() => setTuri(t.id)}
-            className={`px-4 py-2 rounded-xl border text-sm font-semibold ${
+            className={`px-3.5 py-2 rounded-xl border text-sm font-semibold transition-colors ${
               turi === t.id
-                ? 'bg-yellow-500 text-black border-yellow-400'
-                : 'bg-purple-950/40 border-purple-800/50 text-purple-200'
+                ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] border-[var(--v3-urgu)]'
+                : 'bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
             }`}
           >
-            {t.icon} {t.nom}
+            {t.nom}
           </button>
         ))}
       </div>
 
       <div>
-        <label className="text-sm text-purple-300 font-semibold block mb-1">Kanal egasi</label>
+        <label className="text-sm text-[var(--v3-xira)] font-semibold block mb-1">Kanal egasi</label>
         <input
           value={qidiruv}
           onChange={(e) => setQidiruv(e.target.value)}
-          placeholder="🔍 Ism, username yoki ID bo'yicha qidiring"
-          className="w-full px-4 py-2.5 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500 mb-2"
+          placeholder="Ism, username yoki ID bo'yicha qidiring"
+          className="v3-kiritish w-full mb-2"
         />
-        <div className="max-h-52 overflow-y-auto rounded-xl border border-purple-800/50 divide-y divide-purple-900/50">
+        <div className="max-h-52 overflow-y-auto rounded-xl border border-[var(--v3-chiziq)] divide-y divide-[var(--v3-chiziq)]">
           {royxat.slice(0, 40).map((n) => (
             <button
               key={n.id}
+              type="button"
               onClick={() => setEgaId(n.id)}
-              className={`w-full text-left px-4 py-2.5 text-sm ${
-                egaId === n.id ? 'bg-yellow-500/20 text-yellow-200' : 'hover:bg-purple-900/40 text-purple-100'
+              className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                egaId === n.id
+                  ? 'bg-amber-500/15 text-amber-300'
+                  : 'hover:bg-[var(--v3-yuza)] text-[var(--v3-matn)]'
               }`}
             >
               {n.fullName || n.username}
-              <span className="text-[11px] text-purple-400"> · @{n.username} · {n.role}</span>
+              <span className="text-[11px] text-[var(--v3-xira)]"> · @{n.username} · {n.role}</span>
             </button>
           ))}
         </div>
-        <p className="text-[11px] text-purple-500 mt-1.5">
-          Kanal ochilganda egasiga avtomatik "hamkor" unvoni beriladi va
+        <p className="text-[11px] text-[var(--v3-xira)] mt-1.5">
+          Kanal ochilganda egasiga avtomatik &quot;hamkor&quot; unvoni beriladi va
           bildirishnoma yuboriladi.
         </p>
       </div>
 
       <button
+        type="button"
         onClick={() => onYuborish({ nom, tavsif, turi, egaId })}
         disabled={ishlamoqda || !nom.trim() || !egaId}
-        className="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold text-sm disabled:opacity-40"
+        className="v3-tugma v3-tugma-asosiy w-full justify-center py-3 text-sm disabled:opacity-40"
       >
-        {ishlamoqda ? '⏳ Ochilmoqda...' : 'Kanalni ochish'}
+        {ishlamoqda ? 'Ochilmoqda...' : 'Kanalni ochish'}
       </button>
     </div>
   )

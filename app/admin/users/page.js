@@ -1,43 +1,81 @@
 // app/admin/users/page.js
-"use client"
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
+'use client'
+
+import { Suspense, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { ACADEMIC_ROLES, PRIVILEGED_ROLES, ALL_ROLES, roleInfo, roleLabel } from '@/lib/roles'
+import Ikon from '@/components/Ikon'
+import {
+  ALL_ROLES,
+  ACADEMIC_ROLES,
+  PRIVILEGED_ROLES,
+  roleLabel,
+} from '@/lib/roles'
+import { sana, sanaVaqt } from '@/lib/sana'
+import {
+  AdminBadge,
+  AdminEmpty,
+  AdminLoading,
+  AdminModal,
+  AdminPageHeader,
+  AdminPagination,
+  AdminPanel,
+  AdminStatCard,
+} from '@/components/admin/AdminUI'
 
-export default function AdminUsersPage() {
-  const searchParams = useSearchParams()
+function rolRangi(rol) {
+  switch (rol) {
+    case 'superadmin':
+      return 'primary'
+    case 'admin':
+      return 'accent'
+    case 'moderator':
+      return 'info'
+    case 'editor':
+    case 'teacher':
+      return 'success'
+    default:
+      return 'neutral'
+  }
+}
+
+function UsersPageContent() {
   const { data: session } = useSession()
-  // Parolni tiklash — faqat superadminda. Server tomonda ham tekshiriladi,
-  // bu yerdagisi shunchaki tugmani yashiradi.
-  const isSuperAdmin = session?.user?.role === 'superadmin'
+  const searchParams = useSearchParams()
+  const initialRole = searchParams.get('role') || 'all'
+  const initialTeacher = searchParams.get('teacher') === 'true' || initialRole === 'teacher'
+
   const [users, setUsers] = useState([])
   const [stats, setStats] = useState({
     total: 0,
+    totalPoints: 0,
     todayRegistrations: 0,
     activeUsers: 0,
-    bannedUsers: 0
+    bannedUsers: 0,
   })
   const [pagination, setPagination] = useState({
     page: 1,
-    totalPages: 1,
-    totalUsers: 0
+    limit: 20,
+    totalUsers: 0,
+    totalPages: 0,
   })
+  const [canDelete, setCanDelete] = useState(false)
+  const [canManageAdmins, setCanManageAdmins] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
-  const [roleFilter, setRoleFilter] = useState(searchParams.get('role') || 'all')
+  const [roleFilter, setRoleFilter] = useState(initialRole)
+  const [teacherOnly, setTeacherOnly] = useState(initialTeacher)
   const [statusFilter, setStatusFilter] = useState('all')
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('desc')
-  
-  // Modal state
+
   const [showRoleModal, setShowRoleModal] = useState(false)
   const [showBanModal, setShowBanModal] = useState(false)
+  const [showUnbanModal, setShowUnbanModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  // Parolni tiklash oynasi. yangiParol — server qaytargan vaqtinchalik parol;
-  // u faqat shu javobda keladi, bazada xesh saqlanadi.
   const [showParolModal, setShowParolModal] = useState(false)
   const [yangiParol, setYangiParol] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
@@ -45,33 +83,38 @@ export default function AdminUsersPage() {
   const [banReason, setBanReason] = useState('')
   const [isActionLoading, setIsActionLoading] = useState(false)
 
+  // Qidiruv debounsi va 1-sahifaga qaytarish
   useEffect(() => {
-    fetchUsers()
-  }, [pagination.page, search, roleFilter, statusFilter, sortBy, sortOrder])
+    const t = setTimeout(() => {
+      setSearch(searchInput.trim())
+      setPagination((p) => (p.page === 1 ? p : { ...p, page: 1 }))
+    }, 300)
+    return () => clearTimeout(t)
+  }, [searchInput])
 
   const fetchUsers = async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams({
-        page: pagination.page.toString(),
+        page: String(pagination.page),
         limit: '20',
         search,
         role: roleFilter,
+        teacher: teacherOnly ? 'true' : '',
         status: statusFilter,
         sortBy,
-        sortOrder
+        sortOrder,
       })
 
       const response = await fetch(`/api/admin/users?${params}`)
       const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Foydalanuvchilarni yuklashda xatolik')
 
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
-
-      setUsers(data.users)
-      setStats(data.stats)
-      setPagination(data.pagination)
+      setUsers(data.users || [])
+      setStats(data.stats || stats)
+      setPagination(data.pagination || pagination)
+      setCanDelete(Boolean(data.canDelete))
+      setCanManageAdmins(Boolean(data.canManageAdmins))
     } catch (error) {
       toast.error('Xatolik: ' + error.message)
     } finally {
@@ -79,13 +122,16 @@ export default function AdminUsersPage() {
     }
   }
 
-  /**
-   * Yoqib-o'chiriladigan amallar (ustozlik, tasdiq belgisi).
-   *
-   * Bular rol ALMASHTIRMAYDI — asosiy rol o'z joyida qoladi. Shuning
-   * uchun ular rol oynasida emas, alohida tugmada: rol tanlash ro'yxatiga
-   * qo'shilsa, ustozlik yana adminlik bilan bir-birini siqib chiqarardi.
-   */
+  useEffect(() => {
+    fetchUsers()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, search, roleFilter, teacherOnly, statusFilter, sortBy, sortOrder])
+
+  const filtrOzgartir = (setter) => (qiymat) => {
+    setter(qiymat)
+    setPagination((p) => ({ ...p, page: 1 }))
+  }
+
   const handleToggle = async (user, action) => {
     setIsActionLoading(true)
     try {
@@ -105,11 +151,9 @@ export default function AdminUsersPage() {
     }
   }
 
-  // Amallar
   const handleRoleChange = async () => {
     if (!selectedUser) return
     setIsActionLoading(true)
-    
     try {
       const response = await fetch('/api/admin/users', {
         method: 'PUT',
@@ -117,16 +161,11 @@ export default function AdminUsersPage() {
         body: JSON.stringify({
           userId: selectedUser.id,
           action: 'changeRole',
-          data: { role: newRole }
-        })
+          data: { role: newRole },
+        }),
       })
-
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
-
+      if (!response.ok) throw new Error(data.error)
       toast.success(data.message)
       setShowRoleModal(false)
       setSelectedUser(null)
@@ -138,31 +177,17 @@ export default function AdminUsersPage() {
     }
   }
 
-  /**
-   * Parolni tiklash.
-   *
-   * Eski parolni ko'rsatish imkonsiz — u bcrypt bilan xeshlangan. Server
-   * yangi vaqtinchalik parol yaratib, uni javobda BIR MARTA qaytaradi;
-   * bazada faqat xesh saqlanadi. Shuning uchun oyna yopilgach, parolni
-   * hech qayerdan qayta ko'rib bo'lmaydi — qayta tiklash kerak bo'ladi.
-   */
   const handleParolTiklash = async () => {
     if (!selectedUser) return
     setIsActionLoading(true)
-
     try {
       const response = await fetch('/api/admin/users', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: selectedUser.id,
-          action: 'resetPassword',
-        }),
+        body: JSON.stringify({ userId: selectedUser.id, action: 'resetPassword' }),
       })
-
       const data = await response.json()
       if (!response.ok) throw new Error(data.error)
-
       setYangiParol(data.temporaryPassword)
       toast.success(data.message)
     } catch (error) {
@@ -175,7 +200,6 @@ export default function AdminUsersPage() {
   const handleBan = async () => {
     if (!selectedUser) return
     setIsActionLoading(true)
-    
     try {
       const response = await fetch('/api/admin/users', {
         method: 'PUT',
@@ -183,16 +207,11 @@ export default function AdminUsersPage() {
         body: JSON.stringify({
           userId: selectedUser.id,
           action: 'ban',
-          data: { reason: banReason }
-        })
+          data: { reason: banReason },
+        }),
       })
-
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
-
+      if (!response.ok) throw new Error(data.error)
       toast.success(data.message)
       setShowBanModal(false)
       setSelectedUser(null)
@@ -205,49 +224,39 @@ export default function AdminUsersPage() {
     }
   }
 
-  const handleUnban = async (user) => {
-    if (!confirm(`${user.username} ni ochishni xohlaysizmi?`)) return
-    
+  const handleUnban = async () => {
+    if (!selectedUser) return
+    setIsActionLoading(true)
     try {
       const response = await fetch('/api/admin/users', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          action: 'unban'
-        })
+        body: JSON.stringify({ userId: selectedUser.id, action: 'unban' }),
       })
-
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
-
+      if (!response.ok) throw new Error(data.error)
       toast.success(data.message)
+      setShowUnbanModal(false)
+      setSelectedUser(null)
       fetchUsers()
     } catch (error) {
       toast.error(error.message)
+    } finally {
+      setIsActionLoading(false)
     }
   }
 
   const handleDelete = async () => {
     if (!selectedUser) return
     setIsActionLoading(true)
-    
     try {
       const response = await fetch('/api/admin/users', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: selectedUser.id })
+        body: JSON.stringify({ userId: selectedUser.id }),
       })
-
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
-
+      if (!response.ok) throw new Error(data.error)
       toast.success(data.message)
       setShowDeleteModal(false)
       setSelectedUser(null)
@@ -259,610 +268,662 @@ export default function AdminUsersPage() {
     }
   }
 
-  // Yordamchi funksiyalar
-  const formatDate = (date) => {
-    if (!date) return '—'
-    return new Date(date).toLocaleDateString('uz-UZ', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  const himoyalanganAdminmi = (u) => ['admin', 'superadmin'].includes(u.role) && !canManageAdmins
+  const ozimi = (u) => session?.user?.id === u.id
 
-  const formatDateTime = (date) => {
-    if (!date) return '—'
-    return new Date(date).toLocaleString('uz-UZ', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  // Rol nomlari va ranglari lib/roles.js dan — barcha sahifalar bir xil ko'rsatishi uchun
-  const getRoleBadge = (role) => roleInfo(role).badge
-  const getRoleLabel = (role) => roleLabel(role)
+  const privilegedChoices = Object.entries(PRIVILEGED_ROLES).filter(
+    ([key]) => canManageAdmins || !['admin', 'superadmin'].includes(key),
+  )
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white">Foydalanuvchilar</h1>
-          <p className="text-purple-300 mt-1">Barcha ro'yxatdan o'tgan foydalanuvchilarni boshqarish</p>
-        </div>
-        <div className="text-sm text-purple-400">
-          Jami: <span className="text-white font-bold">{stats.total}</span> foydalanuvchi
-        </div>
+      <AdminPageHeader
+        title="Foydalanuvchilar"
+        subtitle="Barcha hisoblar, rollar, ustozlik maqomi va xavfsizlik amallari"
+        ikon="odamlar"
+        badge={<AdminBadge tone="info">{stats.total} ta hisob</AdminBadge>}
+      />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <AdminStatCard label="Jami hisoblar" value={stats.total} ikon="odamlar" tone="info" />
+        <AdminStatCard
+          label="Bugun ro'yxatdan"
+          value={stats.todayRegistrations}
+          ikon="qosh"
+          tone="success"
+        />
+        <AdminStatCard label="Bugun faol" value={stats.activeUsers} ikon="olov" tone="warning" />
+        <AdminStatCard label="Bloklangan" value={stats.bannedUsers} ikon="taqiq" tone="danger" />
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center text-xl">
-              👥
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-white">{stats.total}</div>
-              <div className="text-xs text-purple-400">Jami</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-600/20 flex items-center justify-center text-xl">
-              🆕
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-400">{stats.todayRegistrations}</div>
-              <div className="text-xs text-purple-400">Bugun ro'yxatdan</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-600/20 flex items-center justify-center text-xl">
-              🔥
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-orange-400">{stats.activeUsers}</div>
-              <div className="text-xs text-purple-400">Bugun faol</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-red-600/20 flex items-center justify-center text-xl">
-              🚫
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-red-400">{stats.bannedUsers}</div>
-              <div className="text-xs text-purple-400">Bloklangan</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Qidiruv */}
-          <div className="md:col-span-2">
+      {/* Qidiruv va filtrlar */}
+      <AdminPanel className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="md:col-span-2 relative">
+            <Ikon
+              nom="qidiruv"
+              olcham={15}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--v3-xira)]"
+            />
             <input
               type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="🔍 Email, username yoki ism bo'yicha qidirish..."
-              className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 focus:border-purple-500 outline-none"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Email, username yoki ism bo'yicha qidirish..."
+              className="v3-kiritish pl-9"
             />
           </div>
 
-          {/* Rol filtri */}
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white focus:border-purple-500 outline-none"
+            onChange={(e) => {
+              const qiymat = e.target.value
+              filtrOzgartir(setRoleFilter)(qiymat)
+              if (qiymat === 'teacher') setTeacherOnly(true)
+            }}
+            className="v3-kiritish"
           >
             <option value="all">Barcha rollar</option>
             {Object.entries(ALL_ROLES).map(([key, info]) => (
-              <option key={key} value={key}>{info.icon} {info.label}</option>
+              <option key={key} value={key}>
+                {info.label}
+              </option>
             ))}
           </select>
 
-          {/* Status filtri */}
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white focus:border-purple-500 outline-none"
+            onChange={(e) => filtrOzgartir(setStatusFilter)(e.target.value)}
+            className="v3-kiritish"
           >
-            <option value="all">Barcha statuslar</option>
+            <option value="all">Barcha holatlar</option>
             <option value="active">Faol</option>
             <option value="banned">Bloklangan</option>
           </select>
         </div>
 
-        {/* Sorting */}
-        <div className="flex items-center gap-4 mt-4 text-sm">
-          <span className="text-purple-400">Saralash:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-1 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white text-sm"
-          >
-            <option value="createdAt">Ro'yxatdan o'tgan sana</option>
-            <option value="lastActive">Oxirgi faollik</option>
-            <option value="totalPoints">Umumiy ball</option>
-            <option value="level_points">Level</option>
-          </select>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
           <button
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            className="px-3 py-1 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white text-sm"
+            type="button"
+            onClick={() => {
+              const yangi = !teacherOnly
+              setTeacherOnly(yangi)
+              if (!yangi && roleFilter === 'teacher') setRoleFilter('all')
+              setPagination((p) => ({ ...p, page: 1 }))
+            }}
+            className={`v3-tugma text-xs py-1.5 px-3 ${teacherOnly ? 'v3-tugma-asosiy' : ''}`}
           >
-            {sortOrder === 'desc' ? '↓ Kamayish' : '↑ O\'sish'}
+            <Ikon nom="ustoz" olcham={14} />
+            <span>Faqat ustozlar</span>
           </button>
-        </div>
-      </div>
 
-      {/* Users Table */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl overflow-hidden">
-        {isLoading ? (
-          <div className="p-12 text-center">
-            <div className="animate-spin text-4xl mb-4">⏳</div>
-            <p className="text-purple-300">Yuklanmoqda...</p>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-[var(--v3-xira)]">Saralash:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => filtrOzgartir(setSortBy)(e.target.value)}
+              className="v3-kiritish w-auto py-1.5 px-2.5 text-xs"
+            >
+              <option value="createdAt">Ro&apos;yxatdan o&apos;tgan sana</option>
+              <option value="lastActive">Oxirgi faollik</option>
+              <option value="totalPoints">Umumiy XP</option>
+              <option value="level_points">Level</option>
+              <option value="currentStreak">Streak</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+              className="v3-tugma text-xs py-1.5 px-3"
+            >
+              <Ikon nom="filtr" olcham={13} />
+              <span>{sortOrder === 'desc' ? 'Kamayish' : "O'sish"}</span>
+            </button>
           </div>
-        ) : users.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-bold text-white mb-2">Foydalanuvchilar topilmadi</h3>
-            <p className="text-purple-300">Qidiruv yoki filtrlarni o'zgartirib ko'ring</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-purple-950/50 border-b border-purple-800/50">
+        </div>
+      </AdminPanel>
+
+      {/* Ro'yxat */}
+      {isLoading ? (
+        <AdminLoading text="Foydalanuvchilar yuklanmoqda..." />
+      ) : users.length === 0 ? (
+        <AdminEmpty
+          ikon="odamlar"
+          title="Foydalanuvchilar topilmadi"
+          description="Qidiruv so'zi yoki filtrlarni o'zgartirib ko'ring."
+        />
+      ) : (
+        <AdminPanel padding="p-0" className="overflow-hidden">
+          {/* Desktop jadval */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-xs text-[var(--v3-xira)]">
                 <tr>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">Foydalanuvchi</th>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">Rol</th>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">Daraja</th>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">Faollik</th>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">Ro'yxatdan</th>
-                  <th className="text-right p-4 text-sm font-semibold text-purple-300">Amallar</th>
+                  <th className="text-left p-3.5 font-semibold">Foydalanuvchi</th>
+                  <th className="text-left p-3.5 font-semibold">Rol va maqom</th>
+                  <th className="text-left p-3.5 font-semibold">Daraja</th>
+                  <th className="text-left p-3.5 font-semibold">Oxirgi faollik</th>
+                  <th className="text-left p-3.5 font-semibold">Qo&apos;shilgan</th>
+                  <th className="text-right p-3.5 font-semibold">Amallar</th>
                 </tr>
               </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr
-                    key={user.id}
-                    className={`border-b border-purple-800/30 hover:bg-purple-950/30 transition-colors ${
-                      user.isBanned ? 'bg-red-950/10' : ''
-                    }`}
-                  >
-                    {/* Foydalanuvchi */}
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-sm font-bold text-black flex-shrink-0 overflow-hidden">
+              <tbody className="divide-y divide-[var(--v3-chiziq)]">
+                {users.map((user) => {
+                  const locked = himoyalanganAdminmi(user)
+                  const self = ozimi(user)
+                  return (
+                    <tr
+                      key={user.id}
+                      className={`hover:bg-[var(--v3-yuza)] transition-colors ${
+                        user.isBanned ? 'bg-rose-500/5' : ''
+                      }`}
+                    >
+                      <td className="p-3.5">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-urgu)] shrink-0 overflow-hidden">
                             {user.avatar ? (
-                              <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover" />
+                              <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                             ) : (
                               (user.fullName?.charAt(0) || user.username.charAt(0)).toUpperCase()
                             )}
                           </div>
-                          {user.isBanned && (
-                            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-xs border-2 border-slate-900">
-                              🚫
+                          <div className="min-w-0">
+                            <div className="font-semibold text-[var(--v3-matn)] flex items-center gap-1.5 truncate">
+                              <span>{user.fullName || user.username}</span>
+                              {user.isVerified && (
+                                <Ikon nom="tasdiq" olcham={14} className="text-[var(--v3-urgu)] shrink-0" />
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-white truncate">
-                            {user.fullName || user.username}
-                          </div>
-                          <div className="text-xs text-purple-400 truncate">
-                            @{user.username} • {user.email}
-                          </div>
-                          {user.university && (
-                            <div className="text-xs text-purple-500 truncate">
-                              🏛️ {user.university}
+                            <div className="text-xs text-[var(--v3-xira)] truncate">
+                              @{user.username} · {user.email}
                             </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="p-3.5">
+                        <div className="flex flex-wrap gap-1">
+                          <AdminBadge tone={rolRangi(user.role)}>{roleLabel(user.role)}</AdminBadge>
+                          {(user.isTeacher || user.role === 'teacher') && (
+                            <AdminBadge tone="info">Ustoz</AdminBadge>
                           )}
+                          {user.isBanned && <AdminBadge tone="danger">Bloklangan</AdminBadge>}
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Rol */}
-                    <td className="p-4">
-                      <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full border ${getRoleBadge(user.role)}`}>
-                        {getRoleLabel(user.role)}
-                      </span>
-                    </td>
-
-                    {/* Daraja */}
-                    <td className="p-4">
-                      <div className="text-sm">
-                        <div className="text-white font-semibold">Lvl {user.level_points}</div>
-                        <div className="text-xs text-purple-400">{user.totalPoints} XP</div>
-                      </div>
-                    </td>
-
-                    {/* Faollik */}
-                    <td className="p-4">
-                      <div className="text-sm">
-                        <div className="text-white">{formatDateTime(user.lastActive)}</div>
-                        <div className="text-xs text-purple-400">
-                          🔥 {user.currentStreak} kun streak
+                      <td className="p-3.5">
+                        <div className="font-semibold text-[var(--v3-matn)]">Lvl {user.level_points}</div>
+                        <div className="text-xs text-[var(--v3-xira)]">
+                          {user.totalPoints.toLocaleString('uz-UZ')} XP
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Ro'yxatdan */}
-                    <td className="p-4">
-                      <div className="text-sm text-white">{formatDate(user.createdAt)}</div>
-                    </td>
+                      <td className="p-3.5 text-xs">
+                        <div className="text-[var(--v3-matn)]">{sanaVaqt(user.lastActive)}</div>
+                        <div className="text-[var(--v3-xira)]">{user.currentStreak} kun streak</div>
+                      </td>
 
-                    {/* Amallar */}
-                    <td className="p-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href={`/profil/${user.userId}`}
-                          target="_blank"
-                          className="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/50 rounded-lg text-xs text-blue-400 transition-all"
-                        >
-                          👁️
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setSelectedUser(user)
-                            setNewRole(user.role)
-                            setShowRoleModal(true)
-                          }}
-                          className="px-3 py-1 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-600/50 rounded-lg text-xs text-purple-400 transition-all"
-                        >
-                          🎭
-                        </button>
-                        {user.isBanned ? (
+                      <td className="p-3.5 text-xs text-[var(--v3-xira)]">{sana(user.createdAt)}</td>
+
+                      <td className="p-3.5">
+                        <div className="flex items-center justify-end gap-1.5">
                           <button
-                            onClick={() => handleUnban(user)}
-                            className="px-3 py-1 bg-green-600/20 hover:bg-green-600/30 border border-green-600/50 rounded-lg text-xs text-green-400 transition-all"
+                            type="button"
+                            disabled={locked || self || isActionLoading}
+                            onClick={() => handleToggle(user, 'toggleTeacher')}
+                            title={user.isTeacher ? 'Ustozlikni olish' : 'Ustozlik berish'}
+                            className={`v3-ikon-tugma ${
+                              user.isTeacher ? 'text-emerald-300 border-emerald-400/40' : ''
+                            } disabled:opacity-35`}
                           >
-                            ✅
+                            <Ikon nom="ustoz" olcham={15} />
                           </button>
-                        ) : (
+
+                          {canManageAdmins && (
+                            <button
+                              type="button"
+                              disabled={isActionLoading}
+                              onClick={() => handleToggle(user, 'toggleVerified')}
+                              title={user.isVerified ? 'Tasdiqni olish' : 'Hisobni tasdiqlash'}
+                              className={`v3-ikon-tugma ${
+                                user.isVerified ? 'text-[var(--v3-urgu)] border-[var(--v3-urgu)]/40' : ''
+                              } disabled:opacity-35`}
+                            >
+                              <Ikon nom="tasdiq" olcham={15} />
+                            </button>
+                          )}
+
                           <button
+                            type="button"
+                            disabled={locked || self}
                             onClick={() => {
                               setSelectedUser(user)
-                              setBanReason('')
-                              setShowBanModal(true)
+                              setNewRole(user.role)
+                              setShowRoleModal(true)
                             }}
-                            className="px-3 py-1 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-600/50 rounded-lg text-xs text-orange-400 transition-all"
+                            title={locked ? 'Faqat superadmin boshqaradi' : "Rolni o'zgartirish"}
+                            className="v3-ikon-tugma disabled:opacity-35"
                           >
-                            🚫
+                            <Ikon nom="qalqon" olcham={15} />
                           </button>
-                        )}
-                        {/* Ustoz paneli — ikkilamchi, asosiy rolga
-                            qo'shimcha beriladi. Shuning uchun admin ham
-                            ustoz bo'la oladi. */}
-                        <button
-                          onClick={() => handleToggle(user, 'toggleTeacher')}
-                          disabled={isActionLoading}
-                          title={user.isTeacher ? 'Ustoz panelini yopish' : 'Ustoz panelini ochish'}
-                          className={`px-3 py-1 border rounded-lg text-xs transition-all disabled:opacity-50 ${
-                            user.isTeacher
-                              ? 'bg-green-600/30 hover:bg-green-600/40 border-green-500/60 text-green-300'
-                              : 'bg-slate-700/30 hover:bg-slate-600/40 border-slate-600/50 text-slate-400'
-                          }`}
-                        >
-                          👨‍🏫
-                        </button>
-                        {/* Tasdiq belgisi — faqat superadmin. Belgi ko'p
-                            tarqalsa, soxta hisobni ajratish uchun
-                            ishlamay qoladi. */}
-                        {isSuperAdmin && (
-                          <button
-                            onClick={() => handleToggle(user, 'toggleVerified')}
-                            disabled={isActionLoading}
-                            title={user.isVerified ? 'Tasdiqni olib tashlash' : 'Hisobni tasdiqlash'}
-                            className={`px-3 py-1 border rounded-lg text-xs transition-all disabled:opacity-50 ${
-                              user.isVerified
-                                ? 'bg-blue-600/30 hover:bg-blue-600/40 border-blue-500/60 text-blue-300'
-                                : 'bg-slate-700/30 hover:bg-slate-600/40 border-slate-600/50 text-slate-400'
-                            }`}
-                          >
-                            ✔️
-                          </button>
-                        )}
-                        {/* Parolni tiklash — faqat superadmin.
-                            Parolni KO'RSATIB bo'lmaydi (bcrypt bir tomonlama),
-                            shuning uchun yangi vaqtinchalik parol beriladi. */}
-                        {isSuperAdmin && (
-                          <button
-                            onClick={() => {
-                              setSelectedUser(user)
-                              setYangiParol(null)
-                              setShowParolModal(true)
-                            }}
-                            title="Parolni tiklash"
-                            className="px-3 py-1 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-600/50 rounded-lg text-xs text-yellow-400 transition-all"
-                          >
-                            🔑
-                          </button>
-                        )}
-                        <button
-                          onClick={() => {
-                            setSelectedUser(user)
-                            setShowDeleteModal(true)
-                          }}
-                          className="px-3 py-1 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-lg text-xs text-red-400 transition-all"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+
+                          {canManageAdmins && !self && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedUser(user)
+                                setYangiParol(null)
+                                setShowParolModal(true)
+                              }}
+                              title="Parolni tiklash"
+                              className="v3-ikon-tugma"
+                            >
+                              <Ikon nom="qulf" olcham={15} />
+                            </button>
+                          )}
+
+                          {user.isBanned ? (
+                            <button
+                              type="button"
+                              disabled={locked || self}
+                              onClick={() => {
+                                setSelectedUser(user)
+                                setShowUnbanModal(true)
+                              }}
+                              title="Blokdan chiqarish"
+                              className="v3-ikon-tugma text-emerald-300 disabled:opacity-35"
+                            >
+                              <Ikon nom="ochiq" olcham={15} />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={locked || self}
+                              onClick={() => {
+                                setSelectedUser(user)
+                                setBanReason('')
+                                setShowBanModal(true)
+                              }}
+                              title="Bloklash"
+                              className="v3-ikon-tugma text-rose-300 disabled:opacity-35"
+                            >
+                              <Ikon nom="taqiq" olcham={15} />
+                            </button>
+                          )}
+
+                          {canDelete && !self && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedUser(user)
+                                setShowDeleteModal(true)
+                              }}
+                              title="Butunlay o'chirish"
+                              className="v3-ikon-tugma text-rose-300"
+                            >
+                              <Ikon nom="ochir" olcham={15} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
-        )}
 
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-purple-800/50">
-            <div className="text-sm text-purple-400">
-              {pagination.totalUsers} ta foydalanuvchidan {(pagination.page - 1) * 20 + 1}-{Math.min(pagination.page * 20, pagination.totalUsers)} ko'rsatilmoqda
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
-                disabled={pagination.page === 1}
-                className="px-3 py-1 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                ← Oldingi
-              </button>
-              <span className="text-sm text-white font-semibold">
-                {pagination.page} / {pagination.totalPages}
-              </span>
-              <button
-                onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
-                disabled={pagination.page === pagination.totalPages}
-                className="px-3 py-1 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Keyingi →
-              </button>
-            </div>
+          {/* Mobil kartalar */}
+          <div className="lg:hidden divide-y divide-[var(--v3-chiziq)]">
+            {users.map((user) => {
+              const locked = himoyalanganAdminmi(user)
+              const self = ozimi(user)
+              return (
+                <div key={user.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm text-[var(--v3-matn)] flex items-center gap-1.5">
+                        <span className="truncate">{user.fullName || user.username}</span>
+                        {user.isVerified && (
+                          <Ikon nom="tasdiq" olcham={14} className="text-[var(--v3-urgu)] shrink-0" />
+                        )}
+                      </div>
+                      <div className="text-xs text-[var(--v3-xira)] truncate">
+                        @{user.username} · {user.email}
+                      </div>
+                    </div>
+                    <AdminBadge tone={rolRangi(user.role)}>{roleLabel(user.role)}</AdminBadge>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--v3-xira)]">
+                    <span>Lvl {user.level_points}</span>
+                    <span>· {user.totalPoints} XP</span>
+                    <span>· {user.currentStreak} streak</span>
+                    {(user.isTeacher || user.role === 'teacher') && (
+                      <AdminBadge tone="info">Ustoz</AdminBadge>
+                    )}
+                    {user.isBanned && <AdminBadge tone="danger">Bloklangan</AdminBadge>}
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    <button
+                      type="button"
+                      disabled={locked || self || isActionLoading}
+                      onClick={() => handleToggle(user, 'toggleTeacher')}
+                      className="v3-tugma text-xs py-1 px-2.5 disabled:opacity-40"
+                    >
+                      <Ikon nom="ustoz" olcham={13} />
+                      <span>{user.isTeacher ? 'Ustozlikni olish' : 'Ustoz'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={locked || self}
+                      onClick={() => {
+                        setSelectedUser(user)
+                        setNewRole(user.role)
+                        setShowRoleModal(true)
+                      }}
+                      className="v3-tugma text-xs py-1 px-2.5 disabled:opacity-40"
+                    >
+                      <Ikon nom="qalqon" olcham={13} />
+                      <span>Rol</span>
+                    </button>
+                    {canManageAdmins && !self && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setYangiParol(null)
+                          setShowParolModal(true)
+                        }}
+                        className="v3-tugma text-xs py-1 px-2.5"
+                      >
+                        <Ikon nom="qulf" olcham={13} />
+                        <span>Parol</span>
+                      </button>
+                    )}
+                    {user.isBanned ? (
+                      <button
+                        type="button"
+                        disabled={locked || self}
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setShowUnbanModal(true)
+                        }}
+                        className="v3-tugma text-xs py-1 px-2.5 disabled:opacity-40"
+                      >
+                        Ochish
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={locked || self}
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setBanReason('')
+                          setShowBanModal(true)
+                        }}
+                        className="v3-tugma text-xs py-1 px-2.5 disabled:opacity-40"
+                      >
+                        Bloklash
+                      </button>
+                    )}
+                    {canDelete && !self && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setShowDeleteModal(true)
+                        }}
+                        className="v3-tugma text-xs py-1 px-2.5 text-rose-300"
+                      >
+                        <Ikon nom="ochir" olcham={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
-        )}
-      </div>
+        </AdminPanel>
+      )}
 
-      {/* ═══════════════════════════════════════════ */}
-      {/* MODALS */}
-      {/* ═══════════════════════════════════════════ */}
+      <AdminPagination
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        total={pagination.totalUsers}
+        onPageChange={(nextPage) => setPagination((p) => ({ ...p, page: nextPage }))}
+      />
 
-      {/* Role Change Modal */}
-      {showRoleModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-purple-700/50 rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-white mb-4">🎭 Rolni o'zgartirish</h3>
-            <div className="mb-4">
-              <div className="text-sm text-purple-300 mb-1">Foydalanuvchi:</div>
-              <div className="text-white font-semibold">
-                {selectedUser.fullName || selectedUser.username}
-              </div>
-              <div className="text-xs text-purple-400">@{selectedUser.username}</div>
+      {/* Rolni o'zgartirish */}
+      <AdminModal
+        open={showRoleModal && Boolean(selectedUser)}
+        onClose={() => setShowRoleModal(false)}
+        title="Rolni o'zgartirish"
+        subtitle={selectedUser ? `@${selectedUser.username}` : null}
+        ikon="qalqon"
+      >
+        {selectedUser && (
+          <div className="space-y-4">
+            <div className="text-xs text-[var(--v3-xira)]">
+              Hozirgi rol:{' '}
+              <AdminBadge tone={rolRangi(selectedUser.role)}>{roleLabel(selectedUser.role)}</AdminBadge>
             </div>
-            <div className="mb-4">
-              <div className="text-sm text-purple-300 mb-1">Hozirgi rol:</div>
-              <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full border ${getRoleBadge(selectedUser.role)}`}>
-                {getRoleLabel(selectedUser.role)}
-              </span>
-            </div>
-            <div className="mb-6">
-              <label className="text-sm text-purple-300 mb-2 block">Yangi rol:</label>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-[var(--v3-matn)] block">Yangi rol</label>
               <select
                 value={newRole}
                 onChange={(e) => setNewRole(e.target.value)}
-                className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white focus:border-purple-500 outline-none"
+                className="v3-kiritish"
               >
-                <optgroup label="Akademik daraja (imtiyozsiz)">
+                <optgroup label="Akademik daraja">
                   {Object.entries(ACADEMIC_ROLES).map(([key, info]) => (
-                    <option key={key} value={key}>{info.icon} {info.label}</option>
+                    <option key={key} value={key}>
+                      {info.label}
+                    </option>
                   ))}
                 </optgroup>
-                <optgroup label="Imtiyozli rollar (panelga kirish)">
-                  {Object.entries(PRIVILEGED_ROLES).map(([key, info]) => (
-                    <option key={key} value={key}>{info.icon} {info.label}</option>
+                <optgroup label="Imtiyozli rollar">
+                  {privilegedChoices.map(([key, info]) => (
+                    <option key={key} value={key}>
+                      {info.label}
+                    </option>
                   ))}
                 </optgroup>
               </select>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowRoleModal(false)}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white transition-all"
-              >
+
+            <div className="flex gap-2.5 pt-2">
+              <button type="button" onClick={() => setShowRoleModal(false)} className="v3-tugma flex-1">
                 Bekor qilish
               </button>
               <button
+                type="button"
                 onClick={handleRoleChange}
                 disabled={isActionLoading || newRole === selectedUser.role}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="v3-tugma v3-tugma-asosiy flex-1 disabled:opacity-45"
               >
-                {isActionLoading ? '⏳...' : '✓ Saqlash'}
+                {isActionLoading ? 'Saqlanmoqda...' : 'Saqlash'}
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </AdminModal>
 
-      {/* Ban Modal */}
-      {showBanModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-red-700/50 rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-white mb-4">🚫 Bloklash</h3>
-            <div className="mb-4">
-              <div className="text-sm text-purple-300 mb-1">Foydalanuvchi:</div>
-              <div className="text-white font-semibold">
-                {selectedUser.fullName || selectedUser.username}
-              </div>
-            </div>
-            <div className="mb-6">
-              <label className="text-sm text-purple-300 mb-2 block">Sabab (ixtiyoriy):</label>
-              <textarea
-                value={banReason}
-                onChange={(e) => setBanReason(e.target.value)}
-                placeholder="Qoidabuzarlik, spam, va h.k."
-                className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white focus:border-purple-500 outline-none"
-                rows="3"
-              />
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowBanModal(false)}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white transition-all"
-              >
-                Bekor qilish
-              </button>
-              <button
-                onClick={handleBan}
-                disabled={isActionLoading}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                {isActionLoading ? '⏳...' : '🚫 Bloklash'}
-              </button>
-            </div>
+      {/* Bloklash */}
+      <AdminModal
+        open={showBanModal && Boolean(selectedUser)}
+        onClose={() => setShowBanModal(false)}
+        title="Foydalanuvchini bloklash"
+        subtitle={selectedUser ? `@${selectedUser.username}` : null}
+        ikon="taqiq"
+      >
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-[var(--v3-matn)] block">
+              Sabab (ixtiyoriy)
+            </label>
+            <textarea
+              value={banReason}
+              onChange={(e) => setBanReason(e.target.value)}
+              placeholder="Qoidabuzarlik, spam..."
+              className="v3-kiritish"
+              rows={3}
+            />
+          </div>
+          <div className="flex gap-2.5">
+            <button type="button" onClick={() => setShowBanModal(false)} className="v3-tugma flex-1">
+              Bekor qilish
+            </button>
+            <button
+              type="button"
+              onClick={handleBan}
+              disabled={isActionLoading}
+              className="v3-tugma flex-1 bg-rose-500/20 border-rose-400/40 text-rose-200 disabled:opacity-45"
+            >
+              {isActionLoading ? 'Bajarilmoqda...' : 'Bloklash'}
+            </button>
           </div>
         </div>
-      )}
+      </AdminModal>
 
-      {/* Delete Modal */}
-      {/* PAROLNI TIKLASH — faqat superadmin */}
-      {showParolModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-yellow-700/50 rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-yellow-400 mb-4">🔑 Parolni tiklash</h3>
+      {/* Blokdan chiqarish */}
+      <AdminModal
+        open={showUnbanModal && Boolean(selectedUser)}
+        onClose={() => setShowUnbanModal(false)}
+        title="Blokdan chiqarish"
+        subtitle={selectedUser ? `@${selectedUser.username}` : null}
+        ikon="ochiq"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--v3-xira)]">
+            <strong className="text-[var(--v3-matn)]">
+              {selectedUser?.fullName || selectedUser?.username}
+            </strong>{' '}
+            hisobini blokdan chiqarishni tasdiqlaysizmi?
+          </p>
+          <div className="flex gap-2.5">
+            <button type="button" onClick={() => setShowUnbanModal(false)} className="v3-tugma flex-1">
+              Bekor qilish
+            </button>
+            <button
+              type="button"
+              onClick={handleUnban}
+              disabled={isActionLoading}
+              className="v3-tugma v3-tugma-asosiy flex-1 disabled:opacity-45"
+            >
+              {isActionLoading ? 'Bajarilmoqda...' : 'Blokdan chiqarish'}
+            </button>
+          </div>
+        </div>
+      </AdminModal>
 
-            {!yangiParol ? (
-              <>
-                <div className="bg-purple-950/40 border border-purple-700/30 rounded-lg p-3 mb-4">
-                  <p className="text-white font-semibold">
-                    {selectedUser.fullName || selectedUser.username}
-                  </p>
-                  <p className="text-purple-400 text-sm">
-                    @{selectedUser.username} · ID: {selectedUser.userId}
-                  </p>
-                </div>
-
-                <div className="bg-blue-950/30 border border-blue-700/30 rounded-lg p-3 mb-5">
-                  <p className="text-blue-300 text-sm leading-relaxed">
-                    Eski parolni ko&apos;rsatib bo&apos;lmaydi — u xeshlangan holda
-                    saqlanadi va uni ochish imkonsiz. Buning o&apos;rniga yangi
-                    vaqtinchalik parol yaratiladi.
-                  </p>
-                </div>
-
-                <p className="text-purple-300 text-sm mb-5">
-                  Foydalanuvchining eski paroli darhol ishlamay qoladi. Yangi parolni
-                  unga o&apos;zingiz yetkazasiz.
-                </p>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => { setShowParolModal(false); setSelectedUser(null) }}
-                    className="flex-1 py-3 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-xl text-white font-semibold transition-all"
-                  >
-                    Bekor qilish
-                  </button>
-                  <button
-                    onClick={handleParolTiklash}
-                    disabled={isActionLoading}
-                    className="flex-1 py-3 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-black font-bold transition-all disabled:opacity-50"
-                  >
-                    {isActionLoading ? 'Yaratilmoqda...' : 'Yangi parol yaratish'}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-purple-300 text-sm mb-3">
-                  <strong className="text-white">
-                    {selectedUser.fullName || selectedUser.username}
-                  </strong>{' '}
-                  uchun yangi parol:
-                </p>
-
-                <div className="bg-black/50 border border-yellow-600/40 rounded-xl p-4 mb-4">
-                  <p className="text-2xl font-mono font-bold text-yellow-400 text-center tracking-wider select-all">
-                    {yangiParol}
-                  </p>
-                </div>
-
-                <div className="bg-red-950/30 border border-red-700/40 rounded-lg p-3 mb-5">
-                  <p className="text-red-300 text-sm leading-relaxed">
-                    ⚠️ Bu parol boshqa ko&apos;rsatilmaydi — bazada faqat xeshi
-                    saqlanadi. Hozir ko&apos;chirib oling. Yo&apos;qotsangiz, qaytadan
-                    tiklash kerak bo&apos;ladi.
-                  </p>
-                </div>
-
-                <p className="text-purple-400 text-xs mb-4">
-                  Foydalanuvchi kirgach, sozlamalardan o&apos;z parolini
-                  o&apos;zgartirishi kerak.
-                </p>
-
+      {/* Parolni tiklash (superadmin) */}
+      <AdminModal
+        open={showParolModal && Boolean(selectedUser)}
+        onClose={() => {
+          setShowParolModal(false)
+          setSelectedUser(null)
+          setYangiParol(null)
+        }}
+        title="Parolni tiklash"
+        subtitle={selectedUser ? `@${selectedUser.username} · ID: ${selectedUser.userId}` : null}
+        ikon="qulf"
+      >
+        {selectedUser &&
+          (!yangiParol ? (
+            <div className="space-y-4">
+              <p className="text-xs sm:text-sm text-[var(--v3-xira)] leading-relaxed">
+                Eski parol bcrypt bilan xeshlangan va ko&apos;rsatib bo&apos;lmaydi. Yangi
+                vaqtinchalik parol yaratilgach, eski parol darhol ishlamay qoladi.
+              </p>
+              <div className="flex gap-2.5">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowParolModal(false)
                     setSelectedUser(null)
-                    setYangiParol(null)
                   }}
-                  className="w-full py-3 bg-purple-800/60 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-white font-semibold transition-all"
+                  className="v3-tugma flex-1"
                 >
-                  Ko&apos;chirib oldim, yopish
+                  Bekor qilish
                 </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {showDeleteModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-red-700/50 rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-red-400 mb-4">⚠️ O'chirishni tasdiqlang</h3>
-            <div className="mb-6">
-              <p className="text-purple-200 mb-2">
-                Quyidagi foydalanuvchini <strong className="text-red-400">butunlay o'chirmoqchimisiz</strong>?
-              </p>
-              <div className="bg-red-950/30 border border-red-700/30 rounded-lg p-3">
-                <div className="text-white font-semibold">
-                  {selectedUser.fullName || selectedUser.username}
-                </div>
-                <div className="text-xs text-purple-400">@{selectedUser.username} • {selectedUser.email}</div>
+                <button
+                  type="button"
+                  onClick={handleParolTiklash}
+                  disabled={isActionLoading}
+                  className="v3-tugma v3-tugma-asosiy flex-1 disabled:opacity-45"
+                >
+                  {isActionLoading ? 'Yaratilmoqda...' : 'Yangi parol yaratish'}
+                </button>
               </div>
-              <p className="text-xs text-red-400 mt-3">
-                ⚠️ Bu amal qaytarib bo'lmaydi! Barcha ma'lumotlar (quizlar, yutuqlar, do'stlar) o'chiriladi.
-              </p>
             </div>
-            <div className="flex gap-3">
+          ) : (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-[var(--v3-urgu)]/40 bg-[var(--v3-yuza)] p-4 text-center">
+                <div className="text-[11px] text-[var(--v3-xira)] mb-1">Vaqtinchalik parol (1 marta ko&apos;rinadi)</div>
+                <div className="text-xl font-mono font-bold text-[var(--v3-urgu)] select-all">
+                  {yangiParol}
+                </div>
+              </div>
+              <p className="text-xs text-[var(--v3-xira)]">
+                Parol bazada faqat xesh ko&apos;rinishida saqlanadi. Nusxa olib foydalanuvchiga yetkazing.
+              </p>
               <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white transition-all"
+                type="button"
+                onClick={() => {
+                  setShowParolModal(false)
+                  setSelectedUser(null)
+                  setYangiParol(null)
+                }}
+                className="v3-tugma v3-tugma-asosiy w-full"
               >
+                Ko&apos;chirib oldim, yopish
+              </button>
+            </div>
+          ))}
+      </AdminModal>
+
+      {/* O'chirish (superadmin) */}
+      <AdminModal
+        open={showDeleteModal && Boolean(selectedUser)}
+        onClose={() => setShowDeleteModal(false)}
+        title="Hisobni o'chirish"
+        subtitle={selectedUser ? `@${selectedUser.username}` : null}
+        ikon="ogohlantirish"
+      >
+        {selectedUser && (
+          <div className="space-y-4">
+            <p className="text-xs sm:text-sm text-[var(--v3-xira)]">
+              <strong className="text-rose-300">
+                {selectedUser.fullName || selectedUser.username}
+              </strong>{' '}
+              hisobini butunlay o&apos;chirishni tasdiqlaysizmi? Barcha natijalar va bog&apos;liq yozuvlar o&apos;chiriladi.
+            </p>
+            <div className="flex gap-2.5">
+              <button type="button" onClick={() => setShowDeleteModal(false)} className="v3-tugma flex-1">
                 Bekor qilish
               </button>
               <button
+                type="button"
                 onClick={handleDelete}
                 disabled={isActionLoading}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="v3-tugma flex-1 bg-rose-500/20 border-rose-400/40 text-rose-200 disabled:opacity-45"
               >
-                {isActionLoading ? '⏳...' : '🗑️ O\'chirish'}
+                {isActionLoading ? "O'chirilmoqda..." : "Butunlay o'chirish"}
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </AdminModal>
     </div>
+  )
+}
+
+export default function UsersPage() {
+  return (
+    <Suspense fallback={<AdminLoading text="Foydalanuvchilar sahifasi yuklanmoqda..." />}>
+      <UsersPageContent />
+    </Suspense>
   )
 }

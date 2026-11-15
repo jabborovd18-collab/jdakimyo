@@ -16,7 +16,13 @@ import {
   tahlilniOlish,
   oquvchiTugatdi,
   jamoaNominiYangila,
+  hostHuquqiniTekshir,
 } from "@/lib/doska-jang-boshqaruvchi";
+import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from "@/lib/ip-cheklov";
+
+function hostTokenniOl(req, body = null) {
+  return req.headers.get("x-doska-host-token") || body?.hostToken || null;
+}
 
 export async function GET(req) {
   try {
@@ -47,8 +53,15 @@ export async function GET(req) {
       return NextResponse.json({ ok: true, tahlil });
     }
 
-    // 2) Katta doska ekrani uchun so'rov
+    // 2) Katta doska ekrani uchun so'rov (faqat xona yaratgan doska ekrani)
     if (rol === "doska") {
+      const tek = hostHuquqiniTekshir(
+        xonaId,
+        req.headers.get("x-doska-host-token") || searchParams.get("hostToken")
+      );
+      if (!tek.ok) {
+        return NextResponse.json({ error: tek.error }, { status: tek.status });
+      }
       const holat = doskaHolatiniOlish(xonaId);
       if (!holat) {
         return NextResponse.json({ error: "Xona topilmadi yoki muddati o'tgan" }, { status: 404 });
@@ -98,17 +111,36 @@ export async function POST(req) {
 
     // 1) Yangi xona yaratish (O'qituvchi doskada bosganda)
     if (action === "yaratish") {
+      const ip = soravchiIp(req);
+      const cheklov = await chekloqniTekshir("doskaqr", ip);
+      if (!cheklov.ok) {
+        return NextResponse.json(
+          { error: `Juda ko'p xona yaratildi. ${kutishMatni(cheklov.kutish)} dan keyin urinib ko'ring.` },
+          { status: 429 }
+        );
+      }
+      await urinishniQayd("doskaqr", ip);
+
       const xona = yangiXonaYarat(mavzuId, jamoalarSoni, jamoaNomlari);
       const holat = doskaHolatiniOlish(xona.xonaId);
-      return NextResponse.json({ ok: true, xonaId: xona.xonaId, holat });
+      return NextResponse.json({
+        ok: true,
+        xonaId: xona.xonaId,
+        hostToken: xona._hostToken,
+        holat,
+      });
     }
 
     if (!xonaId) {
       return NextResponse.json({ error: "Xona kodi ko'rsatilmadi" }, { status: 400 });
     }
 
+    const hostToken = hostTokenniOl(req, body);
+
     // 1.1) Jamoa nomini yangilash
     if (action === "nomniYangila") {
+      const tek = hostHuquqiniTekshir(xonaId, hostToken);
+      if (!tek.ok) return NextResponse.json({ error: tek.error }, { status: tek.status });
       const holat = jamoaNominiYangila(xonaId, jamoaId, yangiNom);
       return NextResponse.json({ ok: true, holat });
     }
@@ -121,6 +153,8 @@ export async function POST(req) {
 
     // 3) Jangni boshlash (Lobby -> Jang)
     if (action === "boshlash") {
+      const tek = hostHuquqiniTekshir(xonaId, hostToken);
+      if (!tek.ok) return NextResponse.json({ error: tek.error }, { status: tek.status });
       const holat = jangniBoshla(xonaId);
       return NextResponse.json({ ok: true, holat });
     }
@@ -133,12 +167,16 @@ export async function POST(req) {
 
     // 5) O'qituvchi moderatsiyasi (soxta hisobni chetlatish)
     if (action === "chetlatish") {
+      const tek = hostHuquqiniTekshir(xonaId, hostToken);
+      if (!tek.ok) return NextResponse.json({ error: tek.error }, { status: tek.status });
       const holat = qatnashchiniChetlat(xonaId, qatnashchiId);
       return NextResponse.json({ ok: true, holat });
     }
 
     // 6) Jangni yakunlash
     if (action === "tugatish") {
+      const tek = hostHuquqiniTekshir(xonaId, hostToken);
+      if (!tek.ok) return NextResponse.json({ error: tek.error }, { status: tek.status });
       const holat = jangniTugat(xonaId);
       return NextResponse.json({ ok: true, holat });
     }

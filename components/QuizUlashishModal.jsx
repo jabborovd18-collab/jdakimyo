@@ -35,7 +35,7 @@ export default function QuizUlashishModal({ quiz, onClose }) {
   }, [session])
 
   const copyLink = () => {
-    const url = `${window.location.origin}/oquv/video-darsliklar/ustoz-quiz/${quiz.id}`
+    const url = `${window.location.origin}/testlar/ustoz/${quiz.id}`
     navigator.clipboard.writeText(url)
     toast.success('Test havolasi nusxalandi!')
   }
@@ -43,7 +43,7 @@ export default function QuizUlashishModal({ quiz, onClose }) {
   const sendToChat = async (convId, friendName) => {
     setSendingId(convId)
     try {
-      const shareUrl = `/oquv/video-darsliklar/ustoz-quiz/${quiz.id}`
+      const shareUrl = `/testlar/ustoz/${quiz.id}`
       const messageText = `🧪 [quiz:${quiz.id}:${quiz.title}]\n${shareUrl}`
 
       const res = await fetch(`/api/chat/${convId}`, {

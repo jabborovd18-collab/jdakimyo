@@ -13,7 +13,7 @@ import { royxatniOl, sanoqniOl, oqilganDebBelgila } from '@/lib/bildirishnoma'
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 })
     }
 
@@ -32,25 +32,28 @@ export async function GET(request) {
     return NextResponse.json({ success: true, royxat, sanoq })
   } catch (error) {
     console.error('[Bildirishnomalar GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Bildirishnomalarni yuklashda xatolik' }, { status: 500 })
   }
 }
 
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 })
     }
 
     // `idlar` bo'lmasa — hammasi o'qilgan deb belgilanadi
-    const { idlar } = await request.json().catch(() => ({}))
-    const soni = await oqilganDebBelgila(session.user.id, idlar || null)
+    const body = await request.json().catch(() => ({}))
+    const tozaIdlar = Array.isArray(body?.idlar)
+      ? body.idlar.filter((v) => typeof v === 'string' && v.trim()).slice(0, 200)
+      : null
+    const soni = await oqilganDebBelgila(session.user.id, tozaIdlar?.length ? tozaIdlar : null)
     const sanoq = await sanoqniOl(session.user.id)
 
     return NextResponse.json({ success: true, soni, sanoq })
   } catch (error) {
     console.error('[Bildirishnomalar POST]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Bildirishnomani yangilashda xatolik' }, { status: 500 })
   }
 }

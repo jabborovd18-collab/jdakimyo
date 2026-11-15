@@ -153,13 +153,43 @@ export default function AdminModerationPage() {
   const getPriorityBadge = (priority) => {
     const p = PRIORITIES.find(p => p.id === priority)
     if (!p) return 'bg-gray-600/20 text-gray-400'
-    return `bg-${p.color}-600/20 text-${p.color}-400 border-${p.color}-600/30`
+    const rangXaritasi = {
+      red: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+      orange: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+      amber: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+      yellow: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+      green: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+      emerald: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+      blue: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
+      cyan: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30',
+      purple: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
+      indigo: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
+      pink: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+      gray: 'bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] border-[var(--v3-chiziq)]',
+      slate: 'bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] border-[var(--v3-chiziq)]',
+    }
+    return rangXaritasi[p.color] || rangXaritasi.gray
   }
 
   const getCategoryBadge = (category) => {
     const c = CATEGORIES.find(c => c.id === category)
     if (!c) return 'bg-gray-600/20 text-gray-400'
-    return `bg-${c.color}-600/20 text-${c.color}-400 border-${c.color}-600/30`
+    const rangXaritasi = {
+      red: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+      orange: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+      amber: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+      yellow: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+      green: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+      emerald: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+      blue: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
+      cyan: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30',
+      purple: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
+      indigo: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
+      pink: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+      gray: 'bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] border-[var(--v3-chiziq)]',
+      slate: 'bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] border-[var(--v3-chiziq)]',
+    }
+    return rangXaritasi[c.color] || rangXaritasi.gray
   }
 
   const tabs = [
@@ -181,7 +211,7 @@ export default function AdminModerationPage() {
               </span>
             )}
           </h1>
-          <p className="text-purple-300 mt-1">Platforma xavfsizligi va qoidalarga rioya qilish</p>
+          <p className="text-[var(--v3-xira)] mt-1">Platforma xavfsizligi va qoidalarga rioya qilish</p>
         </div>
       </div>
 
@@ -228,7 +258,7 @@ export default function AdminModerationPage() {
       )}
 
       {/* Tabs */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-2">
+      <div className="v3-panel-karta p-2">
         <div className="flex gap-2">
           {tabs.map(tab => (
             <button
@@ -236,14 +266,14 @@ export default function AdminModerationPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 px-4 py-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                  : 'bg-purple-800/30 text-purple-300 hover:bg-purple-700/50'
+                  ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] shadow-sm'
+                  : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)] hover:bg-[var(--v3-yuza-2)] hover:text-[var(--v3-matn)]'
               }`}
             >
               <span>{tab.name}</span>
               {tab.count > 0 && (
                 <span className={`px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === tab.id ? 'bg-white/20' : 'bg-purple-600/30'
+                  activeTab === tab.id ? 'bg-black/15 text-[var(--v3-urgu-matn)]' : 'bg-[var(--v3-yuza-2)] text-[var(--v3-matn)]'
                 }`}>
                   {tab.count}
                 </span>
@@ -255,12 +285,12 @@ export default function AdminModerationPage() {
 
       {/* Filters (Reports tab) */}
       {activeTab === 'reports' && (
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
+        <div className="v3-panel-karta p-4">
           <div className="flex flex-wrap gap-3">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+              className="v3-kiritish"
             >
               <option value="all">Barcha holatlar</option>
               {STATUSES.map(s => (
@@ -270,7 +300,7 @@ export default function AdminModerationPage() {
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+              className="v3-kiritish"
             >
               <option value="all">Barcha ustuvorliklar</option>
               {PRIORITIES.map(p => (
@@ -280,7 +310,7 @@ export default function AdminModerationPage() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+              className="v3-kiritish"
             >
               <option value="all">Barcha kategoriyalar</option>
               {CATEGORIES.map(c => (
@@ -293,26 +323,26 @@ export default function AdminModerationPage() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="text-center py-12 text-purple-300">⏳ Yuklanmoqda...</div>
+        <div className="text-center py-12 text-[var(--v3-xira)]">⏳ Yuklanmoqda...</div>
       ) : (
         <>
           {/* REPORTS TAB */}
           {activeTab === 'reports' && (
             <div className="space-y-4">
               {reports.length === 0 ? (
-                <div className="text-center py-12 bg-slate-900/50 border border-purple-800/50 rounded-xl">
+                <div className="v3-panel-karta text-center py-12">
                   <div className="text-6xl mb-4">🎉</div>
                   <h3 className="text-xl font-bold text-white mb-2">Reportlar yo'q!</h3>
-                  <p className="text-purple-300">Hamma narsa tinch va osoyishta</p>
+                  <p className="text-[var(--v3-xira)]">Hamma narsa tinch va osoyishta</p>
                 </div>
               ) : (
                 reports.map(report => (
                   <div
                     key={report.id}
-                    className={`bg-slate-900/50 border rounded-xl p-5 hover:border-purple-600/50 transition-all ${
+                    className={`v3-panel-karta p-5 hover:border-[var(--v3-chiziq-2)] transition-all ${
                       report.priority === 'urgent' ? 'border-red-600/50' :
                       report.priority === 'high' ? 'border-orange-600/50' :
-                      'border-purple-800/50'
+                      'border-[var(--v3-chiziq)]'
                     }`}
                   >
                     <div className="flex items-start gap-4">
@@ -327,14 +357,14 @@ export default function AdminModerationPage() {
                           <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${getCategoryBadge(report.category)}`}>
                             {CATEGORIES.find(c => c.id === report.category)?.name}
                           </span>
-                          <span className="text-xs text-purple-400">
+                          <span className="text-xs text-[var(--v3-xira)]">
                             {formatDate(report.createdAt)}
                           </span>
                         </div>
                         
                         <div className="mb-3">
-                          <div className="text-sm text-purple-300 mb-1">
-                            <span className="text-purple-400">Reporter:</span> {report.reporter.fullName || report.reporter.username}
+                          <div className="text-sm text-[var(--v3-xira)] mb-1">
+                            <span className="text-[var(--v3-xira)]">Reporter:</span> {report.reporter.fullName || report.reporter.username}
                           </div>
                           <div className="text-sm text-red-300">
                             <span className="text-red-400">Target:</span>{' '}
@@ -347,8 +377,8 @@ export default function AdminModerationPage() {
                           </div>
                         </div>
 
-                        <div className="bg-purple-950/50 rounded-lg p-3 mb-3">
-                          <div className="text-sm text-purple-200">{report.reason}</div>
+                        <div className="bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-lg p-3 mb-3">
+                          <div className="text-sm text-[var(--v3-matn)]">{report.reason}</div>
                         </div>
 
                         {report.status === 'pending' && (
@@ -361,7 +391,7 @@ export default function AdminModerationPage() {
                             </button>
                             <button
                               onClick={() => handleResolve('dismiss')}
-                              className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 text-purple-300 text-sm rounded-lg"
+                              className="v3-tugma text-sm"
                             >
                               ❌ Rad etish
                             </button>
@@ -375,10 +405,10 @@ export default function AdminModerationPage() {
                         )}
 
                         {report.status !== 'pending' && (
-                          <div className="text-xs text-purple-400">
+                          <div className="text-xs text-[var(--v3-xira)]">
                             ✓ {report.status} • {formatDate(report.reviewedAt)}
                             {report.resolution && (
-                              <span className="ml-2 text-purple-300">| {report.resolution}</span>
+                              <span className="ml-2 text-[var(--v3-xira)]">| {report.resolution}</span>
                             )}
                           </div>
                         )}
@@ -392,31 +422,31 @@ export default function AdminModerationPage() {
 
           {/* BANNED TAB */}
           {activeTab === 'banned' && (
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl overflow-hidden">
+            <div className="v3-panel-karta overflow-hidden">
               {bannedUsers.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">✨</div>
                   <h3 className="text-xl font-bold text-white mb-2">Bloklangan foydalanuvchilar yo'q</h3>
-                  <p className="text-purple-300">Platformada hammasi joyida</p>
+                  <p className="text-[var(--v3-xira)]">Platformada hammasi joyida</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-purple-950/50 border-b border-purple-800/50">
+                    <thead className="bg-[var(--v3-yuza-2)] border-b border-[var(--v3-chiziq)]">
                       <tr>
-                        <th className="text-left p-4 text-sm font-semibold text-purple-300">Foydalanuvchi</th>
-                        <th className="text-left p-4 text-sm font-semibold text-purple-300">Sabab</th>
-                        <th className="text-left p-4 text-sm font-semibold text-purple-300">Sana</th>
-                        <th className="text-left p-4 text-sm font-semibold text-purple-300">Statistika</th>
-                        <th className="text-right p-4 text-sm font-semibold text-purple-300">Amallar</th>
+                        <th className="text-left p-4 text-xs font-semibold uppercase tracking-wide text-[var(--v3-xira)]">Foydalanuvchi</th>
+                        <th className="text-left p-4 text-xs font-semibold uppercase tracking-wide text-[var(--v3-xira)]">Sabab</th>
+                        <th className="text-left p-4 text-xs font-semibold uppercase tracking-wide text-[var(--v3-xira)]">Sana</th>
+                        <th className="text-left p-4 text-xs font-semibold uppercase tracking-wide text-[var(--v3-xira)]">Statistika</th>
+                        <th className="text-right p-4 text-xs font-semibold uppercase tracking-wide text-[var(--v3-xira)]">Amallar</th>
                       </tr>
                     </thead>
                     <tbody>
                       {bannedUsers.map(user => (
-                        <tr key={user.id} className="border-b border-purple-800/30 hover:bg-purple-950/30">
+                        <tr key={user.id} className="border-b border-[var(--v3-chiziq)] hover:bg-[var(--v3-fon-2)]/60 transition-colors">
                           <td className="p-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-sm font-bold text-white overflow-hidden">
+                              <div className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/35 flex items-center justify-center text-sm font-bold text-rose-300 overflow-hidden">
                                 {user.avatar ? (
                                   <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                                 ) : (
@@ -424,39 +454,39 @@ export default function AdminModerationPage() {
                                 )}
                               </div>
                               <div>
-                                <div className="font-semibold text-white">{user.fullName || user.username}</div>
-                                <div className="text-xs text-purple-400">@{user.username}</div>
+                                <div className="font-semibold text-[var(--v3-matn)]">{user.fullName || user.username}</div>
+                                <div className="text-xs text-[var(--v3-xira)]">@{user.username}</div>
                               </div>
                             </div>
                           </td>
                           <td className="p-4">
-                            <div className="text-sm text-red-300 max-w-xs truncate">
+                            <div className="text-sm text-rose-300 max-w-xs truncate">
                               {user.bannedReason || 'Sabab ko\'rsatilmagan'}
                             </div>
                           </td>
                           <td className="p-4">
-                            <div className="text-sm text-purple-300">{formatDate(user.bannedAt)}</div>
+                            <div className="text-sm text-[var(--v3-xira)]">{formatDate(user.bannedAt)}</div>
                           </td>
                           <td className="p-4">
                             <div className="flex gap-3 text-xs">
-                              <span className="text-purple-400">📝 {user._count.quizResults}</span>
-                              <span className="text-purple-400">🏆 {user._count.achievements}</span>
-                              <span className="text-red-400">🚨 {user._count.reportsReceived}</span>
+                              <span className="text-[var(--v3-xira)]">Quiz: {user._count.quizResults}</span>
+                              <span className="text-[var(--v3-xira)]">Yutuq: {user._count.achievements}</span>
+                              <span className="text-rose-400">Shikoyat: {user._count.reportsReceived}</span>
                             </div>
                           </td>
                           <td className="p-4 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <Link
                                 href={`/profil/${user.userId}`}
-                                className="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/50 rounded-lg text-xs text-blue-400"
+                                className="v3-tugma text-xs px-2.5 py-1.5"
                               >
-                                👁️
+                                Profil
                               </Link>
                               <button
                                 onClick={() => handleUnban(user.id, user.username)}
-                                className="px-3 py-1 bg-green-600/20 hover:bg-green-600/30 border border-green-600/50 rounded-lg text-xs text-green-400"
+                                className="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 rounded-lg text-xs text-emerald-400 font-semibold"
                               >
-                                🔓 Ochish
+                                Blokdan ochish
                               </button>
                             </div>
                           </td>
@@ -471,35 +501,34 @@ export default function AdminModerationPage() {
 
           {/* LOGS TAB */}
           {activeTab === 'logs' && (
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl overflow-hidden">
+            <div className="v3-panel-karta overflow-hidden">
               {auditLogs.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4">📊</div>
-                  <h3 className="text-xl font-bold text-white mb-2">Audit loglar yo'q</h3>
-                  <p className="text-purple-300">Hali hech qanday admin harakati qayd etilmagan</p>
+                  <h3 className="text-xl font-bold text-[var(--v3-matn)] mb-2">Audit loglar yo&apos;q</h3>
+                  <p className="text-[var(--v3-xira)]">Hali hech qanday admin harakati qayd etilmagan</p>
                 </div>
               ) : (
-                <div className="divide-y divide-purple-800/30">
+                <div className="divide-y divide-[var(--v3-chiziq)]">
                   {auditLogs.map(log => (
-                    <div key={log.id} className="p-4 hover:bg-purple-950/30 transition-colors">
+                    <div key={log.id} className="p-4 hover:bg-[var(--v3-fon-2)]/50 transition-colors">
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-purple-800/50 flex items-center justify-center text-sm flex-shrink-0">
-                          {log.action.includes('ban') ? '🚫' :
-                           log.action.includes('unban') ? '🔓' :
-                           log.action.includes('report') ? '📋' :
-                           log.action.includes('role') ? '🎭' : '⚙️'}
+                        <div className="w-8 h-8 rounded-lg bg-[var(--v3-fon-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-urgu)] flex-shrink-0">
+                          {log.action.includes('ban') ? 'BAN' :
+                           log.action.includes('unban') ? 'OK' :
+                           log.action.includes('report') ? 'RPT' :
+                           log.action.includes('role') ? 'ROL' : 'SYS'}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="text-sm font-semibold text-white">{log.action}</span>
-                            <span className="text-xs text-purple-400">
-                              by {log.admin.fullName || log.admin.username}
+                            <span className="text-sm font-semibold text-[var(--v3-matn)]">{log.action}</span>
+                            <span className="text-xs text-[var(--v3-xira)]">
+                              — {log.admin.fullName || log.admin.username}
                             </span>
                           </div>
                           {log.details && (
-                            <div className="text-xs text-purple-300 mb-1">{log.details}</div>
+                            <div className="text-xs text-[var(--v3-xira)] mb-1">{log.details}</div>
                           )}
-                          <div className="text-xs text-purple-500">{formatDate(log.createdAt)}</div>
+                          <div className="text-xs text-[var(--v3-xira)] opacity-75">{formatDate(log.createdAt)}</div>
                         </div>
                       </div>
                     </div>
@@ -513,54 +542,54 @@ export default function AdminModerationPage() {
 
       {/* RESOLVE MODAL */}
       {showResolveModal && selectedReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-purple-700/50 rounded-2xl p-6 max-w-lg w-full">
-            <h3 className="text-xl font-bold text-white mb-4">
-              ✅ Reportni hal qilish
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="v3-panel-karta p-6 max-w-lg w-full">
+            <h3 className="text-xl font-bold text-[var(--v3-matn)] mb-4">
+              Reportni hal qilish
             </h3>
 
-            <div className="bg-purple-950/50 rounded-lg p-4 mb-4">
-              <div className="text-sm text-purple-300 mb-2">
-                <strong>Reporter:</strong> {selectedReport.reporter.fullName || selectedReport.reporter.username}
+            <div className="rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] p-4 mb-4">
+              <div className="text-sm text-[var(--v3-xira)] mb-2">
+                <strong className="text-[var(--v3-matn)]">Reporter:</strong> {selectedReport.reporter.fullName || selectedReport.reporter.username}
               </div>
-              <div className="text-sm text-purple-300 mb-2">
-                <strong>Target:</strong> {selectedReport.target.fullName || selectedReport.target.username}
+              <div className="text-sm text-[var(--v3-xira)] mb-2">
+                <strong className="text-[var(--v3-matn)]">Target:</strong> {selectedReport.target.fullName || selectedReport.target.username}
               </div>
-              <div className="text-sm text-purple-200 mt-3 p-2 bg-purple-900/30 rounded">
-                "{selectedReport.reason}"
+              <div className="text-sm text-[var(--v3-matn)] mt-3 p-2.5 bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] rounded-lg">
+                &quot;{selectedReport.reason}&quot;
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="text-sm text-purple-300 mb-2 block">Qaror tafsiloti (ixtiyoriy):</label>
+              <label className="text-sm text-[var(--v3-xira)] mb-2 block">Qaror tafsiloti (ixtiyoriy):</label>
               <textarea
                 value={resolution}
                 onChange={(e) => setResolution(e.target.value)}
-                className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                className="v3-kiritish w-full"
                 rows="3"
                 placeholder="Nima uchun bu qaror qabul qilindi..."
               />
             </div>
 
-            <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-3 mb-4">
-              <div className="text-xs text-yellow-300">
-                💡 <strong>Maslahat:</strong> Reportni hal qilishdan oldin target profilini ko'rib chiqing va kerak bo'lsa, foydalanuvchini bloklash haqida o'ylang.
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4">
+              <div className="text-xs text-amber-300">
+                <strong>Maslahat:</strong> Reportni hal qilishdan oldin target profilini ko&apos;rib chiqing va kerak bo&apos;lsa, foydalanuvchini bloklash haqida o&apos;ylang.
               </div>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowResolveModal(false); setSelectedReport(null) }}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white"
+                className="v3-tugma flex-1 justify-center"
               >
                 Bekor qilish
               </button>
               <button
                 onClick={() => handleResolve('resolve')}
                 disabled={isProcessing}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-bold rounded-lg disabled:opacity-50"
+                className="v3-tugma v3-tugma-asosiy flex-1 justify-center disabled:opacity-50"
               >
-                {isProcessing ? '⏳...' : '✓ Hal qilish'}
+                {isProcessing ? 'Bajarilmoqda...' : 'Hal qilish'}
               </button>
             </div>
           </div>

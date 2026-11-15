@@ -105,10 +105,10 @@ export default function MaktabKimyosiBoshSahifa() {
           </p>
         </div>
 
-        {/* 5 ta sinf kartalari: 7-sinf OCHIQ, 8–11 QULFDA */}
+        {/* 5 ta sinf kartalari: 7–8-sinf OCHIQ, 9–11 QULFDA */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {MAKTAB_SINFLARI.map((s) => {
-            const ochiqmi = s.sinf === 7
+            const ochiqmi = Boolean(s.ochiq)
 
             if (ochiqmi) {
               return (
@@ -123,7 +123,7 @@ export default function MaktabKimyosiBoshSahifa() {
                   <div>
                     <div className="flex items-center justify-between mb-5">
                       <span className="w-14 h-14 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                        <Ikon nom="kolba" olcham={28} />
+                        <Ikon nom={s.ikon || "kolba"} olcham={28} />
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/40 bg-emerald-500/20 text-xs font-bold text-emerald-300">
@@ -178,8 +178,8 @@ export default function MaktabKimyosiBoshSahifa() {
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-500/40 bg-amber-500/15 text-xs font-bold text-amber-300">
-                        <Ikon nom="qulf" olcham={12} />
-                        Yaqinda ochiladi
+                        <Ikon nom="soat" olcham={12} />
+                        Tez kunda qo&apos;shiladi
                       </span>
                       <span className="text-xs font-mono px-2.5 py-1 rounded-xl border border-blue-900/60 bg-[#091538]/50 text-blue-300/80">
                         {s.belgi}
@@ -201,11 +201,11 @@ export default function MaktabKimyosiBoshSahifa() {
                 <div className="mt-8 pt-4 border-t border-blue-900/40 flex items-center justify-between text-xs">
                   <span className="text-blue-300/60 flex items-center gap-1.5">
                     <Ikon nom="kitob" olcham={14} />
-                    {s.darslarSoni} ta dars
+                    {s.darslarSoni > 0 ? `${s.darslarSoni} ta dars` : "Darslik tayyorlanmoqda"}
                   </span>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 font-semibold">
-                    <Ikon nom="qulf" olcham={13} />
-                    Tayyorlanmoqda
+                    <Ikon nom="soat" olcham={13} />
+                    Tez kunda qo&apos;shiladi
                   </span>
                 </div>
               </div>
@@ -221,10 +221,10 @@ export default function MaktabKimyosiBoshSahifa() {
             </span>
             <div>
               <h4 className="text-sm sm:text-base font-bold text-white">
-                8–11 sinf darsliklari ustida ish olib borilmoqda
+                9–11 sinf darsliklari ustida ish olib borilmoqda
               </h4>
               <p className="text-xs sm:text-sm text-blue-200/70 mt-1">
-                Davlat ta&apos;lim standarti bo&apos;yicha yangi multimedia darslari, reaksiyalar va metodik qo&apos;llanmalar bosqichma-bosqich platformaga joylanadi.
+                7-sinf to&apos;liq yakunlangan, 8-sinf mavzulari esa darslik asosida bosqichma-bosqich platformaga joylanmoqda.
               </p>
             </div>
           </div>
@@ -299,7 +299,7 @@ export default function MaktabKimyosiBoshSahifa() {
               <div className="flex flex-col items-center md:items-end gap-2 shrink-0">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-800/50 bg-[#09153a]/60 text-xs font-semibold text-blue-200">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  v3.0.0
+                  v4.0.0
                 </span>
                 <Link
                   href="/jda-kimyo"

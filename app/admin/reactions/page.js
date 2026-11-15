@@ -152,43 +152,40 @@ export default function AdminReactionsPage() {
 
   const set = (key, value) => setEditing((prev) => ({ ...prev, [key]: value }))
 
-  const input = 'w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white text-sm focus:border-yellow-500 outline-none'
-  const label = 'text-xs text-purple-300 mb-1 block'
+  const input = 'v3-kiritish text-sm'
+  const label = 'text-xs font-semibold text-[var(--v3-matn)] mb-1 block'
 
   return (
     <div className="space-y-6">
-      {/* Sarlavha */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col gap-4 pb-5 border-b border-[var(--v3-chiziq)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-1">⚗️ Reaksiyalar</h1>
-          <p className="text-purple-300 text-sm">
-            {stats.total} ta reaksiya · {stats.verifiedCount} tasi tasdiqlangan
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--v3-matn)]">Reaksiyalar banki</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-[var(--v3-xira)]">
+            {stats.total} ta reaksiya · {stats.verifiedCount} tasi tasdiqlangan (mobil ilova va qidiruv indeksi)
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setEditing({ ...EMPTY })}
-          className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl text-sm"
+          className="v3-tugma v3-tugma-asosiy text-xs"
         >
-          ➕ Yangi reaksiya
+          + Yangi reaksiya
         </button>
       </div>
 
-      {/* To'ldirilmagan ma'lumot haqida eslatma */}
       {stats.verifiedCount < stats.total && (
-        <div className="bg-amber-900/20 border border-amber-700/50 rounded-xl p-4">
-          <p className="text-sm text-amber-300">
-            ⚠️ {stats.total - stats.verifiedCount} ta reaksiya hali tasdiqlanmagan.
-            Ilovada ular &quot;kimyogar tasdiqlamagan&quot; belgisi bilan ko&apos;rinadi.
-          </p>
+        <div className="v3-panel-karta border-amber-400/35 bg-amber-400/10 p-4 text-xs sm:text-sm text-amber-200">
+          {stats.total - stats.verifiedCount} ta reaksiya hali tasdiqlanmagan. Ilovada ular
+          &quot;kimyogar tasdiqlamagan&quot; belgisi bilan ko&apos;rinadi.
         </div>
       )}
 
       {/* Filtrlar */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-4 flex flex-wrap gap-3">
+      <div className="v3-panel-karta p-4 flex flex-wrap gap-3">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Qidirish (H2SO4 deb yozsangiz ham topiladi)"
+          placeholder="Qidirish (masalan, H2SO4 deb yozsangiz ham topiladi)"
           className={`${input} flex-1 min-w-[240px]`}
         />
         <select
@@ -198,7 +195,9 @@ export default function AdminReactionsPage() {
         >
           <option value="all">Barcha kategoriyalar</option>
           {categories.map((c) => (
-            <option key={c.name} value={c.name}>{c.name} ({c.count})</option>
+            <option key={c.name} value={c.name}>
+              {c.name} ({c.count})
+            </option>
           ))}
         </select>
         <select
@@ -214,48 +213,47 @@ export default function AdminReactionsPage() {
 
       {/* Ro'yxat */}
       {isLoading ? (
-        <div className="text-center py-12 text-purple-400">Yuklanmoqda...</div>
+        <div className="v3-panel-karta py-12 text-center text-sm text-[var(--v3-xira)]">Yuklanmoqda...</div>
       ) : reactions.length === 0 ? (
-        <div className="text-center py-12 text-purple-400">Hech narsa topilmadi</div>
+        <div className="v3-panel-karta py-12 text-center text-sm text-[var(--v3-xira)]">Hech narsa topilmadi</div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {reactions.map((reaction) => (
             <div
               key={reaction.id}
-              className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4 flex items-start justify-between gap-4"
+              className="v3-panel-karta p-4 flex items-start justify-between gap-4"
             >
               <div className="min-w-0 flex-1">
-                <div className="font-semibold text-white text-sm break-words">
+                <div className="font-semibold text-[var(--v3-matn)] text-sm break-words">
                   {reaction.equation}
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  <span className="text-[10px] px-2 py-0.5 bg-purple-800/50 rounded-full text-purple-300">
+                  <span className="text-[11px] px-2 py-0.5 rounded-full border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[var(--v3-xira)]">
                     {reaction.category}
                   </span>
                   {reaction.temperature && (
-                    <span className="text-[10px] px-2 py-0.5 bg-purple-950/50 border border-purple-700/50 rounded-full text-purple-400">
-                      🌡 {reaction.temperature}
+                    <span className="text-[11px] px-2 py-0.5 rounded-full border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[var(--v3-xira)]">
+                      {reaction.temperature}
                     </span>
                   )}
                   {reaction.scale && (
-                    <span className="text-[10px] px-2 py-0.5 bg-purple-950/50 border border-purple-700/50 rounded-full text-purple-400">
+                    <span className="text-[11px] px-2 py-0.5 rounded-full border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[var(--v3-xira)]">
                       {reaction.scale}
                     </span>
                   )}
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                    className={`text-[11px] px-2 py-0.5 rounded-full border ${
                       reaction.isVerified
-                        ? 'bg-green-600/20 text-green-400 border-green-600/30'
-                        : 'bg-amber-600/20 text-amber-400 border-amber-600/30'
+                        ? 'border-emerald-400/40 bg-emerald-400/15 text-emerald-200'
+                        : 'border-amber-400/40 bg-amber-400/15 text-amber-200'
                     }`}
                   >
-                    {reaction.isVerified ? '✓ tasdiqlangan' : 'tasdiqlanmagan'}
+                    {reaction.isVerified ? 'Tasdiqlangan' : 'Tasdiqlanmagan'}
                   </span>
 
-                  {/* Tasdiq ortida aniq odam turishi kerak */}
                   {reaction.isVerified && (reaction.verifiedBy || reaction.verifiedAt) && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full border bg-purple-950/50 border-purple-700/50 text-purple-300">
-                      {reaction.verifiedBy?.fullName || reaction.verifiedBy?.username || 'noma\'lum'}
+                    <span className="text-[11px] px-2 py-0.5 rounded-full border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[var(--v3-xira)]">
+                      {reaction.verifiedBy?.fullName || reaction.verifiedBy?.username || "noma'lum"}
                       {reaction.verifiedAt
                         ? ` · ${new Date(reaction.verifiedAt).toLocaleDateString('uz-UZ')}`
                         : ''}
@@ -263,18 +261,20 @@ export default function AdminReactionsPage() {
                   )}
                 </div>
               </div>
-              <div className="flex gap-2 flex-shrink-0">
+              <div className="flex gap-1.5 shrink-0">
                 <button
+                  type="button"
                   onClick={() => setEditing({ ...EMPTY, ...reaction })}
-                  className="px-3 py-1.5 bg-purple-800/50 hover:bg-purple-700/50 rounded-lg text-xs text-white"
+                  className="v3-tugma text-xs py-1 px-2.5"
                 >
-                  ✏️
+                  Tahrir
                 </button>
                 <button
+                  type="button"
                   onClick={() => remove(reaction)}
-                  className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-lg text-xs text-red-400"
+                  className="v3-tugma text-xs py-1 px-2.5 text-rose-300"
                 >
-                  🗑
+                  O&apos;chirish
                 </button>
               </div>
             </div>
@@ -284,13 +284,18 @@ export default function AdminReactionsPage() {
 
       {/* Tahrirlash oynasi */}
       {editing && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-purple-700/50 rounded-2xl p-6 max-w-3xl mx-auto my-4 space-y-5">
-            <h3 className="text-xl font-bold text-white">
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
+          onClick={(e) => { if (e.target === e.currentTarget) setEditing(null) }}
+        >
+          <div
+            className="v3-panel-karta p-5 sm:p-6 max-w-3xl mx-auto my-4 space-y-5 border-[var(--v3-chiziq-2)]"
+            style={{ background: 'var(--v3-fon-2)' }}
+          >
+            <h3 className="text-lg font-bold text-[var(--v3-matn)]">
               {editing.id ? 'Reaksiyani tahrirlash' : 'Yangi reaksiya'}
             </h3>
 
-            {/* Asosiy */}
             <div className="space-y-3">
               <div>
                 <label className={label}>Tenglama *</label>
@@ -300,31 +305,47 @@ export default function AdminReactionsPage() {
                   placeholder="H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O"
                   className={input}
                 />
-                <p className="text-[10px] text-purple-500 mt-1">
-                  Indekssiz yozsangiz ham bo&apos;ladi — qidiruv ikkalasini ham topadi
+                <p className="text-[11px] text-[var(--v3-xira)] mt-1">
+                  Indekssiz yozsangiz ham bo&apos;ladi — qidiruv indeksi avtomatik moslashtiradi.
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className={label}>Nomi</label>
                   <input value={editing.name || ''} onChange={(e) => set('name', e.target.value)} className={input} />
                 </div>
                 <div>
                   <label className={label}>Kategoriya</label>
-                  <input value={editing.category || ''} onChange={(e) => set('category', e.target.value)} placeholder="Asid-baza" className={input} />
+                  <input
+                    value={editing.category || ''}
+                    onChange={(e) => set('category', e.target.value)}
+                    placeholder="Asid-baza"
+                    className={input}
+                  />
                 </div>
               </div>
               <div>
                 <label className={label}>Tavsif</label>
-                <textarea value={editing.description || ''} onChange={(e) => set('description', e.target.value)} rows={2} className={input} />
+                <textarea
+                  value={editing.description || ''}
+                  onChange={(e) => set('description', e.target.value)}
+                  rows={2}
+                  className={input}
+                />
               </div>
             </div>
 
-            {/* Sharoit */}
             <div>
-              <div className="text-sm font-semibold text-yellow-400 mb-2">🌡 Borish sharoiti</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-[var(--v3-urgu)] mb-2">
+                Borish sharoiti
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                {[['temperature','Harorat','25°C'],['pressure','Bosim','1 atm'],['catalyst','Katalizator','V₂O₅'],['environment','Muhit','kislotali']].map(([key,text,ph]) => (
+                {[
+                  ['temperature', 'Harorat', '25°C'],
+                  ['pressure', 'Bosim', '1 atm'],
+                  ['catalyst', 'Katalizator', 'V₂O₅'],
+                  ['environment', 'Muhit', 'kislotali'],
+                ].map(([key, text, ph]) => (
                   <div key={key}>
                     <label className={label}>{text}</label>
                     <input value={editing[key] || ''} onChange={(e) => set(key, e.target.value)} placeholder={ph} className={input} />
@@ -333,18 +354,23 @@ export default function AdminReactionsPage() {
               </div>
             </div>
 
-            {/* Mexanizm */}
-            <div className="space-y-3">
-              <div className="text-sm font-semibold text-yellow-400">⚛️ Mexanizm va oraliq moddalar</div>
+            <div className="space-y-2">
+              <div className="text-xs font-bold uppercase tracking-wider text-[var(--v3-urgu)]">
+                Mexanizm va oraliq moddalar
+              </div>
               <div>
                 <label className={label}>Mexanizm</label>
-                <textarea value={editing.mechanism || ''} onChange={(e) => set('mechanism', e.target.value)} rows={3} className={input} />
+                <textarea
+                  value={editing.mechanism || ''}
+                  onChange={(e) => set('mechanism', e.target.value)}
+                  rows={3}
+                  className={input}
+                />
               </div>
             </div>
 
-            {/* Erituvchi */}
             <div className="space-y-3">
-              <div className="text-sm font-semibold text-yellow-400">🧪 Erituvchi</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-[var(--v3-urgu)]">Erituvchi</div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={label}>Eng samarali erituvchi</label>
@@ -354,17 +380,25 @@ export default function AdminReactionsPage() {
                   <label className={label}>Ko&apos;lam</label>
                   <select value={editing.scale || ''} onChange={(e) => set('scale', e.target.value)} className={input}>
                     <option value="">— tanlanmagan —</option>
-                    {SCALES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    {SCALES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
               <div>
                 <label className={label}>Erituvchi ta&apos;siri</label>
-                <textarea value={editing.solventEffect || ''} onChange={(e) => set('solventEffect', e.target.value)} rows={2} className={input} />
+                <textarea
+                  value={editing.solventEffect || ''}
+                  onChange={(e) => set('solventEffect', e.target.value)}
+                  rows={2}
+                  className={input}
+                />
               </div>
             </div>
 
-            {/* Juftlik maydonlari */}
             {PAIR_FIELDS.map((field) => (
               <div key={field.key}>
                 <label className={label}>{field.label}</label>
@@ -375,11 +409,10 @@ export default function AdminReactionsPage() {
                   placeholder={field.hint}
                   className={input}
                 />
-                <p className="text-[10px] text-purple-500 mt-1">{field.hint}</p>
+                <p className="text-[11px] text-[var(--v3-xira)] mt-1">{field.hint}</p>
               </div>
             ))}
 
-            {/* Ro'yxat maydonlari */}
             {LIST_FIELDS.map((field) => (
               <div key={field.key}>
                 <label className={label}>{field.label}</label>
@@ -390,15 +423,19 @@ export default function AdminReactionsPage() {
                   placeholder={field.hint}
                   className={input}
                 />
-                <p className="text-[10px] text-purple-500 mt-1">Har qatorda bittadan</p>
+                <p className="text-[11px] text-[var(--v3-xira)] mt-1">Har qatorda bittadan</p>
               </div>
             ))}
 
-            {/* Qolgan */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={label}>Kuzatiladigan belgilar</label>
-                <textarea value={editing.observations || ''} onChange={(e) => set('observations', e.target.value)} rows={2} className={input} />
+                <textarea
+                  value={editing.observations || ''}
+                  onChange={(e) => set('observations', e.target.value)}
+                  rows={2}
+                  className={input}
+                />
               </div>
               <div>
                 <label className={label}>Unum</label>
@@ -406,7 +443,7 @@ export default function AdminReactionsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={label}>Manba</label>
                 <input value={editing.source || ''} onChange={(e) => set('source', e.target.value)} className={input} />
@@ -417,46 +454,41 @@ export default function AdminReactionsPage() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-purple-700/50 bg-purple-950/30 p-3 space-y-1">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <div className="rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] p-3.5 space-y-1">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-[var(--v3-matn)]">
                 <input
                   type="checkbox"
                   checked={Boolean(editing.isVerified)}
                   onChange={(e) => set('isVerified', e.target.checked)}
-                  className="accent-green-500"
+                  className="accent-emerald-400"
                 />
-                <span className="text-sm text-white">
-                  Kimyoviy jihatdan tekshirdim va tasdiqlayman
-                </span>
+                <span>Kimyoviy jihatdan tekshirdim va tasdiqlayman</span>
               </label>
 
-              <p className="text-[11px] text-purple-400 pl-6">
-                Belgilansa, ismingiz va sana yozib qo&apos;yiladi va ilovada
-                ko&apos;rinadi. Tasdiqlangan yozuvni seed skripti qayta yozmaydi.
+              <p className="text-[11px] text-[var(--v3-xira)] pl-6">
+                Belgilansa, tasdiqlagan foydalanuvchi va sana yoziladi; seed skripti tasdiqlangan
+                yozuvni qayta yozmaydi.
               </p>
 
               {editing.verifiedAt && (
-                <p className="text-[11px] text-green-400 pl-6">
-                  Oxirgi tasdiq:{' '}
-                  {editing.verifiedBy?.fullName || editing.verifiedBy?.username || 'noma\'lum'} ·{' '}
+                <p className="text-[11px] text-emerald-300 pl-6">
+                  Oxirgi tasdiq: {editing.verifiedBy?.fullName || editing.verifiedBy?.username || "noma'lum"} ·{' '}
                   {new Date(editing.verifiedAt).toLocaleString('uz-UZ')}
                 </p>
               )}
             </div>
 
-            <div className="flex gap-3 pt-2">
-              <button
-                onClick={() => setEditing(null)}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 rounded-lg text-white"
-              >
+            <div className="flex gap-2.5 pt-2 border-t border-[var(--v3-chiziq)]">
+              <button type="button" onClick={() => setEditing(null)} className="v3-tugma flex-1">
                 Bekor qilish
               </button>
               <button
+                type="button"
                 onClick={save}
                 disabled={isSaving}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-lg disabled:opacity-50"
+                className="v3-tugma v3-tugma-asosiy flex-1 disabled:opacity-45"
               >
-                {isSaving ? '⏳...' : '✓ Saqlash'}
+                {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
               </button>
             </div>
           </div>

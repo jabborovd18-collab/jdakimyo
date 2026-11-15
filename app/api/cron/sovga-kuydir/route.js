@@ -11,14 +11,12 @@
 // Toshkent yarim tuni = UTC 19:00, shuning uchun jadval `0 19 * * *`.
 import { NextResponse } from 'next/server'
 import { kuyganlarniBelgila } from '@/lib/sovga'
+import { cronRuxsati } from '@/lib/cron-ishlar'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
-  if (
-    !process.env.CRON_SECRET ||
-    request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`
-  ) {
+  if (!cronRuxsati(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

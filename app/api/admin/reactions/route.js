@@ -4,11 +4,9 @@
 // Qidiruv indeksi (searchText/searchCompact) har saqlashda avtomatik
 // qayta hisoblanadi — admin bu haqda o'ylamaydi.
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { checkAdminAuth } from '@/lib/admin-auth'
 import { buildSearchIndex, normalizeQuery } from '@/lib/chem-search'
-import { isAdminRole } from '@/lib/roles'
 import { keshniTozala } from '@/lib/tajriba'
 import { qaydEt } from '@/lib/qaydnoma'
 
@@ -24,9 +22,9 @@ const TEXT_FIELDS = [
 const JSON_FIELDS = ['intermediates', 'solvents', 'rateFactors', 'techniques', 'equipment', 'hazards']
 
 async function requireAdmin() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user || !isAdminRole(session.user.role)) return null
-  return session.user
+  const { isAdmin, user } = await checkAdminAuth('kontent')
+  if (!isAdmin || !user) return null
+  return user
 }
 
 /** Mijoz yuborgan ma'lumotdan xavfsiz update obyekti yasash */

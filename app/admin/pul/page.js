@@ -62,7 +62,7 @@ export default function PulNazoratiPage() {
   }
 
   if (yuklanmoqda && !malumot) {
-    return <div className="text-purple-300 py-10 text-center">⏳ Yuklanmoqda...</div>
+    return <div className="text-[var(--v3-xira)] py-10 text-center">⏳ Yuklanmoqda...</div>
   }
 
   const ozgartira = malumot?.ozgartira
@@ -71,7 +71,7 @@ export default function PulNazoratiPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">🪙 Pul nazorati</h1>
-        <p className="text-sm text-purple-300 mt-1">
+        <p className="text-sm text-[var(--v3-xira)] mt-1">
           Hisoblardagi valyuta, berish va xarid taqiqi.
           {!ozgartira && ' Ko\'rish rejimi — o\'zgartirish faqat superadminda.'}
         </p>
@@ -95,85 +95,99 @@ export default function PulNazoratiPage() {
       <div className="flex gap-2 flex-wrap">
         <input
           value={qidiruv}
-          onChange={(e) => { setQidiruv(e.target.value); setSahifa(1) }}
-          placeholder="🔍 Ism, username, email yoki ID"
-          className="flex-1 min-w-[220px] px-4 py-2.5 bg-slate-900/60 border border-purple-800/50 rounded-xl text-white placeholder-purple-500 outline-none focus:border-yellow-500"
+          onChange={(e) => {
+            setQidiruv(e.target.value)
+            setSahifa(1)
+          }}
+          placeholder="Ism, username, email yoki ID"
+          className="v3-kiritish flex-1 min-w-[220px]"
         />
         <select
           value={saralash}
-          onChange={(e) => { setSaralash(e.target.value); setSahifa(1) }}
-          className="px-4 py-2.5 bg-slate-900/60 border border-purple-800/50 rounded-xl text-white outline-none"
+          onChange={(e) => {
+            setSaralash(e.target.value)
+            setSahifa(1)
+          }}
+          className="v3-kiritish w-auto min-w-[180px]"
         >
-          <option value="coins">Tanga bo'yicha</option>
-          <option value="gems">Olmos bo'yicha</option>
-          <option value="stars">Yulduz bo'yicha</option>
+          <option value="coins">Tanga bo&apos;yicha</option>
+          <option value="gems">Olmos bo&apos;yicha</option>
+          <option value="stars">Yulduz bo&apos;yicha</option>
           <option value="createdAt">Yangi hisoblar</option>
         </select>
       </div>
 
+      {/* v4 eslatma */}
+      <div className="v3-panel-karta border-sky-400/35 bg-sky-400/10 p-3.5 text-xs text-sky-200 leading-relaxed">
+        <strong>Telegram bot valyuta tizimi:</strong> v4 da sayt ichidagi do&apos;kon va sandiqlar olib
+        tashlangan; foydalanuvchi balanslari (<code>coins</code> / <code>gems</code>) va sarflash taqiqi
+        bevosita Telegram bot pullik xizmatlari (<code>/api/bot/tanga</code>) uchun ishlatiladi.
+      </div>
+
       {/* Hisoblar */}
-      <div className="rounded-2xl border border-purple-800/50 bg-slate-900/40 overflow-hidden">
+      <div className="v3-panel-karta overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-purple-950/60 text-purple-300 text-xs uppercase tracking-wider">
+            <thead className="border-b border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-xs text-[var(--v3-xira)]">
               <tr>
-                <th className="text-left px-4 py-3">Foydalanuvchi</th>
-                <th className="text-right px-3 py-3">🪙</th>
-                <th className="text-right px-3 py-3">💎</th>
-                <th className="text-right px-3 py-3">⭐</th>
-                <th className="text-left px-4 py-3">Holat</th>
-                {ozgartira && <th className="text-right px-4 py-3">Amal</th>}
+                <th className="text-left px-4 py-3 font-semibold">Foydalanuvchi</th>
+                <th className="text-right px-3 py-3 font-semibold">Tanga</th>
+                <th className="text-right px-3 py-3 font-semibold">Olmos</th>
+                <th className="text-right px-3 py-3 font-semibold">Yulduz</th>
+                <th className="text-left px-4 py-3 font-semibold">Holat</th>
+                {ozgartira && <th className="text-right px-4 py-3 font-semibold">Amal</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-purple-900/50">
+            <tbody className="divide-y divide-[var(--v3-chiziq)]">
               {(malumot?.hisoblar || []).map((h) => {
                 const taqiq = h.spendBlockedUntil && new Date(h.spendBlockedUntil) > new Date()
                 return (
-                  <tr key={h.id} className="hover:bg-purple-950/30">
+                  <tr key={h.id} className="hover:bg-[var(--v3-yuza)] transition-colors">
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-white">{h.fullName || h.username}</div>
-                      <div className="text-[11px] text-purple-400">
+                      <div className="font-semibold text-[var(--v3-matn)]">{h.fullName || h.username}</div>
+                      <div className="text-[11px] text-[var(--v3-xira)]">
                         @{h.username} · ID {h.userId}
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-right font-bold text-amber-400">{h.coins}</td>
-                    <td className="px-3 py-3 text-right font-bold text-cyan-300">{h.gems}</td>
-                    <td className="px-3 py-3 text-right text-purple-300">{h.stars}</td>
+                    <td className="px-3 py-3 text-right font-bold text-amber-300">{h.coins}</td>
+                    <td className="px-3 py-3 text-right font-bold text-sky-300">{h.gems}</td>
+                    <td className="px-3 py-3 text-right text-[var(--v3-xira)]">{h.stars}</td>
                     <td className="px-4 py-3">
-                      {h.isBanned && (
-                        <div className="text-[11px] text-red-400">⛔ Hisob bloklangan</div>
-                      )}
+                      {h.isBanned && <div className="text-[11px] text-rose-300">Hisob bloklangan</div>}
                       {taqiq ? (
                         <div className="text-[11px] text-orange-300">
-                          🚫 Xarid yopiq · {sanaVaqt(h.spendBlockedUntil)}
+                          Bot sarflash yopiq · {sanaVaqt(h.spendBlockedUntil)}
                           {h.spendBlockedReason && (
-                            <div className="text-purple-400">{h.spendBlockedReason}</div>
+                            <div className="text-[var(--v3-xira)]">{h.spendBlockedReason}</div>
                           )}
                         </div>
                       ) : (
-                        !h.isBanned && <span className="text-[11px] text-green-400">✓ Ochiq</span>
+                        !h.isBanned && <span className="text-[11px] text-emerald-300">Ochiq</span>
                       )}
                     </td>
                     {ozgartira && (
                       <td className="px-4 py-3">
                         <div className="flex gap-1.5 justify-end">
                           <button
+                            type="button"
                             onClick={() => setOyna({ hisob: h, amal: 'ber' })}
-                            className="px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-600/40 text-amber-300 text-xs font-semibold"
+                            className="v3-tugma text-xs py-1 px-2.5"
                           >
                             Valyuta
                           </button>
                           {taqiq ? (
                             <button
+                              type="button"
                               onClick={() => amalBajar({ userId: h.id, amal: 'taqiqniOch' })}
-                              className="px-3 py-1.5 rounded-lg bg-green-600/20 hover:bg-green-600/30 border border-green-600/40 text-green-300 text-xs font-semibold"
+                              className="v3-tugma text-xs py-1 px-2.5 text-emerald-300"
                             >
                               Taqiqni ochish
                             </button>
                           ) : (
                             <button
+                              type="button"
                               onClick={() => setOyna({ hisob: h, amal: 'taqiq' })}
-                              className="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 text-xs font-semibold"
+                              className="v3-tugma text-xs py-1 px-2.5 text-rose-300"
                             >
                               Taqiq
                             </button>
@@ -189,55 +203,58 @@ export default function PulNazoratiPage() {
         </div>
 
         {(malumot?.sahifalash?.sahifalar || 0) > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-purple-900/50">
-            <span className="text-xs text-purple-400">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--v3-chiziq)] text-xs text-[var(--v3-xira)]">
+            <span>
               {malumot.sahifalash.jami} ta hisob · {sahifa}/{malumot.sahifalash.sahifalar}
             </span>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setSahifa((n) => Math.max(1, n - 1))}
                 disabled={sahifa <= 1}
-                className="px-3 py-1.5 rounded-lg bg-purple-900/50 border border-purple-700/50 text-xs disabled:opacity-40"
+                className="v3-tugma text-xs py-1.5 px-3 disabled:opacity-40"
               >
-                ← Oldingi
+                Oldingi
               </button>
               <button
+                type="button"
                 onClick={() => setSahifa((n) => n + 1)}
                 disabled={sahifa >= malumot.sahifalash.sahifalar}
-                className="px-3 py-1.5 rounded-lg bg-purple-900/50 border border-purple-700/50 text-xs disabled:opacity-40"
+                className="v3-tugma text-xs py-1.5 px-3 disabled:opacity-40"
               >
-                Keyingi →
+                Keyingi
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Admin bergan valyuta tarixi */}
-      <div>
-        <h2 className="text-sm font-bold text-purple-300 mb-2">
-          📜 Oxirgi admin harakatlari
+      {/* Admin harakatlari tarixi */}
+      <div className="space-y-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--v3-xira)]">
+          Oxirgi admin harakatlari
         </h2>
         {(malumot?.oxirgiHarakat || []).length === 0 ? (
-          <div className="rounded-xl border border-purple-800/50 bg-slate-900/40 p-5 text-sm text-purple-400 text-center">
+          <div className="v3-panel-karta p-5 text-xs text-[var(--v3-xira)] text-center">
             Hali hech kimga valyuta berilmagan
           </div>
         ) : (
-          <div className="rounded-xl border border-purple-800/50 bg-slate-900/40 divide-y divide-purple-900/50">
+          <div className="v3-panel-karta divide-y divide-[var(--v3-chiziq)]">
             {malumot.oxirgiHarakat.map((t) => (
               <div key={t.id} className="px-4 py-2.5 flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-sm text-white truncate">{t.kim}</div>
-                  <div className="text-[11px] text-purple-400 truncate">
+                  <div className="text-sm font-medium text-[var(--v3-matn)] truncate">{t.kim}</div>
+                  <div className="text-[11px] text-[var(--v3-xira)] truncate">
                     {t.izoh} · {qachon(t.createdAt)}
                   </div>
                 </div>
                 <span
-                  className={`text-sm font-bold flex-shrink-0 ${
-                    t.miqdor > 0 ? 'text-green-400' : 'text-red-400'
+                  className={`text-sm font-bold shrink-0 ${
+                    t.miqdor > 0 ? 'text-emerald-300' : 'text-rose-300'
                   }`}
                 >
-                  {t.miqdor > 0 ? '+' : ''}{t.miqdor} {t.valyuta === 'gems' ? '💎' : '🪙'}
+                  {t.miqdor > 0 ? '+' : ''}
+                  {t.miqdor} {t.valyuta === 'gems' ? 'olmos' : 'tanga'}
                 </span>
               </div>
             ))}
@@ -255,7 +272,7 @@ export default function PulNazoratiPage() {
       )}
 
       {oyna?.amal === 'taqiq' && (
-        <TaqiqOynasi
+        <BotTaqiqOynasi
           hisob={oyna.hisob}
           ishlamoqda={ishlamoqda}
           onYopish={() => setOyna(null)}
@@ -268,16 +285,16 @@ export default function PulNazoratiPage() {
 
 function Karta({ icon, nom, qiymat, rang }) {
   const RANGLAR = {
-    amber: 'from-amber-900/40 to-orange-900/30 border-amber-700/50 text-amber-400',
-    cyan: 'from-cyan-900/40 to-teal-900/30 border-cyan-700/50 text-cyan-300',
-    yellow: 'from-yellow-900/40 to-amber-900/30 border-yellow-700/50 text-yellow-400',
-    red: 'from-red-900/40 to-rose-900/30 border-red-700/50 text-red-400',
+    amber: 'border-amber-400/35 text-amber-300',
+    cyan: 'border-sky-400/35 text-sky-300',
+    yellow: 'border-amber-400/35 text-[var(--v3-urgu)]',
+    red: 'border-rose-400/35 text-rose-300',
   }
   return (
-    <div className={`bg-gradient-to-br border rounded-2xl p-4 ${RANGLAR[rang] || RANGLAR.amber}`}>
-      <div className="text-xl mb-1">{icon}</div>
-      <div className="text-2xl font-bold">{(qiymat ?? 0).toLocaleString('uz-UZ')}</div>
-      <div className="text-[11px] text-purple-300 mt-0.5">{nom}</div>
+    <div className={`v3-panel-karta p-4 ${RANGLAR[rang] || ''}`}>
+      <div className="text-lg mb-1">{icon}</div>
+      <div className="text-xl sm:text-2xl font-bold">{(qiymat ?? 0).toLocaleString('uz-UZ')}</div>
+      <div className="text-xs text-[var(--v3-xira)] mt-0.5">{nom}</div>
     </div>
   )
 }
@@ -293,24 +310,21 @@ function ValyutaOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
   const yaroqli = Number.isInteger(son) && son > 0
 
   return (
-    <Oyna sarlavha={`${hisob.fullName || hisob.username} — valyuta`} onYopish={onYopish}>
-      <div className="text-xs text-purple-400 mb-4">
-        Hozir: 🪙 {hisob.coins} · 💎 {hisob.gems}
+    <Oyna sarlavha={`${hisob.fullName || hisob.username} — bot valyutasi`} onYopish={onYopish}>
+      <div className="text-xs text-[var(--v3-xira)] mb-4">
+        Hozir: {hisob.coins} tanga · {hisob.gems} olmos
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-3">
         {[
-          { id: 'coins', nom: '🪙 Tanga' },
-          { id: 'gems', nom: '💎 Olmos' },
+          { id: 'coins', nom: 'Tanga' },
+          { id: 'gems', nom: 'Olmos' },
         ].map((v) => (
           <button
             key={v.id}
+            type="button"
             onClick={() => setValyuta(v.id)}
-            className={`py-2.5 rounded-xl border text-sm font-semibold ${
-              valyuta === v.id
-                ? 'bg-yellow-500 text-black border-yellow-400'
-                : 'bg-slate-900/60 border-purple-800/50 text-purple-200'
-            }`}
+            className={`v3-tugma text-xs py-2 ${valyuta === v.id ? 'v3-tugma-asosiy' : ''}`}
           >
             {v.nom}
           </button>
@@ -321,8 +335,9 @@ function ValyutaOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
         {TEZ_MIQDOR.map((m) => (
           <button
             key={m}
+            type="button"
             onClick={() => setMiqdor(String(m))}
-            className="flex-1 py-2 rounded-lg bg-purple-900/50 border border-purple-700/50 text-xs font-semibold"
+            className="v3-tugma flex-1 text-xs py-1.5"
           >
             {m}
           </button>
@@ -335,27 +350,28 @@ function ValyutaOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
         value={miqdor}
         onChange={(e) => setMiqdor(e.target.value)}
         placeholder="Miqdor"
-        className="w-full px-4 py-2.5 bg-slate-900/60 border border-purple-800/50 rounded-xl text-white mb-3 outline-none focus:border-yellow-500"
+        className="v3-kiritish mb-3"
       />
 
       <input
         value={sabab}
         onChange={(e) => setSabab(e.target.value)}
         placeholder="Sabab (foydalanuvchiga ko'rinadi)"
-        className="w-full px-4 py-2.5 bg-slate-900/60 border border-purple-800/50 rounded-xl text-white mb-3 outline-none focus:border-yellow-500"
+        className="v3-kiritish mb-3"
       />
 
-      <label className="flex items-center gap-2 mb-4 cursor-pointer">
+      <label className="flex items-center gap-2 mb-4 cursor-pointer text-xs text-rose-300">
         <input
           type="checkbox"
           checked={olish}
           onChange={(e) => setOlish(e.target.checked)}
-          className="accent-red-500"
+          className="accent-rose-500"
         />
-        <span className="text-sm text-red-300">Berish emas, olib qo'yish</span>
+        <span>Berish emas, olib qo&apos;yish</span>
       </label>
 
       <button
+        type="button"
         onClick={() =>
           onYuborish({
             userId: hisob.id,
@@ -366,15 +382,57 @@ function ValyutaOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
           })
         }
         disabled={!yaroqli || ishlamoqda}
-        className={`w-full py-3 rounded-xl font-bold text-sm disabled:opacity-40 ${
-          olish ? 'bg-red-600 text-white' : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black'
+        className={`v3-tugma w-full py-2.5 text-sm font-bold disabled:opacity-40 ${
+          olish ? 'bg-rose-500/20 border-rose-400/40 text-rose-200' : 'v3-tugma-asosiy'
         }`}
       >
-        {ishlamoqda
-          ? '⏳ Bajarilmoqda...'
-          : olish
-            ? `${son || 0} ta olib qo'yish`
-            : `${son || 0} ta berish`}
+        {ishlamoqda ? 'Bajarilmoqda...' : olish ? `${son || 0} ta olib qo'yish` : `${son || 0} ta berish`}
+      </button>
+    </Oyna>
+  )
+}
+
+function BotTaqiqOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
+  const [kunlar, setKunlar] = useState('7')
+  const [sabab, setSabab] = useState('')
+  const yaroqli = Number.isInteger(Number(kunlar)) && Number(kunlar) >= 1 && sabab.trim().length > 0
+
+  return (
+    <Oyna sarlavha={`${hisob.fullName || hisob.username} — bot sarflash taqiqi`} onYopish={onYopish}>
+      <p className="text-xs text-[var(--v3-xira)] mb-3 leading-relaxed">
+        Cheklov qo&apos;yilsa Telegram botdagi pullik xizmatlarda tanga/olmos sarflash vaqtincha
+        yopiladi. O&apos;qish, quiz va missiyalar odatdagidek ishlayveradi.
+      </p>
+      <input
+        type="number"
+        min="1"
+        max="365"
+        value={kunlar}
+        onChange={(e) => setKunlar(e.target.value)}
+        placeholder="Muddat (kun)"
+        className="v3-kiritish mb-3"
+      />
+      <textarea
+        value={sabab}
+        onChange={(e) => setSabab(e.target.value)}
+        rows={3}
+        placeholder="Sabab (majburiy — foydalanuvchiga xabar orqali yuboriladi)"
+        className="v3-kiritish mb-4"
+      />
+      <button
+        type="button"
+        onClick={() =>
+          onYuborish({
+            userId: hisob.id,
+            amal: 'taqiq',
+            kunlar: Number(kunlar),
+            sabab,
+          })
+        }
+        disabled={!yaroqli || ishlamoqda}
+        className="v3-tugma w-full bg-rose-500/20 border-rose-400/40 text-rose-200 disabled:opacity-40"
+      >
+        {ishlamoqda ? 'Saqlanmoqda...' : `${kunlar || 0} kunga cheklash`}
       </button>
     </Oyna>
   )
@@ -387,7 +445,7 @@ function TaqiqOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
 
   return (
     <Oyna sarlavha={`${hisob.fullName || hisob.username} — xarid taqiqi`} onYopish={onYopish}>
-      <p className="text-xs text-purple-300 mb-4 leading-relaxed">
+      <p className="text-xs text-[var(--v3-xira)] mb-4 leading-relaxed">
         Taqiq faqat XARIDNI yopadi: do'kon va pullik sandiqlar ishlamaydi.
         O'qish, quiz, missiya va bepul kunlik sandiq ochiq qoladi. Muddat
         tugagach taqiq o'zi ochiladi.
@@ -397,11 +455,12 @@ function TaqiqOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
         {TEZ_KUN.map((k) => (
           <button
             key={k}
+            type="button"
             onClick={() => setKunlar(k)}
-            className={`flex-1 py-2 rounded-lg border text-xs font-semibold ${
+            className={`flex-1 py-2 rounded-xl border text-xs font-semibold transition-colors ${
               kunlar === k
-                ? 'bg-red-600 text-white border-red-500'
-                : 'bg-purple-900/50 border-purple-700/50 text-purple-200'
+                ? 'bg-rose-600 text-white border-rose-500'
+                : 'bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
             }`}
           >
             {k} kun
@@ -415,7 +474,7 @@ function TaqiqOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
         max="365"
         value={kunlar}
         onChange={(e) => setKunlar(Number(e.target.value))}
-        className="w-full px-4 py-2.5 bg-slate-900/60 border border-purple-800/50 rounded-xl text-white mb-3 outline-none focus:border-red-500"
+        className="v3-kiritish w-full mb-3"
       />
 
       <textarea
@@ -423,15 +482,16 @@ function TaqiqOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
         onChange={(e) => setSabab(e.target.value)}
         rows={3}
         placeholder="Sabab — foydalanuvchiga ko'rinadi (majburiy)"
-        className="w-full px-4 py-2.5 bg-slate-900/60 border border-purple-800/50 rounded-xl text-white mb-4 outline-none focus:border-red-500 resize-none"
+        className="v3-kiritish w-full mb-4 resize-none"
       />
 
       <button
+        type="button"
         onClick={() => onYuborish({ userId: hisob.id, amal: 'taqiq', kunlar, sabab })}
         disabled={!sabab.trim() || !kunlar || ishlamoqda}
-        className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm disabled:opacity-40"
+        className="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm disabled:opacity-40 transition-colors"
       >
-        {ishlamoqda ? '⏳ Bajarilmoqda...' : `${kunlar} kunga taqiqlash`}
+        {ishlamoqda ? 'Bajarilmoqda...' : `${kunlar} kunga taqiqlash`}
       </button>
     </Oyna>
   )
@@ -439,11 +499,20 @@ function TaqiqOynasi({ hisob, ishlamoqda, onYopish, onYuborish }) {
 
 function Oyna({ sarlavha, onYopish, children }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-gradient-to-br from-purple-950 to-slate-950 border border-purple-700/50 rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <h3 className="font-bold text-white">{sarlavha}</h3>
-          <button onClick={onYopish} className="text-purple-400 hover:text-white">✕</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+      <div
+        className="v3-panel-karta w-full max-w-md p-6 max-h-[90vh] overflow-y-auto border-[var(--v3-chiziq-2)]"
+        style={{ background: 'var(--v3-fon-2)' }}
+      >
+        <div className="flex items-start justify-between gap-3 mb-4 pb-3 border-b border-[var(--v3-chiziq)]">
+          <h3 className="font-bold text-[var(--v3-matn)]">{sarlavha}</h3>
+          <button
+            type="button"
+            onClick={onYopish}
+            className="v3-tugma px-2.5 py-1 text-xs"
+          >
+            Yopish
+          </button>
         </div>
         {children}
       </div>

@@ -35,13 +35,15 @@ export async function GET(request, { params }) {
         role: true,
         isTeacher: true,
         isVerified: true,
+        premiumUslub: true,
+        isBanned: true,
         bio: true,
         email: true,
         privacySettings: true
       }
     })
 
-    if (!user) {
+    if (!user || user.isBanned) {
       return NextResponse.json(
         { error: 'Foydalanuvchi topilmadi' },
         { status: 404 }
@@ -50,6 +52,25 @@ export async function GET(request, { params }) {
 
     const session = await getServerSession(authOptions)
     const isOwner = session?.user?.id === user.id
+
+    // Ikki tomonlama bloklash ustozning ommaviy profilida ham ishlashi shart
+    if (session?.user?.id && !isOwner) {
+      const blok = await prisma.userBlock.findFirst({
+        where: {
+          OR: [
+            { blockerId: session.user.id, blockedId: user.id },
+            { blockerId: user.id, blockedId: session.user.id }
+          ]
+        },
+        select: { id: true }
+      })
+      if (blok) {
+        return NextResponse.json(
+          { error: 'Foydalanuvchi topilmadi' },
+          { status: 404 }
+        )
+      }
+    }
 
     // Bu yo'l USTOZ profili uchun. Qidiruv `username` bo'yicha ham
     // ishlagani uchun, tekshiruvsiz istalgan talabaning ismi, fakulteti
@@ -84,35 +105,36 @@ export async function GET(request, { params }) {
       )
     }
 
-    // Sozlama javobning o'zida ketmasin — u ichki ma'lumot
+    // Sozlama va ichki taqiq maydoni javobda ketmasin
     delete user.privacySettings
+    delete user.isBanned
 
     // 2. Ustoz profilini bazadan olish
     let profile = await prisma.teacherPublicProfile.findUnique({
       where: { userId: user.id }
     })
 
-    // Agar profil yashirilgan bo'lsa va ko'rayotgan odam ustozning o'zi bo'lmasa
-    if (profile && !profile.isActive && !isOwner) {
+    // Agar profil hali saqlanmagan yoki yashirilgan bo'lsa va ko'rayotgan odam ustozning o'zi bo'lmasa
+    if ((!profile || !profile.isActive) && !isOwner) {
       return NextResponse.json(
-        { error: 'O\'qituvchi profili hozirda yashirilgan' },
+        { error: "O'qituvchi profili hozirda yashirilgan yoki faollashtirilmagan" },
         { status: 404 }
       )
     }
 
-    // Agar profil yozuvi hali yaratilmagan bo'lsa (boshlang'ich holat)
+    // Faqat ustozning o'zi ko'rayotganda boshlang'ich qoralama ko'rinishi
     if (!profile) {
       profile = {
         id: 'temp-' + user.id,
         userId: user.id,
         displayName: user.fullName || user.username,
-        title: 'Kimyo o\'qituvchisi',
+        title: "Kimyo o'qituvchisi",
         bio: user.bio || '',
         university: user.university || '',
         department: user.faculty || '',
-        position: 'O\'qituvchi',
+        position: "O'qituvchi",
         experienceYears: null,
-        specialties: ['Koordinatsion kimyo', 'Oliy kimyo'],
+        specialties: [],
         education: [],
         publications: null,
         citations: null,
@@ -134,7 +156,7 @@ export async function GET(request, { params }) {
         themeColor: 'purple',
         coverImage: null,
         bannerQuote: null,
-        isActive: true,
+        isActive: false,
         isVerified: user.isVerified || false,
         views: 0
       }

@@ -109,10 +109,11 @@ export default function TelegramUlash({ boshlangichKod = '', mustaqil = false })
       )}
 
       {holat.ulangan ? (
-        <div className="p-4 rounded-xl border border-green-500/30 bg-green-500/5 flex items-center justify-between gap-3 flex-wrap">
+        <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <div className="text-xs font-bold text-green-400 flex items-center gap-1">
-              <span>✓ Telegram hisobiga ulangan</span>
+            <div className="text-xs font-bold text-emerald-500 flex items-center gap-1.5">
+              <Ikon nom="tasdiq" olcham={14} />
+              <span>Telegram hisobiga ulangan</span>
             </div>
             <div className="text-[11px] text-[var(--v3-xira)] mt-1 font-mono">
               {holat.ulanish?.username ? `@${holat.ulanish.username}` : 'Ulangan akkaunt'}
@@ -125,7 +126,7 @@ export default function TelegramUlash({ boshlangichKod = '', mustaqil = false })
             type="button"
             onClick={uzish}
             disabled={band}
-            className="v3-tugma text-xs py-1.5 px-3 text-red-400 hover:border-red-500/30 font-bold"
+            className="v3-tugma text-xs py-1.5 px-3 text-red-500 hover:border-red-500/30 font-bold"
           >
             Uzish
           </button>

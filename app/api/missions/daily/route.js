@@ -10,7 +10,7 @@ import {
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -112,7 +112,7 @@ export async function GET() {
   } catch (error) {
     console.error('[Missions Daily Error]:', error)
     return NextResponse.json(
-      { error: 'Missiyalarni yuklashda xatolik: ' + error.message },
+      { error: 'Missiyalarni yuklashda xatolik' },
       { status: 500 }
     )
   }

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
-import { YETTI_SINF_BOBLAR, mavzuHavolasi } from "@/lib/fanlar"
+import { YETTI_SINF_BOBLAR, mavzuHavolasi, mavzuTayyormi } from "@/lib/fanlar"
 import Ikon from "@/components/Ikon"
 import TasdiqBelgisi from "@/components/TasdiqBelgisi"
 
@@ -35,30 +35,13 @@ function YaratuvchiRasmi() {
   )
 }
 
-const INTERAKTIV_TAYYOR_SLUGLAR = new Set([
-  "1-1",
-  "1-2",
-  "1-3",
-  "1-4",
-  "1-5",
-  "2-1",
-  "2-2",
-  "3-1",
-  "3-2",
-  "3-3",
-  "3-4",
-  "3-5",
-  "3-6",
-  "3-7",
-])
-
 export default function SinfKorinish({ sinf }) {
-  const ochiqmi = sinf.sinf === 7
+  const ochiqmi = Boolean(sinf.ochiq)
   const [rejim, setRejim] = useState("uzun") // "uzun" yoki "qisqa"
   const [tanlanganBob, setTanlanganBob] = useState("barchasi")
   const [qidiruv, setQidiruv] = useState("")
 
-  // 7-sinf uchun rasmiy darslik mundarijasi (boblar va mavzular)
+  // Sinf uchun rasmiy darslik mundarijasi (boblar va mavzular)
   const boblar = sinf.boblar || YETTI_SINF_BOBLAR
 
   const filtrlanganBoblar = boblar
@@ -182,12 +165,12 @@ export default function SinfKorinish({ sinf }) {
             </div>
           </div>
         ) : (
-          /* AGAR 7-SINF (OCHIQ) BO'LSA */
+          /* AGAR OCHIQ SINF (7 YOKI 8) BO'LSA */
           <div className="space-y-6">
             {/* Sinf sarlavhasi va rejim tanlagich */}
             <div className="p-4 sm:p-5 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/70 via-[#0a1738]/70 to-[#070e28]/70 backdrop-blur-md shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-xl sm:text-2xl font-bold text-white">
-                7-sinf mavzulari
+                {sinf.sinf}-sinf mavzulari
               </h2>
 
               {/* REJIM TANLAGICH: Qisqa / Uzun */}
@@ -239,42 +222,75 @@ export default function SinfKorinish({ sinf }) {
                   {/* 1) QISQA REJIM */}
                   {rejim === "qisqa" ? (
                     <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3">
-                      {bob.mavzular.map((m) => (
-                        <Link
-                          key={m.slug}
-                          href={mavzuHavolasi(sinf.sinf, m)}
-                          title={`${m.raqam}. ${m.nom}`}
-                          className="group p-4 rounded-2xl border border-blue-800/60 bg-[#09153a]/60 hover:border-yellow-400 hover:bg-[#0f245e]/80 transition-all flex items-center justify-center text-center shadow-sm"
-                        >
-                          <span className="w-12 h-12 rounded-xl bg-yellow-500/15 border border-yellow-500/40 text-yellow-300 font-bold text-base sm:text-lg flex items-center justify-center group-hover:scale-105 group-hover:bg-yellow-500 group-hover:text-black transition-all">
-                            {m.raqam}
-                          </span>
-                        </Link>
-                      ))}
+                      {bob.mavzular.map((m) => {
+                        const tayyor = mavzuTayyormi(sinf.sinf, m.slug)
+                        return (
+                          <Link
+                            key={m.slug}
+                            href={mavzuHavolasi(sinf.sinf, m)}
+                            title={`${m.raqam}. ${m.nom}`}
+                            className={`group p-4 rounded-2xl border transition-all flex items-center justify-center text-center shadow-sm ${
+                              tayyor
+                                ? "border-blue-800/60 bg-[#09153a]/60 hover:border-yellow-400 hover:bg-[#0f245e]/80"
+                                : "border-blue-900/40 bg-[#070f2b]/50 opacity-75 hover:border-amber-400/50"
+                            }`}
+                          >
+                            <span
+                              className={`min-w-[3.25rem] h-12 px-2 whitespace-nowrap rounded-xl border font-bold text-base sm:text-lg flex items-center justify-center group-hover:scale-105 transition-all ${
+                                tayyor
+                                  ? "bg-yellow-500/15 border-yellow-500/40 text-yellow-300 group-hover:bg-yellow-500 group-hover:text-black"
+                                  : "bg-slate-800/60 border-slate-700/60 text-slate-300"
+                              }`}
+                            >
+                              {m.raqam}
+                            </span>
+                          </Link>
+                        )
+                      })}
                     </div>
                   ) : (
                     /* 2) TO'LIQ REJIM */
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {bob.mavzular.map((m) => (
-                        <Link
-                          key={m.slug}
-                          href={mavzuHavolasi(sinf.sinf, m)}
-                          className="p-3.5 sm:p-4 rounded-2xl border border-blue-800/60 bg-[#09153a]/60 hover:border-yellow-400/80 hover:bg-[#0d225c]/80 transition-all flex items-center justify-between gap-3 group"
-                        >
-                          <div className="flex items-center gap-3.5 min-w-0">
-                            <span className="w-11 h-11 rounded-xl bg-yellow-500/15 border border-yellow-500/40 text-yellow-300 font-bold text-base flex items-center justify-center shrink-0 group-hover:bg-yellow-500 group-hover:text-black transition-all">
-                              {m.raqam}
-                            </span>
-                            <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-yellow-300 transition-colors truncate">
-                              {m.nom}
-                            </h4>
-                          </div>
+                      {bob.mavzular.map((m) => {
+                        const tayyor = mavzuTayyormi(sinf.sinf, m.slug)
+                        return (
+                          <Link
+                            key={m.slug}
+                            href={mavzuHavolasi(sinf.sinf, m)}
+                            className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 group ${
+                              tayyor
+                                ? "border-blue-800/60 bg-[#09153a]/60 hover:border-yellow-400/80 hover:bg-[#0d225c]/80"
+                                : "border-blue-900/40 bg-[#070f2b]/50 opacity-80 hover:border-amber-400/50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3.5 min-w-0">
+                              <span
+                                className={`min-w-[3rem] h-11 px-2 whitespace-nowrap rounded-xl border font-bold text-sm sm:text-base flex items-center justify-center shrink-0 transition-all ${
+                                  tayyor
+                                    ? "bg-yellow-500/15 border-yellow-500/40 text-yellow-300 group-hover:bg-yellow-500 group-hover:text-black"
+                                    : "bg-slate-800/60 border-slate-700/60 text-slate-300"
+                                }`}
+                              >
+                                {m.raqam}
+                              </span>
+                              <div className="min-w-0">
+                                <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-yellow-300 transition-colors truncate">
+                                  {m.nom}
+                                </h4>
+                                {!tayyor && (
+                                  <span className="inline-block mt-0.5 text-[11px] font-semibold text-amber-300/90">
+                                    Tayyorlanmoqda • {m.sahifa}-bet
+                                  </span>
+                                )}
+                              </div>
+                            </div>
 
-                          <span className="p-2 rounded-xl text-blue-300 group-hover:text-yellow-300 shrink-0">
-                            <Ikon nom="ong" olcham={16} />
-                          </span>
-                        </Link>
-                      ))}
+                            <span className="p-2 rounded-xl text-blue-300 group-hover:text-yellow-300 shrink-0">
+                              <Ikon nom={tayyor ? "ong" : "qulf"} olcham={16} />
+                            </span>
+                          </Link>
+                        )
+                      })}
                     </div>
                   )}
                 </section>
@@ -345,7 +361,7 @@ export default function SinfKorinish({ sinf }) {
               <div className="flex flex-col items-center md:items-end gap-2 shrink-0">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-800/50 bg-[#09153a]/60 text-xs font-semibold text-blue-200">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  v3.0.0
+                  v4.0.0
                 </span>
                 <Link
                   href="/jda-kimyo"

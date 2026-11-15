@@ -7,13 +7,6 @@ import toast from 'react-hot-toast'
 import Link from 'next/link'
 import Ikon from '@/components/Ikon'
 
-const DIFFICULTY_LEVELS = [
-  { id: 'easy', name: 'Boshlang\'ich' },
-  { id: 'medium', name: 'O\'rta' },
-  { id: 'hard', name: 'Murakkab' },
-  { id: 'expert', name: 'Olimpiada' }
-]
-
 export default function OpenQuizManagePage() {
   const { data: session } = useSession()
   const router = useRouter()
@@ -182,7 +175,62 @@ export default function OpenQuizManagePage() {
     })
   }
 
-  // Savol qo'shish
+  const startEditQuiz = (quiz) => {
+    let parsedDesc = quiz.description || ''
+    let shuffleOpts = true
+    if (typeof quiz.description === 'string' && quiz.description.startsWith('{')) {
+      try {
+        const meta = JSON.parse(quiz.description)
+        parsedDesc = meta.originalDescription || ''
+        if (typeof meta.shuffleOptions === 'boolean') shuffleOpts = meta.shuffleOptions
+      } catch {
+        parsedDesc = quiz.description
+      }
+    }
+
+    const formattedQuestions = Array.isArray(quiz.questions) && quiz.questions.length > 0
+      ? quiz.questions.map((q, idx) => {
+          const rawOpts = Array.isArray(q.options) ? q.options : (q.options?.texts || ['', '', '', ''])
+          return {
+            id: q.id || idx + 1,
+            questionText: q.questionText || '',
+            options: rawOpts.length >= 2 ? [...rawOpts] : ['', '', '', ''],
+            correctAnswer: Number.isInteger(q.correctAnswer) ? q.correctAnswer : 0,
+            explanation: q.explanation || '',
+            points: q.points || 1,
+          }
+        })
+      : [
+          {
+            id: 1,
+            questionText: '',
+            options: ['', '', '', ''],
+            correctAnswer: 0,
+            explanation: '',
+            points: 1,
+          }
+        ]
+
+    setEditingId(quiz.id)
+    setFormData({
+      title: quiz.title || '',
+      description: parsedDesc,
+      groupId: quiz.groupId || '',
+      isPublic: Boolean(quiz.isPublic),
+      accessCode: quiz.accessCode || '',
+      timeLimit: quiz.timeLimit || 30,
+      maxAttempts: quiz.maxAttempts || 1,
+      passingScore: quiz.passingScore || 60,
+      deadline: quiz.deadline ? new Date(quiz.deadline).toISOString().slice(0, 16) : '',
+      difficulty: 'medium',
+      shuffleQuestions: quiz.shuffleQuestions !== false,
+      shuffleOptions: shuffleOpts,
+      showResults: quiz.showResults !== false,
+      questions: formattedQuestions,
+    })
+    setActiveTab('create')
+  }
+
   const addQuestion = () => {
     setFormData(prev => ({
       ...prev,
@@ -200,7 +248,6 @@ export default function OpenQuizManagePage() {
     }))
   }
 
-  // Savolni o'chirish
   const removeQuestion = (idx) => {
     if (formData.questions.length <= 1) {
       toast.error('Kamida 1 ta savol bo\'lishi shart')
@@ -212,14 +259,12 @@ export default function OpenQuizManagePage() {
     }))
   }
 
-  // Savol matnini yangilash
   const updateQuestionText = (idx, text) => {
     const next = [...formData.questions]
     next[idx].questionText = text
     setFormData(prev => ({ ...prev, questions: next }))
   }
 
-  // Variant matnini yangilash
   const updateOptionText = (qIdx, optIdx, val) => {
     const next = [...formData.questions]
     const nextOpts = [...next[qIdx].options]
@@ -228,7 +273,6 @@ export default function OpenQuizManagePage() {
     setFormData(prev => ({ ...prev, questions: next }))
   }
 
-  // Variant qo'shish
   const addOption = (qIdx) => {
     if (formData.questions[qIdx].options.length >= 6) {
       toast.error('Ko\'pi bilan 6 ta variant bo\'lishi mumkin')
@@ -239,7 +283,6 @@ export default function OpenQuizManagePage() {
     setFormData(prev => ({ ...prev, questions: next }))
   }
 
-  // Variantni o'chirish
   const removeOption = (qIdx, optIdx) => {
     if (formData.questions[qIdx].options.length <= 2) {
       toast.error('Kamida 2 ta variant bo\'lishi kerak')
@@ -253,21 +296,18 @@ export default function OpenQuizManagePage() {
     setFormData(prev => ({ ...prev, questions: next }))
   }
 
-  // To'g'ri javobni tanlash
   const setCorrectAnswer = (qIdx, optIdx) => {
     const next = [...formData.questions]
     next[qIdx].correctAnswer = optIdx
     setFormData(prev => ({ ...prev, questions: next }))
   }
 
-  // Tushuntirish yoki ballni yangilash
   const updateQuestionMeta = (qIdx, key, val) => {
     const next = [...formData.questions]
     next[qIdx][key] = val
     setFormData(prev => ({ ...prev, questions: next }))
   }
 
-  // Saqlash
   const handleSave = async () => {
     if (!formData.title.trim()) {
       toast.error('Quiz sarlavhasini kiriting')
@@ -291,11 +331,12 @@ export default function OpenQuizManagePage() {
     setIsSaving(true)
     try {
       const payload = {
+        ...(editingId ? { id: editingId } : {}),
         title: formData.title,
         description: formData.description,
         groupId: formData.isPublic ? null : (formData.groupId || null),
         isPublic: formData.isPublic,
-        accessCode: formData.accessCode,
+        accessCode: formData.accessCode?.trim() || null,
         timeLimit: formData.timeLimit,
         maxAttempts: formData.maxAttempts,
         passingScore: formData.passingScore,
@@ -315,7 +356,7 @@ export default function OpenQuizManagePage() {
       }
 
       const res = await fetch('/api/ustoz/open-quiz', {
-        method: 'POST',
+        method: editingId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
@@ -323,7 +364,7 @@ export default function OpenQuizManagePage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Saqlab bo\'lmadi')
 
-      toast.success(data.message || 'Quiz muvaffaqiyatli yaratildi!')
+      toast.success(data.message || (editingId ? 'Quiz yangilandi!' : 'Quiz muvaffaqiyatli yaratildi!'))
       resetForm()
       setActiveTab('list')
       fetchQuizzes()
@@ -334,7 +375,6 @@ export default function OpenQuizManagePage() {
     }
   }
 
-  // O'chirish
   const handleDelete = async (id, title) => {
     if (!confirm(`"${title}" testini haqiqatan ham o'chirmoqchimisiz? Barcha talabalar urinishlari ham o'chiriladi.`)) return
 
@@ -350,7 +390,7 @@ export default function OpenQuizManagePage() {
   }
 
   const nusxaOlish = (quizId) => {
-    const url = `${window.location.origin}/oquv/video-darsliklar/ustoz-quiz/${quizId}`
+    const url = `${window.location.origin}/testlar/ustoz/${quizId}`
     navigator.clipboard.writeText(url)
     toast.success('Havola nusxalandi!')
   }
@@ -384,7 +424,7 @@ export default function OpenQuizManagePage() {
             className={`v3-tugma text-xs py-2 px-3.5 ${activeTab === 'create' ? 'v3-tugma-asosiy' : ''}`}
           >
             <Ikon nom="qosh" olcham={15} />
-            Yangi test tuzish
+            {editingId ? 'Testni tahrirlash' : 'Yangi test tuzish'}
           </button>
         </div>
       </div>
@@ -440,6 +480,12 @@ export default function OpenQuizManagePage() {
                           </span>
                         )}
 
+                        {quiz.accessCode && (
+                          <span className="px-2 py-0.5 rounded bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq-2)] text-[10px] font-mono text-[var(--v3-urgu)]">
+                            🔑 Kod: {quiz.accessCode}
+                          </span>
+                        )}
+
                         {deadlineDate && (
                           <span className={`v3-tag ${isExpired ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'v3-tag-muhlat'}`}>
                             <Ikon nom="taqvim" olcham={12} />
@@ -476,15 +522,24 @@ export default function OpenQuizManagePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-[var(--v3-chiziq)]">
+                    <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-[var(--v3-chiziq)]">
                       <Link
-                        href={`/oquv/video-darsliklar/ustoz-quiz/${quiz.id}`}
+                        href={`/testlar/ustoz/${quiz.id}`}
                         className="v3-tugma text-xs py-1.5 px-3"
                         title="Testni ko'rish va yechish"
                       >
                         <Ikon nom="ong" olcham={14} />
                         Yechish
                       </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => startEditQuiz(quiz)}
+                        className="v3-tugma text-xs py-1.5 px-3"
+                        title="Testni tahrirlash"
+                      >
+                        Tahrirlash
+                      </button>
 
                       <button
                         type="button"
@@ -510,7 +565,7 @@ export default function OpenQuizManagePage() {
                       )}
 
                       <Link
-                        href={`/ustoz/natijalar?groupId=${quiz.groupId || 'all'}`}
+                        href={`/ustoz/natijalar?groupId=${quiz.groupId || 'all'}&tab=open`}
                         className="v3-tugma text-xs py-1.5 px-3"
                         title="Urinishlar natijalari"
                       >
@@ -536,7 +591,7 @@ export default function OpenQuizManagePage() {
         </div>
       )}
 
-      {/* ─── TAB 2: YANGI TEST TUZISH ─── */}
+      {/* ─── TAB 2: YANGI TEST TUZISH / TAHRIRLASH ─── */}
       {activeTab === 'create' && (
         <div className="space-y-6">
           {/* Asosiy Sozlamalar */}
@@ -600,6 +655,21 @@ export default function OpenQuizManagePage() {
                 </div>
               )}
 
+              {/* Maxfiy kirish kodi */}
+              <div>
+                <label className="v3-yorliq">Maxfiy kirish kodi (ixtiyoriy)</label>
+                <input
+                  type="text"
+                  value={formData.accessCode}
+                  onChange={(e) => setFormData({ ...formData, accessCode: e.target.value.toUpperCase() })}
+                  placeholder="Masalan: KIMYO2026"
+                  className="v3-kiritish font-mono uppercase tracking-wider"
+                />
+                <span className="text-[11px] text-[var(--v3-xira)] mt-1 block">
+                  Kiritilsa, talaba testni boshlashdan oldin shu kodni yozishi shart bo{"'"}ladi.
+                </span>
+              </div>
+
               {/* Muhlat (Deadline) */}
               <div>
                 <label className="v3-yorliq">Topshirish muhlati (Deadline)</label>
@@ -654,6 +724,39 @@ export default function OpenQuizManagePage() {
                   onChange={(e) => setFormData({ ...formData, passingScore: e.target.value })}
                   className="v3-kiritish font-mono"
                 />
+              </div>
+
+              {/* Qo'shimcha bayroqlar */}
+              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] cursor-pointer text-xs">
+                  <input
+                    type="checkbox"
+                    checked={formData.shuffleQuestions}
+                    onChange={(e) => setFormData({ ...formData, shuffleQuestions: e.target.checked })}
+                    className="accent-[var(--v3-urgu)]"
+                  />
+                  <span>Savollar tartibini aralashtirish</span>
+                </label>
+
+                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] cursor-pointer text-xs">
+                  <input
+                    type="checkbox"
+                    checked={formData.shuffleOptions}
+                    onChange={(e) => setFormData({ ...formData, shuffleOptions: e.target.checked })}
+                    className="accent-[var(--v3-urgu)]"
+                  />
+                  <span>Variantlar o{"'"}rnini aralashtirish</span>
+                </label>
+
+                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] cursor-pointer text-xs">
+                  <input
+                    type="checkbox"
+                    checked={formData.showResults}
+                    onChange={(e) => setFormData({ ...formData, showResults: e.target.checked })}
+                    className="accent-[var(--v3-urgu)]"
+                  />
+                  <span>Yakunlangach natijani ko{"'"}rsatish</span>
+                </label>
               </div>
             </div>
           </div>
@@ -723,33 +826,34 @@ export default function OpenQuizManagePage() {
                   </div>
                 </div>
 
+                {/* Savol matni */}
                 <div>
                   <textarea
                     value={q.questionText}
                     onChange={(e) => updateQuestionText(qIdx, e.target.value)}
-                    placeholder={`${qIdx + 1}-savol matnini kiriting...`}
+                    placeholder="Savol matnini kiriting..."
                     rows={2}
-                    className="v3-kiritish"
+                    className="v3-kiritish resize-none text-sm"
                   />
                 </div>
 
                 {/* Variantlar */}
-                <div className="space-y-2 pt-2 border-t border-[var(--v3-chiziq)]">
-                  <div className="text-[11px] font-semibold text-[var(--v3-xira)] uppercase tracking-wider">
-                    Javob variantlari (To{"'"}g{"'"}ri javobni tanlang):
+                <div className="space-y-2">
+                  <div className="text-[11px] text-[var(--v3-xira)] flex items-center justify-between">
+                    <span>Variantlar (to{"'"}g{"'"}ri javob ustiga bosing):</span>
                   </div>
 
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {q.options.map((opt, optIdx) => {
                       const isCorrect = q.correctAnswer === optIdx
-                      const harf = String.fromCharCode(65 + optIdx) // A, B, C, D...
+                      const harf = String.fromCharCode(65 + optIdx)
 
                       return (
                         <div
                           key={optIdx}
-                          className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all ${
+                          className={`flex items-center gap-2 p-2 rounded-xl border transition-colors ${
                             isCorrect
-                              ? 'bg-[var(--v3-yuza-2)] border-[var(--v3-urgu)]'
+                              ? 'bg-green-500/10 border-green-500/40'
                               : 'bg-[var(--v3-fon-2)] border-[var(--v3-chiziq)]'
                           }`}
                         >
@@ -758,8 +862,8 @@ export default function OpenQuizManagePage() {
                             onClick={() => setCorrectAnswer(qIdx, optIdx)}
                             className={`w-7 h-7 rounded-lg flex items-center justify-center font-mono font-bold text-xs shrink-0 transition-all ${
                               isCorrect
-                                ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] shadow-sm'
-                                : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
+                                ? 'bg-green-500 text-black shadow-sm'
+                                : 'bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
                             }`}
                             title="To'g'ri javob sifatida belgilash"
                           >
@@ -770,15 +874,9 @@ export default function OpenQuizManagePage() {
                             type="text"
                             value={opt}
                             onChange={(e) => updateOptionText(qIdx, optIdx, e.target.value)}
-                            placeholder={`${harf} varianti matni...`}
-                            className="flex-1 bg-transparent border-none text-xs text-[var(--v3-matn)] outline-none"
+                            placeholder={`${harf} varianti...`}
+                            className="bg-transparent border-none outline-none text-xs text-[var(--v3-matn)] flex-1 min-w-0"
                           />
-
-                          {isCorrect && (
-                            <span className="text-[11px] font-bold text-[var(--v3-urgu)] shrink-0 px-2">
-                              ✓ To{"'"}g{"'"}ri
-                            </span>
-                          )}
 
                           {q.options.length > 2 && (
                             <button
@@ -847,7 +945,7 @@ export default function OpenQuizManagePage() {
               disabled={isSaving}
               className="v3-tugma v3-tugma-asosiy text-xs py-2.5 px-6 font-bold"
             >
-              {isSaving ? 'Saqlanmoqda...' : '✓ Testni e\'lon qilish'}
+              {isSaving ? 'Saqlanmoqda...' : editingId ? '✓ O\'zgarishlarni saqlash' : '✓ Testni e\'lon qilish'}
             </button>
           </div>
         </div>

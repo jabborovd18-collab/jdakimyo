@@ -1,17 +1,18 @@
 // app/profil/ustozim/page.js
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 import Ikon from '@/components/Ikon'
 
-export default function UstozlarimPage() {
+function UstozlarimIchki() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const qoshilGuruhId = searchParams.get('qoshil')
+  const attemptedJoinRef = useRef(null)
 
   const [takliflar, setTakliflar] = useState([])
   const [guruhlarim, setGuruhlarim] = useState([])
@@ -22,9 +23,10 @@ export default function UstozlarimPage() {
     olib()
   }, [])
 
-  // Havola orqali kelganda guruhga qo'shilish
+  // Havola orqali kelganda guruhga qo'shilish (bir martalik himoya bilan)
   useEffect(() => {
-    if (qoshilGuruhId) {
+    if (qoshilGuruhId && attemptedJoinRef.current !== qoshilGuruhId) {
+      attemptedJoinRef.current = qoshilGuruhId
       guruhgaQoshil(qoshilGuruhId)
     }
   }, [qoshilGuruhId])
@@ -38,14 +40,15 @@ export default function UstozlarimPage() {
       })
       const data = await res.json()
       if (res.ok) {
-        toast.success(data.message || 'Guruhga qo\'shildingiz!')
-        router.replace('/profil/ustozim')
+        toast.success(data.message || "Guruhga qo'shildingiz!")
         olib()
       } else {
-        toast.error(data.error || 'Guruhga qo\'shilib bo\'lmadi')
+        toast.error(data.error || "Guruhga qo'shilib bo'lmadi")
       }
     } catch (e) {
       toast.error('Guruhga ulanishda xatolik')
+    } finally {
+      router.replace('/profil/ustozim')
     }
   }
 
@@ -162,15 +165,16 @@ export default function UstozlarimPage() {
                     type="button"
                     onClick={() => javobBer(t.id, 'qabul')}
                     disabled={band === t.id}
-                    className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold flex-1"
+                    className="v3-tugma v3-tugma-asosiy text-xs py-2 px-4 font-bold flex-1 inline-flex items-center justify-center gap-1.5"
                   >
-                    ✓ Qabul qilish
+                    <Ikon nom="belgi" olcham={14} />
+                    <span>Qabul qilish</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => javobBer(t.id, 'rad')}
                     disabled={band === t.id}
-                    className="v3-tugma text-xs py-2 px-4 flex-1 text-red-400"
+                    className="v3-tugma text-xs py-2 px-4 flex-1 text-red-500"
                   >
                     Rad etish
                   </button>
@@ -232,5 +236,19 @@ export default function UstozlarimPage() {
         )}
       </section>
     </div>
+  )
+}
+
+export default function UstozlarimPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[300px]">
+          <Ikon nom="vaqt" olcham={28} className="animate-spin text-[var(--v3-xira)]" />
+        </div>
+      }
+    >
+      <UstozlarimIchki />
+    </Suspense>
   )
 }

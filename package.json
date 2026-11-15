@@ -1,13 +1,13 @@
 {
   "name": "jda-kimyo",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --test test/lab-nisbat.test.js test/lab-tenglama.test.js test/lab-birlik.test.js test/lab-idish.test.js test/lab-erituvchi.test.js test/quiz-baho.test.js test/ustoz-quiz.test.js test/ai-himoya.test.js test/masala-pdf.test.js test/latex-format.test.js test/ovoz.test.js test/telegram-yonaltirish.test.js test/doska-jang.test.js test/auth-adapter.test.js test/rasch-model.test.js test/milliy-sertifikat-boshqaruvchi.test.js test/milliy-sertifikat-poydevor.test.js",
+    "test": "node --test test/lab-nisbat.test.js test/lab-tenglama.test.js test/lab-birlik.test.js test/lab-idish.test.js test/lab-erituvchi.test.js test/quiz-baho.test.js test/ustoz-quiz.test.js test/ai-himoya.test.js test/masala-pdf.test.js test/latex-format.test.js test/ovoz.test.js test/telegram-yonaltirish.test.js test/doska-jang.test.js test/auth-adapter.test.js test/rasch-model.test.js test/milliy-sertifikat-boshqaruvchi.test.js test/milliy-sertifikat-poydevor.test.js test/ms-format-tekshiruv.test.js test/auth-sessiya.test.js test/auth-tekshiruv.test.js test/rasch-kalibrlash.test.js test/maktab-animatsiya.test.js test/profil-tizimi.test.js test/profil-aqlli-log.test.js test/milliy-sertifikat-jadval.test.js test/sertifikat-tizimi.test.js test/admin-yordamchi.test.js test/forum-tizimi.test.js test/qr-skaner.test.js test/xavfsizlik.test.js",
     "check:chemistry": "node scripts/check-reactions.js && node scripts/check-element-analiz.js",
     "postinstall": "prisma generate",
     "indexnow": "node scripts/indexnow.js",
@@ -21,7 +21,8 @@
     "lab3d:asset-taqqos": "node scripts/lab3d-asset-taqqos.js",
     "pdf:namuna": "node scripts/masala-pdf-namuna.js",
     "ms:bank": "node scripts/ms-bank-tekshir.js",
-    "ms:eksport": "node --env-file=.env scripts/ms-javoblar-eksport.js"
+    "ms:eksport": "node --env-file=.env scripts/ms-javoblar-eksport.js",
+    "ms:kalibrla": "node scripts/ms-kalibrla.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
@@ -33,8 +34,9 @@
     "dejavu-fonts-ttf": "^2.37.3",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
+    "jsqr": "^1.4.0",
     "katex": "^0.18.4",
-    "next": "^16.0.10",
+    "next": "^16.4.6",
     "next-auth": "^4.24.11",
     "pdf-lib": "^1.17.1",
     "playwright-core": "^1.62.1",
@@ -53,7 +55,7 @@
     "@types/three": "^0.170.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3.3",
+    "eslint-config-next": "^16.4.6",
     "playwright": "^1.62.1",
     "postcss": "^8.4.47",
     "prisma": "^5.22.0",

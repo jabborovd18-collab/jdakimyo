@@ -4,6 +4,7 @@
 // "Kundalik hayotda foydalaniladigan moddalar va ularning xossalari" (Darslik 62-bet)
 // 6 ta interaktiv Canvas Ko'rgazma + 4 ta Smart-doska O'yini
 // ============================================================
+import { kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir, indekslanganVariantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import { useState, useEffect, useRef } from 'react'
 import Ikon from '@/components/Ikon'
 import OtganDarsniTakrorlash from '@/components/maktab/OtganDarsniTakrorlash'
@@ -12,9 +13,8 @@ import { SmartDoskaNavigatsiya } from '@/components/maktab/SmartDoskaYordamchi'
 function tovushChiqar(turi) {
     if (typeof window === 'undefined') return
     try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext
-        if (!AudioCtx) return
-        const ctx = new AudioCtx()
+        const ctx = umumiyAudio()
+        if (!ctx) return
         const now = ctx.currentTime
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
@@ -52,7 +52,7 @@ function tovushChiqar(turi) {
 const TAKROPI_4_2 = [
     {
         savol: "Barcha metallar ichida elektr tokini va issiqlikni 1-o'rinda eng yaxshi o'tkazadigan metall qaysi?",
-        variantlar: ["Mis (Cu)", "Kumush (Ag)", "Oltin (Au)", "Alyuminiy (Al)"],
+        variantlar: ["Kumush (Ag)", "Oltin (Au)", "Alyuminiy (Al)", "Mis (Cu)"],
         togriJavob: "Kumush (Ag)",
         izoh: "Kumush (Ag) elektr va issiqlik o'tkazuvchanlik bo'yicha 1-o'rinda (100%), Mis (Cu) esa 2-o'rinda turadi."
     },
@@ -65,10 +65,10 @@ const TAKROPI_4_2 = [
     {
         savol: "Bronza qotishmasi qaysi metallardan tarkib topgan?",
         variantlar: [
+            "Temir (Fe) va Uglerod (C)",
+            "Alyuminiy (Al) va Magniy (Mg)",
             "Mis (Cu) va Qalay (Sn)",
             "Mis (Cu) va Rux (Zn)",
-            "Temir (Fe) va Uglerod (C)",
-            "Alyuminiy (Al) va Magniy (Mg)"
         ],
         togriJavob: "Mis (Cu) va Qalay (Sn)",
         izoh: "Bronza — Mis (Cu) va Qalay (Sn) qotishmasi bo'lib, qadimdan haykallar va qo'ng'iroqlar quyishda ishlatiladi."
@@ -188,10 +188,10 @@ function OshxonaKimyosiCanvas() {
             ctx.textAlign = 'center'
             ctx.fillText(tajriba.formula, kx, 278)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [tajriba])
 
     return (
@@ -203,7 +203,9 @@ function OshxonaKimyosiCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={300} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={300} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5 font-serif">
                     {OSHXONA_TAJRIBALAR.map((t) => (
@@ -310,10 +312,10 @@ function QurilishOhakCanvas() {
             ctx.font = 'bold 15px "Times New Roman", serif'
             ctx.fillText(bosqich.reaksiya, 280, 268)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [bosqich])
 
     return (
@@ -325,7 +327,9 @@ function QurilishOhakCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={300} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={300} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5 font-serif">
                     {OHAK_BOSQICHLAR.map((b) => (
@@ -430,10 +434,10 @@ function SovunMitsellaCanvas() {
                 32
             )
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [sovunBor])
 
     return (
@@ -455,7 +459,9 @@ function SovunMitsellaCanvas() {
                 </button>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={280} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={280} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -551,10 +557,10 @@ function UyDorixonasiCanvas() {
             ctx.textAlign = 'center'
             ctx.fillText(dori.reaksiya, 280, 38)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [dori])
 
     return (
@@ -566,7 +572,9 @@ function UyDorixonasiCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={280} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={280} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5 font-serif">
                     {DORIXONA_MODDALAR.map((d) => (
@@ -650,10 +658,10 @@ function TabiiyGazAlangaCanvas() {
                 274
             )
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [kislorodFoiz])
 
     return (
@@ -674,7 +682,9 @@ function TabiiyGazAlangaCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-4 font-serif">
                     <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
@@ -778,7 +788,9 @@ function ShishaPolimerCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5 font-serif">
                     {SHISHA_TURLARI.map((s) => (
@@ -810,14 +822,14 @@ function ShishaPolimerCanvas() {
 const TRIVIAL_SAVOLLAR = [
     { nom: "Osh tuzi (ovqatga solinadigan tuz)", formula: "NaCl (Natriy xlorid)", variantlar: ["NaCl (Natriy xlorid)", "NaHCO₃", "CaCO₃", "NaOH"] },
     { nom: "Ichimlik sodasi (xamir ko'pchituvchi)", formula: "NaHCO₃ (Natriy gidrokarbonat)", variantlar: ["Na₂CO₃", "NaHCO₃ (Natriy gidrokarbonat)", "CaO", "KMnO₄"] },
-    { nom: "Kir sodasi (shisha ishlab chiqarish va kir yuvishda)", formula: "Na₂CO₃ (Natriy karbonat)", variantlar: ["Na₂CO₃ (Natriy karbonat)", "NaCl", "Ca(OH)₂", "CH₃COOH"] },
-    { nom: "Ohaktosh, bo'r va marmarning asosiy moddasi", formula: "CaCO₃ (Kalsiy karbonat)", variantlar: ["CaO", "CaCO₃ (Kalsiy karbonat)", "CaSO₄", "SiO₂"] },
+    { nom: "Kir sodasi (shisha ishlab chiqarish va kir yuvishda)", formula: "Na₂CO₃ (Natriy karbonat)", variantlar: ["Ca(OH)₂", "CH₃COOH", "Na₂CO₃ (Natriy karbonat)", "NaCl"] },
+    { nom: "Ohaktosh, bo'r va marmarning asosiy moddasi", formula: "CaCO₃ (Kalsiy karbonat)", variantlar: ["CaSO₄", "SiO₂", "CaO", "CaCO₃ (Kalsiy karbonat)"] },
     { nom: "So'ndirilmagan ohak (suv qo'shilsa qaynaydi)", formula: "CaO (Kalsiy oksid)", variantlar: ["CaO (Kalsiy oksid)", "Ca(OH)₂", "CaCO₃", "MgO"] },
     { nom: "So'ndirilgan ohak (devor oqlashda ishlatiladi)", formula: "Ca(OH)₂ (Kalsiy gidroksid)", variantlar: ["CaCO₃", "Ca(OH)₂ (Kalsiy gidroksid)", "NaOH", "CaO"] },
-    { nom: "Sirka kislotasi (marinad va oshxonada)", formula: "CH₃COOH", variantlar: ["CH₃COOH", "H₂SO₄", "HCl", "C₁₂H₂₂O₁₁"] },
-    { nom: "Tabiiy gazning asosiy (95%) tarkibiy qismi", formula: "CH₄ (Metan)", variantlar: ["CO₂", "CH₄ (Metan)", "CO", "H₂"] },
+    { nom: "Sirka kislotasi (marinad va oshxonada)", formula: "CH₃COOH", variantlar: ["HCl", "C₁₂H₂₂O₁₁", "CH₃COOH", "H₂SO₄"] },
+    { nom: "Tabiiy gazning asosiy (95%) tarkibiy qismi", formula: "CH₄ (Metan)", variantlar: ["CO", "H₂", "CO₂", "CH₄ (Metan)"] },
     { nom: "Kvars qumi (shisha ishlab chiqarish asosi)", formula: "SiO₂ (Kremniy (IV) oksid)", variantlar: ["SiO₂ (Kremniy (IV) oksid)", "Al₂O₃", "CaCO₃", "Na₂CO₃"] },
-    { nom: "Margansovka (antiseptik va kislorod manbai)", formula: "KMnO₄ (Kaliy permanganat)", variantlar: ["KMnO₄ (Kaliy permanganat)", "H₂O₂", "NaClO", "AgNO₃"] },
+    { nom: "Margansovka (antiseptik va kislorod manbai)", formula: "KMnO₄ (Kaliy permanganat)", variantlar: ["AgNO₃", "KMnO₄ (Kaliy permanganat)", "H₂O₂", "NaClO"] },
 ]
 
 function TrivialFormulaOyini() {
@@ -856,7 +868,7 @@ function TrivialFormulaOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -897,12 +909,12 @@ function TrivialFormulaOyini() {
 // 2-O'YIN: HAYOTIY VAZIYAT VA MODDA TANLASH
 // ============================================================
 const VAZIYAT_SAVOLLAR = [
-    { vazifa: "Choynak tubida hosil bo'lgan ohak qasmoqni (CaCO₃) uy sharoitida eritib tozalash uchun nima ishlatiladi?", javob: "Sirka yoki limon kislotasi eritmasi", variantlar: ["Osh tuzi (NaCl)", "Sirka yoki limon kislotasi eritmasi", "Shakar eritmasi", "Kvars qumi (SiO₂)"] },
-    { vazifa: "Yarani mikroblardan ko'piklantirib (O₂↑ chiqarib) tozalash uchun qaysi eritma quyiladi?", javob: "3% li Vodorod peroksid (H₂O₂)", variantlar: ["3% li Vodorod peroksid (H₂O₂)", "Osh tuzi eritmasi", "Ohakli suv Ca(OH)₂", "Sirka kislotasi"] },
-    { vazifa: "Ovqatdan zaharlanganda oshqozondagi zaharli toksinlarni shimib (adsorbsiyalab) oluvchi vosita:", javob: "Faollashtirilgan ko'mir (C)", variantlar: ["Faollashtirilgan ko'mir (C)", "Shakar (C₁₂H₂₂O₁₁)", "Gips (CaSO₄·2H₂O)", "Bo'r (CaCO₃)"] },
-    { vazifa: "Suyak singanda gips bog'lami qo'yish uchun ishlatiladigan, suv bilan qorilganda tez qotadigan oq kukun:", javob: "Kalsiy sulfat yarimgidrati — Alebastr (Gips)", variantlar: ["Kvars qumi (SiO₂)", "Kalsiy sulfat yarimgidrati — Alebastr (Gips)", "Osh tuzi (NaCl)", "Ichimlik sodasi (NaHCO₃)"] },
-    { vazifa: "Asalari chaqqanda (kislotali zahar) teridagi achishishni neytrallash uchun nima surtiladi?", javob: "Ichimlik sodasi (NaHCO₃) bo'tqasi", variantlar: ["Sirka kislotasi", "Ichimlik sodasi (NaHCO₃) bo'tqasi", "Limon sharbati", "O'simlik yog'i"] },
-    { vazifa: "Deraza shishasi ishlab chiqarish uchun pechda 1500°C da eritiladigan 3 ta asosiy xomashyo:", javob: "Kvars qumi (SiO₂) + Soda (Na₂CO₃) + Ohaktosh (CaCO₃)", variantlar: ["Kvars qumi (SiO₂) + Soda (Na₂CO₃) + Ohaktosh (CaCO₃)", "Osh tuzi + Shakar + Sirka", "Temir + Ko'mir + Ohak", "Gips + Bo'r + Suv"] },
+    { vazifa: "Choynak tubida hosil bo'lgan ohak qasmoqni (CaCO₃) uy sharoitida eritib tozalash uchun nima ishlatiladi?", javob: "Sirka yoki limon kislotasi eritmasi", variantlar: ["Sirka yoki limon kislotasi eritmasi", "Shakar eritmasi", "Kvars qumi (SiO₂)", "Osh tuzi (NaCl)"] },
+    { vazifa: "Yarani mikroblardan ko'piklantirib (O₂↑ chiqarib) tozalash uchun qaysi eritma quyiladi?", javob: "3% li Vodorod peroksid (H₂O₂)", variantlar: ["Sirka kislotasi", "3% li Vodorod peroksid (H₂O₂)", "Osh tuzi eritmasi", "Ohakli suv Ca(OH)₂"] },
+    { vazifa: "Ovqatdan zaharlanganda oshqozondagi zaharli toksinlarni shimib (adsorbsiyalab) oluvchi vosita:", javob: "Faollashtirilgan ko'mir (C)", variantlar: ["Gips (CaSO₄·2H₂O)", "Bo'r (CaCO₃)", "Faollashtirilgan ko'mir (C)", "Shakar (C₁₂H₂₂O₁₁)"] },
+    { vazifa: "Suyak singanda gips bog'lami qo'yish uchun ishlatiladigan, suv bilan qorilganda tez qotadigan oq kukun:", javob: "Kalsiy sulfat yarimgidrati — Alebastr (Gips)", variantlar: ["Osh tuzi (NaCl)", "Ichimlik sodasi (NaHCO₃)", "Kvars qumi (SiO₂)", "Kalsiy sulfat yarimgidrati — Alebastr (Gips)"] },
+    { vazifa: "Asalari chaqqanda (kislotali zahar) teridagi achishishni neytrallash uchun nima surtiladi?", javob: "Ichimlik sodasi (NaHCO₃) bo'tqasi", variantlar: ["Ichimlik sodasi (NaHCO₃) bo'tqasi", "Limon sharbati", "O'simlik yog'i", "Sirka kislotasi"] },
+    { vazifa: "Deraza shishasi ishlab chiqarish uchun pechda 1500°C da eritiladigan 3 ta asosiy xomashyo:", javob: "Kvars qumi (SiO₂) + Soda (Na₂CO₃) + Ohaktosh (CaCO₃)", variantlar: ["Gips + Bo'r + Suv", "Kvars qumi (SiO₂) + Soda (Na₂CO₃) + Ohaktosh (CaCO₃)", "Osh tuzi + Shakar + Sirka", "Temir + Ko'mir + Ohak"] },
 ]
 
 function HayotiyVaziyatOyini() {
@@ -940,7 +952,7 @@ function HayotiyVaziyatOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -989,10 +1001,19 @@ const XAVFSIZLIK_SAVOLLAR = [
 
 function XavfsizXonadonOyini() {
     const [idx, setIdx] = useState(0)
+    const [raund, setRaund] = useState(0)
     const [ball, setBall] = useState(0)
     const [javob, setJavob] = useState(null)
 
     const joriy = XAVFSIZLIK_SAVOLLAR[idx]
+    const tanlovlar = variantlarniAralashtir(
+        [
+            { matn: joriy.togri, togri: true },
+            { matn: joriy.xato, togri: false },
+        ],
+        joriy.holat,
+        raund
+    ).map((x) => x.item)
 
     const tanla = (togrimi) => {
         if (javob !== null) return
@@ -1022,28 +1043,21 @@ function XavfsizXonadonOyini() {
             </div>
 
             <div className="space-y-3 mb-4">
-                <button
-                    onClick={() => tanla(true)}
-                    className={`w-full p-4 rounded-xl border text-left font-bold transition-all ${
-                        javob === null
-                            ? 'bg-slate-950 border-slate-800 text-slate-200 hover:border-emerald-400'
-                            : 'bg-emerald-500/25 border-emerald-400 text-emerald-200'
-                    }`}
-                >
-                    {joriy.togri}
-                </button>
-                <button
-                    onClick={() => tanla(false)}
-                    className={`w-full p-4 rounded-xl border text-left font-bold transition-all ${
-                        javob === null
-                            ? 'bg-slate-950 border-slate-800 text-slate-200 hover:border-rose-400'
-                            : javob === false
-                            ? 'bg-rose-500/25 border-rose-400 text-rose-200'
-                            : 'bg-slate-950/40 border-slate-800 text-slate-500'
-                    }`}
-                >
-                    {joriy.xato}
-                </button>
+                {tanlovlar.map((t) => (
+                    <button
+                        key={t.matn}
+                        onClick={() => tanla(t.togri)}
+                        className={`w-full p-4 rounded-xl border text-left font-bold transition-all ${
+                            javob === null
+                                ? 'bg-slate-950 border-slate-800 text-slate-200 hover:border-sky-400'
+                                : t.togri
+                                ? 'bg-emerald-500/25 border-emerald-400 text-emerald-200'
+                                : 'bg-rose-500/25 border-rose-400 text-rose-200'
+                        }`}
+                    >
+                        {t.matn}
+                    </button>
+                ))}
             </div>
 
             {javob !== null && (
@@ -1052,6 +1066,7 @@ function XavfsizXonadonOyini() {
                         onClick={() => {
                             tovushChiqar('click')
                             setJavob(null)
+                            if (idx + 1 >= XAVFSIZLIK_SAVOLLAR.length) setRaund((r) => r + 1)
                             setIdx((i) => (i + 1) % XAVFSIZLIK_SAVOLLAR.length)
                         }}
                         className="px-5 py-2.5 rounded-xl bg-sky-500 text-slate-950 font-bold"
@@ -1068,10 +1083,10 @@ function XavfsizXonadonOyini() {
 // 4-O'YIN: JAMOALAR DUELI (1-GURUH VS 2-GURUH)
 // ============================================================
 const DUEL_4_3 = [
-    { savol: "Ichimlik sodasining kimyoviy formulasi qaysi?", variantlar: ["NaCl", "NaHCO₃", "Na₂CO₃", "NaOH"], javob: 1 },
+    { savol: "Ichimlik sodasining kimyoviy formulasi qaysi?", variantlar: ["NaHCO₃", "Na₂CO₃", "NaOH", "NaCl"], javob: 0 },
     { savol: "Tabiiy gaz chala yonganda qaysi o'ta zaharli gaz hosil bo'ladi?", variantlar: ["CO₂ (Karbonat angidrid)", "CO (Is gazi)", "O₂ (Kislorod)", "N₂ (Azot)"], javob: 1 },
-    { savol: "Vodorod peroksid (H₂O₂) yaraga tekkanda qaysi gaz pufakchalari ajralib chiqadi?", variantlar: ["Vodorod (H₂)", "Kislorod (O₂)", "Azot (N₂)", "Xlor (Cl₂)"], javob: 1 },
-    { savol: "So'ndirilmagan ohak (CaO) suv bilan reaksiyaga kirishsa nima hosil bo'ladi?", variantlar: ["CaCO₃", "Ca(OH)₂ — So'ndirilgan ohak", "CaCl₂", "CaSO₄"], javob: 1 },
+    { savol: "Vodorod peroksid (H₂O₂) yaraga tekkanda qaysi gaz pufakchalari ajralib chiqadi?", variantlar: ["Xlor (Cl₂)", "Vodorod (H₂)", "Kislorod (O₂)", "Azot (N₂)"], javob: 2 },
+    { savol: "So'ndirilmagan ohak (CaO) suv bilan reaksiyaga kirishsa nima hosil bo'ladi?", variantlar: ["CaCl₂", "CaSO₄", "CaCO₃", "Ca(OH)₂ — So'ndirilgan ohak"], javob: 3 },
     { savol: "Deraza shishasining 75% ini tashkil etuvchi asosiy tabiiy oksid qaysi?", variantlar: ["Kvars qumi (SiO₂)", "Ohaktosh (CaCO₃)", "Temir oksidi (Fe₂O₃)", "Osh tuzi (NaCl)"], javob: 0 },
     { savol: "Sovun molekulasining yog' tomchisini o'rab olgan sharsimon tuzilmasi nima deyiladi?", variantlar: ["Kristall", "Mitsella", "Izotop", "Allotrop"], javob: 1 },
 ]
@@ -1083,7 +1098,9 @@ function JamoalarDueli4_3() {
     const [navbat, setNavbat] = useState(1)
     const [natija, setNatija] = useState(null)
 
-    const joriy = DUEL_4_3[idx]
+    const xomJoriy = DUEL_4_3[idx]
+    const aralash = indekslanganVariantlarniAralashtir(xomJoriy, idx)
+    const joriy = { ...xomJoriy, variantlar: aralash.variantlar, javob: aralash.togri }
 
     const javobBer = (i) => {
         if (natija !== null) return

@@ -2,9 +2,8 @@
 
 import Link from "next/link"
 import Ikon from "@/components/Ikon"
-import FonTanlagich, { useFon } from "@/components/FonTanlagich"
-import HAJM from "@/lib/ilmiy-hajm.json"
-import { FANLAR, ochiqFanlarSoni } from "@/lib/fanlar"
+import { useFon } from "@/components/FonTanlagich"
+import { FANLAR, ochiqFanlarSoni, YETTI_SINF_MAVZULARI } from "@/lib/fanlar"
 import { BAZA, YARATUVCHI, TASHKIL_YILI, RASMIY_HISOBLAR, OCHIQ_LUGAT, MALUMOT_SANASI } from "@/lib/sayt-malumot"
 import { FAQ, FAKTLAR } from "./malumot"
 
@@ -23,7 +22,7 @@ import { FAQ, FAKTLAR } from "./malumot"
    material bor"). Ikkisi bir-birini takrorlamaydi va bir-biriga havola
    beradi.
 
-   QOIDA: bu yerdagi har bir son `lib/ilmiy-hajm.json` yoki
+   QOIDA: bu yerdagi har bir son `lib/fanlar.js` yoki
    `lib/sayt-malumot.js` dan keladi. Sahifaga qo'lda son yozilmaydi —
    aks holda kontent o'sganda bu sahifa yolg'on gapira boshlaydi.
 
@@ -43,57 +42,48 @@ const HISOB_NOMI = {
 const IMKONIYATLAR = [
   {
     ikon: 'kitob',
-    nom: "O'quv bo'limi",
-    havola: '/oquv',
-    izoh:
-      "Beshta bosqich: klassifikatsiya, IUPAC nomlanishi, kimyoviy bog'lanish, " +
-      'izomeriya va fazoviy tuzilish. Har mavzudan keyin test.',
+    nom: 'Maktab kimyosi',
+    havola: '/maktabkimyo',
+    izoh: `Sinflar bo'yicha darslar. 7-sinf uchun ${YETTI_SINF_MAVZULARI.length} ta mavzu.`,
   },
   {
-    ikon: 'mikroskop',
-    nom: 'Ilmiy kutubxona',
-    havola: '/ilmiy',
-    izoh:
-      `${HAJM.usullar} ta fiziko-kimyoviy tahlil usuli (IQ, NMR, UB-Vis, Mössbauer, ` +
-      `EXAFS va boshqalar), ${HAJM.usulBirikmaTahlili} ta usul × birikma tahlili, ` +
-      `${HAJM.mavzular} ta chuqurlashgan mavzu va ${HAJM.birikmalar} ta birikma sahifasi.`,
-  },
-  {
-    ikon: 'doska',
-    nom: 'Smart Elektron doska',
-    havola: '/doska',
-    izoh:
-      "Dars va ma'ruzalar uchun sensor doska va proyektor rejimi: formulalar, " +
-      "izotermalar va mikroskopik modellarni to'liq ekranda interaktiv tahlil qilish.",
+    ikon: 'atom',
+    nom: 'Oliy kimyo',
+    havola: '/oliykimyo',
+    izoh: `${FANLAR.length} ta fandan ${ochiqFanlarSoni()} tasi ochiq. Tayyor bo'lmagan fan qulf bilan turadi.`,
   },
   {
     ikon: 'quiz',
     nom: 'Testlar',
-    havola: '/oquv/video-darsliklar/quiz',
+    havola: '/testlar',
+    izoh: "Ustoz tuzgan variantli va yozma testlar. Natija hisobingizda saqlanadi.",
+  },
+  {
+    ikon: 'formula',
+    nom: 'Masala yechish',
+    havola: '/masala',
+    izoh: "Kimyoviy masalani bosqichma-bosqich yechish.",
+  },
+  {
+    ikon: 'doska',
+    nom: 'Elektron doska',
+    havola: '/doska',
     izoh:
-      `${BAZA.savollar} savol besh yo'nalish bo'yicha. Natija saqlanadi, xatolar ` +
-      "ustida ishlash mumkin. Ustozlar o'z testini tuzadi.",
+      "Dars va ma'ruzalar uchun sensor doska va proyektor rejimi: formulalar, " +
+      "izotermalar va modellarni to'liq ekranda ko'rsatish.",
   },
   {
     ikon: 'ustoz',
     nom: 'Ustoz paneli',
     havola: '/ishlashi',
     izoh:
-      "Guruh ochish, o'quvchilarni qabul qilish, o'z testini tuzish (ochiq yoki " +
-      "yopiq), vazifa berish va natijalarni ko'rish. Huquqni administratsiya beradi.",
-  },
-  {
-    ikon: 'atom',
-    nom: '3D modellar',
-    havola: '/ilmiy/birikmalar',
-    izoh:
-      `${HAJM.modellar3d} ta kompleks birikmaning fazoviy modeli — oktaedrik, ` +
-      'tetraedrik va kvadrat tekis tuzilishlar. Sichqoncha bilan aylantiriladi.',
+      "Guruh ochish, o'quvchilarni qabul qilish, o'z testini tuzish, vazifa berish " +
+      "va natijalarni ko'rish. Huquqni administratsiya beradi.",
   },
 ]
 
 export default function Korinish() {
-  const [fon, fonTanla] = useFon()
+  const [fon] = useFon()
   const ochiq = ochiqFanlarSoni()
 
   return (
@@ -111,7 +101,6 @@ export default function Korinish() {
             <span className="hidden sm:inline text-[13px] v3-xira truncate">Platforma haqida</span>
           </div>
           <div className="flex items-center gap-2">
-            <FonTanlagich fon={fon} tanla={fonTanla} />
             <Link href="/ishlashi" className="v3-tugma">Qo{"'"}llanma</Link>
           </div>
         </div>
@@ -137,21 +126,18 @@ export default function Korinish() {
               bu yerda kirish so'zi ham, shart ham yo'q: javobning o'zi. */}
           <p className="v3-lid">
             <strong style={{ color: "var(--v3-matn)" }}>JDA KIMYO</strong> — o{"'"}zbek
-            tilidagi oliy kimyo ta{"'"}lim platformasi. U koordinatsion (kompleks)
-            kimyoni boshlang{"'"}ich mavzulardan chuqur darajagacha o{"'"}rgatadi:
-            nazariy materiallar, {HAJM.jamiTahlilVaMavzu} ta ilmiy sahifa,
-            {" "}{BAZA.savollar} test savoli, virtual laboratoriya va
-            {" "}{HAJM.modellar3d} ta aylantirib ko{"'"}riladigan 3D model.
+            tilidagi maktab va oliy kimyo ta{"'"}lim platformasi. Unda maktab darslari,
+            oliy kimyo fanlari, ustoz testlari, masala yechish va elektron doska bor.
             Platformani {YARATUVCHI.nom} {TASHKIL_YILI}-yilda boshlagan;
             o{"'"}quv materiallari bepul.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-px v3-sonlar">
             {[
-              { son: String(HAJM.jamiTahlilVaMavzu), nom: "Ilmiy sahifa" },
-              { son: BAZA.savollar, nom: "Test savoli" },
-              { son: BAZA.reaksiyalar, nom: "Laboratoriya reaksiyasi" },
-              { son: String(HAJM.modellar3d), nom: "3D model" },
+              { son: String(YETTI_SINF_MAVZULARI.length), nom: "7-sinf mavzusi" },
+              { son: `${ochiqFanlarSoni()}/${FANLAR.length}`, nom: "Fan ochiq" },
+              { son: "3", nom: "Test bo'limi" },
+              { son: BAZA.yutuqlar, nom: "Yutuq turi" },
             ].map((s) => (
               <div key={s.nom} className="v3-son">
                 <div className="v3-son-qiymat">{s.son}</div>
@@ -200,7 +186,7 @@ export default function Korinish() {
                 "Mustaqil o'rganayotganlar",
                 "Maktab va oliygoh kimyo o'qituvchilari",
                 "Olimpiadaga tayyorlanayotgan o'quvchilar",
-                'Magistrant va tadqiqotchilar',
+                "Milliy sertifikatga tayyorlanayotganlar",
               ].map((k) => (
                 <li key={k}>
                   <Ikon nom="belgi" olcham={14} qalin={2} />
@@ -218,11 +204,8 @@ export default function Korinish() {
               <h3 className="v3-yonalish-nom" style={{ marginBottom: 0 }}>Manbalar</h3>
             </div>
             <p className="v3-yonalish-tavsif" style={{ flex: "none" }}>
-              Ilmiy qism nufuzli darslik va bazalarga tayanadi: Cotton–Wilkinson,
-              Miessler–Tarr, Greenwood–Earnshaw, SDBS spektr bazasi va CSD
-              kristallografik bazasi. Virtual laboratoriya reaksiyalari esa hali
-              mutaxassis tomonidan tasdiqlanmagan — buni laboratoriya sahifasi
-              ham aytadi.
+              Maktab darslari darslik mavzulari tartibida berilgan. Xato
+              topsangiz, bizga yozing: tuzatamiz.
             </p>
           </div>
         </div>
@@ -236,9 +219,7 @@ export default function Korinish() {
             <h2 className="v3-h2">Qisqa faktlar</h2>
           </div>
           <p className="v3-bosh-izoh">
-            Sonlar bazadan o{"'"}lchangan ({BAZA.olchanganSana}) va pastga
-            yaxlitlangan: kontent o{"'"}sib boradi, ya{"'"}ni kam aytilgan son
-            keyin ham to{"'"}g{"'"}ri bo{"'"}lib qolaveradi.
+            Sonlar saytning o{"'"}z ma{"'"}lumotidan olinadi.
           </p>
         </div>
 

@@ -1,0 +1,502 @@
+[
+  {
+    "matn": "Shakli bor har qanday narsa nima deb ataladi?",
+    "variantlar": [
+      "modda",
+      "jism",
+      "xossa",
+      "hodisa"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Moddani to‘g‘ri hidlash usuli qaysi?",
+    "variantlar": [
+      "qo‘l bilan havoni o‘zi tomon yelpib hidlash",
+      "idishga burunni yaqin tutib hidlash",
+      "moddani tatib ko‘rish",
+      "idishni qattiq silkitish"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Mis simni egdik. Bu qanday hodisa?",
+    "variantlar": [
+      "kimyoviy — yangi modda hosil bo‘ldi",
+      "fizik — sim baribir mis",
+      "kimyoviy — mis zangga aylandi",
+      "kimyoviy — gaz ajraldi"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Metallarni metallmaslardan ajratuvchi diagonal qaysi elementlarni tutashtiradi?",
+    "variantlar": [
+      "vodorod va geliy",
+      "litiy va ftor",
+      "natriy va xlor",
+      "bor va astat"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Qaysi qatorda faqat moddalar berilgan?",
+    "variantlar": [
+      "mix, stakan, qoshiq",
+      "temir, shisha, shakar",
+      "stol, suv, muz bo‘lagi",
+      "ruchka, oltin, uzuk"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Atomda 6 ta proton va 6 ta neytron bor. Massa soni nechaga teng?",
+    "variantlar": [
+      "6",
+      "0",
+      "18",
+      "12"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Muz necha gradusda eriydi?",
+    "variantlar": [
+      "0 °C",
+      "100 °C",
+      "50 °C",
+      "−50 °C"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Qaysi biri kimyoviy hodisa belgisi EMAS?",
+    "variantlar": [
+      "gaz ajralishi",
+      "cho‘kma tushishi",
+      "jism shaklining o‘zgarishi",
+      "rang o‘zgarishi"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Elektr simi nima uchun plastmassa bilan o‘raladi?",
+    "variantlar": [
+      "plastmassa magnitga tortiladi",
+      "plastmassa tokni yaxshi o‘tkazadi",
+      "plastmassa elektr tokini o‘tkazmaydi",
+      "plastmassa suvda eriydi"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Temir zanglaganda hosil bo‘lgan zang qanday rangda?",
+    "variantlar": [
+      "kumushrang",
+      "qo‘ng‘ir",
+      "yashil",
+      "oq"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Litiy, natriy va kaliy qaysi guruhchada joylashgan?",
+    "variantlar": [
+      "I B",
+      "II A",
+      "VIII A",
+      "I A"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Qog‘oz yonganda nima hosil bo‘ladi?",
+    "variantlar": [
+      "yana qog‘oz",
+      "muz va suv",
+      "shakar",
+      "kul va gazlar"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Suv muzlatgichda muzga aylandi. Bu qanday hodisa?",
+    "variantlar": [
+      "kimyoviy hodisa",
+      "kimyoviy reaksiya",
+      "yonish",
+      "fizik hodisa"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Lotincha “argentum” qaysi elementning nomi?",
+    "variantlar": [
+      "oltin",
+      "argon",
+      "alyuminiy",
+      "kumush"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Atom qanday ikki qismdan iborat?",
+    "variantlar": [
+      "yadro va elektronlar",
+      "proton va molekula",
+      "yadro va neytronlar",
+      "elektron va molekula"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Vodorod haqida to‘g‘ri fikrni toping.",
+    "variantlar": [
+      "I guruhda tursa ham metallmas",
+      "u faol metall",
+      "u inert gaz",
+      "u yonaki guruhcha elementi"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "118 ta elementdan taxminan nechtasi tabiatda uchraydi?",
+    "variantlar": [
+      "10 ga yaqini",
+      "hammasi — 118 tasi",
+      "90 ga yaqini",
+      "200 ga yaqini"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Guruh — bu …",
+    "variantlar": [
+      "jadvalning gorizontal qatori",
+      "bitta katak",
+      "lantanoidlar qatori",
+      "jadvalning vertikal ustuni"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Tuxumni qovurish qanday hodisa?",
+    "variantlar": [
+      "fizik — faqat holati o‘zgaradi",
+      "fizik — tuxum eriydi",
+      "kimyoviy — u qaytib xom tuxumga aylanmaydi",
+      "fizik — tuxum muzlaydi"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Gugurt yonganda kimyoviy hodisaning qaysi belgisi kuzatiladi?",
+    "variantlar": [
+      "cho‘kma tushishi",
+      "muzlash",
+      "issiqlik va yorug‘lik chiqishi",
+      "erish"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Gaz plitada gazning yonishi qanday hodisa?",
+    "variantlar": [
+      "kimyoviy hodisa",
+      "fizik hodisa",
+      "erish",
+      "qaynash"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Bitta jismni har xil moddadan yasash mumkinligiga misol:",
+    "variantlar": [
+      "qoshiq: temir, yog‘och, kumush",
+      "shisha: stakan, deraza oynasi",
+      "temir: mix, qoshiq",
+      "suv: muz, bug‘"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Elektronning zaryadi nechaga teng?",
+    "variantlar": [
+      "−1",
+      "+1",
+      "0",
+      "+2"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Fosforning kimyoviy belgisi qaysi?",
+    "variantlar": [
+      "F",
+      "Ph",
+      "Fo",
+      "P"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Neytron atomning qayerida joylashgan?",
+    "variantlar": [
+      "yadro atrofida",
+      "atomdan tashqarida",
+      "yadroda",
+      "elektronlarning ichida"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "2-davr qaysi element bilan tugaydi?",
+    "variantlar": [
+      "argon",
+      "ftor",
+      "neon",
+      "geliy"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "2-davr qaysi element bilan boshlanadi?",
+    "variantlar": [
+      "vodorod",
+      "natriy",
+      "litiy",
+      "neon"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Qaysi modda rangsiz?",
+    "variantlar": [
+      "oltin",
+      "mis",
+      "suv",
+      "zang"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Proton elektrondan taxminan necha marta og‘ir?",
+    "variantlar": [
+      "2",
+      "18",
+      "1836",
+      "100"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Qisqa davriy jadvalda nechta guruh bor?",
+    "variantlar": [
+      "7",
+      "10",
+      "18",
+      "8"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Sovuq oynaga tekkan bug‘ suv tomchilariga aylandi. Bu qanday hodisa?",
+    "variantlar": [
+      "kimyoviy — yangi modda hosil bo‘ldi",
+      "kimyoviy — yonish",
+      "kimyoviy — cho‘kma tushdi",
+      "fizik — suvning faqat holati o‘zgardi"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Mix qaysi moddadan yasalgan?",
+    "variantlar": [
+      "shisha",
+      "yog‘och",
+      "plastmassa",
+      "temir"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Kimyoviy belgi nechta harfdan iborat bo‘ladi?",
+    "variantlar": [
+      "faqat bitta",
+      "bir yoki ikki",
+      "faqat uchta",
+      "to‘rtta"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Vodorod atomida nechta proton bor?",
+    "variantlar": [
+      "0",
+      "1",
+      "2",
+      "8"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Ovqat kuyib qolganda yangi hid paydo bo‘ldi. Bu kimyoviy hodisaning qaysi belgisi?",
+    "variantlar": [
+      "hid paydo bo‘lishi",
+      "cho‘kma tushishi",
+      "gaz ajralishi",
+      "muzlash"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Oltingugurtning belgisi (S) qanday o‘qiladi?",
+    "variantlar": [
+      "“es”",
+      "“o”",
+      "“se”",
+      "“ash”"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Tartib raqami 6 bo‘lgan element qaysi?",
+    "variantlar": [
+      "kislorod",
+      "uglerod",
+      "azot",
+      "bor"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "1-davrda nechta element bor?",
+    "variantlar": [
+      "8",
+      "18",
+      "2",
+      "1"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Yer po‘stida kisloroddan keyin eng ko‘p uchraydigan element qaysi?",
+    "variantlar": [
+      "kremniy",
+      "temir",
+      "azot",
+      "vodorod"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "“N” belgisi nimani bildiradi?",
+    "variantlar": [
+      "natriy elementini",
+      "azot elementini va bitta azot atomini",
+      "neon elementini",
+      "nikel elementini"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Qaysi biri metall?",
+    "variantlar": [
+      "magniy",
+      "kislorod",
+      "xlor",
+      "uglerod"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Qum suvga solinsa nima bo‘ladi?",
+    "variantlar": [
+      "eriydi",
+      "yonib ketadi",
+      "erimaydi",
+      "gazga aylanadi"
+    ],
+    "togri": 2
+  },
+  {
+    "matn": "Ikki harfli belgida ikkinchi harf qanday yoziladi?",
+    "variantlar": [
+      "har doim katta",
+      "har doim kichik",
+      "ixtiyoriy",
+      "qavs ichida"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Lotincha “ferrum” qaysi elementning nomi?",
+    "variantlar": [
+      "temir",
+      "ftor",
+      "fosfor",
+      "mis"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Inson tanasida eng ko‘p uchraydigan element qaysi?",
+    "variantlar": [
+      "kislorod",
+      "uglerod",
+      "temir",
+      "azot"
+    ],
+    "togri": 0
+  },
+  {
+    "matn": "Geliy atomida 2 ta proton bor. Unda nechta elektron bor?",
+    "variantlar": [
+      "0",
+      "2",
+      "1",
+      "4"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Sirkani suvdan qaysi xossasiga qarab ajratish mumkin?",
+    "variantlar": [
+      "rangiga",
+      "hidiga",
+      "holatiga",
+      "magnitga tortilishiga"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Litiy atomi: A = 7, p = 3. Neytronlar soni nechta?",
+    "variantlar": [
+      "3",
+      "7",
+      "10",
+      "4"
+    ],
+    "togri": 3
+  },
+  {
+    "matn": "Atom hajmining katta qismi nimadan iborat?",
+    "variantlar": [
+      "protonlardan",
+      "bo‘shliqdan",
+      "neytronlardan",
+      "yadrodan"
+    ],
+    "togri": 1
+  },
+  {
+    "matn": "Atomni futbol stadioni deb tasavvur qilsak, yadro nimaga o‘xshaydi?",
+    "variantlar": [
+      "butun stadionga",
+      "markazdagi no‘xatga",
+      "futbol maydoniga",
+      "tribunaga"
+    ],
+    "togri": 1
+  }
+]

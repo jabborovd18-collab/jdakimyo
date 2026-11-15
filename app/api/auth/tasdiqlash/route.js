@@ -13,13 +13,14 @@ import { prisma } from '@/lib/prisma'
 import { kodniTekshir, kodYuboroq } from '@/lib/email-tasdiq'
 import { pochtaSozlanganmi } from '@/lib/pochta'
 import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from '@/lib/ip-cheklov'
+import { profilLogYoz } from '@/lib/profil-log'
 
 // GET — holat: tasdiqlanganmi, qaysi manzilga yuborilgan
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Kirish talab qilinadi' }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
@@ -27,17 +28,21 @@ export async function GET() {
       select: { email: true, emailVerified: true },
     })
 
+    if (!user) {
+      return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 })
+    }
+
     return NextResponse.json({
       success: true,
-      tasdiqlangan: Boolean(user?.emailVerified),
+      tasdiqlangan: Boolean(user.emailVerified),
       // Manzilni qisqartirib ko'rsatamiz: ekran auditoriyada ochiq
       // turishi mumkin
-      email: user?.email ? yashir(user.email) : null,
+      email: user.email ? yashir(user.email) : null,
       pochtaIshlaydi: pochtaSozlanganmi(),
     })
   } catch (error) {
     console.error('[Tasdiqlash GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Tekshirish holatini olib bo'lmadi" }, { status: 500 })
   }
 }
 
@@ -45,24 +50,36 @@ export async function GET() {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Kirish talab qilinadi' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: 'Elektron doskada email tasdiqlanmaydi' }, { status: 403 })
     }
 
-    const { kod } = await request.json()
-    const natija = await kodniTekshir(session.user.id, kod)
+    const body = await request.json().catch(() => ({}))
+    const natija = await kodniTekshir(session.user.id, body?.kod)
 
     if (!natija.ok) {
       return NextResponse.json({ error: natija.xato }, { status: 400 })
     }
 
+    await profilLogYoz({
+      userId: session.user.id,
+      toifa: 'xavfsizlik',
+      amal: 'EMAIL_TASDIQLANDI',
+      sarlavha: 'Email manzil tasdiqlandi',
+      holat: 'muvaffaqiyat',
+      request,
+    })
+
     return NextResponse.json({
       success: true,
-      message: '✓ Email tasdiqlandi. Endi tanga topa olasiz.',
+      message: 'Email tasdiqlandi. Endi tanga topa olasiz.',
     })
   } catch (error) {
     console.error('[Tasdiqlash POST]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Kodni tekshirib bo'lmadi" }, { status: 500 })
   }
 }
 
@@ -70,14 +87,13 @@ export async function POST(request) {
 export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Kirish talab qilinadi' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: 'Elektron doskada kod yuborib bo\'lmaydi' }, { status: 403 })
     }
 
-    // Hisob bo'yicha 60 soniyalik kutish `kodYuboroq` da bor, lekin u
-    // BITTA hisobni cheklaydi. Bir necha hisob ochib, har biridan
-    // navbat bilan kod so'rash yo'li ochiq qolgan edi — har so'rov
-    // haqiqiy xat, ya'ni Resend kvotasi.
     const ip = soravchiIp(request)
     const cheklov = await chekloqniTekshir('kod', ip)
     if (!cheklov.ok) {
@@ -92,7 +108,11 @@ export async function PUT(request) {
       select: { id: true, email: true, fullName: true, username: true, emailVerified: true },
     })
 
-    if (user?.emailVerified) {
+    if (!user) {
+      return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 })
+    }
+
+    if (user.emailVerified) {
       return NextResponse.json({ error: 'Email allaqachon tasdiqlangan' }, { status: 400 })
     }
 
@@ -107,7 +127,11 @@ export async function PUT(request) {
 
     if (!natija.yuborildi) {
       return NextResponse.json(
-        { error: 'Xat yuborilmadi. Birozdan keyin urinib ko\'ring.' },
+        {
+          error: natija.sabab === 'sozlanmagan'
+            ? "Pochta xizmati hozircha sozlanmagan. Administrator bilan bog'laning."
+            : "Xat yuborilmadi. Birozdan keyin urinib ko'ring.",
+        },
         { status: 502 }
       )
     }
@@ -115,10 +139,10 @@ export async function PUT(request) {
     // Sanoq faqat xat HAQIQATAN ketganda oshadi
     await urinishniQayd('kod', ip)
 
-    return NextResponse.json({ success: true, message: '✓ Yangi kod yuborildi' })
+    return NextResponse.json({ success: true, message: 'Yangi kod yuborildi' })
   } catch (error) {
     console.error('[Tasdiqlash PUT]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Xat yuborishda xatolik yuz berdi" }, { status: 500 })
   }
 }
 

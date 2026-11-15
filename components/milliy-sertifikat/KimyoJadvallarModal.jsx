@@ -106,21 +106,18 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div
-        style={{ fontFamily: '"Times New Roman", Times, Georgia, serif' }}
-        className="w-full max-w-5xl max-h-[90vh] bg-gradient-to-b from-[#0e163b] via-[#091535] to-[#04091a] border border-blue-700/60 rounded-3xl shadow-2xl overflow-hidden flex flex-col text-white"
-      >
+      <div className="ms-akademik ms-karta w-full max-w-5xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col text-white">
         {/* Modal Sarlavhasi */}
-        <div className="p-4 sm:p-5 border-b border-blue-800/60 flex items-center justify-between gap-3 bg-[#0a1230]/90">
+        <div className="p-4 sm:p-5 border-b border-sky-400/25 flex items-center justify-between gap-3 bg-[#0c1d54]/90">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center text-yellow-300">
+            <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-300/50 flex items-center justify-center text-amber-300">
               <Ikon nom="atom" olcham={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">
+              <h2 className="text-lg font-bold bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-300 bg-clip-text text-transparent">
                 Kimyoviy ma&apos;lumotnomalar &amp; Jadvallar
               </h2>
-              <p className="text-xs text-blue-300/80">
+              <p className="text-xs text-sky-200/90">
                 Milliy sertifikat va Rasch imtihoni uchun rasmiy yordamchi jadvallar
               </p>
             </div>
@@ -128,7 +125,7 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
 
           <button
             onClick={onYopish}
-            className="p-2 rounded-xl bg-blue-950/60 hover:bg-rose-950/60 border border-blue-800/60 hover:border-rose-700 text-blue-200 hover:text-white transition"
+            className="p-2 rounded-xl bg-[#112566]/80 hover:bg-rose-900/70 border border-sky-400/35 hover:border-rose-400/70 text-sky-100 hover:text-white transition"
             title="Yopish"
           >
             <Ikon nom="yopish" olcham={18} />
@@ -136,13 +133,13 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
         </div>
 
         {/* Vkladkalar */}
-        <div className="flex items-center gap-2 px-4 sm:px-6 py-3 border-b border-blue-900/40 bg-[#070e28]/70 overflow-x-auto text-xs">
+        <div className="flex items-center gap-2 px-4 sm:px-6 py-3 border-b border-sky-400/20 bg-[#0a1847]/85 overflow-x-auto text-xs">
           <button
             onClick={() => setFaolVkladka("davriy")}
             className={`px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2 whitespace-nowrap ${
               faolVkladka === "davriy"
-                ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm"
-                : "bg-blue-950/40 text-blue-300 hover:bg-blue-900/40 border border-transparent"
+                ? "bg-amber-400/25 text-amber-200 border border-amber-300/55 shadow-sm"
+                : "bg-[#10225e]/80 text-sky-200 hover:bg-[#163082] border border-transparent"
             }`}
           >
             <Ikon nom="atom" olcham={14} />
@@ -153,8 +150,8 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
             onClick={() => setFaolVkladka("eruvchanlik")}
             className={`px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2 whitespace-nowrap ${
               faolVkladka === "eruvchanlik"
-                ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm"
-                : "bg-blue-950/40 text-blue-300 hover:bg-blue-900/40 border border-transparent"
+                ? "bg-amber-400/25 text-amber-200 border border-amber-300/55 shadow-sm"
+                : "bg-[#10225e]/80 text-sky-200 hover:bg-[#163082] border border-transparent"
             }`}
           >
             <Ikon nom="kolba" olcham={14} />
@@ -165,8 +162,8 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
             onClick={() => setFaolVkladka("formulalar")}
             className={`px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2 whitespace-nowrap ${
               faolVkladka === "formulalar"
-                ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm"
-                : "bg-blue-950/40 text-blue-300 hover:bg-blue-900/40 border border-transparent"
+                ? "bg-amber-400/25 text-amber-200 border border-amber-300/55 shadow-sm"
+                : "bg-[#10225e]/80 text-sky-200 hover:bg-[#163082] border border-transparent"
             }`}
           >
             <Ikon nom="formula" olcham={14} />
@@ -181,7 +178,7 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="relative flex-1 max-w-sm">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sky-300">
                     <Ikon nom="qidiruv" olcham={14} />
                   </span>
                   <input
@@ -189,40 +186,40 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
                     value={elementQidiruv}
                     onChange={(e) => setElementQidiruv(e.target.value)}
                     placeholder="Element nomi, belgisi yoki raqami (masalan, Fe, 26, Mis)..."
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-blue-950/60 border border-blue-800/60 focus:border-yellow-400 text-white placeholder-blue-300/50 outline-none"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#0d1f59]/85 border border-sky-400/40 focus:border-amber-300 text-white placeholder-sky-200/55 outline-none"
                   />
                 </div>
-                <div className="text-[11px] text-blue-300/80 flex items-center gap-3">
-                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500/60" /> Ishqoriy</span>
-                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500/60" /> Ishqoriy-yer</span>
-                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500/60" /> O&apos;tish metallari</span>
-                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" /> Metallmas</span>
-                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500/60" /> Inert gaz</span>
+                <div className="text-[11px] text-sky-100/90 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-400" /> Ishqoriy</span>
+                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> Ishqoriy-yer</span>
+                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-sky-400" /> O&apos;tish metallari</span>
+                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400" /> Metallmas</span>
+                  <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-violet-400" /> Inert gaz</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                 {saralanganElementlar.map((el) => {
-                  let rang = "border-blue-700/40 bg-blue-950/40 text-blue-200"
-                  if (el.g === "ishqoriy") rang = "border-rose-500/50 bg-rose-950/30 text-rose-300"
-                  if (el.g === "ishqoriy-yer") rang = "border-amber-500/50 bg-amber-950/30 text-amber-300"
-                  if (el.g === "otish") rang = "border-blue-500/50 bg-blue-900/30 text-blue-300"
-                  if (el.g === "metallmas") rang = "border-emerald-500/50 bg-emerald-950/30 text-emerald-300"
-                  if (el.g === "galogen") rang = "border-cyan-500/50 bg-cyan-950/30 text-cyan-300"
-                  if (el.g === "inert") rang = "border-purple-500/50 bg-purple-950/30 text-purple-300"
+                  let rang = "border-sky-400/45 bg-[#102464]/75 text-sky-100"
+                  if (el.g === "ishqoriy") rang = "border-rose-400/60 bg-rose-500/20 text-rose-200"
+                  if (el.g === "ishqoriy-yer") rang = "border-amber-400/60 bg-amber-500/20 text-amber-200"
+                  if (el.g === "otish") rang = "border-sky-400/60 bg-sky-500/20 text-sky-200"
+                  if (el.g === "metallmas") rang = "border-emerald-400/60 bg-emerald-500/20 text-emerald-200"
+                  if (el.g === "galogen") rang = "border-cyan-400/60 bg-cyan-500/20 text-cyan-200"
+                  if (el.g === "inert") rang = "border-violet-400/60 bg-violet-500/20 text-violet-200"
 
                   return (
                     <div
                       key={el.n}
                       className={`p-2.5 rounded-xl border ${rang} flex flex-col justify-between hover:scale-105 transition-transform cursor-pointer shadow-sm`}
                     >
-                      <div className="flex items-center justify-between text-[10px] opacity-75 font-mono">
+                      <div className="flex items-center justify-between text-[10px] opacity-90 font-mono">
                         <span>{el.n}</span>
                         <span>{el.m}</span>
                       </div>
                       <div className="text-center py-1">
-                        <span className="text-xl font-bold tracking-wider">{el.s}</span>
-                        <span className="block text-[10px] truncate opacity-85">{el.nom}</span>
+                        <span className="text-xl font-bold tracking-wider text-white">{el.s}</span>
+                        <span className="block text-[10px] truncate opacity-95">{el.nom}</span>
                       </div>
                     </div>
                   )
@@ -234,22 +231,22 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
           {/* ═══ 2. ERUVCHANLIK JADVALI ═══ */}
           {faolVkladka === "eruvchanlik" && (
             <div className="space-y-4">
-              <div className="flex items-center gap-4 text-xs text-blue-200">
-                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-emerald-500/30 text-emerald-400 font-bold flex items-center justify-center text-[10px] border border-emerald-500/50">E</span> Eriydi</span>
-                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber-500/30 text-amber-400 font-bold flex items-center justify-center text-[10px] border border-amber-500/50">K</span> Kam eriydi</span>
-                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-rose-500/30 text-rose-400 font-bold flex items-center justify-center text-[10px] border border-rose-500/50">Ch</span> Cho&apos;kma</span>
-                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-slate-500/30 text-slate-400 font-bold flex items-center justify-center text-[10px] border border-slate-500/50">—</span> Parchalanadi</span>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-sky-100">
+                <span className="inline-flex items-center gap-1.5"><span className="w-4 h-4 rounded bg-emerald-500/25 text-emerald-300 font-bold flex items-center justify-center text-[10px] border border-emerald-400/60">E</span> Eriydi</span>
+                <span className="inline-flex items-center gap-1.5"><span className="w-4 h-4 rounded bg-amber-500/25 text-amber-300 font-bold flex items-center justify-center text-[10px] border border-amber-400/60">K</span> Kam eriydi</span>
+                <span className="inline-flex items-center gap-1.5"><span className="w-4 h-4 rounded bg-rose-500/25 text-rose-300 font-bold flex items-center justify-center text-[10px] border border-rose-400/60">Ch</span> Cho&apos;kma</span>
+                <span className="inline-flex items-center gap-1.5"><span className="w-4 h-4 rounded bg-slate-500/30 text-slate-200 font-bold flex items-center justify-center text-[10px] border border-slate-400/60">—</span> Parchalanadi</span>
               </div>
 
-              <div className="overflow-x-auto rounded-2xl border border-blue-900/60 bg-[#060c25]/80">
+              <div className="overflow-x-auto rounded-2xl border border-sky-400/30 bg-[#091642]/90">
                 <table className="w-full text-center border-collapse text-xs">
                   <thead>
-                    <tr className="bg-blue-950/80 border-b border-blue-900/60">
-                      <th className="p-2.5 text-left font-bold text-yellow-300 border-r border-blue-900/60 sticky left-0 bg-[#071032]">
+                    <tr className="bg-[#11266b] border-b border-sky-400/30">
+                      <th className="p-2.5 text-left font-bold text-amber-300 border-r border-sky-400/30 sticky left-0 bg-[#11266b]">
                         Kation / Anion
                       </th>
                       {ANIONLAR.map((anion) => (
-                        <th key={anion} className="p-2 font-bold text-cyan-300 border-r border-blue-900/40 min-w-[48px]">
+                        <th key={anion} className="p-2 font-bold text-cyan-200 border-r border-sky-400/20 min-w-[48px]">
                           {anion}
                         </th>
                       ))}
@@ -257,18 +254,18 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
                   </thead>
                   <tbody>
                     {KATIONLAR.map((kat) => (
-                      <tr key={kat} className="border-b border-blue-900/30 hover:bg-blue-900/20">
-                        <td className="p-2.5 text-left font-bold text-amber-300 border-r border-blue-900/60 sticky left-0 bg-[#071032]">
+                      <tr key={kat} className="border-b border-sky-400/15 hover:bg-sky-400/10">
+                        <td className="p-2.5 text-left font-bold text-amber-200 border-r border-sky-400/30 sticky left-0 bg-[#0d1e57]">
                           {kat}
                         </td>
                         {ERUVCHANLIK_MATRITSA[kat]?.map((belgi, idx) => {
-                          let badgeRang = "text-emerald-400 bg-emerald-500/15"
-                          if (belgi === "K") badgeRang = "text-amber-400 bg-amber-500/15"
-                          if (belgi === "Ch") badgeRang = "text-rose-400 bg-rose-500/20 font-bold"
-                          if (belgi === "M") badgeRang = "text-slate-400 bg-slate-500/15"
+                          let badgeRang = "text-emerald-300 bg-emerald-500/20"
+                          if (belgi === "K") badgeRang = "text-amber-300 bg-amber-500/20"
+                          if (belgi === "Ch") badgeRang = "text-rose-300 bg-rose-500/25 font-bold"
+                          if (belgi === "M") badgeRang = "text-slate-200 bg-slate-500/20"
 
                           return (
-                            <td key={idx} className="p-1.5 border-r border-blue-900/30">
+                            <td key={idx} className="p-1.5 border-r border-sky-400/15">
                               <span className={`inline-block w-6 py-0.5 rounded text-[11px] ${badgeRang}`}>
                                 {belgi === "M" ? "—" : belgi}
                               </span>
@@ -287,21 +284,21 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
           {faolVkladka === "formulalar" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               {/* Asosiy doimiylar */}
-              <div className="p-4 rounded-2xl bg-blue-950/50 border border-blue-800/60 space-y-2.5">
-                <h3 className="font-bold text-yellow-300 text-sm flex items-center gap-2">
+              <div className="ms-karta-ichki p-4 rounded-2xl space-y-2.5">
+                <h3 className="font-bold text-amber-300 text-sm flex items-center gap-2">
                   <Ikon nom="atom" olcham={16} />
                   <span>Fundamental Kimyoviy Doimiylar</span>
                 </h3>
-                <ul className="space-y-1.5 text-blue-200">
-                  <li className="flex justify-between border-b border-blue-900/40 pb-1">
+                <ul className="space-y-1.5 text-sky-100">
+                  <li className="flex justify-between border-b border-sky-400/20 pb-1">
                     <span>Avogadro doimiysi (N_A):</span>
                     <strong className="text-white font-mono">6.02 × 10²³ mol⁻¹</strong>
                   </li>
-                  <li className="flex justify-between border-b border-blue-900/40 pb-1">
+                  <li className="flex justify-between border-b border-sky-400/20 pb-1">
                     <span>Normal sharoitda gaz hajmi (V_m):</span>
                     <strong className="text-white font-mono">22.4 L / mol</strong>
                   </li>
-                  <li className="flex justify-between border-b border-blue-900/40 pb-1">
+                  <li className="flex justify-between border-b border-sky-400/20 pb-1">
                     <span>Faradey doimiysi (F):</span>
                     <strong className="text-white font-mono">96500 Kl / mol (A·s)</strong>
                   </li>
@@ -313,19 +310,19 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
               </div>
 
               {/* Eritmalar konsentratsiyalari */}
-              <div className="p-4 rounded-2xl bg-blue-950/50 border border-blue-800/60 space-y-2.5">
-                <h3 className="font-bold text-yellow-300 text-sm flex items-center gap-2">
+              <div className="ms-karta-ichki p-4 rounded-2xl space-y-2.5">
+                <h3 className="font-bold text-amber-300 text-sm flex items-center gap-2">
                   <Ikon nom="kolba" olcham={16} />
                   <span>Eritmalar Formulalari</span>
                 </h3>
-                <ul className="space-y-1.5 text-blue-200">
-                  <li className="border-b border-blue-900/40 pb-1">
+                <ul className="space-y-1.5 text-sky-100">
+                  <li className="border-b border-sky-400/20 pb-1">
                     Massa ulush: <strong className="text-white font-mono">ω = (m_eri / m_eritma) × 100%</strong>
                   </li>
-                  <li className="border-b border-blue-900/40 pb-1">
+                  <li className="border-b border-sky-400/20 pb-1">
                     Molyar konsentratsiya: <strong className="text-white font-mono">C_M = n / V = (10·ω·ρ) / M</strong>
                   </li>
-                  <li className="border-b border-blue-900/40 pb-1">
+                  <li className="border-b border-sky-400/20 pb-1">
                     Eruvchanlik koeffitsiyenti: <strong className="text-white font-mono">S = (m_tuz / m_suv) × 1000</strong>
                   </li>
                   <li>
@@ -335,16 +332,16 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
               </div>
 
               {/* Gazlar va Stexiometriya */}
-              <div className="p-4 rounded-2xl bg-blue-950/50 border border-blue-800/60 space-y-2.5">
-                <h3 className="font-bold text-yellow-300 text-sm flex items-center gap-2">
+              <div className="ms-karta-ichki p-4 rounded-2xl space-y-2.5">
+                <h3 className="font-bold text-amber-300 text-sm flex items-center gap-2">
                   <Ikon nom="kristall" olcham={16} />
                   <span>Gazlar va Stexiometriya</span>
                 </h3>
-                <ul className="space-y-1.5 text-blue-200">
-                  <li className="border-b border-blue-900/40 pb-1">
+                <ul className="space-y-1.5 text-sky-100">
+                  <li className="border-b border-sky-400/20 pb-1">
                     Mendeleyev-Klapeyron tenglamasi: <strong className="text-white font-mono">P·V = (m/M)·R·T</strong>
                   </li>
-                  <li className="border-b border-blue-900/40 pb-1">
+                  <li className="border-b border-sky-400/20 pb-1">
                     Zichlik bo&apos;yicha molyar massa: <strong className="text-white font-mono">M_aralashma = D × M_standart</strong>
                   </li>
                   <li>
@@ -354,16 +351,16 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
               </div>
 
               {/* Kinetika va Elektroliz */}
-              <div className="p-4 rounded-2xl bg-blue-950/50 border border-blue-800/60 space-y-2.5">
-                <h3 className="font-bold text-yellow-300 text-sm flex items-center gap-2">
+              <div className="ms-karta-ichki p-4 rounded-2xl space-y-2.5">
+                <h3 className="font-bold text-amber-300 text-sm flex items-center gap-2">
                   <Ikon nom="chaqmoq" olcham={16} />
                   <span>Kinetika va Elektroliz</span>
                 </h3>
-                <ul className="space-y-1.5 text-blue-200">
-                  <li className="border-b border-blue-900/40 pb-1">
+                <ul className="space-y-1.5 text-sky-100">
+                  <li className="border-b border-sky-400/20 pb-1">
                     Faradey qonuni: <strong className="text-white font-mono">m = (M · I · t) / (z · F)</strong>
                   </li>
-                  <li className="border-b border-blue-900/40 pb-1">
+                  <li className="border-b border-sky-400/20 pb-1">
                     Vant-Goff qoidasi: <strong className="text-white font-mono">v₂ / v₁ = γ^((T₂ - T₁)/10)</strong>
                   </li>
                   <li>
@@ -376,10 +373,10 @@ export default function KimyoJadvallarModal({ ochiq, onYopish }) {
         </div>
 
         {/* Modal Pastki Qismi */}
-        <div className="p-4 border-t border-blue-800/60 bg-[#070d26] flex justify-end">
+        <div className="p-4 border-t border-sky-400/25 bg-[#0a1745] flex justify-end">
           <button
             onClick={onYopish}
-            className="px-5 py-2 rounded-xl bg-blue-800/60 hover:bg-blue-700/70 border border-blue-700 text-white font-semibold text-xs transition"
+            className="px-5 py-2 rounded-xl bg-sky-500/25 hover:bg-sky-500/35 border border-sky-400/50 text-white font-semibold text-xs transition"
           >
             Yopish
           </button>

@@ -1,21 +1,44 @@
 // app/admin/page.js
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { huquqiBormi } from '@/lib/roles'
-import Link from 'next/link'
+import { MILLIY_SERTIFIKAT_VARIANTLARI } from '@/lib/milliy-sertifikat-data'
+import { jadvalHolatiAniqlash, MS_REAL_URINISH_FILTR } from '@/lib/milliy-sertifikat-kohort'
+import { qurAdminSertifikatFiltr } from '@/lib/sertifikat-tahlil'
+import { TARIF } from '@/lib/sayt-malumot'
+import { formatKompaktSon, msDashboardHolatInfo } from '@/lib/admin-yordamchi'
+import Ikon from '@/components/Ikon'
+import { AdminBadge, AdminPageHeader, AdminPanel } from '@/components/admin/AdminUI'
+
+const RARITY_TARTIB = [
+  { id: 'common', nom: 'Oddiy', bar: 'bg-slate-400', tone: 'neutral' },
+  { id: 'rare', nom: 'Noyob', bar: 'bg-sky-400', tone: 'info' },
+  { id: 'epic', nom: 'Epik', bar: 'bg-indigo-400', tone: 'accent' },
+  { id: 'legendary', nom: 'Afsonaviy', bar: 'bg-amber-400', tone: 'primary' },
+]
 
 export default async function AdminDashboard() {
-  // Dashboard — foydalanuvchilar soni, ro'yxatdan o'tishlar, reyting: bular
-  // nazorat ma'lumoti. Moderatorga yopiq, shuning uchun u panelga kirganda
-  // to'g'ridan-to'g'ri o'z ishiga tushadi.
   const session = await getServerSession(authOptions)
-  if (!huquqiBormi(session?.user?.role, 'statistika')) {
+  const rol = session?.user?.role
+
+  if (!huquqiBormi(rol, 'statistika')) {
     redirect('/admin/quizzes')
   }
 
-  // Parallel ravishda barcha statistikalarni olish
+  const sertifikatRuxsat = huquqiBormi(rol, 'sertifikatlar')
+  const moderatsiyaRuxsat = huquqiBormi(rol, 'moderatsiya')
+  const kontentRuxsat = huquqiBormi(rol, 'kontent')
+  const kanallarRuxsat = huquqiBormi(rol, 'kanallar')
+  const superadminmi = rol === 'superadmin'
+
+  const { realUserFiltr: sertRealUserFiltr, msWhere, hamkorWhere } = qurAdminSertifikatFiltr()
+
+  const bugunBoshi = new Date()
+  bugunBoshi.setHours(0, 0, 0, 0)
+
   const [
     totalUsers,
     todayActiveUsers,
@@ -23,309 +46,429 @@ export default async function AdminDashboard() {
     totalTeachers,
     totalQuizzes,
     todayQuizResults,
-    totalCompounds,
     totalMissions,
     activeMissions,
-    totalAnalysisMethods,
-    totalMolecules,
-    featuredMolecules,
     totalAchievements,
     achievementsByRarity,
     totalAwardedAchievements,
-    topUsers
+    topUsers,
+    msImtihonlar,
+    msUrinishSanoq,
+    totalCertificates,
+    msCertificates,
+    hamkorCertificates,
+    pendingReports,
+    pendingForum,
+    pendingChatReports,
+    activeQuotes,
+    verifiedReactions,
+    totalChannels,
   ] = await Promise.all([
-    // Users
     prisma.user.count(),
-    prisma.user.count({
-      where: {
-        lastActive: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
-      }
-    }),
-    prisma.user.count({
-      where: {
-        createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
-      }
-    }),
-    // Ustoz panelidagi o'qituvchilar soni
-    prisma.user.count({ where: { role: 'teacher' } }),
-    // Quizzes
+    prisma.user.count({ where: { lastActive: { gte: bugunBoshi } } }),
+    prisma.user.count({ where: { createdAt: { gte: bugunBoshi } } }),
+    prisma.user.count({ where: { OR: [{ role: 'teacher' }, { isTeacher: true }] } }),
     prisma.quizQuestion.count(),
-    prisma.quizResult.count({
-      where: {
-        completedAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
-      }
-    }),
-    // Compounds
-    prisma.compound.count(),
-    // Missions
+    prisma.quizResult.count({ where: { completedAt: { gte: bugunBoshi } } }),
     prisma.mission.count(),
-    prisma.mission.count({
-      where: {
-        date: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
-      }
-    }),
-    // Analysis
-    prisma.analysisMethod.count(),
-    // Molecules
-    prisma.molecule3D.count(),
-    prisma.molecule3D.count({ where: { isFeatured: true } }),
-    // Achievements
+    prisma.mission.count({ where: { date: { gte: bugunBoshi } } }),
     prisma.achievementDefinition.count(),
-    prisma.achievementDefinition.groupBy({
-      by: ['rarity'],
-      _count: true
-    }),
+    prisma.achievementDefinition.groupBy({ by: ['rarity'], _count: true }),
     prisma.achievement.count(),
-    // Top users
     prisma.user.findMany({
       take: 5,
       orderBy: { totalPoints: 'desc' },
       select: {
         id: true,
+        userId: true,
         username: true,
         fullName: true,
         avatar: true,
         totalPoints: true,
         level_points: true,
-        currentStreak: true
-      }
-    })
+        currentStreak: true,
+      },
+    }),
+    prisma.msImtihon.findMany({ orderBy: { startsAt: 'asc' } }).catch(() => []),
+    prisma.msUrinish
+      .groupBy({
+        by: ['slug'],
+        where: MS_REAL_URINISH_FILTR,
+        _count: { _all: true },
+      })
+      .catch(() => []),
+    prisma.certificate.count({ where: sertRealUserFiltr }).catch(() => 0),
+    prisma.certificate.count({ where: msWhere }).catch(() => 0),
+    prisma.certificate.count({ where: hamkorWhere }).catch(() => 0),
+    moderatsiyaRuxsat
+      ? prisma.report.count({ where: { status: 'pending' } }).catch(() => 0)
+      : Promise.resolve(0),
+    moderatsiyaRuxsat
+      ? prisma.forumPost.count({ where: { status: 'pending' } }).catch(() => 0)
+      : Promise.resolve(0),
+    moderatsiyaRuxsat
+      ? prisma.chatMessage.count({ where: { isReported: true, isDeleted: false } }).catch(() => 0)
+      : Promise.resolve(0),
+    kontentRuxsat
+      ? prisma.dailyQuote.count({ where: { isActive: true } }).catch(() => 0)
+      : Promise.resolve(0),
+    kontentRuxsat
+      ? prisma.reaction.count({ where: { isVerified: true } }).catch(() => 0)
+      : Promise.resolve(0),
+    kanallarRuxsat ? prisma.channel.count().catch(() => 0) : Promise.resolve(0),
   ])
 
-  // Rarity statistikasini obyektga aylantirish
+  const msImtihonMap = new Map(msImtihonlar.map((i) => [i.slug, i]))
+  const msSanoqMap = new Map(msUrinishSanoq.map((g) => [g.slug, g._count?._all ?? 0]))
+  const msHolatlar = MILLIY_SERTIFIKAT_VARIANTLARI.map((v) => {
+    const dbImtihon = msImtihonMap.get(v.slug) || null
+    const holatInfo = jadvalHolatiAniqlash(dbImtihon)
+    return {
+      slug: v.slug,
+      nom: v.nom,
+      qisqa: v.qisqa,
+      imtihon: dbImtihon,
+      holat: holatInfo.holat,
+      ishtirokchilar: msSanoqMap.get(v.slug) ?? 0,
+    }
+  })
+
+  const realMsIshtirokchilar = msHolatlar.reduce((s, m) => s + m.ishtirokchilar, 0)
+  const ochiqMs = msHolatlar.filter((m) => m.holat === 'ochiq').length
+  const kutilayotganMs = msHolatlar.filter((m) => m.holat === 'tekshirilmoqda').length
+  const elonQilinganMs = msHolatlar.filter((m) => m.imtihon?.isAnnounced).length
+  const qoldaCertificates = Math.max(0, totalCertificates - msCertificates - hamkorCertificates)
+
   const rarityStats = achievementsByRarity.reduce((acc, r) => {
     acc[r.rarity] = r._count
     return acc
   }, {})
 
+  const faollikFoizi = totalUsers > 0 ? Math.round((todayActiveUsers / totalUsers) * 100) : 0
+
   const mainStats = [
     {
       title: 'Jami foydalanuvchilar',
-      value: totalUsers,
-      icon: '👥',
-      color: 'from-blue-500 to-cyan-500',
-      bgColor: 'from-blue-600/20 to-cyan-600/20',
-      borderColor: 'border-blue-700/50',
-      subtitle: `${todayRegistrations} ta bugun ro'yxatdan o'tdi`,
-      href: '/admin/users'
+      value: formatKompaktSon(totalUsers),
+      sub: `${todayRegistrations} ta bugun qo'shildi`,
+      ikon: 'odamlar',
+      href: '/admin/users',
+      rang: 'bg-sky-400/15 text-sky-300 border-sky-400/30',
     },
     {
       title: 'Bugungi faol',
-      value: todayActiveUsers,
-      icon: '🔥',
-      color: 'from-orange-500 to-red-500',
-      bgColor: 'from-orange-600/20 to-red-600/20',
-      borderColor: 'border-orange-700/50',
-      subtitle: `${totalUsers > 0 ? Math.round((todayActiveUsers / totalUsers) * 100) : 0}% faollik`,
-      href: '/admin/users'
+      value: formatKompaktSon(todayActiveUsers),
+      sub: `${faollikFoizi}% kunlik faollik`,
+      ikon: 'olov',
+      href: '/admin/users',
+      rang: 'bg-orange-400/15 text-orange-300 border-orange-400/30',
     },
     {
       title: 'Ustozlar',
-      value: totalTeachers,
-      icon: '👨‍🏫',
-      color: 'from-emerald-500 to-green-500',
-      bgColor: 'from-emerald-600/20 to-green-600/20',
-      borderColor: 'border-emerald-700/50',
-      subtitle: 'Ustoz panelidan foydalanuvchilar',
-      href: '/admin/users?role=teacher'
+      value: formatKompaktSon(totalTeachers),
+      sub: 'Ustoz paneliga ruxsatli',
+      ikon: 'ustoz',
+      href: '/admin/users?teacher=true',
+      rang: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/30',
     },
     {
       title: 'Quiz savollari',
-      value: totalQuizzes,
-      icon: '📝',
-      color: 'from-green-500 to-emerald-500',
-      bgColor: 'from-green-600/20 to-emerald-600/20',
-      borderColor: 'border-green-700/50',
-      subtitle: `${todayQuizResults} ta bugun yechilgan`,
-      href: '/admin/quizzes'
+      value: formatKompaktSon(totalQuizzes),
+      sub: `${todayQuizResults} ta bugun yechilgan`,
+      ikon: 'quiz',
+      href: '/admin/quizzes',
+      rang: 'bg-amber-400/15 text-amber-300 border-amber-400/30',
     },
     {
-      title: 'Birikmalar',
-      value: totalCompounds,
-      icon: '🧪',
-      color: 'from-purple-500 to-pink-500',
-      bgColor: 'from-purple-600/20 to-pink-600/20',
-      borderColor: 'border-purple-700/50',
-      subtitle: 'Kompleks birikmalar bazasi',
-      href: '/admin/compounds'
-    },
-    {
-      title: 'Missiyalar',
-      value: totalMissions,
-      icon: '🎯',
-      color: 'from-indigo-500 to-purple-500',
-      bgColor: 'from-indigo-600/20 to-purple-600/20',
-      borderColor: 'border-indigo-700/50',
-      subtitle: `${activeMissions} ta bugungi`,
-      href: '/admin/missions'
-    },
-    {
-      title: 'Tahlil usullari',
-      value: totalAnalysisMethods,
-      icon: '🔬',
-      color: 'from-teal-500 to-cyan-500',
-      bgColor: 'from-teal-600/20 to-cyan-600/20',
-      borderColor: 'border-teal-700/50',
-      subtitle: '20 ta professional usul',
-      href: '/admin/analysis'
-    },
-    {
-      title: '3D Molekulalar',
-      value: totalMolecules,
-      icon: '🔷',
-      color: 'from-sky-500 to-blue-500',
-      bgColor: 'from-sky-600/20 to-blue-600/20',
-      borderColor: 'border-sky-700/50',
-      subtitle: `${featuredMolecules} ta tanlangan`,
-      href: '/admin/molecules'
+      title: 'Kunlik missiyalar',
+      value: formatKompaktSon(totalMissions),
+      sub: `${activeMissions} ta bugungi faol`,
+      ikon: 'olov',
+      href: '/admin/missions',
+      rang: 'bg-indigo-400/15 text-indigo-300 border-indigo-400/30',
     },
     {
       title: 'Yutuqlar',
-      value: totalAchievements,
-      icon: '🏆',
-      color: 'from-yellow-500 to-orange-500',
-      bgColor: 'from-yellow-600/20 to-orange-600/20',
-      borderColor: 'border-yellow-700/50',
-      subtitle: `${totalAwardedAchievements} marta berilgan`,
-      href: '/admin/achievements'
-    }
+      value: formatKompaktSon(totalAchievements),
+      sub: `${totalAwardedAchievements} marta berilgan`,
+      ikon: 'kubok',
+      href: '/admin/achievements',
+      rang: 'bg-amber-400/15 text-amber-300 border-amber-400/30',
+    },
+    ...(sertifikatRuxsat
+      ? [
+          {
+            title: 'Milliy Sertifikat',
+            value: formatKompaktSon(realMsIshtirokchilar),
+            sub: `${ochiqMs} ochiq · ${kutilayotganMs} kutmoqda · ${elonQilinganMs} e'lon`,
+            ikon: 'medal',
+            href: '/admin/milliy-sertifikat',
+            rang: 'bg-sky-400/15 text-sky-300 border-sky-400/30',
+          },
+          {
+            title: 'Sertifikatlar',
+            value: formatKompaktSon(totalCertificates),
+            sub: `${msCertificates} MS · ${hamkorCertificates} hamkor · ${qoldaCertificates} maxsus`,
+            ikon: 'sertifikat',
+            href: '/admin/certificates',
+            rang: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/30',
+          },
+        ]
+      : []),
   ]
+
+  const jamiKutayotgan = pendingReports + pendingForum + pendingChatReports
 
   const quickActions = [
-    { name: 'Yangi birikma', href: '/admin/compounds', icon: '➕', color: 'from-purple-600/20 to-pink-600/20', border: 'border-purple-700/50' },
-    { name: 'Quiz savol', href: '/admin/quizzes', icon: '📝', color: 'from-green-600/20 to-emerald-600/20', border: 'border-green-700/50' },
-    { name: 'Missiya yaratish', href: '/admin/missions', icon: '🎯', color: 'from-yellow-600/20 to-orange-600/20', border: 'border-yellow-700/50' },
-    { name: 'Yutuq berish', href: '/admin/achievements', icon: '🏆', color: 'from-pink-600/20 to-rose-600/20', border: 'border-pink-700/50' },
-    { name: '3D molekula', href: '/admin/molecules', icon: '🔷', color: 'from-blue-600/20 to-cyan-600/20', border: 'border-blue-700/50' },
-    { name: 'Tahlil usuli', href: '/admin/analysis', icon: '🔬', color: 'from-teal-600/20 to-cyan-600/20', border: 'border-teal-700/50' }
+    { name: 'Quiz savol', href: '/admin/quizzes', ikon: 'quiz' },
+    { name: 'Kunlik iqtibos', href: '/admin/quotes', ikon: 'qalam' },
+    { name: 'Reaksiyalar', href: '/admin/reactions', ikon: 'kolba' },
+    { name: 'Missiya', href: '/admin/missions', ikon: 'olov' },
+    { name: 'Yutuqlar', href: '/admin/achievements', ikon: 'kubok' },
+    ...(sertifikatRuxsat
+      ? [
+          { name: 'Milliy Sertifikat', href: '/admin/milliy-sertifikat', ikon: 'medal' },
+          { name: 'Sertifikatlar', href: '/admin/certificates', ikon: 'sertifikat' },
+        ]
+      : []),
+    ...(superadminmi ? [{ name: 'Telegram bot', href: '/admin/telegram', ikon: 'bot' }] : []),
   ]
 
-  // Telegram bot butun sayt uchun BITTA: uning sozlamalari, ulangan
-  // foydalanuvchilari va guruhlari faqat superadminga ochiladi.
-  // Havolani ham faqat o'shanga ko'rsatamiz — bosilganda 403 beradigan
-  // tugma foydalanuvchini chalg'itadi.
-  const superadminmi = session?.user?.role === 'superadmin'
-  if (superadminmi) {
-    quickActions.push({
-      name: 'Telegram bot',
-      href: '/admin/telegram',
-      icon: '🤖',
-      color: 'from-sky-600/20 to-blue-600/20',
-      border: 'border-sky-700/50',
-    })
-  }
-
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            📊 Dashboard
-            <span className="px-3 py-1 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 rounded-full text-xs text-yellow-400 font-bold">
-              LIVE
-            </span>
-          </h1>
-          <p className="text-purple-300">JDA KIMYO platformasi — real vaqtda statistika</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="text-sm text-purple-400">
-            Oxirgi yangilanish: <span className="text-white font-semibold">{new Date().toLocaleTimeString('uz-UZ')}</span>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Boshqaruv paneli"
+        subtitle={`JDA KIMYO — ${TARIF}`}
+        ikon="grafik"
+        badge={<AdminBadge tone="success">LIVE · v4</AdminBadge>}
+        actions={
+          moderatsiyaRuxsat && jamiKutayotgan > 0 ? (
+            <Link href="/admin/moderation" className="v3-tugma text-xs py-2 px-3">
+              <Ikon nom="qalqon" olcham={15} />
+              <span>Nazorat navbati: {jamiKutayotgan}</span>
+            </Link>
+          ) : null
+        }
+      />
 
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        {mainStats.map((stat, idx) => (
+      {/* Moderatsiya va kontent holati tezkor qatori */}
+      {(moderatsiyaRuxsat || kontentRuxsat || kanallarRuxsat) && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {moderatsiyaRuxsat && (
+            <>
+              <Link
+                href="/admin/moderation"
+                className="v3-panel-karta p-3.5 flex items-center justify-between gap-2 hover:border-[var(--v3-chiziq-2)] transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[var(--v3-xira)]">Kutilayotgan shikoyatlar</div>
+                  <div className="text-lg font-bold text-[var(--v3-matn)]">{pendingReports} ta</div>
+                </div>
+                <AdminBadge tone={pendingReports > 0 ? 'warning' : 'success'}>
+                  {pendingReports > 0 ? 'Tekshirish' : 'Toza'}
+                </AdminBadge>
+              </Link>
+
+              <Link
+                href="/admin/forum"
+                className="v3-panel-karta p-3.5 flex items-center justify-between gap-2 hover:border-[var(--v3-chiziq-2)] transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[var(--v3-xira)]">Muhokama tasdig&apos;i</div>
+                  <div className="text-lg font-bold text-[var(--v3-matn)]">{pendingForum} ta</div>
+                </div>
+                <AdminBadge tone={pendingForum > 0 ? 'warning' : 'success'}>
+                  {pendingForum > 0 ? 'Navbatda' : 'Toza'}
+                </AdminBadge>
+              </Link>
+
+              <Link
+                href="/admin/chat"
+                className="v3-panel-karta p-3.5 flex items-center justify-between gap-2 hover:border-[var(--v3-chiziq-2)] transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[var(--v3-xira)]">Chat shikoyatlari</div>
+                  <div className="text-lg font-bold text-[var(--v3-matn)]">{pendingChatReports} ta</div>
+                </div>
+                <AdminBadge tone={pendingChatReports > 0 ? 'danger' : 'success'}>
+                  {pendingChatReports > 0 ? 'Diqqat' : 'Tinch'}
+                </AdminBadge>
+              </Link>
+            </>
+          )}
+
+          {(kontentRuxsat || kanallarRuxsat) && (
+            <Link
+              href={kontentRuxsat ? '/admin/quotes' : '/admin/kanallar'}
+              className="v3-panel-karta p-3.5 flex items-center justify-between gap-2 hover:border-[var(--v3-chiziq-2)] transition-colors"
+            >
+              <div className="min-w-0">
+                <div className="text-[11px] text-[var(--v3-xira)]">
+                  {kontentRuxsat ? 'Faol iqtibos · reaksiya' : 'Hamkor kanallar'}
+                </div>
+                <div className="text-lg font-bold text-[var(--v3-matn)] truncate">
+                  {kontentRuxsat ? `${activeQuotes} / ${verifiedReactions}` : `${totalChannels} ta`}
+                </div>
+              </div>
+              <Ikon nom={kontentRuxsat ? 'qalam' : 'kanal'} olcham={18} className="text-[var(--v3-urgu)] shrink-0" />
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Asosiy statistika */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {mainStats.map((stat) => (
           <Link
-            key={idx}
+            key={stat.title}
             href={stat.href}
-            className={`bg-gradient-to-br ${stat.bgColor} border ${stat.borderColor} rounded-2xl p-5 hover:scale-[1.02] transition-all group`}
+            className="v3-panel-karta p-4 hover:border-[var(--v3-chiziq-2)] transition-all group block"
           >
             <div className="flex items-start justify-between mb-3">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-2xl shadow-lg`}>
-                {stat.icon}
+              <div className={`w-10 h-10 rounded-xl border flex items-center justify-center ${stat.rang}`}>
+                <Ikon nom={stat.ikon} olcham={19} />
               </div>
-              <span className="text-purple-400 text-xl group-hover:translate-x-1 transition-transform">→</span>
+              <Ikon
+                nom="ong"
+                olcham={16}
+                className="text-[var(--v3-xira)] group-hover:translate-x-0.5 group-hover:text-[var(--v3-urgu)] transition-all"
+              />
             </div>
-            <div className="text-3xl font-bold text-white mb-1">{stat.value.toLocaleString()}</div>
-            <div className="text-sm text-purple-200 font-semibold mb-1">{stat.title}</div>
-            <div className="text-xs text-purple-400">{stat.subtitle}</div>
+            <div className="text-2xl font-bold text-[var(--v3-matn)] mb-0.5">{stat.value}</div>
+            <div className="text-sm font-semibold text-[var(--v3-matn)]">{stat.title}</div>
+            <div className="text-xs text-[var(--v3-xira)] mt-0.5">{stat.sub}</div>
           </Link>
         ))}
       </div>
 
-      {/* Achievements Rarity + Top Users */}
+      {/* Milliy Sertifikat — Jonli holat */}
+      {sertifikatRuxsat && (
+        <AdminPanel className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-[var(--v3-matn)] flex items-center gap-2">
+                <Ikon nom="medal" olcham={18} className="text-[var(--v3-urgu)]" />
+                Milliy Sertifikat (MS) — Jonli holat
+              </h2>
+              <p className="text-xs text-[var(--v3-xira)] mt-0.5">
+                {msHolatlar.length} variant · {ochiqMs} ochiq · {kutilayotganMs} e&apos;lon kutmoqda ·{' '}
+                {realMsIshtirokchilar} real qatnashchi
+                {superadminmi ? ' (superadmin sinovlarisiz)' : ''}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link href="/admin/certificates?manba=ms" className="v3-tugma text-xs py-1.5 px-3">
+                <Ikon nom="sertifikat" olcham={14} />
+                MS ({msCertificates})
+              </Link>
+              <Link href="/admin/certificates?manba=hamkor" className="v3-tugma text-xs py-1.5 px-3">
+                <Ikon nom="hamkor" olcham={14} />
+                Hamkorlik ({hamkorCertificates})
+              </Link>
+              <Link href="/admin/milliy-sertifikat" className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3">
+                <span>Batafsil hisobot</span>
+                <Ikon nom="ong" olcham={14} />
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {msHolatlar.map((m) => {
+              const badge = msDashboardHolatInfo(m.holat)
+              const kalibr = m.imtihon?.kalibrlashUsuli
+              return (
+                <Link
+                  key={m.slug}
+                  href={`/admin/milliy-sertifikat?slug=${encodeURIComponent(m.slug)}`}
+                  className="rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] hover:border-[var(--v3-chiziq-2)] p-3.5 transition-all space-y-2"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-mono text-[var(--v3-urgu)] truncate">
+                      {m.qisqa || m.slug}
+                    </span>
+                    <AdminBadge tone={badge.tone}>{badge.matn}</AdminBadge>
+                  </div>
+                  <div className="font-bold text-sm text-[var(--v3-matn)] truncate">{m.nom}</div>
+                  <div className="flex items-center justify-between text-xs text-[var(--v3-xira)] pt-1.5 border-t border-[var(--v3-chiziq)]">
+                    <span>{m.ishtirokchilar} nafar</span>
+                    <span>
+                      {m.imtihon?.isAnnounced
+                        ? "E'lon qilingan"
+                        : kalibr
+                          ? kalibr
+                          : 'Kalibrlanmagan'}
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </AdminPanel>
+      )}
+
+      {/* Yutuqlar + Top 5 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Achievements by Rarity */}
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <span>🏆</span> Yutuqlar (rarity)
+        <AdminPanel className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-[var(--v3-matn)] flex items-center gap-2">
+              <Ikon nom="kubok" olcham={18} className="text-[var(--v3-urgu)]" />
+              Yutuqlar taqsimoti
             </h2>
-            <Link href="/admin/achievements" className="text-xs text-yellow-400 hover:text-yellow-300">
-              Barchasi →
+            <Link href="/admin/achievements" className="text-xs text-[var(--v3-urgu)] hover:underline">
+              Barchasi
             </Link>
           </div>
           <div className="space-y-3">
-            {[
-              { id: 'common', name: 'Oddiy', gradient: 'from-gray-500 to-gray-600', icon: '⚪' },
-              { id: 'rare', name: 'Noyob', gradient: 'from-blue-500 to-cyan-500', icon: '🔵' },
-              { id: 'epic', name: 'Epik', gradient: 'from-purple-500 to-pink-500', icon: '🟣' },
-              { id: 'legendary', name: 'Afsonaviy', gradient: 'from-yellow-500 to-orange-500', icon: '🟡' }
-            ].map(rarity => (
-              <div key={rarity.id} className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${rarity.gradient} flex items-center justify-center text-lg`}>
-                  {rarity.icon}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-white font-semibold">{rarity.name}</span>
-                    <span className="text-sm text-purple-300">{rarityStats[rarity.id] || 0} ta</span>
+            {RARITY_TARTIB.map((rarity) => {
+              const son = rarityStats[rarity.id] || 0
+              const foiz = totalAchievements > 0 ? Math.round((son / totalAchievements) * 100) : 0
+              return (
+                <div key={rarity.id} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <AdminBadge tone={rarity.tone}>{rarity.nom}</AdminBadge>
+                    <span className="text-[var(--v3-matn)] font-semibold">{son} ta</span>
                   </div>
-                  <div className="w-full bg-purple-950/50 rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className={`h-full bg-gradient-to-r ${rarity.gradient} rounded-full transition-all`}
-                      style={{ width: `${totalAchievements > 0 ? ((rarityStats[rarity.id] || 0) / totalAchievements) * 100 : 0}%` }}
-                    />
+                  <div className="w-full bg-[var(--v3-yuza-2)] rounded-full h-1.5 overflow-hidden">
+                    <div className={`h-full ${rarity.bar} rounded-full`} style={{ width: `${foiz}%` }} />
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
-          <div className="mt-4 pt-4 border-t border-purple-800/30 flex items-center justify-between">
-            <span className="text-xs text-purple-400">Berilgan yutuqlar:</span>
-            <span className="text-sm font-bold text-yellow-400">{totalAwardedAchievements} marta</span>
+          <div className="pt-3 border-t border-[var(--v3-chiziq)] flex items-center justify-between text-xs">
+            <span className="text-[var(--v3-xira)]">Jami berilgan:</span>
+            <span className="font-bold text-[var(--v3-urgu)]">{totalAwardedAchievements} marta</span>
           </div>
-        </div>
+        </AdminPanel>
 
-        {/* Top 5 Users */}
-        <div className="lg:col-span-2 bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <span>👑</span> Top 5 Foydalanuvchilar
+        <AdminPanel className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-[var(--v3-matn)] flex items-center gap-2">
+              <Ikon nom="orin" olcham={18} className="text-[var(--v3-urgu)]" />
+              Top 5 Foydalanuvchi
             </h2>
-            <Link href="/admin/leaderboard" className="text-xs text-yellow-400 hover:text-yellow-300">
-              Leaderboard →
+            <Link href="/admin/leaderboard" className="text-xs text-[var(--v3-urgu)] hover:underline">
+              Reyting sahifasi
             </Link>
           </div>
+
           <div className="space-y-2">
             {topUsers.map((user, idx) => (
               <Link
                 key={user.id}
                 href={`/profil/${user.userId}`}
-                className="flex items-center gap-3 p-3 bg-purple-950/30 hover:bg-purple-950/50 rounded-xl transition-all group"
+                className="flex items-center gap-3 p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] transition-all group"
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${
-                  idx === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-black' :
-                  idx === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white' :
-                  idx === 2 ? 'bg-gradient-to-br from-orange-600 to-orange-800 text-white' :
-                  'bg-purple-800/50 text-purple-300'
-                }`}>
-                  {idx === 0 ? '👑' : idx + 1}
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                    idx === 0
+                      ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)]'
+                      : 'bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] border border-[var(--v3-chiziq)]'
+                  }`}
+                >
+                  {idx + 1}
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-sm font-bold text-black flex-shrink-0 overflow-hidden">
+                <div className="w-9 h-9 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-matn)] shrink-0 overflow-hidden">
                   {user.avatar ? (
                     <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -333,62 +476,58 @@ export default async function AdminDashboard() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-white truncate group-hover:text-yellow-400 transition-colors">
+                  <div className="text-sm font-semibold text-[var(--v3-matn)] truncate group-hover:text-[var(--v3-urgu)] transition-colors">
                     {user.fullName || user.username}
                   </div>
-                  <div className="text-xs text-purple-400 flex items-center gap-2">
-                    <span>🔥 {user.currentStreak} kun</span>
-                    <span>•</span>
-                    <span>Lvl {user.level_points}</span>
+                  <div className="text-xs text-[var(--v3-xira)]">
+                    @{user.username} · {user.currentStreak} kun streak · Lvl {user.level_points}
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="text-lg font-bold text-yellow-400">{user.totalPoints.toLocaleString()}</div>
-                  <div className="text-xs text-purple-400">XP</div>
+                <div className="text-right shrink-0">
+                  <div className="text-sm font-bold text-[var(--v3-urgu)]">
+                    {user.totalPoints.toLocaleString('uz-UZ')}
+                  </div>
+                  <div className="text-[11px] text-[var(--v3-xira)]">XP</div>
                 </div>
               </Link>
             ))}
           </div>
-        </div>
+        </AdminPanel>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <span>⚡</span> Tezkor harakatlar
+      {/* Tezkor o'tishlar */}
+      <AdminPanel className="space-y-3">
+        <h2 className="text-base font-bold text-[var(--v3-matn)] flex items-center gap-2">
+          <Ikon nom="uchqun" olcham={18} className="text-[var(--v3-urgu)]" />
+          Tezkor bo&apos;limlar
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {quickActions.map((action, idx) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {quickActions.map((action) => (
             <Link
-              key={idx}
+              key={action.href}
               href={action.href}
-              className={`bg-gradient-to-br ${action.color} border ${action.border} rounded-xl p-4 hover:scale-105 transition-all text-center`}
+              className="rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)] hover:border-[var(--v3-chiziq-2)] p-3.5 text-center transition-all flex flex-col items-center gap-2"
             >
-              <div className="text-3xl mb-2">{action.icon}</div>
-              <div className="text-sm font-semibold text-white">{action.name}</div>
+              <Ikon nom={action.ikon} olcham={20} className="text-[var(--v3-urgu)]" />
+              <span className="text-xs font-semibold text-[var(--v3-matn)]">{action.name}</span>
             </Link>
           ))}
         </div>
-      </div>
+      </AdminPanel>
 
-      {/* System Info */}
-      <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-700/50 rounded-2xl p-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600/20 border border-green-600/30 rounded-full">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              <span className="text-green-400 text-xs font-mono font-bold">SYSTEM ONLINE</span>
-            </div>
-            <span className="text-purple-300 text-sm">JDA KIMYO Admin Panel</span>
-          </div>
-          <div className="flex items-center gap-4 text-xs text-purple-400">
-            <span>📦 Database: <span className="text-green-400">Neon PostgreSQL</span></span>
-            <span>🚀 Next.js 16.0.10</span>
-            <span>🎯 Prisma 5.22.0</span>
-            <span className="text-yellow-400 font-mono">v2.5.0</span>
-          </div>
+      {/* Tizim holati */}
+      <AdminPanel className="flex items-center justify-between flex-wrap gap-3 text-xs text-[var(--v3-xira)]">
+        <div className="flex items-center gap-2.5">
+          <AdminBadge tone="success">Tizim faol</AdminBadge>
+          <span className="font-medium text-[var(--v3-matn)]">JDA KIMYO Admin v4</span>
         </div>
-      </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <span>Neon PostgreSQL</span>
+          <span>Next.js 16</span>
+          <span>Prisma 5</span>
+          <span className="text-[var(--v3-urgu)] font-mono">Safir</span>
+        </div>
+      </AdminPanel>
     </div>
   )
 }

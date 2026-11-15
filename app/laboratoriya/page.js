@@ -161,12 +161,13 @@ export default function LaboratoriyaMashgulotlariSahifa() {
                 <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">
                   Laboratoriya mashg&apos;ulotlari
                 </h1>
-                <span className="text-[10px] px-2 py-0.5 rounded-full border border-cyan-500/50 bg-cyan-900/40 text-cyan-200 font-sans">
-                  Videolar va qo&apos;llanmalar
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full border border-amber-500/50 bg-amber-900/40 text-amber-200 font-sans inline-flex items-center gap-1">
+                  <Ikon nom="soat" olcham={11} />
+                  <span>Tez kunda qo&apos;shiladi</span>
                 </span>
               </div>
               <div className="text-xs text-blue-300/80">
-                Amaliy eksperimentlar, xavfsizlik qoidalari va ko&apos;rgazmali tajribalar
+                Amaliy tajribalar va video namoyishlar tayyorlanmoqda
               </div>
             </div>
           </div>
@@ -191,24 +192,24 @@ export default function LaboratoriyaMashgulotlariSahifa() {
 
       {/* ─── 2. ASOSIY KONTENT ─── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 flex-1 w-full relative z-10 space-y-8">
-        {/* Kirish banneri */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-xs font-semibold text-cyan-300 shadow-sm">
-            <Ikon nom="kolba" olcham={14} />
-            <span>Maktab kimyo laboratoriyasi</span>
+        {/* Tez kunda asosiy ogohlantirish kartasi */}
+        <div className="max-w-4xl mx-auto p-6 sm:p-8 rounded-3xl border border-amber-500/45 bg-gradient-to-br from-[#161a4a]/80 via-[#0b183d]/80 to-[#070e28]/85 backdrop-blur-md shadow-2xl text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/45 bg-amber-500/15 text-xs font-bold text-amber-300 shadow-sm">
+            <Ikon nom="soat" olcham={14} />
+            <span>Tez kunda qo&apos;shiladi</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-            Kimyoviy tajribalar va amaliy mashg&apos;ulotlar
+          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
+            Laboratoriya videolari va amaliy mashg&apos;ulotlar tayyorlanmoqda
           </h2>
-          <p className="text-sm sm:text-base text-blue-200/80 leading-relaxed">
-            Darslik bo&apos;yicha har bir sinf uchun belgilangan laboratoriya ishlari, reaktivlar bilan ishlash texnikasi, video namoyishlar va uslubiy ko&apos;rsatmalar.
+          <p className="text-sm sm:text-base text-blue-200/85 leading-relaxed max-w-2xl mx-auto">
+            7–11-sinf darsliklari bo&apos;yicha kimyoviy tajribalar, xavfsizlik texnikasi va ko&apos;rgazmali video-eksperimentlar hozirda tasvirga olinib tayyorlanmoqda. Quyida rejalashtirilgan amaliy ishlar dasturi bilan tanishishingiz mumkin.
           </p>
         </div>
 
         {/* Sinf bo'yicha filter */}
         <div className="flex items-center justify-center gap-2 flex-wrap">
           {[
-            { id: "barchasi", nom: "Barcha mashg'ulotlar" },
+            { id: "barchasi", nom: "Barcha mashg'ulotlar (reja)" },
             { id: "7", nom: "7-sinf" },
             { id: "8", nom: "8-sinf" },
             { id: "9", nom: "9-sinf" },
@@ -229,29 +230,30 @@ export default function LaboratoriyaMashgulotlariSahifa() {
           ))}
         </div>
 
-        {/* Mashg'ulotlar ro'yxati */}
+        {/* Rejadagi mashg'ulotlar ro'yxati */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
           {filtrlanganIshlar.map((ish) => (
             <div
               key={ish.id}
-              className="p-6 sm:p-7 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/70 via-[#0a1738]/70 to-[#070e28]/70 backdrop-blur-md shadow-xl flex flex-col justify-between group hover:border-yellow-400/50 transition-all duration-300"
+              className="p-6 sm:p-7 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/70 via-[#0a1738]/70 to-[#070e28]/70 backdrop-blur-md shadow-xl flex flex-col justify-between transition-all duration-300"
             >
               <div>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-4 gap-2">
                   <div className="flex items-center gap-2">
                     <span className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 font-bold flex items-center justify-center text-xs">
-                      {ish.sinf}
+                      {ish.sinf}-sinf
                     </span>
                     <span className="text-xs px-2.5 py-1 rounded-lg border border-blue-800/60 bg-[#081538]/70 text-blue-300 font-semibold">
                       {ish.raqam}
                     </span>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 font-medium">
-                    {ish.davomiylik}
+                  <span className="text-xs px-2.5 py-1 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold inline-flex items-center gap-1">
+                    <Ikon nom="soat" olcham={12} />
+                    <span>Tez kunda</span>
                   </span>
                 </div>
 
-                <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-yellow-300 transition-colors leading-snug">
+                <h3 className="text-lg sm:text-xl font-bold text-white leading-snug">
                   {ish.nom}
                 </h3>
 
@@ -260,33 +262,25 @@ export default function LaboratoriyaMashgulotlariSahifa() {
                 </p>
 
                 <div className="flex items-center gap-2 mt-4 flex-wrap text-xs">
-                  <span className="px-2.5 py-0.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 flex items-center gap-1 text-[11px]">
+                  <span className="px-2.5 py-0.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-300 flex items-center gap-1 text-[11px]">
                     <Ikon nom="video" olcham={12} />
-                    <span>Video dars</span>
+                    <span>Video tajriba (rejada)</span>
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-lg border border-yellow-500/30 bg-yellow-500/10 text-yellow-300 flex items-center gap-1 text-[11px]">
+                  <span className="px-2.5 py-0.5 rounded-lg border border-blue-700/40 bg-blue-900/20 text-blue-300 flex items-center gap-1 text-[11px]">
                     <Ikon nom="fayl" olcham={12} />
-                    <span>Uslubiy qo&apos;llanma</span>
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-lg border border-blue-700/40 bg-blue-900/20 text-blue-300 text-[11px]">
-                    Davlat standarti
+                    <span>Uslubiy bayonnoma</span>
                   </span>
                 </div>
               </div>
 
               <div className="mt-6 pt-4 border-t border-blue-900/50 flex items-center justify-between gap-3">
                 <span className="text-xs text-blue-300/70">
-                  {ish.sinf}-sinf darsligi
+                  {ish.sinf}-sinf o&apos;quv dasturi
                 </span>
-                <a
-                  href="https://t.me/diyorbek_jabborov"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 font-bold text-xs transition shadow-md shadow-yellow-500/20 flex items-center gap-1.5"
-                >
-                  <Ikon nom="video" olcham={14} />
-                  <span>Videoni ko&apos;rish</span>
-                </a>
+                <span className="px-3.5 py-1.5 rounded-xl border border-amber-500/35 bg-amber-500/10 text-amber-300 font-semibold text-xs inline-flex items-center gap-1.5 select-none">
+                  <Ikon nom="soat" olcham={13} />
+                  <span>Tez kunda qo&apos;shiladi</span>
+                </span>
               </div>
             </div>
           ))}
@@ -300,10 +294,10 @@ export default function LaboratoriyaMashgulotlariSahifa() {
             </span>
             <div>
               <h4 className="text-lg font-bold text-white">
-                Laboratoriya mashg&apos;ulotlari uchun jihozlar kerakmi?
+                Laboratoriya jihozlari bo&apos;limi
               </h4>
               <p className="text-xs sm:text-sm text-blue-200/80 mt-1">
-                Maktab xonalari va tajribalar uchun barcha turdagi shisha idishlar, probirkalar, tarozilar va toza reaktivlarni xarid qilishingiz mumkin.
+                Maktab xonalari va amaliy tajribalar uchun zarur jihozlar tez kunda qo&apos;shiladi.
               </p>
             </div>
           </div>
@@ -311,7 +305,7 @@ export default function LaboratoriyaMashgulotlariSahifa() {
             href="/dokon"
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold text-xs shrink-0 transition shadow-lg shadow-amber-500/20 flex items-center gap-2"
           >
-            <span>Mahsulotlar katalogi</span>
+            <span>Do&apos;kon sahifasi</span>
             <Ikon nom="ong" olcham={15} />
           </Link>
         </div>
@@ -378,7 +372,7 @@ export default function LaboratoriyaMashgulotlariSahifa() {
               <div className="flex flex-col items-center md:items-end gap-2 shrink-0">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-800/50 bg-[#09153a]/60 text-xs font-semibold text-blue-200">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  v3.0.0
+                  v4.0.0
                 </span>
                 <Link
                   href="/jda-kimyo"

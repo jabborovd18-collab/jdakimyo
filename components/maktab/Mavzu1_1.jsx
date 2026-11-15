@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { kadrSora, kadrniBekorQil, umumiyAudio } from "@/lib/maktab-animatsiya"
 import {
   SmartDoskaNavigatsiya,
   DoskadaTushuntirishKartasi,
@@ -11,9 +12,8 @@ import {
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)
@@ -340,12 +340,12 @@ export default function Mavzu1_1() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
     return () => {
-      cancelAnimationFrame(animId)
+      kadrniBekorQil(animId)
       canvas.removeEventListener("pointerdown", handleCanvasClick)
     }
   }, [asosiyBolim, animRejim, harorat, namlik, mikroReaksiya])
@@ -574,11 +574,11 @@ export default function Mavzu1_1() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, girdobFaol, suvRangi])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -821,11 +821,11 @@ export default function Mavzu1_1() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, metallTushdi, chopYondi, olovFlash])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1042,11 +1042,11 @@ export default function Mavzu1_1() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, muzEriyapti, shamYonyapti, shamKulBoldi])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1344,11 +1344,11 @@ export default function Mavzu1_1() {
       ctx.fillText(formulaMatn, CX, H - 16)
 
       ctx.restore()
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, chokmaTuri, chokmaTomizildi])
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1455,11 +1455,11 @@ export default function Mavzu1_1() {
       ctx.fillText("NaHCO₃ (Soda) + CH₃COOH (Sirka) → CH₃COONa + H₂O + CO₂↑", CX, H - 15)
 
       ctx.restore()
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, sodaTokildi])
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1486,10 +1486,10 @@ export default function Mavzu1_1() {
       formula: "NaHCO₃ + CH₃COOH → CH₃COONa + H₂O + CO₂↑",
       togriNatija: "CO₂ gazi ko'pirib chiqadi",
       variantlar: [
+        "Fizik erish yuz beradi",
         "CO₂ gazi ko'pirib chiqadi",
         "Moviy kristall tushadi",
         "Temir zanglaydi",
-        "Fizik erish yuz beradi",
       ],
     },
     {
@@ -1499,10 +1499,10 @@ export default function Mavzu1_1() {
       formula: "NaOH + Fenolftalein → To'q pushti (malina) rang",
       togriNatija: "Eritma to'q pushti rangga kiradi",
       variantlar: [
-        "Eritma to'q pushti rangga kiradi",
-        "Oq cho'kma tushadi",
         "Portlash yuz beradi",
         "Suv muzlaydi",
+        "Eritma to'q pushti rangga kiradi",
+        "Oq cho'kma tushadi",
       ],
     },
     {
@@ -1512,10 +1512,10 @@ export default function Mavzu1_1() {
       formula: "Zn + 2HCl → ZnCl₂ + H₂↑ + Q (Issiqlik)",
       togriNatija: "Vodorod gazi va issiqlik ajraladi",
       variantlar: [
-        "Vodorod gazi va issiqlik ajraladi",
         "Faqat rang o'zgaradi",
         "Fizik bug'lanish bo'ladi",
         "Sariq cho'kma tushadi",
+        "Vodorod gazi va issiqlik ajraladi",
       ],
     },
   ]
@@ -1540,11 +1540,11 @@ export default function Mavzu1_1() {
   // ─────────────────────────────────────────────────────────────────────────
   const duelSavollari = [
     { savol: "Temir mixning nam havoda zanglashi", javob: "Kimyoviy", variantlar: ["Fizik", "Kimyoviy"] },
-    { savol: "Suvning 100°C da qaynab bug'ga aylanishi", javob: "Fizik", variantlar: ["Fizik", "Kimyoviy"] },
+    { savol: "Suvning 100°C da qaynab bug'ga aylanishi", javob: "Fizik", variantlar: ["Kimyoviy", "Fizik"] },
     { savol: "AgNO₃ + NaCl → AgCl↓ reaksiyasidagi asosiy belgi", javob: "Cho'kma", variantlar: ["Cho'kma", "Alanga"] },
-    { savol: "Sutning issiq kunda achib qatiqqa aylanishi", javob: "Kimyoviy", variantlar: ["Fizik", "Kimyoviy"] },
+    { savol: "Sutning issiq kunda achib qatiqqa aylanishi", javob: "Kimyoviy", variantlar: ["Kimyoviy", "Fizik"] },
     { savol: "Shisha stakanning tushib sinishi", javob: "Fizik", variantlar: ["Fizik", "Kimyoviy"] },
-    { savol: "Tabiiy gaz (CH₄) yonganda ajraladigan belgi", javob: "Issiqlik va nur", variantlar: ["Issiqlik va nur", "Cho'kma"] },
+    { savol: "Tabiiy gaz (CH₄) yonganda ajraladigan belgi", javob: "Issiqlik va nur", variantlar: ["Cho'kma", "Issiqlik va nur"] },
   ]
   const [duelIndeks, setDuelIndeks] = useState(0)
   const [guruh1Ball, setGuruh1Ball] = useState(0)

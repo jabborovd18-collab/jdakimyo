@@ -15,15 +15,15 @@
 export const FAQ = [
   {
     q: "Sayt pullikmi?",
-    a: "Yo'q. Barcha mavzular, birikmalar, testlar va laboratoriya bepul. Kelajakda tasdiq belgisi (galochka) va unga bog'liq profil bezaklari pullik obuna bilan beriladi — lekin ular hech qanday o'quv materialini yopmaydi.",
+    a: "Yo'q. O'quv materiallari va testlar bepul. Pullik qism faqat tasdiq belgisi va unga bog'liq profil bezaklari bilan bog'liq.",
   },
   {
     q: "Ro'yxatdan o'tish shartmi?",
-    a: "O'qish uchun shart emas: mavzular, birikmalar va tahlil usullari hammaga ochiq. Hisob quyidagilar uchun kerak — test natijalarini saqlash, laboratoriya, sertifikat, do'stlar va chat, ustoz guruhiga qo'shilish.",
+    a: "O'qish uchun shart emas. Hisob test topshirish, natijalarni saqlash, ustoz guruhiga qo'shilish va xabar yozish uchun kerak.",
   },
   {
     q: "Sertifikatni qanday olaman?",
-    a: "Sertifikatni JDA KIMYO administratsiyasi beradi — avtomatik berilmaydi va uni test topshirib \"yutib\" bo'lmaydi. Berilgan sertifikat bazada saqlanadi, noyob raqamga ega bo'ladi, QR kod orqali istalgan vaqtda tekshiriladi va PDF shaklida yuklab olinadi.",
+    a: "Milliy sertifikatga tayyorgarlik sinovida tizimga kirib yetarli ball to'plasangiz, JDA Kimyo sertifikati beriladi. Bu davlat sertifikati emas. Boshqa sertifikatlarni administratsiya beradi.",
   },
   {
     q: "Nega ba'zi fanlarda qulf turibdi?",
@@ -31,19 +31,11 @@ export const FAQ = [
   },
   {
     q: "Telefonda ishlaydimi?",
-    a: "Matnli bo'limlar — ha. 3D modellar va laboratoriya xonasi esa kompyuter uchun yozilgan; telefonda ular sekin ishlashi yoki ochilmasligi mumkin. Shuning uchun telefonda kirganingizda ogohlantirish chiqadi.",
-  },
-  {
-    q: "Ma'lumotlar qayerdan olingan?",
-    a: "Ilmiy qism nufuzli darsliklar va bazalarga tayanadi: Cotton–Wilkinson, Miessler–Tarr, Greenwood–Earnshaw, SDBS va CSD. Laboratoriya reaksiyalari esa hali tasdiqlanmagan — buni sahifaning o'zi ham aytadi.",
+    a: "Ha, sayt telefonda ochiladi. Elektron doska esa katta ekran uchun mo'ljallangan.",
   },
   {
     q: "Xato topsam nima qilay?",
     a: "Telegramda @diyorbek_jabborov ga yozing yoki jabborovd18@gmail.com ga xat yuboring. Qaysi sahifada, nima noto'g'ri ekanini yozsangiz — tezroq tuzatiladi.",
-  },
-  {
-    q: "O'z maqolamni joylay olamanmi?",
-    a: "Ha. Ilmiy bo'limda maqolani DOCX shaklida yuklaysiz, admin ko'rib chiqadi va tasdiqlangach bazada chiqadi.",
   },
   {
     q: "Ustoz huquqini qanday olaman?",

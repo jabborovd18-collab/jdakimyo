@@ -5,50 +5,29 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
 
-// GET - O'qituvchining barcha guruhlari
-export async function GET(request) {
+const ALLOWED_COLORS = ['blue', 'green', 'purple', 'orange', 'pink', 'red', 'cyan', 'yellow']
+
+// GET - Barcha guruhlar ro'yxati
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    const { searchParams } = new URL(request.url)
-    const search = searchParams.get('search') || ''
-
-    const where = { teacherId: session.user.id }
-    
-    if (search) {
-      where.name = { contains: search, mode: 'insensitive' }
+      return NextResponse.json({ error: 'Forbidden - Faqat o\'qituvchilar uchun' }, { status: 403 })
     }
 
     const groups = await prisma.teacherGroup.findMany({
-      where,
+      where: { teacherId: session.user.id },
       include: {
         _count: {
-          select: { 
-            students: true,
-            assignments: true,
+          select: {
+            students: { where: { holat: 'faol' } },
+            assignments: { where: { isDraft: false } },
             announcements: true
-          }
-        },
-        students: {
-          take: 5,
-          include: {
-            student: {
-              select: {
-                id: true,
-                fullName: true,
-                username: true,
-                avatar: true
-              }
-            }
           }
         }
       },
@@ -61,11 +40,8 @@ export async function GET(request) {
       total: groups.length
     })
   } catch (error) {
-    console.error('[Ustoz Guruh GET]', error)
-    return NextResponse.json(
-      { error: 'Xatolik: ' + error.message },
-      { status: 500 }
-    )
+    console.error('[Guruh GET]', error)
+    return NextResponse.json({ error: 'Guruhlarni yuklashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -73,7 +49,6 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -83,37 +58,55 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { name, description, color } = await request.json()
+    const data = await request.json()
 
     // Validatsiya
-    if (!name || name.trim().length < 2) {
+    if (!data.name || data.name.trim().length < 2) {
       return NextResponse.json(
         { error: 'Guruh nomi kamida 2 ta harfdan iborat bo\'lishi kerak' },
         { status: 400 }
       )
     }
 
-    // Bir xil nomli guruh borligini tekshirish
-    const existingGroup = await prisma.teacherGroup.findFirst({
-      where: {
-        teacherId: session.user.id,
-        name: { equals: name.trim(), mode: 'insensitive' }
-      }
-    })
-
-    if (existingGroup) {
+    if (data.name.trim().length > 100) {
       return NextResponse.json(
-        { error: `"${name}" nomli guruh allaqachon mavjud` },
+        { error: 'Guruh nomi 100 ta harfdan oshmasligi kerak' },
         { status: 400 }
       )
     }
 
+    // Bir xil nomdagi guruh bormi?
+    const existing = await prisma.teacherGroup.findFirst({
+      where: {
+        teacherId: session.user.id,
+        name: { equals: data.name.trim(), mode: 'insensitive' }
+      }
+    })
+
+    if (existing) {
+      return NextResponse.json(
+        { error: `"${data.name.trim()}" nomli guruh allaqachon mavjud` },
+        { status: 400 }
+      )
+    }
+
+    const color = ALLOWED_COLORS.includes(data.color) ? data.color : 'blue'
+
     const group = await prisma.teacherGroup.create({
       data: {
-        name: name.trim(),
-        description: description?.trim() || null,
-        color: color || 'blue',
-        teacherId: session.user.id
+        teacherId: session.user.id,
+        name: data.name.trim(),
+        description: data.description?.trim() || null,
+        color
+      },
+      include: {
+        _count: {
+          select: {
+            students: { where: { holat: 'faol' } },
+            assignments: { where: { isDraft: false } },
+            announcements: true
+          }
+        }
       }
     })
 
@@ -123,11 +116,8 @@ export async function POST(request) {
       message: `✓ "${group.name}" guruhi muvaffaqiyatli yaratildi`
     })
   } catch (error) {
-    console.error('[Ustoz Guruh POST]', error)
-    return NextResponse.json(
-      { error: 'Xatolik: ' + error.message },
-      { status: 500 }
-    )
+    console.error('[Guruh POST]', error)
+    return NextResponse.json({ error: 'Guruh yaratishda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -135,7 +125,6 @@ export async function POST(request) {
 export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -145,51 +134,51 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { id, name, description, color } = await request.json()
+    const data = await request.json()
 
-    if (!id) {
+    if (!data.id) {
       return NextResponse.json({ error: 'Guruh ID kerak' }, { status: 400 })
     }
 
-    // Guruh mavjudligini va o'qituvchiga tegishli ekanligini tekshirish
-    const existingGroup = await prisma.teacherGroup.findFirst({
+    // Guruh o'qituvchiga tegishlimi?
+    const existing = await prisma.teacherGroup.findFirst({
       where: {
-        id,
+        id: data.id,
         teacherId: session.user.id
       }
     })
 
-    if (!existingGroup) {
+    if (!existing) {
       return NextResponse.json(
         { error: 'Guruh topilmadi yoki sizga tegishli emas' },
         { status: 404 }
       )
     }
 
-    // Bir xil nomli boshqa guruh borligini tekshirish
-    if (name && name.trim() !== existingGroup.name) {
-      const duplicateGroup = await prisma.teacherGroup.findFirst({
-        where: {
-          teacherId: session.user.id,
-          name: { equals: name.trim(), mode: 'insensitive' },
-          id: { not: id }
-        }
-      })
-
-      if (duplicateGroup) {
-        return NextResponse.json(
-          { error: `"${name}" nomli guruh allaqachon mavjud` },
-          { status: 400 }
-        )
-      }
+    if (data.name !== undefined && data.name.trim().length < 2) {
+      return NextResponse.json(
+        { error: 'Guruh nomi kamida 2 ta harfdan iborat bo\'lishi kerak' },
+        { status: 400 }
+      )
     }
 
+    const color = data.color && ALLOWED_COLORS.includes(data.color) ? data.color : existing.color
+
     const group = await prisma.teacherGroup.update({
-      where: { id },
+      where: { id: data.id },
       data: {
-        name: name?.trim() || existingGroup.name,
-        description: description?.trim() || null,
-        color: color || existingGroup.color
+        name: data.name ? data.name.trim() : existing.name,
+        description: data.description !== undefined ? (data.description?.trim() || null) : existing.description,
+        color
+      },
+      include: {
+        _count: {
+          select: {
+            students: { where: { holat: 'faol' } },
+            assignments: { where: { isDraft: false } },
+            announcements: true
+          }
+        }
       }
     })
 
@@ -199,11 +188,8 @@ export async function PUT(request) {
       message: `✓ "${group.name}" guruhi yangilandi`
     })
   } catch (error) {
-    console.error('[Ustoz Guruh PUT]', error)
-    return NextResponse.json(
-      { error: 'Xatolik: ' + error.message },
-      { status: 500 }
-    )
+    console.error('[Guruh PUT]', error)
+    return NextResponse.json({ error: 'Guruhni yangilashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -211,7 +197,6 @@ export async function PUT(request) {
 export async function DELETE(request) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -222,39 +207,52 @@ export async function DELETE(request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
+    const groupId = searchParams.get('id')
 
-    if (!id) {
+    if (!groupId) {
       return NextResponse.json({ error: 'Guruh ID kerak' }, { status: 400 })
     }
 
-    // Guruh mavjudligini va o'qituvchiga tegishli ekanligini tekshirish
-    const existingGroup = await prisma.teacherGroup.findFirst({
+    // Guruh o'qituvchiga tegishlimi?
+    const existing = await prisma.teacherGroup.findFirst({
       where: {
-        id,
+        id: groupId,
         teacherId: session.user.id
       }
     })
 
-    if (!existingGroup) {
+    if (!existing) {
       return NextResponse.json(
         { error: 'Guruh topilmadi yoki sizga tegishli emas' },
         { status: 404 }
       )
     }
 
-    // Guruhni o'chirish (cascade orqali bog'liq yozuvlar ham o'chadi)
-    await prisma.teacherGroup.delete({ where: { id } })
+    // Guruhga bog'liq barcha ma'lumotlarni tozalab o'chirish (FK xatolarini oldini olish)
+    await prisma.$transaction([
+      prisma.teacherStudent.deleteMany({ where: { groupId } }),
+      prisma.announcement.deleteMany({ where: { groupId } }),
+      prisma.assignmentSubmission.deleteMany({
+        where: { assignment: { groupId } }
+      }),
+      prisma.assignment.deleteMany({ where: { groupId } }),
+      prisma.teacherQuiz.updateMany({
+        where: { groupId },
+        data: { groupId: null }
+      }),
+      prisma.closedQuiz.updateMany({
+        where: { groupId },
+        data: { groupId: null }
+      }),
+      prisma.teacherGroup.delete({ where: { id: groupId } })
+    ])
 
     return NextResponse.json({
       success: true,
-      message: `✓ "${existingGroup.name}" guruhi o'chirildi`
+      message: `✓ "${existing.name}" guruhi va unga bog'liq ma'lumotlar o'chirildi`
     })
   } catch (error) {
-    console.error('[Ustoz Guruh DELETE]', error)
-    return NextResponse.json(
-      { error: 'Xatolik: ' + error.message },
-      { status: 500 }
-    )
+    console.error('[Guruh DELETE]', error)
+    return NextResponse.json({ error: 'Guruhni o\'chirishda xatolik yuz berdi' }, { status: 500 })
   }
 }

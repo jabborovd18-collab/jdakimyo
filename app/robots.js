@@ -51,8 +51,9 @@ export default function robots() {
           '/hamkorlar',
           '/login',
           '/register',
-          // Elektron doska — kirish ekrani, indekslanishi kerak emas
-          '/doska',
+          // Elektron doska QR kirish va skaner ekranlari — indekslanishi kerak emas
+          '/doska/auth',
+          '/doska/skaner',
         ],
       },
     ],

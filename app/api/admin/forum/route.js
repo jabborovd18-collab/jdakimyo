@@ -1,16 +1,14 @@
 // app/api/admin/forum/route.js
 // Muhokama postlarini moderatsiya qilish: navbat, tasdiqlash, rad etish.
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-import { huquqiBormi } from '@/lib/roles'
+import { checkAdminAuth } from '@/lib/admin-auth'
 import { qaydEt } from '@/lib/qaydnoma'
+import { xabarYubor } from '@/lib/bildirishnoma'
 
 async function adminTekshir() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user || !huquqiBormi(session.user.role, 'moderatsiya')) return null
-  return session.user
+  const { isAdmin, user } = await checkAdminAuth('moderatsiya')
+  return isAdmin && user ? user : null
 }
 
 // ─── GET: moderatsiya navbati ───
@@ -21,14 +19,31 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'pending'
+    const q = String(searchParams.get('q') || '').trim().slice(0, 100)
+    const sahifa = Math.max(parseInt(searchParams.get('page') || '1', 10) || 1, 1)
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '25', 10) || 25, 1), 50)
+    const skip = (sahifa - 1) * limit
 
-    const where = status === 'all' ? {} : { status }
+    const where = {
+      ...(status === 'all' ? {} : { status }),
+      ...(q
+        ? {
+            OR: [
+              { title: { contains: q, mode: 'insensitive' } },
+              { content: { contains: q, mode: 'insensitive' } },
+              { author: { username: { contains: q, mode: 'insensitive' } } },
+              { author: { fullName: { contains: q, mode: 'insensitive' } } },
+            ],
+          }
+        : {}),
+    }
 
-    const [posts, hisob] = await Promise.all([
+    const [posts, jami, hisob] = await Promise.all([
       prisma.forumPost.findMany({
         where,
         orderBy: { createdAt: 'desc' },
-        take: 100,
+        skip,
+        take: limit,
         select: {
           id: true,
           articleId: true,
@@ -45,6 +60,7 @@ export async function GET(request) {
           parent: { select: { id: true, title: true } },
         },
       }),
+      prisma.forumPost.count({ where }),
       prisma.forumPost.groupBy({ by: ['status'], _count: { _all: true } }),
     ])
 
@@ -53,6 +69,9 @@ export async function GET(request) {
     return NextResponse.json({
       success: true,
       posts,
+      jami,
+      sahifa,
+      sahifalar: Math.max(1, Math.ceil(jami / limit)),
       stats: {
         pending: stats.pending || 0,
         approved: stats.approved || 0,
@@ -78,11 +97,22 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'id va action majburiy' }, { status: 400 })
     }
 
-    const post = await prisma.forumPost.findUnique({ where: { id }, select: { id: true, isPinned: true } })
+    const post = await prisma.forumPost.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        status: true,
+        isPinned: true,
+        parentId: true,
+        authorId: true,
+        title: true,
+      },
+    })
     if (!post) return NextResponse.json({ error: 'Topilmadi' }, { status: 404 })
 
     let data
     let xabar
+    const sababMatni = (body.reason || '').trim().slice(0, 500) || null
 
     switch (action) {
       case 'approve':
@@ -100,12 +130,25 @@ export async function PUT(request) {
           status: 'rejected',
           moderatedById: admin.id,
           moderatedAt: new Date(),
-          rejectReason: (body.reason || '').trim() || null,
+          rejectReason: sababMatni,
+          isPinned: false,
         }
         xabar = '✓ Rad etildi'
         break
 
       case 'pin':
+        if (post.parentId) {
+          return NextResponse.json(
+            { error: 'Javobni yuqoriga qadab bo\'lmaydi — faqat asosiy mavzu qadaladi' },
+            { status: 400 }
+          )
+        }
+        if (!post.isPinned && post.status !== 'approved') {
+          return NextResponse.json(
+            { error: 'Faqat tasdiqlangan mavzuni yuqoriga qadash mumkin' },
+            { status: 400 }
+          )
+        }
         data = { isPinned: !post.isPinned }
         xabar = post.isPinned ? '✓ Qadash olib tashlandi' : '✓ Yuqoriga qadaldi'
         break
@@ -121,9 +164,37 @@ export async function PUT(request) {
       action: `forum:${action}`,
       targetType: 'ForumPost',
       targetId: id,
-      details: body.reason || null,
+      details: sababMatni,
       request,
     })
+
+    // Muallif postining taqdirini bilsin (ayniqsa rad etish sababini).
+    if (action === 'approve' || action === 'reject') {
+      const mavzuId = post.parentId || post.id
+      if (action === 'approve') {
+        await xabarYubor(post.authorId, {
+          turi: 'tizim',
+          icon: '✅',
+          sarlavha: post.parentId ? 'Muhokamadagi javobingiz tasdiqlandi' : 'Mavzuingiz tasdiqlandi',
+          matn: post.title
+            ? `"${post.title}" endi Dolzarb mavzularda ko'rinadi.`
+            : 'Fikringiz endi barcha ishtirokchilarga ko\'rinadi.',
+          havola: `/dolzarb/${mavzuId}`,
+          adminId: admin.id,
+        })
+      } else {
+        await xabarYubor(post.authorId, {
+          turi: 'tizim',
+          icon: '⚠️',
+          sarlavha: post.parentId ? 'Muhokamadagi javobingiz rad etildi' : 'Mavzuingiz rad etildi',
+          matn: sababMatni
+            ? `Sabab: ${sababMatni}`
+            : 'Post moderator tekshiruvidan o\'tmadi. Uni tahrirlab qayta yuborishingiz mumkin.',
+          havola: post.parentId ? `/dolzarb/${mavzuId}` : '/dolzarb',
+          adminId: admin.id,
+        })
+      }
+    }
 
     return NextResponse.json({ success: true, post: updated, message: xabar })
   } catch (error) {

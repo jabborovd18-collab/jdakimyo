@@ -3,18 +3,11 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import FonTanlagich, { useFon } from "@/components/FonTanlagich"
+import { useFon } from "@/components/FonTanlagich"
 import Ikon from "@/components/Ikon"
 import TasdiqBelgisi from "@/components/TasdiqBelgisi"
-
-const MAVZU = {
-  purple: "from-purple-900/50 to-indigo-950/50 border-purple-700/40",
-  blue: "from-blue-900/50 to-cyan-950/50 border-blue-700/40",
-  green: "from-green-900/50 to-emerald-950/50 border-green-700/40",
-  indigo: "from-indigo-900/50 to-blue-950/50 border-indigo-700/40",
-  amber: "from-amber-900/50 to-orange-950/50 border-amber-700/40",
-  rose: "from-rose-900/50 to-pink-950/50 border-rose-700/40",
-}
+import { PremiumAurora, PremiumHalqa, PremiumYorliq } from "@/components/PremiumProfil"
+import { xavfsizTashqiHavola } from "@/lib/profil-tahrir"
 
 const HAVOLALAR = [
   { kalit: "website", nom: "Shaxsiy sayt", ikon: "doska" },
@@ -51,7 +44,7 @@ function Bolim({ sarlavha, ikon, children }) {
 export default function UstozProfiliPage() {
   const params = useParams()
   const id = params?.id
-  const [fon, fonTanla] = useFon()
+  const [fon] = useFon()
   const [data, setData] = useState(null)
   const [xato, setXato] = useState("")
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
@@ -110,10 +103,12 @@ export default function UstozProfiliPage() {
 
   const { profile, stats, activeCourses, publicQuizzes } = data
   const u = profile.user || {}
-  const themeCard = MAVZU[profile.themeColor] || MAVZU.purple
+  const tasdiqlanganUstoz = Boolean(profile.isVerified || u.isVerified)
   const ism = profile.displayName || u.fullName || u.username
 
-  const havolalar = HAVOLALAR.filter((h) => profile[h.kalit])
+  const havolalar = HAVOLALAR
+    .map((h) => ({ ...h, manzil: xavfsizTashqiHavola(h.kalit, profile[h.kalit]) }))
+    .filter((h) => Boolean(h.manzil))
   const ilmiySon = profile.publications || profile.citations || profile.hIndex
 
   return (
@@ -139,8 +134,7 @@ export default function UstozProfiliPage() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <FonTanlagich fon={fon} tanla={fonTanla} />
-            <Link href="/chat" className="v3-tugma text-xs py-1.5 px-3">
+            <Link href={`/chat?yozish=${u.userId || u.id}&qaytish=${encodeURIComponent(`/ustoz-profil/${id}`)}`} className="v3-tugma text-xs py-1.5 px-3">
               <Ikon nom="xabar" olcham={14} />
               <span className="hidden sm:inline">Xabar yozish</span>
             </Link>
@@ -150,7 +144,8 @@ export default function UstozProfiliPage() {
 
       {/* Banner / Hero Section */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-8 space-y-6">
-        <div className={`v3-panel-karta bg-gradient-to-br ${themeCard} p-6 sm:p-8 space-y-6 relative overflow-hidden`}>
+        <div className="v3-panel-karta p-6 sm:p-8 space-y-6 relative overflow-hidden">
+          <PremiumAurora korinsinmi={tasdiqlanganUstoz} uslub={u.premiumUslub} />
           {profile.coverImage && (
             <img
               src={profile.coverImage}
@@ -160,20 +155,27 @@ export default function UstozProfiliPage() {
           )}
 
           <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[var(--v3-fon-2)] border-2 border-[var(--v3-chiziq-2)] grid place-items-center text-3xl sm:text-4xl font-bold text-[var(--v3-urgu)] overflow-hidden shrink-0 shadow-lg">
-              {u.avatar ? (
-                <img src={u.avatar} alt="" className="w-full h-full object-cover" />
-              ) : (
-                ism[0].toUpperCase()
-              )}
-            </div>
+            <PremiumHalqa korinsinmi={tasdiqlanganUstoz} uslub={u.premiumUslub}>
+              <div
+                className={`w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[var(--v3-fon-2)] grid place-items-center text-3xl sm:text-4xl font-bold text-[var(--v3-urgu)] overflow-hidden shrink-0 shadow-lg ${
+                  tasdiqlanganUstoz ? "" : "border-2 border-[var(--v3-chiziq-2)]"
+                }`}
+              >
+                {u.avatar ? (
+                  <img src={u.avatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  ism[0].toUpperCase()
+                )}
+              </div>
+            </PremiumHalqa>
 
             <div className="min-w-0 space-y-1.5 flex-1">
               <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--v3-matn)]">
                   {ism}
                 </h1>
-                <TasdiqBelgisi tasdiqlangan={profile.isVerified || u.isVerified} olcham="katta" />
+                <TasdiqBelgisi tasdiqlangan={tasdiqlanganUstoz} olcham="katta" jonli />
+                <PremiumYorliq korinsinmi={tasdiqlanganUstoz} uslub={u.premiumUslub} />
               </div>
 
               {profile.title && (
@@ -329,7 +331,7 @@ export default function UstozProfiliPage() {
                 return (
                   <Link
                     key={q.id}
-                    href={`/oquv/video-darsliklar/ustoz-quiz/${q.id}`}
+                    href={`/testlar/ustoz/${q.id}`}
                     className="p-4 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] hover:border-[var(--v3-urgu)] transition-all group block space-y-1.5"
                   >
                     <h3 className="font-bold text-xs text-[var(--v3-matn)] group-hover:text-[var(--v3-urgu)] transition-colors">
@@ -356,9 +358,9 @@ export default function UstozProfiliPage() {
               {havolalar.map((h) => (
                 <a
                   key={h.kalit}
-                  href={profile[h.kalit]}
+                  href={h.manzil}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer nofollow"
                   className="v3-tugma text-xs py-1.5 px-3"
                 >
                   <Ikon nom={h.ikon} olcham={13} />

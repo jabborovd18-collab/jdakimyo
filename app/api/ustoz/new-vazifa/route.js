@@ -4,6 +4,25 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
+import { createNotification } from '@/lib/bildirishnoma'
+
+async function guruhTalabalarigaVazifaXabari(groupId, groupName, assignment, teacherId) {
+  const activeMembers = await prisma.teacherStudent.findMany({
+    where: { groupId, holat: 'faol' },
+    select: { studentId: true }
+  })
+  for (const m of activeMembers) {
+    createNotification({
+      userId: m.studentId,
+      title: `📝 Yangi vazifa: ${assignment.title}`,
+      message: `"${groupName}" guruhida yangi vazifa e'lon qilindi. Topshirish muddati: ${new Date(assignment.deadline).toLocaleDateString('uz-UZ')}.`,
+      type: 'system',
+      icon: '📝',
+      link: '/profil/vazifalar',
+      sentBy: teacherId,
+    }).catch(() => {})
+  }
+}
 
 // POST - Yangi vazifa yaratish (kengaytirilgan)
 export async function POST(request) {
@@ -57,34 +76,22 @@ export async function POST(request) {
       data: {
         teacherId: session.user.id,
         groupId: data.groupId,
-        
-        // Asosiy
         title: data.title.trim(),
         description: data.description?.trim() || '',
         type: data.type,
-        
-        // Muddat va vaqt
         deadline: new Date(data.deadline),
         timeLimit: data.timeLimit ? parseInt(data.timeLimit) : null,
         startDate: data.startDate ? new Date(data.startDate) : null,
-        
-        // Baholash
         maxScore: parseInt(data.maxScore) || 100,
         passingScore: data.passingScore ? parseInt(data.passingScore) : null,
         gradingCriteria: data.gradingCriteria || null,
-        
-        // Urinishlar
         maxAttempts: parseInt(data.maxAttempts) || 1,
         allowLateSubmission: data.allowLateSubmission || false,
         latePenalty: parseFloat(data.latePenalty) || 10,
-        
-        // Qo'shimcha mazmun
         instructions: data.instructions?.trim() || null,
         attachments: data.attachments || null,
         hints: data.hints || null,
         resources: data.resources || null,
-        
-        // Sozlamalar
         isDraft: data.isDraft || false,
         visibility: data.visibility || 'group',
         requireFile: data.requireFile || false,
@@ -93,9 +100,7 @@ export async function POST(request) {
       }
     })
 
-    // ═══════════════════════════════════════════
-    // AVTOMATIK E'LON YARATISH (agar draft bo'lmasa)
-    // ═══════════════════════════════════════════
+    // AVTOMATIK E'LON VA BILDIRISHNOMA (agar draft bo'lmasa)
     if (!assignment.isDraft) {
       await prisma.announcement.create({
         data: {
@@ -105,18 +110,19 @@ export async function POST(request) {
           content: `${assignment.description}\n\n📅 Muddat: ${new Date(assignment.deadline).toLocaleString('uz-UZ')}\n⭐ Ball: ${assignment.maxScore}`
         }
       })
+      await guruhTalabalarigaVazifaXabari(group.id, group.name, assignment, session.user.id)
     }
 
     return NextResponse.json({
       success: true,
       assignment,
-      message: assignment.isDraft 
-        ? `✓ "${assignment.title}" qoralama sifatida saqlandi` 
+      message: assignment.isDraft
+        ? `✓ "${assignment.title}" qoralama sifatida saqlandi`
         : `✓ "${assignment.title}" vazifasi yaratildi va e'lon qilindi`
     })
   } catch (error) {
     console.error('[New Vazifa POST]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Vazifa yaratishda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -128,8 +134,6 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // POST'da bor edi, bu yerda esa yo'q edi. Ustozligi olib tashlangan
-    // odam eski vazifalarini o'qib turaverardi.
     if (!ustozPaneliOchiqmi(session.user)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -156,7 +160,7 @@ export async function GET(request) {
     return NextResponse.json({ success: true, assignment })
   } catch (error) {
     console.error('[New Vazifa GET]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Vazifa ma\'lumotlarini yuklashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -168,7 +172,6 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // GET bilan bir xil sabab: bu yerda ham tekshiruv yo'q edi.
     if (!ustozPaneliOchiqmi(session.user)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -180,22 +183,20 @@ export async function PUT(request) {
     }
 
     const existing = await prisma.assignment.findFirst({
-      where: { id: data.id, teacherId: session.user.id }
+      where: { id: data.id, teacherId: session.user.id },
+      include: { group: { select: { id: true, name: true } } }
     })
 
     if (!existing) {
       return NextResponse.json({ error: 'Vazifa topilmadi' }, { status: 404 })
     }
 
-    // GURUHNI O'ZGARTIRISH. Avval `groupId` umuman yangilanmasdi:
-    // shakl guruhni tanlashga ruxsat berardi, saqlangach esa vazifa
-    // eski guruhida qolaverardi va hech qanday xato ham chiqmasdi.
-    // Yangi guruh shu ustozniki ekani ham tekshiriladi.
     let groupId = existing.groupId
+    let groupName = existing.group?.name || 'Guruh'
     if (data.groupId && data.groupId !== existing.groupId) {
       const guruh = await prisma.teacherGroup.findFirst({
         where: { id: data.groupId, teacherId: session.user.id },
-        select: { id: true },
+        select: { id: true, name: true },
       })
       if (!guruh) {
         return NextResponse.json(
@@ -203,7 +204,8 @@ export async function PUT(request) {
           { status: 404 }
         )
       }
-      groupId = data.groupId
+      groupId = guruh.id
+      groupName = guruh.name
     }
 
     const assignment = await prisma.assignment.update({
@@ -234,6 +236,11 @@ export async function PUT(request) {
       }
     })
 
+    // Qoralamadan e'longa o'tkazilgan bo'lsa — talabalarga xabar beramiz
+    if (existing.isDraft && !assignment.isDraft) {
+      await guruhTalabalarigaVazifaXabari(groupId, groupName, assignment, session.user.id)
+    }
+
     return NextResponse.json({
       success: true,
       assignment,
@@ -241,6 +248,6 @@ export async function PUT(request) {
     })
   } catch (error) {
     console.error('[New Vazifa PUT]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Vazifani yangilashda xatolik yuz berdi' }, { status: 500 })
   }
 }

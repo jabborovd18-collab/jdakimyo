@@ -12,8 +12,10 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category') || 'xp' // xp, streak, stars, achievements, quizzes
     const period = searchParams.get('period') || 'all' // all, weekly, monthly
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const rawPage = Number.parseInt(searchParams.get('page') || '1', 10)
+    const rawLimit = Number.parseInt(searchParams.get('limit') || '50', 10)
+    const page = Number.isFinite(rawPage) && rawPage >= 1 ? rawPage : 1
+    const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 100) : 50
     const search = searchParams.get('search') || ''
 
     // Qidiruv sharti

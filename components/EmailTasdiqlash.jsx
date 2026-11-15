@@ -2,10 +2,12 @@
 "use client"
 
 import { useCallback, useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
 import Ikon from './Ikon'
 
-export default function EmailTasdiqlash() {
+export default function EmailTasdiqlash({ onVerified } = {}) {
+  const { update } = useSession()
   const [holat, setHolat] = useState(null)
   const [kod, setKod] = useState('')
   const [band, setBand] = useState(false)
@@ -48,6 +50,8 @@ export default function EmailTasdiqlash() {
       if (!res.ok) throw new Error(d.error)
       toast.success(d.message || 'Email tasdiqlandi!', { duration: 4000 })
       setHolat({ ...holat, tasdiqlangan: true })
+      if (update) await update().catch(() => null)
+      if (onVerified) onVerified()
     } catch (e2) {
       toast.error(e2.message)
     } finally {
@@ -71,7 +75,10 @@ export default function EmailTasdiqlash() {
   }
 
   return (
-    <section className="v3-panel-karta p-5 space-y-4 border-l-4 border-l-[var(--v3-urgu)] bg-[var(--v3-yuza-2)]">
+    <section
+      id="email-tasdiqlash"
+      className="v3-panel-karta p-5 space-y-4 border-l-4 border-l-[var(--v3-urgu)] bg-[var(--v3-yuza-2)]"
+    >
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)] shrink-0">
           <Ikon nom="pochta" olcham={18} />
@@ -80,7 +87,7 @@ export default function EmailTasdiqlash() {
           <div className="v3-nishon text-[var(--v3-urgu)]">Xavfsizlik va Tasdiq</div>
           <h2 className="font-bold text-sm text-[var(--v3-matn)]">Elektron pochtangizni tasdiqlang</h2>
           <p className="text-xs text-[var(--v3-xira)] leading-relaxed">
-            {holat.email ? <><strong className="text-[var(--v3-matn)]">{holat.email}</strong> ga 6 xonali tasdiqlash kodi yuborildi.</> : 'Pochtaga 6 xonali kod yuborildi.'}
+            {holat.email ? <><strong className="text-[var(--v3-matn)]">{holat.email}</strong> ga 6 xonali tasdiqlash kodi yuborildi.</> : 'Pochtaga 6 xonali kod yuborildi.'}{' '}
             Tasdiqlamaguningizcha tanga topish, sovg{"'"}alar va laboratoriya xaridlari yopiq turadi.
           </p>
         </div>

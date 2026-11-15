@@ -3,13 +3,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { SELF_REGISTER_ROLES, DEFAULT_ROLE } from '@/lib/roles'
-import { emailniTekshir, kodYuboroq } from '@/lib/email-tasdiq'
+import { kodYuboroq } from '@/lib/email-tasdiq'
+import { emailniTekshir, PAROL_MAX, PAROL_MIN, USERNAME_PATTERN } from '@/lib/auth-tekshiruv'
 import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from '@/lib/ip-cheklov'
-
-// Username uchun ruxsat etilgan ko'rinish. "@" ataylab taqiqlangan:
-// login username YOKI email bo'yicha ishlagani uchun, "@" li username
-// boshqa foydalanuvchining email'iga teng bo'lib qolishi mumkin edi.
-const USERNAME_PATTERN = /^[a-z0-9._]{3,30}$/
 
 function generateUserId() {
   return Math.floor(100000000 + Math.random() * 900000000).toString()
@@ -32,20 +28,34 @@ export async function POST(request) {
       )
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json(
+        { error: "So'rov ma'lumotlari noto'g'ri" },
+        { status: 400 }
+      )
+    }
+
     const { password, role } = body
 
     // Normalizatsiya: bo'sh joy va registr sababli keyinchalik
     // login qilib bo'lmay qolmasligi uchun.
-    const username = (body.username || '').trim().toLowerCase()
-    const email = (body.email || '').trim().toLowerCase()
-    const fullName = (body.fullName || '').trim()
-    const university = (body.university || '').trim()
+    const username = typeof body.username === 'string' ? body.username.trim().toLowerCase() : ''
+    const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
+    const fullName = typeof body.fullName === 'string' ? body.fullName.trim() : ''
+    const university = typeof body.university === 'string' ? body.university.trim() : ''
 
     // Validatsiya
-    if (!username || !email || !password || !fullName) {
+    if (!username || !email || typeof password !== 'string' || !password || !fullName) {
       return NextResponse.json(
-        { error: 'Barcha majburiy maydonlarni to\'ldiring' },
+        { error: "Barcha majburiy maydonlarni to'ldiring" },
+        { status: 400 }
+      )
+    }
+
+    if (fullName.length > 100) {
+      return NextResponse.json(
+        { error: 'Ism-familiya 100 ta belgidan oshmasin' },
         { status: 400 }
       )
     }
@@ -59,7 +69,7 @@ export async function POST(request) {
 
     if (username.length < 3) {
       return NextResponse.json(
-        { error: 'Username kamida 3 ta belgidan iborat bo\'lishi kerak' },
+        { error: "Username kamida 3 ta belgidan iborat bo'lishi kerak" },
         { status: 400 }
       )
     }
@@ -71,16 +81,17 @@ export async function POST(request) {
       )
     }
 
-    if (password.length < 6) {
+    if (password.length < PAROL_MIN || password.length > PAROL_MAX) {
       return NextResponse.json(
-        { error: 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak' },
+        { error: `Parol ${PAROL_MIN} dan ${PAROL_MAX} tagacha belgidan iborat bo'lishi kerak` },
         { status: 400 }
       )
     }
 
     // Username tekshirish (registrni hisobga olmagan holda)
     const existingUsername = await prisma.user.findFirst({
-      where: { username: { equals: username, mode: 'insensitive' } }
+      where: { username: { equals: username, mode: 'insensitive' } },
+      select: { id: true },
     })
 
     if (existingUsername) {
@@ -92,12 +103,13 @@ export async function POST(request) {
 
     // Email tekshirish (registrni hisobga olmagan holda)
     const existingEmail = await prisma.user.findFirst({
-      where: { email: { equals: email, mode: 'insensitive' } }
+      where: { email: { equals: email, mode: 'insensitive' } },
+      select: { id: true },
     })
 
     if (existingEmail) {
       return NextResponse.json(
-        { error: 'Bu email allaqachon ro\'yxatdan o\'tgan' },
+        { error: "Bu email allaqachon ro'yxatdan o'tgan" },
         { status: 400 }
       )
     }
@@ -105,36 +117,53 @@ export async function POST(request) {
     // Parolni hash qilish
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // 9 xonalik unique userId yaratish
+    // 9 xonalik unique userId yaratish (cheksiz sikldan himoyalangan)
     let userId = generateUserId()
     let isUnique = false
-    
-    while (!isUnique) {
-      const existing = await prisma.user.findUnique({ where: { userId } })
+    for (let urinish = 0; urinish < 20 && !isUnique; urinish++) {
+      const existing = await prisma.user.findUnique({ where: { userId }, select: { id: true } })
       if (!existing) {
         isUnique = true
       } else {
         userId = generateUserId()
       }
     }
+    if (!isUnique) {
+      userId = String(Date.now()).slice(-9)
+    }
 
     // Ro'yxatdan o'tishda faqat akademik rollarga ruxsat beriladi.
-    // Ustoz/moderator/admin kabi imtiyozli rollar faqat admin panel orqali beriladi
-    // (ro'yxat lib/roles.js da — barcha joy uchun yagona manba).
     const safeRole = SELF_REGISTER_ROLES.includes(role) ? role : DEFAULT_ROLE
 
-    // Foydalanuvchini yaratish
-    const user = await prisma.user.create({
-      data: {
-        userId,
-        username,
-        email,
-        password: hashedPassword,
-        fullName,
-        role: safeRole,
-        university: university || null,
+    // Foydalanuvchini yaratish (parallel P2002 to'qnashuvidan himoya bilan)
+    let user = null
+    for (let urinish = 0; urinish < 2; urinish++) {
+      try {
+        user = await prisma.user.create({
+          data: {
+            userId,
+            username,
+            email,
+            password: hashedPassword,
+            fullName,
+            role: safeRole,
+            university: university ? university.slice(0, 120) : null,
+          }
+        })
+        break
+      } catch (err) {
+        if (err?.code !== 'P2002') throw err
+        const nishon = Array.isArray(err.meta?.target) ? err.meta.target.join(',') : String(err.meta?.target || '')
+        if (nishon.includes('username')) {
+          return NextResponse.json({ error: 'Bu username band' }, { status: 400 })
+        }
+        if (nishon.includes('email')) {
+          return NextResponse.json({ error: "Bu email allaqachon ro'yxatdan o'tgan" }, { status: 400 })
+        }
+        if (urinish === 1) throw err
+        userId = generateUserId()
       }
-    })
+    }
 
     // Sanoq AYNAN shu yerda — hisob yaratilgandan keyin. Forma
     // xatolari (band username, qisqa parol) sanalmaydi: aks holda

@@ -12,6 +12,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { put } from '@vercel/blob'
 import { isPartnerRole } from '@/lib/roles'
 import { KanalXatosi, kanalimniOl, sorovdanKanalId } from '@/lib/kanal'
+import { rasmSehrliBaytTuri } from '@/lib/xavfsiz'
 
 /** Avatar kichik, banner kattaroq — ikkalasi uchun bitta chegara yetadi */
 const ENG_KATTA = 4 * 1024 * 1024
@@ -27,6 +28,9 @@ export async function POST(request) {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
       return NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: 'Elektron doskada rasm yuklab bo\'lmaydi' }, { status: 403 })
     }
     if (!isPartnerRole(session.user.role)) {
       return NextResponse.json({ error: 'Hamkor huquqi kerak' }, { status: 403 })
@@ -61,12 +65,22 @@ export async function POST(request) {
       )
     }
 
+    const baytlar = Buffer.from(await file.arrayBuffer())
+    const haqiqiyTur = rasmSehrliBaytTuri(baytlar)
+    const haqiqiyKengaytma = haqiqiyTur ? TURLAR[haqiqiyTur] : null
+    if (!haqiqiyKengaytma) {
+      return NextResponse.json(
+        { error: 'Fayl tarkibi haqiqiy JPG, PNG yoki WEBP rasmga mos kelmadi' },
+        { status: 400 }
+      )
+    }
+
     // Yo'lda kanal id si bor — fayllar aralashib ketmaydi va keyin
     // kimning rasmi ekanini manzilning o'zidan bilish mumkin
     const blob = await put(
-      `kanal/${kanal.id}/${maqsad}-${Date.now()}.${kengaytma}`,
-      file,
-      { access: 'public', addRandomSuffix: true }
+      `kanal/${kanal.id}/${maqsad}-${Date.now()}.${haqiqiyKengaytma}`,
+      baytlar,
+      { access: 'public', addRandomSuffix: true, contentType: haqiqiyTur }
     )
 
     return NextResponse.json({ success: true, url: blob.url, maqsad })

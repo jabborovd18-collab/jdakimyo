@@ -19,7 +19,10 @@ export async function POST(request) {
 
     // Mobil ilova ham veb bilan bir xil IP cheklovini oladi: aks holda
     // to'siqni aylanib o'tish uchun shu endpoint yetarli bo'lardi.
-    const user = await verifyCredentials(body.login, body.password, soravchiIp(request))
+    const user = await verifyCredentials(body.login, body.password, soravchiIp(request), {
+      userAgent: request.headers.get('user-agent'),
+      manba: 'mobil',
+    })
     const token = await issueMobileToken(user)
 
     return NextResponse.json({

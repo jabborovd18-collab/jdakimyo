@@ -4,6 +4,7 @@
 // "Neytrallanish reaksiyasi" (Darslik 88-bet)
 // 6 ta interaktiv Canvas Ko'rgazma + 4 ta Smart-doska O'yini
 // ============================================================
+import { kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir, indekslanganVariantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import { useState, useEffect, useRef } from 'react'
 import Ikon from '@/components/Ikon'
 import OtganDarsniTakrorlash from '@/components/maktab/OtganDarsniTakrorlash'
@@ -12,9 +13,8 @@ import { SmartDoskaNavigatsiya } from '@/components/maktab/SmartDoskaYordamchi'
 function tovushChiqar(turi) {
     if (typeof window === 'undefined') return
     try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext
-        if (!AudioCtx) return
-        const ctx = new AudioCtx()
+        const ctx = umumiyAudio()
+        if (!ctx) return
         const now = ctx.currentTime
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
@@ -52,17 +52,17 @@ function tovushChiqar(turi) {
 const TAKROPI_5_4 = [
     {
         savol: "Toza distillangan suvning (neytral muhitning) pH ko'rsatkichi nechaga teng?",
-        variantlar: ["pH = 0", "pH = 7", "pH = 10", "pH = 14"],
+        variantlar: ["pH = 7", "pH = 10", "pH = 14", "pH = 0"],
         togriJavob: "pH = 7",
         izoh: "Neytral muhitda H⁺ va OH⁻ ionlari konsentratsiyasi teng bo'lib, pH = 7.0 bo'ladi."
     },
     {
         savol: "pH < 7 va pH > 7 bo'lgan eritmalar qanday muhitga ega bo'ladi?",
         variantlar: [
+            "pH < 7 — Qattiq, pH > 7 — Gaz",
             "pH < 7 — Kislotali muhit, pH > 7 — Ishqoriy muhit",
             "pH < 7 — Ishqoriy muhit, pH > 7 — Kislotali muhit",
             "Ikkalasi ham neytral",
-            "pH < 7 — Qattiq, pH > 7 — Gaz"
         ],
         togriJavob: "pH < 7 — Kislotali muhit, pH > 7 — Ishqoriy muhit",
         izoh: "0 dan 7 gacha kislotali (H⁺ ko'p), 7 dan 14 gacha esa ishqoriy (OH⁻ ko'p) muhit hisoblanadi."
@@ -70,10 +70,10 @@ const TAKROPI_5_4 = [
     {
         savol: "Kislotali (nordon, pH = 4.5) tuproqning unumdorligini yaxshilash uchun tuproqqa nima solinadi?",
         variantlar: [
+            "Osh tuzi (NaCl)",
+            "Kvars qumi (SiO₂)",
             "Ohaktosh (CaCO₃) yoki so'ndirilgan ohak Ca(OH)₂",
             "Sulfat kislota (H₂SO₄)",
-            "Osh tuzi (NaCl)",
-            "Kvars qumi (SiO₂)"
         ],
         togriJavob: "Ohaktosh (CaCO₃) yoki so'ndirilgan ohak Ca(OH)₂",
         izoh: "Agronomiyada nordon tuproqlarni neytrallash jarayoni 'tuproqni ohaklash' deyiladi."
@@ -183,7 +183,9 @@ function TitrlashByuretkaCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-3 font-serif">
                     <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
@@ -312,10 +314,10 @@ function IonNeytrallanishMexanizmCanvas() {
                 36
             )
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [bosqich])
 
     return (
@@ -346,7 +348,9 @@ function IonNeytrallanishMexanizmCanvas() {
                 </div>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={275} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={275} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -424,7 +428,9 @@ function TuzKonstruktorCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={275} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={275} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     {TUZ_REAKSIYALAR.map((r) => (
@@ -521,7 +527,9 @@ function ErimaydiganAsosNeytrallanishCanvas() {
                 </button>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -586,7 +594,9 @@ function OshqozonAntatsidCanvas() {
                 </button>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -691,7 +701,9 @@ function HasharotChaqishiCanvas() {
                 </div>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={275} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={275} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -703,7 +715,7 @@ const TUZ_SAVOLLAR = [
     { reaksiya: "NaOH + HCl → ? + H₂O", javob: "NaCl (Natriy xlorid)", variantlar: ["NaCl (Natriy xlorid)", "Na₂SO₄", "NaNO₃", "NaOH"] },
     { reaksiya: "2KOH + H₂SO₄ → ? + 2H₂O", javob: "K₂SO₄ (Kaliy sulfat)", variantlar: ["KCl", "K₂SO₄ (Kaliy sulfat)", "KNO₃", "K₂CO₃"] },
     { reaksiya: "Ca(OH)₂ + 2HNO₃ → ? + 2H₂O", javob: "Ca(NO₃)₂ (Kalsiy nitrat)", variantlar: ["CaCl₂", "CaSO₄", "Ca(NO₃)₂ (Kalsiy nitrat)", "CaCO₃"] },
-    { reaksiya: "Cu(OH)₂ + H₂SO₄ → ? + 2H₂O", javob: "CuSO₄ (Mis (II) sulfat)", variantlar: ["CuCl₂", "CuSO₄ (Mis (II) sulfat)", "CuO", "Cu(NO₃)₂"] },
+    { reaksiya: "Cu(OH)₂ + H₂SO₄ → ? + 2H₂O", javob: "CuSO₄ (Mis (II) sulfat)", variantlar: ["CuO", "Cu(NO₃)₂", "CuCl₂", "CuSO₄ (Mis (II) sulfat)"] },
     { reaksiya: "3NaOH + H₃PO₄ → ? + 3H₂O", javob: "Na₃PO₄ (Natriy fosfat)", variantlar: ["Na₃PO₄ (Natriy fosfat)", "NaCl", "Na₂SO₄", "NaNO₃"] },
     { reaksiya: "Mg(OH)₂ + 2HCl → ? + 2H₂O", javob: "MgCl₂ (Magniy xlorid)", variantlar: ["MgSO₄", "MgCl₂ (Magniy xlorid)", "MgO", "MgCO₃"] },
 ]
@@ -743,7 +755,7 @@ function TuzTopishOyini() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -784,11 +796,11 @@ function TuzTopishOyini() {
 // 2-O'YIN: TITRLASH VA STEXIOMETRIYA SINOVI
 // ============================================================
 const TITRLASH_SAVOLLAR = [
-    { savol: "NaOH va fenolftalein (malina rang) eritmasiga HCl tomchilatib quyilganda reaksiya to'liq tugaganini qanday bilamiz?", javob: "Malina rang yo'qolib, eritma to'liq rangsizlanganda (pH = 7)", variantlar: ["Eritma qora bo'lganda", "Malina rang yo'qolib, eritma to'liq rangsizlanganda (pH = 7)", "Cho'kma tushganda", "Gaz portlaganda"] },
+    { savol: "NaOH va fenolftalein (malina rang) eritmasiga HCl tomchilatib quyilganda reaksiya to'liq tugaganini qanday bilamiz?", javob: "Malina rang yo'qolib, eritma to'liq rangsizlanganda (pH = 7)", variantlar: ["Malina rang yo'qolib, eritma to'liq rangsizlanganda (pH = 7)", "Cho'kma tushganda", "Gaz portlaganda", "Eritma qora bo'lganda"] },
     { savol: "1 molekula sulfat kislotani (H₂SO₄) to'liq neytrallash uchun necha molekula KOH kerak bo'ladi?", javob: "2 molekula KOH (chunki H₂SO₄ ikki negizli)", variantlar: ["1 molekula KOH", "2 molekula KOH (chunki H₂SO₄ ikki negizli)", "3 molekula KOH", "4 molekula KOH"] },
-    { savol: "Neytrallanish reaksiyasida issiqlik ajraladimi yoki yutiladimi?", javob: "Issiqlik ajraladi (+Q, ekzotermik reaksiya)", variantlar: ["Issiqlik ajraladi (+Q, ekzotermik reaksiya)", "Issiqlik yutiladi (-Q)", "Harorat -50°C ga tushadi", "Energiya o'zgarmaydi"] },
-    { savol: "Nima uchun Cu(OH)₂ + 2HCl → CuCl₂ + 2H₂O reaksiyasida fenolftalein indikatori qo'shish shart emas?", javob: "Chunki havorang Cu(OH)₂ cho'kmasining erib ketishi reaksiyaning borganini o'zi ko'rsatadi!", variantlar: ["Chunki reaksiya bormaydi", "Chunki havorang Cu(OH)₂ cho'kmasining erib ketishi reaksiyaning borganini o'zi ko'rsatadi!", "Chunki Cu(OH)₂ gazdir", "Chunki HCl rangli"] },
-    { savol: "NaOH + HCl reaksiyasidan hosil bo'lgan rangsiz eritmadagi suv chinni kosachada bug'latilsa nima qoladi?", javob: "Oq rangli osh tuzi (NaCl) kristallari", variantlar: ["Hech narsa qolmaydi", "Oq rangli osh tuzi (NaCl) kristallari", "Qora ko'mir", "Suyuq simob"] },
+    { savol: "Neytrallanish reaksiyasida issiqlik ajraladimi yoki yutiladimi?", javob: "Issiqlik ajraladi (+Q, ekzotermik reaksiya)", variantlar: ["Harorat -50°C ga tushadi", "Energiya o'zgarmaydi", "Issiqlik ajraladi (+Q, ekzotermik reaksiya)", "Issiqlik yutiladi (-Q)"] },
+    { savol: "Nima uchun Cu(OH)₂ + 2HCl → CuCl₂ + 2H₂O reaksiyasida fenolftalein indikatori qo'shish shart emas?", javob: "Chunki havorang Cu(OH)₂ cho'kmasining erib ketishi reaksiyaning borganini o'zi ko'rsatadi!", variantlar: ["Chunki Cu(OH)₂ gazdir", "Chunki HCl rangli", "Chunki reaksiya bormaydi", "Chunki havorang Cu(OH)₂ cho'kmasining erib ketishi reaksiyaning borganini o'zi ko'rsatadi!"] },
+    { savol: "NaOH + HCl reaksiyasidan hosil bo'lgan rangsiz eritmadagi suv chinni kosachada bug'latilsa nima qoladi?", javob: "Oq rangli osh tuzi (NaCl) kristallari", variantlar: ["Oq rangli osh tuzi (NaCl) kristallari", "Qora ko'mir", "Suyuq simob", "Hech narsa qolmaydi"] },
 ]
 
 function TitrlashSinovOyini() {
@@ -826,7 +838,7 @@ function TitrlashSinovOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -867,10 +879,10 @@ function TitrlashSinovOyini() {
 // 3-O'YIN: HAYOTDA NEYTRALLANISH TEZ YORDAMI
 // ============================================================
 const TEZ_YORDAM_SAVOLLAR = [
-    { vazifa: "Asalari yoki chumoli chaqqanda (kislotali zahar — HCOOH) achishishni neytrallash uchun teriga nima surtiladi?", javob: "Ichimlik sodasi (NaHCO₃) bo'tqasi (kuchsiz ishqoriy)", variantlar: ["Sirka kislotasi", "Ichimlik sodasi (NaHCO₃) bo'tqasi (kuchsiz ishqoriy)", "Limon sharbati", "Osh tuzi"] },
+    { vazifa: "Asalari yoki chumoli chaqqanda (kislotali zahar — HCOOH) achishishni neytrallash uchun teriga nima surtiladi?", javob: "Ichimlik sodasi (NaHCO₃) bo'tqasi (kuchsiz ishqoriy)", variantlar: ["Ichimlik sodasi (NaHCO₃) bo'tqasi (kuchsiz ishqoriy)", "Limon sharbati", "Osh tuzi", "Sirka kislotasi"] },
     { vazifa: "Qovoqari (osa) chaqqanda uning zahari ISHQORIY bo'lgani uchun nima bilan neytrallanadi?", javob: "Limon sharbati yoki suyultirilgan sirka kislotasi bilan", variantlar: ["Ichimlik sodasi bilan", "Limon sharbati yoki suyultirilgan sirka kislotasi bilan", "O'yuvchi natriy bilan", "Sovun bilan"] },
-    { vazifa: "Oshqozonda xlorid kislota (HCl) ko'payib jig'ildon qaynaganda ichiladigan antatsid dorilar tarkibida qaysi asoslar bo'ladi?", javob: "Mg(OH)₂ va Al(OH)₃", variantlar: ["NaOH va KOH (o'yuvchi ishqorlar)", "Mg(OH)₂ va Al(OH)₃", "H₂SO₄ va HNO₃", "CuO va Fe₂O₃"] },
-    { vazifa: "Laboratoriyada qo'lga ishqor (NaOH) eritmasi sachraganda ko'p suv bilan yuvgandan so'ng nima bilan neytrallanadi?", javob: "2% li borat kislota yoki kuchsiz sirka/limon kislotasi eritmasi bilan", variantlar: ["Konsentrlangan H₂SO₄ bilan", "2% li borat kislota yoki kuchsiz sirka/limon kislotasi eritmasi bilan", "Ichimlik sodasi bilan", "Ohakli suv bilan"] },
+    { vazifa: "Oshqozonda xlorid kislota (HCl) ko'payib jig'ildon qaynaganda ichiladigan antatsid dorilar tarkibida qaysi asoslar bo'ladi?", javob: "Mg(OH)₂ va Al(OH)₃", variantlar: ["CuO va Fe₂O₃", "NaOH va KOH (o'yuvchi ishqorlar)", "Mg(OH)₂ va Al(OH)₃", "H₂SO₄ va HNO₃"] },
+    { vazifa: "Laboratoriyada qo'lga ishqor (NaOH) eritmasi sachraganda ko'p suv bilan yuvgandan so'ng nima bilan neytrallanadi?", javob: "2% li borat kislota yoki kuchsiz sirka/limon kislotasi eritmasi bilan", variantlar: ["Ichimlik sodasi bilan", "Ohakli suv bilan", "Konsentrlangan H₂SO₄ bilan", "2% li borat kislota yoki kuchsiz sirka/limon kislotasi eritmasi bilan"] },
 ]
 
 function TezYordamOyini() {
@@ -908,7 +920,7 @@ function TezYordamOyini() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -950,11 +962,11 @@ function TezYordamOyini() {
 // ============================================================
 const DUEL_5_5 = [
     { savol: "Kislota va asos orasida tuz va suv hosil bo'lish reaksiyasi nima deyiladi?", variantlar: ["Neytrallanish reaksiyasi", "Yonish reaksiyasi", "Parchalanish reaksiyasi", "Sublimatsiya"], javob: 0 },
-    { savol: "Neytrallanish reaksiyasining qisqa ionli mohiyati qaysi?", variantlar: ["H⁺ + OH⁻ → H₂O", "2H₂ + O₂ → 2H₂O", "Na⁺ + Cl⁻ → NaCl", "C + O₂ → CO₂"], javob: 0 },
-    { savol: "KOH + HNO₃ reaksiyasida suv bilan birga qaysi tuz hosil bo'ladi?", variantlar: ["KCl", "KNO₃ (Kaliy nitrat)", "K₂SO₄", "K₂CO₃"], javob: 1 },
-    { savol: "1 mol H₃PO₄ ni to'liq neytrallash uchun necha mol NaOH kerak?", variantlar: ["1 mol", "2 mol", "3 mol", "4 mol"], javob: 2 },
-    { savol: "NaOH + HCl to'liq neytrallanganda eritmaning pH ko'rsatkichi nechaga teng bo'ladi?", variantlar: ["pH = 1", "pH = 7", "pH = 12", "pH = 14"], javob: 1 },
-    { savol: "Titrlashda suyuqlik hajmini tomchilatib aniq o'lchab quyadigan shisha asbob nima deyiladi?", variantlar: ["Byuretka", "Shtativ", "Tigelda", "Voronka"], javob: 0 },
+    { savol: "Neytrallanish reaksiyasining qisqa ionli mohiyati qaysi?", variantlar: ["C + O₂ → CO₂", "H⁺ + OH⁻ → H₂O", "2H₂ + O₂ → 2H₂O", "Na⁺ + Cl⁻ → NaCl"], javob: 1 },
+    { savol: "KOH + HNO₃ reaksiyasida suv bilan birga qaysi tuz hosil bo'ladi?", variantlar: ["K₂CO₃", "KCl", "KNO₃ (Kaliy nitrat)", "K₂SO₄"], javob: 2 },
+    { savol: "1 mol H₃PO₄ ni to'liq neytrallash uchun necha mol NaOH kerak?", variantlar: ["4 mol", "1 mol", "2 mol", "3 mol"], javob: 3 },
+    { savol: "NaOH + HCl to'liq neytrallanganda eritmaning pH ko'rsatkichi nechaga teng bo'ladi?", variantlar: ["pH = 7", "pH = 12", "pH = 14", "pH = 1"], javob: 0 },
+    { savol: "Titrlashda suyuqlik hajmini tomchilatib aniq o'lchab quyadigan shisha asbob nima deyiladi?", variantlar: ["Voronka", "Byuretka", "Shtativ", "Tigelda"], javob: 1 },
 ]
 
 function JamoalarDueli5_5() {
@@ -964,7 +976,9 @@ function JamoalarDueli5_5() {
     const [navbat, setNavbat] = useState(1)
     const [natija, setNatija] = useState(null)
 
-    const joriy = DUEL_5_5[idx]
+    const xomJoriy = DUEL_5_5[idx]
+    const aralash = indekslanganVariantlarniAralashtir(xomJoriy, idx)
+    const joriy = { ...xomJoriy, variantlar: aralash.variantlar, javob: aralash.togri }
 
     const javobBer = (i) => {
         if (natija !== null) return

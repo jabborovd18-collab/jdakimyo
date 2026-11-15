@@ -6,7 +6,7 @@ import { checkAdminAuth } from '@/lib/admin-auth'
 // GET - Barcha reportlarni olish
 export async function GET(request) {
   try {
-    const { isAdmin } = await checkAdminAuth()
+    const { isAdmin } = await checkAdminAuth('moderatsiya')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { searchParams } = new URL(request.url)
@@ -72,13 +72,16 @@ export async function GET(request) {
 // PUT - Reportni ko'rib chiqish (resolve/dismiss)
 export async function PUT(request) {
   try {
-    const { isAdmin, user: admin } = await checkAdminAuth()
+    const { isAdmin, user: admin } = await checkAdminAuth('moderatsiya')
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { reportId, action, resolution } = await request.json()
 
     if (!reportId || !action) {
       return NextResponse.json({ error: 'reportId va action majburiy' }, { status: 400 })
+    }
+    if (!['resolve', 'dismiss', 'review'].includes(action)) {
+      return NextResponse.json({ error: 'Noto\'g\'ri action qiymati' }, { status: 400 })
     }
 
     const report = await prisma.report.findUnique({ where: { id: reportId } })

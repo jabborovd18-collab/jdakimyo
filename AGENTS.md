@@ -97,6 +97,9 @@ node scripts/seed-lab-katalog.js      # bazaga yozadi
 Qo'lda qo'shiladigan narsa (masalan suv variantlari) `lib/` dagi
 moduldan seed skripti orqali tushadi.
 
+`data/milliy-sertifikat/kalibrlash.js` ham avtomatik yaratiladi:
+`npm run ms:kalibrla -- <slug> --yoz`.
+
 ## 5. Migratsiya tartibi
 
 ```
@@ -177,6 +180,9 @@ ularni yangi qo'shilgan matn bo'yicha qidiring. HTML ni qidirish yetmaydi
   keyin tuzating.
 
 ## 11. 3D grafika — ko'z bilan ko'rmasdan tegilmaydi
+
+> v4 da 3D laboratoriya (`app/laboratoriya/3d/`) olib tashlangan. Bu band 3D
+> sahna qaytsa kerak bo'ladi: tarix sifatida qoldirilgan.
 
 Bu band 2026-08-19 dan keyin yozildi. O'sha kuni sahna grafikasini
 yaxshilash uchun 6 ta kommit qilindi: bloom, qo'shimcha `RectAreaLight`,
@@ -289,8 +295,11 @@ konflikt chiqadi.
 Next.js 16 (App Router) · Prisma 5 + PostgreSQL (Neon) · sof Three.js
 (`@react-three/fiber` YO'Q, sahna imperativ yoziladi) · TypeScript yo'q.
 
-3D laboratoriya: `app/laboratoriya/3d/` — sahna, hooklar va interfeys.
-Kimyo mantig'i va server hakamligi esa `lib/lab-*.js` da.
+Asosiy bo'limlar: `/maktabkimyo`, `/oliykimyo`, `/testlar`, `/milliy-sertifikat`,
+`/masala`, `/doska`, `/dolzarb`, `/ustoz`, `/admin`. `/oquv` va `/ilmiy` v4 da
+butunlay olib tashlangan, eski manzillar `next.config.mjs` da yo'naltiriladi.
+Tanga va gems saytda ko'rsatilmaydi, lekin bazada qoladi: Python bot
+`/api/bot/tanga` orqali ularni ishlatadi. Mobil API'lar keyingi tuzatish uchun saqlangan.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

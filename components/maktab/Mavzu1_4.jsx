@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { kadrSora, kadrniBekorQil, umumiyAudio } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoskaQoshimcha"
@@ -10,9 +11,8 @@ import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoska
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
 
     if (turi === "togri" || turi === "tasdiq") {
@@ -125,10 +125,10 @@ const takrorlashSavollari1_3 = [
     savol: "Shakarning suvda erish tezligi tekshirilayotganda 'Bog'liq o'zgaruvchi' qaysi biri?",
     izoh: "Bog'liq o'zgaruvchi — mustaqil omil ta'sirida o'zgaradigan va o'lchanadigan natijadir (bu yerda: to'liq erish vaqti).",
     variantlar: [
+      { matn: "Laboratoriya stakanining shakli", togri: false },
       { matn: "Shakarning to'liq erish vaqti (sekund)", togri: true },
       { matn: "Suvning harorati", togri: false },
       { matn: "Shakar donalarining o'lchami", togri: false },
-      { matn: "Laboratoriya stakanining shakli", togri: false },
     ],
   },
   {
@@ -136,10 +136,10 @@ const takrorlashSavollari1_3 = [
     savol: "Adolatli tajriba (Fair Test) o'tkazishning asosiy qoidasi nima?",
     izoh: "Adolatli tajribada faqat bitta mustaqil o'zgaruvchi o'zgaradi, qolgan barcha shartlar (hajm, massa, idish) qat'iy teng saqlanadi!",
     variantlar: [
-      { matn: "Faqat bitta omil o'zgartirilib, qolgan sharoitlar bir xil saqlanishi", togri: true },
-      { matn: "Hamma o'zgaruvchilarni birdaniga har xil qilish", togri: false },
       { matn: "Tajribani asboblarsiz ko'z bilan o'tkazish", togri: false },
       { matn: "Sekundomerni ishlatmaslik", togri: false },
+      { matn: "Faqat bitta omil o'zgartirilib, qolgan sharoitlar bir xil saqlanishi", togri: true },
+      { matn: "Hamma o'zgaruvchilarni birdaniga har xil qilish", togri: false },
     ],
   },
   {
@@ -147,10 +147,10 @@ const takrorlashSavollari1_3 = [
     savol: "Qattiq quduq suvida sovun nima uchun yaxshi ko'piklanmadi?",
     izoh: "Qattiq suvdagi erigan Ca²⁺ va Mg²⁺ tuzlari sovun bilan birikib cho'kma hosil qiladi va ko'pik chiqishiga to'sqinlik qiladi.",
     variantlar: [
-      { matn: "Suvdagi kalsiy va magniy tuzlari cho'kma bergani uchun", togri: true },
       { matn: "Suv juda sovuq bo'lgani uchun", togri: false },
       { matn: "Probirka kichik bo'lgani uchun", togri: false },
       { matn: "Sovun erib ketmagani uchun", togri: false },
+      { matn: "Suvdagi kalsiy va magniy tuzlari cho'kma bergani uchun", togri: true },
     ],
   },
 ]
@@ -493,11 +493,11 @@ export default function Mavzu1_4() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, kislotaUsuli, kislotaQuyilmoqda, kislotaHarorat, kislotaHajm])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -757,11 +757,11 @@ export default function Mavzu1_4() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, hidlashRejim, hidSinoviBoshlandi])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1076,11 +1076,11 @@ export default function Mavzu1_4() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, ghsTajriba, ghsHolat, fumeHoodYondi, spirtovkaQalpoq])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1299,11 +1299,11 @@ export default function Mavzu1_4() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, yordamStansiya, dushOqmoqda, yuvishVaqti, olovUsuli])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1360,7 +1360,7 @@ export default function Mavzu1_4() {
       savol: "Kuchli kislota idishiga qaysi belgi yopishtiriladi?",
       togriIkon: "tomchi",
       togriNom: "Yemiruvchi (Korroziv)",
-      variantlar: ["Yemiruvchi (Korroziv)", "Tez alangalanuvchi", "Radioaktiv", "Xavfsiz"],
+      variantlar: ["Xavfsiz", "Yemiruvchi (Korroziv)", "Tez alangalanuvchi", "Radioaktiv"],
     },
     {
       id: 3,
@@ -1368,7 +1368,7 @@ export default function Mavzu1_4() {
       savol: "Inson salomatligiga o'tkir zaharli ta'sir ko'rsatuvchi modda belgisi?",
       togriIkon: "ogohlantirish",
       togriNom: "Toksik (Zaharli)",
-      variantlar: ["Toksik (Zaharli)", "Oddiy suv", "Tez eruvchi", "Yengil gaz"],
+      variantlar: ["Tez eruvchi", "Yengil gaz", "Toksik (Zaharli)", "Oddiy suv"],
     },
     {
       id: 4,
@@ -1376,7 +1376,7 @@ export default function Mavzu1_4() {
       savol: "Zarba, ishqalanish yoki qizdirilganda portlash xavfi bor modda belgisi?",
       togriIkon: "chaqmoq",
       togriNom: "Portlovchi moddalar",
-      variantlar: ["Portlovchi moddalar", "Kislota", "Ichimlik suvi", "Muzlatuvchi"],
+      variantlar: ["Kislota", "Ichimlik suvi", "Muzlatuvchi", "Portlovchi moddalar"],
     },
     {
       id: 5,

@@ -5,54 +5,52 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
 
-// GET - O'qituvchi dashboard ma'lumotlari
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // O'qituvchi yoki admin roli tekshiruv
     const isTeacher = ustozPaneliOchiqmi(session.user)
     if (!isTeacher) {
-      return NextResponse.json({ error: 'Forbidden - O\'qituvchi huquqi kerak' }, { status: 403 })
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const teacherId = session.user.id
 
-    // Parallel ravishda barcha statistikalarni olish
     const [
       totalStudents,
       totalGroups,
       activeAssignments,
-      pendingSubmissions,
-      totalAnnouncements,
-      recentAssignments,
-      recentSubmissions,
-      recentAnnouncements
+      totalQuizzes,
+      pendingAssignSubmissions,
+      pendingClosedSubmissions,
+      recentAssignSubmissions,
+      recentQuizAttempts,
+      recentClosedSubmissions,
+      topStudentsRaw
     ] = await Promise.all([
-      // Jami talabalar — faqat taklifni qabul qilganlar. Kutilayotgan
-      // taklifni sanash raqamni haqiqatdan uzoqlashtirardi.
       prisma.teacherStudent.count({
         where: { teacherId, holat: 'faol' }
       }),
 
-      // Jami guruhlar
       prisma.teacherGroup.count({
         where: { teacherId }
       }),
 
-      // Faol vazifalar (deadline hali o'tmagan)
       prisma.assignment.count({
         where: {
           teacherId,
+          isDraft: false,
           deadline: { gte: new Date() }
         }
       }),
 
-      // Tekshirish kerak bo'lgan topshiriqlar
+      prisma.teacherQuiz.count({
+        where: { teacherId }
+      }),
+
       prisma.assignmentSubmission.count({
         where: {
           assignment: { teacherId },
@@ -60,80 +58,149 @@ export async function GET() {
         }
       }),
 
-      // Jami e'lonlar
-      prisma.announcement.count({
-        where: { teacherId }
-      }),
-
-      // Oxirgi 5 ta vazifa
-      prisma.assignment.findMany({
-        where: { teacherId },
-        orderBy: { createdAt: 'desc' },
-        take: 3,
-        include: {
-          group: { select: { name: true } },
-          _count: { select: { submissions: true } }
+      prisma.closedQuizSubmission.count({
+        where: {
+          quiz: { teacherId },
+          status: 'pending'
         }
       }),
 
-      // Oxirgi 5 ta topshiriq
       prisma.assignmentSubmission.findMany({
         where: {
           assignment: { teacherId }
         },
-        orderBy: { submittedAt: 'desc' },
-        take: 3,
         include: {
-          student: { select: { fullName: true, username: true } },
-          assignment: { select: { title: true } }
-        }
+          student: {
+            select: {
+              fullName: true,
+              username: true,
+              avatar: true
+            }
+          },
+          assignment: {
+            select: {
+              title: true,
+              maxScore: true
+            }
+          }
+        },
+        orderBy: { submittedAt: 'desc' },
+        take: 10
       }),
 
-      // Oxirgi e'lonlar
-      prisma.announcement.findMany({
-        where: { teacherId },
-        orderBy: { createdAt: 'desc' },
-        take: 3,
+      prisma.teacherQuizAttempt.findMany({
+        where: {
+          quiz: { teacherId }
+        },
         include: {
-          group: { select: { name: true } }
-        }
+          student: {
+            select: {
+              fullName: true,
+              username: true,
+              avatar: true
+            }
+          },
+          quiz: {
+            select: {
+              title: true
+            }
+          }
+        },
+        orderBy: { completedAt: 'desc' },
+        take: 10
+      }),
+
+      prisma.closedQuizSubmission.findMany({
+        where: {
+          quiz: { teacherId }
+        },
+        include: {
+          student: {
+            select: {
+              fullName: true,
+              username: true,
+              avatar: true
+            }
+          },
+          quiz: {
+            select: {
+              title: true,
+              maxScore: true
+            }
+          }
+        },
+        orderBy: { submittedAt: 'desc' },
+        take: 10
+      }),
+
+      prisma.teacherStudent.findMany({
+        where: { teacherId, holat: 'faol' },
+        include: {
+          student: {
+            select: {
+              id: true,
+              userId: true,
+              fullName: true,
+              username: true,
+              avatar: true,
+              totalPoints: true,
+              experience: true,
+              level: true,
+              isVerified: true,
+              premiumUslub: true,
+            }
+          },
+          group: {
+            select: { name: true, color: true }
+          }
+        },
+        take: 25
       })
     ])
 
-    // Oxirgi faoliyat: uch manbani birlashtirib, vaqt bo'yicha saralaymiz.
-    //
-    // Avval bu yerda ikkita xato bor edi. Birinchisi — saralashdan OLDIN
-    // `.slice(0, 5)` chaqirilardi, ya'ni ro'yxat qirqilib, eng yangi
-    // yozuvlar tushib qolishi mumkin edi. Ikkinchisi — saralash
-    // `new Date(a.time)` bo'yicha ketardi, `time` esa allaqachon
-    // "3 daqiqa oldin" degan MATN edi: `new Date(...)` dan NaN chiqib,
-    // taqqoslash hech narsa qilmasdi.
-    //
-    // Shuning uchun xom sanani (`vaqt`) alohida saqlaymiz: saralash
-    // shu bo'yicha ketadi, ko'rsatiladigan matn esa oxirida yasaladi.
-    const recentActivity = [
-      ...recentSubmissions.map(s => ({
-        icon: '📝',
-        title: `${s.student.fullName || s.student.username} "${s.assignment.title}" ni topshirdi`,
-        vaqt: s.submittedAt,
-        count: s.status === 'pending' ? '⏳ Kutilmoqda' : '✓'
+    const topStudents = topStudentsRaw
+      .sort((a, b) => (b.student.totalPoints || 0) - (a.student.totalPoints || 0))
+      .slice(0, 5)
+      .map(ts => ({
+        ...ts.student,
+        groupName: ts.group?.name || 'Guruhsiz',
+        groupColor: ts.group?.color || 'blue'
+      }))
+
+    const mergedActivity = [
+      ...recentAssignSubmissions.map(sub => ({
+        id: `assign-${sub.id}`,
+        studentName: sub.student.fullName || sub.student.username,
+        studentAvatar: sub.student.avatar,
+        assignmentTitle: `Vazifa: ${sub.assignment.title}`,
+        score: sub.score,
+        maxScore: sub.assignment.maxScore,
+        status: sub.status,
+        submittedAt: sub.submittedAt
       })),
-      ...recentAssignments.map(a => ({
-        icon: '➕',
-        title: `Yangi vazifa: "${a.title}"`,
-        vaqt: a.createdAt,
-        count: `${a._count.submissions} topshiriq`
+      ...recentQuizAttempts.map(att => ({
+        id: `quiz-${att.id}`,
+        studentName: att.student.fullName || att.student.username,
+        studentAvatar: att.student.avatar,
+        assignmentTitle: `Ochiq quiz: ${att.quiz.title}`,
+        score: att.score,
+        maxScore: att.maxScore,
+        status: 'graded',
+        submittedAt: att.completedAt
       })),
-      ...recentAnnouncements.map(an => ({
-        icon: '📢',
-        title: `E'lon: "${an.title}"`,
-        vaqt: an.createdAt,
-        count: an.group?.name || 'Barcha'
+      ...recentClosedSubmissions.map(sub => ({
+        id: `closed-${sub.id}`,
+        studentName: sub.student.fullName || sub.student.username,
+        studentAvatar: sub.student.avatar,
+        assignmentTitle: `Yopiq quiz: ${sub.quiz.title}`,
+        score: sub.score,
+        maxScore: sub.maxScore,
+        status: sub.status,
+        submittedAt: sub.submittedAt
       }))
     ]
-      .sort((a, b) => new Date(b.vaqt) - new Date(a.vaqt))
-      .slice(0, 5)
-      .map(({ vaqt, ...qolgani }) => ({ ...qolgani, time: formatTimeAgo(vaqt) }))
+      .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
+      .slice(0, 10)
 
     return NextResponse.json({
       success: true,
@@ -141,33 +208,17 @@ export async function GET() {
         totalStudents,
         totalGroups,
         activeAssignments,
-        pendingSubmissions,
-        totalAnnouncements
+        totalQuizzes,
+        pendingSubmissions: pendingAssignSubmissions + pendingClosedSubmissions
       },
-      recentActivity
+      recentActivity: mergedActivity,
+      topStudents
     })
-
   } catch (error) {
-    console.error('[Ustoz Dashboard GET]', error)
+    console.error('[Ustoz Dashboard]', error)
     return NextResponse.json(
-      { error: 'Xatolik: ' + error.message },
+      { error: 'Dashboard ma\'lumotlarini yuklashda xatolik yuz berdi' },
       { status: 500 }
     )
   }
-}
-
-// Yordamchi funksiya: "necha daqiqa/soat/kun oldin"
-function formatTimeAgo(date) {
-  const now = new Date()
-  const then = new Date(date)
-  const diffMs = now - then
-  const diffMin = Math.floor(diffMs / 60000)
-  const diffHour = Math.floor(diffMs / 3600000)
-  const diffDay = Math.floor(diffMs / 86400000)
-
-  if (diffMin < 1) return 'hozirgina'
-  if (diffMin < 60) return `${diffMin} daqiqa oldin`
-  if (diffHour < 24) return `${diffHour} soat oldin`
-  if (diffDay < 7) return `${diffDay} kun oldin`
-  return then.toLocaleDateString('uz-UZ')
 }

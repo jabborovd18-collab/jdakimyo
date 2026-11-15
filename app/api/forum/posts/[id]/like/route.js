@@ -24,19 +24,23 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Bu post hali tasdiqlanmagan' }, { status: 400 })
     }
 
-    const mavjud = await prisma.forumLike.findUnique({
-      where: { postId_userId: { postId: id, userId } },
+    // Ikki marta tez bosilganda P2002 (500 xato) chiqmasligi uchun atomar almashtirish
+    let liked = false
+    const deleted = await prisma.forumLike.deleteMany({
+      where: { postId: id, userId },
     })
-
-    if (mavjud) {
-      await prisma.forumLike.delete({ where: { id: mavjud.id } })
-    } else {
-      await prisma.forumLike.create({ data: { postId: id, userId } })
+    if (deleted.count === 0) {
+      try {
+        await prisma.forumLike.create({ data: { postId: id, userId } })
+      } catch (e) {
+        if (e?.code !== 'P2002') throw e
+      }
+      liked = true
     }
 
     const likes = await prisma.forumLike.count({ where: { postId: id } })
 
-    return NextResponse.json({ success: true, liked: !mavjud, likes })
+    return NextResponse.json({ success: true, liked, likes })
   } catch (error) {
     console.error('[Forum like]', error)
     return NextResponse.json({ error: 'Xatolik' }, { status: 500 })

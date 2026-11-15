@@ -3,16 +3,18 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { tozala } from '@/lib/maxfiylik'
 
 // POST - Obuna bo'lish (Follow)
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { followingId } = await request.json()
+    const body = await request.json().catch(() => ({}))
+    const followingId = typeof body?.followingId === 'string' ? body.followingId.trim() : ''
 
     if (!followingId) {
       return NextResponse.json(
@@ -29,15 +31,34 @@ export async function POST(request) {
       )
     }
 
-    // Foydalanuvchi mavjudligini tekshirish
-    const targetUser = await prisma.user.findUnique({
-      where: { id: followingId }
-    })
+    // Foydalanuvchi mavjudligini va bloklanmaganligini tekshirish
+    const [targetUser, blok] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: followingId },
+        select: { id: true, isBanned: true, privacySettings: true }
+      }),
+      prisma.userBlock.findFirst({
+        where: {
+          OR: [
+            { blockerId: session.user.id, blockedId: followingId },
+            { blockerId: followingId, blockedId: session.user.id }
+          ]
+        },
+        select: { id: true }
+      })
+    ])
 
-    if (!targetUser) {
+    if (!targetUser || targetUser.isBanned || blok) {
       return NextResponse.json(
         { error: 'Foydalanuvchi topilmadi' },
         { status: 404 }
+      )
+    }
+
+    if (tozala(targetUser.privacySettings).profil === 'hech-kim') {
+      return NextResponse.json(
+        { error: 'Bu foydalanuvchining profili yopiq' },
+        { status: 403 }
       )
     }
 
@@ -71,7 +92,8 @@ export async function POST(request) {
             userId: true,
             username: true,
             fullName: true,
-            avatar: true
+            avatar: true,
+            isVerified: true
           }
         }
       }
@@ -86,7 +108,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('[Follow POST Error]:', error)
     return NextResponse.json(
-      { error: 'Obuna bo\'lishda xatolik: ' + error.message },
+      { error: 'Obuna bo\'lishda xatolik' },
       { status: 500 }
     )
   }
@@ -96,11 +118,12 @@ export async function POST(request) {
 export async function DELETE(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { followingId } = await request.json()
+    const body = await request.json().catch(() => ({}))
+    const followingId = typeof body?.followingId === 'string' ? body.followingId.trim() : ''
 
     if (!followingId) {
       return NextResponse.json(
@@ -138,7 +161,7 @@ export async function DELETE(request) {
   } catch (error) {
     console.error('[Follow DELETE Error]:', error)
     return NextResponse.json(
-      { error: 'Obunani bekor qilishda xatolik: ' + error.message },
+      { error: 'Obunani bekor qilishda xatolik' },
       { status: 500 }
     )
   }

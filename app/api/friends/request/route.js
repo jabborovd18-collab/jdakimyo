@@ -5,6 +5,7 @@ import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { completeMission } from '@/lib/missions' // 🆕 Import
 import { xabarYubor } from '@/lib/bildirishnoma'
+import { dostTaklifQarori } from '@/lib/profil-tekshiruv'
 
 // ─── GET: menga kelgan, javob kutayotgan do'stlik takliflari ───
 //
@@ -14,7 +15,7 @@ import { xabarYubor } from '@/lib/bildirishnoma'
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -52,11 +53,13 @@ export async function GET() {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { receiverId, message } = await request.json()
+    const body = await request.json().catch(() => ({}))
+    const receiverId = typeof body?.receiverId === 'string' ? body.receiverId.trim() : ''
+    const cleanMessage = typeof body?.message === 'string' ? body.message.trim().slice(0, 300) || null : null
 
     if (!receiverId) {
       return NextResponse.json(
@@ -73,12 +76,24 @@ export async function POST(request) {
       )
     }
 
-    // Foydalanuvchi mavjudligini tekshirish
-    const receiver = await prisma.user.findUnique({
-      where: { id: receiverId }
-    })
+    // Foydalanuvchi mavjudligini va bloklanmaganligini tekshirish
+    const [receiver, blok] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: receiverId },
+        select: { id: true, isBanned: true }
+      }),
+      prisma.userBlock.findFirst({
+        where: {
+          OR: [
+            { blockerId: session.user.id, blockedId: receiverId },
+            { blockerId: receiverId, blockedId: session.user.id }
+          ]
+        },
+        select: { id: true }
+      })
+    ])
 
-    if (!receiver) {
+    if (!receiver || receiver.isBanned || blok) {
       return NextResponse.json(
         { error: 'Foydalanuvchi topilmadi' },
         { status: 404 }
@@ -102,50 +117,62 @@ export async function POST(request) {
       )
     }
 
-    // Allaqachon taklif yuborilganmi?
-    const existingRequest = await prisma.friendRequest.findFirst({
-      where: {
-        OR: [
-          { senderId: session.user.id, receiverId, status: 'pending' },
-          { senderId: receiverId, receiverId: session.user.id, status: 'pending' }
-        ]
-      }
-    })
+    // Allaqachon taklif yuborilganmi? (qarama-qarshi pending va eski rejected yozuvlarni hisobga olish)
+    const [reversePending, samePair] = await Promise.all([
+      prisma.friendRequest.findFirst({
+        where: { senderId: receiverId, receiverId: session.user.id, status: 'pending' },
+        select: { id: true }
+      }),
+      prisma.friendRequest.findUnique({
+        where: {
+          senderId_receiverId: { senderId: session.user.id, receiverId }
+        },
+        select: { id: true, status: true }
+      })
+    ])
 
-    if (existingRequest) {
+    const qaror = dostTaklifQarori(samePair)
+    if (reversePending || qaror.amal === 'kutilmoqda') {
       return NextResponse.json(
         { error: 'Taklif allaqachon yuborilgan' },
         { status: 400 }
       )
     }
 
-    // Yangi taklif yaratish
-    const friendRequest = await prisma.friendRequest.create({
-      data: {
-        senderId: session.user.id,
-        receiverId,
-        message: message || null
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            userId: true,
-            username: true,
-            fullName: true,
-            isVerified: true,
-            avatar: true
-          }
+    const senderInclude = {
+      sender: {
+        select: {
+          id: true,
+          userId: true,
+          username: true,
+          fullName: true,
+          isVerified: true,
+          avatar: true
         }
       }
-    })
+    }
+
+    const friendRequest = qaror.amal === 'yangila'
+      ? await prisma.friendRequest.update({
+          where: { id: qaror.id },
+          data: { status: 'pending', message: cleanMessage, createdAt: new Date() },
+          include: senderInclude
+        })
+      : await prisma.friendRequest.create({
+          data: {
+            senderId: session.user.id,
+            receiverId,
+            message: cleanMessage
+          },
+          include: senderInclude
+        })
 
     // Qabul qiluvchi taklif kelganini bilsin: kabinetdagi qizil belgi
     // aynan shu yozuvdan chiqadi
     await xabarYubor(receiverId, {
       turi: 'dost',
       sarlavha: `👥 ${friendRequest.sender.fullName || friendRequest.sender.username} do'stlik taklifi yubordi`,
-      matn: message || null,
+      matn: cleanMessage,
       havola: '/profil/dostlar',
     })
 

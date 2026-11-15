@@ -24,10 +24,8 @@ import {
 const SAYT = 'https://www.jdakimyo.uz'
 
 const BUYRUQLAR = [
-  { command: 'test', description: 'Guruhdagi ochiq testni boshlash' },
-  { command: 'newquiz', description: 'Yangi quiz yaratish' },
-  { command: 'myquiz', description: 'Mening quizlarim' },
-  { command: 'quizstats', description: 'Quiz natijalari' },
+  { command: 'kod', description: 'Sayt hisobini ulash' },
+  { command: 'sertifikatlar', description: 'Rasmiy sertifikatlar' },
   { command: 'xabarlar', description: 'Oxirgi bildirishnomalar' },
   { command: 'holat', description: "Hisob ma'lumotlari" },
   { command: 'ilova', description: 'Mobil ilovani yuklab olish' },
@@ -55,7 +53,7 @@ export async function GET() {
     kutilganManzil: `${SAYT}/api/telegram/webhook`,
   }
 
-  // Quiz va PDF xizmatining holati. Foydalanuvchiga ko'rinadigan xabar
+  // PDF xizmatining holati. Foydalanuvchiga ko'rinadigan xabar
   // ataylab umumiy, sabab esa bir nechta bo'lishi mumkin — shu yerda
   // aniq aytiladi.
   const koprukNatija = await kopruTekshir()
@@ -121,9 +119,8 @@ export async function POST() {
   await tavsifQoy({
     tavsif:
       "JDA KIMYO — o'zbek tilida oliy kimyo platformasi. " +
-      'Bot bildirishnomalarni yetkazadi, test faylingizdan Telegram quiz ' +
-      'yasaydi va rasmlardan PDF yig\'adi.',
-    qisqa: 'JDA KIMYO — quiz, PDF va bildirishnomalar',
+      'Saytdagi bildirishnomalar va sertifikatlarni Telegram orqali oling.',
+    qisqa: 'JDA KIMYO bildirishnomalari',
   })
   qadamlar.push({ nom: 'tavsif', ok: true, sabab: null })
 

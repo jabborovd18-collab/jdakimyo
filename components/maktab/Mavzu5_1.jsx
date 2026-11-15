@@ -4,6 +4,7 @@
 // "Kislotalar" (Darslik 76-bet)
 // 6 ta interaktiv Canvas Ko'rgazma + 4 ta Smart-doska O'yini
 // ============================================================
+import { kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir, indekslanganVariantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import { useState, useEffect, useRef } from 'react'
 import Ikon from '@/components/Ikon'
 import OtganDarsniTakrorlash from '@/components/maktab/OtganDarsniTakrorlash'
@@ -12,9 +13,8 @@ import { SmartDoskaNavigatsiya } from '@/components/maktab/SmartDoskaYordamchi'
 function tovushChiqar(turi) {
     if (typeof window === 'undefined') return
     try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext
-        if (!AudioCtx) return
-        const ctx = new AudioCtx()
+        const ctx = umumiyAudio()
+        if (!ctx) return
         const now = ctx.currentTime
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
@@ -52,7 +52,7 @@ function tovushChiqar(turi) {
 const TAKROPI_4_3 = [
     {
         savol: "Oshxonada xamirni ko'pchitish uchun ishlatiladigan ichimlik sodasining kimyoviy formulasi qaysi?",
-        variantlar: ["NaCl", "NaHCO₃", "Na₂CO₃", "CaCO₃"],
+        variantlar: ["NaHCO₃", "Na₂CO₃", "CaCO₃", "NaCl"],
         togriJavob: "NaHCO₃",
         izoh: "Ichimlik sodasi — natriy gidrokarbonat (NaHCO₃) bo'lib, kislota yoki issiqlik ta'sirida CO₂ gazini chiqaradi."
     },
@@ -65,10 +65,10 @@ const TAKROPI_4_3 = [
     {
         savol: "So'ndirilmagan ohak (CaO) ustiga suv quyilganda qanday modda hosil bo'ladi?",
         variantlar: [
+            "SiO₂ — Kvars qumi",
+            "Na₂CO₃ — Kir sodasi",
             "Ca(OH)₂ — So'ndirilgan ohak",
             "CaCO₃ — Ohaktosh",
-            "SiO₂ — Kvars qumi",
-            "Na₂CO₃ — Kir sodasi"
         ],
         togriJavob: "Ca(OH)₂ — So'ndirilgan ohak",
         izoh: "CaO + H₂O → Ca(OH)₂ + Q reaksiyasida ko'p issiqlik ajralib, so'ndirilgan ohak hosil bo'ladi."
@@ -150,10 +150,10 @@ function TabiiyKislotalarCanvas() {
             ctx.font = 'bold 14px "Times New Roman", serif'
             ctx.fillText("Barcha kislotalarga nordon ta'm beruvchi zarracha — vodorod kationi (H⁺)!", 280, 276)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [tanlangan])
 
     return (
@@ -170,7 +170,9 @@ function TabiiyKislotalarCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={295} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={295} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     <div className="grid grid-cols-2 gap-2">
@@ -280,10 +282,10 @@ function MineralKislotalarCanvas() {
             ctx.font = 'bold 14px "Times New Roman", serif'
             ctx.fillText(`Olinishi: ${kislota.oksid}   |   Valentligi = ${kislota.hSoni}`, 280, 276)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [kislota])
 
     return (
@@ -295,7 +297,9 @@ function MineralKislotalarCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={295} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={295} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     {MINERAL_KISLOTALAR.map((k) => (
@@ -374,10 +378,10 @@ function KislotaTasnifiCanvas() {
             ctx.font = 'bold 15px "Times New Roman", serif'
             ctx.fillText(`Tasnifi: ${juft.tur}`, 280, 275)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [juft])
 
     return (
@@ -389,7 +393,9 @@ function KislotaTasnifiCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={295} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={295} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5 font-serif">
                     {OKSID_KISLOTA_JUFTLAR.map((j) => (
@@ -490,10 +496,10 @@ function KislotaMetallCanvas() {
             ctx.textAlign = 'center'
             ctx.fillText(metall.reaksiya, 280, 34)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [metall])
 
     return (
@@ -505,7 +511,9 @@ function KislotaMetallCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={275} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={275} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5 font-serif">
                     <div className="grid grid-cols-2 gap-2">
@@ -616,10 +624,10 @@ function KislotaSuyultirishCanvas() {
                 272
             )
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [usul])
 
     return (
@@ -653,7 +661,9 @@ function KislotaSuyultirishCanvas() {
                 </div>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -712,10 +722,10 @@ function KislotaKarbonatCanvas() {
             ctx.font = 'bold 14px "Times New Roman", serif'
             ctx.fillText("Geologlar dala sharoitida ohaktosh va marmarni ustiga kislota tomizib CO₂ chiqishidan aniqlaydilar!", 280, 268)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [tomizildi])
 
     return (
@@ -733,7 +743,9 @@ function KislotaKarbonatCanvas() {
                 </button>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -742,12 +754,12 @@ function KislotaKarbonatCanvas() {
 // 1-O'YIN: TABIIY KISLOTA MANBASINI TOPING
 // ============================================================
 const MANBA_SAVOLLAR = [
-    { manba: "Inson oshqozon shirasida ovqatni hazm qilish va mikroblarni o'ldirish uchun qaysi kislota bor?", javob: "Xlorid kislota (HCl — 0.5%)", variantlar: ["Sulfat kislota (H₂SO₄)", "Xlorid kislota (HCl — 0.5%)", "Nitrat kislota (HNO₃)", "Fosfat kislota (H₃PO₄)"] },
-    { manba: "Chumoli chaqqanda yoki qichitqi o't qo'lga tekkanda achishtiruvchi kislota qaysi?", javob: "Chumoli kislotasi (HCOOH)", variantlar: ["Chumoli kislotasi (HCOOH)", "Sut kislotasi", "Limon kislotasi", "Karbonat kislota"] },
-    { manba: "Qatiq, suzma, kefir va tuzlangan karam tarkibida qaysi tabiiy kislota bor?", javob: "Sut kislotasi", variantlar: ["Shovul kislotasi", "Sut kislotasi", "Xlorid kislota", "Sirka kislotasi"] },
-    { manba: "Avtomobil akkumulyatorlariga elektrolit sifatida quyiladigan kislota qaysi?", javob: "Sulfat kislota (H₂SO₄)", variantlar: ["Sulfat kislota (H₂SO₄)", "Karbonat kislota (H₂CO₃)", "Sirka kislotasi", "Olma kislotasi"] },
-    { manba: "Gazli ichimliklarga CO₂ gazi yuborilganda hosil bo'ladigan beqaror kislota:", javob: "Karbonat kislota (H₂CO₃)", variantlar: ["Nitrat kislota (HNO₃)", "Karbonat kislota (H₂CO₃)", "Sulfat kislota (H₂SO₄)", "Xlorid kislota (HCl)"] },
-    { manba: "Bahorgi ko'kat — shovul va otquloq barglariga nordon ta'm beruvchi kislota:", javob: "Shovul (oksalat) kislotasi", variantlar: ["Shovul (oksalat) kislotasi", "Sut kislotasi", "Chumoli kislotasi", "Nitrat kislota"] },
+    { manba: "Inson oshqozon shirasida ovqatni hazm qilish va mikroblarni o'ldirish uchun qaysi kislota bor?", javob: "Xlorid kislota (HCl — 0.5%)", variantlar: ["Xlorid kislota (HCl — 0.5%)", "Nitrat kislota (HNO₃)", "Fosfat kislota (H₃PO₄)", "Sulfat kislota (H₂SO₄)"] },
+    { manba: "Chumoli chaqqanda yoki qichitqi o't qo'lga tekkanda achishtiruvchi kislota qaysi?", javob: "Chumoli kislotasi (HCOOH)", variantlar: ["Karbonat kislota", "Chumoli kislotasi (HCOOH)", "Sut kislotasi", "Limon kislotasi"] },
+    { manba: "Qatiq, suzma, kefir va tuzlangan karam tarkibida qaysi tabiiy kislota bor?", javob: "Sut kislotasi", variantlar: ["Sirka kislotasi", "Shovul kislotasi", "Sut kislotasi", "Xlorid kislota"] },
+    { manba: "Avtomobil akkumulyatorlariga elektrolit sifatida quyiladigan kislota qaysi?", javob: "Sulfat kislota (H₂SO₄)", variantlar: ["Karbonat kislota (H₂CO₃)", "Sirka kislotasi", "Olma kislotasi", "Sulfat kislota (H₂SO₄)"] },
+    { manba: "Gazli ichimliklarga CO₂ gazi yuborilganda hosil bo'ladigan beqaror kislota:", javob: "Karbonat kislota (H₂CO₃)", variantlar: ["Karbonat kislota (H₂CO₃)", "Sulfat kislota (H₂SO₄)", "Xlorid kislota (HCl)", "Nitrat kislota (HNO₃)"] },
+    { manba: "Bahorgi ko'kat — shovul va otquloq barglariga nordon ta'm beruvchi kislota:", javob: "Shovul (oksalat) kislotasi", variantlar: ["Nitrat kislota", "Shovul (oksalat) kislotasi", "Sut kislotasi", "Chumoli kislotasi"] },
 ]
 
 function TabiiyManbaOyini() {
@@ -785,7 +797,7 @@ function TabiiyManbaOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -826,11 +838,11 @@ function TabiiyManbaOyini() {
 // 2-O'YIN: KISLOTA PASPORTI (FORMULA, NEGIZLILIK, KISLOROD)
 // ============================================================
 const PASPORT_SAVOLLAR = [
-    { savol: "Ortofosfat kislotaning (H₃PO₄) negizliligi va kislota qoldig'i valentligi nechaga teng?", javob: "3 negizli (PO₄ qoldig'i III valentli)", variantlar: ["1 negizli (I valentli)", "2 negizli (II valentli)", "3 negizli (PO₄ qoldig'i III valentli)", "4 negizli (IV valentli)"] },
+    { savol: "Ortofosfat kislotaning (H₃PO₄) negizliligi va kislota qoldig'i valentligi nechaga teng?", javob: "3 negizli (PO₄ qoldig'i III valentli)", variantlar: ["3 negizli (PO₄ qoldig'i III valentli)", "4 negizli (IV valentli)", "1 negizli (I valentli)", "2 negizli (II valentli)"] },
     { savol: "Quyidagilardan qaysi biri KISLORODSIZ kislotalar qatoriga kiradi?", javob: "HCl, H₂S, HBr, HF", variantlar: ["H₂SO₄, HNO₃, H₃PO₄", "HCl, H₂S, HBr, HF", "H₂CO₃, H₂SO₃, H₂SiO₃", "HNO₂, HClO₄"] },
-    { savol: "Sulfat kislota (H₂SO₄) qaysi kislotali oksidning suv bilan birikishidan hosil bo'ladi?", javob: "SO₃ + H₂O → H₂SO₄", variantlar: ["SO₂ + H₂O → H₂SO₄", "SO₃ + H₂O → H₂SO₄", "CO₂ + H₂O → H₂SO₄", "P₂O₅ + H₂O → H₂SO₄"] },
-    { savol: "Nitrat kislota (HNO₃) tarkibidagi NO₃ kislota qoldig'ining valentligi nechaga teng?", javob: "I valentli (chunki 1 ta H atomi bor)", variantlar: ["I valentli (chunki 1 ta H atomi bor)", "II valentli", "III valentli", "IV valentli"] },
-    { savol: "Vodorod sulfid kislotaning (H₂S) negizliligi va turi qanday?", javob: "2 negizli, kislorodsiz kislota", variantlar: ["1 negizli, kislorodli", "2 negizli, kislorodsiz kislota", "3 negizli, kislorodli", "2 negizli, kislorodli"] },
+    { savol: "Sulfat kislota (H₂SO₄) qaysi kislotali oksidning suv bilan birikishidan hosil bo'ladi?", javob: "SO₃ + H₂O → H₂SO₄", variantlar: ["P₂O₅ + H₂O → H₂SO₄", "SO₂ + H₂O → H₂SO₄", "SO₃ + H₂O → H₂SO₄", "CO₂ + H₂O → H₂SO₄"] },
+    { savol: "Nitrat kislota (HNO₃) tarkibidagi NO₃ kislota qoldig'ining valentligi nechaga teng?", javob: "I valentli (chunki 1 ta H atomi bor)", variantlar: ["II valentli", "III valentli", "IV valentli", "I valentli (chunki 1 ta H atomi bor)"] },
+    { savol: "Vodorod sulfid kislotaning (H₂S) negizliligi va turi qanday?", javob: "2 negizli, kislorodsiz kislota", variantlar: ["2 negizli, kislorodsiz kislota", "3 negizli, kislorodli", "2 negizli, kislorodli", "1 negizli, kislorodli"] },
     { savol: "Barcha kislotalarning suvli eritmasida nordon ta'm va umumiy xossalarni beruvchi ion qaysi?", javob: "Vodorod kationi (H⁺)", variantlar: ["Gidroksid anioni (OH⁻)", "Vodorod kationi (H⁺)", "Natriy kationi (Na⁺)", "Xlorid anioni (Cl⁻)"] },
 ]
 
@@ -869,7 +881,7 @@ function KislotaPasportiOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -910,11 +922,11 @@ function KislotaPasportiOyini() {
 // 3-O'YIN: LABORATORIYA REAKSIYALARI VA XAVFSIZLIK
 // ============================================================
 const REAKSIYA_SAVOLLAR = [
-    { vazifa: "Konsentrlangan sulfat kislotani (H₂SO₄) suyultirishning yagona xavfsiz qoidasi qaysi?", javob: "Sovuq suv ustiga kislotani ingichka oqim bilan aralashtirib quyish kerak", variantlar: ["Kislota ustiga suvni birdan quyish kerak", "Sovuq suv ustiga kislotani ingichka oqim bilan aralashtirib quyish kerak", "Qaynoq suvga quyish kerak", "Aralashtirmasdan yopiq idishda chayqatish kerak"] },
+    { vazifa: "Konsentrlangan sulfat kislotani (H₂SO₄) suyultirishning yagona xavfsiz qoidasi qaysi?", javob: "Sovuq suv ustiga kislotani ingichka oqim bilan aralashtirib quyish kerak", variantlar: ["Sovuq suv ustiga kislotani ingichka oqim bilan aralashtirib quyish kerak", "Qaynoq suvga quyish kerak", "Aralashtirmasdan yopiq idishda chayqatish kerak", "Kislota ustiga suvni birdan quyish kerak"] },
     { vazifa: "Rux metali ustiga xlorid kislota quyilganda (Zn + 2HCl) qaysi gaz ajralib chiqadi?", javob: "Vodorod gazi (H₂↑)", variantlar: ["Kislorod (O₂↑)", "Vodorod gazi (H₂↑)", "Karbonat angidrid (CO₂↑)", "Xlor (Cl₂↑)"] },
-    { vazifa: "Qaysi metall suyultirilgan xlorid kislota (HCl) bilan reaksiyaga KIRISHMAYDI?", javob: "Mis (Cu)", variantlar: ["Magniy (Mg)", "Rux (Zn)", "Temir (Fe)", "Mis (Cu)"] },
-    { vazifa: "Bo'r yoki marmar (CaCO₃) ustiga kislota tomizilganda vijillab qaysi gaz chiqadi?", javob: "Karbonat angidrid (CO₂↑)", variantlar: ["Karbonat angidrid (CO₂↑)", "Vodorod (H₂↑)", "Azot (N₂↑)", "Kislorod (O₂↑)"] },
-    { vazifa: "Teriga kislota tomchisi sachraganda birinchi tibbiy yordam qanday ko'rsatiladi?", javob: "Ko'p oqar suv bilan yuvib, so'ng 2% li ichimlik sodasi (NaHCO₃) eritmasi surtiladi", variantlar: ["Quruq latta bilan ishqalanadi", "Ko'p oqar suv bilan yuvib, so'ng 2% li ichimlik sodasi (NaHCO₃) eritmasi surtiladi", "Ustiga o'yuvchi ishqor (NaOH) quyiladi", "Spirt bilan kuydiriladi"] },
+    { vazifa: "Qaysi metall suyultirilgan xlorid kislota (HCl) bilan reaksiyaga KIRISHMAYDI?", javob: "Mis (Cu)", variantlar: ["Rux (Zn)", "Temir (Fe)", "Mis (Cu)", "Magniy (Mg)"] },
+    { vazifa: "Bo'r yoki marmar (CaCO₃) ustiga kislota tomizilganda vijillab qaysi gaz chiqadi?", javob: "Karbonat angidrid (CO₂↑)", variantlar: ["Vodorod (H₂↑)", "Azot (N₂↑)", "Kislorod (O₂↑)", "Karbonat angidrid (CO₂↑)"] },
+    { vazifa: "Teriga kislota tomchisi sachraganda birinchi tibbiy yordam qanday ko'rsatiladi?", javob: "Ko'p oqar suv bilan yuvib, so'ng 2% li ichimlik sodasi (NaHCO₃) eritmasi surtiladi", variantlar: ["Ko'p oqar suv bilan yuvib, so'ng 2% li ichimlik sodasi (NaHCO₃) eritmasi surtiladi", "Ustiga o'yuvchi ishqor (NaOH) quyiladi", "Spirt bilan kuydiriladi", "Quruq latta bilan ishqalanadi"] },
 ]
 
 function LaboratoriyaXavfsizlikOyini() {
@@ -952,7 +964,7 @@ function LaboratoriyaXavfsizlikOyini() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -993,11 +1005,11 @@ function LaboratoriyaXavfsizlikOyini() {
 // 4-O'YIN: JAMOALAR DUELI (1-GURUH VS 2-GURUH)
 // ============================================================
 const DUEL_5_1 = [
-    { savol: "Sulfat kislotaning kimyoviy formulasi qaysi?", variantlar: ["H₂SO₃", "H₂SO₄", "H₂S", "HNO₃"], javob: 1 },
-    { savol: "Qaysi kislota 3 negizli kislota hisoblanadi?", variantlar: ["HCl", "H₂SO₄", "H₃PO₄", "HNO₃"], javob: 2 },
-    { savol: "Inson oshqozon shirasida qaysi kislota mavjud?", variantlar: ["Xlorid kislota (HCl)", "Sulfat kislota (H₂SO₄)", "Fosfat kislota (H₃PO₄)", "Nitrat kislota (HNO₃)"], javob: 0 },
-    { savol: "P₂O₅ + 3H₂O reaksiyasida qaysi kislota hosil bo'ladi?", variantlar: ["2H₃PO₄", "H₂SO₄", "2HNO₃", "H₂CO₃"], javob: 0 },
-    { savol: "Zn + 2HCl → ZnCl₂ + ? reaksiyasida qaysi gaz ajraladi?", variantlar: ["O₂↑", "H₂↑", "CO₂↑", "Cl₂↑"], javob: 1 },
+    { savol: "Sulfat kislotaning kimyoviy formulasi qaysi?", variantlar: ["H₂SO₄", "H₂S", "HNO₃", "H₂SO₃"], javob: 0 },
+    { savol: "Qaysi kislota 3 negizli kislota hisoblanadi?", variantlar: ["H₂SO₄", "H₃PO₄", "HNO₃", "HCl"], javob: 1 },
+    { savol: "Inson oshqozon shirasida qaysi kislota mavjud?", variantlar: ["Fosfat kislota (H₃PO₄)", "Nitrat kislota (HNO₃)", "Xlorid kislota (HCl)", "Sulfat kislota (H₂SO₄)"], javob: 2 },
+    { savol: "P₂O₅ + 3H₂O reaksiyasida qaysi kislota hosil bo'ladi?", variantlar: ["H₂SO₄", "2HNO₃", "H₂CO₃", "2H₃PO₄"], javob: 3 },
+    { savol: "Zn + 2HCl → ZnCl₂ + ? reaksiyasida qaysi gaz ajraladi?", variantlar: ["H₂↑", "CO₂↑", "Cl₂↑", "O₂↑"], javob: 0 },
     { savol: "Qatiq va kefir tarkibida qaysi organik kislota bor?", variantlar: ["Limon kislotasi", "Sut kislotasi", "Chumoli kislotasi", "Shovul kislotasi"], javob: 1 },
 ]
 
@@ -1008,7 +1020,9 @@ function JamoalarDueli5_1() {
     const [navbat, setNavbat] = useState(1)
     const [natija, setNatija] = useState(null)
 
-    const joriy = DUEL_5_1[idx]
+    const xomJoriy = DUEL_5_1[idx]
+    const aralash = indekslanganVariantlarniAralashtir(xomJoriy, idx)
+    const joriy = { ...xomJoriy, variantlar: aralash.variantlar, javob: aralash.togri }
 
     const javobBer = (i) => {
         if (natija !== null) return

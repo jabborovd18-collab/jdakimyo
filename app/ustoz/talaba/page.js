@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import Ikon from '@/components/Ikon'
 
@@ -15,6 +16,12 @@ export default function UstozTalabalarPage() {
   const [search, setSearch] = useState('')
   const [groupFilter, setGroupFilter] = useState('all')
   const [activeTab, setActiveTab] = useState('faol') // 'faol' | 'sorov'
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const gId = searchParams.get('groupId')
+    if (gId) setGroupFilter(gId)
+  }, [searchParams])
 
   // Add Student Modal
   const [showAddModal, setShowAddModal] = useState(false)

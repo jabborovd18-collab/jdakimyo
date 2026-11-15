@@ -8,30 +8,54 @@ const HOLATLAR = [
   { key: 'pending', label: 'Tekshiruvda', rang: 'bg-amber-600/20 text-amber-400 border-amber-600/40' },
   { key: 'approved', label: 'Tasdiqlangan', rang: 'bg-green-600/20 text-green-400 border-green-600/40' },
   { key: 'rejected', label: 'Rad etilgan', rang: 'bg-red-600/20 text-red-400 border-red-600/40' },
-  { key: 'all', label: 'Hammasi', rang: 'bg-purple-600/20 text-purple-300 border-purple-600/40' },
+  { key: 'all', label: 'Hammasi', rang: 'bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] border-[var(--v3-chiziq-2)]' },
 ]
 
 export default function AdminForumPage() {
   const [posts, setPosts] = useState([])
   const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0 })
   const [filter, setFilter] = useState('pending')
+  const [qidiruv, setQidiruv] = useState('')
+  const [faolQidiruv, setFaolQidiruv] = useState('')
+  const [sahifa, setSahifa] = useState(1)
+  const [sahifalar, setSahifalar] = useState(1)
+  const [jami, setJami] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [ishlanmoqda, setIshlanmoqda] = useState(null)
+  const [radOyna, setRadOyna] = useState({ ochiq: false, id: null, sabab: '' })
+  const [ochirOyna, setOchirOyna] = useState({ ochiq: false, id: null })
+
+  useEffect(() => {
+    const taymer = setTimeout(() => {
+      setFaolQidiruv(qidiruv.trim())
+      setSahifa(1)
+    }, 300)
+    return () => clearTimeout(taymer)
+  }, [qidiruv])
 
   const load = useCallback(async () => {
     setIsLoading(true)
     try {
-      const res = await fetch(`/api/admin/forum?status=${filter}`)
+      const params = new URLSearchParams({
+        status: filter,
+        page: String(sahifa),
+        limit: '25',
+      })
+      if (faolQidiruv) params.set('q', faolQidiruv)
+
+      const res = await fetch(`/api/admin/forum?${params}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setPosts(data.posts)
-      setStats(data.stats)
+      setPosts(data.posts || [])
+      setStats(data.stats || { pending: 0, approved: 0, rejected: 0 })
+      setSahifalar(data.sahifalar || 1)
+      setJami(data.jami ?? (data.posts?.length || 0))
     } catch (error) {
       toast.error('Xatolik: ' + error.message)
     } finally {
       setIsLoading(false)
     }
-  }, [filter])
+  }, [filter, sahifa, faolQidiruv])
 
   useEffect(() => { load() }, [load])
 
@@ -55,13 +79,24 @@ export default function AdminForumPage() {
   }
 
   const radEt = (id) => {
-    const reason = prompt('Rad etish sababi (ixtiyoriy) — muallifga ko\'rsatiladi:')
-    if (reason === null) return // bekor qilindi
-    amal(id, 'reject', reason)
+    setRadOyna({ ochiq: true, id, sabab: '' })
   }
 
-  const ochir = async (id) => {
-    if (!confirm('Post butunlay o\'chirilsinmi? Javoblari ham o\'chadi.')) return
+  const tasdiqlaRad = async () => {
+    if (!radOyna.id) return
+    const { id, sabab } = radOyna
+    setRadOyna({ ochiq: false, id: null, sabab: '' })
+    await amal(id, 'reject', sabab)
+  }
+
+  const ochir = (id) => {
+    setOchirOyna({ ochiq: true, id })
+  }
+
+  const tasdiqlaOchir = async () => {
+    if (!ochirOyna.id) return
+    const id = ochirOyna.id
+    setOchirOyna({ ochiq: false, id: null })
     setIshlanmoqda(id)
     try {
       const res = await fetch(`/api/admin/forum?id=${id}`, { method: 'DELETE' })
@@ -82,69 +117,79 @@ export default function AdminForumPage() {
     })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Sarlavha */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
+      <div className="flex items-start justify-between flex-wrap gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-1">💬 Muhokama</h1>
-          <p className="text-purple-300 text-sm">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--v3-matn)] mb-1">💬 Muhokama</h1>
+          <p className="text-[var(--v3-xira)] text-xs sm:text-sm">
             Postlar tasdiqlangandan keyingina saytda ko&apos;rinadi
           </p>
         </div>
         <Link
-          href="/ilmiy/maqolalar/muhokama"
+          href="/dolzarb"
           target="_blank"
-          className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-xl text-sm text-purple-200"
+          className="v3-tugma text-xs sm:text-sm min-h-[40px]"
         >
           Saytda ko&apos;rish ↗
         </Link>
       </div>
 
       {/* Statistika */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {[
           { label: 'Tekshiruvda', son: stats.pending, rang: 'text-amber-400', bg: 'from-amber-900/30 to-orange-900/20 border-amber-700/40' },
           { label: 'Tasdiqlangan', son: stats.approved, rang: 'text-green-400', bg: 'from-green-900/30 to-emerald-900/20 border-green-700/40' },
           { label: 'Rad etilgan', son: stats.rejected, rang: 'text-red-400', bg: 'from-red-900/30 to-rose-900/20 border-red-700/40' },
         ].map((s) => (
-          <div key={s.label} className={`bg-gradient-to-br ${s.bg} border rounded-2xl p-4`}>
-            <div className={`text-3xl font-bold ${s.rang}`}>{s.son}</div>
-            <div className="text-xs text-purple-300 mt-1">{s.label}</div>
+          <div key={s.label} className={`bg-gradient-to-br ${s.bg} border rounded-2xl p-3 sm:p-4`}>
+            <div className={`text-2xl sm:text-3xl font-bold ${s.rang}`}>{s.son}</div>
+            <div className="text-[11px] sm:text-xs text-[var(--v3-xira)] mt-1 truncate">{s.label}</div>
           </div>
         ))}
       </div>
 
       {stats.pending > 0 && filter !== 'pending' && (
         <button
-          onClick={() => setFilter('pending')}
-          className="w-full bg-amber-900/20 border border-amber-700/50 rounded-xl p-3 text-sm text-amber-300 text-left"
+          onClick={() => { setFilter('pending'); setSahifa(1) }}
+          className="w-full bg-amber-900/20 border border-amber-700/50 rounded-xl p-3 text-xs sm:text-sm text-amber-300 text-left"
         >
           ⏳ {stats.pending} ta post tekshiruvni kutmoqda — ko&apos;rish uchun bosing
         </button>
       )}
 
-      {/* Filtr */}
-      <div className="flex gap-2 flex-wrap">
-        {HOLATLAR.map((h) => (
-          <button
-            key={h.key}
-            onClick={() => setFilter(h.key)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
-              filter === h.key ? h.rang : 'bg-slate-900/50 text-purple-400 border-purple-800/50 hover:border-purple-600/50'
-            }`}
-          >
-            {h.label}
-          </button>
-        ))}
+      {/* Filtr va qidiruv */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="flex gap-1.5 sm:gap-2 flex-wrap">
+          {HOLATLAR.map((h) => (
+            <button
+              key={h.key}
+              onClick={() => { setFilter(h.key); setSahifa(1) }}
+              className={`px-3 sm:px-4 py-2 min-h-[38px] rounded-xl text-xs sm:text-sm font-semibold border transition-all ${
+                filter === h.key ? h.rang : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)] border-[var(--v3-chiziq)] hover:border-[var(--v3-chiziq-2)]'
+              }`}
+            >
+              {h.label}
+            </button>
+          ))}
+        </div>
+
+        <input
+          type="search"
+          value={qidiruv}
+          onChange={(e) => setQidiruv(e.target.value)}
+          placeholder="Sarlavha, matn yoki muallif..."
+          className="v3-kiritish w-full sm:w-64 text-base sm:text-sm min-h-[40px]"
+        />
       </div>
 
       {/* Ro'yxat */}
       {isLoading ? (
-        <div className="text-center py-12 text-purple-400">Yuklanmoqda...</div>
+        <div className="text-center py-12 text-[var(--v3-xira)]">Yuklanmoqda...</div>
       ) : posts.length === 0 ? (
-        <div className="text-center py-12 bg-slate-900/50 border border-purple-800/50 rounded-2xl">
+        <div className="text-center py-12 v3-panel-karta">
           <div className="text-5xl mb-3">📭</div>
-          <p className="text-purple-400 text-sm">
+          <p className="text-[var(--v3-xira)] text-sm">
             {filter === 'pending' ? 'Tekshiruvni kutayotgan post yo\'q' : 'Bu holatda post yo\'q'}
           </p>
         </div>
@@ -155,7 +200,7 @@ export default function AdminForumPage() {
             return (
               <div
                 key={p.id}
-                className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-4 space-y-3"
+                className="v3-panel-karta p-4 space-y-3"
               >
                 {/* Muallif va meta */}
                 <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -166,10 +211,10 @@ export default function AdminForumPage() {
                         : (p.author.fullName || p.author.username || '?')[0].toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-sm font-semibold text-white truncate">
+                      <div className="text-sm font-semibold text-[var(--v3-matn)] truncate">
                         {p.author.fullName || p.author.username}
                       </div>
-                      <div className="text-xs text-purple-500">
+                      <div className="text-xs text-[var(--v3-xira)]">
                         @{p.author.username} · {sana(p.createdAt)}
                       </div>
                     </div>
@@ -187,7 +232,7 @@ export default function AdminForumPage() {
                       </span>
                     )}
                     {p.parentId && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-800/50 text-purple-300">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] text-[var(--v3-xira)]">
                         javob
                       </span>
                     )}
@@ -200,16 +245,16 @@ export default function AdminForumPage() {
                 </div>
 
                 {/* Mazmun */}
-                <div className="bg-purple-950/40 rounded-xl p-3">
+                <div className="bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-xl p-3">
                   {p.parent?.title && (
-                    <div className="text-[11px] text-purple-500 mb-1.5">
+                    <div className="text-[11px] text-[var(--v3-xira)] mb-1.5">
                       ↳ mavzu: {p.parent.title}
                     </div>
                   )}
                   {p.title && (
-                    <div className="font-bold text-white text-sm mb-1.5">{p.title}</div>
+                    <div className="font-bold text-[var(--v3-matn)] text-sm mb-1.5 break-words">{p.title}</div>
                   )}
-                  <p className="text-purple-200 text-sm whitespace-pre-wrap break-words leading-relaxed">
+                  <p className="text-[var(--v3-matn)] text-sm whitespace-pre-wrap break-words leading-relaxed">
                     {p.content}
                   </p>
                 </div>
@@ -226,7 +271,7 @@ export default function AdminForumPage() {
                     <button
                       onClick={() => amal(p.id, 'approve')}
                       disabled={band}
-                      className="px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/50 rounded-lg text-xs text-green-400 font-semibold disabled:opacity-50"
+                      className="px-3.5 py-2 min-h-[38px] bg-green-600/20 hover:bg-green-600/30 border border-green-600/50 rounded-lg text-xs text-green-400 font-semibold disabled:opacity-50"
                     >
                       ✓ Tasdiqlash
                     </button>
@@ -235,7 +280,7 @@ export default function AdminForumPage() {
                     <button
                       onClick={() => radEt(p.id)}
                       disabled={band}
-                      className="px-4 py-2 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-600/50 rounded-lg text-xs text-amber-400 font-semibold disabled:opacity-50"
+                      className="px-3.5 py-2 min-h-[38px] bg-amber-600/20 hover:bg-amber-600/30 border border-amber-600/50 rounded-lg text-xs text-amber-400 font-semibold disabled:opacity-50"
                     >
                       ✕ Rad etish
                     </button>
@@ -244,15 +289,24 @@ export default function AdminForumPage() {
                     <button
                       onClick={() => amal(p.id, 'pin')}
                       disabled={band}
-                      className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-xs text-purple-200 disabled:opacity-50"
+                      className="v3-tugma text-xs py-1.5 px-3 min-h-[38px] disabled:opacity-50"
                     >
                       {p.isPinned ? '📌 Qadashni olish' : '📌 Yuqoriga qadash'}
                     </button>
                   )}
+                  {p.status === 'approved' && (
+                    <Link
+                      href={`/dolzarb/${p.parentId || p.id}`}
+                      target="_blank"
+                      className="v3-tugma text-xs py-1.5 px-3 min-h-[38px]"
+                    >
+                      Ko&apos;rish ↗
+                    </Link>
+                  )}
                   <button
                     onClick={() => ochir(p.id)}
                     disabled={band}
-                    className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-lg text-xs text-red-400 disabled:opacity-50 ml-auto"
+                    className="px-3.5 py-2 min-h-[38px] bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-lg text-xs text-red-400 disabled:opacity-50 sm:ml-auto"
                   >
                     🗑 O&apos;chirish
                   </button>
@@ -260,6 +314,94 @@ export default function AdminForumPage() {
               </div>
             )
           })}
+
+          {sahifalar > 1 && (
+            <div className="flex items-center justify-between gap-3 pt-2 flex-wrap">
+              <span className="text-xs text-[var(--v3-xira)]">
+                Sahifa {sahifa} / {sahifalar} · jami {jami} ta
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSahifa((s) => Math.max(1, s - 1))}
+                  disabled={sahifa <= 1}
+                  className="v3-tugma text-xs min-h-[38px] disabled:opacity-40"
+                >
+                  ← Oldingi
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSahifa((s) => Math.min(sahifalar, s + 1))}
+                  disabled={sahifa >= sahifalar}
+                  className="v3-tugma text-xs min-h-[38px] disabled:opacity-40"
+                >
+                  Keyingi →
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {radOyna.ochiq && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[var(--v3-fon)] border border-[var(--v3-chiziq-2)] rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <h3 className="text-base font-bold text-[var(--v3-matn)]">Postni rad etish</h3>
+            <p className="text-xs text-[var(--v3-xira)]">
+              Rad etish sababi (ixtiyoriy) — muallifga ko&apos;rsatiladi.
+            </p>
+            <textarea
+              rows={3}
+              value={radOyna.sabab}
+              onChange={(e) => setRadOyna((prev) => ({ ...prev, sabab: e.target.value }))}
+              placeholder="Masalan: Forum qoidalariga mos kelmaydi..."
+              className="v3-kiritish w-full resize-none"
+              autoFocus
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setRadOyna({ ochiq: false, id: null, sabab: '' })}
+                className="v3-tugma text-sm"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                onClick={tasdiqlaRad}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold"
+              >
+                Rad etish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {ochirOyna.ochiq && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[var(--v3-fon)] border border-red-500/40 rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <h3 className="text-base font-bold text-[var(--v3-matn)]">Postni o&apos;chirish</h3>
+            <p className="text-sm text-[var(--v3-xira)]">
+              Post butunlay o&apos;chirilsinmi? Barcha javoblari ham o&apos;chib ketadi.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setOchirOyna({ ochiq: false, id: null })}
+                className="v3-tugma text-sm"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                onClick={tasdiqlaOchir}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold"
+              >
+                O&apos;chirish
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

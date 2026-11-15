@@ -18,9 +18,10 @@ export default function AdminSettingsPage() {
     try {
       const res = await fetch('/api/admin/settings')
       const data = await res.json()
-      if (res.ok) {
-        setSettings(data.settings)
+      if (!res.ok) {
+        throw new Error(data.error || 'Sozlamalarni yuklashda xatolik')
       }
+      setSettings(data.settings || {})
     } catch (error) {
       toast.error('Xatolik: ' + error.message)
     } finally {
@@ -52,7 +53,7 @@ export default function AdminSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="text-center py-12 text-purple-300">
+      <div className="text-center py-12 text-[var(--v3-xira)]">
         <div className="animate-spin text-5xl mb-4">⏳</div>
         Sozlamalar yuklanmoqda...
       </div>
@@ -87,7 +88,7 @@ export default function AdminSettingsPage() {
               👑 SUPER ADMIN
             </span>
           </h1>
-          <p className="text-purple-300 mt-1">
+          <p className="text-[var(--v3-xira)] mt-1">
             Platformani kodni o'zgartirmasdan boshqaring
           </p>
         </div>
@@ -103,7 +104,7 @@ export default function AdminSettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar Navigation */}
         <div className="lg:col-span-1">
-          <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-2 sticky top-24">
+          <div className="v3-panel-karta p-2 sticky top-24">
             <nav className="space-y-1">
               {sections.map(section => (
                 <button
@@ -111,8 +112,8 @@ export default function AdminSettingsPage() {
                   onClick={() => setActiveSection(section.id)}
                   className={`w-full text-left px-4 py-3 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 ${
                     activeSection === section.id
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                      : 'text-purple-300 hover:bg-purple-800/30 hover:text-white'
+                      ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] shadow-sm'
+                      : 'text-[var(--v3-xira)] hover:bg-[var(--v3-yuza-2)] hover:text-[var(--v3-matn)]'
                   }`}
                 >
                   <span>{section.icon}</span>
@@ -129,62 +130,62 @@ export default function AdminSettingsPage() {
           {/* UMUMIY SOZLAMALAR */}
           {/* ═══════════════════════════════════════ */}
           {activeSection === 'general' && (
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
+            <div className="v3-panel-karta p-6">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <span>🏠</span> Umumiy Sozlamalar
               </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Sayt nomi *</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Sayt nomi *</label>
                   <input
                     type="text"
                     value={settings.siteName || ''}
                     onChange={(e) => updateField('siteName', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     placeholder="JDA KIMYO"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Sayt tavsifi</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Sayt tavsifi</label>
                   <textarea
                     value={settings.siteDescription || ''}
                     onChange={(e) => updateField('siteDescription', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     rows="2"
-                    placeholder="Koordinatsion kimyo platformasi..."
+                    placeholder="JDA KIMYO — milliy sertifikat va kimyo test platformasi"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Logo URL</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Logo URL</label>
                   <input
                     type="text"
                     value={settings.logo || ''}
                     onChange={(e) => updateField('logo', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     placeholder="https://..."
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Favicon URL</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Favicon URL</label>
                   <input
                     type="text"
                     value={settings.favicon || ''}
                     onChange={(e) => updateField('favicon', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     placeholder="https://.../favicon.ico"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Footer matni</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Footer matni</label>
                   <textarea
                     value={settings.footerText || ''}
                     onChange={(e) => updateField('footerText', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     rows="2"
                     placeholder="© 2026 JDA KIMYO • jdakimyo.uz"
                   />
@@ -197,7 +198,7 @@ export default function AdminSettingsPage() {
           {/* MAINTENANCE MODE */}
           {/* ═══════════════════════════════════════ */}
           {activeSection === 'maintenance' && (
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
+            <div className="v3-panel-karta p-6">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <span>🔧</span> Ta'mirlash rejimi
               </h2>
@@ -212,7 +213,7 @@ export default function AdminSettingsPage() {
               </div>
 
               <div className="space-y-4">
-                <label className="flex items-center gap-3 p-4 bg-purple-950/30 border border-purple-700/50 rounded-xl cursor-pointer hover:bg-purple-950/50">
+                <label className="flex items-center gap-3 p-4 bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] rounded-xl cursor-pointer hover:bg-[var(--v3-yuza-2)] transition-colors">
                   <input
                     type="checkbox"
                     checked={settings.maintenanceMode || false}
@@ -221,10 +222,10 @@ export default function AdminSettingsPage() {
                   />
                   <div className="flex-1">
                     <div className="font-semibold text-white">Maintenance Mode</div>
-                    <div className="text-sm text-purple-400">Saytni vaqtincha yopish</div>
+                    <div className="text-sm text-[var(--v3-xira)]">Saytni vaqtincha yopish</div>
                   </div>
                   <div className={`w-14 h-7 rounded-full relative transition-all ${
-                    settings.maintenanceMode ? 'bg-red-500' : 'bg-purple-800/50'
+                    settings.maintenanceMode ? 'bg-rose-500' : 'bg-[var(--v3-yuza-2)]'
                   }`}>
                     <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-transform ${
                       settings.maintenanceMode ? 'translate-x-8' : 'translate-x-1'
@@ -234,13 +235,13 @@ export default function AdminSettingsPage() {
 
                 {settings.maintenanceMode && (
                   <div>
-                    <label className="text-sm text-purple-300 mb-1 block">
+                    <label className="text-sm text-[var(--v3-xira)] mb-1 block">
                       Xabar (foydalanuvchilarga ko'rsatiladi)
                     </label>
                     <textarea
                       value={settings.maintenanceMessage || ''}
                       onChange={(e) => updateField('maintenanceMessage', e.target.value)}
-                      className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                      className="v3-kiritish w-full"
                       rows="3"
                       placeholder="Sayt texnik ishlar sababli vaqtincha yopiq. Tez orada qayta ochiladi!"
                     />
@@ -254,49 +255,49 @@ export default function AdminSettingsPage() {
           {/* GAMIFICATION */}
           {/* ═══════════════════════════════════════ */}
           {activeSection === 'gamification' && (
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span>🎮</span> Gamification Sozlamalari
+            <div className="v3-panel-karta p-6">
+              <h2 className="text-xl font-bold text-[var(--v3-matn)] mb-6 flex items-center gap-2">
+                <span>Gamification Sozlamalari</span>
               </h2>
 
               <div className="space-y-4">
-                <div className="bg-purple-950/30 border border-purple-700/30 rounded-xl p-4">
-                  <h3 className="font-semibold text-white mb-3">Yutuqlar uchun default XP</h3>
+                <div className="bg-[var(--v3-fon-2)] border border-[var(--v3-chiziq)] rounded-xl p-4">
+                  <h3 className="font-semibold text-[var(--v3-matn)] mb-3">Yutuqlar uchun default XP</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
-                      <label className="text-xs text-gray-400 mb-1 block">⚪ Oddiy</label>
+                      <label className="text-xs text-[var(--v3-xira)] mb-1 block">Oddiy</label>
                       <input
                         type="number"
                         value={settings.defaultXpCommon || 10}
                         onChange={(e) => updateField('defaultXpCommon', e.target.value)}
-                        className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                        className="v3-kiritish w-full"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-blue-400 mb-1 block">🔵 Noyob</label>
+                      <label className="text-xs text-sky-400 mb-1 block">Noyob</label>
                       <input
                         type="number"
                         value={settings.defaultXpRare || 50}
                         onChange={(e) => updateField('defaultXpRare', e.target.value)}
-                        className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                        className="v3-kiritish w-full"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-purple-400 mb-1 block">🟣 Epik</label>
+                      <label className="text-xs text-indigo-400 mb-1 block">Epik</label>
                       <input
                         type="number"
                         value={settings.defaultXpEpic || 100}
                         onChange={(e) => updateField('defaultXpEpic', e.target.value)}
-                        className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                        className="v3-kiritish w-full"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-yellow-400 mb-1 block">🟡 Afsonaviy</label>
+                      <label className="text-xs text-amber-400 mb-1 block">Afsonaviy</label>
                       <input
                         type="number"
                         value={settings.defaultXpLegendary || 500}
                         onChange={(e) => updateField('defaultXpLegendary', e.target.value)}
-                        className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                        className="v3-kiritish w-full"
                       />
                     </div>
                   </div>
@@ -309,14 +310,14 @@ export default function AdminSettingsPage() {
           {/* QUIZ SETTINGS */}
           {/* ═══════════════════════════════════════ */}
           {activeSection === 'quiz' && (
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span>📝</span> Quiz Sozlamalari
+            <div className="v3-panel-karta p-6">
+              <h2 className="text-xl font-bold text-[var(--v3-matn)] mb-6 flex items-center gap-2">
+                <span>Quiz Sozlamalari</span>
               </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">
                     Bir quizdagi savollar soni
                   </label>
                   <input
@@ -325,15 +326,15 @@ export default function AdminSettingsPage() {
                     onChange={(e) => updateField('questionsPerQuiz', e.target.value)}
                     min="5"
                     max="50"
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                   />
-                  <p className="text-xs text-purple-500 mt-1">
+                  <p className="text-xs text-[var(--v3-xira)] mt-1">
                     Maslahat: 15-25 savol eng optimal
                   </p>
                 </div>
 
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">
                     Vaqt limiti (soniyalarda, 0 = cheksiz)
                   </label>
                   <input
@@ -341,9 +342,9 @@ export default function AdminSettingsPage() {
                     value={settings.quizTimeLimit || 0}
                     onChange={(e) => updateField('quizTimeLimit', e.target.value)}
                     min="0"
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                   />
-                  <p className="text-xs text-purple-500 mt-1">
+                  <p className="text-xs text-[var(--v3-xira)] mt-1">
                     0 = cheksiz, 1800 = 30 daqiqa, 3600 = 1 soat
                   </p>
                 </div>
@@ -355,30 +356,30 @@ export default function AdminSettingsPage() {
           {/* IJTIMOIY TARMOQLAR */}
           {/* ═══════════════════════════════════════ */}
           {activeSection === 'social' && (
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span>📱</span> Ijtimoiy tarmoqlar
+            <div className="v3-panel-karta p-6">
+              <h2 className="text-xl font-bold text-[var(--v3-matn)] mb-6 flex items-center gap-2">
+                <span>Ijtimoiy tarmoqlar</span>
               </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">✈️ Telegram guruh</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Telegram guruh</label>
                   <input
                     type="text"
                     value={settings.telegramGroup || ''}
                     onChange={(e) => updateField('telegramGroup', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     placeholder="https://t.me/jdakimyo"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">📸 Instagram</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Instagram</label>
                   <input
                     type="text"
                     value={settings.instagramLink || ''}
                     onChange={(e) => updateField('instagramLink', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     placeholder="https://instagram.com/jdakimyo"
                   />
                 </div>
@@ -390,34 +391,37 @@ export default function AdminSettingsPage() {
           {/* KONTAKT */}
           {/* ═══════════════════════════════════════ */}
           {activeSection === 'contact' && (
-            <div className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span>📞</span> Kontakt ma'lumotlari
+            <div className="v3-panel-karta p-6">
+              <h2 className="text-xl font-bold text-[var(--v3-matn)] mb-6 flex items-center gap-2">
+                <span>Kontakt ma&apos;lumotlari</span>
               </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">📧 Email</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Email</label>
                   <input
                     type="email"
                     value={settings.contactEmail || ''}
                     onChange={(e) => updateField('contactEmail', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     placeholder="info@jdakimyo.uz"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">📱 Telefon</label>
+                  <label className="text-sm text-[var(--v3-xira)] mb-1 block">Telefon</label>
                   <input
                     type="tel"
                     value={settings.contactPhone || ''}
                     onChange={(e) => updateField('contactPhone', e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white outline-none focus:border-yellow-500"
+                    className="v3-kiritish w-full"
                     placeholder="+998 90 123 45 67"
                   />
                 </div>
               </div>
+              <p className="text-[var(--v3-xira)] mt-4 text-xs">
+                Platforma nomi, tavsifi, maintenance rejimi va kontakt ma&apos;lumotlari <code className="text-[var(--v3-matn)]">lib/sayt-malumot.js</code> orqali v4 bosh sahifa, metadata va tizimga bevosita qo&apos;llanadi.
+              </p>
             </div>
           )}
         </div>

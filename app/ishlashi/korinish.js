@@ -3,22 +3,16 @@
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import Ikon from "@/components/Ikon"
-import FonTanlagich, { useFon } from "@/components/FonTanlagich"
-import HAJM from "@/lib/ilmiy-hajm.json"
+import { useFon } from "@/components/FonTanlagich"
 import { BAZA } from "@/lib/sayt-malumot"
-import { FANLAR, ochiqFanlarSoni } from "@/lib/fanlar"
+import { FANLAR, ochiqFanlarSoni, YETTI_SINF_MAVZULARI } from "@/lib/fanlar"
 import { FAQ } from "./faq"
 
 /* ─────────────────────────────────────────────────────────────────────
    SONLAR
 
-   Fayldan keladiganlar `HAJM` orqali — ular sahifa qo'shilganda o'zi
-   yangilanadi (`scripts/count-ilmiy.js`).
-
-   Bazadan o'lchanganlar `BAZA` orqali (`lib/sayt-malumot.js`). Ilgari
-   ular shu faylda qo'lda yozilardi; "JDA KIMYO nima?" sahifasi ham
-   aynan shu sonlarni ko'rsatgani uchun ikkinchi nusxa paydo bo'lardi
-   va ikkalasi ajralib ketardi (AGENTS.md 1-band).
+   Sonlar `lib/fanlar.js` va `lib/sayt-malumot.js` dan keladi. Ularni bu
+   yerga qo'lda yozish ikkinchi nusxa yaratadi (AGENTS.md 1-band).
    ──────────────────────────────────────────────────────────────────── */
 
 /* Platformaning xaritasi. Har bir blok — sayt haqiqatan nima qila
@@ -26,92 +20,50 @@ import { FAQ } from "./faq"
    "hali yo'q" deb belgilanadi. */
 const XARITA = [
   {
+    ikon: "kitob",
+    nom: "Maktab kimyosi",
+    izoh: "Sinflar bo'yicha darslar. Har bir mavzu darslik tartibida beriladi.",
+    havola: "/maktabkimyo",
+    havolaNom: "Maktab kimyosiga o'tish",
+    qatorlar: [
+      { matn: `7-sinf: ${YETTI_SINF_MAVZULARI.length} ta mavzu`, tayyor: true },
+      { matn: "Qolgan sinflar", tayyor: false },
+    ],
+  },
+  {
     ikon: "atom",
-    nom: "Fanlar",
-    izoh:
-      "Sayt oliy kimyoni fanlarga bo'lib beradi. Har bir fanning o'z o'quv va ilmiy daraxti bor.",
-    havola: "/#fanlar",
+    nom: "Oliy kimyo",
+    izoh: "Oliy kimyo fanlari. Tayyor bo'lmagan fan bo'sh ochilmaydi, qulf bilan turadi.",
+    havola: "/oliykimyo",
     havolaNom: "Fanlarni ko'rish",
     qatorlar: [
-      { matn: "Koordinatsion kimyo — o'quv va ilmiy daraxti bilan to'liq ochiq", tayyor: true },
-      { matn: "Anorganik, organik, analitik, fizikaviy, kolloid kimyo, biokimyo", tayyor: false },
-    ],
-  },
-  {
-    ikon: "kitob",
-    nom: "O'quv bo'lim",
-    izoh:
-      "Asoslardan boshlanadigan qism. Mavzular bir-birining ustiga quriladi, har birida sxema va 3D model bor.",
-    havola: "/oquv",
-    havolaNom: "O'quv bo'limga o'tish",
-    qatorlar: [
-      { matn: "Klassifikatsiya va IUPAC nomlanishi", tayyor: true },
-      { matn: "Kimyoviy bog'lanish nazariyalari", tayyor: true },
-      { matn: "Izomeriya va fazoviy tuzilish", tayyor: true },
-      { matn: `${HAJM.modellar3d} ta aylantirib ko'riladigan 3D model`, tayyor: true },
-    ],
-  },
-  {
-    ikon: "grafik",
-    nom: "Ilmiy kutubxona",
-    izoh:
-      "Tadqiqotchi uchun qism. Har bir tahlil usuli quruq nazariya emas, aniq birikmada qanday o'qilishi bilan ko'rsatilgan.",
-    havola: "/ilmiy",
-    havolaNom: "Kutubxonaga o'tish",
-    qatorlar: [
-      { matn: `${HAJM.usullar} ta tahlil usuli, ${HAJM.usulBirikmaTahlili} ta usul × birikma tahlili`, tayyor: true },
-      { matn: `${HAJM.mavzular} ta chuqurlashgan mavzu (${HAJM.mavzuSahifalari} sahifa)`, tayyor: true },
-      { matn: `${HAJM.birikmalar} ta birikmaning to'liq sahifasi`, tayyor: true },
-      { matn: "Maqolalar bazasi va o'z maqolangizni DOCX bilan yuklash", tayyor: true },
+      { matn: `${FANLAR.length} ta fandan ${ochiqFanlarSoni()} tasi ochiq`, tayyor: true },
     ],
   },
   {
     ikon: "quiz",
     nom: "Testlar",
-    izoh:
-      "Bilimni sinash qismi. Natijalar hisobingizda saqlanadi, har birini PDF qilib olsa bo'ladi.",
-    havola: "/oquv/video-darsliklar",
-    havolaNom: "Testlarga o'tish",
+    izoh: "Bilimni sinash qismi. Natijalar hisobingizda saqlanadi.",
+    havola: "/testlar",
+    havolaNom: "Testlar markazi",
     qatorlar: [
-      { matn: `${BAZA.savollar} savol, 5 yo'nalish bo'yicha`, tayyor: true },
-      { matn: "Natijalar tarixi va PDF hisobot", tayyor: true },
-      { matn: "Ustozlar tuzgan ochiq va yopiq testlar", tayyor: true },
-      { matn: "Video darsliklar — tayyorlanmoqda", tayyor: false },
+      { matn: "Ustoz tuzgan variantli testlar", tayyor: true },
+      { matn: "Ustoz tekshiradigan yozma testlar", tayyor: true },
+      { matn: "Milliy sertifikatga tayyorgarlik sinovlari — savollar tayyorlanmoqda", tayyor: false },
     ],
   },
   {
-    ikon: "doska",
-    nom: "Smart Elektron doska",
-    izoh:
-      "Sayt ichidagi alohida dunyo: reagent yig'asiz, jihoz olasiz va tajriba o'tkazasiz. Reaksiya nima berishini oldindan aytib bo'lmaydi — ko'rasiz.",
-    havola: "/doska",
-    havolaNom: "Doskaga kirish",
-    qatorlar: [
-      { matn: `${BAZA.katalog} modda va jihoz katalogi`, tayyor: true },
-      { matn: `${BAZA.reaksiyalar} reaksiya, tenglama va kuzatuv bilan`, tayyor: true },
-      { matn: "Inventar, do'kon, sandiqlar va ichki valyuta", tayyor: true },
-      { matn: "Uch o'lchamli laboratoriya xonasi (faqat kompyuterda)", tayyor: true },
-    ],
-  },
-  {
-    ikon: "ustoz",
-    nom: "Ustoz va guruh",
-    izoh:
-      "O'qituvchi uchun ish o'rni. Guruh tuzasiz, vazifa berasiz va kim nima qilganini bir joyda ko'rasiz.",
-    havola: "/ustoz",
-    havolaNom: "Ustoz paneli",
-    qatorlar: [
-      { matn: "Guruhlar, talabalar va ularning natijalari", tayyor: true },
-      { matn: "Vazifa berish va topshiriqlarni tekshirish", tayyor: true },
-      { matn: "O'z testingizni tuzish — ochiq yoki yopiq", tayyor: true },
-      { matn: "E'lonlar va ustozning ommaviy profili", tayyor: true },
-    ],
+    ikon: "formula",
+    nom: "Masala yechish",
+    izoh: "Kimyoviy masalani kiritasiz va yechimni bosqichma-bosqich ko'rasiz.",
+    havola: "/masala",
+    havolaNom: "Masalaga o'tish",
+    qatorlar: [],
   },
   {
     ikon: "doska",
     nom: "Elektron doska",
-    izoh:
-      "Auditoriya uchun. Doskaga QR kod chiqadi, talabalar telefonidan qo'shiladi — hisob ochish shart emas.",
+    izoh: "Auditoriya uchun. Doskaga QR kod chiqadi, talabalar telefonidan qo'shiladi.",
     havola: "/doska",
     havolaNom: "Doskani ochish",
     qatorlar: [
@@ -120,11 +72,23 @@ const XARITA = [
     ],
   },
   {
+    ikon: "ustoz",
+    nom: "Ustoz va guruh",
+    izoh: "O'qituvchi uchun ish o'rni. Guruh tuzasiz, vazifa berasiz va natijalarni bir joyda ko'rasiz.",
+    havola: "/ustoz",
+    havolaNom: "Ustoz paneli",
+    qatorlar: [
+      { matn: "Guruhlar, talabalar va ularning natijalari", tayyor: true },
+      { matn: "Vazifa berish va topshiriqlarni tekshirish", tayyor: true },
+      { matn: "O'z testingizni tuzish — variantli yoki yozma", tayyor: true },
+      { matn: "E'lonlar va ustozning ommaviy profili", tayyor: true },
+    ],
+  },
+  {
     ikon: "muhokama",
     nom: "Jamoa",
-    izoh:
-      "Sayt yolg'iz o'qish joyi emas. Savol berish, ulashish va bir-birini kuzatish shu yerda.",
-    havola: "/ilmiy/maqolalar/muhokama",
+    izoh: "Savol berish, ulashish va bir-birini kuzatish shu yerda.",
+    havola: "/dolzarb",
     havolaNom: "Dolzarb mavzular",
     qatorlar: [
       { matn: "Dolzarb mavzular — savol-javob va muhokama", tayyor: true },
@@ -135,29 +99,25 @@ const XARITA = [
   {
     ikon: "yulduz",
     nom: "Hisob va yutuqlar",
-    izoh:
-      "Hisob ochilgach sayt sizni eslab qoladi: nimani o'qidingiz, qaysi testni topshirdingiz, qancha kun ketma-ket kirdingiz.",
+    izoh: "Hisob ochilgach natijalaringiz, yutuqlaringiz va ketma-ketligingiz saqlanadi.",
     havola: "/profil",
     havolaNom: "Shaxsiy kabinet",
     qatorlar: [
       { matn: `${BAZA.yutuqlar} turdagi yutuq va reyting`, tayyor: true },
-      { matn: "Kunlik missiyalar, ketma-ketlik va sovg'a", tayyor: true },
+      { matn: "Kunlik vazifalar va ketma-ketlik", tayyor: true },
       { matn: "Sertifikatlar va bildirishnomalar", tayyor: true },
-      { matn: "Tasdiq belgisi va profil bezaklari", tayyor: true },
     ],
   },
   {
     ikon: "bot",
     nom: "Telegram bot",
-    izoh:
-      "@jdakimyouzbot hisobingizga ulanadi va saytdan chiqmasdan xabar oladigan qiladi. Guruhga qo'shilsa, guruhga ham ishlaydi.",
+    izoh: "@jdakimyouzbot hisobingizga ulanadi va bildirishnomalarni Telegramga yuboradi.",
     havola: "https://t.me/jdakimyouzbot",
     havolaNom: "Botni ochish",
     tashqi: true,
     qatorlar: [
       { matn: "Hisobni ulash va bildirishnomalarni Telegramda olish", tayyor: true },
       { matn: "Guruhga kunlik iqtibos va yangiliklar", tayyor: true },
-      { matn: "Guruhda test javoblarini qabul qilish", tayyor: true },
     ],
   },
 ]
@@ -167,13 +127,13 @@ const XARITA = [
 const YOLLAR = [
   {
     ikon: "kitob",
-    kim: "Talaba",
-    tavsif: "Birinchi marta koordinatsion kimyo o'qiyapsiz",
+    kim: "O'quvchi",
+    tavsif: "Maktab kimyosini o'rganyapsiz",
     qadamlar: [
       { matn: "Hisob oching — natijalaringiz saqlanib boradi", havola: "/register" },
-      { matn: "O'quv bo'limdan boshlang: klassifikatsiya va nomlanish", havola: "/oquv" },
-      { matn: "Har mavzudan keyin testdan o'ting", havola: "/oquv/video-darsliklar/quiz" },
-      { matn: "Smart doskada mavzularni interaktiv ko'ring", havola: "/doska" },
+      { matn: "Sinfingizni tanlang va mavzudan boshlang", havola: "/maktabkimyo" },
+      { matn: "Amaliy ishlarni ko'ring", havola: "/laboratoriya" },
+      { matn: "Ustozingiz yuborgan testlarni ishlang", havola: "/testlar" },
     ],
   },
   {
@@ -189,13 +149,12 @@ const YOLLAR = [
   },
   {
     ikon: "grafik",
-    kim: "Tadqiqotchi",
-    tavsif: "Aniq birikma yoki usul kerak",
+    kim: "Talaba",
+    tavsif: "Oliy kimyo o'qiyapsiz",
     qadamlar: [
-      { matn: "Qidiruvdan boshlang — Ctrl+K butun saytni qamraydi", havola: "/qidiruv" },
-      { matn: "Tahlil usullarini aniq birikmalarda ko'ring", havola: "/ilmiy/tahlil" },
-      { matn: "Chuqurlashgan mavzular: nazariya va hisob-kitob", havola: "/ilmiy/chuqurlashgan" },
-      { matn: "O'z maqolangizni joylang yoki muhokamaga qo'shiling", havola: "/ilmiy/maqolalar" },
+      { matn: "Ochiq fanlardan boshlang", havola: "/oliykimyo" },
+      { matn: "Masalalarni bosqichma-bosqich yeching", havola: "/masala" },
+      { matn: "Savolingizni muhokamaga yozing", havola: "/dolzarb" },
     ],
   },
 ]
@@ -207,31 +166,19 @@ const YOLLAR = [
    ortadi. */
 const CHEKLOVLAR = [
   {
-    nom: "Oltita fan hali yopiq",
-    izoh:
-      "Hozircha faqat koordinatsion kimyo to'liq yozilgan. Qolgan fanlar bosh sahifada qulf bilan turadi va tayyor bo'lgani sari ochiladi.",
+    nom: "Ayrim fanlar hali yopiq",
+    izoh: "Tayyor bo'lmagan fanlar qulf bilan turadi. Bo'sh sahifa ochib qo'yilmaydi.",
   },
   {
-    nom: "Video darsliklar tayyor emas",
-    izoh:
-      "Testlar bo'limida video darsliklar \"tez kunda\" deb belgilangan. Hozir u yerda faqat testlar ishlaydi.",
-  },
-  {
-    nom: "Mobil qurilmada 3D bo'limlar og'ir",
-    izoh:
-      "Sayt telefonda ochiladi va o'qiladi, lekin 3D modellar hamda laboratoriya xonasi kompyuter uchun yozilgan. Telefonda ular sekin ishlaydi yoki umuman ochilmaydi.",
-  },
-  {
-    nom: "Laboratoriya reaksiyalari hali tasdiqlanmagan",
-    izoh:
-      "Reaksiyalar va ularning kuzatuvlari kimyogar tomonidan bir-bir ko'rib chiqilmagan. Tajriba natijasida bu haqda yozuv chiqadi — ularga darslik sifatida tayanmang.",
+    nom: "Milliy sertifikat sinovlari yopiq",
+    izoh: "Savollar yangilanmoqda. Sinovlar tayyor bo'lganda ochiladi, natija esa taxminiy bo'ladi va davlat sertifikati hisoblanmaydi.",
   },
 ]
 
 
 export default function Korinish() {
   const { data: session } = useSession()
-  const [fon, fonTanla] = useFon()
+  const [fon] = useFon()
 
   const yopiqFanlar = FANLAR.length - ochiqFanlarSoni()
 
@@ -255,8 +202,6 @@ export default function Korinish() {
               <Ikon nom="ong" olcham={15} />
               Bosh sahifa
             </Link>
-
-            <FonTanlagich fon={fon} tanla={fonTanla} />
 
             <Link href="/qidiruv" className="v3-qidiruv">
               <Ikon nom="qidiruv" olcham={17} />
@@ -293,7 +238,7 @@ export default function Korinish() {
           </h1>
 
           <p className="v3-lid">
-            JDA KIMYO — o{"'"}zbek tilidagi oliy kimyo platformasi
+            JDA KIMYO — o{"'"}zbek tilidagi maktab va oliy kimyo platformasi
             (<Link href="/jda-kimyo">platforma haqida to{"'"}liqroq</Link>).
             Quyida saytning to{"'"}liq xaritasi: qaysi bo{"'"}lim nima qiladi,
             kim qayerdan boshlashi kerak va <strong style={{ color: "var(--v3-matn)" }}>hozircha
@@ -302,10 +247,10 @@ export default function Korinish() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-px v3-sonlar">
             {[
-              { son: String(HAJM.jamiTahlilVaMavzu), nom: "Ilmiy sahifa" },
-              { son: BAZA.savollar, nom: "Test savoli" },
-              { son: BAZA.reaksiyalar, nom: "Laboratoriya reaksiyasi" },
+              { son: String(YETTI_SINF_MAVZULARI.length), nom: "7-sinf mavzusi" },
               { son: `${ochiqFanlarSoni()}/${FANLAR.length}`, nom: "Fan ochiq" },
+              { son: "3", nom: "Test bo'limi" },
+              { son: BAZA.yutuqlar, nom: "Yutuq turi" },
             ].map((s) => (
               <div key={s.nom} className="v3-son">
                 <div className="v3-son-qiymat">{s.son}</div>
@@ -504,7 +449,7 @@ export default function Korinish() {
             <Ikon nom="ong" olcham={15} />
             Bosh sahifaga qaytish
           </Link>
-          <p className="v3-xira text-xs">© 2026 JDA KIMYO · Oliy kimyo platformasi · v3.0.0</p>
+          <p className="v3-xira text-xs">© 2026 JDA KIMYO · Oliy kimyo platformasi · v4.0.0</p>
         </div>
       </footer>
     </main>

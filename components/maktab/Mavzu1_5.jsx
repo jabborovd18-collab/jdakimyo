@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { kadrSora, kadrniBekorQil, umumiyAudio } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoskaQoshimcha"
@@ -10,9 +11,8 @@ import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoska
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
 
     if (turi === "togri" || turi === "tasdiq") {
@@ -113,10 +113,10 @@ const takrorlashSavollari1_4 = [
     savol: "Laboratoriyada noma'lum moddaning hidini qanday sezish kerak?",
     izoh: "Idishni 15-20 sm masofada ushlab, kaftni idish og'zidan burun tomon yengil to'lqin qilib silkib yo'naltiriladi (Wafting texnikasi).",
     variantlar: [
+      { matn: "Probirkaga puflab hidini chiqarish", togri: false },
       { matn: "Idish og'zidan kaftni silkib, bug'ni burun tomon yo'naltirish", togri: true },
       { matn: "Idishga bosh egib to'g'ridan-to'g'ri chuqur nafas olish", togri: false },
       { matn: "Moddani barmoqqa olib tilga tekkazib ko'rish", togri: false },
-      { matn: "Probirkaga puflab hidini chiqarish", togri: false },
     ],
   },
   {
@@ -124,10 +124,10 @@ const takrorlashSavollari1_4 = [
     savol: "Teriga kislota yoki ishqor to'kilsa, zudlik bilan qilinadigan birinchi yordam nima?",
     izoh: "Zararlangan joyni hech ikkilanmasdan zudlik bilan kamida 10-15 daqiqa davomida sovuq oqova suvda to'xtovsiz yuvish kerak!",
     variantlar: [
-      { matn: "Kamida 10-15 daqiqa davomida sovuq oqova suvda to'xtovsiz yuvish", togri: true },
-      { matn: "Quruq latta bilan qattiq ishqalab artish", togri: false },
       { matn: "Spirt yoki yod surtib bog'lab qo'yish", togri: false },
       { matn: "Hech narsa qilmasdan o'z holiga qoldirish", togri: false },
+      { matn: "Kamida 10-15 daqiqa davomida sovuq oqova suvda to'xtovsiz yuvish", togri: true },
+      { matn: "Quruq latta bilan qattiq ishqalab artish", togri: false },
     ],
   },
   {
@@ -135,10 +135,10 @@ const takrorlashSavollari1_4 = [
     savol: "Yonib turgan spirtovkani qanday qilib to'g'ri o'chirish kerak?",
     izoh: "Spirtovkani aslo puflab o'chirmaslik kerak! Uni faqat qalpoqchasi (qopqog'i) bilan yopib, havoni (kislorodni) to'sish orqali o'chiriladi.",
     variantlar: [
-      { matn: "Faqat qalpoqchasi bilan yopib, kislorodni to'sish orqali", togri: true },
       { matn: "Og'iz bilan qattiq puflab", togri: false },
       { matn: "Ustiga sovuq suv sepib", togri: false },
       { matn: "Spirtovkani silkitib ag'darish orqali", togri: false },
+      { matn: "Faqat qalpoqchasi bilan yopib, kislorodni to'sish orqali", togri: true },
     ],
   },
 ]
@@ -473,11 +473,11 @@ export default function Mavzu1_5() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, kozPozitsiyasi, suvHajmi])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -646,11 +646,11 @@ export default function Mavzu1_5() {
       ctx.fillText(`Suyuqlik harorati: ${probirkaHarorat}°C ${probirkaHarorat >= 95 ? "(Qaynash!)" : ""}`, W / 2, 35)
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, alangaZona, probirkaHarorat, burchakTogri])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -806,11 +806,11 @@ export default function Mavzu1_5() {
       ctx.fillText(`Filtrat (Tiniq suyuqlik): ${filtratHajm} ml yig'ildi`, CX + 60, bY + 50)
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, filtrOqmoqda, filtratHajm])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -904,14 +904,14 @@ export default function Mavzu1_5() {
       id: 2,
       rasmHajm: 75,
       savol: "O'lchov silindrida suv sathi 75 ml ga yetdi. Ko'z qanday tutiladi?",
-      variantlar: ["Ko'z sathi 75 ml pastki meniski bilan bir chiziqda", "Silindrga yuqoridan tik qaraladi", "Silindr stol ostidan pastdan qaraladi", "Farqi yo'q"],
+      variantlar: ["Farqi yo'q", "Ko'z sathi 75 ml pastki meniski bilan bir chiziqda", "Silindrga yuqoridan tik qaraladi", "Silindr stol ostidan pastdan qaraladi"],
       togri: "Ko'z sathi 75 ml pastki meniski bilan bir chiziqda",
     },
     {
       id: 3,
       rasmHajm: 18,
       savol: "Pipetka yoki byuretkadan 18 ml quyishda eng asosiy qoida nima?",
-      variantlar: ["Tomchilar sonini nazorat qilib, meniskni to'g'ri sathda to'xtatish", "Idishni tez silkitish", "Idishni qizdirib olish", "Ko'zni yumib quyish"],
+      variantlar: ["Idishni qizdirib olish", "Ko'zni yumib quyish", "Tomchilar sonini nazorat qilib, meniskni to'g'ri sathda to'xtatish", "Idishni tez silkitish"],
       togri: "Tomchilar sonini nazorat qilib, meniskni to'g'ri sathda to'xtatish",
     },
   ]

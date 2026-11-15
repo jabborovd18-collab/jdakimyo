@@ -47,6 +47,9 @@ function loadCatalog() {
   const file = path.join(
     __dirname, '..', 'app', 'ilmiy', 'tahlil', 'element-analiz', 'birikmalar', 'page.js',
   )
+  if (!fs.existsSync(file)) {
+    return null
+  }
   const source = fs.readFileSync(file, 'utf8')
 
   const start = source.indexOf('const birikmalar = [')
@@ -65,6 +68,10 @@ function loadCatalog() {
 }
 
 const catalog = loadCatalog()
+if (!catalog) {
+  console.log('OK   Element-analiz (/ilmiy v4 da olib tashlangan — o\'tkazib yuborildi)')
+  process.exit(0)
+}
 console.log(`Katalogda ${catalog.length} ta birikma\n`)
 
 let problems = 0

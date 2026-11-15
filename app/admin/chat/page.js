@@ -66,13 +66,13 @@ export default function AdminChatPage() {
     }
   }
 
-  if (yuklanmoqda) return <div className="text-purple-300 py-10 text-center">⏳ Yuklanmoqda...</div>
+  if (yuklanmoqda) return <div className="text-[var(--v3-xira)] py-10 text-center">⏳ Yuklanmoqda...</div>
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">💬 Chat nazorati</h1>
-        <p className="text-sm text-purple-300 mt-1 max-w-2xl">
+        <p className="text-sm text-[var(--v3-xira)] mt-1 max-w-2xl">
           Shaxsiy yozishma faqat SHIKOYAT bo'lganda va shikoyat ochilganda
           ko'rinadi — sababsiz o'qish moderatsiya emas, kuzatuv bo'lardi.
         </p>
@@ -92,7 +92,7 @@ export default function AdminChatPage() {
       {/* Shikoyatlar */}
       <div>
         <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-          <h2 className="text-sm font-bold text-purple-300">Shikoyatlar</h2>
+          <h2 className="text-sm font-bold text-[var(--v3-matn)]">Shikoyatlar</h2>
           <div className="flex gap-1.5 flex-wrap">
             {HOLATLAR.map((h) => (
               <button
@@ -101,7 +101,7 @@ export default function AdminChatPage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
                   holat === h.id
                     ? 'bg-yellow-500 text-black border-yellow-400'
-                    : 'bg-slate-900/60 border-purple-800/50 text-purple-200'
+                    : 'bg-[var(--v3-yuza)] border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
                 }`}
               >
                 {h.nom}
@@ -111,26 +111,26 @@ export default function AdminChatPage() {
         </div>
 
         {(malumot?.shikoyatlar || []).length === 0 ? (
-          <div className="rounded-xl border border-purple-800/50 bg-slate-900/40 p-6 text-center text-sm text-purple-400">
+          <div className="v3-panel-karta p-6 text-center text-sm text-[var(--v3-xira)]">
             Bu bo'limda shikoyat yo'q
           </div>
         ) : (
           <div className="space-y-3">
             {malumot.shikoyatlar.map((s) => (
-              <div key={s.id} className="rounded-2xl border border-purple-800/50 bg-slate-900/50 p-4">
+              <div key={s.id} className="v3-panel-karta p-4">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
                     <div className="text-sm">
-                      <Link href={`/profil/${s.reporter.userId}`} className="text-purple-200 hover:text-yellow-400">
+                      <Link href={`/profil/${s.reporter.userId}`} className="text-[var(--v3-matn)] hover:text-[var(--v3-urgu)]">
                         {s.reporter.fullName || s.reporter.username}
                       </Link>
-                      <span className="text-purple-500"> → </span>
+                      <span className="text-[var(--v3-xira)]"> → </span>
                       <Link href={`/profil/${s.reported.userId}`} className="text-white font-semibold hover:text-yellow-400">
                         {s.reported.fullName || s.reported.username}
                       </Link>
                     </div>
-                    <p className="text-[13px] text-purple-300 mt-1">{s.sabab}</p>
-                    <div className="text-[11px] text-purple-500 mt-1">
+                    <p className="text-[13px] text-[var(--v3-xira)] mt-1">{s.sabab}</p>
+                    <div className="text-[11px] text-[var(--v3-xira)] mt-1">
                       {qachon(s.createdAt)} · holat: {s.holat}
                       {s.reported.chatWarnings > 0 && ` · ${s.reported.chatWarnings} ogohlantirish`}
                     </div>
@@ -139,7 +139,7 @@ export default function AdminChatPage() {
                   <div className="flex gap-1.5 flex-wrap">
                     <button
                       onClick={() => yozishmaniOch(s)}
-                      className="px-3 py-1.5 rounded-lg bg-purple-800/60 border border-purple-600/50 text-xs font-semibold"
+                      className="v3-tugma text-xs py-1.5 px-3"
                     >
                       Yozishmani ko'rish
                     </button>
@@ -147,7 +147,7 @@ export default function AdminChatPage() {
                       <>
                         <button
                           onClick={() => amal({ amal: 'shikoyatHolati', shikoyatId: s.id, sabab: 'rad' })}
-                          className="px-3 py-1.5 rounded-lg bg-slate-700/50 border border-slate-600/50 text-xs font-semibold"
+                          className="v3-tugma text-xs py-1.5 px-3"
                         >
                           Asossiz
                         </button>
@@ -164,15 +164,15 @@ export default function AdminChatPage() {
       {/* Ko'p shikoyat tushganlar */}
       {(malumot?.kopShikoyat || []).length > 0 && (
         <div>
-          <h2 className="text-sm font-bold text-purple-300 mb-2">Eng ko'p shikoyat tushgan hisoblar</h2>
-          <div className="rounded-xl border border-purple-800/50 bg-slate-900/40 divide-y divide-purple-900/50">
+          <h2 className="text-sm font-bold text-[var(--v3-matn)] mb-2">Eng ko'p shikoyat tushgan hisoblar</h2>
+          <div className="v3-panel-karta divide-y divide-[var(--v3-chiziq)]">
             {malumot.kopShikoyat.filter((k) => k.odam).map((k) => (
               <div key={k.odam.id} className="px-4 py-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <Link href={`/profil/${k.odam.userId}`} className="text-sm text-white hover:text-yellow-400">
                     {k.odam.fullName || k.odam.username}
                   </Link>
-                  <div className="text-[11px] text-purple-400">
+                  <div className="text-[11px] text-[var(--v3-xira)]">
                     {k.soni} ta shikoyat · {k.odam.chatWarnings} ogohlantirish
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export default function AdminChatPage() {
       {/* Taqiqdagilar */}
       {(malumot?.taqiqlanganlar || []).length > 0 && (
         <div>
-          <h2 className="text-sm font-bold text-purple-300 mb-2">Yozishi taqiqlanganlar</h2>
+          <h2 className="text-sm font-bold text-[var(--v3-matn)] mb-2">Yozishi taqiqlanganlar</h2>
           <div className="rounded-xl border border-red-800/40 bg-red-950/20 divide-y divide-red-900/30">
             {malumot.taqiqlanganlar.map((u) => (
               <div key={u.id} className="px-4 py-3 flex items-center justify-between gap-3">
@@ -211,12 +211,12 @@ export default function AdminChatPage() {
       {/* Yozishma oynasi */}
       {ochilgan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-2xl max-h-[85vh] bg-gradient-to-br from-purple-950 to-slate-950 border border-purple-700/50 rounded-2xl flex flex-col">
-            <div className="px-5 py-3 border-b border-purple-800/50 flex items-center justify-between">
+          <div className="w-full max-w-2xl max-h-[85vh] bg-[var(--v3-fon)] border border-[var(--v3-chiziq-2)] rounded-2xl flex flex-col shadow-2xl">
+            <div className="px-5 py-3 border-b border-[var(--v3-chiziq)] flex items-center justify-between">
               <h3 className="font-bold text-white text-sm">
                 {ochilgan.shikoyat.reported.username} yozishmasi
               </h3>
-              <button onClick={() => setOchilgan(null)} className="text-purple-400 hover:text-white">✕</button>
+              <button onClick={() => setOchilgan(null)} className="text-[var(--v3-xira)] hover:text-[var(--v3-matn)]">✕</button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -226,25 +226,25 @@ export default function AdminChatPage() {
                   className={`rounded-xl px-4 py-2.5 ${
                     x.senderId === ochilgan.shikoyat.reportedId
                       ? 'bg-red-950/40 border border-red-800/40'
-                      : 'bg-purple-900/40 border border-purple-800/40'
+                      : 'bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)]'
                   }`}
                 >
-                  <div className="text-[11px] text-purple-400 mb-1">
+                  <div className="text-[11px] text-[var(--v3-xira)] mb-1">
                     {x.sender.fullName || x.sender.username} · {qachon(x.createdAt)}
                     {x.ochirilgan && ' · foydalanuvchi o\'chirgan'}
                   </div>
-                  <p className="text-sm text-purple-50 whitespace-pre-line break-words">{x.matn}</p>
+                  <p className="text-sm text-[var(--v3-matn)] whitespace-pre-line break-words">{x.matn}</p>
                 </div>
               ))}
             </div>
 
-            <div className="p-4 border-t border-purple-800/50 space-y-2">
+            <div className="p-4 border-t border-[var(--v3-chiziq)] space-y-2">
               <ChoraTugmalari odam={ochilgan.shikoyat.reported} onAmal={amal} keng />
               <button
                 onClick={() =>
                   amal({ amal: 'shikoyatHolati', shikoyatId: ochilgan.shikoyat.id, sabab: 'korildi' })
                 }
-                className="w-full py-2 rounded-xl bg-slate-800 border border-purple-700/50 text-sm font-semibold"
+                className="v3-tugma w-full justify-center text-sm"
               >
                 Ko'rildi deb belgilash
               </button>
@@ -257,44 +257,129 @@ export default function AdminChatPage() {
 }
 
 function ChoraTugmalari({ odam, onAmal, keng }) {
-  const ogohlantir = () => {
-    const sabab = prompt('Ogohlantirish sababi (foydalanuvchiga ko\'rinadi):')
-    if (!sabab?.trim()) return
-    onAmal({ amal: 'ogohlantir', userId: odam.id, sabab })
+  const [oynaTur, setOynaTur] = useState(null) // 'ogohlantir' | 'taqiq' | null
+  const [sabab, setSabab] = useState('')
+  const [kunlar, setKunlar] = useState('7')
+
+  const och = (tur) => {
+    setOynaTur(tur)
+    setSabab('')
+    setKunlar('7')
   }
 
-  const taqiqla = () => {
-    const kunlar = Number(prompt('Necha kunga taqiqlansin?', '7'))
-    if (!kunlar) return
-    const sabab = prompt('Sabab (foydalanuvchiga ko\'rinadi):')
-    if (!sabab?.trim()) return
-    onAmal({ amal: 'taqiq', userId: odam.id, kunlar, sabab })
+  const tasdiqla = (e) => {
+    e.preventDefault()
+    if (!sabab.trim()) return
+    if (oynaTur === 'ogohlantir') {
+      onAmal({ amal: 'ogohlantir', userId: odam.id, sabab: sabab.trim() })
+    } else if (oynaTur === 'taqiq') {
+      const n = Math.max(1, Number(kunlar) || 0)
+      if (!n) return
+      onAmal({ amal: 'taqiq', userId: odam.id, kunlar: n, sabab: sabab.trim() })
+    }
+    setOynaTur(null)
   }
 
   return (
-    <div className={`flex gap-1.5 ${keng ? 'w-full' : ''}`}>
-      <button
-        onClick={ogohlantir}
-        className={`px-3 py-1.5 rounded-lg bg-orange-600/20 border border-orange-600/40 text-orange-300 text-xs font-semibold ${keng ? 'flex-1 py-2' : ''}`}
-      >
-        ⚠️ Ogohlantirish
-      </button>
-      <button
-        onClick={taqiqla}
-        className={`px-3 py-1.5 rounded-lg bg-red-600/20 border border-red-600/40 text-red-300 text-xs font-semibold ${keng ? 'flex-1 py-2' : ''}`}
-      >
-        🚫 Yozishni taqiqlash
-      </button>
-    </div>
+    <>
+      <div className={`flex gap-1.5 ${keng ? 'w-full' : ''}`}>
+        <button
+          type="button"
+          onClick={() => och('ogohlantir')}
+          className={`px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 text-xs font-semibold transition-colors ${keng ? 'flex-1 py-2' : ''}`}
+        >
+          Ogohlantirish
+        </button>
+        <button
+          type="button"
+          onClick={() => och('taqiq')}
+          className={`px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/35 text-rose-300 text-xs font-semibold transition-colors ${keng ? 'flex-1 py-2' : ''}`}
+        >
+          Yozishni taqiqlash
+        </button>
+      </div>
+
+      {oynaTur && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+          onClick={() => setOynaTur(null)}
+        >
+          <form
+            onSubmit={tasdiqla}
+            onClick={(e) => e.stopPropagation()}
+            className="v3-panel-karta w-full max-w-md p-5 space-y-4 border-[var(--v3-chiziq-2)]"
+            style={{ background: 'var(--v3-fon-2)' }}
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--v3-chiziq)] pb-3">
+              <div>
+                <h3 className="text-base font-bold text-[var(--v3-matn)]">
+                  {oynaTur === 'ogohlantir' ? 'Foydalanuvchini ogohlantirish' : 'Chatda yozishni taqiqlash'}
+                </h3>
+                <p className="text-xs text-[var(--v3-xira)]">
+                  {odam.fullName || odam.username} (@{odam.username})
+                </p>
+              </div>
+              <button type="button" onClick={() => setOynaTur(null)} className="v3-tugma px-2.5 py-1 text-xs">
+                Yopish
+              </button>
+            </div>
+
+            {oynaTur === 'taqiq' && (
+              <div>
+                <label className="block text-xs font-semibold text-[var(--v3-xira)] mb-1">
+                  Taqiq muddati (kun)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  required
+                  value={kunlar}
+                  onChange={(e) => setKunlar(e.target.value)}
+                  className="v3-kiritish w-full"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-semibold text-[var(--v3-xira)] mb-1">
+                Sabab (foydalanuvchiga ko&apos;rinadi) *
+              </label>
+              <textarea
+                rows={3}
+                required
+                value={sabab}
+                onChange={(e) => setSabab(e.target.value)}
+                placeholder="Sababni kiriting..."
+                className="v3-kiritish w-full resize-none"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[var(--v3-chiziq)]">
+              <button type="button" onClick={() => setOynaTur(null)} className="v3-tugma text-xs">
+                Bekor qilish
+              </button>
+              <button
+                type="submit"
+                disabled={!sabab.trim() || (oynaTur === 'taqiq' && !(Number(kunlar) >= 1))}
+                className="v3-tugma v3-tugma-asosiy text-xs disabled:opacity-40"
+              >
+                {oynaTur === 'ogohlantir' ? 'Ogohlantirish yuborish' : 'Taqiqlash'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </>
   )
 }
 
 function Karta({ icon, son, nom }) {
   return (
-    <div className="rounded-2xl border border-purple-800/50 bg-slate-900/50 p-4">
+    <div className="v3-panel-karta p-4">
       <div className="text-xl mb-1">{icon}</div>
-      <div className="text-2xl font-bold text-yellow-400">{son}</div>
-      <div className="text-[11px] text-purple-300">{nom}</div>
+      <div className="text-2xl font-bold text-[var(--v3-urgu)]">{son}</div>
+      <div className="text-[11px] text-[var(--v3-xira)]">{nom}</div>
     </div>
   )
 }

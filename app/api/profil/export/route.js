@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { profilLogYoz, profilLoglarOlish } from '@/lib/profil-log'
 
 const SAFE_USER_SELECT = {
   id: true,
@@ -17,11 +18,14 @@ const SAFE_USER_SELECT = {
   role: true
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: "Elektron doskada ma'lumotlarni eksport qilib bo'lmaydi" }, { status: 403 })
     }
 
     const userId = session.user.id
@@ -32,6 +36,19 @@ export async function GET() {
         quizResults: { orderBy: { completedAt: 'desc' } },
         certificates: { orderBy: { issuedAt: 'desc' } },
         achievements: { orderBy: { earnedAt: 'desc' } },
+        profilePosts: { orderBy: { createdAt: 'desc' } },
+        assignmentSubmissions: {
+          orderBy: { submittedAt: 'desc' },
+          include: {
+            assignment: { select: { id: true, title: true, maxPoints: true } },
+          },
+        },
+        quizAttempts: {
+          orderBy: { startedAt: 'desc' },
+          include: {
+            quiz: { select: { id: true, title: true } },
+          },
+        },
         friendships1: { select: { createdAt: true, user2: { select: SAFE_USER_SELECT } } },
         friendships2: { select: { createdAt: true, user1: { select: SAFE_USER_SELECT } } },
         followers: { select: { createdAt: true, follower: { select: SAFE_USER_SELECT } } },
@@ -52,18 +69,75 @@ export async function GET() {
 
     const {
       password,
+      kirishXatolari,
+      kirishTaqiqUntil,
       friendships1, friendships2,
       followers: _rawFollowers, following: _rawFollowing,
       quizResults: _rawQuizResults, certificates: _rawCertificates, achievements: _rawAchievements,
+      profilePosts: _rawPosts,
+      assignmentSubmissions: _rawSubmissions,
+      quizAttempts: _rawQuizAttempts,
       ...userFields
     } = user
+
+    const [msUrinishlar, logMalumot] = await Promise.all([
+      prisma.msUrinish.findMany({
+        where: { userId },
+        select: {
+          id: true,
+          slug: true,
+          holat: true,
+          shkalaBalli: true,
+          daraja: true,
+          theta: true,
+          se: true,
+          rawScore: true,
+          jamiSavollar: true,
+          oddiyFoiz: true,
+          cohortRank: true,
+          cohortTotal: true,
+          percentile: true,
+          certId: true,
+          boshlanganVaqt: true,
+          yakunlanganVaqt: true,
+        },
+        orderBy: { boshlanganVaqt: 'desc' },
+      }).catch(() => []),
+      profilLoglarOlish(userId, { limit: 100 }).catch(() => ({ barchaFiltrlangan: [] })),
+    ])
+
+    const xavfsizMsUrinishlar = msUrinishlar.map((u) =>
+      u.holat === 'elon_qilindi'
+        ? u
+        : {
+            id: u.id,
+            slug: u.slug,
+            holat: u.holat,
+            boshlanganVaqt: u.boshlanganVaqt,
+            yakunlanganVaqt: u.yakunlanganVaqt,
+          },
+    )
+
+    await profilLogYoz({
+      userId,
+      toifa: 'hisob',
+      amal: 'MALUMOT_EKSPORT_QILINDI',
+      sarlavha: "Shaxsiy ma'lumotlar eksport qilindi",
+      holat: 'muvaffaqiyat',
+      request,
+    })
 
     return NextResponse.json({
       exportedAt: new Date().toISOString(),
       user: userFields,
       quizResults: user.quizResults,
+      msUrinishlar: xavfsizMsUrinishlar,
       certificates: user.certificates,
       achievements: user.achievements,
+      profilePosts: user.profilePosts,
+      assignmentSubmissions: user.assignmentSubmissions,
+      teacherQuizAttempts: user.quizAttempts,
+      profilLoglar: (logMalumot?.barchaFiltrlangan || []).slice(0, 100),
       friends,
       followers,
       following
@@ -71,7 +145,7 @@ export async function GET() {
   } catch (error) {
     console.error('Profile export error:', error)
     return NextResponse.json(
-      { error: "Ma'lumotlarni eksport qilishda xatolik: " + error.message },
+      { error: "Ma'lumotlarni eksport qilishda xatolik" },
       { status: 500 }
     )
   }

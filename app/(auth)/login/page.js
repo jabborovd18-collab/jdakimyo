@@ -1,228 +1,284 @@
 // app/(auth)/login/page.js
 "use client"
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import Ikon from '@/components/Ikon'
+import AuthQobiq, {
+  AuthXatoQutisi,
+  AuthYuklanmoqda,
+  GoogleKirishTugma,
+} from '@/components/AuthQobiq'
+import {
+  authXatoMatni,
+  loginFormQiymatlari,
+  xavfsizQaytishManzili,
+} from '@/lib/auth-tekshiruv'
 
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { data: session, status } = useSession()
+  const passwordRef = useRef(null)
+
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [googleHint, setGoogleHint] = useState(false)
   const [formData, setFormData] = useState({
     login: '',
-    password: ''
+    password: '',
   })
 
-  // Google OAuth yoki boshqa xatoliklar URL parametrida kelsa ko'rsatamiz
+  const rawCallbackUrl = searchParams?.get('callbackUrl')
+  const joriyOrigin = typeof window !== 'undefined' ? window.location.origin : null
+  const safeCallbackUrl = xavfsizQaytishManzili(rawCallbackUrl, '/profil', joriyOrigin)
+
+  // Allaqachon tizimga kirgan foydalanuvchi /login da qolib ketmasin
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.id) {
+      router.replace(safeCallbackUrl)
+    }
+  }, [status, session?.user?.id, safeCallbackUrl, router])
+
+  // Google OAuth yoki NextAuth xatoliklarini URL parametrida ko'rsatamiz
   useEffect(() => {
     const error = searchParams?.get('error')
-    if (error) {
-      if (error === 'AccessDenied') {
-        toast.error('Kirish rad etildi (Google hisobingiz test foydalanuvchilar ro\'yxatida yo\'q yoki hisobingiz bloklangan).')
-      } else if (error === 'OAuthAccountNotLinked') {
-        toast.error('Ushbu email bilan boshqa usulda ro\'yxatdan o\'tilgan.')
-      } else if (error === 'Configuration') {
-        toast.error('Google OAuth sozlamalarida xatolik bor (Client ID yoki Secret xato).')
-      } else if (error === 'OAuthCallback') {
-        toast.error('Google ma\'lumotlarini qabul qilishda xatolik yuz berdi (OAuthCallback).')
-      } else if (error === 'OAuthSignin') {
-        toast.error('Google orqali kirish boshlanmadi (OAuthSignin).')
-      } else {
-        toast.error(`Kirishda xatolik: ${error}`)
-      }
-    }
+    if (!error) return
+    const matn = authXatoMatni(error, { kontekst: 'kirish' })
+    setFormError(matn)
+    toast.error(matn, { id: 'auth-url-error', duration: 4500 })
   }, [searchParams])
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    if (formError) setFormError('')
+    setGoogleHint(false)
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  // Brauzer parol menejeri React onChange ni ishga tushirmay to'ldirganida state ni sinxronlaydi
+  const handleAutofillStart = (e) => {
+    if (e.animationName !== 'v3-autofill-start') return
+    const { name, value } = e.target
+    if (!name || !value) return
+    setFormData((prev) => (prev[name] ? prev : { ...prev, [name]: value }))
   }
 
   // Google OAuth orqali 1 bosishda kirish
   const handleGoogleSignIn = async () => {
+    setFormError('')
+    setGoogleHint(false)
     setIsGoogleLoading(true)
     try {
-      const callbackUrl = searchParams?.get('callbackUrl') || '/profil'
-      await signIn('google', { callbackUrl })
-    } catch (error) {
-      toast.error('Google orqali kirishda xatolik yuz berdi')
+      const res = await signIn('google', { callbackUrl: safeCallbackUrl })
+      if (res?.error) {
+        const matn = authXatoMatni(res.error, { kontekst: 'kirish' })
+        setFormError(matn)
+        toast.error(matn)
+        setIsGoogleLoading(false)
+      }
+    } catch {
+      const matn = "Google orqali kirishda xatolik yuz berdi. Qayta urinib ko'ring."
+      setFormError(matn)
+      toast.error(matn)
       setIsGoogleLoading(false)
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (isLoading || isGoogleLoading) return
+
+    setFormError('')
+    setGoogleHint(false)
     setIsLoading(true)
 
     try {
+      const domData = e.currentTarget ? new FormData(e.currentTarget) : null
+      const { login, password } = loginFormQiymatlari(formData, domData)
+      if (login !== formData.login || password !== formData.password) {
+        setFormData({ login, password })
+      }
+
       const result = await signIn('credentials', {
-        login: formData.login,
-        password: formData.password,
-        redirect: false
+        login,
+        password,
+        redirect: false,
       })
 
-      if (result.error) {
-        throw new Error(result.error)
+      if (!result || result.error || result.ok === false) {
+        const matn = authXatoMatni(result?.error, { kontekst: 'kirish' })
+        setFormError(matn)
+        setGoogleHint(matn.includes('Login yoki parol'))
+        toast.error(matn)
+        return
       }
 
       toast.success('Muvaffaqiyatli kirdingiz!')
-      const callbackUrl = searchParams?.get('callbackUrl') || '/profil'
-      router.push(callbackUrl)
+      router.push(safeCallbackUrl)
       router.refresh()
-
-    } catch (error) {
-      toast.error(error.message)
+    } catch {
+      const matn = "Tarmoq xatosi. Internet aloqasini tekshirib qayta urinib ko'ring."
+      setFormError(matn)
+      toast.error(matn)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const registerHref = searchParams?.get('callbackUrl')
-    ? `/register?callbackUrl=${encodeURIComponent(searchParams.get('callbackUrl'))}`
+  if (status === 'authenticated' && session?.user?.id) {
+    return <AuthYuklanmoqda matn="Shaxsiy kabinetga yo'naltirilmoqda..." />
+  }
+
+  const registerHref = rawCallbackUrl
+    ? `/register?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
     : '/register'
 
+  const doskaHref = rawCallbackUrl
+    ? `/doska/auth?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
+    : '/doska/auth'
+
+  const band = isLoading || isGoogleLoading
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-8 backdrop-blur-sm">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-2">
-              Kirish
-            </h1>
-            <p className="text-purple-300 text-sm">
-              JDA KIMYO platformasiga xush kelibsiz
-            </p>
-          </div>
+    <AuthQobiq
+      sarlavha="Kirish"
+      izoh="JDA KIMYO platformasidagi hisobingizga kiring"
+    >
+      <AuthXatoQutisi
+        xato={formError}
+        qoshimcha={
+          googleHint
+            ? "Agar hisobingizni avval Google orqali ochgan bo'lsangiz, yuqoridagi Google tugmasidan kiring."
+            : null
+        }
+      />
 
-          {/* GOOGLE ORQALI BIR BOSISHDA KIRISH */}
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={isGoogleLoading || isLoading}
-            className="w-full py-3 px-4 bg-white hover:bg-slate-100 text-slate-800 font-medium rounded-xl flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg active:scale-[0.99]"
-          >
-            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-              />
-            </svg>
-            <span>{isGoogleLoading ? 'Bog\'lanmoqda...' : 'Google orqali kirish'}</span>
-          </button>
+      <GoogleKirishTugma
+        onClick={handleGoogleSignIn}
+        loading={isGoogleLoading}
+        disabled={isLoading}
+        label="Google orqali kirish"
+      />
 
-          {/* AJRATUVCHI (YOKI) */}
-          <div className="relative my-6 flex items-center justify-center">
-            <div className="border-t border-purple-700/50 w-full" />
-            <span className="bg-purple-900/60 px-3 text-xs text-purple-300 uppercase tracking-wider relative rounded-full">
-              yoki login orqali
-            </span>
-            <div className="border-t border-purple-700/50 w-full" />
-          </div>
+      {/* Ajratuvchi */}
+      <div className="relative my-5 flex items-center gap-3">
+        <div className="h-px flex-1 bg-[var(--v3-chiziq)]" />
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--v3-xira)]">
+          yoki login orqali
+        </span>
+        <div className="h-px flex-1 bg-[var(--v3-chiziq)]" />
+      </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-sm text-purple-300 mb-1 block">Username yoki email</label>
-              <input
-                type="text"
-                name="login"
-                value={formData.login}
-                onChange={handleChange}
-                placeholder="diyorbek_j"
-                autoComplete="username"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck="false"
-                required
-                className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none transition-colors"
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="login-id" className="v3-yorliq">
+            Username yoki email
+          </label>
+          <input
+            id="login-id"
+            type="text"
+            name="login"
+            value={formData.login}
+            onChange={handleChange}
+            onAnimationStart={handleAutofillStart}
+            placeholder="diyorbek_j yoki email"
+            autoComplete="username"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            required
+            className="v3-kiritish py-3 text-sm"
+          />
+        </div>
 
-            <div>
-              <label className="text-sm text-purple-300 mb-1 block">Parol</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  required
-                  className="w-full px-4 py-3 bg-purple-950/50 border border-purple-700/50 rounded-xl text-white placeholder-purple-500 focus:border-yellow-500 outline-none transition-colors"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-400 hover:text-purple-200"
-                >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
-                </button>
-              </div>
-            </div>
-
+        <div>
+          <label htmlFor="login-password" className="v3-yorliq">
+            Parol
+          </label>
+          <div className="relative">
+            <input
+              ref={passwordRef}
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              onAnimationStart={handleAutofillStart}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              required
+              className="v3-kiritish py-3 pr-12 text-sm"
+            />
             <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-yellow-500/20"
+              type="button"
+              onClick={() => {
+                const domParol = passwordRef.current?.value
+                if (domParol && !formData.password) {
+                  setFormData((prev) => ({ ...prev, password: domParol }))
+                }
+                setShowPassword((v) => !v)
+              }}
+              aria-label={showPassword ? 'Parolni yashirish' : "Parolni ko'rsatish"}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-[var(--v3-xira)] hover:text-[var(--v3-matn)] transition-colors"
             >
-              {isLoading ? 'Kirilmoqda...' : 'Kirish'}
+              <Ikon nom={showPassword ? 'kuzatuvYopiq' : 'kuzatuv'} olcham={18} />
             </button>
-          </form>
-
-          {/* ELEKTRON DOSKA */}
-          <div className="mt-6 pt-5 border-t border-purple-800/50">
-            <Link
-              href="/doska"
-              className="flex items-center gap-3 p-3 bg-cyan-900/25 hover:bg-cyan-900/40 border border-cyan-700/50 rounded-xl transition-all group"
-            >
-              <span className="text-2xl">📺</span>
-              <span className="flex-1 min-w-0">
-                <span className="block text-sm font-semibold text-cyan-200">
-                  Elektron doska — QR bilan kirish
-                </span>
-                <span className="block text-xs text-cyan-400/80">
-                  Parol terilmaydi. Telefondan skanerlab tasdiqlaysiz.
-                </span>
-              </span>
-              <span className="text-cyan-400 group-hover:translate-x-0.5 transition-transform">→</span>
-            </Link>
-          </div>
-
-          <div className="mt-6 text-center text-sm text-purple-300">
-            Hisobingiz yo&apos;qmi?{' '}
-            <Link href={registerHref} className="text-yellow-400 hover:text-yellow-300 font-semibold">
-              Ro&apos;yxatdan o&apos;tish
-            </Link>
           </div>
         </div>
+
+        <button
+          type="submit"
+          disabled={band}
+          className="v3-tugma v3-tugma-asosiy w-full min-h-[46px] justify-center text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span>{isLoading ? 'Kirilmoqda...' : 'Kirish'}</span>
+          {!isLoading && <Ikon nom="ong" olcham={16} />}
+        </button>
+      </form>
+
+      {/* Elektron doska QR kirish */}
+      <div className="mt-6 pt-5 border-t border-[var(--v3-chiziq)]">
+        <Link
+          href={doskaHref}
+          className="flex items-center gap-3 p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] hover:border-[var(--v3-urgu)] transition-all group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] text-[var(--v3-urgu)] flex items-center justify-center shrink-0">
+            <Ikon nom="doska" olcham={20} />
+          </div>
+          <span className="flex-1 min-w-0">
+            <span className="block text-xs sm:text-sm font-bold text-[var(--v3-matn)]">
+              Elektron doska — QR bilan kirish
+            </span>
+            <span className="block text-[11px] text-[var(--v3-xira)]">
+              Parol terilmaydi. Telefondan skanerlab tasdiqlaysiz.
+            </span>
+          </span>
+          <Ikon
+            nom="ong"
+            olcham={15}
+            className="text-[var(--v3-xira)] group-hover:text-[var(--v3-urgu)] group-hover:translate-x-0.5 transition-all shrink-0"
+          />
+        </Link>
       </div>
-    </main>
+
+      <div className="mt-6 text-center text-xs sm:text-sm text-[var(--v3-xira)]">
+        Hisobingiz yo&apos;qmi?{' '}
+        <Link href={registerHref} className="text-[var(--v3-urgu)] hover:underline font-bold">
+          Ro&apos;yxatdan o&apos;tish
+        </Link>
+      </div>
+    </AuthQobiq>
   )
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
-        <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-      </main>
-    }>
+    <Suspense fallback={<AuthYuklanmoqda matn="Sahifa yuklanmoqda..." />}>
       <LoginForm />
     </Suspense>
   )

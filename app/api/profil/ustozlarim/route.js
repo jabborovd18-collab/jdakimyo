@@ -11,10 +11,12 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { xabarYubor } from '@/lib/bildirishnoma'
+import { ustozQoshilQarori } from '@/lib/profil-tekshiruv'
 
 const USTOZ_MAYDONLARI = {
   select: {
     id: true,
+    userId: true,
     username: true,
     fullName: true,
     avatar: true,
@@ -27,7 +29,7 @@ const USTOZ_MAYDONLARI = {
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -62,12 +64,12 @@ export async function GET() {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { groupId } = await request.json()
-    if (!groupId) {
+    const { groupId } = await request.json().catch(() => ({}))
+    if (!groupId || typeof groupId !== 'string') {
       return NextResponse.json({ error: 'Guruh ID kerak' }, { status: 400 })
     }
 
@@ -82,10 +84,10 @@ export async function POST(request) {
 
     // O'z guruhiga o'zi qo'shila olmaydi
     if (group.teacherId === session.user.id) {
-      return NextResponse.json({ error: 'O\'zingizning guruhingizga talaba sifatida qo\'shila olmaysiz' }, { status: 400 })
+      return NextResponse.json({ error: "O'zingizning guruhingizga talaba sifatida qo'shila olmaysiz" }, { status: 400 })
     }
 
-    // Allaqachon a'zomi?
+    // Allaqachon yozuv bormi?
     const existing = await prisma.teacherStudent.findFirst({
       where: {
         teacherId: group.teacherId,
@@ -94,30 +96,28 @@ export async function POST(request) {
       }
     })
 
-    if (existing) {
-      if (existing.holat === 'faol') {
-        return NextResponse.json({ error: 'Siz allaqachon ushbu guruh a\'zosisiz' }, { status: 400 })
-      }
-      if (existing.holat === 'sorov') {
-        // Agar taklif allaqachon tushgan bo'lsa, uni darhol qabul qilamiz
-        await prisma.teacherStudent.update({
-          where: { id: existing.id },
-          data: { holat: 'faol', javobVaqt: new Date() }
-        })
-        return NextResponse.json({ success: true, message: `✓ "${group.name}" guruhiga qo'shildingiz!` })
-      }
+    const qaror = ustozQoshilQarori(existing)
+    if (qaror.amal === 'allaqachon_faol') {
+      return NextResponse.json({ error: "Siz allaqachon ushbu guruh a'zosisiz" }, { status: 400 })
     }
 
-    // Yangi qo'shilish
-    await prisma.teacherStudent.create({
-      data: {
-        teacherId: group.teacherId,
-        studentId: session.user.id,
-        groupId,
-        holat: 'faol',
-        javobVaqt: new Date()
-      }
-    })
+    if (qaror.amal === 'yangila') {
+      // Avval 'sorov' yoki 'rad' bo'lgan yozuvni qayta 'faol' qilamiz — P2002 xatosiz
+      await prisma.teacherStudent.update({
+        where: { id: qaror.id },
+        data: { holat: 'faol', javobVaqt: new Date() }
+      })
+    } else {
+      await prisma.teacherStudent.create({
+        data: {
+          teacherId: group.teacherId,
+          studentId: session.user.id,
+          groupId,
+          holat: 'faol',
+          javobVaqt: new Date()
+        }
+      })
+    }
 
     const talabaNomi = session.user.fullName || session.user.username
     await xabarYubor(group.teacherId, {
@@ -130,7 +130,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      message: `✓ "${group.name}" guruhiga muvaffaqiyatli qo'shildingiz!`
+      message: `"${group.name}" guruhiga muvaffaqiyatli qo'shildingiz!`
     })
   } catch (error) {
     console.error('[Ustozlarim POST]', error)
@@ -144,7 +144,7 @@ export async function POST(request) {
 export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -213,7 +213,7 @@ export async function PUT(request) {
 export async function DELETE(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

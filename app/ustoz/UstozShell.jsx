@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import Ikon from '@/components/Ikon'
-import FonTanlagich, { useFon } from '@/components/FonTanlagich'
+import { useFon } from '@/components/FonTanlagich'
 import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 
 const NAV_GROUPS = [
@@ -29,6 +29,7 @@ const NAV_GROUPS = [
     title: 'Boshqaruv',
     items: [
       { name: 'Natijalar tahlili', href: '/ustoz/natijalar', ikon: 'orin' },
+      { name: 'Doska skaneri', href: '/doska/skaner', ikon: 'skaner' },
       { name: 'E\'lonlar', href: '/ustoz/elonlar', ikon: 'kanal' },
       { name: 'Ustoz profili', href: '/ustoz/sozlash', ikon: 'sozlama' },
     ]
@@ -36,7 +37,7 @@ const NAV_GROUPS = [
 ]
 
 export default function UstozShell({ user, children }) {
-  const [fon, fonTanla] = useFon()
+  const [fon] = useFon()
   const pathname = usePathname()
   const [mobilSidebar, setMobilSidebar] = useState(false)
 
@@ -91,9 +92,6 @@ export default function UstozShell({ user, children }) {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Fon tanlagich (4 rejim: tun, siyoh, grafit, kunduz) */}
-            <FonTanlagich fon={fon} tanla={fonTanla} />
-
             {/* Desktop User Info */}
             <div className="hidden md:flex items-center gap-2.5 pl-2.5 border-l border-[var(--v3-chiziq)]">
               <div className="w-8 h-8 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">
@@ -213,7 +211,7 @@ export default function UstozShell({ user, children }) {
             {/* Drawer Bottom */}
             <div className="p-3 border-t border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] space-y-2">
               <Link
-                href="/oquv/video-darsliklar/ustoz-quiz"
+                href="/testlar/ustoz"
                 onClick={() => setMobilSidebar(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] text-xs text-[var(--v3-matn)] font-medium"
               >
@@ -263,7 +261,7 @@ export default function UstozShell({ user, children }) {
 
             <div className="pt-4 border-t border-[var(--v3-chiziq)]">
               <Link
-                href="/oquv/video-darsliklar/ustoz-quiz"
+                href="/testlar/ustoz"
                 className="flex items-center justify-between p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-xs text-[var(--v3-xira)] hover:text-[var(--v3-matn)] hover:border-[var(--v3-chiziq-2)] transition-all"
               >
                 <span>Talaba nigohi bilan ko{"'"}rish</span>
@@ -274,10 +272,51 @@ export default function UstozShell({ user, children }) {
         </aside>
 
         {/* Content Area */}
-        <main className="flex-1 min-w-0 p-3.5 sm:p-6 lg:p-8">
-          {children}
+        <main className="flex-1 min-w-0 p-3.5 sm:p-6 lg:p-8 pb-24 md:pb-8">
+          <Suspense fallback={null}>{children}</Suspense>
         </main>
       </div>
+
+      {/* ═══ MOBIL PASTKI NAVIGATSIYA BAR ═══ */}
+      <nav
+        aria-label="Ustoz tezkor mobil menyu"
+        className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-[var(--v3-chiziq)] backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
+        style={{ background: 'color-mix(in srgb, var(--v3-fon-2) 92%, transparent)' }}
+      >
+        <div className="grid grid-cols-5 h-16">
+          {[
+            { href: '/ustoz', label: 'Asosiy', ikon: 'grafik', exact: true },
+            { href: '/ustoz/quizlar', label: 'Quizlar', ikon: 'quiz' },
+            { href: '/ustoz/guruhlar', label: 'Guruhlar', ikon: 'odamlar' },
+            { href: '/ustoz/vazifalar', label: 'Vazifalar', ikon: 'kitob' },
+          ].map((item) => {
+            const active = isActive(item)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? 'page' : undefined}
+                className={`flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors ${
+                  active ? 'text-[var(--v3-urgu)]' : 'text-[var(--v3-xira)]'
+                }`}
+              >
+                <Ikon nom={item.ikon} olcham={19} qalin={active ? 2 : 1.6} />
+                <span className="truncate max-w-full px-1">{item.label}</span>
+              </Link>
+            )
+          })}
+
+          <button
+            type="button"
+            onClick={() => setMobilSidebar(true)}
+            className="flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold text-[var(--v3-xira)] hover:text-[var(--v3-matn)] transition-colors"
+            aria-label="Barcha bo'limlar"
+          >
+            <Ikon nom="menyu" olcham={19} />
+            <span>Bo&apos;limlar</span>
+          </button>
+        </div>
+      </nav>
     </div>
   )
 }

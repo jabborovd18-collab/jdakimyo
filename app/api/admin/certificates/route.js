@@ -8,6 +8,10 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAdminAuth } from '@/lib/admin-auth'
 import { xabarYubor } from '@/lib/bildirishnoma'
+import { SERTIFIKAT_TURLARI, qurAdminSertifikatFiltr } from '@/lib/sertifikat-tahlil'
+import { foydalanuvchilargaSertifikatPdfYubor } from '@/lib/telegram-sertifikat'
+
+const RUXSAT_ETILGAN_TURLAR = new Set(Object.values(SERTIFIKAT_TURLARI))
 
 /**
  * Sertifikat raqamini yaratadi: JDA-2026-K7M2QP
@@ -61,33 +65,31 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const fan = searchParams.get('fan') || ''
     const status = searchParams.get('status') || ''
+    const manba = searchParams.get('manba') || ''
     const search = searchParams.get('search') || ''
 
-    const where = {}
-    if (fan && fan !== 'all') where.fan = fan
-    if (status && status !== 'all') where.status = status
-    if (search) {
-      where.OR = [
-        { fullName: { contains: search, mode: 'insensitive' } },
-        { certId: { contains: search, mode: 'insensitive' } },
-        { reason: { contains: search, mode: 'insensitive' } },
-      ]
-    }
+    const { realUserFiltr, where, msWhere, hamkorWhere, qoldaWhere } =
+      qurAdminSertifikatFiltr({ fan, status, manba, search })
 
-    const certificates = await prisma.certificate.findMany({
-      where,
-      orderBy: { issuedAt: 'desc' },
-      include: {
-        user: { select: { id: true, username: true, fullName: true, avatar: true } },
-        issuedBy: { select: { id: true, username: true, fullName: true } },
-      },
-    })
-
-    // Fan bo'yicha statistika — admin panelidagi filtr uchun
-    const stats = await prisma.certificate.groupBy({
-      by: ['fan'],
-      _count: true,
-    })
+    const [certificates, stats, msCount, hamkorCount, qoldaCount] = await Promise.all([
+      prisma.certificate.findMany({
+        where,
+        orderBy: { issuedAt: 'desc' },
+        include: {
+          user: { select: { id: true, username: true, fullName: true, avatar: true } },
+          issuedBy: { select: { id: true, username: true, fullName: true } },
+        },
+      }),
+      // Fan bo'yicha statistika — admin panelidagi filtr uchun (superadmin sinovisiz)
+      prisma.certificate.groupBy({
+        by: ['fan'],
+        where: realUserFiltr,
+        _count: true,
+      }),
+      prisma.certificate.count({ where: msWhere }),
+      prisma.certificate.count({ where: hamkorWhere }),
+      prisma.certificate.count({ where: qoldaWhere }),
+    ])
 
     return NextResponse.json({
       success: true,
@@ -96,6 +98,12 @@ export async function GET(request) {
         acc[s.fan] = s._count
         return acc
       }, {}),
+      manbaCounts: {
+        jami: msCount + hamkorCount + qoldaCount,
+        ms: msCount,
+        hamkor: hamkorCount,
+        qolda: qoldaCount,
+      },
       total: certificates.length,
     })
   } catch (error) {
@@ -135,11 +143,23 @@ export async function POST(request) {
           .map((s) => ({ url: s.url.trim(), label: (s.label || '').trim() }))
       : []
 
+    const turi =
+      typeof data.turi === 'string' && RUXSAT_ETILGAN_TURLAR.has(data.turi.trim())
+        ? data.turi.trim()
+        : SERTIFIKAT_TURLARI.maxsus
+    const metadata =
+      data.metadata && typeof data.metadata === 'object' && !Array.isArray(data.metadata)
+        ? data.metadata
+        : null
+
     const asos = {
       userId: user.id,
       fullName,
       fan,
       reason,
+      turi,
+      metadata,
+      fullNameLocked: Boolean(data.fullNameLocked),
       description: data.description?.trim() || null,
       seals: seals.length > 0 ? seals : null,
       issuedById: admin.id,
@@ -200,9 +220,12 @@ export async function POST(request) {
       adminId: admin.id,
     })
 
+    const pdfNatija = await foydalanuvchilargaSertifikatPdfYubor([certificate])
+
     return NextResponse.json({
       success: true,
       certificate,
+      telegramPdfSoni: pdfNatija.yuborildi,
       message: `✓ ${fullName} ga sertifikat berildi (${certificate.certId})`,
     })
   } catch (error) {
@@ -236,18 +259,68 @@ export async function PUT(request) {
     if (data.fan !== undefined) yangilanish.fan = data.fan.trim()
     if (data.reason !== undefined) yangilanish.reason = data.reason.trim()
     if (data.description !== undefined) yangilanish.description = data.description?.trim() || null
+    if (typeof data.turi === 'string' && RUXSAT_ETILGAN_TURLAR.has(data.turi.trim())) {
+      yangilanish.turi = data.turi.trim()
+    }
+    if (data.metadata !== undefined) {
+      yangilanish.metadata =
+        data.metadata && typeof data.metadata === 'object' && !Array.isArray(data.metadata)
+          ? data.metadata
+          : null
+    }
+    if (typeof data.fullNameLocked === 'boolean') {
+      yangilanish.fullNameLocked = data.fullNameLocked
+      // Eski JSON/metadata ichidagi qulf bayrog'ini ham sinxron saqlaymiz
+      if (
+        yangilanish.metadata === undefined &&
+        mavjud.metadata &&
+        typeof mavjud.metadata === 'object' &&
+        !Array.isArray(mavjud.metadata)
+      ) {
+        yangilanish.metadata = {
+          ...mavjud.metadata,
+          fullNameLocked: data.fullNameLocked,
+        }
+      }
+      if (
+        yangilanish.description === undefined &&
+        typeof mavjud.description === 'string' &&
+        mavjud.description.trim().startsWith('{')
+      ) {
+        try {
+          const parsed = JSON.parse(mavjud.description)
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            yangilanish.description = JSON.stringify({
+              ...parsed,
+              fullNameLocked: data.fullNameLocked,
+            })
+          }
+        } catch {
+          // Yaroqsiz JSON bo'lsa, asl description qoldiriladi
+        }
+      }
+    }
     if (data.examName !== undefined) yangilanish.examName = data.examName?.trim() || null
     if (data.grade !== undefined) yangilanish.grade = data.grade?.trim() || null
     if (data.score !== undefined) yangilanish.score = raqamYoNull(data.score, true)
     if (data.percentage !== undefined) yangilanish.percentage = raqamYoNull(data.percentage)
     if (data.percentile !== undefined) yangilanish.percentile = raqamYoNull(data.percentile)
     if (data.seals !== undefined) {
-      const seals = Array.isArray(data.seals)
-        ? data.seals
-            .filter((s) => s && typeof s.url === 'string' && s.url.trim())
-            .map((s) => ({ url: s.url.trim(), label: (s.label || '').trim() }))
-        : []
-      yangilanish.seals = seals.length > 0 ? seals : null
+      if (Array.isArray(data.seals)) {
+        const seals = data.seals
+          .filter((s) => s && typeof s.url === 'string' && s.url.trim())
+          .map((s) => ({ url: s.url.trim(), label: (s.label || '').trim() }))
+        if (seals.length > 0) {
+          yangilanish.seals = seals
+        } else if (Array.isArray(mavjud.seals) || mavjud.seals === null) {
+          // Hamkorlik muhr obyekti bo'sh massiv kelganda tasodifan o'chib ketmasin
+          yangilanish.seals = null
+        }
+      } else if (data.seals && typeof data.seals === 'object') {
+        yangilanish.seals = data.seals
+      } else if (data.seals === null) {
+        yangilanish.seals = null
+      }
     }
     if (data.status !== undefined) yangilanish.status = data.status
     if (data.expiresAt !== undefined) {
@@ -259,19 +332,51 @@ export async function PUT(request) {
       data: yangilanish,
     })
 
-    // Bekor qilish — sertifikat tarqatilgandan keyin uni yaroqsiz deb belgilash.
-    // Bu tekshirish natijasini o'zgartiradi, shuning uchun qaydnomaga tushadi.
+    // Bekor qilish, F.I.SH o'zgartirish yoki tahrir qulfini ochish tekshiruv natijasiga
+    // bevosita ta'sir qiladi — barchasi audit qaydnomaga yoziladi.
+    const manba = sorovManbasi(request)
+    const auditYozuvlar = []
+
     if (data.status !== undefined && data.status !== mavjud.status) {
-      await prisma.auditLog.create({
-        data: {
-          adminId: admin.id,
-          action: 'updateCertificateStatus',
-          targetType: 'Certificate',
-          targetId: certificate.certId,
-          details: `Holat "${mavjud.status}" dan "${certificate.status}" ga o'zgartirildi`,
-          ...sorovManbasi(request),
-        },
+      auditYozuvlar.push({
+        adminId: admin.id,
+        action: 'updateCertificateStatus',
+        targetType: 'Certificate',
+        targetId: certificate.certId,
+        details: `Holat "${mavjud.status}" dan "${certificate.status}" ga o'zgartirildi`,
+        ...manba,
       })
+    }
+
+    if (data.fullName !== undefined && certificate.fullName !== mavjud.fullName) {
+      auditYozuvlar.push({
+        adminId: admin.id,
+        action: 'updateCertificateName',
+        targetType: 'Certificate',
+        targetId: certificate.certId,
+        details: `F.I.SH "${mavjud.fullName}" dan "${certificate.fullName}" ga o'zgartirildi`,
+        ...manba,
+      })
+    }
+
+    if (
+      typeof data.fullNameLocked === 'boolean' &&
+      certificate.fullNameLocked !== mavjud.fullNameLocked
+    ) {
+      auditYozuvlar.push({
+        adminId: admin.id,
+        action: 'updateCertificateLock',
+        targetType: 'Certificate',
+        targetId: certificate.certId,
+        details: certificate.fullNameLocked
+          ? 'F.I.SH 1 martalik tahrirlash qulfi yoqildi'
+          : 'F.I.SH qayta tahrirlash qulfi admin tomonidan ochildi',
+        ...manba,
+      })
+    }
+
+    if (auditYozuvlar.length > 0) {
+      await Promise.all(auditYozuvlar.map((entry) => prisma.auditLog.create({ data: entry })))
     }
 
     return NextResponse.json({

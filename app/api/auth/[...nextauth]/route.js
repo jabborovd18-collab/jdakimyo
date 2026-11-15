@@ -5,9 +5,16 @@ import GoogleProvider from 'next-auth/providers/google'
 import { createCustomAuthAdapter } from '@/lib/auth-adapter'
 import { prisma } from '@/lib/prisma'
 import { verifyCredentials } from '@/lib/credentials'
-import { tokenniAlmashtir } from '@/lib/doska'
+import { profilLogYoz } from '@/lib/profil-log'
+import { tokenniAlmashtir, doskaSessiyaYaroqlimi } from '@/lib/doska'
 import { soravchiIp } from '@/lib/ip-cheklov'
 import { authMaxfiyKaliti } from '@/lib/auth-maxfiy-kalit'
+import { parolIzi, sessiyaYaroqlimi } from '@/lib/auth-sessiya'
+import {
+  nextAuthYonaltirishManzili,
+  sessiyaYaroqliPayload,
+  xavfsizJwtAvatar,
+} from '@/lib/auth-tekshiruv'
 
 export const authOptions = {
   adapter: createCustomAuthAdapter(),
@@ -15,9 +22,13 @@ export const authOptions = {
     GoogleProvider({
       clientId: (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, ''),
       clientSecret: (process.env.GOOGLE_CLIENT_SECRET || '').trim().replace(/^["']|["']$/g, ''),
+      // Uzoq tarmoqda openid-client 3.5s sukutdagi timeout bilan uzilib qolmasligi uchun
+      httpOptions: { timeout: 15000 },
       // Nega allowDangerousEmailAccountLinking: Agar foydalanuvchi ilgari
       // oddiy email/parol bilan ro'yxatdan o'tgan bo'lsa, xuddi shu email'dagi
       // tasdiqlangan Google akkauntini xatoliksiz avtomatik bog'laydi.
+      // Xavfi shu yerda yopilgan: signIn callback tasdiqlanmagan Google emailini
+      // rad etadi, lib/auth-sessiya.js esa hisobning eski parolini bekor qiladi.
       allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
@@ -35,7 +46,8 @@ export const authOptions = {
         return await verifyCredentials(
           credentials?.login,
           credentials?.password,
-          soravchiIp(req)
+          soravchiIp(req),
+          { userAgent: req?.headers?.['user-agent'] || null, manba: 'veb' }
         )
       }
     }),
@@ -53,8 +65,12 @@ export const authOptions = {
       async authorize(credentials) {
         const natija = await tokenniAlmashtir(credentials?.token)
         if (!natija) return null
-        // `doskaTugaydi` tokenga tushadi va jwt callback uni tekshiradi
-        return { ...natija.user, doskaTugaydi: natija.tugaydi?.getTime() || null }
+        // `doskaTugaydi` va `doskaSessiyaId` tokenga tushadi va jwt callback ularni tekshiradi
+        return {
+          ...natija.user,
+          doskaTugaydi: natija.tugaydi?.getTime() || null,
+          doskaSessiyaId: natija.sessiyaId || null,
+        }
       }
     })
   ],
@@ -75,28 +91,45 @@ export const authOptions = {
     },
   },
   callbacks: {
-    // BLOKLANGAN FOYDALANUVCHILARNI TO'SIQ:
-    // Google yoki boshqa provayder orqali kirganda agar hisob bloklangan bo'lsa (isBanned: true),
-    // tizimga kiritmaymiz (false qaytaramiz — bu foydalanuvchini to'g'ri AccessDenied xatosi bilan to'xtatadi).
-    async signIn({ user, profile }) {
+    // BLOKLANGAN FOYDALANUVCHILAR VA TASDIQLANMAGAN GOOGLE POCHTASI TO'SIG'I:
+    // Umumiy AccessDenied o'rniga aniq xato kodi bilan /login ga yo'naltiramiz.
+    async signIn({ user, account, profile }) {
       if (user?.isBanned) {
-        return false
+        return '/login?error=HisobBloklangan'
       }
-      const email = user?.email || profile?.email
-      if (email) {
+      const email = (user?.email || profile?.email || '').trim().toLowerCase()
+      if (account?.provider === 'google') {
+        if (profile?.email_verified === false) {
+          return '/login?error=TasdiqlanmaganGoogleEmail'
+        }
+        if (!email) {
+          return '/login?error=GoogleEmailTopilmadi'
+        }
+      }
+      // Credentials va doska authorize() ichida allaqachon isBanned tekshirilgan —
+      // bu yerda ortiqcha DB so'rovini qaytarmaymiz.
+      const qoshimchaTekshiruv =
+        email &&
+        account?.provider !== 'credentials' &&
+        account?.provider !== 'doska' &&
+        user?.isBanned === undefined
+      if (qoshimchaTekshiruv) {
         try {
           const existing = await prisma.user.findFirst({
-            where: { email: { equals: email.toLowerCase().trim(), mode: 'insensitive' } },
+            where: { email: { equals: email, mode: 'insensitive' } },
             select: { isBanned: true },
           })
           if (existing?.isBanned) {
-            return false
+            return '/login?error=HisobBloklangan'
           }
         } catch (e) {
           console.error('[auth] signIn tekshiruvida xatolik:', e.message)
         }
       }
       return true
+    },
+    async redirect({ url, baseUrl }) {
+      return nextAuthYonaltirishManzili(url, baseUrl)
     },
     async jwt({ token, user, trigger }) {
       if (user) {
@@ -124,6 +157,7 @@ export const authOptions = {
                   isTeacher: true,
                   isVerified: true,
                   isBanned: true,
+                  password: true,
                 },
               })
               if (fetched) dbUser = fetched
@@ -133,42 +167,60 @@ export const authOptions = {
           }
         }
 
-        token.sub = dbUser.id || token.sub
+        if (!dbUser?.id || dbUser.isBanned) {
+          return {}
+        }
+
+        token.sub = dbUser.id
         token.userId = dbUser.userId
         token.username = dbUser.username
         token.role = dbUser.role || 'bakalavr'
         token.fullName = dbUser.fullName || dbUser.name || null
-        token.avatar = dbUser.avatar || dbUser.image || null
+        token.avatar = xavfsizJwtAvatar(dbUser.avatar || dbUser.image)
         token.isTeacher = Boolean(dbUser.isTeacher)
         token.isVerified = Boolean(dbUser.isVerified)
-        // Doska sessiyasi bo'lsa — muddati. Oddiy kirishda `undefined`.
+        // Doska sessiyasi bo'lsa — muddati va baza yozuvi ID si. Oddiy kirishda `null`.
         token.doskaTugaydi = dbUser.doskaTugaydi || null
+        token.doskaSessiyaId = dbUser.doskaSessiyaId || null
         token.yangilangan = Date.now()
+
+        // Agar dbUser da password allaqachon olingan bo'lsa (Credentials yoki yuqoridagi select),
+        // ortiqcha bazaga murojaat qilmaymiz.
+        if (typeof dbUser.password === 'string') {
+          token.parolIzi = parolIzi(dbUser.password)
+        } else {
+          try {
+            const hisob = await prisma.user.findUnique({
+              where: { id: token.sub },
+              select: { password: true },
+            })
+            token.parolIzi = parolIzi(hisob?.password)
+          } catch (e) {
+            console.error('[auth] parol izini olib bo\'lmadi:', e.message)
+          }
+        }
         return token
       }
 
-      // DOSKA SESSIYASI MUDDATI.
-      //
-      // Dars tugagach ekran ochiq qolmasligi kerak: auditoriyadagi
-      // doskani keyingi guruh ham, tozalovchi ham ko'radi. Muddat
-      // o'tgach tokenni bo'shatamiz — NextAuth buni "kirilmagan" deb
-      // qabul qiladi va sahifa login'ga qaytadi.
-      if (token.doskaTugaydi && Date.now() > token.doskaTugaydi) {
+      // Oldin bekor qilingan yoki sub siz tokenni bo'sh qoldiramiz
+      if (!token?.sub) {
         return {}
       }
 
-      // TOKEN ESKIRADI. JWT strategiyasida token faqat kirish paytida
-      // to'ldiriladi va 30 kun yashaydi. Ya'ni admin kimgadir ustozlik
-      // yoki tasdiq bersa, u odam qayta kirmaguncha buni ko'rmasdi —
-      // "berdim, lekin ishlamayapti" degan holat aynan shundan chiqadi.
-      //
-      // Har so'rovda bazaga borish qimmat (Neon serverless), shuning
-      // uchun besh daqiqada bir marta yangilaymiz. Sozlama sahifasi
-      // darhol ko'rsatishi kerak bo'lsa, `update()` chaqirsa ham bo'ladi.
+      // DOSKA SESSIYASI MUDDATI VA TELEFONDAN UZISH ("Uzish") NAZORATI.
+      if (token.doskaTugaydi) {
+        if (Date.now() > token.doskaTugaydi) {
+          return {}
+        }
+        if (!token.doskaSessiyaId || !(await doskaSessiyaYaroqlimi(token.doskaSessiyaId))) {
+          return {}
+        }
+      }
+
       const ESKIRISH = 5 * 60 * 1000
       const eski = !token.yangilangan || Date.now() - token.yangilangan > ESKIRISH
 
-      if (token.sub && (trigger === 'update' || eski)) {
+      if (trigger === 'update' || eski) {
         try {
           const yangi = await prisma.user.findUnique({
             where: { id: token.sub },
@@ -181,23 +233,27 @@ export const authOptions = {
               fullName: true,
               avatar: true,
               isBanned: true,
+              password: true,
+              emailVerified: true,
             },
           })
-          if (yangi) {
-            // Agar hisob bloklangan bo'lsa, sessiyani darhol tugatamiz
-            if (yangi.isBanned) {
-              return {}
-            }
-            if (yangi.userId) token.userId = yangi.userId
-            token.role = yangi.role
-            token.isTeacher = yangi.isTeacher
-            token.isVerified = yangi.isVerified
-            token.username = yangi.username
-            token.fullName = yangi.fullName
-            if (yangi.avatar) token.avatar = yangi.avatar
+          if (!yangi) {
+            return {}
           }
-          // Yozuv topilmasa token o'zgarmaydi: baza javob bermay qolganda
-          // hammani tizimdan chiqarib yuborish xatoni battar qiladi.
+          if (yangi.isBanned) {
+            return {}
+          }
+          if (!sessiyaYaroqlimi(token.parolIzi, token.iat, yangi)) {
+            return {}
+          }
+          token.parolIzi = parolIzi(yangi.password)
+          if (yangi.userId) token.userId = yangi.userId
+          token.role = yangi.role
+          token.isTeacher = yangi.isTeacher
+          token.isVerified = yangi.isVerified
+          token.username = yangi.username
+          token.fullName = yangi.fullName
+          token.avatar = xavfsizJwtAvatar(yangi.avatar)
           token.yangilangan = Date.now()
         } catch (e) {
           console.error('[auth] tokenni yangilab bo\'lmadi:', e.message)
@@ -207,7 +263,12 @@ export const authOptions = {
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
+      // NextAuth v4 mijozida bo'sh obyekt kirilmagan sessiyani bildiradi.
+      // null qaytsa, mijoz Object.keys(null) chaqirib xato beradi.
+      if (!sessiyaYaroqliPayload(token)) {
+        return {}
+      }
+      if (session?.user) {
         session.user.userId = token.userId
         session.user.username = token.username
         session.user.role = token.role
@@ -217,12 +278,30 @@ export const authOptions = {
         session.user.id = token.sub
         session.user.isTeacher = Boolean(token.isTeacher)
         session.user.isVerified = Boolean(token.isVerified)
-        // Sahifa "doska rejimi" ni bilishi kerak: qolgan vaqtni
-        // ko'rsatadi va xavfli sozlamalarni yashiradi
         session.user.doskaTugaydi = token.doskaTugaydi || null
       }
       return session
     }
+  },
+  events: {
+    async signIn({ user, account }) {
+      if (!user?.id || !account?.provider || account.provider === 'credentials') return
+      const sarlavha =
+        account.provider === 'google'
+          ? 'Google orqali kirildi'
+          : account.provider === 'doska'
+          ? 'Elektron doska orqali kirildi'
+          : 'Tizimga kirildi'
+      await profilLogYoz({
+        userId: user.id,
+        toifa: 'xavfsizlik',
+        amal: 'KIRISH_MUVAFFAQIYAT',
+        sarlavha,
+        tafsilot: `Usul: ${account.provider}`,
+        holat: 'muvaffaqiyat',
+        meta: { usul: account.provider },
+      })
+    },
   },
   secret: authMaxfiyKaliti()
 }

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { isAdminRole } from '@/lib/roles'
 import { MILLIY_SERTIFIKAT_1_SAVOLLAR, javobniTekshir } from '@/data/hamkorlik/milliy-sertifikat-1-savollar'
 import { MILLIY_SERTIFIKAT_2_SAVOLLAR } from '@/data/hamkorlik/milliy-sertifikat-2-savollar'
 
@@ -15,12 +16,7 @@ export async function GET(req, { params }) {
   try {
     const { slug } = await params
     const session = await getServerSession(authOptions)
-    const userRole = session?.user?.role?.toLowerCase() || ''
-    const username = session?.user?.username?.toLowerCase() || ''
-    const email = session?.user?.email?.toLowerCase() || ''
-    const isAdmin = ['admin', 'superadmin', 'moderator'].includes(userRole) ||
-      ['diyorbek_jabborov', 'jabborov', 'diyorbek'].includes(username) ||
-      ['diyorbekjabborov84@gmail.com', 'jabborovd18@gmail.com', 'diyorbekjabborov12@gmail.com'].includes(email)
+    const isAdmin = Boolean(session?.user && !session.user.doskaTugaydi && isAdminRole(session.user.role))
 
     const partnership = await prisma.seasonalPartnership.findUnique({
       where: { slug },
@@ -169,12 +165,7 @@ export async function POST(req, { params }) {
   try {
     const { slug } = await params
     const session = await getServerSession(authOptions)
-    const userRole = session?.user?.role?.toLowerCase() || ''
-    const username = session?.user?.username?.toLowerCase() || ''
-    const email = session?.user?.email?.toLowerCase() || ''
-    const isAdmin = ['admin', 'superadmin', 'moderator'].includes(userRole) ||
-      ['diyorbek_jabborov', 'jabborov', 'diyorbek'].includes(username) ||
-      ['diyorbekjabborov84@gmail.com', 'jabborovd18@gmail.com', 'diyorbekjabborov12@gmail.com'].includes(email)
+    const isAdmin = Boolean(session?.user && !session.user.doskaTugaydi && isAdminRole(session.user.role))
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Iltimos, avval tizimga kiring' }, { status: 401 })
@@ -269,62 +260,49 @@ export async function POST(req, { params }) {
       finalTimeSpentSec = Math.min(Math.max(1, serverElapsed), maxAllowedSec)
     }
 
-    let numericScore = 0
-    let numericPercent = 0
-    let totalSavollarSoni = 30
-
     const savollarManbai = SERTIFIKAT_SAVOLLARI[slug]
-    if (savollarManbai) {
-      let togri = 0
-      savollarManbai.forEach((savol) => {
-        const berilgan = body.javoblar?.[savol.id]
-        if (javobniTekshir(savol, berilgan)) {
-          togri++
-        }
-      })
-      numericScore = togri
-      numericPercent = Math.round((togri / 40) * 100 * 10) / 10
-      totalSavollarSoni = 40
-    } else {
-      numericScore = parseInt(body.score, 10) || 0
-      numericPercent = parseFloat(body.percentage) || 0
-      totalSavollarSoni = parseInt(body.totalQuestions, 10) || 30
+    if (!savollarManbai) {
+      return NextResponse.json(
+        { error: 'Ushbu sinov uchun server savollar banki topilmadi' },
+        { status: 400 }
+      )
     }
 
-    // Sinov testlarida o'tish bali yo'q: ular sertifikat emas, tayyorgarlik uchun.
-    const passed = savollarManbai ? true : (numericPercent >= (partnership.minPassPercent || 60.0))
+    let togri = 0
+    savollarManbai.forEach((savol) => {
+      const berilgan = body.javoblar?.[savol.id]
+      if (javobniTekshir(savol, berilgan)) {
+        togri++
+      }
+    })
+    const totalSavollarSoni = savollarManbai.length || 40
+    const numericScore = togri
+    const numericPercent = Math.round((togri / totalSavollarSoni) * 100 * 10) / 10
 
-    let attempt;
-    if (existingAttempt) {
-      attempt = await prisma.partnershipAttempt.update({
+    // Sinov testlarida o'tish bali yo'q: ular sertifikat emas, tayyorgarlik uchun.
+    const passed = true
+
+    const attempt = await prisma.$transaction(async (tx) => {
+      const joriy = await tx.partnershipAttempt.findUnique({
+        where: { id: existingAttempt.id },
+        select: { id: true, answers: true },
+      })
+      if (!joriy || joriy.answers !== null) {
+        throw new Error('ALLAQACHON_TOPSHIRILGAN')
+      }
+      return tx.partnershipAttempt.update({
         where: { id: existingAttempt.id },
         data: {
           score: numericScore,
           percentage: numericPercent,
           totalQuestions: totalSavollarSoni,
           timeSpentSec: finalTimeSpentSec,
-          answers: body.javoblar || {},
+          answers: body.javoblar && typeof body.javoblar === 'object' ? body.javoblar : {},
           passed,
-          completedAt: new Date()
-        }
-      })
-    } else {
-      attempt = await prisma.partnershipAttempt.create({
-        data: {
-          partnershipId: partnership.id,
-          userId: session.user.id,
-          score: numericScore,
-          percentage: numericPercent,
-          totalQuestions: totalSavollarSoni,
-          timeSpentSec: finalTimeSpentSec,
-          answers: body.javoblar || {},
-          passed,
-          startedAt: new Date(Date.now() - finalTimeSpentSec * 1000),
           completedAt: new Date(),
-          certId: null
-        }
+        },
       })
-    }
+    }, { isolationLevel: 'Serializable' })
 
     return NextResponse.json({
       success: true,
@@ -336,6 +314,12 @@ export async function POST(req, { params }) {
       percentage: partnership.isAnnounced ? numericPercent : undefined
     })
   } catch (error) {
+    if (error?.message === 'ALLAQACHON_TOPSHIRILGAN' || error?.code === 'P2034') {
+      return NextResponse.json(
+        { error: 'Siz ushbu sinov testini allaqachon topshirgansiz. Qayta topshirishga ruxsat berilmaydi.' },
+        { status: 400 }
+      )
+    }
     console.error('[Hamkorlik POST Error]:', error)
     return NextResponse.json({ error: error.message || 'Xatolik yuz berdi' }, { status: 500 })
   }

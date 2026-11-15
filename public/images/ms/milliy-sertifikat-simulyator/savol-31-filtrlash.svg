@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 280" width="360" height="280" role="img" aria-label="Moddalarni ajratish laboratoriya qurilmasi">
+  <rect width="360" height="280" rx="16" fill="#ffffff"/>
+  <!-- Shtativ asosi va ustuni -->
+  <rect x="44" y="236" width="120" height="12" rx="4" fill="#334155"/>
+  <rect x="64" y="26" width="10" height="212" rx="3" fill="#475569"/>
+  <!-- Halqa tutqich -->
+  <rect x="74" y="96" width="96" height="8" rx="3" fill="#64748b"/>
+  <ellipse cx="195" cy="100" rx="34" ry="8" fill="none" stroke="#334155" stroke-width="5"/>
+  <!-- Voronka va filtr qog'ozi -->
+  <polygon points="154,68 236,68 202,138 202,188 188,196 188,138" fill="#e2e8f0" fill-opacity="0.55" stroke="#1e293b" stroke-width="2.5" stroke-linejoin="round"/>
+  <polygon points="160,64 230,64 195,130" fill="#f8fafc" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <!-- Qattiq cho'kma filtr ichida -->
+  <ellipse cx="195" cy="106" rx="13" ry="6" fill="#94a3b8" opacity="0.75"/>
+  <!-- Shisha tayoqcha va quyilayotgan aralashma -->
+  <line x1="252" y1="32" x2="188" y2="86" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+  <path d="M254 20 L282 36 L268 58 L242 42 Z" fill="#cbd5e1" fill-opacity="0.5" stroke="#1e293b" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M245 40 C235 45, 224 54, 212 68" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+  <!-- Pastki kimyoviy stakan va filtrat -->
+  <path d="M150,180 L150,236 Q150,244 158,244 L238,244 Q246,244 246,236 L246,180" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+  <path d="M152,208 L244,208 L244,236 Q244,242 238,242 L158,242 Q152,242 152,236 Z" fill="#bae6fd" fill-opacity="0.65"/>
+  <!-- Tomchi -->
+  <path d="M195 198 C192 203, 192 206, 195 206 C198 206, 198 203, 195 198 Z" fill="#0284c7"/>
+</svg>

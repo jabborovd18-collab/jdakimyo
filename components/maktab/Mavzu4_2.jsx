@@ -4,6 +4,7 @@
 // "Metall va metallmaslarning fizik xossalari" (Darslik 59-bet)
 // 6 ta interaktiv Canvas Ko'rgazma + 4 ta Smart-doska O'yini
 // ============================================================
+import { kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir, indekslanganVariantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import { useState, useEffect, useRef } from 'react'
 import Ikon from '@/components/Ikon'
 import OtganDarsniTakrorlash from '@/components/maktab/OtganDarsniTakrorlash'
@@ -12,9 +13,8 @@ import { SmartDoskaNavigatsiya } from '@/components/maktab/SmartDoskaYordamchi'
 function tovushChiqar(turi) {
     if (typeof window === 'undefined') return
     try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext
-        if (!AudioCtx) return
-        const ctx = new AudioCtx()
+        const ctx = umumiyAudio()
+        if (!ctx) return
         const now = ctx.currentTime
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
@@ -58,17 +58,17 @@ const TAKROPI_4_1 = [
     },
     {
         savol: "Moos qattiqlik shkalasi bo'yicha eng qattiq (10 ball) tabiiy modda qaysi?",
-        variantlar: ["Kvars (7)", "Korund (9)", "Olmos (10)", "Topaz (8)"],
+        variantlar: ["Korund (9)", "Olmos (10)", "Topaz (8)", "Kvars (7)"],
         togriJavob: "Olmos (10)",
         izoh: "Olmos Moos shkalasida eng yuqori — 10 ballik qattiqlikka ega."
     },
     {
         savol: "Nima uchun qishda ko'l va daryolar faqat yuzasidan muzlaydi?",
         variantlar: [
+            "Suv tubidan issiq gaz chiqqani uchun",
+            "Muz hech qachon erimaydi",
             "Muzning zichligi (0.92 g/cm³) suyuq suvnikidan (1.00 g/cm³) kichik bo'lgani uchun suv yuzida qalqib turadi",
             "Muz suvdan og'ir bo'lgani uchun",
-            "Suv tubidan issiq gaz chiqqani uchun",
-            "Muz hech qachon erimaydi"
         ],
         togriJavob: "Muzning zichligi (0.92 g/cm³) suyuq suvnikidan (1.00 g/cm³) kichik bo'lgani uchun suv yuzida qalqib turadi",
         izoh: "Suv +4°C da eng katta zichlikka (1.00 g/cm³) ega, muz esa 0.92 g/cm³ bo'lib suv sirtini qoplaydi va tubdagi hayotni saqlaydi."
@@ -206,10 +206,10 @@ function ElektrReytingiCanvas() {
             ctx.textAlign = 'right'
             ctx.fillText(`${tanlangan.reyting}%`, 535, 285)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [tanlangan])
 
     return (
@@ -226,7 +226,9 @@ function ElektrReytingiCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={300} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={300} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5">
                     <div className="grid grid-cols-2 gap-2">
@@ -364,10 +366,10 @@ function YengilOgirMetallarCanvas() {
             ctx.font = 'bold 14px "Times New Roman", serif'
             ctx.fillText(metall.rho < 5 ? 'YENGIL METALL' : "OG'IR METALL", 425, 98)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [metall, suyuqlik])
 
     return (
@@ -396,7 +398,9 @@ function YengilOgirMetallarCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={300} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={300} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2">
                     <div className="grid grid-cols-2 gap-2">
@@ -555,7 +559,9 @@ function QotishmaKristallCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={300} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={300} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5">
                     {QOTISHMALAR.map((q) => (
@@ -660,10 +666,10 @@ function MetallmaslarPalitrasiCanvas() {
             ctx.textAlign = 'center'
             ctx.fillText(`${modda.nom} — ${modda.holat}`, kx, 35)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [modda, qizdirish])
 
     return (
@@ -687,7 +693,9 @@ function MetallmaslarPalitrasiCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={300} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={300} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2">
                     {METALLMASLAR.map((m) => (
@@ -772,10 +780,10 @@ function AkustikJarangCanvas() {
             ctx.fillStyle = joriyAmp > 12 ? '#10B981' : '#94A3B8'
             ctx.fillText(joriyAmp > 12 ? '♪ Jarang davom etmoqda (Yuqori akustik rezonans)' : 'Tovush so\'ndi', 45, 278)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [namuna, zarbaVaqt])
 
     return (
@@ -795,7 +803,9 @@ function AkustikJarangCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={300} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={300} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2">
                     {AKUSTIK_NAMUNALAR.map((n) => (
@@ -899,7 +909,9 @@ function BimetallTermostatCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={300} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={300} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-4 font-serif">
                     <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
@@ -933,15 +945,15 @@ function BimetallTermostatCanvas() {
 // 1-O'YIN: MUHANDIS TANLOVI (10 TA AMALIY VAZIFA)
 // ============================================================
 const MUHANDIS_SAVOLLAR = [
-    { vazifa: "Samolyot korpusini yasash uchun ham yengil (ρ = 2.7 g/cm³), ham mustahkam metall kerak:", javob: "Alyuminiy va Duralyuminiy", variantlar: ["Qo'rg'oshin (Pb)", "Alyuminiy va Duralyuminiy", "Simob (Hg)", "Oltingugurt (S)"] },
+    { vazifa: "Samolyot korpusini yasash uchun ham yengil (ρ = 2.7 g/cm³), ham mustahkam metall kerak:", javob: "Alyuminiy va Duralyuminiy", variantlar: ["Alyuminiy va Duralyuminiy", "Simob (Hg)", "Oltingugurt (S)", "Qo'rg'oshin (Pb)"] },
     { vazifa: "Rentgen nurlaridan va radiatsiyadan himoya qiluvchi og'ir, zich qalqon yasash uchun:", javob: "Qo'rg'oshin (Pb — 11.34 g/cm³)", variantlar: ["Litiy (Li)", "Qo'rg'oshin (Pb — 11.34 g/cm³)", "Alyuminiy (Al)", "Grafit (C)"] },
-    { vazifa: "Cho'g'lanma lampochka tolasi 3422°C gacha erimasdan cho'g'lanib turishi uchun qaysi metall tanlanadi?", javob: "Volfram (W)", variantlar: ["Qalay (Sn)", "Volfram (W)", "Galliy (Ga)", "Natriy (Na)"] },
-    { vazifa: "Xona haroratida suyuq bo'lgan yagona metallmas qaysi?", javob: "Brom (Br₂)", variantlar: ["Simob (Hg)", "Brom (Br₂)", "Xlor (Cl₂)", "Yod (I₂)"] },
-    { vazifa: "Qizdirilganda suyuqlanmasdan to'g'ri binafsha rangli bug'ga aylanadigan (sublimatsiyalanadigan) metallmas:", javob: "Yod (I₂)", variantlar: ["Oltingugurt (S₈)", "Yod (I₂)", "Grafit (C)", "Kremniy (Si)"] },
+    { vazifa: "Cho'g'lanma lampochka tolasi 3422°C gacha erimasdan cho'g'lanib turishi uchun qaysi metall tanlanadi?", javob: "Volfram (W)", variantlar: ["Natriy (Na)", "Qalay (Sn)", "Volfram (W)", "Galliy (Ga)"] },
+    { vazifa: "Xona haroratida suyuq bo'lgan yagona metallmas qaysi?", javob: "Brom (Br₂)", variantlar: ["Xlor (Cl₂)", "Yod (I₂)", "Simob (Hg)", "Brom (Br₂)"] },
+    { vazifa: "Qizdirilganda suyuqlanmasdan to'g'ri binafsha rangli bug'ga aylanadigan (sublimatsiyalanadigan) metallmas:", javob: "Yod (I₂)", variantlar: ["Yod (I₂)", "Grafit (C)", "Kremniy (Si)", "Oltingugurt (S₈)"] },
     { vazifa: "Barcha metallar ichida elektr tokini 1-o'rinda (100%) eng yaxshi o'tkazuvchi metall:", javob: "Kumush (Ag)", variantlar: ["Temir (Fe)", "Kumush (Ag)", "Qo'rg'oshin (Pb)", "Rux (Zn)"] },
-    { vazifa: "Metallmas bo'lsa ham, elektr tokini yaxshi o'tkazadigan qalam o'zagi va elektrod moddasi:", javob: "Grafit (C)", variantlar: ["Oltingugurt (S)", "Grafit (C)", "Olmos (C)", "Oq fosfor (P₄)"] },
-    { vazifa: "Tabiatdagi eng yengil metall (ρ = 0.53 g/cm³) — hatto kerosinda ham suzadi:", javob: "Litiy (Li)", variantlar: ["Natriy (Na)", "Litiy (Li)", "Alyuminiy (Al)", "Magniy (Mg)"] },
-    { vazifa: "Tabiatdagi eng og'ir (eng zich, ρ = 22.6 g/cm³) metall:", javob: "Osmiy (Os)", variantlar: ["Qo'rg'oshin (Pb)", "Osmiy (Os)", "Temir (Fe)", "Kumush (Ag)"] },
+    { vazifa: "Metallmas bo'lsa ham, elektr tokini yaxshi o'tkazadigan qalam o'zagi va elektrod moddasi:", javob: "Grafit (C)", variantlar: ["Oq fosfor (P₄)", "Oltingugurt (S)", "Grafit (C)", "Olmos (C)"] },
+    { vazifa: "Tabiatdagi eng yengil metall (ρ = 0.53 g/cm³) — hatto kerosinda ham suzadi:", javob: "Litiy (Li)", variantlar: ["Alyuminiy (Al)", "Magniy (Mg)", "Natriy (Na)", "Litiy (Li)"] },
+    { vazifa: "Tabiatdagi eng og'ir (eng zich, ρ = 22.6 g/cm³) metall:", javob: "Osmiy (Os)", variantlar: ["Osmiy (Os)", "Temir (Fe)", "Kumush (Ag)", "Qo'rg'oshin (Pb)"] },
     { vazifa: "Mis (Cu) va Qalay (Sn) qotishmasidan yasalgan jarangdor qo'ng'iroq materiali:", javob: "Bronza", variantlar: ["Cho'yan", "Bronza", "Duralyuminiy", "Po'lat"] },
 ]
 
@@ -986,7 +998,7 @@ function MuhandisTanloviOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => {
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => {
                     const togri = v === joriy.javob
                     const bosildi = tanlov === v
                     return (
@@ -1111,11 +1123,11 @@ function SimobdaSuzadimiOyini() {
 // ============================================================
 const QOTISHMA_SAVOLLAR = [
     { qotishma: "Bronza (haykallar va qo'ng'iroqlar)", tarkib: "Mis (Cu) + Qalay (Sn)", variantlar: ["Mis (Cu) + Qalay (Sn)", "Temir (Fe) + Uglerod (C)", "Alyuminiy (Al) + Magniy (Mg)", "Mis (Cu) + Rux (Zn)"] },
-    { qotishma: "Latun — Jez (musiqa asboblari va jo'mraklar)", tarkib: "Mis (Cu) + Rux (Zn)", variantlar: ["Mis (Cu) + Rux (Zn)", "Temir (Fe) + Xrom (Cr)", "Qo'rg'oshin (Pb) + Qalay (Sn)", "Oltin (Au) + Kumush (Ag)"] },
-    { qotishma: "Po'lat (pichoqlar, ko'priklar, avtomobillar)", tarkib: "Temir (Fe) + Uglerod (C < 2%)", variantlar: ["Temir (Fe) + Uglerod (C < 2%)", "Mis (Cu) + Qalay (Sn)", "Alyuminiy (Al) + Mis (Cu)", "Nikel (Ni) + Xrom (Cr)"] },
-    { qotishma: "Cho'yan (qozonlar va isitish radiatorlari)", tarkib: "Temir (Fe) + Uglerod (C > 2%)", variantlar: ["Temir (Fe) + Uglerod (C > 2%)", "Mis (Cu) + Rux (Zn)", "Qalay (Sn) + Qo'rg'oshin (Pb)", "Kumush (Ag) + Mis (Cu)"] },
+    { qotishma: "Latun — Jez (musiqa asboblari va jo'mraklar)", tarkib: "Mis (Cu) + Rux (Zn)", variantlar: ["Oltin (Au) + Kumush (Ag)", "Mis (Cu) + Rux (Zn)", "Temir (Fe) + Xrom (Cr)", "Qo'rg'oshin (Pb) + Qalay (Sn)"] },
+    { qotishma: "Po'lat (pichoqlar, ko'priklar, avtomobillar)", tarkib: "Temir (Fe) + Uglerod (C < 2%)", variantlar: ["Alyuminiy (Al) + Mis (Cu)", "Nikel (Ni) + Xrom (Cr)", "Temir (Fe) + Uglerod (C < 2%)", "Mis (Cu) + Qalay (Sn)"] },
+    { qotishma: "Cho'yan (qozonlar va isitish radiatorlari)", tarkib: "Temir (Fe) + Uglerod (C > 2%)", variantlar: ["Mis (Cu) + Rux (Zn)", "Qalay (Sn) + Qo'rg'oshin (Pb)", "Kumush (Ag) + Mis (Cu)", "Temir (Fe) + Uglerod (C > 2%)"] },
     { qotishma: "Duralyuminiy (samolyot va raketa korpusi)", tarkib: "Alyuminiy (Al) + Mis (Cu) + Magniy (Mg)", variantlar: ["Alyuminiy (Al) + Mis (Cu) + Magniy (Mg)", "Qo'rg'oshin (Pb) + Surma (Sb)", "Temir (Fe) + Uglerod (C)", "Mis (Cu) + Nikel (Ni)"] },
-    { qotishma: "Zanglamas po'lat (jarrohlik asboblari va qoshiqlar)", tarkib: "Temir (Fe) + Xrom (Cr) + Nikel (Ni)", variantlar: ["Temir (Fe) + Xrom (Cr) + Nikel (Ni)", "Mis (Cu) + Qalay (Sn)", "Alyuminiy (Al) + Rux (Zn)", "Natriy (Na) + Kaliy (K)"] },
+    { qotishma: "Zanglamas po'lat (jarrohlik asboblari va qoshiqlar)", tarkib: "Temir (Fe) + Xrom (Cr) + Nikel (Ni)", variantlar: ["Natriy (Na) + Kaliy (K)", "Temir (Fe) + Xrom (Cr) + Nikel (Ni)", "Mis (Cu) + Qalay (Sn)", "Alyuminiy (Al) + Rux (Zn)"] },
 ]
 
 function QotishmaKonstruktoriOyini() {
@@ -1154,7 +1166,7 @@ function QotishmaKonstruktoriOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -1195,11 +1207,11 @@ function QotishmaKonstruktoriOyini() {
 // 4-O'YIN: JAMOALAR DUELI (1-GURUH VS 2-GURUH)
 // ============================================================
 const DUEL_SAVOLLAR = [
-    { savol: "Metallarni yengil va og'ir metallarga ajratuvchi shartli zichlik chegarasi qancha?", variantlar: ["1.0 g/cm³", "5.0 g/cm³", "10.0 g/cm³", "13.6 g/cm³"], javob: 1 },
+    { savol: "Metallarni yengil va og'ir metallarga ajratuvchi shartli zichlik chegarasi qancha?", variantlar: ["5.0 g/cm³", "10.0 g/cm³", "13.6 g/cm³", "1.0 g/cm³"], javob: 0 },
     { savol: "Elektr tokini eng yaxshi o'tkazadigan metall qaysi?", variantlar: ["Mis (Cu)", "Kumush (Ag)", "Oltin (Au)", "Alyuminiy (Al)"], javob: 1 },
-    { savol: "Xona haroratida suyuq bo'lgan yagona metall va yagona metallmas juftligini toping:", variantlar: ["Hg va Br₂", "Ga va Cl₂", "Cs va I₂", "Na va S₈"], javob: 0 },
-    { savol: "Mis va Rux qotishmasi nima deb ataladi?", variantlar: ["Bronza", "Latun (Jez)", "Cho'yan", "Duralyuminiy"], javob: 1 },
-    { savol: "Qaysi metall qo'l haroratida (+29.8°C) erib ketadi?", variantlar: ["Simob (Hg)", "Galliy (Ga)", "Volfram (W)", "Qalay (Sn)"], javob: 1 },
+    { savol: "Xona haroratida suyuq bo'lgan yagona metall va yagona metallmas juftligini toping:", variantlar: ["Cs va I₂", "Na va S₈", "Hg va Br₂", "Ga va Cl₂"], javob: 2 },
+    { savol: "Mis va Rux qotishmasi nima deb ataladi?", variantlar: ["Cho'yan", "Duralyuminiy", "Bronza", "Latun (Jez)"], javob: 3 },
+    { savol: "Qaysi metall qo'l haroratida (+29.8°C) erib ketadi?", variantlar: ["Galliy (Ga)", "Volfram (W)", "Qalay (Sn)", "Simob (Hg)"], javob: 0 },
     { savol: "Qizdirilganda suyuqlikka aylanmay, to'g'ridan-to'g'ri binafsha bug'ga aylanadigan metallmas:", variantlar: ["Oltingugurt (S₈)", "Yod (I₂)", "Brom (Br₂)", "Qizil fosfor (P)"], javob: 1 },
 ]
 
@@ -1210,7 +1222,9 @@ function JamoalarDueli4_2() {
     const [navbat, setNavbat] = useState(1)
     const [natija, setNatija] = useState(null)
 
-    const joriy = DUEL_SAVOLLAR[idx]
+    const xomJoriy = DUEL_SAVOLLAR[idx]
+    const aralash = indekslanganVariantlarniAralashtir(xomJoriy, idx)
+    const joriy = { ...xomJoriy, variantlar: aralash.variantlar, javob: aralash.togri }
 
     const javobBer = (i) => {
         if (natija !== null) return

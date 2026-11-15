@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { canvasOlchami, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -98,13 +98,13 @@ export default function Mavzu4_1() {
     },
     {
       savol: "Kislota va ishqor orasida boradigan NaOH + HCl → NaCl + H₂O reaksiyasi qanday nomlanadi?",
-      variantlar: ["Neytrallanish (almashinish) reaksiyasi", "Parchalanish reaksiyasi", "Sublimatsiya", "Fotosintez"],
+      variantlar: ["Fotosintez", "Neytrallanish (almashinish) reaksiyasi", "Parchalanish reaksiyasi", "Sublimatsiya"],
       togriJavob: "Neytrallanish (almashinish) reaksiyasi",
       izoh: "Ishqor va kislota o'zaro ta'sirlashib tuz hamda suv hosil qilishi neytrallanish reaksiyasidir.",
     },
     {
       savol: "O'simliklar bargida quyosh nuri ta'sirida 6CO₂ + 6H₂O dan nima sintezlanadi?",
-      variantlar: ["C₆H₁₂O₆ (Glyukoza) va 6O₂↑", "NaCl va H₂", "CaCO₃ va H₂O", "H₂SO₄"],
+      variantlar: ["CaCO₃ va H₂O", "H₂SO₄", "C₆H₁₂O₆ (Glyukoza) va 6O₂↑", "NaCl va H₂"],
       togriJavob: "C₆H₁₂O₆ (Glyukoza) va 6O₂↑",
       izoh: "Fotosintez jarayonida anorganik CO₂ va H₂O dan organik glyukoza hamda erkin kislorod hosil bo'ladi.",
     },
@@ -121,8 +121,7 @@ export default function Mavzu4_1() {
     const canvas = minoraCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -183,8 +182,7 @@ export default function Mavzu4_1() {
     const canvas = arximedCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -248,8 +246,7 @@ export default function Mavzu4_1() {
     const canvas = moosCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -297,8 +294,7 @@ export default function Mavzu4_1() {
     const canvas = muzCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -345,8 +341,7 @@ export default function Mavzu4_1() {
     const canvas = eruvCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -411,8 +406,7 @@ export default function Mavzu4_1() {
     const canvas = optikCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -502,10 +496,10 @@ export default function Mavzu4_1() {
   const [szTugadi, setSzTugadi] = useState(false)
 
   const hisobSavollar = [
-    { savol: "Massasi m = 54 g, hajmi V = 20 cm³ bo'lgan alyuminiy bo'lagining zichligini (ρ = m / V) toping:", variantlar: ["2.7 g/cm³", "5.4 g/cm³", "1.0 g/cm³", "7.8 g/cm³"], togri: "2.7 g/cm³" },
+    { savol: "Massasi m = 54 g, hajmi V = 20 cm³ bo'lgan alyuminiy bo'lagining zichligini (ρ = m / V) toping:", variantlar: ["5.4 g/cm³", "1.0 g/cm³", "7.8 g/cm³", "2.7 g/cm³"], togri: "2.7 g/cm³" },
     { savol: "Zichligi ρ = 19.3 g/cm³ bo'lgan toza oltinning V = 10 cm³ quymasi necha gramm keladi (m = ρ · V)?", variantlar: ["193 g", "19.3 g", "1.93 g", "100 g"], togri: "193 g" },
-    { savol: "50 ml suvli menzurkaga tosh tushirilganda suv sathi 75 ml ga ko'tarildi. Toshning massasi 100 g bo'lsa, zichligi necha?", variantlar: ["4.0 g/cm³ (ΔV = 25 cm³)", "2.0 g/cm³", "1.33 g/cm³", "25 g/cm³"], togri: "4.0 g/cm³ (ΔV = 25 cm³)" },
-    { savol: "Suv qaysi haroratda eng maksimal zichlikka (ρ = 1.000 g/cm³) ega bo'ladi?", variantlar: ["+4°C da", "0°C da", "+100°C da", "-10°C da"], togri: "+4°C da" },
+    { savol: "50 ml suvli menzurkaga tosh tushirilganda suv sathi 75 ml ga ko'tarildi. Toshning massasi 100 g bo'lsa, zichligi necha?", variantlar: ["25 g/cm³", "4.0 g/cm³ (ΔV = 25 cm³)", "2.0 g/cm³", "1.33 g/cm³"], togri: "4.0 g/cm³ (ΔV = 25 cm³)" },
+    { savol: "Suv qaysi haroratda eng maksimal zichlikka (ρ = 1.000 g/cm³) ega bo'ladi?", variantlar: ["+100°C da", "-10°C da", "+4°C da", "0°C da"], togri: "+4°C da" },
   ]
   const [hIdx, setHIdx] = useState(0)
   const [hTanlov, setHTanlov] = useState(null)
@@ -513,10 +507,10 @@ export default function Mavzu4_1() {
   const [hTugadi, setHTugadi] = useState(false)
 
   const moosSavollar = [
-    { savol: "Moos qattiqlik shkalasi bo'yicha eng qattiq (10 ball) va eng yumshoq (1 ball) minerallar juftligini toping:", variantlar: ["10 — Olmos, 1 — Talk", "10 — Kvars, 1 — Gips", "10 — Temir, 1 — Bo'r", "10 — Korund, 1 — Oltin"], togri: "10 — Olmos, 1 — Talk" },
+    { savol: "Moos qattiqlik shkalasi bo'yicha eng qattiq (10 ball) va eng yumshoq (1 ball) minerallar juftligini toping:", variantlar: ["10 — Kvars, 1 — Gips", "10 — Temir, 1 — Bo'r", "10 — Korund, 1 — Oltin", "10 — Olmos, 1 — Talk"], togri: "10 — Olmos, 1 — Talk" },
     { savol: "Kvars (qattiqligi 7) va Kalsit (qattiqligi 3) bir-biriga ishqalansa nima yuz beradi?", variantlar: ["Kvars kalsitni tirnaydi (chizadi)", "Kalsit kvarsni tirnaydi", "Ikkalasi ham sinib ketadi", "Hech biri tirnalmaydi"], togri: "Kvars kalsitni tirnaydi (chizadi)" },
-    { savol: "Quyidagi fizik xossalardan qaysi biri moddaning agregat holati va haroratiga bog'liq?", variantlar: ["Zichlik va eruvchanlik", "Atom yadrosidagi protonlar soni", "Kimyoviy belgi", "Guruh raqami"], togri: "Zichlik va eruvchanlik" },
-    { savol: "Nima uchun qishda muzlagan daryo va ko'llarda muz suv yuzasida qolib, tubiga cho'kib ketmaydi?", variantlar: ["Muzning zichligi (0.92 g/cm³) suyuq suvnikidan (1.00 g/cm³) kichik bo'lgani uchun", "Muz issiq bo'lgani uchun", "Shamol muzni ko'tarib turgani uchun", "Muzda tuz ko'p bo'lgani uchun"], togri: "Muzning zichligi (0.92 g/cm³) suyuq suvnikidan (1.00 g/cm³) kichik bo'lgani uchun" },
+    { savol: "Quyidagi fizik xossalardan qaysi biri moddaning agregat holati va haroratiga bog'liq?", variantlar: ["Guruh raqami", "Zichlik va eruvchanlik", "Atom yadrosidagi protonlar soni", "Kimyoviy belgi"], togri: "Zichlik va eruvchanlik" },
+    { savol: "Nima uchun qishda muzlagan daryo va ko'llarda muz suv yuzasida qolib, tubiga cho'kib ketmaydi?", variantlar: ["Shamol muzni ko'tarib turgani uchun", "Muzda tuz ko'p bo'lgani uchun", "Muzning zichligi (0.92 g/cm³) suyuq suvnikidan (1.00 g/cm³) kichik bo'lgani uchun", "Muz issiq bo'lgani uchun"], togri: "Muzning zichligi (0.92 g/cm³) suyuq suvnikidan (1.00 g/cm³) kichik bo'lgani uchun" },
   ]
   const [mIdx, setMIdx] = useState(0)
   const [mTanlov, setMTanlov] = useState(null)
@@ -525,8 +519,8 @@ export default function Mavzu4_1() {
 
   const duelSavollari = [
     { s: "Zichlikni hisoblash formulasi qaysi?", v: ["ρ = m / V", "ρ = m + V", "ρ = V / m"], j: "ρ = m / V" },
-    { s: "Toza suvning (+4°C) zichligi nechaga teng?", v: ["1.00 g/cm³", "7.87 g/cm³", "13.6 g/cm³"], j: "1.00 g/cm³" },
-    { s: "Moos shkalasida 10 ballik eng qattiq modda?", v: ["Olmos (C)", "Talk", "Gips"], j: "Olmos (C)" },
+    { s: "Toza suvning (+4°C) zichligi nechaga teng?", v: ["13.6 g/cm³", "1.00 g/cm³", "7.87 g/cm³"], j: "1.00 g/cm³" },
+    { s: "Moos shkalasida 10 ballik eng qattiq modda?", v: ["Talk", "Gips", "Olmos (C)"], j: "Olmos (C)" },
     { s: "Muz suvda cho'kadimi yoki suzadimi?", v: ["Suzadi (ρ=0.92)", "Cho'kadi", "Erib yo'qoladi"], j: "Suzadi (ρ=0.92)" },
   ]
   const [g1Idx, setG1Idx] = useState(0)
@@ -998,7 +992,7 @@ export default function Mavzu4_1() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g1Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g1Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g1Idx].v, duelSavollari[g1Idx].s, g1Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"
@@ -1026,7 +1020,7 @@ export default function Mavzu4_1() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g2Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g2Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g2Idx].v, duelSavollari[g2Idx].s, g2Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"

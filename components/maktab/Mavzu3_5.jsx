@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { canvasOlchami, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -84,13 +84,13 @@ export default function Mavzu3_5() {
     },
     {
       savol: "VII A guruh (F, Cl, Br, I) va VIII A guruh (He, Ne, Ar) elementlari qanday ataladi?",
-      variantlar: ["Galogenlar va Inert gazlar", "Ishqoriy va Ishqoriy-yer metallar", "Lantanoidlar va Aktinoidlar", "Metalloidlar"],
+      variantlar: ["Metalloidlar", "Galogenlar va Inert gazlar", "Ishqoriy va Ishqoriy-yer metallar", "Lantanoidlar va Aktinoidlar"],
       togriJavob: "Galogenlar va Inert gazlar",
       izoh: "VII A guruh — tuz hosil qiluvchilar (galogenlar), VIII A guruh — inert (aslzoda) gazlardir.",
     },
     {
       savol: "3-davr, III A guruhda joylashgan elementni toping:",
-      variantlar: ["Al (Alyuminiy, Z=13)", "Na (Natriy, Z=11)", "Si (Kremniy, Z=14)", "B (Bor, Z=5)"],
+      variantlar: ["Si (Kremniy, Z=14)", "B (Bor, Z=5)", "Al (Alyuminiy, Z=13)", "Na (Natriy, Z=11)"],
       togriJavob: "Al (Alyuminiy, Z=13)",
       izoh: "Alyuminiyda 3 ta elektron qobiq (2, 8, 3) va tashqi qobig'ida 3 ta elektron bor.",
     },
@@ -108,8 +108,7 @@ export default function Mavzu3_5() {
     const canvas = fesCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -193,8 +192,7 @@ export default function Mavzu3_5() {
     const canvas = valentCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -250,8 +248,7 @@ export default function Mavzu3_5() {
     const canvas = prustCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -329,8 +326,7 @@ export default function Mavzu3_5() {
     const canvas = mrCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -377,8 +373,7 @@ export default function Mavzu3_5() {
     const canvas = nomCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -409,8 +404,7 @@ export default function Mavzu3_5() {
     const canvas = sinfCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -477,10 +471,10 @@ export default function Mavzu3_5() {
   const [sTugadi, setSTugadi] = useState(false)
 
   const valentSavollar = [
-    { savol: "III valentli Alyuminiy (Al) va II valentli Kislorod (O) hosil qilgan oksid formulasi qaysi?", variantlar: ["Al₂O₃", "AlO", "Al₃O₂", "AlO₃"], togri: "Al₂O₃" },
+    { savol: "III valentli Alyuminiy (Al) va II valentli Kislorod (O) hosil qilgan oksid formulasi qaysi?", variantlar: ["AlO", "Al₃O₂", "AlO₃", "Al₂O₃"], togri: "Al₂O₃" },
     { savol: "IV valentli Uglerod (C) va II valentli Kislorod (O) birikmasi formulasi qaysi?", variantlar: ["CO₂", "C₂O₄", "CO", "C₂O"], togri: "CO₂" },
-    { savol: "VI valentli Oltingugurt (S) ning kislorod bilan hosil qilgan oksidi formulasi:", variantlar: ["SO₃", "SO₂", "S₂O₆", "SO₆"], togri: "SO₃" },
-    { savol: "V valentli Fosfor (P) va II valentli Kislorod (O) birikmasi formulasi:", variantlar: ["P₂O₅", "PO₅", "P₅O₂", "PO₂"], togri: "P₂O₅" },
+    { savol: "VI valentli Oltingugurt (S) ning kislorod bilan hosil qilgan oksidi formulasi:", variantlar: ["SO₆", "SO₃", "SO₂", "S₂O₆"], togri: "SO₃" },
+    { savol: "V valentli Fosfor (P) va II valentli Kislorod (O) birikmasi formulasi:", variantlar: ["P₅O₂", "PO₂", "P₂O₅", "PO₅"], togri: "P₂O₅" },
   ]
   const [vIdx, setVIdx] = useState(0)
   const [vTanlov, setVTanlov] = useState(null)
@@ -488,10 +482,10 @@ export default function Mavzu3_5() {
   const [vTugadi, setVTugadi] = useState(false)
 
   const mrSavollar = [
-    { savol: "Karbonat angidrid (CO₂) ning nisbiy molekulyar massasini (Mr) hisoblang (C=12, O=16):", variantlar: ["44", "28", "32", "60"], togri: "44" },
+    { savol: "Karbonat angidrid (CO₂) ning nisbiy molekulyar massasini (Mr) hisoblang (C=12, O=16):", variantlar: ["28", "32", "60", "44"], togri: "44" },
     { savol: "Suvda (H₂O, Mr=18) vodorod va kislorod qanday o'zgarmas massa nisbatda birikkan?", variantlar: ["1 : 8 (2 g H va 16 g O)", "2 : 1", "1 : 16", "1 : 2"], togri: "1 : 8 (2 g H va 16 g O)" },
-    { savol: "Ohaktoshning (CaCO₃) nisbiy molekulyar massasini hisoblang (Ca=40, C=12, O=16):", variantlar: ["100", "68", "84", "52"], togri: "100" },
-    { savol: "Sulfat kislotaning (H₂SO₄) nisbiy molekulyar massasi nechaga teng (H=1, S=32, O=16)?", variantlar: ["98", "82", "64", "100"], togri: "98" },
+    { savol: "Ohaktoshning (CaCO₃) nisbiy molekulyar massasini hisoblang (Ca=40, C=12, O=16):", variantlar: ["52", "100", "68", "84"], togri: "100" },
+    { savol: "Sulfat kislotaning (H₂SO₄) nisbiy molekulyar massasi nechaga teng (H=1, S=32, O=16)?", variantlar: ["64", "100", "98", "82"], togri: "98" },
   ]
   const [mrIdx, setMrIdx] = useState(0)
   const [mrTanlov2, setMrTanlov2] = useState(null)
@@ -500,8 +494,8 @@ export default function Mavzu3_5() {
 
   const duelSavollari = [
     { s: "FeS (Temir(II) sulfid) magnitga tortiladimi?", v: ["Yo'q, tortilmaydi", "Ha, kuchli tortiladi", "Faqat suvda tortiladi"], j: "Yo'q, tortilmaydi" },
-    { s: "Ca(II) va Cl(I) dan tuzilgan kalsiy xlorid formulasi?", v: ["CaCl₂", "CaCl", "Ca₂Cl"], j: "CaCl₂" },
-    { s: "Mr(H₂O) nechaga teng (H=1, O=16)?", v: ["18", "17", "10"], j: "18" },
+    { s: "Ca(II) va Cl(I) dan tuzilgan kalsiy xlorid formulasi?", v: ["Ca₂Cl", "CaCl₂", "CaCl"], j: "CaCl₂" },
+    { s: "Mr(H₂O) nechaga teng (H=1, O=16)?", v: ["17", "10", "18"], j: "18" },
     { s: "NaOH qaysi murakkab moddalar sinfiga kiradi?", v: ["Asoslar (Ishqor)", "Oksidlar", "Kislotalar"], j: "Asoslar (Ishqor)" },
   ]
   const [g1Idx, setG1Idx] = useState(0)
@@ -1004,7 +998,7 @@ export default function Mavzu3_5() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g1Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g1Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g1Idx].v, duelSavollari[g1Idx].s, g1Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"
@@ -1032,7 +1026,7 @@ export default function Mavzu3_5() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g2Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g2Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g2Idx].v, duelSavollari[g2Idx].s, g2Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"

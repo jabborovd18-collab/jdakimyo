@@ -8,11 +8,12 @@ import { missiyaniBelgila, missiyaKuni, bajarildimi } from '@/lib/missions'
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { missionId, actionType } = await request.json()
+    const body = await request.json().catch(() => ({}))
+    const missionId = typeof body?.missionId === 'string' ? body.missionId.trim() : ''
 
     if (!missionId) {
       return NextResponse.json(
@@ -87,6 +88,16 @@ export async function POST(request) {
     // avtomatik chaqiriladigan yo'lda ham bir xil bo'lishi uchun.
     const natija = await missiyaniBelgila(session.user.id, mission)
 
+    if (!natija?.success) {
+      return NextResponse.json(
+        {
+          error: natija?.message || 'Missiya mukofotini olib bo\'lmadi',
+          emailKerak: Boolean(natija?.emailKerak),
+        },
+        { status: natija?.emailKerak ? 403 : 400 }
+      )
+    }
+
     return NextResponse.json({
       success: true,
       message: natija.message,
@@ -107,7 +118,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('[Mission Complete Error]:', error)
     return NextResponse.json(
-      { error: 'Missiyani bajarishda xatolik: ' + error.message },
+      { error: 'Missiyani bajarishda xatolik' },
       { status: 500 }
     )
   }

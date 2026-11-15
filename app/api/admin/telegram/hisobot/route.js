@@ -1,6 +1,6 @@
 // app/api/admin/telegram/hisobot/route.js
 //
-// Quiz va prezentatsiya statistikasi.
+// Botning foydalanuvchi statistikasi.
 //
 // NEGA BOTDAN SO'RALADI, BAZADAN O'QILMAYDI. Bu yozuvlar Python
 // botning ALOHIDA bazasida turadi (Render'dagi o'z Neon bazasi).

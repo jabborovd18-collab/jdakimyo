@@ -9,15 +9,13 @@ import {
   sessiyaYarat, sessiyaniOl, tasdiqla, bekorQil, faolSessiyalar,
 } from '@/lib/doska'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
+import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from '@/lib/ip-cheklov'
 
 /** So'rovdan qurilma va IP — telefonda "kim so'rayapti" ni ko'rsatish uchun */
 function manba(request) {
   return {
     qurilma: request.headers.get('user-agent') || null,
-    ip:
-      request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-      request.headers.get('x-real-ip') ||
-      null,
+    ip: soravchiIp(request),
   }
 }
 
@@ -25,6 +23,16 @@ function manba(request) {
 // oqimining boshlanishi, doskada hali hech kim kirmagan.
 export async function POST(request) {
   try {
+    const ip = soravchiIp(request)
+    const cheklov = await chekloqniTekshir('doskaqr', ip)
+    if (!cheklov.ok) {
+      return NextResponse.json(
+        { error: `Juda ko'p QR so'raldi. ${kutishMatni(cheklov.kutish)} dan keyin urinib ko'ring.` },
+        { status: 429 }
+      )
+    }
+    await urinishniQayd('doskaqr', ip)
+
     const { token, amalQiladi } = await sessiyaYarat(manba(request))
     return NextResponse.json({ success: true, token, amalQiladi })
   } catch (error) {
@@ -71,6 +79,9 @@ export async function GET(request) {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (!ustozPaneliOchiqmi(session.user)) {
+      return NextResponse.json({ error: 'Elektron doska faqat ustozlar uchun' }, { status: 403 })
     }
 
     const royxat = await faolSessiyalar(session.user.id)
@@ -135,17 +146,32 @@ export async function PUT(request) {
 export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
     const token = searchParams.get('token')
-    if (!token) {
-      return NextResponse.json({ error: 'Token kerak' }, { status: 400 })
+    if (!id && !token) {
+      return NextResponse.json({ error: 'Sessiya identifikatori kerak' }, { status: 400 })
     }
 
     const session = await getServerSession(authOptions)
 
-    // Telefondan uzayotgan bo'lsa — faqat O'Z sessiyasini.
-    // Doskaning o'zidan uzilsa (kirmagan holatda) token yetadi:
-    // tokenni bilgan odam allaqachon o'sha ekran oldida turibdi.
-    const ok = await bekorQil(token, session?.user?.id || null)
+    // `id` orqali uzish faqat oddiy (telefon) sessiyasida ruxsat etiladi.
+    if (id) {
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      if (session.user.doskaTugaydi) {
+        return NextResponse.json({ error: 'Doska rejimida boshqa doskani uza olmaysiz' }, { status: 403 })
+      }
+      const ok = await bekorQil(null, session.user.id, id)
+      if (!ok) {
+        return NextResponse.json({ error: 'Sessiya topilmadi' }, { status: 404 })
+      }
+      return NextResponse.json({ success: true, message: '✓ Doska sessiyasi tugatildi' })
+    }
+
+    // Telefondan yoki doskaning o'zidan uzilganda (`session?.user?.id` bor);
+    // kirmagan doskada taymer tugaganda faqat `'kutilmoqda'` QR bekor qilinadi.
+    const ok = await bekorQil(token, session?.user?.id || null, null)
 
     if (!ok) {
       return NextResponse.json({ error: 'Sessiya topilmadi' }, { status: 404 })

@@ -12,6 +12,7 @@
 // orqali biladi. Bog'lanish `TelegramUlanish` jadvalida.
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { vaqtBoyichaTeng } from '@/lib/xavfsiz'
 import {
   ilmiyNarxOraligi,
   quizNarxi,
@@ -46,8 +47,7 @@ function kalitTogrimi(request) {
   const kutilgan = String(process.env.BOT_KOPRUK_SIR || '').trim()
   if (!kutilgan) return false
   const kelgan = String(request.headers.get('x-bridge-secret') || '').trim()
-  // Uzunligi teng bo'lmasa taqqoslash ham shart emas
-  return kelgan.length === kutilgan.length && kelgan === kutilgan
+  return vaqtBoyichaTeng(kelgan, kutilgan)
 }
 
 async function foydalanuvchiniTop(chatId) {

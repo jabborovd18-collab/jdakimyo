@@ -19,9 +19,9 @@ export function Providers({ children }) {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#1e1b4b',
-            color: '#fff',
-            border: '1px solid rgba(147, 51, 234, 0.3)',
+            background: 'var(--v3-yuza-2, #0d2159)',
+            color: 'var(--v3-matn, #e9eeff)',
+            border: '1px solid var(--v3-chiziq-2, rgba(255, 255, 255, 0.14))',
             borderRadius: '12px',
           },
           success: {

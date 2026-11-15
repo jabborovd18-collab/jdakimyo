@@ -2,10 +2,12 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import Ikon from './Ikon'
 
 export default function DailyMissions({ onStatsUpdate }) {
+  const router = useRouter()
   const [missions, setMissions] = useState([])
   const [stats, setStats] = useState({
     stars: 0,
@@ -46,9 +48,9 @@ export default function DailyMissions({ onStatsUpdate }) {
   const handleCompleteMission = async (missionId, missionType, mission) => {
     if (mission && !mission.tayyor) {
       if (mission.havola) {
-        window.location.href = mission.havola
+        router.push(mission.havola)
       } else {
-        toast('Avval vazifani bajaring', { icon: 'ℹ️' })
+        toast('Avval vazifani bajaring')
       }
       return
     }
@@ -62,8 +64,14 @@ export default function DailyMissions({ onStatsUpdate }) {
         body: JSON.stringify({ missionId, actionType: missionType })
       })
 
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error)
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        if (data.emailKerak) {
+          const el = document.getElementById('email-tasdiqlash')
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+        throw new Error(data.error || 'Missiya bajarilmadi')
+      }
 
       toast.success(data.message)
       fetchMissions()
@@ -72,7 +80,7 @@ export default function DailyMissions({ onStatsUpdate }) {
 
       if (data.starEarned) {
         setTimeout(() => {
-          toast.success('🌟 Tabriklaymiz! Siz bugungi yulduzni oldingiz!', { duration: 5000 })
+          toast.success('Tabriklaymiz! Siz bugungi yulduzni oldingiz!', { duration: 5000 })
         }, 1000)
       }
     } catch (error) {
@@ -99,7 +107,7 @@ export default function DailyMissions({ onStatsUpdate }) {
   return (
     <div className="v3-panel-karta p-6 space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)] shrink-0">
             <Ikon nom="quiz" olcham={18} />
@@ -116,7 +124,8 @@ export default function DailyMissions({ onStatsUpdate }) {
           </span>
           {stats.canClaimStars && (
             <span className="v3-tag v3-tag-ochiq font-bold">
-              ★ Yulduz tayyor!
+              <Ikon nom="yulduz" olcham={11} />
+              <span>Yulduz tayyor!</span>
             </span>
           )}
         </div>
@@ -137,23 +146,25 @@ export default function DailyMissions({ onStatsUpdate }) {
         {missions.map(mission => (
           <div
             key={mission.id}
-            className={`p-3.5 rounded-xl border transition-all flex items-center justify-between gap-3 ${
+            className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
               mission.completed
-                ? 'bg-[var(--v3-yuza)] border-green-500/20 opacity-75'
+                ? 'bg-[var(--v3-yuza)] border-emerald-500/25 opacity-75'
                 : 'bg-[var(--v3-fon-2)] border-[var(--v3-chiziq)] hover:border-[var(--v3-chiziq-2)]'
             }`}
           >
             <div className="min-w-0 flex-1 space-y-1">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h3 className={`font-bold text-xs ${
-                  mission.completed ? 'text-green-400 line-through' : 'text-[var(--v3-matn)]'
+                  mission.completed ? 'text-emerald-500 line-through' : 'text-[var(--v3-matn)]'
                 }`}>
                   {mission.title}
                 </h3>
-                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded border ${
-                  mission.difficulty === 'easy' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                  mission.difficulty === 'medium' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
-                  'bg-red-500/10 text-red-400 border-red-500/20'
+                <span className={`v3-tag text-[10px] font-mono !py-0.5 !px-1.5 ${
+                  mission.difficulty === 'easy'
+                    ? 'v3-tag-ochiq'
+                    : mission.difficulty === 'medium'
+                    ? 'v3-tag-yopiq'
+                    : 'bg-red-500/10 text-red-500 border border-red-500/25'
                 }`}>
                   {mission.difficulty === 'easy' ? 'Oson' : mission.difficulty === 'medium' ? 'O\'rta' : 'Qiyin'}
                 </span>

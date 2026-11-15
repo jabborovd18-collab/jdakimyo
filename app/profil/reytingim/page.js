@@ -8,7 +8,7 @@ export default function ReytingimPage() {
         <div>
           <div className="v3-nishon">Haftalik peshqadamlar</div>
           <h1 className="text-2xl font-bold tracking-tight text-[var(--v3-matn)] flex items-center gap-2">
-            <Ikon nom="yulduz" olcham={22} className="text-yellow-400" />
+            <Ikon nom="yulduz" olcham={22} className="text-[var(--v3-urgu)]" />
             <span>Mening Reytingim</span>
           </h1>
           <p className="text-xs text-[var(--v3-xira)] mt-1">

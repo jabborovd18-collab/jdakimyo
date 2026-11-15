@@ -39,7 +39,7 @@ export async function POST(request) {
       title = quiz.title
       deadline = quiz.deadline
       groupId = quiz.groupId
-      havola = `/oquv/video-darsliklar/ustoz-quiz/${quiz.id}`
+      havola = `/testlar/ustoz/${quiz.id}`
       quiz.attempts.forEach(a => submittedStudentIds.add(a.studentId))
     } else if (type === 'yopiq_quiz') {
       const quiz = await prisma.closedQuiz.findFirst({
@@ -50,7 +50,7 @@ export async function POST(request) {
       title = quiz.title
       deadline = quiz.deadline
       groupId = quiz.groupId
-      havola = `/oquv/video-darsliklar/ustoz-yopiq-quiz/${quiz.id}`
+      havola = `/testlar/yozma/${quiz.id}`
       quiz.submissions.forEach(s => submittedStudentIds.add(s.studentId))
     } else if (type === 'assignment') {
       const assignment = await prisma.assignment.findFirst({

@@ -30,13 +30,11 @@ export const metadata = {
   // mavzuda va qidiruvdagi o'rin aynan shu so'z orqali kelgan.
   keywords: [
     "oliy kimyo",
-    "kompleks birikmalar",
+    "maktab kimyosi",
     "kimyo",
-    "IUPAC",
-    "koordinatsion kimyo",
+    "milliy sertifikat",
+    "kimyo testlari",
     "o'zbek tilida kimyo",
-    "izomeriya",
-    "ligand",
   ],
   authors: [{ name: "Diyorbek Jabborov Arslonivich" }],
   creator: "Diyorbek Jabborov Arslonivich",

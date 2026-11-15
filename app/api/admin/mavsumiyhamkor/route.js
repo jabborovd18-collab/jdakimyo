@@ -1,28 +1,41 @@
 // app/api/admin/mavsumiyhamkor/route.js
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-import { isAdminRole } from '@/lib/roles'
+import { checkAdminAuth } from '@/lib/admin-auth'
+import { toshkentSanaParsla } from '@/lib/sana'
+import { SERTIFIKAT_TURLARI } from '@/lib/sertifikat-tahlil'
+import { foydalanuvchilargaSertifikatPdfYubor } from '@/lib/telegram-sertifikat'
+import { qaydEt } from '@/lib/qaydnoma'
 
 function sinovTestimi(event) {
   return event?.slug === 'sea-ms-sinov' || event?.slug === 'sea-ms-sinov-2'
 }
 
 const ODDIY_ISHTIROKCHI_ROLLARI = {
-  role: { notIn: ['admin', 'superadmin', 'moderator', 'ADMIN', 'SUPER_ADMIN', 'MODERATOR'] }
+  role: { notIn: ['admin', 'superadmin', 'moderator', 'ADMIN', 'SUPER_ADMIN', 'MODERATOR'] },
 }
 
-// Yagona unikal sertifikat raqami yasovchi
-function certIdGeneratsiya(prefiks = 'AK-JK-2025-') {
-  const tasodif = Math.floor(1000 + Math.random() * 9000)
-  return `${prefiks}${tasodif}`
+// Bazadagi noyoblikni tekshirib unikal sertifikat raqami yaratish
+async function noyobCertIdYarat(prefiks = 'AK-JK-2025-') {
+  const belgilar = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+  for (let urinish = 0; urinish < 8; urinish++) {
+    const baytlar = new Uint32Array(5)
+    crypto.getRandomValues(baytlar)
+    let kod = ''
+    for (let i = 0; i < baytlar.length; i++) {
+      kod += belgilar[baytlar[i] % belgilar.length]
+    }
+    const nomzod = `${prefiks}${kod}`
+    const bor = await prisma.certificate.findUnique({ where: { certId: nomzod }, select: { id: true } })
+    if (!bor) return nomzod
+  }
+  return `${prefiks}${Date.now().toString(36).toUpperCase()}`
 }
 
 export async function GET(req) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || !isAdminRole(session.user.role)) {
+    const { isAdmin } = await checkAdminAuth('sertifikatlar')
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 403 })
     }
 
@@ -37,13 +50,13 @@ export async function GET(req) {
             where: { user: ODDIY_ISHTIROKCHI_ROLLARI },
             include: {
               user: {
-                select: { id: true, userId: true, username: true, fullName: true, avatar: true }
-              }
+                select: { id: true, userId: true, username: true, fullName: true, avatar: true },
+              },
             },
             orderBy: [{ score: 'desc' }, { timeSpentSec: 'asc' }],
-            take: 100
-          }
-        }
+            take: 100,
+          },
+        },
       })
       if (!event) return NextResponse.json({ error: 'Topilmadi' }, { status: 404 })
       return NextResponse.json({ event })
@@ -52,12 +65,12 @@ export async function GET(req) {
     const [events, attemptsCount, certsCount] = await Promise.all([
       prisma.seasonalPartnership.findMany({
         include: {
-          _count: { select: { attempts: true } }
+          _count: { select: { attempts: true } },
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       }),
       prisma.partnershipAttempt.count(),
-      prisma.certificate.count()
+      prisma.certificate.count(),
     ])
 
     return NextResponse.json({
@@ -65,8 +78,8 @@ export async function GET(req) {
       stats: {
         totalEvents: events.length,
         totalAttempts: attemptsCount,
-        totalCertificates: certsCount
-      }
+        totalCertificates: certsCount,
+      },
     })
   } catch (error) {
     console.error('[Admin Mavsumiyhamkor GET Error]:', error)
@@ -76,8 +89,8 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || !isAdminRole(session.user.role)) {
+    const { isAdmin, user: admin } = await checkAdminAuth('sertifikatlar')
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 403 })
     }
 
@@ -92,12 +105,11 @@ export async function POST(req) {
         fullName,
         score,
         percentage,
-        timeSpentSec = 1200,
-        customCertId
+        customCertId,
       } = body
 
       if (!userId || !fullName) {
-        return NextResponse.json({ error: 'Foydalanuvchi va to\'liq ism kiritilishi shart' }, { status: 400 })
+        return NextResponse.json({ error: "Foydalanuvchi va to'liq ism kiritilishi shart" }, { status: 400 })
       }
 
       let partnership = null
@@ -109,17 +121,16 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Sinov testi uchun sertifikat berilmaydi' }, { status: 400 })
       }
 
-      const certId = (customCertId && customCertId.trim()) 
-        ? customCertId.trim().toUpperCase() 
-        : certIdGeneratsiya(partnership?.certPrefix || 'AK-JK-2025-')
+      const certId = (customCertId && customCertId.trim())
+        ? customCertId.trim().toUpperCase()
+        : await noyobCertIdYarat(partnership?.certPrefix || 'AK-JK-2025-')
 
-      const certReason = partnership?.certReason || 
+      const certReason = partnership?.certReason ||
         `${partnership?.partnerName || 'AlchemIQ'} va JDA Kimyo tomonidan tashkil etilgan ${partnership?.title || '1 KUNLIK SINOV TESTIDA'} yuqori natija ko'rsatganligi va bilim darajasining a'lo darajada ekanligi uchun taqdim etiladi.`
 
       const numericScore = parseInt(score, 10) || 30
       const numericPercent = parseFloat(percentage) || 100.0
 
-      // Sertifikatni Certificate jadvaliga rasmiylashtirish
       const cert = await prisma.certificate.create({
         data: {
           certId,
@@ -127,11 +138,18 @@ export async function POST(req) {
           fullName: fullName.trim(),
           fan: `Mavsumiy Hamkorlik: ${partnership?.title || 'Sinov Testi'}`,
           reason: certReason,
+          turi: SERTIFIKAT_TURLARI.hamkor,
+          metadata: {
+            partnershipId: partnership?.id || null,
+            partnerName: partnership?.partnerName || 'AlchemIQ',
+            badgeText: partnership?.badgeText || 'YUKORI NATIJA',
+            isManual: true,
+          },
           examName: partnership?.title || 'Mavsumiy Sinov Testi',
-          grade: numericPercent >= 90 ? "A'lo (1-daraja)" : "Yuqori natija",
+          grade: numericPercent >= 90 ? "A'lo (1-daraja)" : 'Yuqori natija',
           score: numericScore,
           percentage: numericPercent,
-          issuedById: session.user.id,
+          issuedById: admin.id,
           seals: {
             partnerName: partnership?.partnerName || 'AlchemIQ',
             partnerLogo: partnership?.partnerLogo || '/images/alchemiq-logo.png',
@@ -140,15 +158,27 @@ export async function POST(req) {
             jdaSignName: partnership?.jdaSignName || 'JDA Kimyo Jamoasi',
             jdaSignUrl: partnership?.jdaSignUrl || null,
             badgeText: partnership?.badgeText || 'YUKORI NATIJA',
-            isManual: true
-          }
-        }
+            isManual: true,
+          },
+        },
+      })
+
+      const pdfNatija = await foydalanuvchilargaSertifikatPdfYubor([cert])
+
+      await qaydEt({
+        adminId: admin.id,
+        action: 'issue_manual_partnership_cert',
+        targetType: 'Certificate',
+        targetId: cert.id,
+        details: `${cert.certId} -> ${fullName.trim()}`,
+        request: req,
       })
 
       return NextResponse.json({
         success: true,
         message: 'Mavsumiy sertifikat muvaffaqiyatli berildi!',
-        certificate: cert
+        certificate: cert,
+        telegramPdfSoni: pdfNatija.yuborildi,
       })
     }
 
@@ -165,69 +195,90 @@ export async function POST(req) {
           attempts: {
             where: { user: ODDIY_ISHTIROKCHI_ROLLARI },
             include: {
-              user: { select: { id: true, userId: true, username: true, fullName: true } }
-            }
-          }
-        }
+              user: { select: { id: true, userId: true, username: true, fullName: true } },
+            },
+          },
+        },
       })
       if (!event) return NextResponse.json({ error: 'Tadbir topilmadi' }, { status: 404 })
 
-      // Hamkorlikni e'lon qilingan deb belgilash
       await prisma.seasonalPartnership.update({
         where: { id: partnershipId },
         data: {
           isAnnounced: true,
-          publishedAt: new Date()
-        }
+          publishedAt: new Date(),
+        },
       })
 
-      // Sinov testida sertifikat yo'q; qolgan tadbirlarda o'tganlarga sertifikat beriladi.
       let certsCreated = 0
+      const yaratilganSertifikatlar = []
       if (!sinovTestimi(event)) {
         for (const attempt of event.attempts) {
           if (attempt.passed && !attempt.certId) {
-          const certId = certIdGeneratsiya(event.certPrefix || 'AK-JK-2025-')
-          const certReason = event.certReason ||
-            `${event.partnerName || 'AlchemIQ'} va JDA Kimyo tomonidan tashkil etilgan ${event.title || '1 KUNLIK SINOV TESTIDA'} yuqori natija ko'rsatganligi va bilim darajasining a'lo darajada ekanligi uchun taqdim etiladi.`
+            const certId = await noyobCertIdYarat(event.certPrefix || 'AK-JK-2025-')
+            const certReason = event.certReason ||
+              `${event.partnerName || 'AlchemIQ'} va JDA Kimyo tomonidan tashkil etilgan ${event.title || '1 KUNLIK SINOV TESTIDA'} yuqori natija ko'rsatganligi va bilim darajasining a'lo darajada ekanligi uchun taqdim etiladi.`
 
-          await prisma.certificate.create({
-            data: {
-              certId,
-              userId: attempt.userId,
-              fullName: attempt.user.fullName || attempt.user.username,
-              fan: `Mavsumiy Hamkorlik: ${event.title}`,
-              reason: certReason,
-              examName: event.title,
-              grade: attempt.percentage >= 90 ? "A'lo (1-daraja)" : "Yuqori natija",
-              score: attempt.score,
-              percentage: attempt.percentage,
-              issuedById: session.user.id,
-              seals: {
-                partnerName: event.partnerName,
-                partnerLogo: event.partnerLogo || '/images/alchemiq-logo.png',
-                partnerSignName: event.partnerSignName || 'AlchemIQ Sardor Ergashev',
-                partnerSignUrl: event.partnerSignUrl || null,
-                jdaSignName: event.jdaSignName || 'JDA Kimyo Jamoasi',
-                jdaSignUrl: event.jdaSignUrl || null,
-                badgeText: event.badgeText || 'YUKORI NATIJA'
-              }
-            }
-          })
+            const yangiCert = await prisma.certificate.create({
+              data: {
+                certId,
+                userId: attempt.userId,
+                fullName: attempt.user.fullName || attempt.user.username,
+                fan: `Mavsumiy Hamkorlik: ${event.title}`,
+                reason: certReason,
+                turi: SERTIFIKAT_TURLARI.hamkor,
+                metadata: {
+                  partnershipId: event.id,
+                  attemptId: attempt.id,
+                  partnerName: event.partnerName || null,
+                  badgeText: event.badgeText || 'YUKORI NATIJA',
+                  passed: Boolean(attempt.passed),
+                },
+                examName: event.title,
+                grade: attempt.percentage >= 90 ? "A'lo (1-daraja)" : 'Yuqori natija',
+                score: attempt.score,
+                percentage: attempt.percentage,
+                issuedById: admin.id,
+                seals: {
+                  partnerName: event.partnerName,
+                  partnerLogo: event.partnerLogo || '/images/alchemiq-logo.png',
+                  partnerSignName: event.partnerSignName || 'AlchemIQ Sardor Ergashev',
+                  partnerSignUrl: event.partnerSignUrl || null,
+                  jdaSignName: event.jdaSignName || 'JDA Kimyo Jamoasi',
+                  jdaSignUrl: event.jdaSignUrl || null,
+                  badgeText: event.badgeText || 'YUKORI NATIJA',
+                },
+              },
+            })
 
-          await prisma.partnershipAttempt.update({
-            where: { id: attempt.id },
-            data: { certId }
-          })
+            await prisma.partnershipAttempt.update({
+              where: { id: attempt.id },
+              data: { certId },
+            })
+            yaratilganSertifikatlar.push(yangiCert)
             certsCreated++
           }
         }
       }
 
+      const pdfNatija = await foydalanuvchilargaSertifikatPdfYubor(yaratilganSertifikatlar)
+
+      await qaydEt({
+        adminId: admin.id,
+        action: 'publish_partnership_results',
+        targetType: 'Certificate',
+        targetId: event.id,
+        details: `${event.title}: ${certsCreated} ta sertifikat`,
+        request: req,
+      })
+
       return NextResponse.json({
         success: true,
+        certsCreated,
+        telegramPdfSoni: pdfNatija.yuborildi,
         message: sinovTestimi(event)
-          ? 'Natijalar rasman e\'lon qilindi. Bu sinov testi uchun sertifikat berilmaydi.'
-          : `Natijalar rasman e'lon qilindi! ${certsCreated} ta sertifikat rasmiylashtirildi.`
+          ? "Natijalar rasman e'lon qilindi. Bu sinov testi uchun sertifikat berilmaydi."
+          : `Natijalar rasman e'lon qilindi! ${certsCreated} ta sertifikat rasmiylashtirildi${pdfNatija.yuborildi > 0 ? ` (${pdfNatija.yuborildi} ta Telegram PDF yuborildi)` : ''}.`,
       })
     }
 
@@ -240,16 +291,25 @@ export async function POST(req) {
 
       await prisma.seasonalPartnership.update({
         where: { id: partnershipId },
-        data: { isAnnounced: false }
+        data: { isAnnounced: false },
+      })
+
+      await qaydEt({
+        adminId: admin.id,
+        action: 'unpublish_partnership_results',
+        targetType: 'Certificate',
+        targetId: partnershipId,
+        details: "Natijalar e'loni bekor qilindi",
+        request: req,
       })
 
       return NextResponse.json({
         success: true,
-        message: 'Natijalar yashirildi (e\'lon bekor qilindi).'
+        message: "Natijalar yashirildi (e'lon bekor qilindi).",
       })
     }
 
-    // 4. TADBIY YARATISH / TAHRIRLASH
+    // 4. TADBIR YARATISH / TAHRIRLASH
     const {
       id,
       slug,
@@ -268,11 +328,17 @@ export async function POST(req) {
       timeLimitMin = 40,
       startsAt,
       endsAt,
-      isActive = true
+      isActive = true,
     } = body
 
     if (!slug || !title || !partnerName || !startsAt || !endsAt) {
-      return NextResponse.json({ error: 'Barcha asosiy maydonlarni to\'ldiring' }, { status: 400 })
+      return NextResponse.json({ error: "Barcha asosiy maydonlarni to'ldiring" }, { status: 400 })
+    }
+
+    const boshlanishSana = toshkentSanaParsla(startsAt) || new Date(startsAt)
+    const tugashSana = toshkentSanaParsla(endsAt) || new Date(endsAt)
+    if (Number.isNaN(boshlanishSana.getTime()) || Number.isNaN(tugashSana.getTime())) {
+      return NextResponse.json({ error: "Sana formati noto'g'ri" }, { status: 400 })
     }
 
     const cleanSlug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '-')
@@ -292,27 +358,36 @@ export async function POST(req) {
       badgeText: badgeText ? badgeText.trim().toUpperCase() : 'YUKORI NATIJA',
       minPassPercent: parseFloat(minPassPercent) || 75.0,
       timeLimitMin: parseInt(timeLimitMin, 10) || 40,
-      startsAt: new Date(startsAt),
-      endsAt: new Date(endsAt),
-      isActive: Boolean(isActive)
+      startsAt: boshlanishSana,
+      endsAt: tugashSana,
+      isActive: Boolean(isActive),
     }
 
     let result
     if (id) {
       result = await prisma.seasonalPartnership.update({
         where: { id },
-        data
+        data,
       })
     } else {
       result = await prisma.seasonalPartnership.create({
-        data
+        data,
       })
     }
+
+    await qaydEt({
+      adminId: admin.id,
+      action: id ? 'update_partnership' : 'create_partnership',
+      targetType: 'Certificate',
+      targetId: result.id,
+      details: `${result.title} (${result.slug})`,
+      request: req,
+    })
 
     return NextResponse.json({
       success: true,
       message: id ? 'Hamkorlik yangilandi' : 'Yangi mavsumiy hamkorlik yaratildi',
-      event: result
+      event: result,
     })
   } catch (error) {
     console.error('[Admin Mavsumiyhamkor POST Error]:', error)
@@ -322,8 +397,8 @@ export async function POST(req) {
 
 export async function DELETE(req) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || !isAdminRole(session.user.role)) {
+    const { isAdmin, user: admin } = await checkAdminAuth('sertifikatlar')
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 403 })
     }
 
@@ -331,8 +406,16 @@ export async function DELETE(req) {
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'ID kiritilmadi' }, { status: 400 })
 
-    await prisma.seasonalPartnership.delete({ where: { id } })
-    return NextResponse.json({ success: true, message: 'O\'chirildi' })
+    const ochirilgan = await prisma.seasonalPartnership.delete({ where: { id } })
+    await qaydEt({
+      adminId: admin.id,
+      action: 'delete_partnership',
+      targetType: 'Certificate',
+      targetId: id,
+      details: ochirilgan.title,
+      request: req,
+    })
+    return NextResponse.json({ success: true, message: "O'chirildi" })
   } catch (error) {
     console.error('[Admin Mavsumiyhamkor DELETE Error]:', error)
     return NextResponse.json({ error: error.message || 'Xatolik yuz berdi' }, { status: 500 })

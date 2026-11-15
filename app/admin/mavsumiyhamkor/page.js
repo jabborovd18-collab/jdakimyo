@@ -63,15 +63,15 @@ export default function AdminMavsumiyHamkorPage() {
       if (!res.ok) throw new Error(data.error)
       setEvents(data.events || [])
       setStats(data.stats || { totalEvents: 0, totalAttempts: 0, totalCertificates: 0 })
-      if (data.events?.length > 0 && !manualForm.partnershipId) {
-        setManualForm(prev => ({ ...prev, partnershipId: data.events[0].id }))
+      if (data.events?.length > 0) {
+        setManualForm(prev => (prev.partnershipId ? prev : { ...prev, partnershipId: data.events[0].id }))
       }
     } catch (e) {
       toast.error('Yuklashda xatolik: ' + e.message)
     } finally {
       setIsLoading(false)
     }
-  }, [manualForm.partnershipId])
+  }, [])
 
   useEffect(() => {
     yukla()
@@ -110,7 +110,7 @@ export default function AdminMavsumiyHamkorPage() {
       : `${origin}/hamkorlik/${slug}`
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(link)
-      toast.success(`Havola nusxalandi: ${link}`, { icon: '📋' })
+      toast.success(`Havola nusxalandi: ${link}`)
     } else {
       toast.success(`Havola: ${link}`)
     }
@@ -336,17 +336,17 @@ export default function AdminMavsumiyHamkorPage() {
             <Ikon nom="hamkor" olcham={28} className="text-amber-400" />
             <span>Mavsumiy Hamkorlik va Sertifikatlar</span>
           </h1>
-          <p className="text-xs text-purple-300">
+          <p className="text-xs text-[var(--v3-xira)]">
             Telegram kanallar va tashkilotlar bilan qo&apos;shma sinovlar hamda rasmiy sertifikatlar boshqaruvi
           </p>
         </div>
 
         {/* Tablar */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-900/90 border border-purple-800/40 rounded-2xl">
+        <div className="flex items-center gap-1.5 p-1 bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] rounded-2xl">
           <button
             onClick={() => { setTab('royxat'); setFormData(BOSH_HAMKORLIK) }}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              tab === 'royxat' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-purple-300 hover:text-white'
+              tab === 'royxat' ? 'bg-[var(--v3-urgu)] text-black shadow-md' : 'text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
             }`}
           >
             <Ikon nom="fayl" olcham={14} />
@@ -355,7 +355,7 @@ export default function AdminMavsumiyHamkorPage() {
           <button
             onClick={() => { setTab('yangi'); setFormData(BOSH_HAMKORLIK) }}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              tab === 'yangi' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-purple-300 hover:text-white'
+              tab === 'yangi' ? 'bg-[var(--v3-urgu)] text-black shadow-md' : 'text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
             }`}
           >
             <Ikon nom="qosh" olcham={14} />
@@ -364,7 +364,7 @@ export default function AdminMavsumiyHamkorPage() {
           <button
             onClick={() => setTab('qolda_berish')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              tab === 'qolda_berish' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-purple-300 hover:text-white'
+              tab === 'qolda_berish' ? 'bg-[var(--v3-urgu)] text-black shadow-md' : 'text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
             }`}
           >
             <Ikon nom="sertifikat" olcham={14} />
@@ -375,32 +375,32 @@ export default function AdminMavsumiyHamkorPage() {
 
       {/* Statistika Bloklari */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-slate-900/70 border border-purple-800/40 rounded-2xl p-4 flex items-center gap-4 shadow-lg">
+        <div className="v3-panel-karta p-4 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
             <Ikon nom="hamkor" olcham={24} />
           </div>
           <div>
-            <span className="text-xs text-purple-400 font-medium block">Faol Hamkorliklar</span>
+            <span className="text-xs text-[var(--v3-xira)] font-medium block">Faol Hamkorliklar</span>
             <strong className="text-2xl font-black text-white">{stats.totalEvents} ta</strong>
           </div>
         </div>
 
-        <div className="bg-slate-900/70 border border-purple-800/40 rounded-2xl p-4 flex items-center gap-4 shadow-lg">
-          <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
+        <div className="v3-panel-karta p-4 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-[var(--v3-yuza-2)] text-[var(--v3-urgu)] border border-[var(--v3-chiziq-2)] flex items-center justify-center">
             <Ikon nom="quiz" olcham={24} />
           </div>
           <div>
-            <span className="text-xs text-purple-400 font-medium block">Jami Urinishlar</span>
+            <span className="text-xs text-[var(--v3-xira)] font-medium block">Jami Urinishlar</span>
             <strong className="text-2xl font-black text-white">{stats.totalAttempts} ta</strong>
           </div>
         </div>
 
-        <div className="bg-slate-900/70 border border-purple-800/40 rounded-2xl p-4 flex items-center gap-4 shadow-lg">
+        <div className="v3-panel-karta p-4 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-green-500/20 text-green-400 border border-green-500/30 flex items-center justify-center">
             <Ikon nom="sertifikat" olcham={24} />
           </div>
           <div>
-            <span className="text-xs text-purple-400 font-medium block">Berilgan Sertifikatlar</span>
+            <span className="text-xs text-[var(--v3-xira)] font-medium block">Berilgan Sertifikatlar</span>
             <strong className="text-2xl font-black text-white">{stats.totalCertificates} ta</strong>
           </div>
         </div>
@@ -410,16 +410,16 @@ export default function AdminMavsumiyHamkorPage() {
           TAB 1: TADBIRLAR RO'YXATI
       ═══════════════════════════════════════════════════════════════ */}
       {tab === 'royxat' && (
-        <div className="bg-slate-900/80 border border-purple-800/40 rounded-3xl p-6 space-y-4">
+        <div className="v3-panel-karta p-6 space-y-4">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
             <Ikon nom="fayl" olcham={18} className="text-amber-400" />
             <span>Mavjud Hamkorlik Tadbirlari</span>
           </h2>
 
           {isLoading ? (
-            <div className="text-center py-10 text-xs text-purple-300">Yuklanmoqda...</div>
+            <div className="text-center py-10 text-xs text-[var(--v3-xira)]">Yuklanmoqda...</div>
           ) : events.length === 0 ? (
-            <div className="text-center py-10 text-xs text-purple-400">
+            <div className="text-center py-10 text-xs text-[var(--v3-xira)]">
               Hozircha hech qanday hamkorlik tadbiri mavjud emas. Yuqoridagi &quot;Yangi qo&apos;shish&quot; tugmasi orqali yarating.
             </div>
           ) : (
@@ -434,7 +434,7 @@ export default function AdminMavsumiyHamkorPage() {
                 return (
                   <div
                     key={ev.id}
-                    className="p-5 rounded-2xl bg-black/40 border border-purple-800/40 hover:border-amber-400/60 transition-all space-y-4 shadow-lg flex flex-col justify-between"
+                    className="p-5 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] hover:border-[var(--v3-urgu)] transition-all space-y-4 flex flex-col justify-between"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -466,11 +466,11 @@ export default function AdminMavsumiyHamkorPage() {
                         {ev.title}
                       </h3>
 
-                      <p className="text-xs text-purple-300 line-clamp-2">
+                      <p className="text-xs text-[var(--v3-xira)] line-clamp-2">
                         {ev.description || ev.certReason}
                       </p>
 
-                      <div className="grid grid-cols-2 gap-2 text-[11px] text-purple-400 pt-2 border-t border-purple-900/40 font-mono">
+                      <div className="grid grid-cols-2 gap-2 text-[11px] text-[var(--v3-xira)] pt-2 border-t border-[var(--v3-chiziq)] font-mono">
                         <div>Savollar: <strong>{sinovTestimi ? 40 : 30} ta</strong></div>
                         <div>{sinovTestimi ? 'O\'tish bali: ' : 'O\'tish: '}<strong>{sinovTestimi ? 'Yo\'q' : `${ev.minPassPercent}%`}</strong></div>
                         <div>Urinishlar: <strong>{ev._count?.attempts || 0} ta</strong></div>
@@ -482,12 +482,12 @@ export default function AdminMavsumiyHamkorPage() {
                     </div>
 
                     {/* Amallar */}
-                    <div className="flex items-center gap-2 pt-3 border-t border-purple-900/40 flex-wrap">
+                    <div className="flex items-center gap-2 pt-3 border-t border-[var(--v3-chiziq)] flex-wrap">
                       {/* Havoladan nusxa olish */}
                       <button
                         type="button"
                         onClick={() => havolaNusxaOlish(ev.slug)}
-                        className="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-700/50 text-purple-200 text-xs font-semibold flex items-center gap-1.5"
+                        className="v3-tugma text-xs py-1.5 px-3"
                         title="Ishtirokchilarga yuborish uchun havolani nusxalash"
                       >
                         <Ikon nom="nusxa" olcham={14} />
@@ -498,7 +498,7 @@ export default function AdminMavsumiyHamkorPage() {
                       <Link
                         href={sinovTestimi ? '/sea-ms-sinov' : `/hamkorlik/${ev.slug}`}
                         target="_blank"
-                        className="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-700/50 text-purple-200 text-xs font-semibold flex items-center gap-1.5"
+                        className="v3-tugma text-xs py-1.5 px-3"
                       >
                         <Ikon nom="tashqi" olcham={14} />
                         <span>Ko&apos;rish</span>
@@ -510,7 +510,7 @@ export default function AdminMavsumiyHamkorPage() {
                           type="button"
                           onClick={(e) => natijalarniElonQilish(ev.id, e)}
                           disabled={actionLoadingId === ev.id}
-                          className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-md disabled:opacity-50"
+                          className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black text-xs font-bold flex items-center gap-1.5 shadow-md disabled:opacity-50"
                         >
                           <Ikon nom="elon" olcham={14} />
                           <span>{actionLoadingId === ev.id ? 'E\'lon qilinmoqda...' : 'Natijalarni E\'lon Qilish'}</span>
@@ -520,7 +520,7 @@ export default function AdminMavsumiyHamkorPage() {
                           type="button"
                           onClick={(e) => natijalarEloniniBekorQilish(ev.id, e)}
                           disabled={actionLoadingId === ev.id}
-                          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50"
+                          className="v3-tugma text-xs py-1.5 px-3 disabled:opacity-50"
                         >
                           <Ikon nom="yopish" olcham={14} />
                           <span>E&apos;lonni yashirish</span>
@@ -542,7 +542,7 @@ export default function AdminMavsumiyHamkorPage() {
                         type="button"
                         onClick={() => handleHisobotYuklab(ev)}
                         disabled={hisobotLoadingId === ev.id}
-                        className="px-3 py-1.5 rounded-xl bg-purple-900/60 hover:bg-purple-800 border border-purple-600/50 text-amber-300 text-xs font-bold flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                        className="v3-tugma text-xs py-1.5 px-3 text-amber-300 disabled:opacity-50"
                         title="Barcha ishtirokchilar natijalari hisobotini PDF shaklida yuklab olish"
                       >
                         <Ikon nom="sertifikat" olcham={14} />
@@ -553,7 +553,7 @@ export default function AdminMavsumiyHamkorPage() {
                       <button
                         type="button"
                         onClick={() => tahrirlash(ev)}
-                        className="p-1.5 rounded-xl bg-black/40 hover:bg-purple-900/50 text-purple-300 hover:text-white"
+                        className="p-1.5 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] hover:border-[var(--v3-chiziq-2)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]"
                         title="Tahrirlash"
                       >
                         <Ikon nom="tahrir" olcham={16} />
@@ -580,8 +580,8 @@ export default function AdminMavsumiyHamkorPage() {
           TAB 2: YANGI YARATISH / TAHRIRLASH
       ═══════════════════════════════════════════════════════════════ */}
       {tab === 'yangi' && (
-        <form onSubmit={saqlaHamkorlik} className="bg-slate-900/80 border border-purple-800/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-purple-800/40 pb-4">
+        <form onSubmit={saqlaHamkorlik} className="v3-panel-karta p-6 sm:p-8 space-y-6">
+          <div className="flex items-center justify-between border-b border-[var(--v3-chiziq)] pb-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Ikon nom="tahrir" olcham={20} className="text-amber-400" />
               <span>{formData.id ? 'Hamkorlik Tadbirini Tahrirlash' : 'Yangi Mavsumiy Hamkorlik Yaratish'}</span>
@@ -589,7 +589,7 @@ export default function AdminMavsumiyHamkorPage() {
             <button
               type="button"
               onClick={() => { setFormData(BOSH_HAMKORLIK); setTab('royxat') }}
-              className="text-xs text-purple-400 hover:text-white flex items-center gap-1"
+              className="text-xs text-[var(--v3-xira)] hover:text-[var(--v3-matn)] flex items-center gap-1"
             >
               <Ikon nom="yopish" olcham={16} /> Bekor qilish
             </button>
@@ -598,9 +598,9 @@ export default function AdminMavsumiyHamkorPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             {/* Slug */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Havola Nomi (Slug) *</label>
-              <div className="flex items-center bg-black/40 border border-purple-800/40 rounded-xl px-3 py-2 text-white">
-                <span className="text-purple-500 select-none">/hamkorlik/</span>
+              <label className="text-[var(--v3-xira)] font-semibold block">Havola Nomi (Slug) *</label>
+              <div className="flex items-center bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-xl px-3 py-2 text-[var(--v3-matn)]">
+                <span className="text-[var(--v3-xira)] select-none">/hamkorlik/</span>
                 <input
                   type="text"
                   required
@@ -614,124 +614,124 @@ export default function AdminMavsumiyHamkorPage() {
 
             {/* Title */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Tadbir Nomi *</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Tadbir Nomi *</label>
               <input
                 type="text"
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="1 Kunlik Sinov Testi"
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                className="v3-kiritish w-full"
               />
             </div>
 
             {/* Hamkor Nomi */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Hamkor Tashkilot / Kanal Nomi *</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Hamkor Tashkilot / Kanal Nomi *</label>
               <input
                 type="text"
                 required
                 value={formData.partnerName}
                 onChange={(e) => setFormData({ ...formData, partnerName: e.target.value })}
                 placeholder="AlchemIQ"
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                className="v3-kiritish w-full"
               />
             </div>
 
             {/* Hamkor Logotipi URL */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Hamkor Logotipi URL (Ixtiyoriy)</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Hamkor Logotipi URL (Ixtiyoriy)</label>
               <input
                 type="text"
                 value={formData.partnerLogo}
                 onChange={(e) => setFormData({ ...formData, partnerLogo: e.target.value })}
                 placeholder="/images/alchemiq-logo.png"
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                className="v3-kiritish w-full"
               />
             </div>
 
             {/* 1-Imzo Nomi (Hamkor) */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">1-Imzo Egasi (Hamkor)</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">1-Imzo Egasi (Hamkor)</label>
               <input
                 type="text"
                 value={formData.partnerSignName}
                 onChange={(e) => setFormData({ ...formData, partnerSignName: e.target.value })}
                 placeholder="AlchemIQ Sardor Ergashev"
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                className="v3-kiritish w-full"
               />
             </div>
 
             {/* 2-Imzo Nomi (JDA) */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">2-Imzo Egasi (JDA Kimyo)</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">2-Imzo Egasi (JDA Kimyo)</label>
               <input
                 type="text"
                 value={formData.jdaSignName}
                 onChange={(e) => setFormData({ ...formData, jdaSignName: e.target.value })}
                 placeholder="JDA Kimyo Jamoasi"
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                className="v3-kiritish w-full"
               />
             </div>
 
             {/* Boshlanish vaqti */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Boshlanish Sanasi *</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Boshlanish Sanasi *</label>
               <input
                 type="datetime-local"
                 required
                 value={formData.startsAt}
                 onChange={(e) => setFormData({ ...formData, startsAt: e.target.value })}
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                className="v3-kiritish w-full"
               />
             </div>
 
             {/* Tugash vaqti */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Tugash Sanasi *</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Tugash Sanasi *</label>
               <input
                 type="datetime-local"
                 required
                 value={formData.endsAt}
                 onChange={(e) => setFormData({ ...formData, endsAt: e.target.value })}
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                className="v3-kiritish w-full"
               />
             </div>
 
             {/* O'tish foizi va Vaqt */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">O&apos;tish Bali (% da)</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">O&apos;tish Bali (% da)</label>
               <input
                 type="number"
                 min="1"
                 max="100"
                 value={formData.minPassPercent}
                 onChange={(e) => setFormData({ ...formData, minPassPercent: e.target.value })}
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400 font-mono"
+                className="v3-kiritish w-full font-mono"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Vaqt Chegarasi (Daqiqada)</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Vaqt Chegarasi (Daqiqada)</label>
               <input
                 type="number"
                 min="5"
                 max="180"
                 value={formData.timeLimitMin}
                 onChange={(e) => setFormData({ ...formData, timeLimitMin: e.target.value })}
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400 font-mono"
+                className="v3-kiritish w-full font-mono"
               />
             </div>
 
             {/* Sertifikat Prefiksi */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Sertifikat Prefiksi</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Sertifikat Prefiksi</label>
               <input
                 type="text"
                 value={formData.certPrefix}
                 onChange={(e) => setFormData({ ...formData, certPrefix: e.target.value })}
                 placeholder="AK-JK-2025-"
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400 font-mono"
+                className="v3-kiritish w-full font-mono"
               />
             </div>
 
@@ -744,29 +744,29 @@ export default function AdminMavsumiyHamkorPage() {
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-slate-800 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                <div className="w-11 h-6 bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[var(--v3-chiziq-2)] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
                 <span className="ml-3 text-xs font-bold text-white">Faol holatda</span>
               </label>
             </div>
 
             {/* Sertifikat sababi / matni */}
             <div className="space-y-1.5 md:col-span-2">
-              <label className="text-purple-300 font-semibold block">Sertifikatda Ko&apos;rsatiladigan Asosiy Matn</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Sertifikatda Ko&apos;rsatiladigan Asosiy Matn</label>
               <textarea
                 rows={3}
                 value={formData.certReason}
                 onChange={(e) => setFormData({ ...formData, certReason: e.target.value })}
                 placeholder="AlchemIQ va JDA Kimyo tomonidan tashkil etilgan 1 KUNLIK SINOV TESTIDA..."
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl p-3 text-white outline-hidden focus:border-amber-400 leading-relaxed"
+                className="v3-kiritish w-full leading-relaxed"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-purple-800/40">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--v3-chiziq)]">
             <button
               type="button"
               onClick={() => { setFormData(BOSH_HAMKORLIK); setTab('royxat') }}
-              className="px-5 py-2.5 rounded-xl bg-black/40 border border-purple-800/40 text-purple-300 hover:text-white text-xs font-bold"
+              className="v3-tugma text-xs font-bold"
             >
               Bekor qilish
             </button>
@@ -774,7 +774,7 @@ export default function AdminMavsumiyHamkorPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-7 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 text-xs font-extrabold shadow-lg disabled:opacity-50 flex items-center gap-2"
+              className="px-7 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black text-xs font-extrabold shadow-lg disabled:opacity-50 flex items-center gap-2"
             >
               <Ikon nom="tasdiq" olcham={16} />
               <span>{isSaving ? 'Saqlanmoqda...' : 'Tadbirni Saqlash'}</span>
@@ -787,13 +787,13 @@ export default function AdminMavsumiyHamkorPage() {
           TAB 3: QO'LDA SERTIFIKAT BERISH
       ═══════════════════════════════════════════════════════════════ */}
       {tab === 'qolda_berish' && (
-        <form onSubmit={berishSertifikat} className="bg-slate-900/80 border border-purple-800/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl max-w-3xl mx-auto">
-          <div className="space-y-1 border-b border-purple-800/40 pb-4">
+        <form onSubmit={berishSertifikat} className="v3-panel-karta p-6 sm:p-8 space-y-6 max-w-3xl mx-auto">
+          <div className="space-y-1 border-b border-[var(--v3-chiziq)] pb-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Ikon nom="sertifikat" olcham={20} className="text-amber-400" />
               <span>Foydalanuvchiga Qo&apos;lda Sertifikat Berish</span>
             </h2>
-            <p className="text-xs text-purple-300">
+            <p className="text-xs text-[var(--v3-xira)]">
               Admin va Superadminlar istalgan o&apos;quvchini qidirib, unga mavsumiy hamkorlik sertifikatini rasmiylashtirishi mumkin.
             </p>
           </div>
@@ -801,14 +801,14 @@ export default function AdminMavsumiyHamkorPage() {
           <div className="space-y-4 text-xs">
             {/* Hamkorlikni tanlash */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Mavsumiy Hamkorlik Tadbiri</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Mavsumiy Hamkorlik Tadbiri</label>
               <select
                 value={manualForm.partnershipId}
                 onChange={(e) => setManualForm({ ...manualForm, partnershipId: e.target.value })}
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                className="v3-kiritish w-full"
               >
                 {events.map(ev => (
-                  <option key={ev.id} value={ev.id} className="bg-slate-900 text-white">
+                  <option key={ev.id} value={ev.id} className="bg-[var(--v3-fon)] text-[var(--v3-matn)]">
                     {ev.partnerName} — {ev.title}
                   </option>
                 ))}
@@ -817,25 +817,25 @@ export default function AdminMavsumiyHamkorPage() {
 
             {/* Foydalanuvchini qidirish */}
             <div className="space-y-1.5 relative">
-              <label className="text-purple-300 font-semibold block">Foydalanuvchini Qidirish (Ism yoki Username) *</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Foydalanuvchini Qidirish (Ism yoki Username) *</label>
               <div className="relative">
                 <input
                   type="text"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="Username yoki ismni yozing..."
-                  className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400"
+                  className="v3-kiritish w-full"
                 />
                 {isSearchingUsers && (
-                  <div className="absolute right-3 top-2.5 text-purple-400 text-xs animate-spin">
-                    ⏳
+                  <div className="absolute right-3 top-3 text-[var(--v3-xira)] animate-spin">
+                    <Ikon nom="qayta" olcham={14} />
                   </div>
                 )}
               </div>
 
               {/* Qidiruv natijalari popup */}
               {userResults.length > 0 && (
-                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-slate-900 border border-purple-700 rounded-2xl p-2 shadow-2xl space-y-1 max-h-48 overflow-y-auto">
+                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-[var(--v3-fon)] border border-[var(--v3-chiziq-2)] rounded-2xl p-2 shadow-2xl space-y-1 max-h-48 overflow-y-auto">
                   {userResults.map((u) => (
                     <button
                       key={u.id}
@@ -846,11 +846,11 @@ export default function AdminMavsumiyHamkorPage() {
                         setUserResults([])
                         setUserSearch('')
                       }}
-                      className="w-full p-2 rounded-xl hover:bg-purple-900/40 text-left flex items-center justify-between text-xs"
+                      className="w-full p-2 rounded-xl hover:bg-[var(--v3-yuza-2)] text-left flex items-center justify-between text-xs"
                     >
                       <div>
                         <strong className="text-white block">{u.fullName || u.username}</strong>
-                        <span className="text-purple-400 font-mono">@{u.username}</span>
+                        <span className="text-[var(--v3-xira)] font-mono">@{u.username}</span>
                       </div>
                       <span className="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-bold text-[10px]">
                         Tanlash
@@ -867,7 +867,7 @@ export default function AdminMavsumiyHamkorPage() {
                 <div>
                   <span className="text-[10px] text-amber-400 font-bold uppercase block">Tanlangan foydalanuvchi:</span>
                   <strong className="text-sm text-white block">{selectedUser.fullName || selectedUser.username}</strong>
-                  <span className="text-xs text-purple-300 font-mono">@{selectedUser.username} ({selectedUser.email || 'Email yo\'q'})</span>
+                  <span className="text-xs text-[var(--v3-xira)] font-mono">@{selectedUser.username} ({selectedUser.email || 'Email yo\'q'})</span>
                 </div>
                 <button
                   type="button"
@@ -881,21 +881,21 @@ export default function AdminMavsumiyHamkorPage() {
 
             {/* Sertifikatdagi Ism Familiya */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Sertifikatda Yoziladigan To&apos;liq Ism *</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Sertifikatda Yoziladigan To&apos;liq Ism *</label>
               <input
                 type="text"
                 required
                 value={manualForm.fullName}
                 onChange={(e) => setManualForm({ ...manualForm, fullName: e.target.value })}
                 placeholder="Jasurbek Karimov"
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400 font-semibold"
+                className="v3-kiritish w-full font-semibold"
               />
             </div>
 
             {/* Ball va Foiz */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-purple-300 font-semibold block">To&apos;g&apos;ri Javoblar Soni (30 dan)</label>
+                <label className="text-[var(--v3-xira)] font-semibold block">To&apos;g&apos;ri Javoblar Soni (30 dan)</label>
                 <input
                   type="number"
                   min="1"
@@ -909,12 +909,12 @@ export default function AdminMavsumiyHamkorPage() {
                       percentage: Number(((sc / 30) * 100).toFixed(1))
                     })
                   }}
-                  className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400 font-mono"
+                  className="v3-kiritish w-full font-mono"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-purple-300 font-semibold block">Natija Foizi (%)</label>
+                <label className="text-[var(--v3-xira)] font-semibold block">Natija Foizi (%)</label>
                 <input
                   type="number"
                   step="0.1"
@@ -922,29 +922,29 @@ export default function AdminMavsumiyHamkorPage() {
                   max="100"
                   value={manualForm.percentage}
                   onChange={(e) => setManualForm({ ...manualForm, percentage: e.target.value })}
-                  className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400 font-mono"
+                  className="v3-kiritish w-full font-mono"
                 />
               </div>
             </div>
 
             {/* Maxsus Sertifikat ID */}
             <div className="space-y-1.5">
-              <label className="text-purple-300 font-semibold block">Maxsus Sertifikat ID (Bo&apos;sh qoldirilsa avtomatik generatsiya bo&apos;ladi)</label>
+              <label className="text-[var(--v3-xira)] font-semibold block">Maxsus Sertifikat ID (Bo&apos;sh qoldirilsa avtomatik generatsiya bo&apos;ladi)</label>
               <input
                 type="text"
                 value={manualForm.customCertId}
                 onChange={(e) => setManualForm({ ...manualForm, customCertId: e.target.value })}
                 placeholder="AK-JK-2025-7788"
-                className="w-full bg-black/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-white outline-hidden focus:border-amber-400 font-mono"
+                className="v3-kiritish w-full font-mono"
               />
             </div>
           </div>
 
-          <div className="pt-4 border-t border-purple-800/40 flex justify-end">
+          <div className="pt-4 border-t border-[var(--v3-chiziq)] flex justify-end">
             <button
               type="submit"
               disabled={isSaving || !selectedUser}
-              className="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 text-xs font-black shadow-xl disabled:opacity-40 flex items-center gap-2"
+              className="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black text-xs font-black shadow-xl disabled:opacity-40 flex items-center gap-2"
             >
               <Ikon nom="sertifikat" olcham={18} />
               <span>{isSaving ? 'Rasmiylashtirilmoqda...' : 'Sertifikatni Taqdim Etish'}</span>
@@ -957,11 +957,11 @@ export default function AdminMavsumiyHamkorPage() {
           TAB 4: NATIJALAR VA TOP REYTING JADVALI
       ═══════════════════════════════════════════════════════════════ */}
       {tab === 'natijalar' && (
-        <div className="bg-slate-900/80 border border-purple-800/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div className="v3-panel-karta p-6 sm:p-8 space-y-6">
           {(() => {
             const sinovTestimi = tanlanganEvent?.slug === 'sea-ms-sinov' || tanlanganEvent?.slug === 'sea-ms-sinov-2'
             return <>
-          <div className="flex items-center justify-between border-b border-purple-800/40 pb-4">
+          <div className="flex items-center justify-between border-b border-[var(--v3-chiziq)] pb-4">
             <div>
               <span className="text-xs text-amber-400 font-mono block font-bold">
                 {tanlanganEvent?.partnerName} hamkorligida
@@ -977,7 +977,7 @@ export default function AdminMavsumiyHamkorPage() {
                   type="button"
                   onClick={(e) => natijalarniElonQilish(tanlanganEvent?.id, e)}
                   disabled={actionLoadingId === tanlanganEvent?.id}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-md disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black text-xs font-extrabold flex items-center gap-1.5 shadow-md disabled:opacity-50"
                 >
                   <Ikon nom="elon" olcham={16} />
                   <span>{actionLoadingId === tanlanganEvent?.id ? 'E\'lon qilinmoqda...' : 'Natijalarni E\'lon Qilish'}</span>
@@ -994,7 +994,7 @@ export default function AdminMavsumiyHamkorPage() {
                 type="button"
                 onClick={() => handleHisobotYuklab(tanlanganEvent, tanlanganEvent?.attempts)}
                 disabled={hisobotLoadingId === tanlanganEvent?.id}
-                className="px-4 py-2 rounded-xl bg-purple-900/80 hover:bg-purple-800 border border-purple-600/60 text-amber-300 text-xs font-black flex items-center gap-1.5 shadow-lg disabled:opacity-50"
+                className="v3-tugma text-amber-300 text-xs font-black disabled:opacity-50"
               >
                 <Ikon nom="sertifikat" olcham={16} />
                 <span>{hisobotLoadingId === tanlanganEvent?.id ? 'PDF Tayyorlanmoqda...' : 'Hisobotni Yuklab Olish (PDF)'}</span>
@@ -1003,7 +1003,7 @@ export default function AdminMavsumiyHamkorPage() {
               <button
                 type="button"
                 onClick={() => setTab('royxat')}
-                className="px-4 py-2 rounded-xl bg-black/40 border border-purple-800/40 text-purple-300 hover:text-white text-xs font-bold flex items-center gap-1.5"
+                className="v3-tugma text-xs font-bold"
               >
                 <Ikon nom="chap" olcham={14} /> Ortga
               </button>
@@ -1011,32 +1011,32 @@ export default function AdminMavsumiyHamkorPage() {
           </div>
 
           {eventYuklanmoqda ? (
-            <div className="text-center py-10 text-xs text-purple-300">Natijalar yuklanmoqda...</div>
+            <div className="text-center py-10 text-xs text-[var(--v3-xira)]">Natijalar yuklanmoqda...</div>
           ) : !tanlanganEvent?.attempts || tanlanganEvent.attempts.length === 0 ? (
             <div className="text-center py-12 space-y-2">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-purple-900/30 text-purple-400 flex items-center justify-center">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] flex items-center justify-center">
                 <Ikon nom="odamlar" olcham={24} />
               </div>
               <h4 className="text-sm font-bold text-white">Hozircha urinishlar yo&apos;q</h4>
-              <p className="text-xs text-purple-400">Ushbu tadbirda hali hech kim test topshirmagan.</p>
+              <p className="text-xs text-[var(--v3-xira)]">Ushbu tadbirda hali hech kim test topshirmagan.</p>
             </div>
           ) : (
             <div className="space-y-6">
               {/* TOP 3 PODIUM */}
               {tanlanganEvent.attempts.length >= 3 && (
-                <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-black/30 border border-purple-900/40">
+                <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)]">
                   {/* 2-o'rin */}
-                  <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-600 text-center space-y-1">
-                    <span className="w-7 h-7 mx-auto rounded-full bg-slate-300 text-slate-950 font-bold flex items-center justify-center text-xs">
+                  <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border border-[var(--v3-chiziq-2)] text-center space-y-1">
+                    <span className="w-7 h-7 mx-auto rounded-full bg-zinc-200 text-black font-bold flex items-center justify-center text-xs">
                       2
                     </span>
                     <strong className="text-white text-xs block truncate">{tanlanganEvent.attempts[1]?.user?.fullName || tanlanganEvent.attempts[1]?.user?.username}</strong>
-                    <span className="text-slate-300 font-mono text-xs font-bold block">{tanlanganEvent.attempts[1]?.score} ball ({tanlanganEvent.attempts[1]?.percentage}%)</span>
+                    <span className="text-zinc-300 font-mono text-xs font-bold block">{tanlanganEvent.attempts[1]?.score} ball ({tanlanganEvent.attempts[1]?.percentage}%)</span>
                   </div>
 
                   {/* 1-o'rin */}
                   <div className="p-4 rounded-xl bg-gradient-to-b from-amber-500/20 to-yellow-500/20 border-2 border-amber-400 text-center space-y-1 -translate-y-1 shadow-md">
-                    <span className="w-8 h-8 mx-auto rounded-full bg-amber-400 text-slate-950 font-extrabold flex items-center justify-center text-xs shadow-md">
+                    <span className="w-8 h-8 mx-auto rounded-full bg-amber-400 text-black font-extrabold flex items-center justify-center text-xs shadow-md">
                       1
                     </span>
                     <strong className="text-amber-300 text-xs sm:text-sm block truncate">{tanlanganEvent.attempts[0]?.user?.fullName || tanlanganEvent.attempts[0]?.user?.username}</strong>
@@ -1044,7 +1044,7 @@ export default function AdminMavsumiyHamkorPage() {
                   </div>
 
                   {/* 3-o'rin */}
-                  <div className="p-3 rounded-xl bg-slate-800/60 border border-amber-800 text-center space-y-1">
+                  <div className="p-3 rounded-xl bg-[var(--v3-yuza)] border border-amber-500/40 text-center space-y-1">
                     <span className="w-7 h-7 mx-auto rounded-full bg-amber-700 text-white font-bold flex items-center justify-center text-xs">
                       3
                     </span>
@@ -1057,7 +1057,7 @@ export default function AdminMavsumiyHamkorPage() {
               {/* JADVAL */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-black/50 text-purple-300 uppercase tracking-wider text-[10px] font-mono">
+                  <thead className="bg-[var(--v3-yuza-2)] text-[var(--v3-xira)] uppercase tracking-wider text-[10px] font-mono">
                     <tr>
                       <th className="p-3 rounded-l-xl">O&apos;rin</th>
                       <th className="p-3">Foydalanuvchi</th>
@@ -1068,15 +1068,15 @@ export default function AdminMavsumiyHamkorPage() {
                       {!sinovTestimi && <th className="p-3 rounded-r-xl">Sertifikat ID</th>}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-purple-900/30">
+                  <tbody className="divide-y divide-[var(--v3-chiziq)]">
                     {tanlanganEvent.attempts.map((att, idx) => (
-                      <tr key={att.id} className="hover:bg-purple-950/20">
+                      <tr key={att.id} className="hover:bg-[var(--v3-yuza-2)]">
                         <td className="p-3 font-mono font-bold text-amber-400">
                           {idx + 1}.
                         </td>
                         <td className="p-3">
                           <strong className="text-white block">{att.user?.fullName || att.user?.username}</strong>
-                          <span className="text-purple-400 font-mono text-[11px]">@{att.user?.username}</span>
+                          <span className="text-[var(--v3-xira)] font-mono text-[11px]">@{att.user?.username}</span>
                         </td>
                         <td className="p-3 font-mono font-bold text-white">
                           {att.score} / {att.totalQuestions}
@@ -1084,7 +1084,7 @@ export default function AdminMavsumiyHamkorPage() {
                         <td className="p-3 font-mono font-bold text-amber-300">
                           {att.percentage}%
                         </td>
-                        <td className="p-3 font-mono text-purple-300">
+                        <td className="p-3 font-mono text-[var(--v3-xira)]">
                           {Math.floor(att.timeSpentSec / 60)}d {att.timeSpentSec % 60}s
                         </td>
                         <td className="p-3">
@@ -1094,7 +1094,7 @@ export default function AdminMavsumiyHamkorPage() {
                             {sinovTestimi ? 'Topshirildi' : (att.passed ? 'O\'tdi' : 'O\'tmadi')}
                           </span>
                         </td>
-                        {!sinovTestimi && <td className="p-3 font-mono text-purple-200">
+                        {!sinovTestimi && <td className="p-3 font-mono text-[var(--v3-matn)]">
                           {att.certId ? (
                             <Link
                               href={`/sertifikat/verify/${att.certId}`}
@@ -1105,7 +1105,7 @@ export default function AdminMavsumiyHamkorPage() {
                               <span>{att.certId}</span>
                             </Link>
                           ) : (
-                            <span className="text-purple-500">—</span>
+                            <span className="text-[var(--v3-xira)]">—</span>
                           )}
                         </td>}
                       </tr>

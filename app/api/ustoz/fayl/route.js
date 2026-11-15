@@ -14,7 +14,9 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { put, del } from '@vercel/blob'
+import { prisma } from '@/lib/prisma'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
+import { rasmSehrliBaytTuri, pdfSehrliBaytmi } from '@/lib/xavfsiz'
 
 /** Eng katta hajm — Vercel funksiyasining so'rov chegarasidan pastda */
 const ENG_KATTA = 8 * 1024 * 1024
@@ -56,9 +58,19 @@ export async function POST(request) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 })
     }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: 'Elektron doskada fayl yuklab bo\'lmaydi' }, { status: 403 })
+    }
 
-    if (!ustozPaneliOchiqmi(session.user)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const isTeacher = ustozPaneliOchiqmi(session.user)
+    if (!isTeacher) {
+      const activeStudent = await prisma.teacherStudent.findFirst({
+        where: { studentId: session.user.id, holat: 'faol' },
+        select: { id: true }
+      })
+      if (!activeStudent) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     const formData = await request.formData()
@@ -83,27 +95,53 @@ export async function POST(request) {
       )
     }
 
+    const baytlar = Buffer.from(await file.arrayBuffer())
+    let yakuniyKengaytma = kengaytma
+    let yakuniyTur = file.type
+
+    if (file.type.startsWith('image/')) {
+      const haqiqiyRasm = rasmSehrliBaytTuri(baytlar)
+      if (!haqiqiyRasm || !TURLAR[haqiqiyRasm]) {
+        return NextResponse.json(
+          { error: 'Rasm fayli haqiqiy JPEG, PNG yoki WebP emas' },
+          { status: 400 }
+        )
+      }
+      yakuniyKengaytma = TURLAR[haqiqiyRasm]
+      yakuniyTur = haqiqiyRasm
+    } else if (file.type === 'application/pdf' && !pdfSehrliBaytmi(baytlar)) {
+      return NextResponse.json(
+        { error: 'Fayl haqiqiy PDF hujjatiga mos kelmadi' },
+        { status: 400 }
+      )
+    }
+
     // Yo'lda ustoz id si bor: kim yuklaganini keyin manzilning o'zidan
     // bilish mumkin va fayllar aralashib ketmaydi.
-    const yol = `vazifa/${session.user.id}/${Date.now()}-${nomniTozala(file.name)}.${kengaytma}`
+    const yol = `vazifa/${session.user.id}/${Date.now()}-${nomniTozala(file.name)}.${yakuniyKengaytma}`
 
-    const blob = await put(yol, file, {
+    const blob = await put(yol, baytlar, {
       access: 'public',
       // Vercel nomga tasodifiy qo'shimcha qo'shadi — bir xil nomli
       // fayllar bir-birini o'chirib yubormaydi
       addRandomSuffix: true,
+      contentType: yakuniyTur,
     })
+
+    const faylMalumoti = {
+      nom: file.name,
+      name: file.name,
+      url: blob.url,
+      // Hajmni kilobaytda saqlaymiz — ro'yxatda shu ko'rinishda kerak
+      size: Math.round(file.size / 1024),
+      type: file.type,
+      uploadedAt: new Date().toISOString(),
+    }
 
     return NextResponse.json({
       success: true,
-      fayl: {
-        nom: file.name,
-        url: blob.url,
-        // Hajmni kilobaytda saqlaymiz — ro'yxatda shu ko'rinishda kerak
-        size: Math.round(file.size / 1024),
-        type: file.type,
-        uploadedAt: new Date().toISOString(),
-      },
+      fayl: faylMalumoti,
+      file: faylMalumoti,
     })
   } catch (error) {
     console.error('[Vazifa fayl POST]', error)
@@ -121,9 +159,19 @@ export async function DELETE(request) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Tizimga kirmagansiz' }, { status: 401 })
     }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: 'Elektron doskada fayl yuklab bo\'lmaydi' }, { status: 403 })
+    }
 
-    if (!ustozPaneliOchiqmi(session.user)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const isTeacher = ustozPaneliOchiqmi(session.user)
+    if (!isTeacher) {
+      const activeStudent = await prisma.teacherStudent.findFirst({
+        where: { studentId: session.user.id, holat: 'faol' },
+        select: { id: true }
+      })
+      if (!activeStudent) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     const { url } = await request.json()

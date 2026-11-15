@@ -24,9 +24,9 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url)
     const articleId = searchParams.get('articleId') // null bo'lsa — umumiy lenta
-    const { sort, limit, offset } = royxatParametrlari(searchParams, { articleId })
+    const { sort, limit, offset, q } = royxatParametrlari(searchParams, { articleId })
 
-    const natija = await mavzularniOl({ articleId, sort, limit, offset, userId })
+    const natija = await mavzularniOl({ articleId, sort, limit, offset, userId, q })
 
     return NextResponse.json({ success: true, ...natija })
   } catch (error) {

@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { PremiumAurora, PremiumHalqa, PremiumYorliq } from './PremiumProfil'
 import TasdiqBelgisi from './TasdiqBelgisi'
+import Ikon from './Ikon'
+import { profilKeshUserYangila } from '@/lib/profil-kesh'
 
 export default function PremiumTanlash() {
   const [malumot, setMalumot] = useState(null)
@@ -42,6 +44,7 @@ export default function PremiumTanlash() {
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error)
+      profilKeshUserYangila({ premiumUslub: kalit })
       toast.success(d.message)
     } catch (e) {
       setTanlangan(oldingi) // saqlanmasa orqaga qaytaramiz
@@ -56,31 +59,31 @@ export default function PremiumTanlash() {
   const { tasdiqlangan, uslublar } = malumot
 
   return (
-    <section className="bg-slate-900/50 border border-purple-800/50 rounded-2xl p-5 space-y-4">
+    <section className="v3-panel-karta p-5 sm:p-6 space-y-4">
       <div>
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+        <h2 className="text-base sm:text-lg font-bold text-[var(--v3-matn)] flex items-center gap-2">
           <TasdiqBelgisi tasdiqlangan olcham="orta" />
-          Premium bezak
+          <span>Premium bezak</span>
         </h2>
-        <p className="text-sm text-purple-300 mt-1">
+        <p className="text-xs sm:text-sm text-[var(--v3-xira)] mt-1">
           {tasdiqlangan
             ? "Profilingiz tashqaridan qanday ko'rinishini tanlang."
-            : 'Bezaklar tasdiqlangan hisoblar uchun. Hozircha faqat ko\'rib chiqishingiz mumkin.'}
+            : "Bezaklar tasdiqlangan hisoblar uchun. Hozircha faqat ko'rib chiqishingiz mumkin."}
         </p>
       </div>
 
-      {/* Jonli ko'rinish — tanlov darhol shu yerda ko'rinadi */}
-      <div className="relative overflow-hidden rounded-2xl border border-purple-700/50 bg-slate-950 p-5">
+      {/* Jonli ko'rinish — aurora yorug'ligi to'q safir fonda yaxshi ajraladi */}
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--v3-chiziq-2)] bg-gradient-to-br from-[#0b1437] via-[#081845] to-[#050d29] p-5">
         <PremiumAurora korinsinmi uslub={tanlangan} />
         <div className="relative z-10 flex items-center gap-4">
           <PremiumHalqa korinsinmi dumaloq uslub={tanlangan}>
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-2xl font-bold text-black">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-xl sm:text-2xl font-bold text-[#09122c]">
               A
             </div>
           </PremiumHalqa>
-          <div>
-            <div className="text-xl font-extrabold text-white flex items-center gap-2">
-              Namuna
+          <div className="min-w-0">
+            <div className="text-lg sm:text-xl font-extrabold text-white flex items-center gap-2">
+              <span>Namuna</span>
               <TasdiqBelgisi tasdiqlangan olcham="katta" jonli />
             </div>
             <div className="mt-1.5">
@@ -91,7 +94,7 @@ export default function PremiumTanlash() {
       </div>
 
       {/* Ro'yxat */}
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-2.5 sm:grid-cols-2">
         {uslublar.map((u) => {
           const faol = tanlangan === u.kalit
           return (
@@ -102,8 +105,8 @@ export default function PremiumTanlash() {
               onClick={() => saqla(u.kalit)}
               className={`text-left rounded-xl border p-3 transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
                 faol
-                  ? 'border-yellow-500/60 bg-yellow-500/10'
-                  : 'border-purple-800/50 bg-purple-950/30 hover:border-purple-600/60'
+                  ? 'border-[var(--v3-urgu)] bg-[var(--v3-yuza-2)] shadow-sm'
+                  : 'border-[var(--v3-chiziq)] bg-[var(--v3-fon-2)] hover:border-[var(--v3-chiziq-2)]'
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -112,16 +115,16 @@ export default function PremiumTanlash() {
                   {u.namuna.map((rang) => (
                     <span
                       key={rang}
-                      className="w-5 h-5 rounded-full border border-slate-900"
+                      className="w-5 h-5 rounded-full border border-[var(--v3-fon-2)]"
                       style={{ background: rang }}
                     />
                   ))}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-semibold text-white text-sm">{u.nom}</span>
-                  <span className="block text-xs text-purple-400 truncate">{u.tavsif}</span>
+                  <span className="block font-semibold text-[var(--v3-matn)] text-xs sm:text-sm">{u.nom}</span>
+                  <span className="block text-[11px] text-[var(--v3-xira)] truncate">{u.tavsif}</span>
                 </span>
-                {faol && <span className="text-yellow-400 flex-shrink-0">✓</span>}
+                {faol && <Ikon nom="belgi" olcham={15} className="text-[var(--v3-urgu)] flex-shrink-0" />}
               </div>
             </button>
           )

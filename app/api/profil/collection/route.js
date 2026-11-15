@@ -5,6 +5,11 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { dostRoyxatidanAjrat } from '@/lib/profil-tekshiruv'
+import { QUIZ_NATIJA_TARTIBI, quizNatijaniBoyit } from '@/lib/quiz-natija-boshqaruv'
+import { MILLIY_SERTIFIKAT_VARIANTLARI } from '@/lib/milliy-sertifikat-data'
+
+const MS_NOM_MAP = new Map(MILLIY_SERTIFIKAT_VARIANTLARI.map((v) => [v.slug, v.nom]))
 
 const SAFE_USER_SELECT = {
   id: true,
@@ -64,44 +69,39 @@ export async function GET(request) {
       }
 
       case 'quizzes': {
-        [items, total] = await Promise.all([
+        const [quizRows, totalQuizzes] = await Promise.all([
           prisma.quizResult.findMany({
             where: { userId },
-            orderBy: { completedAt: 'desc' },
+            orderBy: QUIZ_NATIJA_TARTIBI,
             skip,
             take: limit
           }),
           prisma.quizResult.count({ where: { userId } })
         ])
+        items = quizRows.map(quizNatijaniBoyit)
+        total = totalQuizzes
         break
       }
 
       case 'friends': {
-        const [asUser1, asUser2, totalUser1, totalUser2] = await Promise.all([
+        const whereFriends = { OR: [{ user1Id: userId }, { user2Id: userId }] }
+        const [friendships, totalFriends] = await Promise.all([
           prisma.friendship.findMany({
-            where: { user1Id: userId },
-            select: { createdAt: true, user2: { select: SAFE_USER_SELECT } },
+            where: whereFriends,
+            select: {
+              createdAt: true,
+              user1Id: true,
+              user1: { select: SAFE_USER_SELECT },
+              user2: { select: SAFE_USER_SELECT }
+            },
             orderBy: { createdAt: 'desc' },
             skip,
             take: limit
           }),
-          prisma.friendship.findMany({
-            where: { user2Id: userId },
-            select: { createdAt: true, user1: { select: SAFE_USER_SELECT } },
-            orderBy: { createdAt: 'desc' },
-            skip,
-            take: limit
-          }),
-          prisma.friendship.count({ where: { user1Id: userId } }),
-          prisma.friendship.count({ where: { user2Id: userId } })
+          prisma.friendship.count({ where: whereFriends })
         ])
-        items = [
-          ...asUser1.map(f => ({ ...f.user2, createdAt: f.createdAt })),
-          ...asUser2.map(f => ({ ...f.user1, createdAt: f.createdAt }))
-        ]
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .slice(0, limit)
-        total = totalUser1 + totalUser2
+        items = dostRoyxatidanAjrat(friendships, userId)
+        total = totalFriends
         break
       }
 
@@ -135,6 +135,78 @@ export async function GET(request) {
         break
       }
 
+      case 'ms_urinishlar': {
+        const [xomUrinishlar, jamiUrinishlar] = await Promise.all([
+          prisma.msUrinish.findMany({
+            where: { userId },
+            select: {
+              id: true,
+              slug: true,
+              holat: true,
+              shkalaBalli: true,
+              daraja: true,
+              theta: true,
+              se: true,
+              rawScore: true,
+              jamiSavollar: true,
+              oddiyFoiz: true,
+              cohortRank: true,
+              cohortTotal: true,
+              percentile: true,
+              certId: true,
+              kechikkan: true,
+              boshlanganVaqt: true,
+              yakunlanganVaqt: true,
+            },
+            orderBy: { boshlanganVaqt: 'desc' },
+            skip,
+            take: limit,
+          }),
+          prisma.msUrinish.count({ where: { userId } }),
+        ])
+
+        items = xomUrinishlar.map((u) => {
+          const elonQilingan = u.holat === 'elon_qilindi'
+          const examName = MS_NOM_MAP.get(u.slug) || u.slug
+          if (!elonQilingan) {
+            return {
+              id: u.id,
+              slug: u.slug,
+              examName,
+              holat: u.holat,
+              elonQilingan: false,
+              jamiSavollar: u.jamiSavollar,
+              kechikkan: u.kechikkan,
+              boshlanganVaqt: u.boshlanganVaqt,
+              yakunlanganVaqt: u.yakunlanganVaqt,
+            }
+          }
+          return {
+            id: u.id,
+            slug: u.slug,
+            examName,
+            holat: u.holat,
+            elonQilingan: true,
+            shkalaBalli: Number(Number(u.shkalaBalli).toFixed(1)),
+            daraja: u.daraja,
+            theta: Number(Number(u.theta).toFixed(2)),
+            se: Number(Number(u.se).toFixed(2)),
+            rawScore: u.rawScore,
+            jamiSavollar: u.jamiSavollar,
+            oddiyFoiz: u.oddiyFoiz,
+            cohortRank: u.cohortRank,
+            cohortTotal: u.cohortTotal,
+            percentile: u.percentile,
+            certId: u.certId,
+            kechikkan: u.kechikkan,
+            boshlanganVaqt: u.boshlanganVaqt,
+            yakunlanganVaqt: u.yakunlanganVaqt,
+          }
+        })
+        total = jamiUrinishlar
+        break
+      }
+
       default:
         return NextResponse.json({ error: "Noto'g'ri turdagi so'rov" }, { status: 400 })
     }
@@ -150,7 +222,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('[Profile Collection GET]', error)
     return NextResponse.json(
-      { error: "Ma'lumotlarni yuklashda xatolik: " + error.message },
+      { error: "Ma'lumotlarni yuklashda xatolik" },
       { status: 500 }
     )
   }

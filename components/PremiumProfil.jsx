@@ -34,7 +34,10 @@ export function PremiumAurora({ korinsinmi, uslub }) {
       <div className="jda-premium-dog jda-premium-dog-3" />
       {/* Yuqoridan pastga xiralashtiruvchi parda: matn o'qilishi
           dog'lar qayerda turishidan qat'i nazar buzilmasin */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/10 via-slate-950/40 to-slate-950/70" />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'linear-gradient(to bottom, transparent, color-mix(in srgb, var(--v3-fon-2) 72%, transparent))' }}
+      />
       {/* Sekin o'tadigan yaltiroq chiziq */}
       <div className="jda-premium-shine" />
     </div>
@@ -56,10 +59,10 @@ export function PremiumHalqa({ korinsinmi, children, dumaloq = false, uslub }) {
   // ramka qimirlamaydi, u faqat aylanayotgan gradientni qirqib turadi.
   return (
     <div
-      className={`relative ${shakl} p-[3px] overflow-hidden bg-slate-950 shadow-2xl shadow-black/40 ${uslubSinfi(uslub)}`}
+      className={`relative ${shakl} p-[3px] overflow-hidden bg-[var(--v3-fon-2)] shadow-2xl shadow-black/40 ${uslubSinfi(uslub)}`}
     >
       <span aria-hidden="true" className="jda-premium-halqa" />
-      <div className={`relative ${shakl} overflow-hidden bg-slate-950`}>{children}</div>
+      <div className={`relative ${shakl} overflow-hidden bg-[var(--v3-fon-2)]`}>{children}</div>
     </div>
   )
 }

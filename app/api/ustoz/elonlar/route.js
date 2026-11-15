@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
+import { createNotification } from '@/lib/bildirishnoma'
 
 // GET - Barcha e'lonlar
 export async function GET(request) {
@@ -52,7 +53,7 @@ export async function GET(request) {
     })
   } catch (error) {
     console.error('[E\'lonlar GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'E\'lonlarni yuklashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -112,8 +113,29 @@ export async function POST(request) {
         groupId: data.groupId,
         title: data.title.trim(),
         content: data.content.trim()
+      },
+      include: {
+        group: { select: { id: true, name: true, color: true } },
+        teacher: { select: { fullName: true, username: true, avatar: true } }
       }
     })
+
+    // Guruhning faol talabalariga bildirishnoma yuborish
+    const activeMembers = await prisma.teacherStudent.findMany({
+      where: { groupId: group.id, holat: 'faol' },
+      select: { studentId: true }
+    })
+    for (const m of activeMembers) {
+      createNotification({
+        userId: m.studentId,
+        title: `📢 Yangi e'lon: ${announcement.title}`,
+        message: `"${group.name}" guruhida ustoz yangi e'lon qoldirdi: ${announcement.content.slice(0, 120)}`,
+        type: 'announcement',
+        icon: '📢',
+        link: '/profil/xabarnomalar',
+        sentBy: session.user.id,
+      }).catch(() => {})
+    }
 
     return NextResponse.json({
       success: true,
@@ -122,7 +144,7 @@ export async function POST(request) {
     })
   } catch (error) {
     console.error('[E\'lonlar POST]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'E\'lon yaratishda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -153,12 +175,38 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'E\'lon topilmadi' }, { status: 404 })
     }
 
+    const nextTitle = data.title !== undefined ? String(data.title).trim() : existing.title
+    const nextContent = data.content !== undefined ? String(data.content).trim() : existing.content
+
+    if (nextTitle.length < 3) {
+      return NextResponse.json({ error: 'E\'lon sarlavhasi kamida 3 ta harfdan iborat bo\'lishi kerak' }, { status: 400 })
+    }
+    if (nextContent.length < 10) {
+      return NextResponse.json({ error: 'E\'lon matni kamida 10 ta harfdan iborat bo\'lishi kerak' }, { status: 400 })
+    }
+
+    let nextGroupId = existing.groupId
+    if (data.groupId && data.groupId !== existing.groupId) {
+      const ownedGroup = await prisma.teacherGroup.findFirst({
+        where: { id: data.groupId, teacherId: session.user.id },
+        select: { id: true }
+      })
+      if (!ownedGroup) {
+        return NextResponse.json({ error: 'Guruh topilmadi yoki sizga tegishli emas' }, { status: 404 })
+      }
+      nextGroupId = ownedGroup.id
+    }
+
     const announcement = await prisma.announcement.update({
       where: { id: data.id },
       data: {
-        title: data.title?.trim() || existing.title,
-        content: data.content?.trim() || existing.content,
-        groupId: data.groupId || existing.groupId
+        title: nextTitle,
+        content: nextContent,
+        groupId: nextGroupId
+      },
+      include: {
+        group: { select: { id: true, name: true, color: true } },
+        teacher: { select: { fullName: true, username: true, avatar: true } }
       }
     })
 
@@ -169,7 +217,7 @@ export async function PUT(request) {
     })
   } catch (error) {
     console.error('[E\'lonlar PUT]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'E\'lonni yangilashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -209,6 +257,6 @@ export async function DELETE(request) {
     })
   } catch (error) {
     console.error('[E\'lonlar DELETE]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'E\'lonni o\'chirishda xatolik yuz berdi' }, { status: 500 })
   }
 }

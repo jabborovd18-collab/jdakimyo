@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { kadrSora, kadrniBekorQil, umumiyAudio } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoskaQoshimcha"
@@ -10,9 +11,8 @@ import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoska
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
 
     if (turi === "togri" || turi === "tasdiq") {
@@ -101,10 +101,10 @@ const takrorlashSavollari2_1 = [
     savol: "Grem naychasi tajribasida yengil NH3 (17 g/mol) va og'ir HCl (36.5 g/mol) to'qnashganda oq NH4Cl tutun halqasi qayerda hosil bo'ladi?",
     izoh: "Yengil ammiak tezroq uchadi, og'ir HCl sekinroq siljiydi. To'qnashuv HCl paxtasi yaqinida yuz beradi.",
     variantlar: [
+      { matn: "Naychaning tashqarisida", togri: false },
       { matn: "Og'ir HCl paxtasiga yaqinroq (chunki NH3 1.46 barobar tezroq diffuziyalanadi)", togri: true },
       { matn: "Aynan naychaning qoq o'rtasida", togri: false },
       { matn: "Yengil NH3 paxtasiga yaqinroq", togri: false },
-      { matn: "Naychaning tashqarisida", togri: false },
     ],
   },
   {
@@ -112,10 +112,10 @@ const takrorlashSavollari2_1 = [
     savol: "Robert Broun (1827) mikroskopda ko'rgan gulchang zarrachalarining tartibsiz sakrashiga nima sabab bo'lgan?",
     izoh: "Eynshteyn-Perrin fizikasi: Ko'rinmas mayda suv molekulalarining to'xtovsiz tartibsiz issiqlik harakati va chang zarrachasiga har tomondan bergan zarbalari sabab bo'lgan.",
     variantlar: [
-      { matn: "Ko'rinmas suv molekulalarining to'xtovsiz, tartibsiz termik zarbalari", togri: true },
-      { matn: "Gulchangining tirik organizm sifatida suzishi", togri: false },
       { matn: "Mikroskop linzasining qizib ketishi", togri: false },
       { matn: "Gravitatsiya kuchining yo'qolishi", togri: false },
+      { matn: "Ko'rinmas suv molekulalarining to'xtovsiz, tartibsiz termik zarbalari", togri: true },
+      { matn: "Gulchangining tirik organizm sifatida suzishi", togri: false },
     ],
   },
   {
@@ -123,10 +123,10 @@ const takrorlashSavollari2_1 = [
     savol: "Issiq suvda diffuziya tezligi sovuq suvga nisbatan nega keskin yuqori bo'ladi?",
     izoh: "Harorat ortishi bilan zarrachalarning o'rtacha kinetik energiyasi (Ek = 3/2 kT) va o'rtacha tezligi oshadi, natijada to'qnashuvlar va tarqalish tezlashadi.",
     variantlar: [
-      { matn: "Harorat ko'tarilishi zarrachalarning kinetik energiyasi va tezligini oshiradi", togri: true },
       { matn: "Issiq suv moddani eritishdan to'xtaydi", togri: false },
       { matn: "Sovuq suvda zarrachalar butunlay harakatsiz qoladi", togri: false },
       { matn: "Issiq suvda tortishish kuchi ortadi", togri: false },
+      { matn: "Harorat ko'tarilishi zarrachalarning kinetik energiyasi va tezligini oshiradi", togri: true },
     ],
   },
 ]
@@ -566,11 +566,11 @@ export default function Mavzu2_2() {
       ctx.fillText(joriyHolatMaLumot.ilmiyIzoh, bX + 12, bY + bH - 12)
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, egriVaqt, jarayonYonalishi, joriyHolatMaLumot])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -751,11 +751,11 @@ export default function Mavzu2_2() {
       ctx.fillText("tez sodir bo'ladi!", hX + 12, hY + 256)
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, idishTuri, labHarorat, shamolBor])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -946,11 +946,11 @@ export default function Mavzu2_2() {
       )
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, subModda, qizdirgichYondi, subProgress])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1084,11 +1084,11 @@ export default function Mavzu2_2() {
       )
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, tuzKonsentratsiyasi, hisoblanganErishT, hisoblanganQaynashT])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1195,10 +1195,10 @@ export default function Mavzu2_2() {
       id: 2,
       savol: "Qishda avtomobil yo'llaridagi muz ustiga nega osh tuzi sepiladi?",
       variantlar: [
+        "Muzni quritib bug'ga aylantirish uchun",
         "Tuz qo'shilishi natijasida hosil bo'lgan eritmaning erish harorati 0°C dan pastga tushadi va muz eriydi",
         "Tuz muzni qizdirib olov chiqarishi sababli",
         "Tuz mashina g'ildiraklariga yopishishi uchun",
-        "Muzni quritib bug'ga aylantirish uchun",
       ],
       togri: "Tuz qo'shilishi natijasida hosil bo'lgan eritmaning erish harorati 0°C dan pastga tushadi va muz eriydi",
     },
@@ -1206,10 +1206,10 @@ export default function Mavzu2_2() {
       id: 3,
       savol: "Nima uchun yuvilgan ho'l kirlar issiq, shamolli kunda yoyib qo'yilganda juda tez quriydi?",
       variantlar: [
-        "Bug'lanish tezligi yuqori harorat, katta sirt yuzasi va shamol tezligiga to'g'ridan-to'g'ri bog'liq",
-        "Shamol kirlarning rangini ochadi",
         "Quyosh suvdagi vodorodni yoqib yuboradi",
         "Kirlar shamolda og'irlashadi",
+        "Bug'lanish tezligi yuqori harorat, katta sirt yuzasi va shamol tezligiga to'g'ridan-to'g'ri bog'liq",
+        "Shamol kirlarning rangini ochadi",
       ],
       togri: "Bug'lanish tezligi yuqori harorat, katta sirt yuzasi va shamol tezligiga to'g'ridan-to'g'ri bog'liq",
     },
@@ -1217,10 +1217,10 @@ export default function Mavzu2_2() {
       id: 4,
       savol: "Noma'lum qattiq oq modda qizdirilganda 115°C dan 122°C gacha oraliqda suyuqlandi. Bu modda toza sof moddami?",
       variantlar: [
-        "Yo'q, u sof modda emas, chunki sof moddalar qat'iy bitta doimiy haroratda eriydi",
         "Ha, u 100% mutlaqo sof toza modda",
         "U suvning o'zi",
         "U metallmas modda",
+        "Yo'q, u sof modda emas, chunki sof moddalar qat'iy bitta doimiy haroratda eriydi",
       ],
       togri: "Yo'q, u sof modda emas, chunki sof moddalar qat'iy bitta doimiy haroratda eriydi",
     },

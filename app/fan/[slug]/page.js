@@ -5,7 +5,7 @@ import Korinish from './korinish'
 /**
  * FAN SAHIFASI — v3.0.0
  *
- * Bu sahifa mavjud bo'limlar USTIDAGI qobiq: `/oquv` va `/ilmiy` daraxti
+ * Bu sahifa mavjud bo'limlar USTIDAGI qobiq: eski bo'limlar daraxti
  * o'z joyida qoladi. Sabab SEO: o'sha daraxtdagi 117 sahifaga alohida
  * sarlavha berilgan va sitemapda 125 manzil turibdi — papkani ko'chirish
  * o'sha ishning hammasini bekor qilardi.
@@ -18,8 +18,6 @@ import Korinish from './korinish'
 
 // Ro'yxatda yo'q slug — 404. Yopiq fan manzilini qo'lda yozib kirish
 // yo'lini shu yopadi.
-export const dynamicParams = false
-
 export function generateStaticParams() {
   return ochiqFanlar().map((f) => ({ slug: f.slug }))
 }

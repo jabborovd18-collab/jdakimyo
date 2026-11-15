@@ -35,7 +35,14 @@ export async function GET(request) {
         group: { select: { name: true, color: true } },
         _count: { select: { questions: true, attempts: true } },
         questions: {
-          select: { id: true, questionText: true, correctAnswer: true, points: true, options: true },
+          select: {
+            id: true,
+            questionText: true,
+            correctAnswer: true,
+            explanation: true,
+            points: true,
+            options: true,
+          },
           orderBy: { order: 'asc' }
         }
       },
@@ -56,7 +63,7 @@ export async function GET(request) {
     })
   } catch (error) {
     console.error('[Open Quiz GET]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Testlarni yuklashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -95,8 +102,6 @@ export async function POST(request) {
     // Har bir savolni tekshirish
     for (let i = 0; i < data.questions.length; i++) {
       const q = data.questions[i]
-      
-      // Savol matni (text YOKI questionText)
       const questionText = q.text || q.questionText || ''
       if (!questionText || questionText.trim().length < 3) {
         return NextResponse.json(
@@ -105,7 +110,6 @@ export async function POST(request) {
         )
       }
 
-      // Fill type bo'lmasa, variantlar kerak
       if (q.type !== 'fill') {
         if (!q.options || !Array.isArray(q.options) || q.options.length < 2) {
           return NextResponse.json(
@@ -114,7 +118,6 @@ export async function POST(request) {
           )
         }
 
-        // Har bir variantni tekshirish
         for (let j = 0; j < q.options.length; j++) {
           if (!q.options[j] || String(q.options[j]).trim().length === 0) {
             return NextResponse.json(
@@ -124,17 +127,19 @@ export async function POST(request) {
           }
         }
 
-        // To'g'ri javobni tekshirish
-        // Frontend correctAnswers (array) yoki correctAnswer (int) yuborishi mumkin
         let correctAnswer = q.correctAnswer
         if (correctAnswer === undefined || correctAnswer === null) {
           if (Array.isArray(q.correctAnswers) && q.correctAnswers.length > 0) {
-            correctAnswer = q.correctAnswers[0] // birinchi to'g'ri javobni olamiz
+            correctAnswer = q.correctAnswers[0]
           }
         }
 
-        if (correctAnswer === undefined || correctAnswer === null || 
-            correctAnswer < 0 || correctAnswer >= q.options.length) {
+        if (
+          correctAnswer === undefined ||
+          correctAnswer === null ||
+          correctAnswer < 0 ||
+          correctAnswer >= q.options.length
+        ) {
           return NextResponse.json(
             { error: `${i + 1}-savolda to'g'ri javobni belgilang` },
             { status: 400 }
@@ -160,11 +165,6 @@ export async function POST(request) {
     // QUIZ YARATISH (transaction bilan)
     // ═══════════════════════════════════════════
     const quiz = await prisma.$transaction(async (tx) => {
-      // Description ichiga qo'shimcha ma'lumotlarni JSON sifatida saqlash
-      // passingScore, maxAttempts va isDraft endi haqiqiy ustunlar —
-      // avval ular shu JSON ichiga tiqilardi va talaba tomoni ularni
-      // ko'ra olmasdi (quiz.maxAttempts undefined bo'lardi).
-      // Qolganlari uchun sxemada ustun yo'q, shuning uchun JSON'da qoladi.
       const extendedMeta = {
         originalDescription: data.description || '',
         category: data.category || 'general',
@@ -194,11 +194,8 @@ export async function POST(request) {
         }
       })
 
-      // Savollarni yaratish
       const questionsData = data.questions.map((q, idx) => {
         const questionText = (q.text || q.questionText || '').trim()
-        
-        // To'g'ri javobni aniqlash
         let correctAnswer = q.correctAnswer
         if (correctAnswer === undefined || correctAnswer === null) {
           if (Array.isArray(q.correctAnswers) && q.correctAnswers.length > 0) {
@@ -208,18 +205,17 @@ export async function POST(request) {
           }
         }
 
-        // Variantlarni va qo'shimcha ma'lumotlarni options JSON ichiga saqlash
         const optionsPayload = {
-          texts: q.options || [],                    // variant matnlari
-          type: q.type || 'single',                  // savol turi
-          hints: q.hints || [],                      // yordamlar
-          timePerQuestion: q.timePerQuestion || 60,  // vaqt
-          imageUrl: q.imageUrl || ''                 // rasm
+          texts: q.options || [],
+          type: q.type || 'single',
+          hints: q.hints || [],
+          timePerQuestion: q.timePerQuestion || 60,
+          imageUrl: q.imageUrl || ''
         }
 
         return {
           quizId: newQuiz.id,
-          questionText: questionText,
+          questionText,
           options: optionsPayload,
           correctAnswer: parseInt(correctAnswer) || 0,
           explanation: q.explanation?.trim() || null,
@@ -240,11 +236,11 @@ export async function POST(request) {
     })
   } catch (error) {
     console.error('[Open Quiz POST]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Quiz yaratishda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
-// PUT - Quizni yangilash (ixtiyoriy - kelajak uchun)
+// PUT - Quizni yangilash
 export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
@@ -271,17 +267,70 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Quiz topilmadi' }, { status: 404 })
     }
 
-    // Yangilash (sodda versiya)
-    const quiz = await prisma.teacherQuiz.update({
-      where: { id: data.id },
-      data: {
-        title: data.title?.trim() || existing.title,
-        timeLimit: data.timeLimit !== undefined ? (data.timeLimit ? parseInt(data.timeLimit) : null) : existing.timeLimit,
-        isPublic: data.isPublic !== undefined ? data.isPublic : existing.isPublic,
-        accessCode: data.accessCode !== undefined ? (data.accessCode?.trim() || null) : existing.accessCode,
-        shuffleQuestions: data.shuffleQuestions !== undefined ? data.shuffleQuestions : existing.shuffleQuestions,
-        showResults: data.showResults !== undefined ? data.showResults : existing.showResults,
+    if (data.groupId) {
+      const group = await prisma.teacherGroup.findFirst({
+        where: { id: data.groupId, teacherId: session.user.id },
+        select: { id: true }
+      })
+      if (!group) {
+        return NextResponse.json({ error: 'Guruh topilmadi yoki sizga tegishli emas' }, { status: 404 })
       }
+    }
+
+    let nextDescription = existing.description
+    if (data.description !== undefined || data.shuffleOptions !== undefined) {
+      nextDescription = JSON.stringify({
+        originalDescription: data.description?.trim() ?? '',
+        shuffleOptions: data.shuffleOptions !== undefined ? Boolean(data.shuffleOptions) : true,
+        showCorrectAnswers: data.showCorrectAnswers !== undefined ? Boolean(data.showCorrectAnswers) : true,
+        allowReview: data.allowReview !== undefined ? Boolean(data.allowReview) : true,
+      })
+    }
+
+    const quiz = await prisma.$transaction(async (tx) => {
+      const updatedQuiz = await tx.teacherQuiz.update({
+        where: { id: data.id },
+        data: {
+          title: data.title?.trim() || existing.title,
+          description: nextDescription,
+          groupId: data.isPublic ? null : (data.groupId !== undefined ? (data.groupId || null) : existing.groupId),
+          timeLimit: data.timeLimit !== undefined ? (data.timeLimit ? parseInt(data.timeLimit) : null) : existing.timeLimit,
+          maxAttempts: data.maxAttempts !== undefined ? (parseInt(data.maxAttempts) || 1) : existing.maxAttempts,
+          passingScore: data.passingScore !== undefined ? (parseInt(data.passingScore) || 60) : existing.passingScore,
+          deadline: data.deadline !== undefined ? (data.deadline ? new Date(data.deadline) : null) : existing.deadline,
+          isPublic: data.isPublic !== undefined ? Boolean(data.isPublic) : existing.isPublic,
+          accessCode: data.accessCode !== undefined ? (data.accessCode?.trim() || null) : existing.accessCode,
+          shuffleQuestions: data.shuffleQuestions !== undefined ? Boolean(data.shuffleQuestions) : existing.shuffleQuestions,
+          showResults: data.showResults !== undefined ? Boolean(data.showResults) : existing.showResults,
+        }
+      })
+
+      if (Array.isArray(data.questions) && data.questions.length > 0) {
+        await tx.teacherQuizQuestion.deleteMany({ where: { quizId: data.id } })
+        const questionsData = data.questions.map((q, idx) => {
+          const questionText = (q.questionText || q.text || '').trim()
+          const rawOptions = Array.isArray(q.options) ? q.options : (q.options?.texts || [])
+          const correctAnswer = q.correctAnswer !== undefined ? q.correctAnswer : 0
+          return {
+            quizId: data.id,
+            questionText,
+            options: {
+              texts: rawOptions.map(o => String(o).trim()),
+              type: q.type || 'single',
+              hints: q.hints || [],
+              timePerQuestion: q.timePerQuestion || 60,
+              imageUrl: q.imageUrl || ''
+            },
+            correctAnswer: parseInt(correctAnswer) || 0,
+            explanation: q.explanation?.trim() || null,
+            points: parseInt(q.points) || 1,
+            order: idx
+          }
+        })
+        await tx.teacherQuizQuestion.createMany({ data: questionsData })
+      }
+
+      return updatedQuiz
     })
 
     return NextResponse.json({
@@ -291,7 +340,7 @@ export async function PUT(request) {
     })
   } catch (error) {
     console.error('[Open Quiz PUT]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Quizni yangilashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -323,8 +372,11 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Quiz topilmadi' }, { status: 404 })
     }
 
-    // Cascade orqali savollar ham o'chiriladi (schema'da onDelete: Cascade bor)
-    await prisma.teacherQuiz.delete({ where: { id } })
+    // Urinishlar va quizni bitta tranzaksiyada o'chirish (FK xatosini oldini olish)
+    await prisma.$transaction([
+      prisma.teacherQuizAttempt.deleteMany({ where: { quizId: id } }),
+      prisma.teacherQuiz.delete({ where: { id } })
+    ])
 
     return NextResponse.json({
       success: true,
@@ -332,6 +384,6 @@ export async function DELETE(request) {
     })
   } catch (error) {
     console.error('[Open Quiz DELETE]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Quizni o\'chirishda xatolik yuz berdi' }, { status: 500 })
   }
 }

@@ -1,5 +1,4 @@
 // app/profil/telegram/page.js
-import Link from 'next/link'
 import TelegramUlash from '@/components/TelegramUlash'
 import Ikon from '@/components/Ikon'
 
@@ -29,7 +28,7 @@ export default async function TelegramSahifa({ searchParams }) {
       </div>
 
       {kod ? (
-        <div className="v3-panel-karta p-3.5 border-green-500/30 bg-green-500/10 text-xs text-green-400 font-semibold">
+        <div className="v3-panel-karta p-3.5 border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-500 font-semibold">
           Botdan kelgan kod kiritildi. <strong>Ulash</strong> tugmasini bosing.
         </div>
       ) : null}

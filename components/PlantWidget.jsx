@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import Ikon from './Ikon'
+import { plantProgressPercent } from '@/lib/profil-tekshiruv'
 
 export default function PlantWidget() {
   const [plant, setPlant] = useState(null)
@@ -65,17 +66,15 @@ export default function PlantWidget() {
 
   const { stageInfo, canWaterToday, wateredToday, streakStatus } = plant
 
-  const progressInStage = plant.stage < 10 
-    ? ((plant.growth - stageInfo.min) / (stageInfo.max - stageInfo.min)) * 100 
-    : 100
+  const progressInStage = plantProgressPercent(plant)
 
   return (
     <div className="v3-panel-karta p-6 flex flex-col justify-between space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-[var(--v3-urgu)] shrink-0 text-xl">
-            🌱
+          <div className="w-10 h-10 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-emerald-500 shrink-0">
+            <Ikon nom="uchqun" olcham={18} />
           </div>
           <div>
             <div className="v3-nishon">Gidratatsiya va intizom</div>
@@ -120,8 +119,8 @@ export default function PlantWidget() {
           </div>
 
           <div className="flex items-center justify-between text-[10.5px] text-[var(--v3-xira)] font-mono">
-            <span>{plant.growth.toFixed(1)}% o{"'"}sgan</span>
-            <span>Streak: {plant.currentStreak} kun</span>
+            <span>{Number(plant.growth ?? 0).toFixed(1)}% o{"'"}sgan</span>
+            <span>Streak: {plant.currentStreak ?? 0} kun</span>
           </div>
         </div>
       </div>
@@ -140,14 +139,20 @@ export default function PlantWidget() {
         {isWatering ? (
           <span>Suv berilmoqda...</span>
         ) : wateredToday ? (
-          <span>✓ Bugun suv berildi</span>
+          <span className="inline-flex items-center gap-1.5">
+            <Ikon nom="belgi" olcham={14} />
+            <span>Bugun suv berildi</span>
+          </span>
         ) : (
-          <span>💧 Suv berish (+5 XP)</span>
+          <span className="inline-flex items-center gap-1.5">
+            <Ikon nom="tomchi" olcham={14} />
+            <span>Suv berish (+5 XP)</span>
+          </span>
         )}
       </button>
 
       {streakStatus === 'warning_1day' && (
-        <div className="text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 text-center font-mono">
+        <div className="text-[11px] text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 text-center font-mono">
           Eslatma: Bugun suv berishni unutmang!
         </div>
       )}

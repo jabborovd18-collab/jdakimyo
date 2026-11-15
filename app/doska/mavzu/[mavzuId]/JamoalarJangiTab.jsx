@@ -38,17 +38,27 @@ export default function JamoalarJangiTab({ mavzuId }) {
 
   const xonaIdRef = useRef(null);
   xonaIdRef.current = xona?.xonaId;
+  const hostTokenRef = useRef(null);
   const oldingiBallRef = useRef({});
+
+  const hostSarlavha = useCallback(
+    () => (hostTokenRef.current ? { "x-doska-host-token": hostTokenRef.current } : {}),
+    []
+  );
 
   // ─── SAQLANGAN XONANI TIKLASH (SESSION RECOVERY) ───
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saqlanganId = sessionStorage.getItem(`doska_ustoz_xona_${mavzuId}`);
-    if (saqlanganId) {
-      fetch(`/api/doska/jang?xonaId=${saqlanganId}&rol=doska`)
-        .then((r) => r.json())
-        .then(async (d) => {
-          if (d.ok && d.holat) {
+    const saqlanganToken = sessionStorage.getItem(`doska_ustoz_host_${mavzuId}`);
+    if (saqlanganId && saqlanganToken) {
+      hostTokenRef.current = saqlanganToken;
+      fetch(`/api/doska/jang?xonaId=${saqlanganId}&rol=doska`, {
+        headers: { "x-doska-host-token": saqlanganToken },
+      })
+        .then(async (r) => ({ ok: r.ok, status: r.status, d: await r.json().catch(() => ({})) }))
+        .then(async ({ ok, status, d }) => {
+          if (ok && d.ok && d.holat) {
             setXona(d.holat);
             // QR larni tiklash
             const origin = window.location.origin;
@@ -61,6 +71,10 @@ export default function JamoalarJangiTab({ mavzuId }) {
               });
             }
             setQrKodlar(jQrs);
+          } else if (status === 401 || status === 403 || status === 404) {
+            sessionStorage.removeItem(`doska_ustoz_xona_${mavzuId}`);
+            sessionStorage.removeItem(`doska_ustoz_host_${mavzuId}`);
+            hostTokenRef.current = null;
           }
         })
         .catch(() => {});
@@ -85,9 +99,13 @@ export default function JamoalarJangiTab({ mavzuId }) {
       const d = await res.json();
       if (!res.ok) throw new Error(d.error || "Xona ochilmadi");
 
+      hostTokenRef.current = d.hostToken || null;
       setXona(d.holat);
       if (typeof window !== "undefined") {
         sessionStorage.setItem(`doska_ustoz_xona_${mavzuId}`, d.xonaId);
+        if (d.hostToken) {
+          sessionStorage.setItem(`doska_ustoz_host_${mavzuId}`, d.hostToken);
+        }
       }
 
       // QR kodlarni generatsiya qilish
@@ -115,7 +133,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
     try {
       const res = await fetch("/api/doska/jang", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...hostSarlavha() },
         body: JSON.stringify({
           action: "nomniYangila",
           xonaId: xona.xonaId,
@@ -137,7 +155,9 @@ export default function JamoalarJangiTab({ mavzuId }) {
   const yangilaDoska = useCallback(async () => {
     if (!xonaIdRef.current) return;
     try {
-      const res = await fetch(`/api/doska/jang?xonaId=${xonaIdRef.current}&rol=doska`);
+      const res = await fetch(`/api/doska/jang?xonaId=${xonaIdRef.current}&rol=doska`, {
+        headers: hostSarlavha(),
+      });
       const d = await res.json();
       if (res.ok && d.holat) {
         setAloqaBor(true);
@@ -160,7 +180,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
     } catch {
       setAloqaBor(false);
     }
-  }, []);
+  }, [hostSarlavha]);
 
   useEffect(() => {
     if (!xona?.xonaId) return;
@@ -187,7 +207,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
       doskaAudio.chalStart();
       const res = await fetch("/api/doska/jang", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...hostSarlavha() },
         body: JSON.stringify({ action: "boshlash", xonaId: xona.xonaId }),
       });
       const d = await res.json();
@@ -210,7 +230,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
       doskaAudio.chalGolib();
       const res = await fetch("/api/doska/jang", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...hostSarlavha() },
         body: JSON.stringify({ action: "tugatish", xonaId: xona.xonaId }),
       });
       const d = await res.json();
@@ -226,7 +246,7 @@ export default function JamoalarJangiTab({ mavzuId }) {
     try {
       const res = await fetch("/api/doska/jang", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...hostSarlavha() },
         body: JSON.stringify({ action: "chetlatish", xonaId: xona.xonaId, qatnashchiId }),
       });
       const d = await res.json();

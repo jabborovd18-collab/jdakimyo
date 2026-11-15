@@ -8,10 +8,24 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { ochSessiya } from '@/lib/milliy-sertifikat-sessiya'
 import { yakunlaSinov } from '@/lib/milliy-sertifikat-yakunlash'
+import { isSuperAdmin } from '@/lib/roles'
+import { foydalanuvchilargaSertifikatPdfYubor } from '@/lib/telegram-sertifikat'
+import { authMaxfiyKaliti } from '@/lib/auth-maxfiy-kalit'
 
 export async function POST(request) {
   try {
-    const sir = process.env.NEXTAUTH_SECRET
+    const authSessiya = await getServerSession(authOptions)
+    if (!authSessiya?.user?.id) {
+      return NextResponse.json(
+        {
+          error: 'Milliy Sertifikat sinovini yakunlash uchun profilingizga kiring.',
+          loginKerak: true,
+        },
+        { status: 401 }
+      )
+    }
+
+    const sir = authMaxfiyKaliti()
     const body = await request.json().catch(() => null)
     const sessiya = ochSessiya(body?.token, sir)
     if (!sessiya) {
@@ -23,19 +37,40 @@ export async function POST(request) {
         ? body.javoblar
         : {}
 
-    const authSessiya = await getServerSession(authOptions)
+    const superadminmi = isSuperAdmin(authSessiya.user.role)
+    const toliqIsm =
+      authSessiya.user.fullName ||
+      authSessiya.user.username ||
+      authSessiya.user.name ||
+      'Ishtirokchi'
+
     const natija = await yakunlaSinov({
       db: prisma,
       sessiya,
       javoblar,
-      userId: authSessiya?.user?.id || null,
-      toliqIsm: authSessiya?.user?.name || 'Ishtirokchi',
+      userId: authSessiya.user.id,
+      toliqIsm,
       sir,
+      superadminmi,
     })
+
+    // Erkin sinov darhol sertifikat yaratsa va foydalanuvchi Telegram botni ulagan bo'lsa,
+    // PDF hujjatini Telegram orqali yuboramiz (xato bo'lsa asosiy javobni yiqitmaydi).
+    const certId = natija.body?.natija?.sertifikat?.certId
+    if (natija.status === 200 && certId && !natija.body?.superadminSinovi) {
+      try {
+        const sertifikat = await prisma.certificate.findUnique({ where: { certId } })
+        if (sertifikat) {
+          await foydalanuvchilargaSertifikatPdfYubor([sertifikat])
+        }
+      } catch (tgErr) {
+        console.warn('[Milliy Sertifikat Yakunlash Telegram PDF]', tgErr?.message)
+      }
+    }
 
     return NextResponse.json(natija.body, { status: natija.status })
   } catch (err) {
     console.error('[Milliy Sertifikat Yakunlash]', err)
-    return NextResponse.json({ error: 'Natijani hisoblab bo\'lmadi' }, { status: 500 })
+    return NextResponse.json({ error: "Natijani hisoblab bo'lmadi" }, { status: 500 })
   }
 }

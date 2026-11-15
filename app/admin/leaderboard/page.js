@@ -89,101 +89,88 @@ export default function AdminLeaderboardPage() {
   return value.toString()
 }
 
-  // Daraja rangi
-  const getLevelColor = (level) => {
-    if (level >= 9) return 'from-yellow-400 to-orange-500'
-    if (level >= 7) return 'from-purple-500 to-pink-500'
-    if (level >= 5) return 'from-blue-500 to-cyan-500'
-    if (level >= 3) return 'from-green-500 to-emerald-500'
-    return 'from-gray-500 to-gray-600'
+  const levelTone = (level) => {
+    if (level >= 9) return 'primary'
+    if (level >= 7) return 'accent'
+    if (level >= 5) return 'info'
+    if (level >= 3) return 'success'
+    return 'neutral'
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col gap-4 pb-5 border-b border-[var(--v3-chiziq)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">🏆 Leaderboard</h1>
-          <p className="text-purple-300 mt-1">Foydalanuvchilar reytingi va statistikasi</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--v3-matn)]">Reyting jadvali</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-[var(--v3-xira)]">
+            Foydalanuvchilar XP, streak, yulduz, yutuq va quiz natijalari bo&apos;yicha tartibi
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl px-4 py-2">
-            <span className="text-xs text-purple-400">Jami:</span>
-            <span className="text-white font-bold ml-2">{stats.totalUsers || 0}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 border border-yellow-700/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center text-xl">⭐</div>
-            <div>
-              <div className="text-2xl font-bold text-yellow-400">{formatValue(stats.avgXP || 0)}</div>
-              <div className="text-xs text-yellow-300/70">O'rtacha XP</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-orange-600/20 to-red-600/20 border border-orange-700/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center text-xl">🔥</div>
-            <div>
-              <div className="text-2xl font-bold text-orange-400">{stats.maxStreak || 0}</div>
-              <div className="text-xs text-orange-300/70">Eng uzun streak</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-700/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-xl">👥</div>
-            <div>
-              <div className="text-2xl font-bold text-purple-400">{stats.totalUsers || 0}</div>
-              <div className="text-xs text-purple-300/70">Foydalanuvchilar</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-pink-600/20 to-rose-600/20 border border-pink-700/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center text-xl">🏆</div>
-            <div>
-              <div className="text-2xl font-bold text-pink-400">{stats.totalAchievements || 0}</div>
-              <div className="text-xs text-pink-300/70">Berilgan yutuqlar</div>
-            </div>
-          </div>
+        <div className="text-xs text-[var(--v3-xira)]">
+          Jami: <strong className="text-[var(--v3-matn)]">{stats.totalUsers || 0}</strong> ishtirokchi
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => { setCategory(cat.id); setPagination(p => ({ ...p, page: 1 })) }}
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                category === cat.id
-                  ? `bg-gradient-to-r from-${cat.color}-500 to-${cat.color}-600 text-white shadow-lg`
-                  : 'bg-purple-800/30 text-purple-300 hover:bg-purple-700/50'
-              }`}
-            >
-              {cat.icon} {cat.name}
-            </button>
-          ))}
+      {/* Statistika */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="v3-panel-karta p-4">
+          <div className="text-xl font-bold text-[var(--v3-urgu)]">{formatValue(stats.avgXP || 0)}</div>
+          <div className="text-xs text-[var(--v3-xira)] mt-0.5">O&apos;rtacha XP</div>
+        </div>
+        <div className="v3-panel-karta p-4">
+          <div className="text-xl font-bold text-orange-300">{stats.maxStreak || 0} kun</div>
+          <div className="text-xs text-[var(--v3-xira)] mt-0.5">Eng uzun streak</div>
+        </div>
+        <div className="v3-panel-karta p-4">
+          <div className="text-xl font-bold text-sky-300">{stats.totalUsers || 0}</div>
+          <div className="text-xs text-[var(--v3-xira)] mt-0.5">Foydalanuvchilar</div>
+        </div>
+        <div className="v3-panel-karta p-4">
+          <div className="text-xl font-bold text-emerald-300">{stats.totalAchievements || 0}</div>
+          <div className="text-xs text-[var(--v3-xira)] mt-0.5">Berilgan yutuqlar</div>
+        </div>
+      </div>
+
+      {/* Kategoriya va qidiruv */}
+      <div className="v3-panel-karta p-4 space-y-3">
+        <div className="flex flex-wrap gap-1.5">
+          {CATEGORIES.map((cat) => {
+            const active = category === cat.id
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  setCategory(cat.id)
+                  setPagination((p) => ({ ...p, page: 1 }))
+                }}
+                className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
+                  active
+                    ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] shadow-sm'
+                    : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)] hover:bg-[var(--v3-yuza-2)]'
+                }`}
+              >
+                {cat.name}
+              </button>
+            )
+          })}
         </div>
 
-        {/* Period Filter (faqat yulduzlar uchun) */}
         {category === 'stars' && (
-          <div className="flex flex-wrap gap-2 pt-3 border-t border-purple-800/30">
-            <span className="text-sm text-purple-400 self-center mr-2">Davr:</span>
-            {PERIODS.map(p => (
+          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[var(--v3-chiziq)]">
+            <span className="text-xs text-[var(--v3-xira)]">Davr (yulduzlar uchun):</span>
+            {PERIODS.map((p) => (
               <button
                 key={p.id}
-                onClick={() => { setPeriod(p.id); setPagination(pg => ({ ...pg, page: 1 })) }}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                type="button"
+                onClick={() => {
+                  setPeriod(p.id)
+                  setPagination((pg) => ({ ...pg, page: 1 }))
+                }}
+                className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
                   period === p.id
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-purple-800/30 text-purple-300 hover:bg-purple-700/50'
+                    ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)]'
+                    : 'bg-[var(--v3-yuza)] text-[var(--v3-xira)]'
                 }`}
               >
                 {p.name}
@@ -191,190 +178,142 @@ export default function AdminLeaderboardPage() {
             ))}
           </div>
         )}
+
+        <form onSubmit={handleSearch} className="flex gap-2 pt-1">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Username, email yoki ism bo'yicha qidirish..."
+            className="v3-kiritish flex-1"
+          />
+          <button type="submit" className="v3-tugma v3-tugma-asosiy text-xs px-4">
+            Qidirish
+          </button>
+        </form>
       </div>
 
-      {/* Search */}
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Foydalanuvchi qidirish (username, email, ism)..."
-          className="flex-1 px-4 py-2 bg-slate-900/50 border border-purple-800/50 rounded-lg text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
-        />
-        <button
-          type="submit"
-          className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold"
-        >
-          Qidirish
-        </button>
-      </form>
-
-      {/* Podium (Top 3) */}
-      {!isLoading && top3.length >= 3 && (
-        <div className="bg-gradient-to-br from-yellow-900/10 to-purple-900/10 border border-purple-800/50 rounded-2xl p-8">
-          <h2 className="text-center text-xl font-bold text-white mb-6">🏆 TOP 3</h2>
-          <div className="grid grid-cols-3 gap-4 items-end">
-            {/* 2-o'rin */}
-            <div className="flex flex-col items-center">
-              <div className="text-4xl mb-2">🥈</div>
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-2xl font-bold text-white mb-2 overflow-hidden border-4 border-gray-400 shadow-xl">
-                {top3[1].avatar ? (
-                  <img src={top3[1].avatar} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  (top3[1].fullName?.charAt(0) || top3[1].username.charAt(0)).toUpperCase()
-                )}
+      {/* Top 3 */}
+      {!isLoading && top3.length > 0 && (
+        <div className="v3-panel-karta p-5 space-y-4">
+          <h2 className="text-sm font-bold text-[var(--v3-matn)]">Eng kuchli {top3.length} nafar</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {top3.slice(0, 3).map((user, idx) => (
+              <div
+                key={user.id}
+                onClick={() => router.push(`/profil/${user.userId}`)}
+                className={`cursor-pointer rounded-xl border p-4 flex items-center gap-3 transition-colors ${
+                  idx === 0
+                    ? 'border-amber-400/45 bg-amber-400/10'
+                    : 'border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] hover:bg-[var(--v3-yuza-2)]'
+                }`}
+              >
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                    idx === 0
+                      ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)]'
+                      : 'bg-[var(--v3-yuza-2)] text-[var(--v3-matn)] border border-[var(--v3-chiziq)]'
+                  }`}
+                >
+                  #{idx + 1}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-sm text-[var(--v3-matn)] truncate">
+                    {user.fullName || user.username}
+                  </div>
+                  <div className="text-xs text-[var(--v3-xira)] truncate">@{user.username}</div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-base font-bold text-[var(--v3-urgu)]">
+                    {formatValue(getValue(user))}
+                  </div>
+                  <div className="text-[11px] text-[var(--v3-xira)]">Lvl {user.level_points}</div>
+                </div>
               </div>
-              <div className="text-white font-bold text-sm text-center truncate max-w-full">
-                {top3[1].fullName || top3[1].username}
-              </div>
-              <div className="text-yellow-400 font-bold text-lg">
-                {formatValue(getValue(top3[1]))}
-              </div>
-              <div className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-3 py-1 rounded-lg text-sm font-bold mt-2">
-                2-o'rin
-              </div>
-            </div>
-
-            {/* 1-o'rin */}
-            <div className="flex flex-col items-center">
-              <div className="text-5xl mb-2 animate-bounce">👑</div>
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-3xl font-bold text-black mb-2 overflow-hidden border-4 border-yellow-300 shadow-2xl ring-4 ring-yellow-500/30">
-                {top3[0].avatar ? (
-                  <img src={top3[0].avatar} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  (top3[0].fullName?.charAt(0) || top3[0].username.charAt(0)).toUpperCase()
-                )}
-              </div>
-              <div className="text-white font-bold text-base text-center truncate max-w-full">
-                {top3[0].fullName || top3[0].username}
-              </div>
-              <div className="text-yellow-400 font-bold text-xl">
-                {formatValue(getValue(top3[0]))}
-              </div>
-              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-3 py-1 rounded-lg text-sm font-bold mt-2">
-                🏆 CHAMPION
-              </div>
-            </div>
-
-            {/* 3-o'rin */}
-            <div className="flex flex-col items-center">
-              <div className="text-4xl mb-2">🥉</div>
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-600 to-orange-800 flex items-center justify-center text-2xl font-bold text-white mb-2 overflow-hidden border-4 border-orange-700 shadow-xl">
-                {top3[2].avatar ? (
-                  <img src={top3[2].avatar} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  (top3[2].fullName?.charAt(0) || top3[2].username.charAt(0)).toUpperCase()
-                )}
-              </div>
-              <div className="text-white font-bold text-sm text-center truncate max-w-full">
-                {top3[2].fullName || top3[2].username}
-              </div>
-              <div className="text-yellow-400 font-bold text-lg">
-                {formatValue(getValue(top3[2]))}
-              </div>
-              <div className="bg-gradient-to-r from-orange-700 to-orange-800 text-white px-3 py-1 rounded-lg text-sm font-bold mt-2">
-                3-o'rin
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Table */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl overflow-hidden">
+      {/* Jadval */}
+      <div className="v3-panel-karta overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-purple-300">⏳ Yuklanmoqda...</div>
+          <div className="py-12 text-center text-sm text-[var(--v3-xira)]">Yuklanmoqda...</div>
         ) : users.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="text-6xl mb-3">🏆</div>
-            <p className="text-purple-300">Foydalanuvchilar topilmadi</p>
-          </div>
+          <div className="py-12 text-center text-sm text-[var(--v3-xira)]">Foydalanuvchilar topilmadi</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-purple-950/50 border-b border-purple-800/50">
+            <table className="w-full text-sm">
+              <thead className="border-b border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-xs text-[var(--v3-xira)]">
                 <tr>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300 w-16">#</th>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">Foydalanuvchi</th>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">Daraja</th>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">
-                    {CATEGORIES.find(c => c.id === category)?.icon} {CATEGORIES.find(c => c.id === category)?.name}
+                  <th className="text-left p-3.5 font-semibold w-14">#</th>
+                  <th className="text-left p-3.5 font-semibold">Foydalanuvchi</th>
+                  <th className="text-left p-3.5 font-semibold">Daraja</th>
+                  <th className="text-left p-3.5 font-semibold">
+                    {CATEGORIES.find((c) => c.id === category)?.name}
                   </th>
-                  <th className="text-left p-4 text-sm font-semibold text-purple-300">Rol</th>
-                  <th className="text-right p-4 text-sm font-semibold text-purple-300">Amallar</th>
+                  <th className="text-left p-3.5 font-semibold">Rol</th>
+                  <th className="text-right p-3.5 font-semibold">Profil</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-[var(--v3-chiziq)]">
                 {users.map((user, idx) => {
                   const rank = (pagination.page - 1) * pagination.limit + idx + 1
                   const value = getValue(user)
-                  
+                  const tone = levelTone(user.level_points)
                   return (
                     <tr
                       key={user.id}
-                      className={`border-b border-purple-800/30 hover:bg-purple-950/30 transition-colors ${
-                        rank <= 3 ? 'bg-yellow-900/10' : ''
+                      className={`hover:bg-[var(--v3-yuza)] transition-colors ${
+                        rank <= 3 ? 'bg-amber-400/5' : ''
                       }`}
                     >
-                      <td className="p-4">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                          rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-black' :
-                          rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white' :
-                          rank === 3 ? 'bg-gradient-to-br from-orange-600 to-orange-800 text-white' :
-                          'bg-purple-800/50 text-purple-300'
-                        }`}>
-                          {rank <= 3 ? (rank === 1 ? '👑' : rank === 2 ? '🥈' : '🥉') : rank}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-sm font-bold text-black flex-shrink-0 overflow-hidden">
+                      <td className="p-3.5 font-bold text-[var(--v3-matn)]">#{rank}</td>
+                      <td className="p-3.5">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center text-xs font-bold text-[var(--v3-urgu)] shrink-0 overflow-hidden">
                             {user.avatar ? (
                               <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                             ) : (
                               (user.fullName?.charAt(0) || user.username.charAt(0)).toUpperCase()
                             )}
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="font-semibold text-white truncate">
+                          <div className="min-w-0">
+                            <div className="font-semibold text-[var(--v3-matn)] truncate">
                               {user.fullName || user.username}
                             </div>
-                            <div className="text-xs text-purple-400 truncate">
-                              @{user.username} • {user.email}
+                            <div className="text-xs text-[var(--v3-xira)] truncate">
+                              @{user.username} · {user.email}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${getLevelColor(user.level_points)} flex items-center justify-center text-xs font-bold text-white`}>
-                            {user.level_points}
-                          </div>
-                          <span className="text-sm text-purple-300">Lvl</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-xl font-bold text-yellow-400">
-                          {formatValue(value)}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.role === 'superadmin' ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30' :
-                          user.role === 'admin' ? 'bg-orange-600/20 text-orange-400 border border-orange-600/30' :
-                          user.role === 'moderator' ? 'bg-purple-600/20 text-purple-400 border border-purple-600/30' :
-                          'bg-blue-600/20 text-blue-400 border border-blue-600/30'
-                        }`}>
-                          {user.role}
+                      <td className="p-3.5">
+                        <span
+                          className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                            tone === 'primary'
+                              ? 'border-amber-400/40 bg-amber-400/15 text-amber-200'
+                              : tone === 'accent'
+                                ? 'border-indigo-400/40 bg-indigo-400/15 text-indigo-200'
+                                : tone === 'info'
+                                  ? 'border-sky-400/40 bg-sky-400/15 text-sky-200'
+                                  : tone === 'success'
+                                    ? 'border-emerald-400/40 bg-emerald-400/15 text-emerald-200'
+                                    : 'border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] text-[var(--v3-xira)]'
+                          }`}
+                        >
+                          Lvl {user.level_points}
                         </span>
                       </td>
-                      <td className="p-4 text-right">
+                      <td className="p-3.5 font-bold text-[var(--v3-urgu)]">{formatValue(value)}</td>
+                      <td className="p-3.5 text-xs text-[var(--v3-xira)]">{user.role}</td>
+                      <td className="p-3.5 text-right">
                         <button
+                          type="button"
                           onClick={() => router.push(`/profil/${user.userId}`)}
-                          className="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/50 rounded-lg text-xs text-blue-400 transition-all"
+                          className="v3-tugma text-xs py-1 px-2.5"
                         >
-                          👁️ Profil
+                          Ochish
                         </button>
                       </td>
                     </tr>
@@ -385,29 +324,30 @@ export default function AdminLeaderboardPage() {
           </div>
         )}
 
-        {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-purple-800/50">
-            <div className="text-sm text-purple-400">
-              {pagination.total} ta foydalanuvchidan {(pagination.page - 1) * pagination.limit + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} ko'rsatilmoqda
-            </div>
+          <div className="flex items-center justify-between p-4 border-t border-[var(--v3-chiziq)] text-xs text-[var(--v3-xira)]">
+            <span>
+              Sahifa <strong className="text-[var(--v3-matn)]">{pagination.page}</strong> /{' '}
+              {pagination.totalPages} · jami {pagination.total} ta
+            </span>
             <div className="flex gap-2">
               <button
-                onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
+                type="button"
+                onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
                 disabled={pagination.page === 1}
-                className="px-3 py-1 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="v3-tugma text-xs py-1.5 px-3 disabled:opacity-40"
               >
-                ← Oldingi
+                Oldingi
               </button>
-              <span className="px-3 py-1 text-sm font-semibold">
-                {pagination.page} / {pagination.totalPages}
-              </span>
               <button
-                onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
+                type="button"
+                onClick={() =>
+                  setPagination((p) => ({ ...p, page: Math.min(pagination.totalPages, p.page + 1) }))
+                }
                 disabled={pagination.page === pagination.totalPages}
-                className="px-3 py-1 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="v3-tugma text-xs py-1.5 px-3 disabled:opacity-40"
               >
-                Keyingi →
+                Keyingi
               </button>
             </div>
           </div>

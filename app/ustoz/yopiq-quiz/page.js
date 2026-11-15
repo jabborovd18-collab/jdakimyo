@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import Ikon from '@/components/Ikon'
@@ -10,6 +10,7 @@ import Ikon from '@/components/Ikon'
 export default function YopiqQuizManagePage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const [activeView, setActiveView] = useState('list') // 'list' | 'create' | 'grade'
   const [quizzes, setQuizzes] = useState([])
@@ -42,6 +43,11 @@ export default function YopiqQuizManagePage() {
   useEffect(() => {
     fetchQuizzes()
   }, [])
+
+  useEffect(() => {
+    const qId = searchParams.get('quizId')
+    if (qId) openGradeView(qId)
+  }, [searchParams])
 
   const fetchQuizzes = async () => {
     setIsLoading(true)

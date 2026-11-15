@@ -7,6 +7,7 @@
   --foreground: #ededed;
   /* Urg'u rangi — lib/interfeys.js foydalanuvchi tanloviga qarab almashtiradi */
   --jda-urgu: #facc15;
+  color-scheme: dark;
 }
 
 body {
@@ -222,6 +223,21 @@ html[data-kontrast='yuqori'] .text-slate-500 {
   box-shadow: 0 0 18px color-mix(in srgb, var(--jda-1, #22d3ee) 25%, transparent);
 }
 
+[data-fon='kunduz'] .jda-premium-dog {
+  opacity: 0.24;
+}
+
+[data-fon='kunduz'] .jda-premium-yorliq {
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--jda-1, #0284c7) 14%, transparent),
+    color-mix(in srgb, var(--jda-2, #4f46e5) 14%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--jda-1, #0284c7) 42%, transparent);
+  color: color-mix(in srgb, var(--jda-1, #0284c7) 58%, #0f172a);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--jda-1, #0284c7) 14%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .jda-premium-dog,
   .jda-premium-shine,
@@ -262,37 +278,43 @@ html[data-kontrast='yuqori'] .text-slate-500 {
 
 [data-fon] {
   color: var(--v3-matn);
-  background: var(--v3-fon);
+  background: var(--v3-fon-grad, var(--v3-fon));
 }
 
 /* Fon tanlovi <html> ga yoziladi (lib/sahifa-fon.js). Yuqoridagi
    `body { background: var(--background) }` aks holda ustidan bosadi va
    "kunduz" fonida sahifa atrofi qora bo'lib qolardi. */
 html[data-fon] body {
-  background: var(--v3-fon);
+  background-color: var(--v3-fon);
   color: var(--v3-matn);
 }
 
-/* ─── Tun (asosiy) ─── */
+/* ─── Safir (V4 asosiy) ─── */
 [data-fon='tun'] {
-  --v3-fon:      #070a12;
-  --v3-fon-2:    #0c101c;
-  --v3-yuza:     rgba(255,255,255,.035);
-  --v3-yuza-2:   rgba(255,255,255,.06);
-  --v3-chiziq:   rgba(255,255,255,.09);
-  --v3-chiziq-2: rgba(255,255,255,.16);
-  --v3-matn:     #e9ecf5;
-  --v3-xira:     #8b93a9;
-  --v3-urgu:     #f5b301;
-  --v3-urgu-2:   #4fd1c5;
-  --v3-urgu-matn:#1a1200;
-  --v3-nur-1:    rgba(245,179,1,.14);
-  --v3-nur-2:    rgba(79,209,197,.12);
-  --v3-tor:      rgba(255,255,255,.045);
+  color-scheme: dark;
+  --v3-fon:       #051135;
+  --v3-fon-grad:  radial-gradient(ellipse 80% 48% at 15% 0%, rgba(56, 189, 248, 0.16), transparent 60%), radial-gradient(ellipse 68% 42% at 88% 12%, rgba(99, 102, 241, 0.20), transparent 58%), linear-gradient(180deg, #0b0d2d 0%, #081845 35%, #051135 70%, #020514 100%);
+  --v3-fon-2:     #091742;
+  --v3-yuza:      rgba(22, 49, 118, 0.44);
+  --v3-yuza-2:    rgba(36, 74, 168, 0.56);
+  --v3-karta-fon: linear-gradient(155deg, rgba(22, 48, 118, 0.72) 0%, rgba(12, 29, 80, 0.80) 58%, rgba(8, 19, 56, 0.88) 100%);
+  --v3-karta-soya: 0 16px 38px -18px rgba(2, 8, 34, 0.85), inset 0 1px 0 rgba(186, 230, 253, 0.18);
+  --v3-header-soya: 0 10px 30px -14px rgba(2, 8, 34, 0.75);
+  --v3-chiziq:    rgba(96, 165, 250, 0.24);
+  --v3-chiziq-2:  rgba(125, 211, 252, 0.46);
+  --v3-matn:      #eef4ff;
+  --v3-xira:      #94a9d6;
+  --v3-urgu:      #facc15;
+  --v3-urgu-2:    #38bdf8;
+  --v3-urgu-matn: #09122c;
+  --v3-nur-1:     rgba(250, 204, 21, 0.14);
+  --v3-nur-2:     rgba(56, 189, 248, 0.14);
+  --v3-tor:       rgba(147, 197, 253, 0.06);
 }
 
 /* ─── Siyohrang ─── */
 [data-fon='siyoh'] {
+  color-scheme: dark;
   --v3-fon:      #140b28;
   --v3-fon-2:    #1b1036;
   --v3-yuza:     rgba(255,255,255,.045);
@@ -311,6 +333,7 @@ html[data-fon] body {
 
 /* ─── Grafit ─── */
 [data-fon='grafit'] {
+  color-scheme: dark;
   --v3-fon:      #101114;
   --v3-fon-2:    #17191d;
   --v3-yuza:     rgba(255,255,255,.04);
@@ -331,6 +354,7 @@ html[data-fon] body {
    Urg'u quyuqlashtirilgan: oq fonda #f5b301 matn sifatida o'qilmaydi
    (kontrast 1.9:1). #a35a06 — 4.6:1, ya'ni WCAG AA dan o'tadi. */
 [data-fon='kunduz'] {
+  color-scheme: light;
   --v3-fon:      #f6f7fb;
   --v3-fon-2:    #ffffff;
   --v3-yuza:     rgba(15,20,32,.028);
@@ -342,6 +366,8 @@ html[data-fon] body {
   --v3-urgu:     #a35a06;
   --v3-urgu-2:   #0e7490;
   --v3-urgu-matn:#fffaf0;
+  --v3-karta-fon: rgba(255, 255, 255, 0.82);
+  --v3-karta-soya: 0 6px 20px -8px rgba(15, 20, 32, 0.08);
   --v3-nur-1:    rgba(245,179,1,.16);
   --v3-nur-2:    rgba(14,116,144,.1);
   --v3-tor:      rgba(15,20,32,.05);
@@ -370,10 +396,11 @@ html[data-fon] body {
 /* ═══ SARLAVHA ═══ */
 .v3-header {
   position: sticky; top: 0; z-index: 50;
-  background: color-mix(in srgb, var(--v3-fon) 82%, transparent);
+  background: color-mix(in srgb, var(--v3-fon-2) 84%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--v3-chiziq);
+  box-shadow: var(--v3-header-soya, none);
 }
 
 .v3-logo {
@@ -1117,8 +1144,8 @@ html[data-fon] body {
 
 .chat-bosh {
   flex-shrink: 0;
-  height: 56px;
-  display: flex; align-items: center; gap: 10px;
+  height: 58px;
+  display: flex; align-items: center; gap: 8px;
   padding: 0 14px;
   border-bottom: 1px solid var(--v3-chiziq);
   background: var(--v3-fon-2);
@@ -1126,6 +1153,26 @@ html[data-fon] body {
 .chat-bosh-nom {
   font-family: var(--font-syne), sans-serif;
   font-weight: 700; font-size: 15px; letter-spacing: -.01em;
+}
+.chat-bosh-profil,
+.chat-bosh-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+  color: var(--v3-matn);
+  font-size: 12.5px; font-weight: 600;
+  white-space: nowrap;
+  transition: border-color .16s, background .16s, color .16s;
+}
+.chat-bosh-profil:hover,
+.chat-bosh-link:hover {
+  border-color: var(--v3-chiziq-2);
+  background: var(--v3-yuza-2);
+}
+.chat-bosh-profil {
+  border-color: color-mix(in srgb, var(--v3-urgu) 38%, var(--v3-chiziq));
 }
 
 .chat-tana {
@@ -1167,7 +1214,8 @@ html[data-fon] body {
 }
 .chat-tab {
   flex: 1;
-  padding: 6px 4px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 6px 6px;
   border-radius: 8px;
   font-size: 12px; font-weight: 600;
   color: var(--v3-xira);
@@ -1176,6 +1224,18 @@ html[data-fon] body {
 }
 .chat-tab:hover { color: var(--v3-matn); }
 .chat-tab.is-faol { background: var(--v3-fon); color: var(--v3-matn); }
+.chat-tab-son {
+  min-width: 17px; height: 17px; padding: 0 5px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px;
+  font-size: 10px; font-weight: 700; line-height: 1;
+  background: var(--v3-yuza-2);
+  color: var(--v3-matn);
+}
+.chat-tab-son.is-ogoh {
+  background: #ef4444;
+  color: #fff;
+}
 
 .chat-royxat { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 12px; }
 
@@ -1185,10 +1245,17 @@ html[data-fon] body {
   padding: 9px 10px;
   border-radius: 12px;
   text-align: left;
-  transition: background .14s;
+  border: 1px solid transparent;
+  transition: background .14s, border-color .14s;
 }
 .chat-qator:hover { background: var(--v3-yuza); }
-.chat-qator.is-tanlangan { background: var(--v3-yuza-2); }
+.chat-qator.is-tanlangan {
+  background: var(--v3-yuza-2);
+  border-color: var(--v3-chiziq);
+}
+.chat-qator.is-oqilmagan:not(.is-tanlangan) {
+  background: color-mix(in srgb, var(--v3-urgu) 7%, var(--v3-yuza));
+}
 .chat-qator-nom {
   display: flex; align-items: center; gap: 5px;
   font-size: 13.5px; font-weight: 600;
@@ -1223,15 +1290,30 @@ html[data-fon] body {
 .chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ─── O'ng ustun: yozishma ─── */
-.chat-oyna { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.chat-oyna { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 
 .chat-oyna-bosh {
   flex-shrink: 0;
   height: 60px;
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 8px;
   padding: 0 12px;
   border-bottom: 1px solid var(--v3-chiziq);
   background: var(--v3-fon-2);
+}
+.chat-oyna-profil {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+  color: var(--v3-matn);
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap;
+  transition: border-color .16s, background .16s;
+}
+.chat-oyna-profil:hover {
+  border-color: var(--v3-chiziq-2);
+  background: var(--v3-yuza-2);
 }
 
 /* Yozishma maydoni. Yumshoq nur — bo'sh joy quruq qora to'rtburchak
@@ -1305,17 +1387,196 @@ html[data-fon] body {
 }
 .chat-pufak.is-uniki .chat-pufak-oyoq { color: var(--v3-xira); opacity: 1; }
 
-/* "O'chirish" faqat sichqoncha pufak ustiga kelganda ko'rinadi:
+/* Amallar ("Nusxa", "O'chirish") faqat sichqoncha pufak ustiga kelganda ko'rinadi:
    har bir xabar yonida doim turgan tugma yozishmani shovqinga
    to'ldirardi. Sensorli ekranda esa doim ko'rinadi (hover yo'q). */
-.chat-ochir { opacity: 0; transition: opacity .14s; }
-.chat-pufak:hover .chat-ochir, .chat-ochir:focus-visible { opacity: 1; }
-@media (hover: none) { .chat-ochir { opacity: .8; } }
+.chat-pufak-amallar {
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.chat-ochir,
+.chat-amal-tugma {
+  opacity: 0;
+  transition: opacity .14s, color .14s;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 2px;
+  border-radius: 6px;
+}
+.chat-pufak:hover .chat-ochir,
+.chat-pufak:hover .chat-amal-tugma,
+.chat-ochir:focus-visible,
+.chat-amal-tugma:focus-visible { opacity: 1; }
+@media (hover: none) {
+  .chat-ochir,
+  .chat-amal-tugma { opacity: .82; }
+}
+
+.chat-pastga-tugma {
+  position: absolute;
+  right: 16px;
+  bottom: 84px;
+  z-index: 6;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: var(--v3-fon-2);
+  color: var(--v3-matn);
+  font-size: 12px; font-weight: 600;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .35);
+  transition: transform .15s, border-color .15s;
+}
+.chat-pastga-tugma:hover {
+  transform: translateY(-2px);
+  border-color: var(--v3-urgu);
+}
+
+/* ─── Ichki modal (tasdiqlash / shikoyat) ─── */
+.chat-modal-fon {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(5, 8, 22, .72);
+  backdrop-filter: blur(8px);
+  display: grid; place-items: center;
+  padding: 16px;
+}
+.chat-modal-quti {
+  width: 100%; max-width: 420px;
+  border-radius: 18px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: var(--v3-fon-2);
+  color: var(--v3-matn);
+  padding: 20px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .55);
+}
+.chat-profil-quti {
+  max-width: 460px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+
+/* ─── Filtrlar, qadash, ichki qidiruv, javoblar ─── */
+.chat-filtr-chip {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--v3-chiziq);
+  background: var(--v3-yuza);
+  color: var(--v3-xira);
+  font-size: 11.5px; font-weight: 600;
+  white-space: nowrap;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.chat-filtr-chip:hover { color: var(--v3-matn); border-color: var(--v3-chiziq-2); }
+.chat-filtr-chip.is-faol {
+  border-color: var(--v3-urgu);
+  background: color-mix(in srgb, var(--v3-urgu) 14%, var(--v3-yuza));
+  color: var(--v3-urgu);
+}
+
+.chat-qator.is-qadalgan {
+  border-color: color-mix(in srgb, var(--v3-urgu) 26%, transparent);
+}
+.chat-qadash-belgi {
+  color: var(--v3-urgu);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.chat-oyna-ikon-faol {
+  border-color: var(--v3-urgu) !important;
+  color: var(--v3-urgu) !important;
+  background: color-mix(in srgb, var(--v3-urgu) 12%, var(--v3-yuza)) !important;
+}
+
+.chat-qidiruv-paneli {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--v3-chiziq);
+  background: color-mix(in srgb, var(--v3-fon-2) 86%, var(--v3-yuza));
+}
+.chat-qidiruv-paneli .chat-kirit {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.chat-yangi-ajratgich {
+  display: flex; align-items: center; gap: 10px;
+  margin: 12px 0;
+  font-size: 11px; font-weight: 700;
+  color: var(--v3-urgu);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.chat-yangi-ajratgich::before,
+.chat-yangi-ajratgich::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--v3-urgu) 38%, transparent);
+}
+
+.chat-iqtibos {
+  width: 100%;
+  text-align: left;
+  display: block;
+  padding: 5px 8px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  border-left: 3px solid var(--v3-urgu);
+  background: rgba(255, 255, 255, .06);
+  font-size: 12px;
+  line-height: 1.35;
+  cursor: pointer;
+  transition: background .14s;
+}
+.chat-iqtibos:hover { background: rgba(255, 255, 255, .11); }
+.chat-pufak.is-meniki .chat-iqtibos {
+  border-left-color: #09122c;
+  background: rgba(9, 18, 44, .12);
+}
+.chat-pufak.is-meniki .chat-iqtibos:hover { background: rgba(9, 18, 44, .18); }
+.chat-iqtibos-muallif {
+  font-weight: 700;
+  font-size: 11px;
+  opacity: .9;
+  margin-bottom: 1px;
+}
+.chat-iqtibos-matn {
+  opacity: .85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-javob-paneli {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 7px 11px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--v3-chiziq);
+  border-left: 3px solid var(--v3-urgu);
+  background: var(--v3-yuza);
+}
+
+.chat-pufak.is-ajratilgan {
+  box-shadow: 0 0 0 2px var(--v3-urgu), 0 0 20px color-mix(in srgb, var(--v3-urgu) 35%, transparent);
+}
+.chat-belgi-matn {
+  background: color-mix(in srgb, var(--v3-urgu) 38%, transparent);
+  color: inherit;
+  border-radius: 4px;
+  padding: 0 2px;
+}
+.chat-pufak.is-meniki .chat-belgi-matn {
+  background: rgba(9, 18, 44, .25);
+}
 
 /* ─── Yozish qatori ─── */
 .chat-yozish {
   flex-shrink: 0;
-  padding: 10px 14px 14px;
+  padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--v3-chiziq);
   background: var(--v3-fon-2);
 }
@@ -2026,30 +2287,71 @@ html[data-fon] body {
 .v3-panel-karta {
   border-radius: 16px;
   border: 1px solid var(--v3-chiziq);
-  background: var(--v3-yuza);
+  background: var(--v3-karta-fon, var(--v3-yuza));
+  box-shadow: var(--v3-karta-soya, none);
   padding: 22px;
-  transition: all .2s ease;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
 .v3-panel-karta:hover {
   border-color: var(--v3-chiziq-2);
 }
 
-.v3-kiritish {
-  width: 100%;
-  padding: 10px 14px;
-  background: var(--v3-fon-2);
-  border: 1px solid var(--v3-chiziq);
-  border-radius: 10px;
-  color: var(--v3-matn);
-  font-size: 13.5px;
-  outline: none;
-  transition: border-color .15s ease;
+@keyframes v3-autofill-start {
+  from { opacity: 0.999; }
+  to { opacity: 1; }
 }
-.v3-kiritish:focus {
-  border-color: var(--v3-urgu);
-}
-.v3-kiritish::placeholder {
-  color: var(--v3-xira);
+
+@layer components {
+  .v3-kiritish {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--v3-fon-2);
+    border: 1px solid var(--v3-chiziq);
+    border-radius: 10px;
+    color: var(--v3-matn);
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  .v3-kiritish:focus {
+    border-color: var(--v3-urgu);
+  }
+  .v3-kiritish::placeholder {
+    color: var(--v3-xira);
+  }
+  /* Brauzer / Google parol menejeri autofill foni oq bo'lib qotib qolmasligi uchun */
+  .v3-kiritish:-webkit-autofill,
+  .v3-kiritish:-webkit-autofill:hover,
+  .v3-kiritish:-webkit-autofill:focus,
+  .v3-kiritish:-webkit-autofill:active,
+  .v3-quiz-maydon input:-webkit-autofill,
+  .v3-quiz-maydon input:-webkit-autofill:hover,
+  .v3-quiz-maydon input:-webkit-autofill:focus,
+  .v3-quiz-maydon input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--v3-matn, #eef4ff) !important;
+    caret-color: var(--v3-matn, #eef4ff) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--v3-fon-2, #091742) inset !important;
+    box-shadow: 0 0 0 1000px var(--v3-fon-2, #091742) inset !important;
+    background-clip: padding-box;
+    transition: background-color 99999s ease-out 0s, color 99999s ease-out 0s;
+    animation-name: v3-autofill-start;
+    animation-duration: 0.001s;
+  }
+  .v3-kiritish:autofill,
+  .v3-kiritish:autofill:hover,
+  .v3-kiritish:autofill:focus,
+  .v3-quiz-maydon input:autofill,
+  .v3-quiz-maydon input:autofill:hover,
+  .v3-quiz-maydon input:autofill:focus {
+    color: var(--v3-matn, #eef4ff) !important;
+    -webkit-text-fill-color: var(--v3-matn, #eef4ff) !important;
+    caret-color: var(--v3-matn, #eef4ff) !important;
+    box-shadow: 0 0 0 1000px var(--v3-fon-2, #091742) inset !important;
+    background-clip: padding-box;
+    transition: background-color 99999s ease-out 0s, color 99999s ease-out 0s;
+    animation-name: v3-autofill-start;
+    animation-duration: 0.001s;
+  }
 }
 
 .v3-yorliq {
@@ -2202,6 +2504,13 @@ html[data-fon] body {
 /* ═══ Akademik Shrift (Times New Roman klassik uslub) ═══ */
 .v3,
 .v3-serif,
+.ms-akademik,
+.ms-akademik h1,
+.ms-akademik h2,
+.ms-akademik h3,
+.ms-akademik h4,
+.ms-akademik h5,
+.ms-akademik h6,
 [data-fon],
 [data-fon] h1,
 [data-fon] h2,
@@ -2210,4 +2519,75 @@ html[data-fon] body {
 [data-fon] h5,
 [data-fon] h6 {
   font-family: "Times New Roman", Times, Georgia, serif !important;
+}
+
+/* Inline KaTeX formulalar oddiy matndan katta bo'lib ajralib qolmasligi uchun */
+.ms-akademik .katex {
+  font-size: 1.04em;
+}
+.ms-akademik .katex-display {
+  margin: 0.5rem 0;
+}
+.ms-akademik .katex-display > .katex {
+  font-size: 1.12em;
+}
+
+/* ═══ Milliy Sertifikat: Yaltiroq Safir va Oltin Yagona Dizayn ═══ */
+.ms-fon {
+  background:
+    radial-gradient(ellipse 80% 48% at 18% 0%, rgba(56, 189, 248, 0.20), transparent 60%),
+    radial-gradient(ellipse 68% 42% at 88% 12%, rgba(99, 102, 241, 0.24), transparent 58%),
+    radial-gradient(ellipse 65% 40% at 50% 96%, rgba(245, 158, 11, 0.14), transparent 60%),
+    linear-gradient(180deg, #0d1c54 0%, #091644 45%, #060f33 100%);
+}
+
+.ms-header {
+  background: rgba(11, 24, 74, 0.88);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.30);
+  box-shadow: 0 10px 30px -12px rgba(2, 8, 34, 0.78), inset 0 -1px 0 rgba(186, 230, 253, 0.12);
+}
+
+.ms-karta {
+  background: linear-gradient(155deg, rgba(24, 51, 124, 0.88) 0%, rgba(14, 32, 86, 0.92) 55%, rgba(9, 21, 62, 0.95) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.34);
+  box-shadow: 0 18px 42px -18px rgba(2, 8, 34, 0.85), inset 0 1px 0 rgba(186, 230, 253, 0.24);
+}
+
+.ms-karta-interaktiv {
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ms-karta-interaktiv:hover {
+  border-color: rgba(250, 204, 21, 0.65);
+  box-shadow: 0 22px 48px -18px rgba(2, 8, 34, 0.9), 0 0 30px -12px rgba(250, 204, 21, 0.24), inset 0 1px 0 rgba(254, 240, 138, 0.34);
+}
+
+.ms-karta-hero {
+  background: linear-gradient(135deg, rgba(28, 59, 142, 0.92) 0%, rgba(16, 38, 98, 0.93) 55%, rgba(10, 24, 68, 0.96) 100%);
+  border: 1px solid rgba(125, 211, 252, 0.38);
+  box-shadow: 0 24px 52px -20px rgba(2, 8, 34, 0.92), 0 0 38px -14px rgba(56, 189, 248, 0.24), inset 0 1px 0 rgba(224, 242, 254, 0.30);
+}
+
+.ms-karta-ichki {
+  background: rgba(9, 22, 66, 0.82);
+  border: 1px solid rgba(96, 165, 250, 0.28);
+  box-shadow: inset 0 1px 0 rgba(186, 230, 253, 0.12);
+}
+
+.ms-karta-oltin {
+  background: linear-gradient(135deg, rgba(30, 52, 126, 0.92) 0%, rgba(17, 36, 92, 0.94) 58%, rgba(12, 25, 68, 0.96) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.48);
+  box-shadow: 0 20px 46px -18px rgba(2, 8, 34, 0.9), 0 0 32px -12px rgba(250, 204, 21, 0.24), inset 0 1px 0 rgba(254, 240, 138, 0.30);
+}
+
+.ms-tugma-oltin {
+  background: linear-gradient(135deg, #fde047 0%, #facc15 48%, #f59e0b 100%);
+  color: #09122c;
+  box-shadow: 0 8px 22px -6px rgba(250, 204, 21, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ms-tugma-oltin:hover:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow: 0 12px 28px -6px rgba(250, 204, 21, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }

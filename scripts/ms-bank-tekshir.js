@@ -1,7 +1,7 @@
 // scripts/ms-bank-tekshir.js
 //
 // Savol bankining holatini ko'rsatadi: npm run ms:bank
-// Ochiq sinovda xato bo'lsa, skript 1 kodi bilan tugaydi.
+// Savol qo'shilgan sinovda xato bo'lsa, skript 1 kodi bilan tugaydi.
 import { existsSync } from "node:fs"
 import { join } from "node:path"
 import { tekshirBank } from "../lib/milliy-sertifikat-bank.js"
@@ -12,17 +12,18 @@ const rasmBormi = (rasm) => existsSync(join("public", rasm))
 let xatoBor = false
 
 for (const variant of MILLIY_SERTIFIKAT_VARIANTLARI) {
-  console.log(`\n${variant.nom} [${variant.holat}]`)
+  const bank = getSavollarBySlug(variant.slug)
+  console.log(`\n${variant.nom}: ${bank.length}/${variant.savollarSoni} savol`)
 
-  if (variant.holat !== "ochiq") {
-    console.log("  Hali ochiq emas, tekshirilmadi")
+  if (bank.length === 0) {
+    console.log("  Savol hali qo'shilmagan")
     continue
   }
 
-  const { xatolar, ogohlantirishlar } = tekshirBank(variant, getSavollarBySlug(variant.slug), rasmBormi)
+  const { xatolar, ogohlantirishlar } = tekshirBank(variant, bank, rasmBormi)
   for (const x of xatolar) console.log(`  XATO: ${x}`)
   for (const o of ogohlantirishlar) console.log(`  Diqqat: ${o}`)
-  if (!xatolar.length && !ogohlantirishlar.length) console.log("  Toza")
+  if (!xatolar.length) console.log("  Sinov ochiq")
   if (xatolar.length) xatoBor = true
 }
 

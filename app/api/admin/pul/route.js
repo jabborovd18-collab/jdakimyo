@@ -13,10 +13,8 @@
 //   LabTransaction — valyuta harakati uchun ("qayerdan keldi")
 //   Notification   — foydalanuvchi uchun ("nima uchun balansim o'zgardi")
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { checkAdminAuth } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
-import { huquqiBormi } from '@/lib/roles'
 import { labniOl, taqiqKuchdami } from '@/lib/laboratoriya'
 import { xabarYubor } from '@/lib/bildirishnoma'
 import { sanaVaqt } from '@/lib/sana'
@@ -45,11 +43,12 @@ function ipniOl(request) {
 // ─── GET: umumiy holat va hisoblar ro'yxati ───
 export async function GET(request) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (!huquqiBormi(session.user.role, 'pul')) {
+    const { authenticated, isAdmin, user } = await checkAdminAuth('pul')
+    if (!authenticated) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin || !user) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+    const session = { user }
 
     const { searchParams } = new URL(request.url)
     const qidiruv = (searchParams.get('qidiruv') || '').trim()
@@ -122,15 +121,16 @@ export async function GET(request) {
 // ─── POST: berish, olib qo'yish, taqiq ───
 export async function POST(request) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { authenticated, isSuperAdmin, user } = await checkAdminAuth()
+    if (!authenticated) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (session.user.role !== 'superadmin') {
+    if (!isSuperAdmin || !user) {
       return NextResponse.json(
         { error: 'Valyutani faqat superadmin boshqaradi' },
         { status: 403 },
       )
     }
+    const session = { user }
 
     const { userId, amal, valyuta, miqdor, sabab, kunlar } = await request.json()
 
@@ -226,7 +226,7 @@ export async function POST(request) {
             ? `${belgi} Hisobingizga ${n} ${nom} qo'shildi`
             : `${belgi} Hisobingizdan ${-n} ${nom} yechildi`,
         matn: sabab || (n > 0 ? 'Administrator mukofoti' : 'Administrator qarori'),
-        havola: '/laboratoriya',
+        havola: '/profil',
         adminId: session.user.id,
       })
 
@@ -268,17 +268,17 @@ export async function POST(request) {
 
       await xabarYubor(userId, {
         turi: 'taqiq',
-        sarlavha: '🚫 Xarid vaqtincha to\'xtatildi',
+        sarlavha: '🚫 Valyuta sarflash vaqtincha to\'xtatildi',
         matn:
-          `${sanaVaqt(gacha)} gacha do'konda xarid qila olmaysiz va pullik ` +
-          `sandiq ocholmaysiz. Sabab: ${sabab}. O'qish, quiz va missiyalar ishlayveradi.`,
-        havola: '/laboratoriya',
+          `${sanaVaqt(gacha)} gacha Telegram bot pullik xizmatlarida tanga va olmos ` +
+          `sarflash to'xtatildi. Sabab: ${sabab}. O'qish, quiz va missiyalar ishlayveradi.`,
+        havola: '/profil',
         adminId: session.user.id,
       })
 
       return NextResponse.json({
         success: true,
-        message: `${nishon.username} uchun xarid ${kun} kunga to'xtatildi`,
+        message: `${nishon.username} uchun valyuta sarflash ${kun} kunga to'xtatildi`,
       })
     }
 
@@ -296,9 +296,9 @@ export async function POST(request) {
 
       await xabarYubor(userId, {
         turi: 'taqiq-olindi',
-        sarlavha: '✅ Xarid taqiqi olib tashlandi',
-        matn: 'Do\'kon va sandiqlar yana ochiq.',
-        havola: '/laboratoriya',
+        sarlavha: '✅ Valyuta sarflash cheklovi olib tashlandi',
+        matn: 'Telegram bot pullik xizmatlarida valyuta sarflash yana ochiq.',
+        havola: '/profil',
         adminId: session.user.id,
       })
 

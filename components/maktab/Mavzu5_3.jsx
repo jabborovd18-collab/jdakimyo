@@ -4,6 +4,7 @@
 // "Indikatorlar" (Darslik 83-bet)
 // 6 ta interaktiv Canvas Ko'rgazma + 4 ta Smart-doska O'yini
 // ============================================================
+import { kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir, indekslanganVariantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import { useState, useEffect, useRef } from 'react'
 import Ikon from '@/components/Ikon'
 import OtganDarsniTakrorlash from '@/components/maktab/OtganDarsniTakrorlash'
@@ -12,9 +13,8 @@ import { SmartDoskaNavigatsiya } from '@/components/maktab/SmartDoskaYordamchi'
 function tovushChiqar(turi) {
     if (typeof window === 'undefined') return
     try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext
-        if (!AudioCtx) return
-        const ctx = new AudioCtx()
+        const ctx = umumiyAudio()
+        if (!ctx) return
         const now = ctx.currentTime
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
@@ -59,10 +59,10 @@ const TAKROPI_5_2 = [
     {
         savol: "Mis (II) gidroksid — Cu(OH)₂ qanday rangli cho'kma hisoblanadi va qizdirilganda nimaga parchalanadi?",
         variantlar: [
+            "Sariq cho'kma; parchalanmaydi",
             "Havorang (moviy) cho'kma; qizdirilganda qora CuO va H₂O ga parchalanadi",
             "Qo'ng'ir cho'kma; qizdirilganda Cu va O₂ ga parchalanadi",
             "Oq cho'kma; suvda eriydi",
-            "Sariq cho'kma; parchalanmaydi"
         ],
         togriJavob: "Havorang (moviy) cho'kma; qizdirilganda qora CuO va H₂O ga parchalanadi",
         izoh: "Cu(OH)₂ moviy iviq cho'kma bo'lib, qizdirilsa Cu(OH)₂ → CuO (qora) + H₂O ga parchalanadi."
@@ -70,10 +70,10 @@ const TAKROPI_5_2 = [
     {
         savol: "Tiniq ohakli suv — Ca(OH)₂ orqali karbonat angidrid (CO₂) o'tkazilsa nima sodir bo'ladi?",
         variantlar: [
+            "Vodorod gazi ajralib chiqadi",
+            "Hech qanday o'zgarish bo'lmaydi",
             "Oq rangli CaCO₃↓ cho'kmasi tushib, eritma loyqalanadi",
             "Eritma malina rangga kiradi",
-            "Vodorod gazi ajralib chiqadi",
-            "Hech qanday o'zgarish bo'lmaydi"
         ],
         togriJavob: "Oq rangli CaCO₃↓ cho'kmasi tushib, eritma loyqalanadi",
         izoh: "Ca(OH)₂ + CO₂ → CaCO₃↓ + H₂O reaksiyasi CO₂ gazini aniqlashning sifat reaksiyasidir."
@@ -184,10 +184,10 @@ function UchIndikatorSimulatorCanvas() {
             ctx.textAlign = 'center'
             ctx.fillText(`Tanlangan indikator: ${ind.nom} (Asl rangi: ${ind.aslRang})`, 280, 30)
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [ind])
 
     return (
@@ -199,7 +199,9 @@ function UchIndikatorSimulatorCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2.5 font-serif">
                     {INDIKATORLAR.map((item) => (
@@ -292,7 +294,9 @@ function QizilKaramIndikatorCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     {KARAM_MUHITLAR.map((m) => (
@@ -403,7 +407,9 @@ function RobertBoylKashfiyotiCanvas() {
                 </div>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -471,7 +477,9 @@ function UniversalQogozCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     {UNIVERSAL_NAMUNALAR.map((n) => (
@@ -579,7 +587,9 @@ function UchProbirkaDetektivCanvas() {
                 </div>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -667,7 +677,9 @@ function ChoyLimonIndikatorCanvas() {
                 </div>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -676,13 +688,13 @@ function ChoyLimonIndikatorCanvas() {
 // 1-O'YIN: INDIKATOR RANGINI TOP (9 TA KOMBINATSIYA)
 // ============================================================
 const RANG_SAVOLLAR = [
-    { savol: "Ishqor (NaOH) eritmasiga FENOLFTALEIN tomizilsa qanday rang hosil bo'ladi?", javob: "Malina rang (to'q pushti)", variantlar: ["Rangsiz qoladi", "Malina rang (to'q pushti)", "Sariq", "Ko'k"] },
-    { savol: "Kislota (HCl) eritmasiga LAKMUS tomizilsa qanday rangga kiradi?", javob: "Qizil", variantlar: ["Qizil", "Ko'k", "Binafsha", "Rangsiz"] },
-    { savol: "Ishqor (KOH) eritmasiga LAKMUS tomizilsa qanday rangga kiradi?", javob: "Ko'k", variantlar: ["Qizil", "Ko'k", "Sariq", "Rangsiz"] },
-    { savol: "Kislota (H₂SO₄) eritmasiga FENOLFTALEIN tomizilsa rangi qanday bo'ladi?", javob: "Rangsizligicha qoladi!", variantlar: ["Malina rang bo'ladi", "Rangsizligicha qoladi!", "Ko'k bo'ladi", "Sariq bo'ladi"] },
-    { savol: "Ishqor (NaOH) eritmasiga METILORANJ tomizilsa qanday rangga o'tadi?", javob: "Sariq", variantlar: ["Qizil-pushti", "Sariq", "Ko'k", "Binafsha"] },
-    { savol: "Kislota (HNO₃) eritmasiga METILORANJ tomizilsa qanday rang beradi?", javob: "Qizil-pushti", variantlar: ["Qizil-pushti", "Sariq", "Ko'k", "Rangsiz"] },
-    { savol: "Neytral toza suvda (H₂O) LAKMUS qanday rangda bo'ladi?", javob: "Binafsha", variantlar: ["Qizil", "Binafsha", "Ko'k", "Malina"] },
+    { savol: "Ishqor (NaOH) eritmasiga FENOLFTALEIN tomizilsa qanday rang hosil bo'ladi?", javob: "Malina rang (to'q pushti)", variantlar: ["Malina rang (to'q pushti)", "Sariq", "Ko'k", "Rangsiz qoladi"] },
+    { savol: "Kislota (HCl) eritmasiga LAKMUS tomizilsa qanday rangga kiradi?", javob: "Qizil", variantlar: ["Rangsiz", "Qizil", "Ko'k", "Binafsha"] },
+    { savol: "Ishqor (KOH) eritmasiga LAKMUS tomizilsa qanday rangga kiradi?", javob: "Ko'k", variantlar: ["Rangsiz", "Qizil", "Ko'k", "Sariq"] },
+    { savol: "Kislota (H₂SO₄) eritmasiga FENOLFTALEIN tomizilsa rangi qanday bo'ladi?", javob: "Rangsizligicha qoladi!", variantlar: ["Ko'k bo'ladi", "Sariq bo'ladi", "Malina rang bo'ladi", "Rangsizligicha qoladi!"] },
+    { savol: "Ishqor (NaOH) eritmasiga METILORANJ tomizilsa qanday rangga o'tadi?", javob: "Sariq", variantlar: ["Sariq", "Ko'k", "Binafsha", "Qizil-pushti"] },
+    { savol: "Kislota (HNO₃) eritmasiga METILORANJ tomizilsa qanday rang beradi?", javob: "Qizil-pushti", variantlar: ["Rangsiz", "Qizil-pushti", "Sariq", "Ko'k"] },
+    { savol: "Neytral toza suvda (H₂O) LAKMUS qanday rangda bo'ladi?", javob: "Binafsha", variantlar: ["Malina", "Qizil", "Binafsha", "Ko'k"] },
 ]
 
 function IndikatorRangOyini() {
@@ -720,7 +732,7 @@ function IndikatorRangOyini() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -761,11 +773,11 @@ function IndikatorRangOyini() {
 // 2-O'YIN: LABORATORIYA DETEKTIVI — NOMA'LUM ERITMA
 // ============================================================
 const DETEKTIV_SAVOLLAR = [
-    { vazifa: "Noma'lum rangsiz eritmaga fenolftalein tomizilganda eritma yorqin MALINA rangga kirdi. Probirkada qaysi modda bor?", javob: "NaOH (Ishqor eritmasi)", variantlar: ["HCl (Xlorid kislota)", "H₂O (Distillangan suv)", "NaOH (Ishqor eritmasi)", "NaCl (Osh tuzi eritmasi)"] },
+    { vazifa: "Noma'lum rangsiz eritmaga fenolftalein tomizilganda eritma yorqin MALINA rangga kirdi. Probirkada qaysi modda bor?", javob: "NaOH (Ishqor eritmasi)", variantlar: ["NaOH (Ishqor eritmasi)", "NaCl (Osh tuzi eritmasi)", "HCl (Xlorid kislota)", "H₂O (Distillangan suv)"] },
     { vazifa: "Noma'lum eritmaga binafsha lakmus tomizilganda u QIZIL rangga kirdi. Probirkada qaysi modda bor?", javob: "H₂SO₄ (Sulfat kislota)", variantlar: ["KOH (Ishqor)", "H₂SO₄ (Sulfat kislota)", "H₂O (Toza suv)", "NaCl (Osh tuzi)"] },
-    { vazifa: "3 ta probirkada HCl, H₂O va NaOH bor. Faqat BITTA indikator yordamida uchalasini ham aniqlash uchun qaysi indikatorni tanlaysiz?", javob: "Lakmus yoki Metiloranj (3 xil muhitda 3 xil rang beradi)", variantlar: ["Faqat Fenolftalein", "Lakmus yoki Metiloranj (3 xil muhitda 3 xil rang beradi)", "Osh tuzi eritmasi", "Kraxmal eritmasi"] },
-    { vazifa: "Nima uchun suvda ERIMAYDIGAN asoslar — masalan Cu(OH)₂ yoki Fe(OH)₃ cho'kmasi fenolftaleinni malina rangga bo'yamaydi?", javob: "Chunki ular suvda erimaydi va eritmaga erkin OH⁻ ionlarini bermaydi!", variantlar: ["Chunki ular kislotadir", "Chunki ular suvda erimaydi va eritmaga erkin OH⁻ ionlarini bermaydi!", "Chunki ular gazdir", "Chunki ularda OH guruhi yo'q"] },
-    { vazifa: "Metiloranj tomizilganda eritma SARIQ rangga kirsa, muhit qanday?", javob: "Ishqoriy muhit (OH⁻)", variantlar: ["Kislotali muhit (H⁺)", "Neytral muhit", "Ishqoriy muhit (OH⁻)", "Gazli muhit"] },
+    { vazifa: "3 ta probirkada HCl, H₂O va NaOH bor. Faqat BITTA indikator yordamida uchalasini ham aniqlash uchun qaysi indikatorni tanlaysiz?", javob: "Lakmus yoki Metiloranj (3 xil muhitda 3 xil rang beradi)", variantlar: ["Kraxmal eritmasi", "Faqat Fenolftalein", "Lakmus yoki Metiloranj (3 xil muhitda 3 xil rang beradi)", "Osh tuzi eritmasi"] },
+    { vazifa: "Nima uchun suvda ERIMAYDIGAN asoslar — masalan Cu(OH)₂ yoki Fe(OH)₃ cho'kmasi fenolftaleinni malina rangga bo'yamaydi?", javob: "Chunki ular suvda erimaydi va eritmaga erkin OH⁻ ionlarini bermaydi!", variantlar: ["Chunki ular gazdir", "Chunki ularda OH guruhi yo'q", "Chunki ular kislotadir", "Chunki ular suvda erimaydi va eritmaga erkin OH⁻ ionlarini bermaydi!"] },
+    { vazifa: "Metiloranj tomizilganda eritma SARIQ rangga kirsa, muhit qanday?", javob: "Ishqoriy muhit (OH⁻)", variantlar: ["Ishqoriy muhit (OH⁻)", "Gazli muhit", "Kislotali muhit (H⁺)", "Neytral muhit"] },
 ]
 
 function DetektivOyini() {
@@ -803,7 +815,7 @@ function DetektivOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -844,10 +856,10 @@ function DetektivOyini() {
 // 3-O'YIN: TABIIY INDIKATORLAR VA TARIX
 // ============================================================
 const TABIIY_IND_SAVOLLAR = [
-    { savol: "1663-yilda o'simliklardan ilk kislota-ishqor indikatorini (lakmusni) kashf etgan olim kim?", javob: "Robert Boyl", variantlar: ["Dmitriy Mendeleyev", "Robert Boyl", "Antuan Lavuazye", "Jon Dalton"] },
-    { savol: "Tabiiy lakmus indikatori qaysi tirik organizmdan olinadi?", javob: "Lishayniklardan", variantlar: ["Lishayniklardan", "Dengiz baliqlaridan", "Toshko'mirdan", "Qarag'ay daraxtidan"] },
-    { savol: "To'q damlangan choyga limon bo'lagi tashlanganda choy rangi nima uchun och sariq bo'lib qoladi?", javob: "Limon kislotasi choydagi tabiiy indikator pigmentlariga ta'sir qilgani uchun", variantlar: ["Limon choyni sovutgani uchun", "Limon kislotasi choydagi tabiiy indikator pigmentlariga ta'sir qilgani uchun", "Shakar erigani uchun", "Kislorod chiqqani uchun"] },
-    { savol: "Qizil karamning binafsha qaynatmasiga kuchli ishqor (NaOH) qo'shilsa qanday rangga kiradi?", javob: "Yashil-sariq rangga", variantlar: ["Yashil-sariq rangga", "Qip-qizil rangga", "Qora rangga", "Oq cho'kmaga"] },
+    { savol: "1663-yilda o'simliklardan ilk kislota-ishqor indikatorini (lakmusni) kashf etgan olim kim?", javob: "Robert Boyl", variantlar: ["Robert Boyl", "Antuan Lavuazye", "Jon Dalton", "Dmitriy Mendeleyev"] },
+    { savol: "Tabiiy lakmus indikatori qaysi tirik organizmdan olinadi?", javob: "Lishayniklardan", variantlar: ["Qarag'ay daraxtidan", "Lishayniklardan", "Dengiz baliqlaridan", "Toshko'mirdan"] },
+    { savol: "To'q damlangan choyga limon bo'lagi tashlanganda choy rangi nima uchun och sariq bo'lib qoladi?", javob: "Limon kislotasi choydagi tabiiy indikator pigmentlariga ta'sir qilgani uchun", variantlar: ["Kislorod chiqqani uchun", "Limon choyni sovutgani uchun", "Limon kislotasi choydagi tabiiy indikator pigmentlariga ta'sir qilgani uchun", "Shakar erigani uchun"] },
+    { savol: "Qizil karamning binafsha qaynatmasiga kuchli ishqor (NaOH) qo'shilsa qanday rangga kiradi?", javob: "Yashil-sariq rangga", variantlar: ["Qip-qizil rangga", "Qora rangga", "Oq cho'kmaga", "Yashil-sariq rangga"] },
 ]
 
 function TabiiyIndikatorOyini() {
@@ -885,7 +897,7 @@ function TabiiyIndikatorOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -926,12 +938,12 @@ function TabiiyIndikatorOyini() {
 // 4-O'YIN: JAMOALAR DUELI (1-GURUH VS 2-GURUH)
 // ============================================================
 const DUEL_5_3 = [
-    { savol: "'Indikator' so'zining lotinchadan ma'nosi nima?", variantlar: ["Erituvchi", "Ko'rsatkich", "Oksidlovchi", "Katalizator"], javob: 1 },
+    { savol: "'Indikator' so'zining lotinchadan ma'nosi nima?", variantlar: ["Ko'rsatkich", "Oksidlovchi", "Katalizator", "Erituvchi"], javob: 0 },
     { savol: "Fenolftalein ishqoriy muhitda qanday rangga kiradi?", variantlar: ["Ko'k", "Malina rang", "Sariq", "Rangsiz"], javob: 1 },
-    { savol: "Lakmus kislotali muhitda qanday rangga kiradi?", variantlar: ["Qizil", "Ko'k", "Sariq", "Yashil"], javob: 0 },
-    { savol: "Metiloranj ishqoriy muhitda qanday rangga kiradi?", variantlar: ["Sariq", "Ko'k", "Binafsha", "Rangsiz"], javob: 0 },
-    { savol: "Fenolftalein kislotali muhitda qanday rangda bo'ladi?", variantlar: ["Qizil", "Rangsiz", "Ko'k", "Sariq"], javob: 1 },
-    { savol: "Bir nechta indikatorlar aralashmasidan tayyorlangan indikator qog'ozi nima deyiladi?", variantlar: ["Universal indikator", "Filtr qog'ozi", "Pergament", "Folga"], javob: 0 },
+    { savol: "Lakmus kislotali muhitda qanday rangga kiradi?", variantlar: ["Sariq", "Yashil", "Qizil", "Ko'k"], javob: 2 },
+    { savol: "Metiloranj ishqoriy muhitda qanday rangga kiradi?", variantlar: ["Ko'k", "Binafsha", "Rangsiz", "Sariq"], javob: 3 },
+    { savol: "Fenolftalein kislotali muhitda qanday rangda bo'ladi?", variantlar: ["Rangsiz", "Ko'k", "Sariq", "Qizil"], javob: 0 },
+    { savol: "Bir nechta indikatorlar aralashmasidan tayyorlangan indikator qog'ozi nima deyiladi?", variantlar: ["Folga", "Universal indikator", "Filtr qog'ozi", "Pergament"], javob: 1 },
 ]
 
 function JamoalarDueli5_3() {
@@ -941,7 +953,9 @@ function JamoalarDueli5_3() {
     const [navbat, setNavbat] = useState(1)
     const [natija, setNatija] = useState(null)
 
-    const joriy = DUEL_5_3[idx]
+    const xomJoriy = DUEL_5_3[idx]
+    const aralash = indekslanganVariantlarniAralashtir(xomJoriy, idx)
+    const joriy = { ...xomJoriy, variantlar: aralash.variantlar, javob: aralash.togri }
 
     const javobBer = (i) => {
         if (natija !== null) return

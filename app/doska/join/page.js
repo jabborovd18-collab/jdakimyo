@@ -55,11 +55,22 @@ export default function DoskaJoinPage() {
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400">
-          <Link href="/doska" className="text-emerald-400 hover:underline inline-flex items-center gap-1">
-            <Ikon nom="chap" olcham={14} />
-            <span>Smart Doska katalogiga qaytish</span>
-          </Link>
+        <div className="mt-6 pt-4 border-t border-slate-800 space-y-2.5 text-xs text-slate-400">
+          <div>
+            <Link
+              href="/doska/skaner"
+              className="text-slate-200 hover:text-emerald-300 font-semibold inline-flex items-center gap-1.5"
+            >
+              <Ikon nom="skaner" olcham={15} />
+              <span>Kamera bilan QR skanerlash</span>
+            </Link>
+          </div>
+          <div>
+            <Link href="/doska" className="text-emerald-400 hover:underline inline-flex items-center gap-1">
+              <Ikon nom="chap" olcham={14} />
+              <span>Smart Doska katalogiga qaytish</span>
+            </Link>
+          </div>
         </div>
       </div>
     </main>

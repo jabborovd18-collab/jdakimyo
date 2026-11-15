@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { kadrSora, kadrniBekorQil, umumiyAudio } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoskaQoshimcha"
@@ -10,9 +11,8 @@ import { QoshimchaKorgazma, QoshimchaOyin } from "@/components/maktab/SmartDoska
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
 
     if (turi === "togri" || turi === "tasdiq") {
@@ -125,10 +125,10 @@ const takrorlashSavollari1_5 = [
     savol: "Spirtovka alangasining qaysi zonasi eng issiq hisoblanadi va qizdirishda ishlatiladi?",
     izoh: "Alanganing tashqi (3-zonasi) to'liq yonish zonasi bo'lib, harorati 800-1000°C ga yetadi.",
     variantlar: [
+      { matn: "Spirtovkaning pilik qismi", togri: false },
       { matn: "Tashqi rangsiz/ko'kish zona (3-zona, 1000°C)", togri: true },
       { matn: "Ichki qoramtir sovuq zona (1-zona, 300°C)", togri: false },
       { matn: "O'rta yorug' zona (2-zona, 600°C)", togri: false },
-      { matn: "Spirtovkaning pilik qismi", togri: false },
     ],
   },
   {
@@ -136,10 +136,10 @@ const takrorlashSavollari1_5 = [
     savol: "Loyqa aralashmadagi erimagan qum zarrachalarini suzib ajratish uchun qaysi jihozlar kerak?",
     izoh: "Filtratsiya jarayoni uchun laboratoriya shtativi, shisha voronka, konusli filtr qog'oz, laboratoriya stakani va shisha tayoqcha kerak bo'ladi.",
     variantlar: [
-      { matn: "Shisha voronka, filtr qog'oz, stakan va shisha tayoqcha", togri: true },
-      { matn: "Spirtovka, uchoyoq va chinni kosacha", togri: false },
       { matn: "Byuretka va o'lchov kolbasi", togri: false },
       { matn: "Faqat bitta probirka", togri: false },
+      { matn: "Shisha voronka, filtr qog'oz, stakan va shisha tayoqcha", togri: true },
+      { matn: "Spirtovka, uchoyoq va chinni kosacha", togri: false },
     ],
   },
   {
@@ -147,10 +147,10 @@ const takrorlashSavollari1_5 = [
     savol: "Eritmani ochiq olovda qizdirib to'liq bug'latish va quruq tuz olish uchun qaysi idish mos keladi?",
     izoh: "Chinni kosacha (Evaporating dish) 1200°C gacha bo'lgan kuchli ochiq olov issiqligiga chidaydi va eritmalarni bug'latish uchun maxsus tayyorlangan.",
     variantlar: [
-      { matn: "Chinni kosacha (1200°C issiqbardosh)", togri: true },
       { matn: "Plastmassa stakan", togri: false },
       { matn: "Yupqa o'lchov silindri", togri: false },
       { matn: "Shisha pipetka", togri: false },
+      { matn: "Chinni kosacha (1200°C issiqbardosh)", togri: true },
     ],
   },
 ]
@@ -509,11 +509,11 @@ export default function Mavzu2_1() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, harorat, joriyHolat, porshenBosildi])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -762,11 +762,11 @@ export default function Mavzu2_1() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, diffRejimTur, diffFaol, diffSovuq, diffIssiq, gremProgress])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -920,11 +920,11 @@ export default function Mavzu2_1() {
       }
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, shpritsModda, bosimDarajasi])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1042,11 +1042,11 @@ export default function Mavzu2_1() {
       )
 
       ctx.restore()
-      animId = requestAnimationFrame(render)
+      animId = kadrSora(canvas, render)
     }
 
     render()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, molekulalarKorinsin, brounHarorat])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1117,10 +1117,10 @@ export default function Mavzu2_1() {
       id: 2,
       savol: "Grem naychasida yengil NH3 (17 g/mol) va og'ir HCl (36.5 g/mol) to'qnashganda oq halqa qayerda hosil bo'ladi?",
       variantlar: [
+        "Naychaning tashqarisida",
         "Og'ir HCl paxtasiga yaqinroq (chunki NH3 yengil bo'lib tezroq uchadi)",
         "Aynan qoq o'rtada",
         "Yengil NH3 paxtasiga yaqinroq",
-        "Naychaning tashqarisida",
       ],
       togri: "Og'ir HCl paxtasiga yaqinroq (chunki NH3 yengil bo'lib tezroq uchadi)",
     },
@@ -1128,10 +1128,10 @@ export default function Mavzu2_1() {
       id: 3,
       savol: "Gazlarni shpritsda oson siqish mumkinligining tub sababi nima?",
       variantlar: [
-        "Gaz zarrachalari orasidagi masofa zarracha o'lchamidan 10-30 barobar katta",
-        "Gaz zarrachalari bosim ostida yo'q bo'lib ketadi",
         "Gazning massasi nolga teng",
         "Porshen gazni eritib suyuqlikka aylantiradi",
+        "Gaz zarrachalari orasidagi masofa zarracha o'lchamidan 10-30 barobar katta",
+        "Gaz zarrachalari bosim ostida yo'q bo'lib ketadi",
       ],
       togri: "Gaz zarrachalari orasidagi masofa zarracha o'lchamidan 10-30 barobar katta",
     },
@@ -1139,10 +1139,10 @@ export default function Mavzu2_1() {
       id: 4,
       savol: "Broun harakatining kashf etilishi fanda nimani uzil-kesil isbotlab berdi?",
       variantlar: [
-        "Barcha moddalar to'xtovsiz tartibsiz harakatdagi atom va molekulalardan tuzilganini",
         "Gulchangi tirik jonzot ekanligini",
         "Mikroskop linzalari noto'g'ri ko'rsatishini",
         "Suvda hech qanday zarracha yo'qligini",
+        "Barcha moddalar to'xtovsiz tartibsiz harakatdagi atom va molekulalardan tuzilganini",
       ],
       togri: "Barcha moddalar to'xtovsiz tartibsiz harakatdagi atom va molekulalardan tuzilganini",
     },

@@ -1,12 +1,19 @@
 // components/AvatarUpload.jsx
 "use client"
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import Ikon from '@/components/Ikon'
 
-export default function AvatarUpload({ currentAvatar, userName, onUploadSuccess }) {
+export default function AvatarUpload({ currentAvatar, userName, onUploadSuccess, onAvatarChange }) {
   const [isUploading, setIsUploading] = useState(false)
   const [preview, setPreview] = useState(null)
   const fileInputRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview)
+    }
+  }, [preview])
 
   // Foydalanuvchining bosh harfi (agar rasm bo'lmasa)
   const initial = userName?.charAt(0)?.toUpperCase() || 'U'
@@ -49,11 +56,11 @@ export default function AvatarUpload({ currentAvatar, userName, onUploadSuccess 
         throw new Error(data.error || 'Yuklashda xatolik')
       }
 
-      toast.success('✓ Avatar muvaffaqiyatli yangilandi!')
-      
-      // Parent komponentga xabar berish
-      if (onUploadSuccess) {
-        onUploadSuccess(data.avatarUrl)
+      toast.success('Avatar muvaffaqiyatli yangilandi!')
+
+      const callback = onUploadSuccess || onAvatarChange
+      if (callback) {
+        callback(data.avatarUrl)
       }
 
       setPreview(null)
@@ -73,9 +80,9 @@ export default function AvatarUpload({ currentAvatar, userName, onUploadSuccess 
   const displayImage = preview || currentAvatar
 
   return (
-    <div className="relative group">
+    <div className="relative group shrink-0">
       {/* Avatar Display */}
-      <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden shadow-2xl shadow-yellow-500/30 border-4 border-purple-900/50">
+      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-lg border-2 border-[var(--v3-urgu)] bg-[var(--v3-yuza-2)]">
         {displayImage ? (
           <img
             src={displayImage}
@@ -83,31 +90,42 @@ export default function AvatarUpload({ currentAvatar, userName, onUploadSuccess 
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500 flex items-center justify-center text-5xl md:text-6xl font-bold text-black">
+          <div className="w-full h-full bg-gradient-to-br from-[var(--v3-urgu)] to-[var(--v3-urgu-2)] flex items-center justify-center text-4xl sm:text-5xl font-bold text-[var(--v3-urgu-matn)]">
             {initial}
           </div>
         )}
       </div>
 
-      {/* Upload Overlay (hover qilganda ko'rinadi) */}
-      <div
+      {/* Upload Overlay (desktop hover va tap uchun) */}
+      <button
+        type="button"
         onClick={() => !isUploading && fileInputRef.current?.click()}
-        className={`absolute inset-0 rounded-2xl bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all cursor-pointer ${
+        disabled={isUploading}
+        aria-label="Profil rasmini o'zgartirish"
+        className={`absolute inset-0 rounded-2xl bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all cursor-pointer ${
           isUploading ? 'opacity-100 cursor-wait' : ''
         }`}
       >
         {isUploading ? (
           <>
-            <div className="w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-xs text-white font-semibold">Yuklanmoqda...</span>
+            <Ikon nom="vaqt" olcham={22} className="text-[var(--v3-urgu)] animate-spin" />
+            <span className="text-[11px] text-white font-semibold">Yuklanmoqda...</span>
           </>
         ) : (
           <>
-            <span className="text-2xl">📷</span>
-            <span className="text-xs text-white font-semibold">O'zgartirish</span>
+            <Ikon nom="kamera" olcham={22} className="text-white" />
+            <span className="text-[11px] text-white font-semibold">O&apos;zgartirish</span>
           </>
         )}
-      </div>
+      </button>
+
+      {/* Mobil qurilmalar uchun doimiy ko'rinadigan burchak tugmasi */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-1.5 -right-1.5 w-8 h-8 rounded-xl bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] border-2 border-[var(--v3-fon-2)] shadow-md flex items-center justify-center md:opacity-90"
+      >
+        <Ikon nom={isUploading ? 'vaqt' : 'kamera'} olcham={15} className={isUploading ? 'animate-spin' : ''} />
+      </span>
 
       {/* Hidden File Input */}
       <input

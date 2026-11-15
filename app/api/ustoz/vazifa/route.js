@@ -4,8 +4,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
+import { createNotification } from '@/lib/bildirishnoma'
 
-// GET - Barcha vazifalar ro'yxati
+// GET - Barcha vazifalar (filter bilan)
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
@@ -20,34 +21,83 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url)
     const groupId = searchParams.get('groupId') || ''
-    const type = searchParams.get('type') || ''
-    const status = searchParams.get('status') || ''
+    const status = searchParams.get('status') || 'all' // all | active | expired | drafts
+    const search = (searchParams.get('search') || '').trim()
 
     const where = { teacherId: session.user.id }
 
-    if (groupId && groupId !== 'all') where.groupId = groupId
-    if (type && type !== 'all') where.type = type
-    if (status === 'active') where.deadline = { gte: new Date() }
-    if (status === 'expired') where.deadline = { lt: new Date() }
+    if (groupId && groupId !== 'all') {
+      where.groupId = groupId
+    }
+
+    if (status === 'active') {
+      where.isDraft = false
+      where.deadline = { gte: new Date() }
+    } else if (status === 'expired') {
+      where.isDraft = false
+      where.deadline = { lt: new Date() }
+    } else if (status === 'drafts') {
+      where.isDraft = true
+    }
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ]
+    }
 
     const assignments = await prisma.assignment.findMany({
       where,
       include: {
         group: {
-          select: { id: true, name: true, color: true }
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            _count: { select: { students: { where: { holat: 'faol' } } } }
+          }
         },
         _count: {
           select: { submissions: true }
         },
         submissions: {
-          where: { status: 'pending' },
-          select: { id: true }
+          select: {
+            id: true,
+            status: true,
+            score: true,
+            studentId: true
+          }
         }
       },
       orderBy: { createdAt: 'desc' }
     })
 
-    // Guruhlar (filter uchun)
+    // Statistika qo'shish
+    const enriched = assignments.map(a => {
+      const totalStudents = a.group?._count?.students || 0
+      const submittedCount = a.submissions.length
+      const gradedCount = a.submissions.filter(s => s.status === 'graded').length
+      const pendingCount = a.submissions.filter(s => s.status === 'pending').length
+      const avgScore = gradedCount > 0
+        ? Math.round(a.submissions.filter(s => s.score !== null).reduce((sum, s) => sum + s.score, 0) / gradedCount)
+        : null
+
+      return {
+        ...a,
+        submissions: undefined,
+        stats: {
+          totalStudents,
+          submittedCount,
+          gradedCount,
+          pendingCount,
+          avgScore,
+          completionRate: totalStudents > 0 ? Math.round((submittedCount / totalStudents) * 100) : 0
+        }
+      }
+    })
+
+    // Guruhlar ro'yxati
     const groups = await prisma.teacherGroup.findMany({
       where: { teacherId: session.user.id },
       select: { id: true, name: true, color: true },
@@ -56,17 +106,13 @@ export async function GET(request) {
 
     return NextResponse.json({
       success: true,
-      assignments: assignments.map(a => ({
-        ...a,
-        pendingCount: a.submissions.length,
-        submissions: undefined
-      })),
+      assignments: enriched,
       groups,
-      total: assignments.length
+      total: enriched.length
     })
   } catch (error) {
     console.error('[Vazifa GET]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Vazifalarni yuklashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -92,21 +138,24 @@ export async function POST(request) {
         { status: 400 }
       )
     }
+
+    if (!data.description || data.description.trim().length < 5) {
+      return NextResponse.json(
+        { error: 'Vazifa tavsifi kamida 5 ta harfdan iborat bo\'lishi kerak' },
+        { status: 400 }
+      )
+    }
+
     if (!data.groupId) {
       return NextResponse.json(
         { error: 'Guruhni tanlang' },
         { status: 400 }
       )
     }
+
     if (!data.deadline) {
       return NextResponse.json(
-        { error: 'Muddatni belgilang' },
-        { status: 400 }
-      )
-    }
-    if (!data.type) {
-      return NextResponse.json(
-        { error: 'Vazifa turini tanlang' },
+        { error: 'Topshirish muddatini belgilang' },
         { status: 400 }
       )
     }
@@ -126,100 +175,53 @@ export async function POST(request) {
       )
     }
 
-    // Vazifani yaratish
     const assignment = await prisma.assignment.create({
       data: {
         teacherId: session.user.id,
         groupId: data.groupId,
         title: data.title.trim(),
-        description: data.description?.trim() || '',
-        type: data.type,
+        description: data.description.trim(),
+        type: data.type || 'homework',
         deadline: new Date(data.deadline),
-        maxScore: parseInt(data.maxScore) || 100
+        maxScore: parseInt(data.maxScore) || 100,
+        passingScore: data.passingScore ? parseInt(data.passingScore) : null,
+        maxAttempts: parseInt(data.maxAttempts) || 1,
+        allowLateSubmission: data.allowLateSubmission || false,
+        latePenalty: parseFloat(data.latePenalty) || 10,
+        instructions: data.instructions?.trim() || null,
+        isDraft: data.isDraft || false
+      },
+      include: {
+        group: { select: { name: true, color: true } }
       }
     })
+
+    if (!assignment.isDraft) {
+      const activeMembers = await prisma.teacherStudent.findMany({
+        where: { groupId: group.id, holat: 'faol' },
+        select: { studentId: true }
+      })
+      for (const m of activeMembers) {
+        createNotification({
+          userId: m.studentId,
+          title: `📝 Yangi vazifa: ${assignment.title}`,
+          message: `"${group.name}" guruhida yangi vazifa e'lon qilindi. Topshirish muddati: ${new Date(assignment.deadline).toLocaleDateString('uz-UZ')}.`,
+          type: 'system',
+          icon: '📝',
+          link: '/profil/vazifalar',
+          sentBy: session.user.id,
+        }).catch(() => {})
+      }
+    }
 
     return NextResponse.json({
       success: true,
       assignment,
-      message: `✓ "${assignment.title}" vazifasi muvaffaqiyatli yaratildi`
+      message: `✓ "${assignment.title}" vazifasi "${group.name}" guruhiga berildi`
     })
   } catch (error) {
     console.error('[Vazifa POST]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
-  }
-}
-
-// PUT - Vazifani tahrirlash
-export async function PUT(request) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const isTeacher = ustozPaneliOchiqmi(session.user)
-    if (!isTeacher) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    const data = await request.json()
-
-    if (!data.id) {
-      return NextResponse.json({ error: 'Vazifa ID kerak' }, { status: 400 })
-    }
-
-    // Vazifa o'qituvchiga tegishlimi?
-    const existing = await prisma.assignment.findFirst({
-      where: {
-        id: data.id,
-        teacherId: session.user.id
-      }
-    })
-
-    if (!existing) {
-      return NextResponse.json(
-        { error: 'Vazifa topilmadi yoki sizga tegishli emas' },
-        { status: 404 }
-      )
-    }
-
-    // Yangi guruh ham SHU ustozniki bo'lishi kerak. Avval `groupId`
-    // tekshirilmasdan qabul qilinardi: ustoz o'z vazifasini begona
-    // guruhga ko'chirib yuborishi va u yerda ko'rinib qolishi mumkin edi.
-    if (data.groupId && data.groupId !== existing.groupId) {
-      const guruh = await prisma.teacherGroup.findFirst({
-        where: { id: data.groupId, teacherId: session.user.id },
-        select: { id: true },
-      })
-      if (!guruh) {
-        return NextResponse.json(
-          { error: 'Guruh topilmadi yoki sizga tegishli emas' },
-          { status: 404 }
-        )
-      }
-    }
-
-    const assignment = await prisma.assignment.update({
-      where: { id: data.id },
-      data: {
-        title: data.title?.trim() || existing.title,
-        description: data.description?.trim() ?? existing.description,
-        type: data.type || existing.type,
-        deadline: data.deadline ? new Date(data.deadline) : existing.deadline,
-        maxScore: data.maxScore ? parseInt(data.maxScore) : existing.maxScore,
-        groupId: data.groupId || existing.groupId
-      }
-    })
-
-    return NextResponse.json({
-      success: true,
-      assignment,
-      message: `✓ "${assignment.title}" vazifasi yangilandi`
-    })
-  } catch (error) {
-    console.error('[Vazifa PUT]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Vazifa yaratishda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -237,27 +239,35 @@ export async function DELETE(request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
+    const assignmentId = searchParams.get('id')
 
-    if (!id) {
+    if (!assignmentId) {
       return NextResponse.json({ error: 'Vazifa ID kerak' }, { status: 400 })
     }
 
     const existing = await prisma.assignment.findFirst({
       where: {
-        id,
+        id: assignmentId,
         teacherId: session.user.id
       }
     })
 
     if (!existing) {
       return NextResponse.json(
-        { error: 'Vazifa topilmadi' },
+        { error: 'Vazifa topilmadi yoki sizga tegishli emas' },
         { status: 404 }
       )
     }
 
-    await prisma.assignment.delete({ where: { id } })
+    // Topshiriqlar va vazifani tranzaksiyada o'chirish (FK xatosini oldini olish)
+    await prisma.$transaction([
+      prisma.assignmentSubmission.deleteMany({
+        where: { assignmentId }
+      }),
+      prisma.assignment.delete({
+        where: { id: assignmentId }
+      })
+    ])
 
     return NextResponse.json({
       success: true,
@@ -265,6 +275,6 @@ export async function DELETE(request) {
     })
   } catch (error) {
     console.error('[Vazifa DELETE]', error)
-    return NextResponse.json({ error: 'Xatolik: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Vazifani o\'chirishda xatolik yuz berdi' }, { status: 500 })
   }
 }

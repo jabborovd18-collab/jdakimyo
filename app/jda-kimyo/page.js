@@ -21,7 +21,7 @@ export const metadata = {
   // `absolute` — ildiz layoutdagi "%s | JDA KIMYO" qolipi QO'LLANMASIN:
   // nom sarlavhaning boshida allaqachon turibdi, qolip uni ikkinchi
   // marta qo'shsa sarlavha 70 belgidan oshadi va natijada kesiladi.
-  title: { absolute: "JDA KIMYO nima? — o'zbek tilidagi oliy kimyo platformasi" },
+  title: { absolute: "JDA KIMYO nima? — o'zbek tilidagi maktab va oliy kimyo platformasi" },
   description: TARIF_TOLIQ,
   alternates: { canonical: '/jda-kimyo' },
   openGraph: {

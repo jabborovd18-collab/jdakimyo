@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { canvasOlchami, kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -80,13 +80,13 @@ export default function Mavzu3_3() {
     },
     {
       savol: "Quyidagilardan qaysi biri ikki atomli oddiy modda molekulasi hisoblanadi?",
-      variantlar: ["O₂ (Kislorod)", "H₂O (Suv)", "He (Geliy)", "CO₂"],
+      variantlar: ["CO₂", "O₂ (Kislorod)", "H₂O (Suv)", "He (Geliy)"],
       togriJavob: "O₂ (Kislorod)",
       izoh: "H₂, N₂, O₂, F₂, Cl₂, Br₂, I₂ — ikki atomli oddiy modda molekulalaridir.",
     },
     {
       savol: "Suv elektroliz qilinganda (2H₂O → 2H₂↑ + O₂↑) vodorod va kislorod qanday hajmiy nisbatda ajraladi?",
-      variantlar: ["2 : 1 nisbatda (2 hajm H₂ va 1 hajm O₂)", "1 : 1 nisbatda", "1 : 2 nisbatda", "3 : 1 nisbatda"],
+      variantlar: ["1 : 2 nisbatda", "3 : 1 nisbatda", "2 : 1 nisbatda (2 hajm H₂ va 1 hajm O₂)", "1 : 1 nisbatda"],
       togriJavob: "2 : 1 nisbatda (2 hajm H₂ va 1 hajm O₂)",
       izoh: "Har 2 molekula suv parchalanganda 2 hajm vodorod va 1 hajm kislorod hosil bo'ladi.",
     },
@@ -108,8 +108,7 @@ export default function Mavzu3_3() {
 
     const chiz = () => {
       t += 0.045
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -183,11 +182,11 @@ export default function Mavzu3_3() {
         h * 0.9
       )
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, kuchlanishBor])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -210,8 +209,7 @@ export default function Mavzu3_3() {
     const canvas = issiqlikCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -263,8 +261,7 @@ export default function Mavzu3_3() {
     const canvas = plastikCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -312,8 +309,7 @@ export default function Mavzu3_3() {
     const canvas = haroratCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -374,8 +370,7 @@ export default function Mavzu3_3() {
     const canvas = magnitCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -434,8 +429,7 @@ export default function Mavzu3_3() {
 
     const chiz = () => {
       t += 0.06
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -488,11 +482,11 @@ export default function Mavzu3_3() {
         h * 0.92
       )
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, tanlanganKislotaNamuna])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -511,10 +505,10 @@ export default function Mavzu3_3() {
   const [xTugadi, setXTugadi] = useState(false)
 
   const rekordSavollar = [
-    { savol: "Xona haroratida (20°C) suyuq holatda bo'ladigan yagona metall qaysi?", variantlar: ["Hg (Simob)", "Fe (Temir)", "Ag (Kumush)", "Al (Alyuminiy)"], togri: "Hg (Simob)" },
+    { savol: "Xona haroratida (20°C) suyuq holatda bo'ladigan yagona metall qaysi?", variantlar: ["Fe (Temir)", "Ag (Kumush)", "Al (Alyuminiy)", "Hg (Simob)"], togri: "Hg (Simob)" },
     { savol: "Xona haroratida suyuq holatda bo'ladigan yagona metallmas qaysi?", variantlar: ["Br₂ (Brom)", "I₂ (Yod)", "Cl₂ (Xlor)", "S (Oltingugurt)"], togri: "Br₂ (Brom)" },
-    { savol: "Eng qiyin suyuqlanadigan metall (3422°C, cho'g'lanma lampa tolasi)?", variantlar: ["W (Volfram)", "Ga (Galliy)", "Na (Natriy)", "Pb (Qo'rg'oshin)"], togri: "W (Volfram)" },
-    { savol: "Elektr va issiqlikni barcha metallardan eng yaxshi o'tkazuvchi metall?", variantlar: ["Ag (Kumush)", "Fe (Temir)", "Hg (Simob)", "Pb (Qo'rg'oshin)"], togri: "Ag (Kumush)" },
+    { savol: "Eng qiyin suyuqlanadigan metall (3422°C, cho'g'lanma lampa tolasi)?", variantlar: ["Pb (Qo'rg'oshin)", "W (Volfram)", "Ga (Galliy)", "Na (Natriy)"], togri: "W (Volfram)" },
+    { savol: "Elektr va issiqlikni barcha metallardan eng yaxshi o'tkazuvchi metall?", variantlar: ["Hg (Simob)", "Pb (Qo'rg'oshin)", "Ag (Kumush)", "Fe (Temir)"], togri: "Ag (Kumush)" },
   ]
   const [rIdx, setRIdx] = useState(0)
   const [rTanlov, setRTanlov] = useState(null)
@@ -522,10 +516,10 @@ export default function Mavzu3_3() {
   const [rTugadi, setRTugadi] = useState(false)
 
   const labSinovSavollar = [
-    { savol: "Uchta qora kukun: Temir (Fe), Ko'mir (C) va Mis(II) oksiddan qaysi biri magnitga tortiladi?", variantlar: ["Faqat Fe (Temir)", "Faqat C (Ko'mir)", "Hammasi tortiladi", "Hech biri tortilmaydi"], togri: "Faqat Fe (Temir)" },
+    { savol: "Uchta qora kukun: Temir (Fe), Ko'mir (C) va Mis(II) oksiddan qaysi biri magnitga tortiladi?", variantlar: ["Faqat C (Ko'mir)", "Hammasi tortiladi", "Hech biri tortilmaydi", "Faqat Fe (Temir)"], togri: "Faqat Fe (Temir)" },
     { savol: "Kaft haroratidayoq (29.8°C) erib suyuqlikka aylanadigan metall qaysi?", variantlar: ["Ga (Galliy)", "Fe (Temir)", "Cu (Mis)", "W (Volfram)"], togri: "Ga (Galliy)" },
-    { savol: "Rux (Zn) bo'lagi xlorid kislotaga (HCl) tushirilganda qanday gaz pufakchalari chiqadi?", variantlar: ["H₂ (Vodorod)", "O₂ (Kislorod)", "CO₂", "N₂ (Azot)"], togri: "H₂ (Vodorod)" },
-    { savol: "Oltin (Au) dan 0.0001 mm qalinlikdagi zar varaq yasalishi metallarning qaysi xossasiga asoslangan?", variantlar: ["Plastiklik (bolg'alanuvchanlik)", "Mo'rtlik", "Magnitlanish", "Sublimatsiya"], togri: "Plastiklik (bolg'alanuvchanlik)" },
+    { savol: "Rux (Zn) bo'lagi xlorid kislotaga (HCl) tushirilganda qanday gaz pufakchalari chiqadi?", variantlar: ["N₂ (Azot)", "H₂ (Vodorod)", "O₂ (Kislorod)", "CO₂"], togri: "H₂ (Vodorod)" },
+    { savol: "Oltin (Au) dan 0.0001 mm qalinlikdagi zar varaq yasalishi metallarning qaysi xossasiga asoslangan?", variantlar: ["Magnitlanish", "Sublimatsiya", "Plastiklik (bolg'alanuvchanlik)", "Mo'rtlik"], togri: "Plastiklik (bolg'alanuvchanlik)" },
   ]
   const [lsIdx, setLsIdx] = useState(0)
   const [lsTanlov, setLsTanlov] = useState(null)
@@ -534,8 +528,8 @@ export default function Mavzu3_3() {
 
   const duelSavollari = [
     { s: "Qaysi metall magnitga kuchli tortiladi?", v: ["Fe (Temir)", "Cu (Mis)", "Au (Oltin)"], j: "Fe (Temir)" },
-    { s: "Eng yengil metall (suvda suzadi, ρ = 0.53 g/cm³)?", v: ["Li (Litiy)", "Os (Osmiy)", "Fe (Temir)"], j: "Li (Litiy)" },
-    { s: "Metallarda elektr tokini nima tashiydi?", v: ["Erkin elektronlar", "Protonlar", "Neytronlar"], j: "Erkin elektronlar" },
+    { s: "Eng yengil metall (suvda suzadi, ρ = 0.53 g/cm³)?", v: ["Fe (Temir)", "Li (Litiy)", "Os (Osmiy)"], j: "Li (Litiy)" },
+    { s: "Metallarda elektr tokini nima tashiydi?", v: ["Protonlar", "Neytronlar", "Erkin elektronlar"], j: "Erkin elektronlar" },
     { s: "Qaysi metallmas odatdagi sharoitda to'q qizil-qo'ng'ir suyuqlik?", v: ["Br₂ (Brom)", "S (Oltingugurt)", "C (Uglerod)"], j: "Br₂ (Brom)" },
   ]
   const [g1Idx, setG1Idx] = useState(0)
@@ -987,7 +981,7 @@ export default function Mavzu3_3() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g1Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g1Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g1Idx].v, duelSavollari[g1Idx].s, g1Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"
@@ -1015,7 +1009,7 @@ export default function Mavzu3_3() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g2Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g2Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g2Idx].v, duelSavollari[g2Idx].s, g2Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"

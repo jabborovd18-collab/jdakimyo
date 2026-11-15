@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { canvasOlchami, kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -85,13 +85,13 @@ export default function Mavzu3_6() {
     },
     {
       savol: "III valentli Alyuminiy (Al) va II valentli Kislorod (O) birikmasining to'g'ri formulasini toping:",
-      variantlar: ["Al₂O₃", "AlO", "Al₃O₂", "Al₂O"],
+      variantlar: ["Al₂O", "Al₂O₃", "AlO", "Al₃O₂"],
       togriJavob: "Al₂O₃",
       izoh: "Valentliklar chalishtirilganda Al ga 2, O ga 3 indeksi tushadi: Al₂O₃.",
     },
     {
       savol: "Har qanday toza suvda (H₂O) vodorod va kislorod massalari nisbati necha bo'ladi (Prust qonuni)?",
-      variantlar: ["1 : 8", "2 : 1", "1 : 16", "3 : 8"],
+      variantlar: ["1 : 16", "3 : 8", "1 : 8", "2 : 1"],
       togriJavob: "1 : 8",
       izoh: "2 g vodorod va 16 g kislorod birikib 18 g suv hosil qiladi (2:16 = 1:8).",
     },
@@ -113,8 +113,7 @@ export default function Mavzu3_6() {
 
     const chiz = () => {
       t += 0.04
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -180,11 +179,11 @@ export default function Mavzu3_6() {
         )
       }
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, naclBosqich])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -203,8 +202,7 @@ export default function Mavzu3_6() {
 
     const chiz = () => {
       t += 0.05
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -285,11 +283,11 @@ export default function Mavzu3_6() {
         ly + 55
       )
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, eritmaTur])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -303,8 +301,7 @@ export default function Mavzu3_6() {
     const canvas = gazCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -360,8 +357,7 @@ export default function Mavzu3_6() {
     const canvas = kuporosCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -414,8 +410,7 @@ export default function Mavzu3_6() {
     const canvas = suvSintezCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -481,8 +476,7 @@ export default function Mavzu3_6() {
     const canvas = termikCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -532,10 +526,10 @@ export default function Mavzu3_6() {
   // 4 TA SMART DOSKA O'YINI
   // ═══════════════════════════════════════════════════════════════════════════
   const taqqosSavollar = [
-    { savol: "Sariq-yashil zaharli gaz (Cl₂) va suvda portlovchi yumshoq metall (Na) birikishidan qanday modda hosil bo'ladi?", variantlar: ["NaCl — Zararsiz oq kristall osh tuzi", "Zaharliligi 2 barobar kuchli gaz", "Suyuq simob", "Qora ko'mir"], togri: "NaCl — Zararsiz oq kristall osh tuzi" },
+    { savol: "Sariq-yashil zaharli gaz (Cl₂) va suvda portlovchi yumshoq metall (Na) birikishidan qanday modda hosil bo'ladi?", variantlar: ["Zaharliligi 2 barobar kuchli gaz", "Suyuq simob", "Qora ko'mir", "NaCl — Zararsiz oq kristall osh tuzi"], togri: "NaCl — Zararsiz oq kristall osh tuzi" },
     { savol: "Yonuvchi vodorod (H₂) va yonishni qo'llab-quvvatlovchi kislorod (O₂) birikmasidan hosil bo'lgan suv (H₂O) olovga qanday ta'sir qiladi?", variantlar: ["Olovni o'chiradi (elementlar xossasi saqlanmaydi)", "Olovni kuchaytiradi", "O'zi yonib ketadi", "Portlaydi"], togri: "Olovni o'chiradi (elementlar xossasi saqlanmaydi)" },
-    { savol: "Suvsiz oq mis(II) sulfat (CuSO₄) kukuniga suv tomizilsa rangi qanday o'zgaradi?", variantlar: ["Moviy-ko'k rangga kiradi (CuSO₄·5H₂O)", "Qora rangga kiradi", "Sariq bo'ladi", "O'zgarmaydi"], togri: "Moviy-ko'k rangga kiradi (CuSO₄·5H₂O)" },
-    { savol: "Shakar (C₁₂H₂₂O₁₁) kuchli qizdirilganda qorayib qolishi uning tarkibida qaysi element borligini isbotlaydi?", variantlar: ["C (Uglerod)", "Na (Natriy)", "Cl (Xlor)", "Fe (Temir)"], togri: "C (Uglerod)" },
+    { savol: "Suvsiz oq mis(II) sulfat (CuSO₄) kukuniga suv tomizilsa rangi qanday o'zgaradi?", variantlar: ["O'zgarmaydi", "Moviy-ko'k rangga kiradi (CuSO₄·5H₂O)", "Qora rangga kiradi", "Sariq bo'ladi"], togri: "Moviy-ko'k rangga kiradi (CuSO₄·5H₂O)" },
+    { savol: "Shakar (C₁₂H₂₂O₁₁) kuchli qizdirilganda qorayib qolishi uning tarkibida qaysi element borligini isbotlaydi?", variantlar: ["Cl (Xlor)", "Fe (Temir)", "C (Uglerod)", "Na (Natriy)"], togri: "C (Uglerod)" },
   ]
   const [tIdx, setTIdx] = useState(0)
   const [tTanlov, setTTanlov] = useState(null)
@@ -554,10 +548,10 @@ export default function Mavzu3_6() {
   const [eTugadi, setETugadi] = useState(false)
 
   const gazDetektivSavollar = [
-    { savol: "Ohakli suvni (Ca(OH)₂) oq cho'kma (CaCO₃↓) hosil qilib loyqalatadigan va olovni o'chiradigan gaz qaysi?", variantlar: ["CO₂ (Karbonat angidrid)", "CO (Is gazi)", "O₂ (Kislorod)", "H₂ (Vodorod)"], togri: "CO₂ (Karbonat angidrid)" },
+    { savol: "Ohakli suvni (Ca(OH)₂) oq cho'kma (CaCO₃↓) hosil qilib loyqalatadigan va olovni o'chiradigan gaz qaysi?", variantlar: ["CO (Is gazi)", "O₂ (Kislorod)", "H₂ (Vodorod)", "CO₂ (Karbonat angidrid)"], togri: "CO₂ (Karbonat angidrid)" },
     { savol: "Rangsiz, hidsiz, o'ta zaharli bo'lib, havoda moviy alanga bilan yonadigan (2CO + O₂ → 2CO₂) gaz qaysi?", variantlar: ["CO (Is gazi)", "CO₂ (Karbonat angidrid)", "N₂ (Azot)", "He (Geliy)"], togri: "CO (Is gazi)" },
-    { savol: "Chala cho'g'langan cho'p tushirilganda uni alangalatib yuboradigan gaz qaysi?", variantlar: ["O₂ (Kislorod)", "CO₂ (Karbonat angidrid)", "N₂ (Azot)", "H₂O bug'i"], togri: "O₂ (Kislorod)" },
-    { savol: "Yonib turgan gugurt tutilganda 'paq' etib ovoz chiqarib yonadigan eng yengil gaz qaysi?", variantlar: ["H₂ (Vodorod)", "CO₂", "O₂", "Cl₂"], togri: "H₂ (Vodorod)" },
+    { savol: "Chala cho'g'langan cho'p tushirilganda uni alangalatib yuboradigan gaz qaysi?", variantlar: ["H₂O bug'i", "O₂ (Kislorod)", "CO₂ (Karbonat angidrid)", "N₂ (Azot)"], togri: "O₂ (Kislorod)" },
+    { savol: "Yonib turgan gugurt tutilganda 'paq' etib ovoz chiqarib yonadigan eng yengil gaz qaysi?", variantlar: ["O₂", "Cl₂", "H₂ (Vodorod)", "CO₂"], togri: "H₂ (Vodorod)" },
   ]
   const [gdIdx, setGdIdx] = useState(0)
   const [gdTanlov, setGdTanlov] = useState(null)
@@ -566,8 +560,8 @@ export default function Mavzu3_6() {
 
   const duelSavollari = [
     { s: "Osh tuzi (NaCl) necha gradusda suyuqlanadi?", v: ["801°C", "100°C", "0°C"], j: "801°C" },
-    { s: "Qaysi eritma elektr tokini o'tkazadi (lampani yoqadi)?", v: ["Tuzli suv (NaCl)", "Shakarli suv", "Distillangan suv"], j: "Tuzli suv (NaCl)" },
-    { s: "Qaysi gaz havodan 1.5 marta og'ir (Mr=44) va olovni o'chiradi?", v: ["CO₂", "CO (Mr=28)", "H₂ (Mr=2)"], j: "CO₂" },
+    { s: "Qaysi eritma elektr tokini o'tkazadi (lampani yoqadi)?", v: ["Distillangan suv", "Tuzli suv (NaCl)", "Shakarli suv"], j: "Tuzli suv (NaCl)" },
+    { s: "Qaysi gaz havodan 1.5 marta og'ir (Mr=44) va olovni o'chiradi?", v: ["CO (Mr=28)", "H₂ (Mr=2)", "CO₂"], j: "CO₂" },
     { s: "Mis kuporosi (CuSO₄·5H₂O) qanday rangda?", v: ["Moviy-ko'k", "Qora", "Qizil"], j: "Moviy-ko'k" },
   ]
   const [g1Idx, setG1Idx] = useState(0)
@@ -1021,7 +1015,7 @@ export default function Mavzu3_6() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g1Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g1Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g1Idx].v, duelSavollari[g1Idx].s, g1Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"
@@ -1049,7 +1043,7 @@ export default function Mavzu3_6() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g2Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g2Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g2Idx].v, duelSavollari[g2Idx].s, g2Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"

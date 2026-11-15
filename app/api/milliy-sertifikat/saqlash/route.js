@@ -1,11 +1,17 @@
 // app/api/milliy-sertifikat/saqlash/route.js
 //
-// Faqat sertifikatdagi ismni o'zgartiradi. Ball va daraja bu yerdan
-// o'zgarmaydi: ularni yakunlash route'i hisoblaydi.
+// Faqat MS sertifikatdagi ismni egasi tomonidan 1 marta to'g'rilash uchun.
+// Tasdiqlangach fullNameLocked = true bo'ladi va qayta o'zgartirish faqat admin orqali bo'ladi.
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import {
+  ajratSertifikatTavsifi,
+  sertifikatIsmSaqlashQarori,
+} from '@/lib/sertifikat-tahlil'
+import { foydalanuvchilargaSertifikatPdfYubor } from '@/lib/telegram-sertifikat'
+import { profilLogYoz } from '@/lib/profil-log'
 
 const ISM_MAKS_UZUNLIK = 80
 
@@ -18,26 +24,86 @@ export async function POST(request) {
 
     const body = await request.json().catch(() => null)
     const certId = typeof body?.certId === 'string' ? body.certId.trim().toUpperCase() : ''
-    const fullName = typeof body?.fullName === 'string' ? body.fullName.trim() : ''
 
-    if (!certId.startsWith('JDA-MS-') || !fullName || fullName.length > ISM_MAKS_UZUNLIK) {
-      return NextResponse.json({ error: "Noto'g'ri so'rov" }, { status: 400 })
+    if (!certId) {
+      return NextResponse.json({ error: "Noto'g'ri sertifikat raqami" }, { status: 400 })
     }
 
-    // Nega prefiks tekshiriladi: admin bergan sertifikatlardagi ismni egasi
-    // o'zi o'zgartira olmasligi kerak. userId sharti birovnikini yopadi.
-    const { count } = await prisma.certificate.updateMany({
+    const mavjud = await prisma.certificate.findFirst({
       where: { certId, userId: session.user.id },
-      data: { fullName },
+      select: {
+        id: true,
+        certId: true,
+        fullName: true,
+        turi: true,
+        metadata: true,
+        fullNameLocked: true,
+        description: true,
+      },
     })
 
-    if (count === 0) {
+    if (!mavjud) {
       return NextResponse.json({ error: 'Sertifikat topilmadi' }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true })
+    if (!ajratSertifikatTavsifi(mavjud).isMs) {
+      return NextResponse.json(
+        { error: "Bu endpoint faqat Milliy Sertifikat yozuvlari uchun" },
+        { status: 400 }
+      )
+    }
+
+    const qaror = sertifikatIsmSaqlashQarori({
+      mavjud,
+      yangiIsm: body?.fullName,
+      maksUzunlik: ISM_MAKS_UZUNLIK,
+    })
+
+    if (!qaror.ok) {
+      return NextResponse.json(
+        { error: qaror.error, locked: Boolean(qaror.locked) },
+        { status: qaror.status }
+      )
+    }
+
+    if (qaror.ozgardi) {
+      const yangilangan = await prisma.certificate.update({
+        where: { id: mavjud.id },
+        data: {
+          fullName: qaror.fullName,
+          fullNameLocked: qaror.fullNameLocked,
+          metadata: qaror.nextMetadata,
+          description: qaror.nextDescription,
+        },
+      })
+
+      // F.I.SH tasdiqlangach yangilangan PDF nusxasini Telegram botga ham yuboramiz
+      try {
+        await foydalanuvchilargaSertifikatPdfYubor([yangilangan])
+      } catch (tgErr) {
+        console.warn('[Milliy Sertifikat Saqlash Telegram PDF]', tgErr?.message)
+      }
+
+      await profilLogYoz({
+        userId: session.user.id,
+        toifa: 'sertifikat',
+        amal: 'SERTIFIKAT_ISM_TASDIQLANDI',
+        sarlavha: `Sertifikatdagi ism tasdiqlandi (${certId})`,
+        tafsilot: qaror.fullName,
+        holat: 'muvaffaqiyat',
+        request,
+        meta: { certId, fullNameLocked: qaror.fullNameLocked },
+      })
+    }
+
+    return NextResponse.json({
+      success: true,
+      fullName: qaror.fullName,
+      fullNameLocked: qaror.fullNameLocked,
+      unchanged: !qaror.ozgardi,
+    })
   } catch (err) {
     console.error('[Milliy Sertifikat Saqlash]', err)
-    return NextResponse.json({ error: 'Ismni saqlab bo\'lmadi' }, { status: 500 })
+    return NextResponse.json({ error: "Ismni saqlab bo'lmadi" }, { status: 500 })
   }
 }

@@ -41,6 +41,7 @@ export default function UstozDashboard() {
   const quickActions = [
     { href: '/ustoz/open-quiz', ikon: 'quiz', label: 'Variantli test yaratish', tavsif: 'Ochiq va yopiq variantli testlar' },
     { href: '/ustoz/yopiq-quiz', ikon: 'fayl', label: 'Yozma test va baholash', tavsif: 'Erkin javobli savollarni tekshirish' },
+    { href: '/doska/skaner', ikon: 'skaner', label: 'Doska QR skaneri', tavsif: 'Auditoriyadagi elektron doskaga telefondan tezkor kirish' },
     { href: '/ustoz/natijalar', ikon: 'orin', label: 'Natijalar tahlili', tavsif: 'Talabalarning o\'zlashtirish ko\'rsatkichlari' },
     { href: '/ustoz/talaba', ikon: 'odamlar', label: 'Talabalarni boshqarish', tavsif: 'Takliflar va talabalar ro\'yxati' },
     { href: '/ustoz/guruh', ikon: 'kitob', label: 'Guruhlar tuzish', tavsif: 'Kurslar va guruhlarni ajratish' },
@@ -82,7 +83,7 @@ export default function UstozDashboard() {
               Yangi test tuzish
             </Link>
             <Link
-              href="/oquv/video-darsliklar/ustoz-quiz"
+              href="/testlar/ustoz"
               className="v3-tugma text-xs py-2 px-4"
             >
               <Ikon nom="tashqi" olcham={15} />

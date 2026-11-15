@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { ChatXatosi, ODAM, sherik, suhbatniOl } from '@/lib/chat'
+import { suhbatTartibla } from '@/lib/chat-interfeys'
 
 export async function GET() {
   try {
@@ -23,7 +24,7 @@ export async function GET() {
         holat: { not: 'rad' },
       },
       orderBy: [{ oxirgiXabar: 'desc' }, { createdAt: 'desc' }],
-      take: 100,
+      take: 150,
       include: {
         user1: { select: ODAM },
         user2: { select: ODAM },
@@ -48,10 +49,13 @@ export async function GET() {
       const sherikId = sherik(s, menId)
       const odam = s.user1Id === sherikId ? s.user1 : s.user2
       const oxirgi = s.xabarlar[0] || null
+      const qadalganVaqt = s.user1Id === menId ? s.user1PinnedAt : s.user2PinnedAt
 
       return {
         id: s.id,
         holat: s.holat,
+        qadalgan: Boolean(qadalganVaqt),
+        qadalganVaqt,
         // So'rovni kim boshlagani muhim: men boshlagan so'rov "kutilmoqda",
         // menga kelgani esa javob talab qiladi
         menBoshladim: s.boshlovchiId === menId,
@@ -71,10 +75,10 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      faol: royxat.filter((s) => s.holat === 'faol'),
+      faol: suhbatTartibla(royxat.filter((s) => s.holat === 'faol')),
       // Menga kelgan so'rovlar alohida bo'limda turadi
-      sorovlar: royxat.filter((s) => s.holat === 'sorov' && !s.menBoshladim),
-      yuborilgan: royxat.filter((s) => s.holat === 'sorov' && s.menBoshladim),
+      sorovlar: suhbatTartibla(royxat.filter((s) => s.holat === 'sorov' && !s.menBoshladim)),
+      yuborilgan: suhbatTartibla(royxat.filter((s) => s.holat === 'sorov' && s.menBoshladim)),
       oqilmagan: royxat.reduce((s, x) => s + x.oqilmagan, 0),
     })
   } catch (error) {

@@ -150,9 +150,10 @@ model User {
   orcid          String?
 
   // MODERATION
-  reportsMade     Report[]   @relation("Reporter")
-  reportsReceived Report[]   @relation("ReportTarget")
+  reportsMade     Report[]    @relation("Reporter")
+  reportsReceived Report[]    @relation("ReportTarget")
   auditLogs       AuditLog[]
+  profilLoglar    ProfilLog[]
 
   // Kimyogar tasdiqlagan reaksiyalar
   verifiedReactions Reaction[] @relation("ReactionVerifier")
@@ -165,8 +166,11 @@ model User {
   channels    Channel[]             @relation("ChannelOwner")
   channelSubs ChannelSubscription[]
 
-  // PROFIL POSTLARI
-  profilePosts ProfilePost[]
+  // PROFIL POSTLARI VA HIKOYALARI
+  profilePosts     ProfilePost[]
+  profilePostLikes ProfilePostLike[] @relation("ProfilePostLikes")
+  profileStories   ProfileStory[]
+  storyViews       ProfileStoryView[] @relation("ProfileStoryViews")
 
   // KUNLIK SOVG'ALAR
   yuborganSovgalar Gift[] @relation("GiftSender")
@@ -267,18 +271,23 @@ model VerificationToken {
 // ═══════════════════════════════════════════════════════════════
 
 model QuizResult {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   // Bir urinishni qayta yuborish ikkinchi marta XP bermasligi uchun server
   // yaratgan yagona kalit. Eski natijalarda qiymat yo'qligi tabiiy.
-  attemptId      String?  @unique
+  attemptId      String?   @unique
   userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   quizName       String
   score          Int
   percentage     Float
   timeSpent      Int
   totalQuestions Int
-  completedAt    DateTime @default(now())
+  isPinned       Boolean   @default(false)
+  pinnedAt       DateTime?
+  isHidden       Boolean   @default(false)
+  completedAt    DateTime  @default(now())
+
+  @@index([userId, isHidden, isPinned, pinnedAt, completedAt])
 }
 
 // Sertifikatni admin beradi. Yagona istisno: tayyorgarlik sinovi (JDA-MS-*),
@@ -295,11 +304,14 @@ model Certificate {
   // Ism-familya sertifikatning o'zida saqlanadi, User.fullName'dan olinmaydi:
   // profilda taxallus yozilgan bo'lishi mumkin, sertifikatda esa rasmiy ism
   // turishi shart. Profil keyin o'zgarsa ham berilgan sertifikat o'zgarmaydi.
-  fullName    String
-  fan         String // qaysi fan uchun berilgan (hozircha matn, keyin Fan modeliga bog'lanadi)
-  reason      String // nima uchun berilgan
-  description String? @db.Text
-  seals       Json? // pechatlar: [{url, label}]
+  fullName       String
+  fan            String // qaysi fan uchun berilgan (hozircha matn, keyin Fan modeliga bog'lanadi)
+  reason         String // nima uchun berilgan
+  description    String? @db.Text
+  turi           String  @default("admin_maxsus") // "milliy_sertifikat" | "mavsumiy_hamkor" | "admin_maxsus"
+  metadata       Json? // tuzilgan texnik natijalar (theta, se, shkalaBalli, oddiyBall, rank, hamkor)
+  fullNameLocked Boolean @default(false) // MS sertifikatda ism 1 marta tasdiqlangach true bo'ladi
+  seals          Json? // pechatlar: [{url, label}]
 
   // ─── Kim berdi ───
   // Reaksiya tasdig'idagi naqsh: admin o'chirilsa bog'lanish uziladi,
@@ -322,39 +334,89 @@ model Certificate {
 
   @@index([userId])
   @@index([fan])
+  @@index([turi])
   @@index([issuedById])
   @@index([status])
+}
+
+// Tayyorgarlik sinovi jadvali va kohort kalibrlash holati.
+// Nega alohida jadval: belgilangan kunda ochish, natijalarni e'longacha yashirish
+// va barcha ishtirokchilarga Rasch + Oddiy ball natijasini bir vaqtda chiqarish uchun.
+model MsImtihon {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  sarlavha        String
+  tavsif          String?   @db.Text
+  startsAt        DateTime?
+  endsAt          DateTime?
+  rejim           String    @default("jadval") // "jadval" (belgilangan sana, umumiy e'lon) | "erkin" (mashq)
+  vaqtMin         Int       @default(100)
+  faol            Boolean   @default(true)
+  isAnnounced     Boolean   @default(false) // true bo'lmaguncha natijalar hammaga yashirin
+  publishedAt     DateTime?
+  kalibrlanganAt  DateTime?
+  kalibrlashUsuli String?   // "cml_kohort" | "cml_bazaviy" | "taxminiy"
+  kalibrlashStats Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  urinishlar MsUrinish[]
+
+  @@index([slug])
+  @@index([faol])
+  @@index([isAnnounced])
 }
 
 // Tayyorgarlik sinovining xom natijasi. Nega kerak: savol qiyinligini kalibrlash
 // uchun har bir savolga berilgan javob saqlanishi shart, QuizResult esa faqat
 // umumiy ballni biladi. Mehmon urinishida userId bo'sh qoladi.
 model MsUrinish {
-  id        String  @id @default(cuid())
-  sessiyaId String  @unique
+  id        String     @id @default(cuid())
+  sessiyaId String     @unique
   userId    String?
-  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   slug      String
+  imtihonId String?
+  imtihon   MsImtihon? @relation(fields: [imtihonId], references: [id], onDelete: SetNull)
 
   // Nega bor: keyingi urinishda o'quvchi javoblarni ko'rgan bo'ladi, kalibrlash
   // faqat birinchisini oladi. Mehmonda noma'lum.
   urinishTartibi Int?
 
-  theta          Float
-  se             Float
-  shkalaBalli    Float
-  daraja         String
-  rawScore       Int
-  jamiSavollar   Int
-  sarflanganVaqt Int
-  kechikkan      Boolean  @default(false)
-  boshlanganVaqt DateTime
+  // Rasch modeli natijasi (e'lon paytida kohort asosida yangilanadi)
+  theta       Float
+  se          Float
+  shkalaBalli Float
+  daraja      String
+  infitMNSQ   Float?
+  outfitMNSQ  Float?
+  ishonchsiz  Boolean @default(false)
+
+  // Oddiy (Rasch modelisiz) klassik ball natijasi
+  rawScore     Int
+  jamiSavollar Int
+  oddiyFoiz    Float?
+  oddiyBall    Float?
+  oddiyDaraja  String?
+
+  // Kohortdagi o'rni va e'lon holati
+  cohortRank  Int?
+  cohortTotal Int?
+  percentile  Float?
+  certId      String? @unique
+  holat       String  @default("topshirildi") // "topshirildi" (yashirin) | "elon_qilindi" (ochiq)
+
+  sarflanganVaqt  Int
+  kechikkan       Boolean  @default(false)
+  boshlanganVaqt  DateTime
   yakunlanganVaqt DateTime @default(now())
 
   javoblar MsJavob[]
 
   @@index([slug])
+  @@index([imtihonId])
   @@index([userId, slug])
+  @@index([userId, imtihonId])
 }
 
 model MsJavob {
@@ -363,11 +425,14 @@ model MsJavob {
   urinish   MsUrinish @relation(fields: [urinishId], references: [id], onDelete: Cascade)
 
   // "slug#id": variantlar bog'langanda bir savol bir nechta sinovda turishi mumkin
-  savolKalit   String
-  togri        Boolean
-  javobBerildi Boolean
-  // O'sha paytdagi qiymat: bank qayta kalibrlangach eski natijani tushuntirish uchun
-  qiyinlik     Float
+  savolKalit    String
+  savolId       String?
+  // E'londan keyin foydalanuvchiga o'z javobi va to'g'ri javobni solishtirib ko'rsatish uchun
+  berilganJavob String?
+  togri         Boolean
+  javobBerildi  Boolean
+  // O'sha paytdagi yoki kohort kalibrlashdan keyingi b_i qiymati
+  qiyinlik      Float
 
   @@unique([urinishId, savolKalit])
   @@index([savolKalit])
@@ -1085,6 +1150,10 @@ model Conversation {
   holat        String @default("faol") // faol | sorov | rad
   boshlovchiId String // so'rovni kim boshlagani
 
+  // Qadash (har bir qatnashchi o'zi uchun suhbatni tepaga qadaydi)
+  user1PinnedAt DateTime?
+  user2PinnedAt DateTime?
+
   oxirgiXabar DateTime?
 
   createdAt DateTime @default(now())
@@ -1113,6 +1182,10 @@ model Message {
 
   matn String @db.Text
 
+  replyToId String?
+  replyTo   Message?  @relation("XabarJavob", fields: [replyToId], references: [id], onDelete: SetNull)
+  javoblar  Message[] @relation("XabarJavob")
+
   oqilgan    Boolean @default(false)
   ochirilgan Boolean @default(false)
 
@@ -1120,6 +1193,7 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@index([senderId])
+  @@index([replyToId])
 }
 
 // Bloklash.
@@ -1182,12 +1256,78 @@ model ProfilePost {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  matn String @db.Text
+  matn     String    @db.Text
+  teg      String?
+  isPinned Boolean   @default(false)
+  pinnedAt DateTime?
+
+  likes ProfilePostLike[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([userId, isPinned, pinnedAt, createdAt])
   @@index([userId, createdAt])
+  @@index([teg, createdAt])
+  @@index([createdAt])
+}
+
+model ProfilePostLike {
+  id     String @id @default(cuid())
+  postId String
+  userId String
+
+  post ProfilePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User        @relation("ProfilePostLikes", fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+// 24 soatlik "Ilmiy Hikoyalar" (Stories) — yoqqan postni yoki dolzarb
+// mavzuni profil halqasida 24 soat davomida ulashish.
+model ProfileStory {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  turi  String @default("dolzarb") // dolzarb | formula | eslatma | maqsad | savol | repost
+  uslub String @default("kosmik")  // kosmik | zumrad | oltin | safir | alvon
+  matn  String @db.Text
+
+  postId              String?
+  postMatn            String? @db.Text
+  postTeg             String?
+  postMuallifId       String?
+  postMuallifUserId   String?
+  postMuallifUsername String?
+  postMuallifIsm      String?
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  views ProfileStoryView[]
+
+  @@index([expiresAt])
+  @@index([userId, expiresAt])
+}
+
+model ProfileStoryView {
+  id      String @id @default(cuid())
+  storyId String
+  userId  String
+
+  story ProfileStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user  User         @relation("ProfileStoryViews", fields: [userId], references: [id], onDelete: Cascade)
+
+  yoqdi    Boolean  @default(false)
+  viewedAt DateTime @default(now())
+
+  @@unique([storyId, userId])
+  @@index([storyId])
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1305,6 +1445,26 @@ model AuditLog {
   @@index([adminId])
   @@index([action])
   @@index([createdAt])
+}
+
+model ProfilLog {
+  id        String   @id @default(cuid())
+  userId    String
+  toifa     String   // xavfsizlik | sozlama | maxfiylik | profil | sertifikat | natija | hisob
+  amal      String
+  sarlavha  String
+  tafsilot  String?  @db.Text
+  holat     String   @default("muvaffaqiyat") // muvaffaqiyat | xato | ogohlantirish
+  ipAddress String?
+  userAgent String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, toifa])
+  @@index([amal])
 }
 
 model SiteSettings {
@@ -2037,4 +2197,58 @@ model ArticleStat {
   updatedAt DateTime @updatedAt
 
   @@index([views])
+}
+
+model TutorPin {
+  id           String   @id @default(cuid())
+  userId       String?
+  ism          String
+  fan          String   @default("kimyo_biologiya")
+  sertifikat   String   @default("A+")
+  markaz       String   @default("")
+  hudud        String   @default("toshkent-sh")
+  tuman        String   @default("")
+  moljal       String   @default("")
+  lat          Float
+  lng          Float
+  telefon      String   @default("")
+  telegram     String   @default("")
+  narx         String   @default("")
+  tavsif       String   @default("")
+  tasdiqlangan Boolean  @default(true)
+  holat        String   @default("faol")
+  createdAt    DateTime @default(now())
+
+  @@index([hudud, holat])
+}
+
+model KimyoKursTest {
+  id          String             @id @default(cuid())
+  sana        String             @unique
+  sarlavha    String
+  mavzular    String
+  savollar    Json
+  kod         String?
+  ochiladi    DateTime
+  yopiladi    DateTime
+  nashrVaqti  DateTime?
+  urinishlar  KimyoKursUrinish[]
+
+  @@index([nashrVaqti, ochiladi])
+}
+
+model KimyoKursUrinish {
+  id            String        @id @default(cuid())
+  testId        String
+  test          KimyoKursTest @relation(fields: [testId], references: [id], onDelete: Restrict)
+  topshirishId  String
+  ism           String
+  familiya      String
+  javoblar      Json
+  savolTartibi  Json?
+  ball          Int
+  topshirildi   DateTime      @default(now())
+
+  @@unique([testId, topshirishId])
+  @@index([testId, topshirildi, id])
 }

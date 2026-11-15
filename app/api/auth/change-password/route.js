@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import bcrypt from 'bcryptjs'
 import { authOptions } from '../[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
+import { profilLogYoz } from '@/lib/profil-log'
 
 export async function POST(request) {
   try {
@@ -10,8 +11,15 @@ export async function POST(request) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Kirish talab qilinadi' }, { status: 401 })
     }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json(
+        { error: "Elektron doskada parolni o'zgartirib bo'lmaydi" },
+        { status: 403 }
+      )
+    }
 
-    const { currentPassword, newPassword } = await request.json()
+    const body = await request.json().catch(() => null)
+    const { currentPassword, newPassword } = body || {}
     if (typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
       return NextResponse.json({ error: "Parol ma'lumotlari noto'g'ri" }, { status: 400 })
     }
@@ -27,12 +35,29 @@ export async function POST(request) {
       select: { password: true }
     })
     if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+      await profilLogYoz({
+        userId: session.user.id,
+        toifa: 'xavfsizlik',
+        amal: 'PAROL_XATO_URINISH',
+        sarlavha: "Parol o'zgartirishda xato joriy parol",
+        holat: 'ogohlantirish',
+        request,
+      })
       return NextResponse.json({ error: "Joriy parol noto'g'ri" }, { status: 400 })
     }
 
     await prisma.user.update({
       where: { id: session.user.id },
       data: { password: await bcrypt.hash(newPassword, 12) }
+    })
+
+    await profilLogYoz({
+      userId: session.user.id,
+      toifa: 'xavfsizlik',
+      amal: 'PAROL_OZGARDI',
+      sarlavha: "Hisob paroli o'zgartirildi",
+      holat: 'muvaffaqiyat',
+      request,
     })
 
     return NextResponse.json({ success: true, message: "Parol muvaffaqiyatli o'zgartirildi" })

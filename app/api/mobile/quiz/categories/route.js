@@ -29,7 +29,7 @@ export async function GET(request) {
 
     // Foydalanuvchining har bir kategoriya bo'yicha eng yaxshi natijasi
     const results = await prisma.quizResult.findMany({
-      where: { userId: auth.id },
+      where: { userId: auth.id, isHidden: false },
       select: { quizName: true, percentage: true },
     })
 

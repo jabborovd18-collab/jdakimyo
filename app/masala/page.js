@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import FonTanlagich, { useFon } from "@/components/FonTanlagich";
+import { useFon } from "@/components/FonTanlagich";
 import Ikon from "@/components/Ikon";
 import LatexMatn from "@/components/LatexMatn.jsx";
 import LatexBoyMatn from "@/components/LatexBoyMatn.jsx";
@@ -169,8 +169,8 @@ export default function MasalaChatSahifasi() {
   );
 }
 
-function _EskiMasalaChatSahifasi() {
-  const [fonKaliti, fonniOzgartir] = useFon();
+function EskiMasalaChatSahifasi() {
+  const [fonKaliti] = useFon();
   const [rejim, setRejim] = useState("toliq");
   const [ishlashYonalishi, setIshlashYonalishi] = useState("avtomatik");
   const [kiritma, setKiritma] = useState("");
@@ -964,7 +964,7 @@ function rasmniSiqish(file, maxOlcham = 1600, sifat = 0.85) {
           </button>}
         </div>
 
-        {/* O'ng: Yangi Chat va Fon */}
+        {/* O'ng: Tarix va Yangi Chat */}
         <div className="flex items-center gap-1.5">
           <button
             type="button"
@@ -984,7 +984,6 @@ function rasmniSiqish(file, maxOlcham = 1600, sifat = 0.85) {
             <Ikon nom="qalam" olcham={14} />
             <span className="hidden sm:inline">Yangi Chat</span>
           </button>
-          <FonTanlagich fon={fonKaliti} tanla={fonniOzgartir} />
         </div>
       </header>
 

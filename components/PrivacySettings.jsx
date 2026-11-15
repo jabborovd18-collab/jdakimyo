@@ -81,15 +81,15 @@ export default function PrivacySettings() {
               <p className="text-[11px] text-[var(--v3-xira)] mt-0.5">{b.tavsif}</p>
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
               {darajalar.map((d) => {
-                const isSelected = sozlama?.[b.kalit] === d.kalit
+                const isSelected = sozlama?.[b.kalit] === d.id
 
                 return (
                   <button
-                    key={d.kalit}
+                    key={d.id}
                     type="button"
-                    onClick={() => ozgart(b.kalit, d.kalit)}
+                    onClick={() => ozgart(b.kalit, d.id)}
                     disabled={saqlanmoqda}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       isSelected

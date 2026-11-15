@@ -164,19 +164,29 @@ export default function AdminAchievementsPage() {
   const [stats, setStats] = useState({ total: 0 })
   const [isLoading, setIsLoading] = useState(true)
   
-  // Filters
+  // Filters & search debounce
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [rarityFilter, setRarityFilter] = useState('all')
+  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
-  
-  // Modal
+
+  // Modals
   const [showModal, setShowModal] = useState(false)
+  const [showSeedModal, setShowSeedModal] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [formData, setFormData] = useState({
-    id: '', key: '', name: '', description: '',
-    icon: '🏆', rarity: 'common', category: 'general',
-    requirement: '', xpReward: 10, isActive: true
+    id: '',
+    key: '',
+    name: '',
+    description: '',
+    icon: '🏆',
+    rarity: 'common',
+    category: 'general',
+    requirement: '',
+    xpReward: 10,
+    isActive: true,
   })
 
   // Award modal
@@ -188,7 +198,13 @@ export default function AdminAchievementsPage() {
   const [isAwarding, setIsAwarding] = useState(false)
 
   useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput.trim()), 300)
+    return () => clearTimeout(t)
+  }, [searchInput])
+
+  useEffect(() => {
     fetchAchievements()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryFilter, rarityFilter, search])
 
   const fetchAchievements = async () => {
@@ -197,13 +213,13 @@ export default function AdminAchievementsPage() {
       const params = new URLSearchParams({
         category: categoryFilter,
         rarity: rarityFilter,
-        search
+        search,
       })
       const res = await fetch(`/api/admin/achievements?${params}`)
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setAchievements(data.achievements)
-      setStats(data.stats)
+      if (!res.ok) throw new Error(data.error || 'Yutuqlarni yuklashda xatolik')
+      setAchievements(data.achievements || [])
+      setStats(data.stats || { total: 0 })
     } catch (error) {
       toast.error('Xatolik: ' + error.message)
     } finally {
@@ -211,19 +227,17 @@ export default function AdminAchievementsPage() {
     }
   }
 
-  // 15 ta default yutuqni yuklash
   const handleSeed = async () => {
-    if (!confirm('15 ta standart yutuqni yuklamoqchimisiz? (Allaqachon mavjud bo\'lganlar o\'tkazib yuboriladi)')) return
-    
+    setIsSaving(true)
     let created = 0
     let skipped = 0
-    
+
     for (const ach of DEFAULT_ACHIEVEMENTS) {
       try {
         const res = await fetch('/api/admin/achievements', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(ach)
+          body: JSON.stringify(ach),
         })
         if (res.ok) created++
         else skipped++
@@ -231,17 +245,26 @@ export default function AdminAchievementsPage() {
         skipped++
       }
     }
-    
-    toast.success(`✓ ${created} ta yutuq qo'shildi, ${skipped} ta o'tkazib yuborildi`)
+
+    setIsSaving(false)
+    setShowSeedModal(false)
+    toast.success(`${created} ta yutuq qo'shildi, ${skipped} ta o'tkazib yuborildi`)
     fetchAchievements()
   }
 
   const openAddModal = () => {
     setIsEditing(false)
     setFormData({
-      id: '', key: '', name: '', description: '',
-      icon: '🏆', rarity: 'common', category: 'general',
-      requirement: '', xpReward: 10, isActive: true
+      id: '',
+      key: '',
+      name: '',
+      description: '',
+      icon: '🏆',
+      rarity: 'common',
+      category: 'general',
+      requirement: '',
+      xpReward: 10,
+      isActive: true,
     })
     setShowModal(true)
   }
@@ -258,7 +281,7 @@ export default function AdminAchievementsPage() {
       category: a.category,
       requirement: a.requirement || '',
       xpReward: a.xpReward,
-      isActive: a.isActive
+      isActive: a.isActive,
     })
     setShowModal(true)
   }
@@ -274,7 +297,7 @@ export default function AdminAchievementsPage() {
       const res = await fetch('/api/admin/achievements', {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -350,266 +373,281 @@ export default function AdminAchievementsPage() {
   const getCategoryName = (cat) => CATEGORIES.find(c => c.id === cat)?.name || cat
   const getRarityName = (r) => RARITIES.find(r => r.id === r)?.name || r
 
+  const RARITY_STYLES = {
+    common: { badge: 'border-[var(--v3-chiziq)] bg-[var(--v3-yuza-2)] text-[var(--v3-xira)]', bar: 'bg-slate-400' },
+    rare: { badge: 'border-sky-400/40 bg-sky-400/15 text-sky-200', bar: 'bg-sky-400' },
+    epic: { badge: 'border-indigo-400/40 bg-indigo-400/15 text-indigo-200', bar: 'bg-indigo-400' },
+    legendary: { badge: 'border-amber-400/40 bg-amber-400/15 text-amber-200', bar: 'bg-amber-400' },
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col gap-4 pb-5 border-b border-[var(--v3-chiziq)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">🏆 Yutuqlar Boshqaruvi</h1>
-          <p className="text-purple-300 mt-1">Foydalanuvchilar uchun motivatsion yutuqlar</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--v3-matn)]">Yutuqlar boshqaruvi</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-[var(--v3-xira)]">
+            Yutuq qoidalarini yaratish, tahrirlash va foydalanuvchilarga qo&apos;lda taqdim etish
+          </p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={handleSeed}
-            className="px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-bold rounded-xl shadow-lg flex items-center gap-2"
-          >
-            <span>⚡</span> 15 ta standart
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setShowSeedModal(true)} className="v3-tugma text-xs">
+            15 ta standart
           </button>
-          <button
-            onClick={openAddModal}
-            className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl shadow-lg flex items-center gap-2"
-          >
-            <span>➕</span> Yangi Yutuq
+          <button type="button" onClick={openAddModal} className="v3-tugma v3-tugma-asosiy text-xs">
+            + Yangi yutuq
           </button>
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Statistika */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-          <div className="text-2xl mb-1">🏆</div>
-          <div className="text-2xl font-bold text-white">{stats.total || 0}</div>
-          <div className="text-xs text-purple-400">Jami yutuqlar</div>
+        <div className="v3-panel-karta p-4">
+          <div className="text-xl font-bold text-[var(--v3-matn)]">{stats.total || 0}</div>
+          <div className="text-xs text-[var(--v3-xira)] mt-0.5">Jami yutuqlar</div>
         </div>
-        {RARITIES.map(r => (
-          <div key={r.id} className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4">
-            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${r.gradient} mb-1`}></div>
-            <div className="text-xl font-bold text-white">{stats.byRarity?.[r.id] || 0}</div>
-            <div className="text-xs text-purple-400">{r.name}</div>
-          </div>
-        ))}
+        {RARITIES.map((r) => {
+          const st = RARITY_STYLES[r.id] || RARITY_STYLES.common
+          return (
+            <div key={r.id} className="v3-panel-karta p-4 flex items-center justify-between gap-2">
+              <div>
+                <div className="text-xl font-bold text-[var(--v3-matn)]">{stats.byRarity?.[r.id] || 0}</div>
+                <div className="text-xs text-[var(--v3-xira)]">{r.name}</div>
+              </div>
+              <span className={`w-2.5 h-8 rounded-full ${st.bar}`} />
+            </div>
+          )
+        })}
       </div>
 
-      {/* Filters */}
-      <div className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-4 space-y-3">
+      {/* Qidiruv va filtrlar */}
+      <div className="v3-panel-karta p-4 space-y-3">
         <input
           type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Yutuq nomi yoki kaliti bo'yicha qidirish..."
-          className="w-full px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white placeholder-purple-500 focus:border-yellow-500 outline-none"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Yutuq nomi yoki kaliti bo'yicha qidirish..."
+          className="v3-kiritish"
         />
         <div className="flex flex-wrap gap-3">
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+            className="v3-kiritish w-auto min-w-[180px]"
           >
-            <option value="all">🏆 Barcha kategoriyalar</option>
-            {CATEGORIES.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+            <option value="all">Barcha kategoriyalar</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
             ))}
           </select>
           <select
             value={rarityFilter}
             onChange={(e) => setRarityFilter(e.target.value)}
-            className="px-4 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+            className="v3-kiritish w-auto min-w-[170px]"
           >
-            <option value="all">⭐ Barcha noyobliklar</option>
-            {RARITIES.map(r => (
-              <option key={r.id} value={r.id}>{r.name}</option>
+            <option value="all">Barcha darajalar</option>
+            {RARITIES.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Achievements Grid */}
+      {/* Yutuqlar ro'yxati */}
       {isLoading ? (
-        <div className="text-center py-12 text-purple-300">⏳ Yuklanmoqda...</div>
+        <div className="v3-panel-karta py-12 text-center text-sm text-[var(--v3-xira)]">Yuklanmoqda...</div>
       ) : achievements.length === 0 ? (
-        <div className="text-center py-12 bg-slate-900/50 border border-purple-800/50 rounded-xl">
-          <div className="text-6xl mb-4">🏆</div>
-          <h3 className="text-xl font-bold text-white mb-2">Yutuqlar yo'q</h3>
-          <p className="text-purple-300 mb-4">15 ta standart yutuqni yuklang yoki yangi qo'shing</p>
-          <button
-            onClick={handleSeed}
-            className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl"
-          >
-            ⚡ 15 ta standart yutuqni yuklash
+        <div className="v3-panel-karta py-12 px-4 text-center space-y-3">
+          <h3 className="text-base font-bold text-[var(--v3-matn)]">Yutuqlar topilmadi</h3>
+          <p className="text-xs text-[var(--v3-xira)]">15 ta standart yutuqni yuklang yoki yangi qo&apos;shing.</p>
+          <button type="button" onClick={() => setShowSeedModal(true)} className="v3-tugma v3-tugma-asosiy text-xs">
+            15 ta standart yutuqni yuklash
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {achievements.map((a) => (
-            <div
-              key={a.id}
-              className="bg-slate-900/50 border border-purple-800/50 rounded-xl p-5 hover:scale-[1.02] transition-all relative overflow-hidden group"
-            >
-              {/* Rarity gradient top border */}
-              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${getRarityGradient(a.rarity)}`}></div>
-              
-              {!a.isActive && (
-                <div className="absolute top-3 right-3 px-2 py-0.5 bg-red-600/20 border border-red-600/30 rounded-full text-xs text-red-400">
-                  O'chirilgan
-                </div>
-              )}
+          {achievements.map((a) => {
+            const st = RARITY_STYLES[a.rarity] || RARITY_STYLES.common
+            return (
+              <div
+                key={a.id}
+                className={`v3-panel-karta p-4 flex flex-col justify-between gap-3 relative overflow-hidden ${
+                  !a.isActive ? 'opacity-65' : ''
+                }`}
+              >
+                <div className={`absolute top-0 left-0 right-0 h-1 ${st.bar}`} />
 
-              <div className="flex items-start gap-3 mb-3 pt-2">
-                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getRarityGradient(a.rarity)} flex items-center justify-center text-4xl flex-shrink-0`}>
-                  {a.icon}
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] flex items-center justify-center text-2xl shrink-0">
+                      {a.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm text-[var(--v3-matn)] truncate">{a.name}</div>
+                      <div className="text-[11px] font-mono text-[var(--v3-xira)] truncate">{a.key}</div>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                        <span className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${st.badge}`}>
+                          {getRarityName(a.rarity)}
+                        </span>
+                        <span className="inline-flex rounded-full border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)] px-2 py-0.5 text-[11px] text-[var(--v3-xira)]">
+                          {getCategoryName(a.category)}
+                        </span>
+                        {!a.isActive && (
+                          <span className="inline-flex rounded-full border border-rose-400/40 bg-rose-400/15 px-2 py-0.5 text-[11px] text-rose-200">
+                            O&apos;chirilgan
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-[var(--v3-xira)] line-clamp-2">{a.description}</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-white mb-1 line-clamp-1">{a.name}</div>
-                  <div className="text-xs text-purple-400 font-mono mb-1">{a.key}</div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full bg-gradient-to-r ${getRarityGradient(a.rarity)} text-white`}>
-                      {getRarityName(a.rarity)}
-                    </span>
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-purple-800/50 text-purple-300">
-                      {getCategoryName(a.category)}
-                    </span>
+
+                <div className="space-y-2.5 pt-2.5 border-t border-[var(--v3-chiziq)]">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-[var(--v3-urgu)]">+{a.xpReward} XP</span>
+                    <span className="text-[var(--v3-xira)]">{a.earnedCount || 0} nafar olgan</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openAwardModal(a)}
+                      className="v3-tugma flex-1 text-xs py-1.5"
+                    >
+                      Foydalanuvchiga berish
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openEditModal(a)}
+                      className="v3-tugma text-xs py-1.5 px-3"
+                    >
+                      Tahrirlash
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(a.id, a.name)}
+                      className="v3-tugma text-xs py-1.5 px-3 text-rose-300"
+                    >
+                      O&apos;chirish
+                    </button>
                   </div>
                 </div>
               </div>
-
-              <p className="text-sm text-purple-300 mb-3 line-clamp-2">{a.description}</p>
-
-              <div className="flex items-center justify-between text-xs mb-3 pt-3 border-t border-purple-800/30">
-                <div className="flex items-center gap-3">
-                  <span className="text-yellow-400 font-bold">+{a.xpReward} XP</span>
-                  <span className="text-purple-400">
-                    👥 {a.earnedCount || 0} ta olgan
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => openAwardModal(a)}
-                  className="flex-1 px-3 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30 border border-green-600/50 rounded-lg text-xs text-green-400 transition-all"
-                >
-                  🎁 Berish
-                </button>
-                <button
-                  onClick={() => openEditModal(a)}
-                  className="px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/50 rounded-lg text-xs text-blue-400 transition-all"
-                >
-                  ✏️
-                </button>
-                <button
-                  onClick={() => handleDelete(a.id, a.name)}
-                  className="px-3 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-lg text-xs text-red-400 transition-all"
-                >
-                  🗑️
-                </button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
-      {/* ADD/EDIT MODAL */}
+      {/* Qo'shish / Tahrirlash oynasi */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-purple-700/50 rounded-2xl p-6 max-w-2xl w-full my-8">
-            <h3 className="text-xl font-bold text-white mb-4">
-              {isEditing ? '✏️ Yutuqni tahrirlash' : '➕ Yangi yutuq'}
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm overflow-y-auto"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false) }}
+        >
+          <div
+            className="v3-panel-karta w-full max-w-2xl p-5 sm:p-6 my-8 border-[var(--v3-chiziq-2)] space-y-4"
+            style={{ background: 'var(--v3-fon-2)' }}
+          >
+            <h3 className="text-lg font-bold text-[var(--v3-matn)]">
+              {isEditing ? 'Yutuqni tahrirlash' : "Yangi yutuq qo'shish"}
             </h3>
 
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-              {/* Key & Name */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Kalit (key) *</label>
+                  <label className="text-xs font-semibold text-[var(--v3-matn)] mb-1 block">Kalit (key) *</label>
                   <input
                     type="text"
                     value={formData.key}
                     onChange={(e) => setFormData({ ...formData, key: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
                     disabled={isEditing}
-                    className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none disabled:opacity-50 font-mono text-sm"
+                    className="v3-kiritish font-mono text-xs disabled:opacity-50"
                     placeholder="first_quiz"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Nom *</label>
+                  <label className="text-xs font-semibold text-[var(--v3-matn)] mb-1 block">Nom *</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                    className="v3-kiritish"
                     placeholder="Birinchi qadam"
                   />
                 </div>
               </div>
 
-              {/* Description */}
               <div>
-                <label className="text-sm text-purple-300 mb-1 block">Tavsif *</label>
+                <label className="text-xs font-semibold text-[var(--v3-matn)] mb-1 block">Tavsif *</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
-                  rows="2"
-                  placeholder="Bu yutuq nima uchun beriladi?"
+                  className="v3-kiritish"
+                  rows={2}
                 />
               </div>
 
-              {/* Category & Rarity */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3.5">
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Kategoriya</label>
+                  <label className="text-xs font-semibold text-[var(--v3-matn)] mb-1 block">Kategoriya</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                    className="v3-kiritish"
                   >
-                    {CATEGORIES.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                    {CATEGORIES.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-purple-300 mb-1 block">Noyoblik (Rarity)</label>
+                  <label className="text-xs font-semibold text-[var(--v3-matn)] mb-1 block">Noyoblik</label>
                   <select
                     value={formData.rarity}
                     onChange={(e) => {
-                      const r = RARITIES.find(r => r.id === e.target.value)
+                      const r = RARITIES.find((item) => item.id === e.target.value)
                       setFormData({ ...formData, rarity: e.target.value, xpReward: r?.xp || formData.xpReward })
                     }}
-                    className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                    className="v3-kiritish"
                   >
-                    {RARITIES.map(r => (
-                      <option key={r.id} value={r.id}>{r.name} (+{r.xp} XP)</option>
+                    {RARITIES.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.name} (+{r.xp} XP)
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              {/* XP Reward */}
               <div>
-                <label className="text-sm text-purple-300 mb-1 block">XP mukofoti</label>
+                <label className="text-xs font-semibold text-[var(--v3-matn)] mb-1 block">XP mukofoti</label>
                 <input
                   type="number"
                   value={formData.xpReward}
                   onChange={(e) => setFormData({ ...formData, xpReward: e.target.value })}
-                  className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                  className="v3-kiritish"
                   min="0"
                 />
               </div>
 
-              {/* Icon */}
               <div>
-                <label className="text-sm text-purple-300 mb-2 block">Ikonka</label>
+                <label className="text-xs font-semibold text-[var(--v3-matn)] mb-1.5 block">Belgicha</label>
                 <div className="flex flex-wrap gap-2">
-                  {ICONS.map(icon => (
+                  {ICONS.map((icon) => (
                     <button
                       key={icon}
                       type="button"
                       onClick={() => setFormData({ ...formData, icon })}
-                      className={`w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all ${
+                      className={`w-10 h-10 rounded-xl border text-lg flex items-center justify-center ${
                         formData.icon === icon
-                          ? 'bg-yellow-500 text-black scale-110'
-                          : 'bg-purple-800/50 hover:bg-purple-700/50'
+                          ? 'bg-[var(--v3-urgu)] text-[var(--v3-urgu-matn)] border-[var(--v3-urgu)]'
+                          : 'bg-[var(--v3-yuza)] border-[var(--v3-chiziq)]'
                       }`}
                     >
                       {icon}
@@ -618,124 +656,154 @@ export default function AdminAchievementsPage() {
                 </div>
               </div>
 
-              {/* Requirement JSON */}
               <div>
-                <label className="text-sm text-purple-300 mb-1 block">Shart (JSON - ixtiyoriy)</label>
+                <label className="text-xs font-semibold text-[var(--v3-matn)] mb-1 block">Shart (JSON - ixtiyoriy)</label>
                 <textarea
                   value={formData.requirement}
                   onChange={(e) => setFormData({ ...formData, requirement: e.target.value })}
-                  className="w-full px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none font-mono text-xs"
-                  rows="3"
+                  className="v3-kiritish font-mono text-xs"
+                  rows={3}
                   placeholder='{"type": "quiz_count", "value": 10}'
                 />
               </div>
 
-              {/* Active */}
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-[var(--v3-matn)]">
                 <input
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4"
+                  className="accent-amber-400"
                 />
-                <span className="text-sm text-purple-300">✓ Faol</span>
+                <span>Faol</span>
               </label>
             </div>
 
-            <div className="flex gap-3 mt-6 pt-4 border-t border-purple-800/50">
-              <button
-                onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white"
-              >
+            <div className="flex gap-2.5 pt-2 border-t border-[var(--v3-chiziq)]">
+              <button type="button" onClick={() => setShowModal(false)} className="v3-tugma flex-1">
                 Bekor qilish
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-lg disabled:opacity-50"
+                className="v3-tugma v3-tugma-asosiy flex-1 disabled:opacity-45"
               >
-                {isSaving ? '⏳ Saqlanmoqda...' : (isEditing ? '✓ Yangilash' : '✓ Saqlash')}
+                {isSaving ? 'Saqlanmoqda...' : isEditing ? 'Yangilash' : 'Saqlash'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* AWARD MODAL */}
+      {/* Standart 15 yutuqni yuklash tasdig'i */}
+      {showSeedModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowSeedModal(false) }}
+        >
+          <div
+            className="v3-panel-karta w-full max-w-md p-5 sm:p-6 border-[var(--v3-chiziq-2)] space-y-4"
+            style={{ background: 'var(--v3-fon-2)' }}
+          >
+            <h3 className="text-lg font-bold text-[var(--v3-matn)]">15 ta standart yutuq yuklash</h3>
+            <p className="text-sm text-[var(--v3-xira)]">
+              Allaqachon mavjud kalitli yutuqlar o&apos;tkazib yuboriladi, yangilari qo&apos;shiladi.
+            </p>
+            <div className="flex gap-2.5">
+              <button type="button" onClick={() => setShowSeedModal(false)} className="v3-tugma flex-1">
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                onClick={handleSeed}
+                disabled={isSaving}
+                className="v3-tugma v3-tugma-asosiy flex-1 disabled:opacity-45"
+              >
+                {isSaving ? 'Yuklanmoqda...' : 'Yuklash'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Yutuq berish oynasi */}
       {showAwardModal && selectedAchievement && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-purple-700/50 rounded-2xl p-6 max-w-2xl w-full my-8">
-            <h3 className="text-xl font-bold text-white mb-4">
-              🎁 Yutuq berish: <span className="text-yellow-400">{selectedAchievement.name}</span>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm overflow-y-auto"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowAwardModal(false) }}
+        >
+          <div
+            className="v3-panel-karta w-full max-w-xl p-5 sm:p-6 my-8 border-[var(--v3-chiziq-2)] space-y-4"
+            style={{ background: 'var(--v3-fon-2)' }}
+          >
+            <h3 className="text-lg font-bold text-[var(--v3-matn)]">
+              Yutuq berish: <span className="text-[var(--v3-urgu)]">{selectedAchievement.name}</span>
             </h3>
 
-            <div className="flex items-center gap-3 mb-4 p-3 bg-purple-950/50 rounded-lg">
-              <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${getRarityGradient(selectedAchievement.rarity)} flex items-center justify-center text-2xl`}>
-                {selectedAchievement.icon}
-              </div>
-              <div className="flex-1">
-                <div className="font-bold text-white">{selectedAchievement.name}</div>
-                <div className="text-xs text-purple-400">{selectedAchievement.description}</div>
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)]">
+              <span className="text-2xl">{selectedAchievement.icon}</span>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-sm text-[var(--v3-matn)]">{selectedAchievement.name}</div>
+                <div className="text-xs text-[var(--v3-xira)]">{selectedAchievement.description}</div>
               </div>
             </div>
 
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2">
               <input
                 type="text"
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && searchUsers()}
                 placeholder="Email, username yoki ism bo'yicha qidirish..."
-                className="flex-1 px-3 py-2 bg-purple-950/50 border border-purple-700/50 rounded-lg text-white outline-none"
+                className="v3-kiritish flex-1"
               />
               <button
+                type="button"
                 onClick={searchUsers}
                 disabled={isSearchingUsers}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold"
+                className="v3-tugma v3-tugma-asosiy text-xs px-4"
               >
-                {isSearchingUsers ? '⏳' : '🔍'}
+                {isSearchingUsers ? 'Qidirilmoqda...' : 'Qidirish'}
               </button>
             </div>
 
-            <div className="max-h-96 overflow-y-auto space-y-2">
+            <div className="max-h-80 overflow-y-auto space-y-2">
               {users.length === 0 ? (
-                <div className="text-center py-8 text-purple-400">
+                <div className="text-center py-8 text-xs text-[var(--v3-xira)]">
                   Qidiruv uchun username yoki email kiriting
                 </div>
               ) : (
-                users.map(u => (
+                users.map((u) => (
                   <div
                     key={u.id}
-                    className="flex items-center gap-3 p-3 bg-purple-950/30 hover:bg-purple-950/50 rounded-lg transition-all"
+                    className="flex items-center gap-3 p-3 rounded-xl border border-[var(--v3-chiziq)] bg-[var(--v3-yuza)]"
                   >
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-sm font-bold text-black">
-                      {u.fullName?.charAt(0) || u.username.charAt(0)}
+                    <div className="w-9 h-9 rounded-full bg-[var(--v3-yuza-2)] flex items-center justify-center text-xs font-bold text-[var(--v3-urgu)] shrink-0">
+                      {(u.fullName?.charAt(0) || u.username.charAt(0)).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-white truncate">
+                      <div className="text-sm font-semibold text-[var(--v3-matn)] truncate">
                         {u.fullName || u.username}
                       </div>
-                      <div className="text-xs text-purple-400 truncate">
-                        @{u.username} • {u.email}
+                      <div className="text-xs text-[var(--v3-xira)] truncate">
+                        @{u.username} · {u.email}
                       </div>
                     </div>
                     <button
+                      type="button"
                       onClick={() => handleAward(u.id, u.fullName || u.username)}
                       disabled={isAwarding}
-                      className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white text-sm font-bold rounded-lg disabled:opacity-50"
+                      className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 disabled:opacity-45"
                     >
-                      🎁 Berish
+                      Berish
                     </button>
                   </div>
                 ))
               )}
             </div>
 
-            <div className="flex gap-3 mt-6 pt-4 border-t border-purple-800/50">
-              <button
-                onClick={() => setShowAwardModal(false)}
-                className="flex-1 px-4 py-2 bg-purple-800/50 hover:bg-purple-700/50 border border-purple-600/50 rounded-lg text-white"
-              >
+            <div className="pt-2 border-t border-[var(--v3-chiziq)] flex justify-end">
+              <button type="button" onClick={() => setShowAwardModal(false)} className="v3-tugma text-xs">
                 Yopish
               </button>
             </div>

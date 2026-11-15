@@ -86,7 +86,7 @@ export async function GET() {
     })
   } catch (error) {
     console.error('[Teacher Profile GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Ustoz profilini yuklashda xatolik" }, { status: 500 })
   }
 }
 
@@ -214,6 +214,6 @@ export async function PUT(request) {
     })
   } catch (error) {
     console.error('[Teacher Profile PUT]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Ustoz profilini saqlashda xatolik yuz berdi" }, { status: 500 })
   }
 }

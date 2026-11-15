@@ -9,6 +9,8 @@ import { prisma } from '@/lib/prisma'
 import { telegramSozlanganmi, telegramYubor } from '@/lib/telegram'
 import { xabarYubor } from '@/lib/bildirishnoma'
 import { soravchiIp, chekloqniTekshir, urinishniQayd, kutishMatni } from '@/lib/ip-cheklov'
+import { profilLogYoz } from '@/lib/profil-log'
+import { tasodifiyKod } from '@/lib/xavfsiz'
 
 /** Kod necha daqiqa amal qiladi */
 const AMAL_DAQIQA = 10
@@ -20,11 +22,7 @@ const AMAL_DAQIQA = 10
 const ALIFBO = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
 
 function kodYarat() {
-  let kod = ''
-  for (let i = 0; i < 8; i++) {
-    kod += ALIFBO[Math.floor(Math.random() * ALIFBO.length)]
-  }
-  return kod
+  return tasodifiyKod(ALIFBO, 8)
 }
 
 /** Bot manzili — deep link uchun */
@@ -66,6 +64,12 @@ export async function POST() {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json(
+        { error: "Elektron doskada Telegram sozlamalarini o'zgartirib bo'lmaydi" },
+        { status: 403 }
+      )
     }
 
     if (!telegramSozlanganmi() || !botNomi()) {
@@ -126,6 +130,12 @@ export async function PUT(request) {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json(
+        { error: "Elektron doskada Telegram ulanishini o'zgartirib bo'lmaydi" },
+        { status: 403 }
+      )
     }
 
     const { kod } = await request.json().catch(() => ({}))
@@ -220,6 +230,16 @@ export async function PUT(request) {
       { klaviatura: true }
     ).catch(() => {})
 
+    await profilLogYoz({
+      userId: session.user.id,
+      toifa: 'xavfsizlik',
+      amal: 'TELEGRAM_ULANDI',
+      sarlavha: 'Telegram bot ulandi',
+      tafsilot: yozuv.username ? `@${yozuv.username}` : null,
+      holat: 'muvaffaqiyat',
+      request,
+    })
+
     return NextResponse.json({ success: true, message: '✓ Telegram ulandi' })
   } catch (error) {
     console.error('[Telegram ulash PUT]', error)
@@ -228,11 +248,17 @@ export async function PUT(request) {
 }
 
 // DELETE — ulanishni uzish
-export async function DELETE() {
+export async function DELETE(request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json(
+        { error: "Elektron doskada Telegram ulanishini uzib bo'lmaydi" },
+        { status: 403 }
+      )
     }
 
     // Chat id si kerak: o'sha chatning kutib turgan bot kodi ham
@@ -265,6 +291,15 @@ export async function DELETE() {
         matn: 'Bu saytdagi Sozlamalar orqali bajarildi.',
         havola: '/profil/telegram',
       }).catch(() => {})
+
+      await profilLogYoz({
+        userId: session.user.id,
+        toifa: 'xavfsizlik',
+        amal: 'TELEGRAM_UZILDI',
+        sarlavha: 'Telegram ulanishi uzildi',
+        holat: 'ogohlantirish',
+        request,
+      })
     }
 
     return NextResponse.json({ success: true, message: 'Telegram uzildi' })

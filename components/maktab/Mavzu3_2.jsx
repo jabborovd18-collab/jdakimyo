@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import Ikon from "@/components/Ikon"
+import { canvasOlchami, kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import OtganDarsniTakrorlash from "@/components/maktab/OtganDarsniTakrorlash"
 import { SmartDoskaNavigatsiya } from "@/components/maktab/SmartDoskaYordamchi"
 
 function tovushChiqar(turi) {
   if (typeof window === "undefined") return
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = umumiyAudio()
+    if (!ctx) return
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -163,13 +163,13 @@ export default function Mavzu3_2() {
     },
     {
       savol: "Natriy (Na⁺) tuzlari Bunzen gorelkasi alangasini qanday rangga bo'yaydi?",
-      variantlar: ["Yorqin sariq", "Binafsha", "Zumrad yashil", "Ko'k"],
+      variantlar: ["Ko'k", "Yorqin sariq", "Binafsha", "Zumrad yashil"],
       togriJavob: "Yorqin sariq",
       izoh: "Natriy ioni (Na⁺) alangani 589 nm to'lqin uzunligidagi yorqin sariq rangga bo'yaydi.",
     },
     {
       savol: "Bitta kimyoviy elementning bir necha xil oddiy modda hosil qilishi (masalan: Olmos va Grafit) nima deyiladi?",
-      variantlar: ["Allotropiya", "Sublimatsiya", "Diffuziya", "Filtratsiya"],
+      variantlar: ["Diffuziya", "Filtratsiya", "Allotropiya", "Sublimatsiya"],
       togriJavob: "Allotropiya",
       izoh: "Uglerodning olmos va grafit, kislorodning O₂ va O₃ hosil qilishi allotropiya hodisasidir.",
     },
@@ -205,8 +205,7 @@ export default function Mavzu3_2() {
 
     const chiz = () => {
       t += 0.03
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -268,11 +267,11 @@ export default function Mavzu3_2() {
       ctx.fillStyle = "#4ade80"
       ctx.fillText(`Umumiy zaryad: 0 (Neytral)`, rx - 60, h * 0.78)
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, protonSoni])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -291,8 +290,7 @@ export default function Mavzu3_2() {
 
     const chiz = () => {
       t += 0.03
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -348,11 +346,11 @@ export default function Mavzu3_2() {
       ctx.fillStyle = "#4ade80"
       ctx.fillText(`Bog'lanish: ${tanlanganMol.bog}`, w * 0.62, h * 0.62)
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, tanlanganMol])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -381,8 +379,7 @@ export default function Mavzu3_2() {
     const canvas = indeksCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
-    const w = (canvas.width = canvas.clientWidth)
-    const h = (canvas.height = canvas.clientHeight)
+    const { w, h } = canvasOlchami(canvas, ctx)
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#030714"
     ctx.fillRect(0, 0, w, h)
@@ -455,8 +452,7 @@ export default function Mavzu3_2() {
 
     const chiz = () => {
       t += 0.04
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -513,11 +509,11 @@ export default function Mavzu3_2() {
         36
       )
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, atomlikTur])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -536,8 +532,7 @@ export default function Mavzu3_2() {
 
     const chiz = () => {
       if (tokYoqiq) t += 0.04
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -586,11 +581,11 @@ export default function Mavzu3_2() {
       ctx.textAlign = "center"
       ctx.fillText("2H₂O → 2H₂↑ (2 hajm) + O₂↑ (1 hajm)", w / 2, h * 0.92)
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, tokYoqiq])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -609,8 +604,7 @@ export default function Mavzu3_2() {
 
     const chiz = () => {
       t += 0.04
-      const w = (canvas.width = canvas.clientWidth)
-      const h = (canvas.height = canvas.clientHeight)
+      const { w, h } = canvasOlchami(canvas, ctx)
       ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = "#030714"
       ctx.fillRect(0, 0, w, h)
@@ -678,21 +672,21 @@ export default function Mavzu3_2() {
         h * 0.9
       )
 
-      animId = requestAnimationFrame(chiz)
+      animId = kadrSora(canvas, chiz)
     }
 
     chiz()
-    return () => cancelAnimationFrame(animId)
+    return () => kadrniBekorQil(animId)
   }, [asosiyBolim, animRejim, panjaraTur])
 
   // ═══════════════════════════════════════════════════════════════════════════
   // O'YINLAR MA'LUMOTLARI (4 TA O'YIN)
   // ═══════════════════════════════════════════════════════════════════════════
   const hisobSavollari = [
-    { savol: "3H₂O yozuvida jami nechta atom bor (vodorod va kislorod birgalikda)?", variantlar: ["9 ta atom (6 ta H va 3 ta O)", "3 ta atom", "6 ta atom", "5 ta atom"], togri: "9 ta atom (6 ta H va 3 ta O)" },
+    { savol: "3H₂O yozuvida jami nechta atom bor (vodorod va kislorod birgalikda)?", variantlar: ["3 ta atom", "6 ta atom", "5 ta atom", "9 ta atom (6 ta H va 3 ta O)"], togri: "9 ta atom (6 ta H va 3 ta O)" },
     { savol: "2H₂SO₄ yozuvida nechta kislorod (O) atomi bor?", variantlar: ["8 ta O atomi", "4 ta O atomi", "2 ta O atomi", "14 ta O atomi"], togri: "8 ta O atomi" },
-    { savol: "4NH₃ (4 molekula ammiak) tarkibida jami nechta vodorod (H) atomi bor?", variantlar: ["12 ta H atomi", "7 ta H atomi", "3 ta H atomi", "16 ta H atomi"], togri: "12 ta H atomi" },
-    { savol: "5O₂ va 5O yozuvlarining farqi nimada?", variantlar: ["5O₂ — 5 ta kislorod molekulasi, 5O — 5 ta erkin kislorod atomi", "Ikkalasi mutlaqo bir xil", "5O₂ da 5 ta atom bor", "5O da 10 ta atom bor"], togri: "5O₂ — 5 ta kislorod molekulasi, 5O — 5 ta erkin kislorod atomi" },
+    { savol: "4NH₃ (4 molekula ammiak) tarkibida jami nechta vodorod (H) atomi bor?", variantlar: ["16 ta H atomi", "12 ta H atomi", "7 ta H atomi", "3 ta H atomi"], togri: "12 ta H atomi" },
+    { savol: "5O₂ va 5O yozuvlarining farqi nimada?", variantlar: ["5O₂ da 5 ta atom bor", "5O da 10 ta atom bor", "5O₂ — 5 ta kislorod molekulasi, 5O — 5 ta erkin kislorod atomi", "Ikkalasi mutlaqo bir xil"], togri: "5O₂ — 5 ta kislorod molekulasi, 5O — 5 ta erkin kislorod atomi" },
   ]
   const [hIdx, setHIdx] = useState(0)
   const [hTanlov, setHTanlov] = useState(null)
@@ -712,10 +706,10 @@ export default function Mavzu3_2() {
   const [srTugadi, setSrTugadi] = useState(false)
 
   const formulaSavollari = [
-    { topshiriq: "1 ta Uglerod (C) va 4 ta Vodorod (H) atomidan iborat metan formulasi:", variantlar: ["CH₄", "C₄H", "4CH", "C₂H₄"], togri: "CH₄" },
+    { topshiriq: "1 ta Uglerod (C) va 4 ta Vodorod (H) atomidan iborat metan formulasi:", variantlar: ["C₄H", "4CH", "C₂H₄", "CH₄"], togri: "CH₄" },
     { topshiriq: "2 ta Vodorod (H), 1 ta Oltingugurt (S) va 4 ta Kislorod (O) atomidan iborat sulfat kislota formulasi:", variantlar: ["H₂SO₄", "HSO₄", "2HSO₄", "H₄SO₂"], togri: "H₂SO₄" },
-    { topshiriq: "3 ta Kislorod atomidan iborat 2 molekula ozon yozuvi:", variantlar: ["2O₃", "3O₂", "6O", "O₆"], togri: "2O₃" },
-    { topshiriq: "Suv elektrolizida katodda 20 ml H₂ ajralgan bo'lsa, anodda necha ml O₂ ajraladi?", variantlar: ["10 ml O₂", "20 ml O₂", "40 ml O₂", "5 ml O₂"], togri: "10 ml O₂" },
+    { topshiriq: "3 ta Kislorod atomidan iborat 2 molekula ozon yozuvi:", variantlar: ["O₆", "2O₃", "3O₂", "6O"], togri: "2O₃" },
+    { topshiriq: "Suv elektrolizida katodda 20 ml H₂ ajralgan bo'lsa, anodda necha ml O₂ ajraladi?", variantlar: ["40 ml O₂", "5 ml O₂", "10 ml O₂", "20 ml O₂"], togri: "10 ml O₂" },
   ]
   const [fIdx, setFIdx] = useState(0)
   const [fTanlov, setFTanlov] = useState(null)
@@ -724,8 +718,8 @@ export default function Mavzu3_2() {
 
   const duelSavollari = [
     { s: "Suv molekulasida (H₂O) bog' burchagi necha gradus?", v: ["104.5°", "180°", "90°"], j: "104.5°" },
-    { s: "3CO₂ yozuvida jami nechta atom bor?", v: ["9 ta", "6 ta", "3 ta"], j: "9 ta" },
-    { s: "Qaysi modda nomolekulyar (ion kristall) tuzilishga ega?", v: ["NaCl (Osh tuzi)", "CO₂", "H₂O"], j: "NaCl (Osh tuzi)" },
+    { s: "3CO₂ yozuvida jami nechta atom bor?", v: ["3 ta", "9 ta", "6 ta"], j: "9 ta" },
+    { s: "Qaysi modda nomolekulyar (ion kristall) tuzilishga ega?", v: ["CO₂", "H₂O", "NaCl (Osh tuzi)"], j: "NaCl (Osh tuzi)" },
     { s: "Qaysi gaz ikki atomli molekula holida uchraydi?", v: ["N₂ (Azot)", "He (Geliy)", "Ar (Argon)"], j: "N₂ (Azot)" },
   ]
   const [g1Idx, setG1Idx] = useState(0)
@@ -1219,7 +1213,7 @@ export default function Mavzu3_2() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g1Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g1Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g1Idx].v, duelSavollari[g1Idx].s, g1Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"
@@ -1247,7 +1241,7 @@ export default function Mavzu3_2() {
                 </div>
                 <p className="text-sm font-bold text-white">{duelSavollari[g2Idx].s}</p>
                 <div className="space-y-2">
-                  {duelSavollari[g2Idx].v.map((jav) => (
+                  {variantlarniAralashtir(duelSavollari[g2Idx].v, duelSavollari[g2Idx].s, g2Idx).map(({ item: jav }) => (
                     <button
                       key={jav}
                       type="button"

@@ -11,12 +11,13 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { PREMIUM_USLUBLAR, uslubBormi } from '@/lib/premium'
+import { profilLogYoz } from '@/lib/profil-log'
 
 // GET — mavjud uslublar va hozir tanlangani
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -38,7 +39,7 @@ export async function GET() {
     })
   } catch (error) {
     console.error('[Premium GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Ma'lumotlarni yuklab bo'lmadi" }, { status: 500 })
   }
 }
 
@@ -46,11 +47,14 @@ export async function GET() {
 export async function PUT(request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    if (session.user.doskaTugaydi) {
+      return NextResponse.json({ error: "Elektron doskada bezakni o'zgartirib bo'lmaydi" }, { status: 403 })
+    }
 
-    const { uslub } = await request.json()
+    const { uslub } = await request.json().catch(() => ({}))
 
     if (!uslubBormi(uslub)) {
       return NextResponse.json({ error: 'Bunday bezak yo\'q' }, { status: 400 })
@@ -76,9 +80,19 @@ export async function PUT(request) {
       data: { premiumUslub: uslub },
     })
 
-    return NextResponse.json({ success: true, message: '✓ Bezak o\'zgartirildi' })
+    await profilLogYoz({
+      userId: session.user.id,
+      toifa: 'sozlama',
+      amal: 'PREMIUM_USLUB_OZGARDI',
+      sarlavha: 'Profil bezagi yangilandi',
+      tafsilot: `Uslub: ${uslub || 'oddiy'}`,
+      holat: 'muvaffaqiyat',
+      request,
+    })
+
+    return NextResponse.json({ success: true, message: "Bezak o'zgartirildi" })
   } catch (error) {
     console.error('[Premium PUT]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Bezakni saqlab bo'lmadi" }, { status: 500 })
   }
 }

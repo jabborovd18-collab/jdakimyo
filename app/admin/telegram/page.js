@@ -57,7 +57,7 @@ export default function AdminTelegramPage() {
   }
 
   if (yuklanmoqda) {
-    return <div className="p-8 text-purple-300">Yuklanmoqda...</div>
+    return <div className="p-8 text-[var(--v3-xira)]">Yuklanmoqda...</div>
   }
 
   const w = holat?.webhook
@@ -67,7 +67,7 @@ export default function AdminTelegramPage() {
   return (
     <div className="p-6 max-w-3xl">
       <h1 className="text-2xl font-bold text-white mb-1">Telegram bot</h1>
-      <p className="text-sm text-purple-300 mb-5">
+      <p className="text-sm text-[var(--v3-xira)] mb-5">
         Bot sozlamalari, ulangan foydalanuvchilar va guruhlar.
       </p>
 
@@ -80,7 +80,6 @@ export default function AdminTelegramPage() {
           ['statistika', '📈 Statistika'],
           ['odamlar', '👥 Foydalanuvchilar'],
           ['guruhlar', '💬 Guruhlar'],
-          ['quiz-markazi', '🧩 Quiz markazi'],
           ['elon', '📣 E\'lon'],
         ].map(([kalit, nom]) => (
           <button
@@ -89,7 +88,7 @@ export default function AdminTelegramPage() {
             className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${
               bolim === kalit
                 ? 'bg-yellow-500 text-black'
-                : 'bg-purple-900/40 text-purple-200 hover:bg-purple-900/70'
+                : 'bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] text-[var(--v3-xira)] hover:text-[var(--v3-matn)]'
             }`}
           >
             {nom}
@@ -100,12 +99,9 @@ export default function AdminTelegramPage() {
       {bolim === 'statistika' && (
         <>
           <Statistika />
-          <AiSinov />
-          <RasmSinov />
         </>
       )}
       {bolim === 'odamlar' && <Foydalanuvchilar />}
-      {bolim === 'quiz-markazi' && <QuizMarkazi />}
       {bolim === 'guruhlar' && (
         <>
           <Guruhlar />
@@ -116,17 +112,17 @@ export default function AdminTelegramPage() {
 
       {bolim !== 'sozlama' ? null : (
       <>
-      <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mb-5">
+      <div className="v3-panel-karta p-5 mb-5">
         <h2 className="text-sm font-bold text-yellow-300 mb-3">Muhit</h2>
         <Qator nom="Bot tokeni" holat={h?.tokenBor} />
         <Qator nom="Sir kalit" holat={h?.sirBor} />
         <Qator nom="Bot nomi" matn={h?.botNomi ? `@${h.botNomi}` : 'qo\'yilmagan'} holat={Boolean(h?.botNomi)} />
       </div>
 
-      <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mb-5">
+      <div className="v3-panel-karta p-5 mb-5">
         <h2 className="text-sm font-bold text-yellow-300 mb-3">Webhook</h2>
         {!w ? (
-          <div className="text-sm text-purple-400">Token yo'q — holat olinmadi.</div>
+          <div className="text-sm text-[var(--v3-xira)]">Token yo&apos;q — holat olinmadi.</div>
         ) : w.xato ? (
           <div className="text-sm text-red-300">Telegram javob bermadi: {w.xato}</div>
         ) : (
@@ -154,15 +150,15 @@ export default function AdminTelegramPage() {
         )}
       </div>
 
-      {/* Quiz va PDF xizmati — Render'dagi Python bot bilan bog'lanish.
+      {/* PDF xizmati — Render'dagi Python bot bilan bog'lanish.
           Foydalanuvchiga ko'rinadigan xabar ataylab umumiy, sabab esa
           bir nechta bo'lishi mumkin. Shu yerda aniq aytiladi. */}
-      <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mb-5">
+      <div className="v3-panel-karta p-5 mb-5">
         <h2 className="text-sm font-bold text-yellow-300 mb-3">
-          Quiz va PDF xizmati (ko&apos;prik)
+          PDF xizmati (ko&apos;prik)
         </h2>
         {!k ? (
-          <div className="text-sm text-purple-400">Holat olinmadi.</div>
+          <div className="text-sm text-[var(--v3-xira)]">Holat olinmadi.</div>
         ) : (
           <>
             <Qator
@@ -204,413 +200,6 @@ export default function AdminTelegramPage() {
   )
 }
 
-/** Barcha test banklari uchun yopiq guruh boshqaruvi. */
-function QuizMarkazi() {
-  const [holat, setHolat] = useState(null)
-  const [chatId, setChatId] = useState('')
-  const [vaqtLimiti, setVaqtLimiti] = useState(30)
-  const [boshlashSanogi, setBoshlashSanogi] = useState(3)
-  const [tanaffusSoni, setTanaffusSoni] = useState(3)
-  const [oquvchiBoshlashi, setOquvchiBoshlashi] = useState(true)
-  const [reytingniKorsat, setReytingniKorsat] = useState(true)
-  const [reytingSoni, setReytingSoni] = useState(20)
-  const [almazYoqilgan, setAlmazYoqilgan] = useState(true)
-  const [engKamIshtirokchi, setEngKamIshtirokchi] = useState(3)
-  const [kunlikAlmazLimiti, setKunlikAlmazLimiti] = useState(1)
-  const [qidiruv, setQidiruv] = useState('')
-  const [band, setBand] = useState(false)
-
-  const yukla = useCallback(async () => {
-    try {
-      const quizJavobi = await fetch('/api/admin/telegram/kislota-quiz')
-      const quizMalumoti = await quizJavobi.json()
-      const ruxsatChatId = String(quizMalumoti.ruxsatChatId || '')
-      const quizGuruhlari = (quizMalumoti.guruhlar || []).filter(
-        (g) => String(g.chatId) === ruxsatChatId,
-      )
-      setChatId(ruxsatChatId)
-      setHolat(
-        quizJavobi.ok
-          ? { ...quizMalumoti, guruhlar: quizGuruhlari }
-          : { xato: quizMalumoti.error },
-      )
-    } catch {
-      setHolat({ xato: 'Ma\'lumot olinmadi' })
-    }
-  }, [])
-
-  useEffect(() => { yukla() }, [yukla])
-
-  async function yubor(amal, qoshimcha = {}) {
-    if (!chatId) return toast.error('Belgilangan maktab guruhi topilmadi')
-    setBand(true)
-    try {
-      const res = await fetch('/api/admin/telegram/kislota-quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amal,
-          chatId,
-          yonalish: 'aralash',
-          savollarSoni: 20,
-          vaqtLimiti: Number(vaqtLimiti),
-          boshlashSanogi: Number(boshlashSanogi),
-          tanaffusSoni: Number(tanaffusSoni),
-          oquvchiBoshlashi,
-          reytingniKorsat,
-          reytingSoni: Number(reytingSoni),
-          almazYoqilgan,
-          engKamIshtirokchi: Number(engKamIshtirokchi),
-          kunlikAlmazLimiti: Number(kunlikAlmazLimiti),
-          ...qoshimcha,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) return toast.error(data.error || 'Amal bajarilmadi')
-      toast.success(
-        amal === 'bank_och' || amal === 'bank_yop' || amal === 'bank_boshla'
-          ? amal === 'bank_boshla'
-            ? 'Tanlangan test guruhda boshlandi'
-            : amal === 'bank_och' ? 'Test o\'quvchilar uchun ochildi' : 'Test katalogdan yopildi'
-          : amal === 'toxtat' || amal === 'yop'
-          ? amal === 'yop' ? 'Test guruh uchun yopildi' : 'Test to\'xtatildi'
-          : amal === 'kislota_yarat'
-            ? 'Kislotalar testi katalogga qo\'shildi'
-          : amal === 'boshla'
-            ? 'Test guruhda boshlandi'
-            : 'Test guruh uchun ochildi',
-      )
-      await yukla()
-    } finally {
-      setBand(false)
-    }
-  }
-
-  const tanlangan = (holat?.guruhlar || []).find((g) => String(g.chatId) === chatId)
-  const banklar = holat?.banklar || []
-  const ochiqBanklar = banklar.filter((q) => q.ochiq).length
-  const kislotaBankiBor = banklar.some((q) => q.tizimTuri === 'kislotalar')
-  const korinadiganBanklar = banklar.filter((q) =>
-    q.nomi.toLocaleLowerCase('uz').includes(qidiruv.trim().toLocaleLowerCase('uz')),
-  )
-
-  useEffect(() => {
-    if (!tanlangan) return
-    setVaqtLimiti(tanlangan.vaqtLimiti ?? 30)
-    setBoshlashSanogi(tanlangan.boshlashSanogi ?? 3)
-    setTanaffusSoni(tanlangan.tanaffusSoni ?? 3)
-    setOquvchiBoshlashi(tanlangan.oquvchiBoshlashi !== false)
-    setReytingniKorsat(tanlangan.reytingniKorsat !== false)
-    setReytingSoni(tanlangan.reytingSoni ?? 20)
-  }, [tanlangan])
-
-  useEffect(() => {
-    if (!holat?.almaz) return
-    setAlmazYoqilgan(holat.almaz.almazYoqilgan !== false)
-    setEngKamIshtirokchi(holat.almaz.engKamIshtirokchi ?? 3)
-    setKunlikAlmazLimiti(holat.almaz.kunlikAlmazLimiti ?? 1)
-  }, [holat?.almaz])
-
-  return (
-    <div
-      className="rounded-2xl border p-5"
-      style={{ background: 'var(--v3-yuza)', borderColor: 'var(--v3-chiziq)', color: 'var(--v3-matn)' }}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-bold">Yopiq quiz markazi</h2>
-          <p className="mt-1 text-sm" style={{ color: 'var(--v3-xira)' }}>
-            Guruhdagi test jarayoni va o&apos;quvchi ruxsatlarini shu yerdan boshqaring.
-          </p>
-        </div>
-        <span className="rounded-full border px-3 py-1 text-xs font-semibold" style={{ borderColor: 'var(--v3-chiziq)' }}>
-          {tanlangan?.faolSessiya ? '● Test ketyapti' : tanlangan?.faol ? 'Quiz markazi faol' : 'Quiz markazi yopiq'}
-        </span>
-      </div>
-
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        {[
-          ['Test banklari', `${banklar.length} ta`, 'Katalogdagi barcha mavzular'],
-          ['O\'quvchiga ochiq', `${ochiqBanklar} ta`, 'Guruhda /test orqali tanlanadi'],
-          ['Har bir urinish', '20 ta', 'Bankdan har safar tasodifiy'],
-        ].map(([nom, qiymat, izoh]) => (
-          <div key={nom} className="rounded-xl border p-3" style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}>
-            <div className="text-xs" style={{ color: 'var(--v3-xira)' }}>{nom}</div>
-            <div className="mt-1 text-xl font-bold">{qiymat}</div>
-            <div className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>{izoh}</div>
-          </div>
-        ))}
-      </div>
-
-      <p className="mt-1 text-sm" style={{ color: 'var(--v3-xira)' }}>
-        Yangi mavzu alohida test banki bo‘ladi. O‘quvchi <code>/test</code> yozib ochiq
-        banklardan birini tanlaydi; bir vaqtda guruhda faqat bitta test ishlaydi.
-      </p>
-
-      {holat?.xato ? (
-        <div className="mt-4 rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)' }}>
-          {holat.xato}
-        </div>
-      ) : null}
-
-      <div className="mt-6">
-        <h3 className="text-base font-bold">Guruh va umumiy qoidalar</h3>
-        <p className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>
-          Bu sozlamalar katalogdagi barcha testlarga bir xil qo‘llanadi.
-        </p>
-      </div>
-
-      <div className="mt-3 grid gap-4 md:grid-cols-2">
-        <div className="text-sm">
-          <span className="mb-1 block">Quiz ishlaydigan yagona guruh</span>
-          <a
-            href={`https://t.me/${holat?.ruxsatUsername || 'yoshkimyogarlar_48Maktab'}`}
-            target="_blank"
-            rel="noreferrer"
-            className="block w-full rounded-xl border px-3 py-2 font-semibold"
-            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
-          >
-            @yoshkimyogarlar_48Maktab
-          </a>
-        </div>
-
-        <label className="text-sm">
-          <span className="mb-1 block">Har savol uchun vaqt</span>
-          <select
-            value={vaqtLimiti}
-            onChange={(e) => setVaqtLimiti(Number(e.target.value))}
-            className="w-full rounded-xl border px-3 py-2"
-            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
-          >
-            {[15, 30, 60].map((n) => <option key={n} value={n}>{n} soniya</option>)}
-          </select>
-        </label>
-
-        <label className="text-sm">
-          <span className="mb-1 block">Boshlanish sanog&apos;i</span>
-          <select
-            value={boshlashSanogi}
-            onChange={(e) => setBoshlashSanogi(Number(e.target.value))}
-            className="w-full rounded-xl border px-3 py-2"
-            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
-          >
-            {[0, 3, 5, 10].map((n) => <option key={n} value={n}>{n ? `${n} soniya` : 'Darhol'}</option>)}
-          </select>
-        </label>
-
-        <label className="text-sm">
-          <span className="mb-1 block">Savollar orasidagi tanaffus</span>
-          <select
-            value={tanaffusSoni}
-            onChange={(e) => setTanaffusSoni(Number(e.target.value))}
-            className="w-full rounded-xl border px-3 py-2"
-            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
-          >
-            {[1, 2, 3, 5].map((n) => <option key={n} value={n}>{n} soniya</option>)}
-          </select>
-        </label>
-
-        <label className="text-sm">
-          <span className="mb-1 block">Reytingda ko&apos;rsatiladi</span>
-          <select
-            value={reytingSoni}
-            onChange={(e) => setReytingSoni(Number(e.target.value))}
-            disabled={!reytingniKorsat}
-            className="w-full rounded-xl border px-3 py-2 disabled:opacity-40"
-            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
-          >
-            {[5, 10, 20].map((n) => <option key={n} value={n}>Eng yaxshi {n} ta</option>)}
-          </select>
-        </label>
-
-        <label className="text-sm">
-          <span className="mb-1 block">Almaz uchun minimal qatnashchi</span>
-          <select
-            value={engKamIshtirokchi}
-            onChange={(e) => setEngKamIshtirokchi(Number(e.target.value))}
-            disabled={!almazYoqilgan}
-            className="w-full rounded-xl border px-3 py-2 disabled:opacity-40"
-            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
-          >
-            {[2, 3, 5, 10].map((n) => <option key={n} value={n}>{n} o&apos;quvchi</option>)}
-          </select>
-        </label>
-
-        <label className="text-sm">
-          <span className="mb-1 block">Bir mavzudan kunlik almaz</span>
-          <select
-            value={kunlikAlmazLimiti}
-            onChange={(e) => setKunlikAlmazLimiti(Number(e.target.value))}
-            disabled={!almazYoqilgan}
-            className="w-full rounded-xl border px-3 py-2 disabled:opacity-40"
-            style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
-          >
-            {[1, 2, 3].map((n) => <option key={n} value={n}>Ko&apos;pi bilan {n} ta</option>)}
-          </select>
-        </label>
-      </div>
-
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        <label className="flex items-start gap-3 rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)' }}>
-          <input className="mt-1" type="checkbox" checked={oquvchiBoshlashi} onChange={(e) => setOquvchiBoshlashi(e.target.checked)} />
-          <span><b>O&apos;quvchi boshlashi mumkin</b><small className="mt-1 block" style={{ color: 'var(--v3-xira)' }}>Guruhda istalgan o&apos;quvchi <code>/test</code> yozadi.</small></span>
-        </label>
-        <label className="flex items-start gap-3 rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)' }}>
-          <input className="mt-1" type="checkbox" checked={almazYoqilgan} onChange={(e) => setAlmazYoqilgan(e.target.checked)} />
-          <span><b>G&apos;olibga almaz berish</b><small className="mt-1 block" style={{ color: 'var(--v3-xira)' }}>Birinchi o&apos;rin serverdan 💎 +1 oladi.</small></span>
-        </label>
-        <label className="flex items-start gap-3 rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)' }}>
-          <input className="mt-1" type="checkbox" checked={reytingniKorsat} onChange={(e) => setReytingniKorsat(e.target.checked)} />
-          <span><b>Yakuniy reytingni ko&apos;rsatish</b><small className="mt-1 block" style={{ color: 'var(--v3-xira)' }}>Test oxirida natijalar guruhga chiqadi.</small></span>
-        </label>
-      </div>
-
-      <div className="mt-5 flex flex-wrap gap-2">
-        <button
-          onClick={() => yubor('sozla')}
-          disabled={band || !chatId || !banklar.length}
-          className="rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-40"
-          style={{ background: 'var(--v3-urgu)', color: 'var(--v3-urgu-matn)' }}
-        >
-          {band ? 'Bajarilmoqda...' : 'Umumiy sozlamalarni saqlash'}
-        </button>
-        {tanlangan?.faolSessiya ? (
-          <button
-            onClick={() => yubor('toxtat')}
-            disabled={band}
-            className="rounded-xl border px-4 py-2 text-sm font-semibold disabled:opacity-40"
-            style={{ borderColor: 'var(--v3-chiziq)' }}
-          >
-            Faol testni to&apos;xtatish
-          </button>
-        ) : null}
-        {tanlangan?.faol && !tanlangan.faolSessiya ? (
-          <button
-            onClick={() => yubor('yop')}
-            disabled={band}
-            className="rounded-xl border px-4 py-2 text-sm font-semibold disabled:opacity-40"
-            style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}
-          >
-            Quiz markazini yopish
-          </button>
-        ) : null}
-      </div>
-
-      {tanlangan ? (
-        <div className="mt-4 rounded-xl border p-3 text-xs" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
-          Joriy qoida: har bir testdan 20 ta tasodifiy savol · {tanlangan.vaqtLimiti} soniya ·
-          {' '}{tanlangan.oquvchiBoshlashi ? 'o‘quvchi boshlashi mumkin' : 'faqat admin boshlaydi'} ·
-          {' '}{tanlangan.reytingniKorsat ? `eng yaxshi ${tanlangan.reytingSoni} ta natija` : 'reyting yashiriladi'}
-        </div>
-      ) : null}
-
-      <div className="mt-6">
-        <div className="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h3 className="text-base font-bold">Testlar katalogi</h3>
-            <p className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>
-              Har bir mavzuni alohida oching, yoping yoki darhol boshlang.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {!kislotaBankiBor ? (
-              <button
-                type="button"
-                disabled={band || !chatId}
-                onClick={() => yubor('kislota_yarat')}
-                className="rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-40"
-                style={{ borderColor: 'var(--v3-urgu)' }}
-              >
-                + Tayyor kislotalar testi
-              </button>
-            ) : null}
-            <a
-              href="https://t.me/jdakimyouzbot"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-lg border px-3 py-2 text-xs font-semibold"
-              style={{ borderColor: 'var(--v3-chiziq)' }}
-            >
-              + Yangi test yaratish
-            </a>
-          </div>
-        </div>
-        <input
-          type="search"
-          value={qidiruv}
-          onChange={(e) => setQidiruv(e.target.value)}
-          placeholder="Test nomi bo‘yicha qidirish..."
-          className="mt-3 w-full rounded-xl border px-3 py-2 text-sm"
-          style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}
-        />
-        <div className="mt-3 grid gap-2 md:grid-cols-2">
-          {korinadiganBanklar.map((quiz) => (
-            <div key={quiz.id} className="flex flex-col justify-between gap-3 rounded-xl border p-3 sm:flex-row sm:items-center" style={{ background: 'var(--v3-fon)', borderColor: 'var(--v3-chiziq)' }}>
-              <div className="min-w-0 text-sm">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="truncate font-semibold">{quiz.nomi}</span>
-                  {quiz.tizimTuri ? (
-                    <span className="rounded-full border px-2 py-0.5 text-[10px]" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
-                      Tizim testi
-                    </span>
-                  ) : null}
-                </div>
-                <div className="mt-1 text-xs" style={{ color: 'var(--v3-xira)' }}>
-                  Bankda {quiz.savollarSoni} ta · urinishda 20 ta · {quiz.ochiq ? 'o\'quvchiga ochiq' : 'yopiq'}
-                </div>
-              </div>
-              <div className="flex shrink-0 gap-1.5">
-                <button
-                  type="button"
-                  disabled={band || !chatId || !quiz.ochiq}
-                  onClick={() => yubor('bank_boshla', { quizId: quiz.id })}
-                  className="rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
-                  style={{ borderColor: 'var(--v3-urgu)' }}
-                >
-                  Boshlash
-                </button>
-                <button
-                  type="button"
-                  disabled={band || !chatId}
-                  onClick={() => yubor(quiz.ochiq ? 'bank_yop' : 'bank_och', { quizId: quiz.id })}
-                  className="rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
-                  style={{ borderColor: quiz.ochiq ? 'var(--v3-chiziq)' : 'var(--v3-urgu)' }}
-                >
-                  {quiz.ochiq ? 'Yopish' : 'Ochish'}
-                </button>
-              </div>
-            </div>
-          ))}
-          {holat && !banklar.length ? (
-            <div className="rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
-              Hali test banki yo&apos;q. “Yangi test yaratish” orqali birinchi mavzuni kiriting.
-            </div>
-          ) : null}
-          {banklar.length && !korinadiganBanklar.length ? (
-            <div className="rounded-xl border p-3 text-sm" style={{ borderColor: 'var(--v3-chiziq)', color: 'var(--v3-xira)' }}>
-              Qidiruv bo‘yicha test topilmadi.
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      {(holat?.almazReytingi || []).length ? (
-        <div className="mt-6">
-          <h3 className="text-sm font-bold">💎 Almaz reytingi</h3>
-          <div className="mt-2 rounded-xl border" style={{ borderColor: 'var(--v3-chiziq)' }}>
-            {holat.almazReytingi.map((r, i) => (
-              <div key={r.tgUserId} className="flex items-center justify-between border-b px-3 py-2 text-sm last:border-b-0" style={{ borderColor: 'var(--v3-chiziq)' }}>
-                <span>{i + 1}. {r.ism}</span>
-                <b>💎 {r.almaz}</b>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
 /**
  * Bot qo'shilgan guruhlar.
  *
@@ -645,6 +234,8 @@ function Guruhlar() {
         body: JSON.stringify({ id: g.id, [maydon]: !g[maydon] }),
       })
       await yukla()
+    } catch (e) {
+      toast.error('Xatolik: ' + (e.message || 'server bilan aloqa yo\'q'))
     } finally {
       setBand(false)
     }
@@ -660,12 +251,14 @@ function Guruhlar() {
       const j = await res.json()
       if (!res.ok) toast.error(j.error || 'O\'chirilmadi')
       await yukla()
+    } catch (e) {
+      toast.error('Xatolik: ' + (e.message || 'server bilan aloqa yo\'q'))
     } finally {
       setBand(false)
     }
   }
 
-  if (!d) return <div className="text-sm text-purple-400 mb-4">Yuklanmoqda...</div>
+  if (!d) return <div className="text-sm text-[var(--v3-xira)] mb-4">Yuklanmoqda...</div>
   if (!d.success) {
     return (
       <div className="bg-red-950/40 border border-red-800/50 rounded-2xl p-5 mb-4 text-sm text-red-200">
@@ -677,7 +270,7 @@ function Guruhlar() {
   const j = d.jami || {}
 
   return (
-    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mb-5">
+    <div className="v3-panel-karta p-5 mb-5">
       <h2 className="text-sm font-bold text-yellow-300 mb-3">Guruhlar</h2>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -693,7 +286,7 @@ function Guruhlar() {
       </div>
 
       {d.guruhlar.length === 0 ? (
-        <div className="text-xs text-purple-400 bg-purple-950/40 rounded-xl p-3">
+        <div className="text-xs text-[var(--v3-xira)] bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-xl p-3">
           Bot hali hech qaysi guruhga qo&apos;shilmagan. Botni guruhga
           qo&apos;shsangiz, u o&apos;zi ro&apos;yxatga tushadi.
         </div>
@@ -702,13 +295,13 @@ function Guruhlar() {
           {d.guruhlar.map((g) => (
             <div
               key={g.id}
-              className="flex items-center justify-between gap-3 bg-purple-950/40 border border-purple-800/40 rounded-xl px-3 py-2"
+              className="flex items-center justify-between gap-3 bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-xl px-3 py-2"
             >
               <div className="min-w-0">
                 <div className="text-sm text-white truncate">
                   {g.nom || `Guruh ${g.chatId}`}
                 </div>
-                <div className="text-[11px] text-purple-400">
+                <div className="text-[11px] text-[var(--v3-xira)]">
                   {typeof g.azolar === 'number' ? `${g.azolar} a'zo · ` : ''}
                   {g.qoshgan ? `${g.qoshgan} qo'shgan · ` : ''}
                   {g.faol ? 'bot ichida' : 'bot chiqarilgan'}
@@ -722,7 +315,7 @@ function Guruhlar() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-40 transition-all ${
                     g.iqtiboslar
                       ? 'bg-green-600/20 border border-green-600/40 text-green-300'
-                      : 'bg-slate-700/30 border border-slate-600/50 text-slate-400'
+                      : 'bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-[var(--v3-xira)]'
                   }`}
                 >
                   📜 {g.iqtiboslar ? 'Yoqilgan' : "O'chirilgan"}
@@ -734,7 +327,7 @@ function Guruhlar() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-40 transition-all ${
                     g.yangiliklar
                       ? 'bg-sky-600/20 border border-sky-600/40 text-sky-300'
-                      : 'bg-slate-700/30 border border-slate-600/50 text-slate-400'
+                      : 'bg-[var(--v3-yuza)] border border-[var(--v3-chiziq)] text-[var(--v3-xira)]'
                   }`}
                 >
                   📰 {g.yangiliklar ? 'Yoqilgan' : "O'chirilgan"}
@@ -754,7 +347,7 @@ function Guruhlar() {
         </div>
       )}
 
-      <p className="text-[11px] text-purple-500 mt-3">
+      <p className="text-[11px] text-[var(--v3-xira)] mt-3">
         Bot chiqarilgan guruh yozuvi saqlanadi: qayta qo&apos;shilsa,
         sozlamalari joyida qoladi. Butunlay o&apos;chirish faqat
         chiqarilgan guruhlarga ruxsat etilgan.
@@ -764,7 +357,7 @@ function Guruhlar() {
 }
 
 /**
- * Quiz va prezentatsiya statistikasi.
+ * Botning foydalanuvchi statistikasi.
  *
  * Ma'lumot Python botdan HTTP orqali keladi — u alohida bazada
  * yashaydi. Shu sababli bu bo'lim servis uxlab qolganda bo'sh
@@ -794,12 +387,12 @@ function Statistika() {
   }, [])
 
   if (yuklanmoqda) {
-    return <div className="text-sm text-purple-400">Yuklanmoqda...</div>
+    return <div className="text-sm text-[var(--v3-xira)]">Yuklanmoqda...</div>
   }
 
   if (d?.sozlanmagan) {
     return (
-      <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 text-sm text-purple-300">
+      <div className="v3-panel-karta p-5 text-sm text-[var(--v3-xira)]">
         Ko&apos;prik sozlanmagan — statistika Python botdan olinadi.
         Sozlamalar bo&apos;limiga qarang.
       </div>
@@ -820,387 +413,28 @@ function Statistika() {
   }
 
   const h = d.hisobot || {}
-  const q = h.quiz || {}
-  const t = h.taqdimot || {}
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Karta nom="Botdan foydalanganlar" qiymat={h.foydalanuvchilar} belgi="👥" />
-        <Karta nom="Bloklangan" qiymat={h.bloklangan} belgi="🚫" />
-        <Karta nom="Quiz yasalgan" qiymat={q.jami} izoh={`${q.hafta || 0} ta shu hafta`} belgi="🧩" />
-        <Karta
-          nom="Prezentatsiya"
-          qiymat={t.jami}
-          izoh={`${t.hafta || 0} ta shu hafta`}
-          belgi="🎓"
-        />
-      </div>
-
-      <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5">
-        <h2 className="text-sm font-bold text-yellow-300 mb-3">Umumiy hajm</h2>
-        <Qator nom="Yasalgan savollar" matn={`${q.savollar || 0} ta`} holat />
-        <Qator nom="Yasalgan slaydlar" matn={`${t.slaydlar || 0} ta`} holat />
-        <p className="text-[11px] text-purple-400 mt-3">
-          Bu raqamlar botning o&apos;z bazasidan. Tanga hisobi esa saytda —
-          ikkalasi ataylab alohida: biri mahsulot statistikasi, ikkinchisi
-          moliyaviy hisob.
-        </p>
-      </div>
-    </div>
-  )
-}
-
-/**
- * AI (Gemini) ulanishini bir bosishda tekshirish.
- *
- * Prezentatsiya ishlamaganda sabab bir nechta bo'lishi mumkin: kalit
- * yo'q, model nomi noto'g'ri, kunlik kvota tugagan, yoki javob bo'sh
- * qaytgan. Ular Render qaydnomasida qolardi va tuzatish taxmin bilan
- * olib borilardi. Bu tugma o'sha xom ma'lumotni bevosita ko'rsatadi.
- */
-function AiSinov() {
-  const [natija, setNatija] = useState(null)
-  const [band, setBand] = useState(false)
-
-  async function sina() {
-    setBand(true)
-    setNatija(null)
-    try {
-      const res = await fetch('/api/admin/telegram/ai-sinov', { method: 'POST' })
-      setNatija(await res.json())
-    } catch (e) {
-      setNatija({ success: false, sabab: 'ulanmadi', xato: e.message })
-    } finally {
-      setBand(false)
-    }
-  }
-
-  const n = natija?.natija
-  const yaxshi = n?.ok
-
-  return (
-    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mt-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-        <h2 className="text-sm font-bold text-yellow-300">AI ulanishi (Gemini)</h2>
-        <button
-          onClick={sina}
-          disabled={band}
-          className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold disabled:opacity-40"
-        >
-          {band ? 'Tekshirilmoqda...' : 'Sinab ko\'rish'}
-        </button>
-      </div>
-
-      {!natija ? (
-        <p className="text-xs text-purple-400">
-          Prezentatsiya ishlamasa shu tugmani bosing — sabab shu yerda
-          ko&apos;rinadi.
-        </p>
-      ) : !natija.success ? (
-        <div className="text-xs text-red-200 bg-red-950/40 border border-red-800/50 rounded-xl p-3">
-          {{
-            'kopruk-sozlanmagan': 'Ko\'prik sozlanmagan (BOT_ISHCHI_URL / BOT_KOPRUK_SIR).',
-            'kalit-mos-emas': 'Ko\'prik kaliti mos emas — Sozlamalar bo\'limiga qarang.',
-            'eski-kod': 'Render eski kod bilan ishlayapti — Manual Deploy qiling.',
-            uxlayapti: 'Servis javob bermadi. Bir daqiqadan keyin qayta bosing.',
-          }[natija.sabab] || 'Tekshirib bo\'lmadi.'}
-        </div>
-      ) : (
-        <div
-          className={`rounded-xl p-3 text-xs border ${
-            yaxshi
-              ? 'bg-green-950/40 border-green-800/50 text-green-200'
-              : 'bg-red-950/40 border-red-800/50 text-red-200'
-          }`}
-        >
-          <div className="font-bold mb-2">
-            {yaxshi ? '✅ AI ishlayapti' : '❌ AI javob bermadi'}
-          </div>
-          <Satr nom="Model" qiymat={n.model} />
-          <Satr nom="Kalit uzunligi" qiymat={n.kalitUzunligi} />
-          {n.ishlagan ? <Satr nom="Ishlagan sozlama" qiymat={n.ishlagan} /> : null}
-          {n.javob ? <Satr nom="Javob" qiymat={n.javob} /> : null}
-          {!yaxshi && n.kod ? <Satr nom="HTTP kodi" qiymat={n.kod} /> : null}
-          {!yaxshi && n.xato ? <Satr nom="Xato" qiymat={n.xato} /> : null}
-          {n.sabab ? <Satr nom="Sabab" qiymat={n.sabab} /> : null}
-
-          {/* Bosqichlar: so'rov sodda tomonga qarab qisqartiriladi va
-              birinchi ishlagani qaysi maydon aybdor ekanini ko'rsatadi */}
-          {n.urinishlar?.length > 1 ? (
-            <details className="mt-3 pt-3 border-t border-white/10">
-              <summary className="cursor-pointer opacity-70">
-                Bosqichlar ({n.urinishlar.length} ta sinov)
-              </summary>
-              <div className="mt-2 space-y-2">
-                {n.urinishlar.map((u, i) => (
-                  <div key={i} className="font-mono text-[11px] opacity-90">
-                    <span className={u.kod === 200 ? 'text-green-400' : 'text-red-400'}>
-                      [{u.kod}]
-                    </span>{' '}
-                    {u.bosqich}
-                    {u.xato ? <div className="pl-6 opacity-70">{u.xato}</div> : null}
-                    {u.tafsilot && u.tafsilot !== '[]' ? (
-                      <div className="pl-6 opacity-60 break-all">{u.tafsilot}</div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </details>
-          ) : null}
-          {n.hisob ? (
-            <Satr nom="Tokenlar" qiymat={JSON.stringify(n.hisob)} />
-          ) : null}
-
-          {/* Model yopilganda to'g'ri nomni taxmin qilishga hojat
-              qolmasin: API o'zi aytgan ro'yxat ko'rsatiladi */}
-          {n.ochiqModellar?.length ? (
-            <div className="mt-3 pt-3 border-t border-red-800/50">
-              <div className="opacity-70 mb-1">
-                Shu kalit uchun ochiq modellar — kerakligini Render&apos;dagi{' '}
-                <code className="font-mono">GEMINI_MODEL</code> ga yozing:
-              </div>
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {n.ochiqModellar.map((m) => (
-                  <span
-                    key={m}
-                    className="font-mono text-[11px] bg-slate-900/70 rounded px-2 py-1"
-                  >
-                    {m}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/**
- * Slaydlardagi rasm manbalarini tekshirish.
- *
- * NEGA AI SINOVIDAN ALOHIDA. "Slaydlarda rasm yo'q" shikoyatining uch
- * xil sababi bor va uchalasi ham foydalanuvchiga bir xil ko'rinadi:
- *   1. PubChem moddani topmagan (nom noto'g'ri shaklda so'ralgan),
- *   2. Gemini'ning RASM modeli yopilgan (matn modeli ishlab tursa ham),
- *   3. kalit umuman qo'yilmagan.
- * Yuqoridagi "AI ulanishi" tugmasi faqat MATN modelini tekshiradi va
- * u yashil bo'lsa ham rasm ishlamayotgan bo'lishi mumkin.
- */
-function RasmSinov() {
-  const [natija, setNatija] = useState(null)
-  const [band, setBand] = useState(false)
-
-  async function sina() {
-    setBand(true)
-    setNatija(null)
-    try {
-      const res = await fetch('/api/admin/telegram/rasm-sinov', { method: 'POST' })
-      setNatija(await res.json())
-    } catch (e) {
-      setNatija({ success: false, sabab: 'ulanmadi', xato: e.message })
-    } finally {
-      setBand(false)
-    }
-  }
-
-  const n = natija?.natija
-  const bezak = n?.bezak
-
-  return (
-    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mt-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-        <h2 className="text-sm font-bold text-yellow-300">
-          Slayd rasmlari (PubChem + bezak)
-        </h2>
-        <button
-          onClick={sina}
-          disabled={band}
-          className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold disabled:opacity-40"
-        >
-          {band ? 'Tekshirilmoqda...' : 'Sinab ko\'rish'}
-        </button>
-      </div>
-
-      {!natija ? (
-        <p className="text-xs text-purple-400">
-          Slaydlarda tuzilma yoki muqova rasmi chiqmasa shu tugmani bosing.
-        </p>
-      ) : !natija.success ? (
-        <div className="text-xs text-red-200 bg-red-950/40 border border-red-800/50 rounded-xl p-3">
-          {{
-            'kopruk-sozlanmagan': 'Ko\'prik sozlanmagan (BOT_ISHCHI_URL / BOT_KOPRUK_SIR).',
-            'kalit-mos-emas': 'Ko\'prik kaliti mos emas — Sozlamalar bo\'limiga qarang.',
-            'eski-kod': 'Render eski kod bilan ishlayapti — Manual Deploy qiling.',
-            uxlayapti: 'Servis javob bermadi. Bir daqiqadan keyin qayta bosing.',
-          }[natija.sabab] || 'Tekshirib bo\'lmadi.'}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {/* ── PubChem: tuzilma formulalari ── */}
-          <div
-            className={`rounded-xl p-3 text-xs border ${
-              n.pubchemOk
-                ? 'bg-green-950/40 border-green-800/50 text-green-200'
-                : 'bg-red-950/40 border-red-800/50 text-red-200'
-            }`}
-          >
-            <div className="font-bold mb-2">
-              {n.pubchemOk ? '✅ PubChem javob beryapti' : '❌ PubChem javob bermadi'}
-            </div>
-            {n.pubchem?.map((p, i) => (
-              <div key={i} className="font-mono text-[11px] py-0.5">
-                <span className={p.topildi ? 'text-green-400' : 'text-red-400'}>
-                  {p.topildi ? '✓' : '✕'}
-                </span>{' '}
-                {p.soralgan}{' '}
-                <span className="opacity-50">— {p.izoh}</span>
-              </div>
-            ))}
-            <p className="opacity-60 mt-2 text-[11px]">
-              Kvadrat qavsli formula ([Cu(NH3)4]SO4) PubChem&apos;da yo&apos;q —
-              shuning uchun modelga inglizcha NOM yozish buyurilgan. Uning
-              qatorida ✕ turishi normal.
-            </p>
-          </div>
-
-          {/* ── Muqova fotosi (Wikimedia Commons) ──
-              ASOSIY manba: kalitsiz, Gemini holatidan mustaqil. */}
-          {n.foto ? (
-            <div
-              className={`rounded-xl p-3 text-xs border ${
-                n.foto.ok
-                  ? 'bg-green-950/40 border-green-800/50 text-green-200'
-                  : 'bg-red-950/40 border-red-800/50 text-red-200'
-              }`}
-            >
-              <div className="font-bold mb-2">
-                {n.foto.ok
-                  ? '✅ Muqova fotosi topilyapti (Wikimedia Commons)'
-                  : '❌ Commons javob bermadi'}
-              </div>
-              {n.foto.sorovlar?.map((s, i) => (
-                <div key={i} className="font-mono text-[11px] py-0.5">
-                  <span className={s.topildi ? 'text-green-400' : 'text-red-400'}>
-                    {s.topildi ? `${s.topildi} ta` : '0'}
-                  </span>{' '}
-                  {s.sorov}
-                  {s.misol ? (
-                    <span className="opacity-50"> — {s.misol}</span>
-                  ) : null}
-                </div>
-              ))}
-              {n.foto.xato ? <Satr nom="Xato" qiymat={n.foto.xato} /> : null}
-              <p className="opacity-60 mt-2 text-[11px]">
-                Faqat CC0, Public domain va CC BY olinadi. CC BY-SA rad
-                etiladi: u foydalangan asarni ham shu litsenziyaga
-                bog&apos;lab qo&apos;yadi.
-              </p>
-            </div>
-          ) : null}
-
-          {/* ── Muqova bezagi ── */}
-          <div
-            className={`rounded-xl p-3 text-xs border ${
-              bezak?.ok
-                ? 'bg-green-950/40 border-green-800/50 text-green-200'
-                : 'bg-red-950/40 border-red-800/50 text-red-200'
-            }`}
-          >
-            <div className="font-bold mb-2">
-              {bezak?.ok
-                ? '✅ AI bezak rasmi ishlayapti'
-                : '❌ AI bezak rasmi chiqmadi (foto zaxirada)'}
-            </div>
-            {bezak?.model ? <Satr nom="Rasm modeli" qiymat={bezak.model} /> : null}
-            {bezak?.kod ? <Satr nom="HTTP kodi" qiymat={bezak.kod} /> : null}
-            {bezak?.hajm ? <Satr nom="Rasm hajmi" qiymat={`${bezak.hajm} bayt`} /> : null}
-            {bezak?.xato ? <Satr nom="Xato" qiymat={bezak.xato} /> : null}
-            {bezak?.sabab ? (
-              <Satr
-                nom="Sabab"
-                qiymat={
-                  {
-                    'kalit-yoq': 'GEMINI_API_KEY qo\'yilmagan',
-                    'model-rasm-qaytarmadi':
-                      'Model javob berdi, lekin rasm emas — bu rasm modeli emas',
-                  }[bezak.sabab] || bezak.sabab
-                }
-              />
-            ) : null}
-
-            {/* Zaxira modellar SINALGAN holda ko'rsatiladi. Ochiq
-                modellar ro'yxatining o'zi yetarli emas edi: bepul
-                tarifda model ochiq bo'lsa ham kunlik chegarasi nolga
-                teng bo'lishi va birinchi so'rovdayoq 429 berishi
-                mumkin. */}
-            {bezak?.zaxiraModellar?.length ? (
-              <div className="mt-3 pt-3 border-t border-red-800/50">
-                {bezak.ishlaydiganModel ? (
-                  <div className="text-green-300 mb-2">
-                    ✅ <b>{bezak.ishlaydiganModel}</b> ishladi — shu nomni
-                    Render&apos;dagi{' '}
-                    <code className="font-mono">GEMINI_RASM_MODEL</code> ga
-                    yozing.
-                  </div>
-                ) : (
-                  <div className="opacity-70 mb-2">
-                    Hamma modelda 429 bo&apos;lsa bu kunlik kvota emas:
-                    Gemini bepul tarifida rasm generatsiyasi chegarasi
-                    2025-dekabrdan beri NOLGA teng. Kutish yordam
-                    bermaydi — Google Cloud loyihasida to&apos;lovni
-                    yoqish kerak (Tier 1, eng kam sarfsiz). Shu holatda
-                    bot muqovaga Wikimedia Commons fotosini qo&apos;yadi.
-                  </div>
-                )}
-                <div className="space-y-0.5">
-                  {bezak.zaxiraModellar.map((z) => (
-                    <div key={z.model} className="font-mono text-[11px]">
-                      <span className={z.ok ? 'text-green-400' : 'text-red-400'}>
-                        [{z.kod}]
-                      </span>{' '}
-                      {z.model}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function Satr({ nom, qiymat }) {
-  return (
-    <div className="flex gap-2 py-0.5">
-      <span className="opacity-60 shrink-0">{nom}:</span>
-      <span className="font-mono break-all">{String(qiymat)}</span>
+    <div className="grid grid-cols-2 gap-3">
+      <Karta nom="Botdan foydalanganlar" qiymat={h.foydalanuvchilar} belgi="👥" />
+      <Karta nom="Bloklangan" qiymat={h.bloklangan} belgi="🚫" />
     </div>
   )
 }
 
 function Karta({ nom, qiymat, izoh, belgi }) {
   return (
-    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4">
+    <div className="v3-panel-karta p-4">
       <div className="text-2xl mb-1">{belgi}</div>
       <div className="text-2xl font-bold text-white">{qiymat ?? 0}</div>
-      <div className="text-[11px] text-purple-300">{nom}</div>
-      {izoh ? <div className="text-[10px] text-purple-500 mt-1">{izoh}</div> : null}
+      <div className="text-[11px] text-[var(--v3-xira)]">{nom}</div>
+      {izoh ? <div className="text-[10px] text-[var(--v3-xira)] mt-1">{izoh}</div> : null}
     </div>
   )
 }
 
 /**
  * Botga ulangan foydalanuvchilar.
- *
- * NEGA QUIZ VA PREZENTATSIYA HISOBI YO'Q. Ular Python botning o'z
- * bazasida (Render'dagi alohida Neon bazasi) yoziladi va bu sahifa
- * saytning bazasiga qaraydi. Shu sababli bu yerda faqat sayt
- * biladigan narsa ko'rsatiladi: kim ulangan, tangasi, holati.
  */
 function Foydalanuvchilar() {
   const [d, setD] = useState(null)
@@ -1232,13 +466,13 @@ function Foydalanuvchilar() {
   }, [qidiruv, sahifa])
 
   return (
-    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5">
+    <div className="v3-panel-karta p-5">
       <div className="flex items-baseline justify-between gap-3 mb-4 flex-wrap">
         <h2 className="text-sm font-bold text-yellow-300">
           Ulangan foydalanuvchilar {d ? `(${d.jami} ta)` : ''}
         </h2>
         {d ? (
-          <span className="text-xs text-purple-400">
+          <span className="text-xs text-[var(--v3-xira)]">
             {d.xabarlarYoqilgan} tasi xabar oladi
           </span>
         ) : null}
@@ -1251,13 +485,13 @@ function Foydalanuvchilar() {
           setSahifa(1)
         }}
         placeholder="Ism, username yoki chatId bo'yicha qidirish"
-        className="w-full mb-4 px-4 py-2 rounded-xl bg-slate-900/70 border border-purple-700/50 text-sm text-white placeholder-purple-500 focus:outline-none focus:border-yellow-500"
+        className="v3-kiritish w-full mb-4 text-sm"
       />
 
       {yuklanmoqda && !d ? (
-        <div className="text-sm text-purple-400">Yuklanmoqda...</div>
+        <div className="text-sm text-[var(--v3-xira)]">Yuklanmoqda...</div>
       ) : !d?.foydalanuvchilar?.length ? (
-        <div className="text-sm text-purple-400">
+        <div className="text-sm text-[var(--v3-xira)]">
           {qidiruv ? 'Hech kim topilmadi.' : 'Hali hech kim botga ulanmagan.'}
         </div>
       ) : (
@@ -1265,7 +499,7 @@ function Foydalanuvchilar() {
           {d.foydalanuvchilar.map((f) => (
             <div
               key={f.id}
-              className="flex items-center justify-between gap-3 rounded-xl bg-slate-900/50 px-3 py-2.5"
+              className="flex items-center justify-between gap-3 rounded-xl bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] px-3 py-2.5"
             >
               <div className="min-w-0">
                 <div className="text-sm font-semibold text-white truncate">
@@ -1279,7 +513,7 @@ function Foydalanuvchilar() {
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] text-purple-400 truncate">
+                <div className="text-[11px] text-[var(--v3-xira)] truncate">
                   @{f.username} · {f.tgUsername ? `TG @${f.tgUsername}` : `chatId ${f.chatId}`}
                   {' · '}
                   {new Date(f.bogladi).toLocaleDateString('uz-UZ')}
@@ -1287,7 +521,7 @@ function Foydalanuvchilar() {
               </div>
               <div className="flex items-center gap-3 shrink-0 text-xs">
                 <span className="text-amber-300 font-bold">🪙 {f.coins}</span>
-                <span className={f.xabarlar ? 'text-green-400' : 'text-purple-500'}>
+                <span className={f.xabarlar ? 'text-green-400' : 'text-[var(--v3-xira)]'}>
                   {f.xabarlar ? '🔔' : '🔕'}
                 </span>
               </div>
@@ -1301,17 +535,17 @@ function Foydalanuvchilar() {
           <button
             onClick={() => setSahifa((s) => Math.max(1, s - 1))}
             disabled={sahifa <= 1}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 text-purple-200 text-xs disabled:opacity-40"
+            className="v3-tugma text-xs py-1.5 px-3 disabled:opacity-40"
           >
             ← Oldingi
           </button>
-          <span className="text-xs text-purple-400">
+          <span className="text-xs text-[var(--v3-xira)]">
             {d.sahifa} / {d.sahifalar}
           </span>
           <button
             onClick={() => setSahifa((s) => Math.min(d.sahifalar, s + 1))}
             disabled={sahifa >= d.sahifalar}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 text-purple-200 text-xs disabled:opacity-40"
+            className="v3-tugma text-xs py-1.5 px-3 disabled:opacity-40"
           >
             Keyingi →
           </button>
@@ -1370,21 +604,21 @@ function Iqtibos({ ishlaydi }) {
   }
 
   return (
-    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mt-6">
+    <div className="v3-panel-karta p-5 mt-6">
       <h2 className="text-sm font-bold text-yellow-300 mb-1">Kunlik iqtibos</h2>
-      <p className="text-xs text-purple-400 mb-4">
+      <p className="text-xs text-[var(--v3-xira)] mb-4">
         Har kuni ertalab (Toshkent 08:00) guruhlarga yuboriladi.
         Bazada {d.gaplar.jami} ta gap, {d.gaplar.faol} tasi faol.
       </p>
 
-      <div className="bg-purple-950/50 border border-purple-800/50 rounded-xl p-4 mb-4">
-        <div className="text-[11px] text-purple-400 mb-2">
+      <div className="bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-xl p-4 mb-4">
+        <div className="text-[11px] text-[var(--v3-xira)] mb-2">
           Bugun ketadi — {MANBA[d.iqtibos.manba] || d.iqtibos.manba}
         </div>
         <div className="text-sm text-white italic leading-relaxed">
           {d.iqtibos.icon} {d.iqtibos.textUz}
         </div>
-        <div className="text-xs text-purple-300 mt-2">— {d.iqtibos.author}</div>
+        <div className="text-xs text-[var(--v3-xira)] mt-2">— {d.iqtibos.author}</div>
         {d.iqtibos.manba === 'zaxira' && (
           <div className="text-[11px] text-amber-300/80 mt-3">
             Bazaga gap qo'shilsa, zaxira ro'yxati ishlatilmaydi.{' '}
@@ -1399,11 +633,11 @@ function Iqtibos({ ishlaydi }) {
       <button
         onClick={yubor}
         disabled={band || d.guruhlar.length === 0}
-        className="px-5 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-semibold text-sm disabled:opacity-40 transition-all"
+        className="v3-tugma v3-tugma-asosiy text-sm disabled:opacity-40"
       >
         {band ? 'Yuborilmoqda...' : 'Bugungi iqtibosni hozir yuborish'}
       </button>
-      <div className="text-[11px] text-purple-500 mt-2">
+      <div className="text-[11px] text-[var(--v3-xira)] mt-2">
         Qayta yuborish xavfsiz — iqtibos sanadan hisoblanadi, ya'ni o'sha gap ketadi.
       </div>
     </div>
@@ -1494,9 +728,9 @@ function Elon({ ishlaydi }) {
   const bosholmaydi = band || oshdi || (!matn.trim() && !rasm) || !sanoq?.faol
 
   return (
-    <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-5 mt-6">
+    <div className="v3-panel-karta p-5 mt-6">
       <h2 className="text-sm font-bold text-yellow-300 mb-1">E'lon yuborish</h2>
-      <p className="text-xs text-purple-400 mb-4">
+      <p className="text-xs text-[var(--v3-xira)] mb-4">
         {sanoq
           ? `Botga ulangan: ${sanoq.jami} ta, xabar oladigan: ${sanoq.faol} ta`
           : 'Yuklanmoqda...'}
@@ -1527,9 +761,9 @@ function Elon({ ishlaydi }) {
         onChange={(e) => setMatn(e.target.value)}
         rows={5}
         placeholder="E'lon matni..."
-        className="w-full bg-purple-950/50 border border-purple-700/50 rounded-xl p-3 text-sm text-white placeholder-purple-500 focus:border-yellow-500/50 outline-none resize-y"
+        className="v3-kiritish w-full text-sm resize-y"
       />
-      <div className={`text-[11px] mt-1 ${oshdi ? 'text-red-400' : 'text-purple-400'}`}>
+      <div className={`text-[11px] mt-1 ${oshdi ? 'text-red-400' : 'text-[var(--v3-xira)]'}`}>
         {matn.length} / {chegara}
         {rasm ? ' (rasm bilan chegara qisqaroq)' : ''}
       </div>
@@ -1538,8 +772,8 @@ function Elon({ ishlaydi }) {
         {rasm ? (
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={rasm.url} alt="" className="w-24 h-24 object-cover rounded-xl border border-purple-700/50" />
-            <div className="text-xs text-purple-300">
+            <img src={rasm.url} alt="" className="w-24 h-24 object-cover rounded-xl border border-[var(--v3-chiziq)]" />
+            <div className="text-xs text-[var(--v3-xira)]">
               <div>{rasm.olcham} KB</div>
               <button
                 onClick={() => setRasm(null)}
@@ -1550,7 +784,7 @@ function Elon({ ishlaydi }) {
             </div>
           </div>
         ) : (
-          <label className="inline-block px-4 py-2 rounded-lg bg-purple-800/50 border border-purple-600/50 text-sm text-purple-200 cursor-pointer hover:bg-purple-700/50 transition-all">
+          <label className="v3-tugma text-sm cursor-pointer">
             🖼️ Rasm qo'shish
             <input type="file" accept="image/jpeg,image/png,image/webp" onChange={rasmYukla} className="hidden" />
           </label>
@@ -1562,13 +796,13 @@ function Elon({ ishlaydi }) {
           value={havolaUrl}
           onChange={(e) => setHavolaUrl(e.target.value)}
           placeholder="Tugma havolasi (ixtiyoriy)"
-          className="bg-purple-950/50 border border-purple-700/50 rounded-xl p-2.5 text-sm text-white placeholder-purple-500 outline-none focus:border-yellow-500/50"
+          className="v3-kiritish text-sm"
         />
         <input
           value={havolaMatn}
           onChange={(e) => setHavolaMatn(e.target.value)}
           placeholder="Tugma yozuvi (sukut: Saytda ochish)"
-          className="bg-purple-950/50 border border-purple-700/50 rounded-xl p-2.5 text-sm text-white placeholder-purple-500 outline-none focus:border-yellow-500/50"
+          className="v3-kiritish text-sm"
         />
       </div>
 
@@ -1599,7 +833,7 @@ function Elon({ ishlaydi }) {
             <button
               onClick={() => setTasdiq(false)}
               disabled={band}
-              className="px-5 py-2.5 rounded-lg bg-purple-800/50 border border-purple-600/50 text-purple-200 text-sm transition-all"
+              className="v3-tugma text-sm"
             >
               Bekor qilish
             </button>
@@ -1608,18 +842,18 @@ function Elon({ ishlaydi }) {
       )}
 
       {natija && (
-        <div className="mt-4 bg-purple-950/40 border border-purple-700/50 rounded-xl p-4 text-sm">
+        <div className="mt-4 bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] rounded-xl p-4 text-sm">
           <div className="text-green-400">Yetdi: {natija.yetdi} / {natija.jami}</div>
           {natija.yetmadi > 0 && (
             <div className="text-red-300 mt-1">Yetmadi: {natija.yetmadi}</div>
           )}
           {natija.tozalandi > 0 && (
-            <div className="text-purple-300 mt-1">
+            <div className="text-[var(--v3-xira)] mt-1">
               {natija.tozalandi} ta o'lik ulanish tozalandi (bot bloklangan)
             </div>
           )}
           {natija.xatolar?.length > 0 && (
-            <div className="text-[11px] text-purple-400 mt-2 font-mono">
+            <div className="text-[11px] text-[var(--v3-xira)] mt-2 font-mono">
               {natija.xatolar.join(' · ')}
             </div>
           )}
@@ -1631,8 +865,8 @@ function Elon({ ishlaydi }) {
 
 function Qator({ nom, matn, holat }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-1.5 border-b border-purple-800/30 last:border-0">
-      <span className="text-sm text-purple-300">{nom}</span>
+    <div className="flex items-center justify-between gap-3 py-1.5 border-b border-[var(--v3-chiziq)] last:border-0">
+      <span className="text-sm text-[var(--v3-xira)]">{nom}</span>
       <span className={`text-sm font-mono ${holat ? 'text-green-400' : 'text-red-300'}`}>
         {matn ?? (holat ? 'bor' : 'yo\'q')}
       </span>

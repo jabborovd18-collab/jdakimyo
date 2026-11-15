@@ -23,7 +23,7 @@ import { faqGrafi, yolGrafi, ldJsonProps } from '@/lib/tuzilgan-malumot'
  *    do'stlar va chat, bildirishnomalar — hech biri eslatilmagan.
  *    Sahifa 2024 yildagi saytni tasvirlardi.
  *
- * QOIDA: bu sahifadagi har bir son yo `lib/ilmiy-hajm.json` dan (o'zi
+ * QOIDA: bu sahifadagi har bir son yo `lib/fanlar.js` dan (o'zi
  * yangilanadi), yo bazadan o'lchangan va PASTGA yaxlitlangan. Yaxlitlash
  * yo'nalishi muhim: kontent o'sib borsa, kam aytilgan son to'g'ri bo'lib
  * qolaveradi, ko'p aytilgani esa yolg'onga aylanadi.
@@ -32,8 +32,8 @@ import { faqGrafi, yolGrafi, ldJsonProps } from '@/lib/tuzilgan-malumot'
 export const metadata = {
   title: 'Sayt qanday ishlaydi',
   description:
-    "JDA KIMYO platformasining to'liq xaritasi: fanlar, o'quv va ilmiy bo'limlar, testlar, " +
-    "virtual laboratoriya, ustoz paneli, kanallar va Telegram bot. Nima tayyor va nima " +
+    "JDA KIMYO platformasining to'liq xaritasi: maktab va oliy kimyo, testlar, masala yechish, " +
+    "elektron doska, ustoz paneli, kanallar va Telegram bot. Nima tayyor va nima " +
     'hali tayyor emasligi ochiq yozilgan.',
   alternates: { canonical: '/ishlashi' },
 }

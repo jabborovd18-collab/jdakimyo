@@ -2,11 +2,12 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAdminAuth } from '@/lib/admin-auth'
+import { normalizeLogTargetWhere } from '@/lib/admin-yordamchi'
 
 // GET - Audit loglarni olish
 export async function GET(request) {
   try {
-    const { isSuperAdmin, user: adminUser } = await checkAdminAuth()
+    const { isSuperAdmin } = await checkAdminAuth()
     if (!isSuperAdmin) {
       return NextResponse.json(
         { error: 'Faqat SuperAdmin ko\'ra oladi' },
@@ -15,8 +16,10 @@ export async function GET(request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const rawPage = Number.parseInt(searchParams.get('page') || '1', 10)
+    const rawLimit = Number.parseInt(searchParams.get('limit') || '50', 10)
+    const page = Number.isFinite(rawPage) && rawPage >= 1 ? rawPage : 1
+    const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 100) : 50
     const action = searchParams.get('action') || ''
     const adminId = searchParams.get('adminId') || ''
     const targetType = searchParams.get('targetType') || ''
@@ -36,9 +39,10 @@ export async function GET(request) {
       where.adminId = adminId
     }
 
-    // Target type filtri
-    if (targetType && targetType !== 'all') {
-      where.targetType = targetType
+    // Target type filtri (tarixiy va v4 yozuv nomlari birlashtirilgan)
+    const targetFilter = normalizeLogTargetWhere(targetType)
+    if (targetFilter) {
+      where.targetType = targetFilter
     }
 
     // Qidiruv (details yoki admin nomi bo'yicha)

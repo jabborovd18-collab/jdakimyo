@@ -10,11 +10,14 @@
 // keyin serverdan yangisi kelib ustiga yoziladi. Aks holda har sahifa
 // ochilishida shrift avval oddiy, keyin katta bo'lib "sakrab" ketardi.
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { KESH_KALITI, keshlaVaQoll, oxirgiQollashVaqti, qoll } from '@/lib/interfeys'
+import { profilniYuklabOl } from '@/lib/profil-kesh'
 
 export default function InterfeysQollovchi() {
-  const { status } = useSession()
+  const { data: session, status } = useSession()
+  const pathname = usePathname()
 
   // 1-bosqich: brauzerdagi nusxa
   useEffect(() => {
@@ -26,23 +29,18 @@ export default function InterfeysQollovchi() {
     }
   }, [])
 
-  // 2-bosqich: serverdagi haqiqiy sozlama
+  // 2-bosqich: serverdagi haqiqiy sozlama (deduplikatsiya va kesh bilan)
   useEffect(() => {
-    if (status !== 'authenticated') return
+    if (status !== 'authenticated' || pathname === '/profil') return
 
     let bekor = false
     const boshlandi = Date.now()
 
     ;(async () => {
       try {
-        const res = await fetch('/api/profil')
-        if (!res.ok) return
-        const data = await res.json()
+        const data = await profilniYuklabOl({ sessionUser: session?.user })
         if (bekor || !data?.user) return
 
-        // So'rov ketayotganda foydalanuvchi sozlamani o'zgartirgan bo'lsa
-        // (masalan sozlamalar sahifasida shriftni tanlagan), kechikkan
-        // javob uning tanlovini bosib qo'ymasin.
         if (oxirgiQollashVaqti() > boshlandi) return
 
         keshlaVaQoll(data.user.interfaceSettings)
@@ -52,7 +50,7 @@ export default function InterfeysQollovchi() {
     })()
 
     return () => { bekor = true }
-  }, [status])
+  }, [status, pathname, session?.user])
 
   return null
 }

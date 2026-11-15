@@ -1,20 +1,18 @@
 // app/api/admin/quizzes/route.js
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { checkAdminAuth } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
-import { huquqiBormi } from '@/lib/roles'
 import { qaydEt } from '@/lib/qaydnoma'
 
 // GET - Barcha savollarni olish (filter, search, pagination bilan)
 export async function GET(request) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    const { authenticated, isAdmin, user } = await checkAdminAuth('kontent')
+    if (!authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!huquqiBormi(session.user.role, 'kontent')) {
+    if (!isAdmin || !user) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -72,17 +70,18 @@ export async function GET(request) {
 // POST - Yangi savol qo'shish
 export async function POST(request) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    const { authenticated, isAdmin, user } = await checkAdminAuth('kontent')
+    if (!authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Moderator ham quiz qo'sha oladi va tahrirlaydi — bu uning asosiy
     // ishi. Avval bu yerda faqat admin/superadmin turardi va moderator
     // savollar ro'yxatini ko'rardi-yu, hech narsa qila olmasdi.
-    if (!huquqiBormi(session.user.role, 'kontent')) {
+    if (!isAdmin || !user) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+    const session = { user }
 
     const data = await request.json()
 
@@ -137,17 +136,18 @@ export async function POST(request) {
 // PUT - Savolni tahrirlash
 export async function PUT(request) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    const { authenticated, isAdmin, user } = await checkAdminAuth('kontent')
+    if (!authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Moderator ham quiz qo'sha oladi va tahrirlaydi — bu uning asosiy
     // ishi. Avval bu yerda faqat admin/superadmin turardi va moderator
     // savollar ro'yxatini ko'rardi-yu, hech narsa qila olmasdi.
-    if (!huquqiBormi(session.user.role, 'kontent')) {
+    if (!isAdmin || !user) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+    const session = { user }
 
     const data = await request.json()
 
@@ -192,17 +192,18 @@ export async function PUT(request) {
 // DELETE - Savolni o'chirish
 export async function DELETE(request) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    const { authenticated, isAdmin, user } = await checkAdminAuth('kontent')
+    if (!authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Moderator ham quiz qo'sha oladi va tahrirlaydi — bu uning asosiy
     // ishi. Avval bu yerda faqat admin/superadmin turardi va moderator
     // savollar ro'yxatini ko'rardi-yu, hech narsa qila olmasdi.
-    if (!huquqiBormi(session.user.role, 'kontent')) {
+    if (!isAdmin || !user) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+    const session = { user }
 
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

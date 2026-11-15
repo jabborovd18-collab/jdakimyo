@@ -39,7 +39,7 @@ export default function SovgalarPage() {
       const res = await fetch('/api/sovga', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qabulQiluvchiId: dostId }),
+        body: JSON.stringify({ dostId }),
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error)
@@ -98,7 +98,7 @@ export default function SovgalarPage() {
         <div>
           <div className="v3-nishon">Tanga va hadyalar</div>
           <h1 className="text-2xl font-bold tracking-tight text-[var(--v3-matn)] flex items-center gap-2">
-            <Ikon nom="orin" olcham={22} className="text-[var(--v3-urgu)]" />
+            <Ikon nom="sovga" olcham={22} className="text-[var(--v3-urgu)]" />
             <span>Kunlik Sovg{"'"}alar</span>
           </h1>
           <p className="text-xs text-[var(--v3-xira)] mt-1">
@@ -108,7 +108,7 @@ export default function SovgalarPage() {
 
         <div className="flex items-center gap-2 font-mono text-xs text-[var(--v3-xira)]">
           <span>Kuyishiga:</span>
-          <strong className="text-[var(--v3-urgu)]">{qolganVaqt(malumot.qolganMs)}</strong>
+          <strong className="text-[var(--v3-urgu)]">{qolganVaqt(malumot.kunTugashigaMs)}</strong>
         </div>
       </div>
 
@@ -117,38 +117,44 @@ export default function SovgalarPage() {
         <section className="space-y-3">
           <div className="v3-nishon">Sizga kelgan sovg{"'"}alar ({malumot.kelganlar.length})</div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {malumot.kelganlar.map((s) => (
-              <div
-                key={s.id}
-                className="v3-panel-karta p-4 flex items-center justify-between gap-3 border-[var(--v3-urgu)]/40"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">
-                    {s.yuboruvchi.avatar ? (
-                      <img src={s.yuboruvchi.avatar} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      (s.yuboruvchi.fullName?.[0] || s.yuboruvchi.username?.[0] || 'U').toUpperCase()
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-bold text-xs text-[var(--v3-matn)] truncate flex items-center gap-1">
-                      <span>{s.yuboruvchi.fullName || s.yuboruvchi.username}</span>
-                      <TasdiqBelgisi tasdiqlangan={s.yuboruvchi.isVerified} olcham="kichik" />
-                    </div>
-                    <div className="text-[10.5px] text-[var(--v3-urgu)] font-mono">+5 🪙 sovg{"'"}a yubordi</div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => qabulQil(s.id)}
-                  disabled={band === s.id}
-                  className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 font-bold shrink-0"
+            {malumot.kelganlar.map((s) => {
+              const yuboruvchi = s.sender || s.yuboruvchi || {}
+              return (
+                <div
+                  key={s.id}
+                  className="v3-panel-karta p-4 flex flex-wrap items-center justify-between gap-3 border-[var(--v3-urgu)]/40"
                 >
-                  {band === s.id ? '...' : 'Qabul qilish'}
-                </button>
-              </div>
-            ))}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-[var(--v3-yuza-2)] border border-[var(--v3-chiziq)] flex items-center justify-center font-bold text-xs text-[var(--v3-urgu)] overflow-hidden shrink-0">
+                      {yuboruvchi.avatar ? (
+                        <img src={yuboruvchi.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        (yuboruvchi.fullName?.[0] || yuboruvchi.username?.[0] || 'U').toUpperCase()
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs text-[var(--v3-matn)] truncate flex items-center gap-1">
+                        <span>{yuboruvchi.fullName || yuboruvchi.username || 'Foydalanuvchi'}</span>
+                        <TasdiqBelgisi tasdiqlangan={yuboruvchi.isVerified} olcham="kichik" />
+                      </div>
+                      <div className="text-[10.5px] text-[var(--v3-urgu)] font-mono flex items-center gap-1">
+                        <Ikon nom="tanga" olcham={12} />
+                        <span>+{malumot.tanga || 5} sovg{"'"}a yubordi</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => qabulQil(s.id)}
+                    disabled={band === s.id}
+                    className="v3-tugma v3-tugma-asosiy text-xs py-1.5 px-3 font-bold shrink-0"
+                  >
+                    {band === s.id ? '...' : 'Qabul qilish'}
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </section>
       )}
@@ -201,12 +207,12 @@ export default function SovgalarPage() {
                 <button
                   type="button"
                   onClick={() => yubor(d.id)}
-                  disabled={band === d.id || malumot.bugunYuborilgan}
+                  disabled={band === d.id || Boolean(malumot.bugungiYuborilgan)}
                   className={`v3-tugma text-xs py-1.5 px-3 shrink-0 ${
-                    malumot.bugunYuborilgan ? 'opacity-40 cursor-not-allowed' : 'v3-tugma-asosiy font-bold'
+                    malumot.bugungiYuborilgan ? 'opacity-40 cursor-not-allowed' : 'v3-tugma-asosiy font-bold'
                   }`}
                 >
-                  {band === d.id ? '...' : malumot.bugunYuborilgan ? 'Yuborilgan' : 'Sovg\'a'}
+                  {band === d.id ? '...' : malumot.bugungiYuborilgan ? 'Yuborilgan' : 'Sovg\'a'}
                 </button>
               </div>
             ))}

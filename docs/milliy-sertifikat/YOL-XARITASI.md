@@ -16,12 +16,16 @@ ishlatilmaydi.
 | `lib/milliy-sertifikat-yakunlash.js` | Baholash, sertifikat, urinishni yozish |
 | `lib/milliy-sertifikat-bank.js` | Savol bankining sifat darvozasi |
 | `lib/milliy-sertifikat-eksport.js` | Kalibrlash uchun 0/1 matritsa |
+| `lib/milliy-sertifikat-katalog.js` | Sinov holati: bank to'liq bo'lsa o'zi ochiladi |
+| `lib/rasch-kalibrlash.js` | Qiyinlikni javoblardan hisoblash (CML) |
+| `data/milliy-sertifikat/kalibrlash.js` | Hisoblangan qiyinliklar, avtomatik yaratiladi |
 
 ## Buyruqlar
 
 ```
 npm run ms:bank      # savol banki holati
 npm run ms:eksport   # javoblarni output/ ga chiqaradi (bazadan faqat o'qiydi)
+npm run ms:kalibrla -- <slug> [--yoz]   # qiyinlikni hisoblaydi
 ```
 
 ## Bosqichlar
@@ -39,10 +43,8 @@ npx prisma migrate deploy
 Migratsiyasiz ham sinov ishlaydi: urinish yozilmaydi va logda xato chiqadi.
 
 **3. Savollarni tayyorlash — o'qituvchi ishi.**
-Eski savollar olib tashlangan, bank bo'sh va hamma sinov yopiq (`holat`).
-Savol shakli `data/milliy-sertifikat/savollar-ombromi.js` sarlavhasida.
-- Yangi savollar kiritiladi, har biriga to'liq yechim yoziladi.
-- Sinov `holat: "ochiq"` qilinadi, `npm run ms:bank` xatosiz o'tishi kerak.
+Eski savollar olib tashlangan, bank bo'sh va hamma sinov yopiq.
+Qo'llanma: `SAVOL-QOSHISH.md`. Bank to'liq bo'lib, darvozadan o'tgach sinov o'zi ochiladi.
 - Rasmiy kimyo imtihoni tuzilishini manbadan aniqlash kerak.
 
 Eslatma: `public/images/milliy-sertifikat-1` va `-2` rasmlarini
@@ -51,9 +53,9 @@ Eslatma: `public/images/milliy-sertifikat-1` va `-2` rasmlarini
 **4. Pilot.** Har savolga taxminan 100–150 ta birinchi urinish javobi, ishonchli
 natija uchun 250+. Bu amaliy mo'ljal, aniq qoida emas.
 
-**5. Kalibrlash (sayt tashqarisida).** `npm run ms:eksport` faylini R `TAM`
-paketida ishlash. Tekshiruv: infit/outfit 0.7–1.3, bir o'lchamlilik, ishonchlilik
-0.8 dan yuqori, DIF. Yangi `qiyinlik` qiymatlari savol bankiga yoziladi.
+**5. Kalibrlash — vosita tayyor.** `npm run ms:eksport`, keyin `npm run ms:kalibrla`.
+Tekshiruv: infit/outfit 0.7–1.3, savolning ajratish kuchi, ishonchlilik 0.8 dan yuqori.
+Bir o'lchamlilik va DIF hali hisoblanmaydi.
 
 **6. Variantlarni bog'lash.** Variantlar orasida 20–25% umumiy savol. Shkala
 formulasi (`SHKALA_MARKAZ`, `SHKALA_QADAM`) shu bosqichda qayta tanlanadi.

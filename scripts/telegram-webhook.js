@@ -44,6 +44,8 @@ const SAYT = process.env.SAYT_MANZIL || 'https://www.jdakimyo.uz'
 
 /** "/" bosilganda chiqadigan ro'yxat */
 const BUYRUQLAR = [
+  { command: 'kod', description: 'Sayt hisobini ulash' },
+  { command: 'sertifikatlar', description: 'Rasmiy sertifikatlar' },
   { command: 'xabarlar', description: 'Oxirgi bildirishnomalar' },
   { command: 'holat', description: "Hisob ma'lumotlari" },
   { command: 'sozlama', description: "Xabar oqimini yoqish/o'chirish" },

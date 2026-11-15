@@ -4,6 +4,7 @@
 // "pH ko'rsatkichi" (Darslik 85-bet)
 // 6 ta interaktiv Canvas Ko'rgazma + 4 ta Smart-doska O'yini
 // ============================================================
+import { kadrSora, kadrniBekorQil, umumiyAudio, variantlarniAralashtir, indekslanganVariantlarniAralashtir } from "@/lib/maktab-animatsiya"
 import { useState, useEffect, useRef } from 'react'
 import Ikon from '@/components/Ikon'
 import OtganDarsniTakrorlash from '@/components/maktab/OtganDarsniTakrorlash'
@@ -12,9 +13,8 @@ import { SmartDoskaNavigatsiya } from '@/components/maktab/SmartDoskaYordamchi'
 function tovushChiqar(turi) {
     if (typeof window === 'undefined') return
     try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext
-        if (!AudioCtx) return
-        const ctx = new AudioCtx()
+        const ctx = umumiyAudio()
+        if (!ctx) return
         const now = ctx.currentTime
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
@@ -59,10 +59,10 @@ const TAKROPI_5_3 = [
     {
         savol: "Binafsha lakmus eritmasi kislotali va ishqoriy muhitlarda qanday ranglarga o'tadi?",
         variantlar: [
+            "Har ikkalasida binafsha qoladi",
             "Kislotada — Qizil, Ishqorda — Ko'k",
             "Kislotada — Ko'k, Ishqorda — Qizil",
             "Kislotada — Sariq, Ishqorda — Rangsiz",
-            "Har ikkalasida binafsha qoladi"
         ],
         togriJavob: "Kislotada — Qizil, Ishqorda — Ko'k",
         izoh: "Lakmus kislotada qizil, neytral suvda binafsha, ishqoriy muhitda esa ko'k rang beradi."
@@ -70,10 +70,10 @@ const TAKROPI_5_3 = [
     {
         savol: "Metiloranj indikatori kislotali va ishqoriy eritmalarda qanday rangda bo'ladi?",
         variantlar: [
+            "Kislotada — Ko'k, Ishqorda — Yashil",
+            "Har doim qora",
             "Kislotada — Qizil-pushti, Ishqorda — Sariq",
             "Kislotada — Rangsiz, Ishqorda — Malina",
-            "Kislotada — Ko'k, Ishqorda — Yashil",
-            "Har doim qora"
         ],
         togriJavob: "Kislotada — Qizil-pushti, Ishqorda — Sariq",
         izoh: "Metiloranj kislotali muhitda qizil-pushti, neytral muhitda to'q sariq, ishqoriy muhitda esa sariq rangga kiradi."
@@ -171,7 +171,9 @@ function PhShkalaCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={280} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={280} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-4 font-serif">
                     <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
@@ -324,7 +326,9 @@ function IonMuvozanatTarozisiCanvas() {
                 </div>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={280} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={280} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -415,7 +419,9 @@ function RaqamliPhMetrCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={290} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={290} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     {PH_METR_ERITMALAR.map((e) => (
@@ -494,7 +500,9 @@ function InsonOrganizmiPhCanvas() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div className="lg:col-span-7">
-                    <canvas ref={canvasRef} width={560} height={280} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+                    <div className="overflow-x-auto w-0 min-w-full">
+                      <canvas ref={canvasRef} width={560} height={280} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+                    </div>
                 </div>
                 <div className="lg:col-span-5 space-y-2 font-serif">
                     {ORGAN_PH.map((o) => (
@@ -589,7 +597,9 @@ function TuproqPhAgronomCanvas() {
                 </button>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -647,10 +657,10 @@ function KislotaliYomgirPhCanvas() {
                 270
             )
 
-            animId = requestAnimationFrame(chiz)
+            animId = kadrSora(canvas, chiz)
         }
         chiz()
-        return () => cancelAnimationFrame(animId)
+        return () => kadrniBekorQil(animId)
     }, [zavodTutuni])
 
     return (
@@ -672,7 +682,9 @@ function KislotaliYomgirPhCanvas() {
                 </button>
             </div>
 
-            <canvas ref={canvasRef} width={560} height={285} className="w-full rounded-xl border border-slate-800 bg-slate-950" />
+            <div className="overflow-x-auto w-0 min-w-full">
+              <canvas ref={canvasRef} width={560} height={285} className="w-full min-w-[520px] rounded-xl border border-slate-800 bg-slate-950" />
+            </div>
         </div>
     )
 }
@@ -769,9 +781,9 @@ function PhMuhitTopOyini() {
 // ============================================================
 const ION_SAVOLLAR = [
     { savol: "pH = 3 bo'lgan eritmada qaysi ionlar konsentratsiyasi ko'proq?", javob: "[H⁺] > [OH⁻] (Vodorod ionlari ko'p)", variantlar: ["[H⁺] > [OH⁻] (Vodorod ionlari ko'p)", "[H⁺] = [OH⁻]", "[H⁺] < [OH⁻]", "Hech qanday ion yo'q"] },
-    { savol: "pH = 2 bo'lgan kislota eritmasi pH = 3 bo'lgan eritmadan necha marta kuchliroq (nordonroq)?", javob: "10 marta kuchliroq", variantlar: ["1 marta", "2 marta", "10 marta kuchliroq", "1000 marta"] },
-    { savol: "pH = 12 bo'lgan eritmada lakmus va fenolftalein qanday rangga kiradi?", javob: "Lakmus — ko'k, Fenolftalein — malina rang", variantlar: ["Lakmus — qizil, Fenolftalein — rangsiz", "Lakmus — ko'k, Fenolftalein — malina rang", "Ikkalasi ham sariq", "Ikkalasi ham rangsiz"] },
-    { savol: "Kislotali eritmaga ko'p miqdorda toza suv qo'shib suyultirilsa, uning pH ko'rsatkichi qanday o'zgaradi?", javob: "pH ortib, 7 ga yaqinlashadi (masalan 2 dan 5 ga o'tadi)", variantlar: ["pH 0 ga tushib ketadi", "pH ortib, 7 ga yaqinlashadi (masalan 2 dan 5 ga o'tadi)", "pH 14 bo'lib ketadi", "Umuman o'zgarmaydi"] },
+    { savol: "pH = 2 bo'lgan kislota eritmasi pH = 3 bo'lgan eritmadan necha marta kuchliroq (nordonroq)?", javob: "10 marta kuchliroq", variantlar: ["2 marta", "10 marta kuchliroq", "1000 marta", "1 marta"] },
+    { savol: "pH = 12 bo'lgan eritmada lakmus va fenolftalein qanday rangga kiradi?", javob: "Lakmus — ko'k, Fenolftalein — malina rang", variantlar: ["Ikkalasi ham rangsiz", "Lakmus — qizil, Fenolftalein — rangsiz", "Lakmus — ko'k, Fenolftalein — malina rang", "Ikkalasi ham sariq"] },
+    { savol: "Kislotali eritmaga ko'p miqdorda toza suv qo'shib suyultirilsa, uning pH ko'rsatkichi qanday o'zgaradi?", javob: "pH ortib, 7 ga yaqinlashadi (masalan 2 dan 5 ga o'tadi)", variantlar: ["pH 14 bo'lib ketadi", "Umuman o'zgarmaydi", "pH 0 ga tushib ketadi", "pH ortib, 7 ga yaqinlashadi (masalan 2 dan 5 ga o'tadi)"] },
     { savol: "1909-yilda fanga pH (vodorod ko'rsatkichi) tushunchasini kiritgan daniyalik olim kim?", javob: "Syoren Syorensen", variantlar: ["Syoren Syorensen", "Robert Boyl", "Dmitriy Mendeleyev", " Svante Arrenius"] },
 ]
 
@@ -810,7 +822,7 @@ function IonHisobOyini() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -851,10 +863,10 @@ function IonHisobOyini() {
 // 3-O'YIN: TIBBIYOT VA AGRONOMIYA pH EKSPERTI
 // ============================================================
 const AMALIY_PH_SAVOLLAR = [
-    { vazifa: "Sog'lom inson qonining doimiy pH ko'rsatkichi qaysi oraliqda bo'ladi?", javob: "pH = 7.35 – 7.45 (kuchsiz ishqoriy)", variantlar: ["pH = 1.5 – 2.0", "pH = 7.35 – 7.45 (kuchsiz ishqoriy)", "pH = 12.0 – 13.0", "pH = 4.0 – 5.0"] },
+    { vazifa: "Sog'lom inson qonining doimiy pH ko'rsatkichi qaysi oraliqda bo'ladi?", javob: "pH = 7.35 – 7.45 (kuchsiz ishqoriy)", variantlar: ["pH = 7.35 – 7.45 (kuchsiz ishqoriy)", "pH = 12.0 – 13.0", "pH = 4.0 – 5.0", "pH = 1.5 – 2.0"] },
     { vazifa: "Kislotali (pH = 4.5) tuproqning unumdorligini oshirish va pH ni 7 ga yaqinlashtirish uchun tuproqqa nima solinadi?", javob: "Ohaktosh (CaCO₃) yoki so'ndirilgan ohak Ca(OH)₂", variantlar: ["Sulfat kislota (H₂SO₄)", "Ohaktosh (CaCO₃) yoki so'ndirilgan ohak Ca(OH)₂", "Osh tuzi (NaCl)", "Sirka kislotasi"] },
-    { vazifa: "Nima uchun shirinlik yegandan keyin tishni tish pastasi (pH ≈ 8.5) bilan yuvish kerak?", javob: "Og'izda hosil bo'lgan kislotali muhitni (pH < 5.5) neytrallab, tish emalini yemirilishdan saqlash uchun", variantlar: ["Og'izni yanada nordon qilish uchun", "Og'izda hosil bo'lgan kislotali muhitni (pH < 5.5) neytrallab, tish emalini yemirilishdan saqlash uchun", "Tishni yumshatish uchun", "pH ni 1 ga tushirish uchun"] },
-    { vazifa: "Yomg'ir suvining pH ko'rsatkichi necha bo'lganda u ekologik xavfli 'kislotali yomg'ir' hisoblanadi?", javob: "pH < 5.6 (masalan, pH 4.0)", variantlar: ["pH = 7.0", "pH < 5.6 (masalan, pH 4.0)", "pH = 8.5", "pH = 14.0"] },
+    { vazifa: "Nima uchun shirinlik yegandan keyin tishni tish pastasi (pH ≈ 8.5) bilan yuvish kerak?", javob: "Og'izda hosil bo'lgan kislotali muhitni (pH < 5.5) neytrallab, tish emalini yemirilishdan saqlash uchun", variantlar: ["pH ni 1 ga tushirish uchun", "Og'izni yanada nordon qilish uchun", "Og'izda hosil bo'lgan kislotali muhitni (pH < 5.5) neytrallab, tish emalini yemirilishdan saqlash uchun", "Tishni yumshatish uchun"] },
+    { vazifa: "Yomg'ir suvining pH ko'rsatkichi necha bo'lganda u ekologik xavfli 'kislotali yomg'ir' hisoblanadi?", javob: "pH < 5.6 (masalan, pH 4.0)", variantlar: ["pH = 8.5", "pH = 14.0", "pH = 7.0", "pH < 5.6 (masalan, pH 4.0)"] },
 ]
 
 function AmaliyPhEkspertOyini() {
@@ -892,7 +904,7 @@ function AmaliyPhEkspertOyini() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 mb-4">
-                {joriy.variantlar.map((v) => (
+                {variantlarniAralashtir(joriy.variantlar, joriy.savol || joriy.vazifa || joriy.nom || joriy.qotishma || joriy.reaksiya || '', idx).map(({ item: v }) => (
                     <button
                         key={v}
                         onClick={() => tekshir(v)}
@@ -933,11 +945,11 @@ function AmaliyPhEkspertOyini() {
 // 4-O'YIN: JAMOALAR DUELI (1-GURUH VS 2-GURUH)
 // ============================================================
 const DUEL_5_4 = [
-    { savol: "Toza distillangan suvning (neytral muhitning) pH ko'rsatkichi nechaga teng?", variantlar: ["pH = 0", "pH = 7", "pH = 10", "pH = 14"], javob: 1 },
-    { savol: "pH < 7 bo'lgan eritma qanday muhitga ega?", variantlar: ["Kislotali", "Neytral", "Ishqoriy", "Quruq"], javob: 0 },
+    { savol: "Toza distillangan suvning (neytral muhitning) pH ko'rsatkichi nechaga teng?", variantlar: ["pH = 7", "pH = 10", "pH = 14", "pH = 0"], javob: 0 },
+    { savol: "pH < 7 bo'lgan eritma qanday muhitga ega?", variantlar: ["Quruq", "Kislotali", "Neytral", "Ishqoriy"], javob: 1 },
     { savol: "pH > 7 bo'lgan eritma qanday muhitga ega?", variantlar: ["Kislotali", "Neytral", "Ishqoriy", "Gazli"], javob: 2 },
-    { savol: "Quyidagilardan qaysi biri eng kuchli kislotali muhitga ega?", variantlar: ["pH = 1", "pH = 5", "pH = 7", "pH = 13"], javob: 0 },
-    { savol: "Quyidagilardan qaysi biri eng kuchli ishqoriy muhitga ega?", variantlar: ["pH = 2", "pH = 7", "pH = 9", "pH = 14"], javob: 3 },
+    { savol: "Quyidagilardan qaysi biri eng kuchli kislotali muhitga ega?", variantlar: ["pH = 5", "pH = 7", "pH = 13", "pH = 1"], javob: 3 },
+    { savol: "Quyidagilardan qaysi biri eng kuchli ishqoriy muhitga ega?", variantlar: ["pH = 14", "pH = 2", "pH = 7", "pH = 9"], javob: 0 },
     { savol: "Eritmaning pH qiymatini 0.01 aniqlikda o'lchaydigan elektron asbob nima deyiladi?", variantlar: ["Ampermetr", "pH-metr", "Barometr", "Termometr"], javob: 1 },
 ]
 
@@ -948,7 +960,9 @@ function JamoalarDueli5_4() {
     const [navbat, setNavbat] = useState(1)
     const [natija, setNatija] = useState(null)
 
-    const joriy = DUEL_5_4[idx]
+    const xomJoriy = DUEL_5_4[idx]
+    const aralash = indekslanganVariantlarniAralashtir(xomJoriy, idx)
+    const joriy = { ...xomJoriy, variantlar: aralash.variantlar, javob: aralash.togri }
 
     const javobBer = (i) => {
         if (natija !== null) return

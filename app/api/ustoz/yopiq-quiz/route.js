@@ -5,6 +5,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { saveQuizResult } from '@/lib/quiz-submit'
 import { ustozPaneliOchiqmi } from '@/lib/roles'
+import { bahoTekshir } from '@/lib/ustoz-quiz'
+import { createNotification } from '@/lib/bildirishnoma'
 
 // GET - Barcha yopiq quizlar + tekshirish kerak bo'lgan topshiriqlar
 export async function GET(request) {
@@ -20,7 +22,7 @@ export async function GET(request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const view = searchParams.get('view') || 'list' // list | pending | graded
+    const view = searchParams.get('view') || 'list' // list | drafts | pending | graded
     const quizId = searchParams.get('quizId')
 
     // Bitta quiz topshiriqlarini olish (tekshirish uchun)
@@ -52,7 +54,7 @@ export async function GET(request) {
 
     // Barcha quizlar ro'yxati
     const where = { teacherId: session.user.id }
-    
+
     if (view === 'drafts') where.isDraft = true
     else where.isDraft = false
 
@@ -77,13 +79,13 @@ export async function GET(request) {
     // Umumiy statistika
     const [pendingCount, gradedCount] = await Promise.all([
       prisma.closedQuizSubmission.count({
-        where: { 
+        where: {
           quiz: { teacherId: session.user.id },
           status: 'pending'
         }
       }),
       prisma.closedQuizSubmission.count({
-        where: { 
+        where: {
           quiz: { teacherId: session.user.id },
           status: 'graded'
         }
@@ -106,7 +108,7 @@ export async function GET(request) {
     })
   } catch (error) {
     console.error('[Yopiq Quiz GET]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Yopiq quizlarni yuklashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -165,7 +167,7 @@ export async function POST(request) {
     // Quiz yaratish
     const quiz = await prisma.$transaction(async (tx) => {
       const maxScore = data.questions.reduce((sum, q) => sum + (parseInt(q.maxPoints) || 10), 0)
-      
+
       const newQuiz = await tx.closedQuiz.create({
         data: {
           teacherId: session.user.id,
@@ -201,7 +203,7 @@ export async function POST(request) {
     })
   } catch (error) {
     console.error('[Yopiq Quiz POST]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Yopiq quiz yaratishda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -226,7 +228,7 @@ export async function PUT(request) {
 
     // Topshiriq va quiz tekshiruv
     const submission = await prisma.closedQuizSubmission.findFirst({
-      where: { 
+      where: {
         id: data.submissionId,
         quiz: { teacherId: session.user.id }
       },
@@ -243,19 +245,20 @@ export async function PUT(request) {
       )
     }
 
-    const score = parseInt(data.score)
-    if (isNaN(score) || score < 0) {
+    const baho = bahoTekshir(data.score, submission.quiz.maxScore)
+    if (!baho.valid) {
       return NextResponse.json(
-        { error: 'Ball noto\'g\'ri' },
+        { error: baho.error },
         { status: 400 }
       )
     }
+    const score = baho.score
 
-    // Yangilash
+    // Yangilash — status doim 'graded' bo'ladi
     const updated = await prisma.closedQuizSubmission.update({
       where: { id: data.submissionId },
       data: {
-        status: data.status || 'graded',
+        status: 'graded',
         score,
         feedback: data.feedback?.trim() || null,
         gradedBy: session.user.id,
@@ -263,13 +266,7 @@ export async function PUT(request) {
       }
     })
 
-    // Natijani umumiy statistikaga yozish va XP berish.
-    //
-    // Ikkita muammo tuzatildi:
-    //  1) Avval XP faqat ≥60% da berilardi va formulasi score×2 edi —
-    //     sayt/mobil bilan mos emas. Endi lib/quiz-submit.js ishlatiladi.
-    //  2) Ustoz bahoni QAYTA o'zgartirsa, XP ikkinchi marta berilardi.
-    //     Endi faqat birinchi baholashda beriladi.
+    // Natijani umumiy statistikaga yozish va XP berish (faqat 1-marta baholashda)
     const alreadyGraded = submission.status === 'graded'
     let xpEarned = 0
     let missionResult = null
@@ -290,6 +287,16 @@ export async function PUT(request) {
       }
     }
 
+    createNotification({
+      userId: submission.studentId,
+      title: 'Yozma ishingiz baholandi',
+      message: `"${submission.quiz.title}" yozma ishingiz ${score}/${submission.quiz.maxScore} ball bilan baholandi.${data.feedback?.trim() ? ` Ustoz izohi: ${data.feedback.trim()}` : ''}`,
+      type: 'system',
+      icon: '✅',
+      link: `/testlar/yozma/${submission.quizId}`,
+      sentBy: session.user.id,
+    }).catch(() => {})
+
     return NextResponse.json({
       success: true,
       submission: updated,
@@ -300,7 +307,7 @@ export async function PUT(request) {
     })
   } catch (error) {
     console.error('[Yopiq Quiz PUT]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Baholashda xatolik yuz berdi' }, { status: 500 })
   }
 }
 
@@ -332,7 +339,10 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Quiz topilmadi' }, { status: 404 })
     }
 
-    await prisma.closedQuiz.delete({ where: { id } })
+    await prisma.$transaction([
+      prisma.closedQuizSubmission.deleteMany({ where: { quizId: id } }),
+      prisma.closedQuiz.delete({ where: { id } })
+    ])
 
     return NextResponse.json({
       success: true,
@@ -340,6 +350,6 @@ export async function DELETE(request) {
     })
   } catch (error) {
     console.error('[Yopiq Quiz DELETE]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Quizni o\'chirishda xatolik yuz berdi' }, { status: 500 })
   }
 }

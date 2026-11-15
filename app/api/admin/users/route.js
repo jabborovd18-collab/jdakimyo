@@ -1,11 +1,11 @@
 // app/api/admin/users/route.js
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { checkAdminAuth } from '@/lib/admin-auth'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
-import { ASSIGNABLE_ROLES, huquqiBormi, roleInfo, tasdiqlashHuquqiBormi } from '@/lib/roles'
+import { ASSIGNABLE_ROLES, roleInfo, tasdiqlashHuquqiBormi } from '@/lib/roles'
 import { xabarYubor } from '@/lib/bildirishnoma'
+import { adminUsersSortQuery } from '@/lib/admin-yordamchi'
 
 /**
  * Vaqtinchalik parol yaratadi.
@@ -32,24 +32,25 @@ function parolYarat() {
 // GET - Foydalanuvchilar ro'yxati (pagination, qidiruv, filtrlar bilan)
 export async function GET(request) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
+    const { authenticated, isAdmin, user } = await checkAdminAuth('foydalanuvchilar')
+    if (!authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Foydalanuvchilar ro'yxati moderatorga YOPIQ: bu nazorat ma'lumoti
     // (email, oxirgi faollik, ballar), moderatorning ishi esa kontent va
     // izohlarni tozalash.
-    if (!huquqiBormi(session.user.role, 'foydalanuvchilar')) {
+    if (!isAdmin || !user) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+    const session = { user }
 
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const search = searchParams.get('search') || ''
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20', 10) || 20))
+    const search = (searchParams.get('search') || '').trim()
     const role = searchParams.get('role') || ''
+    const teacher = searchParams.get('teacher') || ''
     const status = searchParams.get('status') || ''
     const sortBy = searchParams.get('sortBy') || 'createdAt'
     const sortOrder = searchParams.get('sortOrder') || 'desc'
@@ -66,9 +67,16 @@ export async function GET(request) {
       ]
     }
 
-    // Rol filtri
+    // Rol va ustozlik filtri (v4 da ustozlik isTeacher bayrog'ida saqlanadi)
+    if (teacher === 'true') {
+      where.isTeacher = true
+    }
     if (role && role !== 'all') {
-      where.role = role
+      if (role === 'teacher') {
+        where.AND = [...(where.AND || []), { OR: [{ role: 'teacher' }, { isTeacher: true }] }]
+      } else {
+        where.role = role
+      }
     }
 
     // Status filtri (active/banned)
@@ -117,9 +125,7 @@ export async function GET(request) {
           }
         }
       },
-      orderBy: {
-        [sortBy]: sortOrder
-      },
+      orderBy: adminUsersSortQuery(sortBy, sortOrder),
       skip,
       take: limit
     })
@@ -147,6 +153,8 @@ export async function GET(request) {
 
     return NextResponse.json({
       success: true,
+      canDelete: session.user.role === 'superadmin',
+      canManageAdmins: session.user.role === 'superadmin',
       users,
       pagination: {
         page,
@@ -176,17 +184,16 @@ export async function GET(request) {
 // PUT - Foydalanuvchini yangilash (rol, bloklash)
 export async function PUT(request) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
+    const { authenticated, isAdmin: ruxsatBor, user } = await checkAdminAuth('foydalanuvchilar')
+    if (!authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Faqat admin yoki superadmin
-    const isAdmin = ['admin', 'superadmin'].includes(session.user.role)
-    if (!isAdmin) {
+    // Faqat admin yoki superadmin (doska sessiyasi va ban bazadan rad etilgan)
+    if (!ruxsatBor || !user || !['admin', 'superadmin'].includes(user.role)) {
       return NextResponse.json({ error: 'Forbidden - Admin huquqi kerak' }, { status: 403 })
     }
+    const session = { user }
 
     const { userId, action, data } = await request.json()
 
@@ -225,10 +232,10 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 })
     }
 
-    // Superadmin himoyasi - oddiy admin superadminni o'zgartira olmaydi
-    if (targetUser.role === 'superadmin' && session.user.role !== 'superadmin') {
+    // Admin va superadmin himoyasi — oddiy admin hamkasb admin yoki superadminni o'zgartira olmaydi
+    if (['admin', 'superadmin'].includes(targetUser.role) && session.user.role !== 'superadmin') {
       return NextResponse.json(
-        { error: 'Superadminni faqat superadmin boshqaradi' },
+        { error: 'Admin va Superadmin hisobini faqat superadmin boshqaradi' },
         { status: 403 }
       )
     }
@@ -251,10 +258,10 @@ export async function PUT(request) {
         if (!ASSIGNABLE_ROLES.includes(data.role)) {
           return NextResponse.json({ error: 'Noto\'g\'ri rol' }, { status: 400 })
         }
-        // Superadmin rolini faqat superadmin bera oladi
-        if (data.role === 'superadmin' && session.user.role !== 'superadmin') {
+        // Admin va superadmin rolini faqat superadmin bera oladi
+        if (['admin', 'superadmin'].includes(data.role) && session.user.role !== 'superadmin') {
           return NextResponse.json(
-            { error: 'Superadmin rolini faqat superadmin bera oladi' },
+            { error: 'Admin va Superadmin rolini faqat superadmin bera oladi' },
             { status: 403 }
           )
         }
@@ -348,9 +355,9 @@ export async function PUT(request) {
         xabar = tasdiqlansinmi
           ? {
               turi: 'tizim',
-              sarlavha: '✅ Hisobingiz tasdiqlandi',
-              matn: 'Endi ismingiz yonida tasdiq belgisi ko\'rinadi.',
-              havola: '/profil',
+              sarlavha: 'Hisobingiz tasdiqlandi',
+              matn: "Endi ismingiz yonida tasdiq belgisi ko'rinadi va sozlamalarda profil bezak uslubini tanlashingiz mumkin.",
+              havola: '/profil/sozlama',
               icon: '✅',
             }
           : {
@@ -470,19 +477,19 @@ export async function PUT(request) {
 // DELETE - Foydalanuvchini o'chirish (faqat superadmin)
 export async function DELETE(request) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
+    const { authenticated, isSuperAdmin: isSuper, user } = await checkAdminAuth()
+    if (!authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Faqat superadmin
-    if (session.user.role !== 'superadmin') {
+    // Faqat superadmin (doska sessiyasi va ban rad etilgan)
+    if (!isSuper || !user) {
       return NextResponse.json(
         { error: 'Faqat superadmin o\'chirishi mumkin' },
         { status: 403 }
       )
     }
+    const session = { user }
 
     const { userId } = await request.json()
 
