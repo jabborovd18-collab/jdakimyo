@@ -1,8 +1,7 @@
 // app/admin/page.js
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { checkAdminAuth } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
 import { huquqiBormi } from '@/lib/roles'
 import { MILLIY_SERTIFIKAT_VARIANTLARI } from '@/lib/milliy-sertifikat-data'
@@ -21,9 +20,12 @@ const RARITY_TARTIB = [
 ]
 
 export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions)
-  const rol = session?.user?.role
+  const { isAdmin, user } = await checkAdminAuth()
+  if (!isAdmin || !user) {
+    redirect('/')
+  }
 
+  const rol = user.role
   if (!huquqiBormi(rol, 'statistika')) {
     redirect('/admin/quizzes')
   }
@@ -107,7 +109,7 @@ export default async function AdminDashboard() {
       ? prisma.forumPost.count({ where: { status: 'pending' } }).catch(() => 0)
       : Promise.resolve(0),
     moderatsiyaRuxsat
-      ? prisma.chatMessage.count({ where: { isReported: true, isDeleted: false } }).catch(() => 0)
+      ? prisma.chatReport.count({ where: { holat: 'yangi' } }).catch(() => 0)
       : Promise.resolve(0),
     kontentRuxsat
       ? prisma.dailyQuote.count({ where: { isActive: true } }).catch(() => 0)
