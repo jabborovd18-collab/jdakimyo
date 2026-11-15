@@ -1,0 +1,171 @@
+.sahifa {
+  position: relative;
+  min-height: 100dvh;
+  overflow: auto;
+  background: var(--v3-fon-grad, linear-gradient(150deg, var(--v3-fon-2), var(--v3-fon)));
+  color: var(--v3-matn);
+}
+.fon {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.qobiq {
+  position: relative;
+  width: min(100%, 1600px);
+  margin-inline: auto;
+  padding: clamp(12px, 2vw, 28px);
+}
+.sarlavha, .hisob, .natija {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sarlavha { margin-bottom: 16px; }
+.tugma, .asosiy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 15px;
+  border: 1px solid var(--v3-chiziq-2);
+  border-radius: 12px;
+  background: var(--v3-yuza);
+  color: var(--v3-matn);
+  font-weight: 650;
+  touch-action: manipulation;
+}
+.asosiy {
+  background: var(--v3-urgu);
+  color: var(--v3-urgu-matn);
+  border-color: var(--v3-urgu);
+}
+.tugma:disabled, .asosiy:disabled { opacity: .55; }
+.tugma:hover:not(:disabled) { border-color: var(--v3-urgu); }
+.tugma:focus-visible, .asosiy:focus-visible, .karta:focus-visible, .daraja:focus-within {
+  outline: 3px solid var(--v3-urgu);
+  outline-offset: 2px;
+}
+.sozlama {
+  max-width: 830px;
+  margin: clamp(22px, 8vh, 90px) auto 0;
+  padding: clamp(18px, 4vw, 46px);
+}
+.sozlama h1, .hisob h1 {
+  font-size: clamp(1.6rem, 4vw, 3.4rem);
+  line-height: 1.08;
+  font-weight: 800;
+}
+.sozlama > p { margin-block: 12px 24px; color: var(--v3-xira); }
+.darajalar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.darajalar legend { margin-bottom: 10px; font-weight: 700; }
+.daraja {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 9px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: var(--v3-yuza);
+  border-radius: 14px;
+  padding: 12px;
+  cursor: pointer;
+}
+.daraja:has(:checked) { border-color: var(--v3-urgu); }
+.daraja input { accent-color: var(--v3-urgu); }
+.daraja span { grid-column: 2; color: var(--v3-xira); font-size: .9rem; }
+.amallar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.oyin { display: grid; gap: 10px; }
+.hisob { margin-bottom: 3px; }
+.hisob h1 { font-size: clamp(1.5rem, 3vw, 2.65rem); }
+.hisob > span { color: var(--v3-urgu); font-weight: 750; }
+.ishora { min-height: 29px; font-size: clamp(1rem, 1.55vw, 1.4rem); }
+.ishora small { display: block; color: var(--v3-xira); font-size: .78rem; }
+.doska {
+  display: grid;
+  gap: 8px;
+  overflow: hidden;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--v3-chiziq);
+  border-radius: 16px;
+  background: var(--v3-fon-2);
+}
+.yolak { overflow: hidden; min-width: 0; }
+.aylana { display: flex; width: 200%; animation: aylana 26s linear infinite; }
+.yolak:nth-child(even) .aylana { animation-direction: reverse; animation-duration: 30s; }
+.tasma {
+  display: grid;
+  width: 50%;
+  flex: 0 0 50%;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  padding: 4px 8px 4px 0;
+}
+@keyframes aylana {
+  to { transform: translateX(-50%); }
+}
+.doska[data-toxtagan='true'] .aylana { animation-play-state: paused; }
+.karta {
+  display: grid;
+  place-items: center;
+  min-height: clamp(63px, 11vh, 112px);
+  padding: 3px;
+  border: 1px solid var(--v3-chiziq-2);
+  border-radius: 12px;
+  color: var(--v3-matn);
+  background: var(--v3-yuza);
+  font-size: clamp(1rem, 2.5vw, 2.75rem);
+  font-weight: 730;
+  font-variant-numeric: lining-nums;
+  line-height: 1.15;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+.karta:hover:enabled { background: var(--v3-yuza-2); }
+.karta[data-natija='togri'] { border: 3px solid var(--v3-urgu); color: var(--v3-urgu); }
+.karta[data-natija='xato'] { border: 3px dashed var(--v3-xira); }
+.molekula { position: relative; width: 100px; height: 60px; scale: 1.1; }
+.atom, .ranglar i {
+  background: radial-gradient(circle at 31% 28%, color-mix(in srgb, var(--atom), white 70%), var(--atom) 54%, color-mix(in srgb, var(--atom), black 42%));
+  border-radius: 50%;
+}
+.atom { position: absolute; width: 16px; height: 16px; translate: -50% -50%; }
+.boglar {
+  position: absolute;
+  display: grid;
+  gap: 1px;
+  translate: 0 -50%;
+  transform-origin: 0 50%;
+}
+.boglar span { height: 2px; background: var(--v3-xira); }
+.ranglar { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--v3-xira); }
+.ranglar span { display: inline-flex; gap: 4px; align-items: center; }
+.ranglar i { width: 12px; height: 12px; }
+.natija { padding: 10px 12px; border: 1px solid var(--v3-chiziq-2); border-radius: 12px; background: var(--v3-yuza); }
+.natija p { margin-top: 3px; color: var(--v3-xira); font-size: .9rem; }
+.natija a { color: var(--v3-urgu); text-decoration: underline; }
+.xato { margin-bottom: 14px; color: var(--v3-urgu); }
+.sozlama .yakunBall { color: var(--v3-urgu); font-size: 3rem; font-weight: 800; }
+.takrorlash { margin-block: 8px 20px; list-style: disc inside; }
+.oyin > .tugma { justify-self: start; }
+
+@media (width <= 720px) {
+  .aylana { width: 100%; animation: none; }
+  .tasma { width: 100%; flex-basis: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px 0; }
+  .tasma[data-nusxa='true'] { display: none; }
+  .molekula { scale: .83; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aylana { transform: none; animation: none; }
+  .fon :global(.v3-nur) { animation: none; }
+}
+.doska:has(.karta:focus-visible) .aylana { animation: none; }
+.doska[data-natija='true'] .aylana { animation: none; }
