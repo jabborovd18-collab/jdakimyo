@@ -301,6 +301,7 @@ export default function Home() {
     { href: "/ilmiy/maqolalar/muhokama", label: "Dolzarb mavzular" },
     { href: "/laboratoriya", label: "Laboratoriya" },
     { href: "/doska", label: "Smart Doska" },
+    { href: "/oyinlar", label: "Kimyoviy o‘yinlar" },
     // Bo'lim nomi "video-darsliklar" bo'lsa ham, videolar hali TAYYOR EMAS
     // (o'sha sahifada "tez kunda" deb turibdi). Menyuda "Video" deyish —
     // bosilgach yo'q narsani va'da qilish demak.
@@ -742,6 +743,12 @@ export default function Home() {
             ikon="quiz"
             nom="Testlar"
             tavsif="440+ savol, ustozlar tuzgan testlar, natijalar PDF shaklida. Video darsliklar tayyorlanmoqda"
+          />
+          <BolimKarta
+            href="/oyinlar"
+            ikon="atom"
+            nom="Kimyoviy o‘yinlar"
+            tavsif="Formulalar va molekulalarni topish o‘yini"
           />
           <BolimKarta
             href="/ilmiy/maqolalar/muhokama"

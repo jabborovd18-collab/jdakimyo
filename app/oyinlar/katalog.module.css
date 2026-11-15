@@ -1,0 +1,106 @@
+.sahifa {
+  min-height: 100dvh;
+  background: var(--v3-fon-grad, linear-gradient(150deg, var(--v3-fon-2), var(--v3-fon)));
+  color: var(--v3-matn);
+}
+
+.muqova {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: clamp(320px, 37vw, 445px);
+  border: 1px solid var(--v3-chiziq-2);
+  border-radius: 24px;
+  background: var(--v3-fon-2);
+  box-shadow: var(--v3-karta-soya);
+}
+
+.rasm {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+}
+
+.rasm::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(90deg, var(--v3-fon) 2%, color-mix(in srgb, var(--v3-fon) 83%, transparent) 33%, transparent 66%);
+}
+
+.muqovaRasmi {
+  object-fit: cover;
+  object-position: center 50%;
+}
+
+.muqovaMatni {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  max-width: 550px;
+  padding: clamp(24px, 5vw, 64px);
+}
+
+.asosiyTugma, .telegram {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.asosiyTugma {
+  margin-top: 4px;
+  background: var(--v3-urgu);
+  color: var(--v3-urgu-matn);
+}
+
+.asosiyTugma:hover { filter: brightness(1.08); }
+
+.yopiq {
+  padding: 18px;
+  border: 1px solid var(--v3-chiziq);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--v3-fon) 78%, var(--v3-yuza-2));
+  color: var(--v3-matn);
+}
+
+.belgi {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--v3-yuza);
+  color: var(--v3-xira);
+}
+
+.holat {
+  padding: 4px 9px;
+  border: 1px solid var(--v3-chiziq-2);
+  border-radius: 8px;
+  color: var(--v3-xira);
+  font-size: .82rem;
+}
+
+.telegram {
+  border: 1px solid var(--v3-chiziq-2);
+  color: var(--v3-urgu);
+}
+
+.asosiyTugma:focus-visible, .telegram:focus-visible {
+  outline: 2px solid var(--v3-urgu);
+  outline-offset: 4px;
+}
+
+@media (width <= 640px) {
+  .muqova { display: block; }
+  .rasm { position: relative; height: clamp(158px, 55vw, 260px); }
+  .muqovaRasmi { object-position: right center; }
+  .rasm::after { background: linear-gradient(0deg, var(--v3-fon-2), transparent 45%); }
+  .muqovaMatni { padding-top: 4px; }
+}
