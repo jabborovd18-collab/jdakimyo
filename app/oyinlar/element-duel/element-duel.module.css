@@ -1,0 +1,187 @@
+.bohrQobiq {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--v3-chiziq);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--v3-fon) 78%, var(--v3-yuza-2));
+}
+
+.bohrSvg {
+  width: 148px;
+  height: 148px;
+  flex-shrink: 0;
+}
+
+.orbita {
+  fill: none;
+  stroke: color-mix(in srgb, var(--v3-matn) 22%, transparent);
+  stroke-width: 1.25;
+  stroke-dasharray: 4 3;
+}
+
+.elektronHalqa {
+  transform-origin: 80px 80px;
+  animation: aylanish 22s linear infinite;
+}
+
+.elektronHalqa[data-teskari='true'] {
+  animation-direction: reverse;
+  animation-duration: 28s;
+}
+
+@keyframes aylanish {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.elementKarta {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.elementKvadrat {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.belgiBelgisi {
+  display: grid;
+  place-items: center;
+  min-width: 58px;
+  height: 58px;
+  padding-inline: 10px;
+  border-radius: 14px;
+  border: 1.5px solid var(--v3-urgu);
+  background: color-mix(in srgb, var(--v3-urgu) 16%, var(--v3-fon));
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-size: 1.55rem;
+  font-weight: 850;
+  color: var(--v3-matn);
+}
+
+.oilaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: color-mix(in srgb, var(--v3-yuza) 85%, transparent);
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.oilaNuqta {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+
+.savolMatn {
+  margin: 0;
+  font-size: clamp(1rem, 1.7vw, 1.18rem);
+  font-weight: 760;
+  line-height: 1.38;
+}
+
+.variantGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.variantTugma {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 1px solid var(--v3-chiziq-2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--v3-fon) 72%, var(--v3-yuza-2));
+  color: var(--v3-matn);
+  font-weight: 700;
+  font-size: .95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .14s ease, transform .12s ease, background-color .14s ease;
+}
+
+.variantTugma:hover:not(:disabled) {
+  border-color: var(--v3-urgu);
+  background: color-mix(in srgb, var(--v3-urgu) 14%, var(--v3-yuza));
+  transform: translateY(-1px);
+}
+
+.variantTugma[data-ochirilgan='true'] {
+  opacity: .26;
+  text-decoration: line-through;
+  pointer-events: none;
+}
+
+.variantTugma:focus-visible {
+  outline: 3px solid var(--v3-urgu);
+  outline-offset: 2px;
+}
+
+.klavish {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding-inline: 6px;
+  border-radius: 7px;
+  border: 1px solid var(--v3-chiziq-2);
+  font-size: .74rem;
+  color: var(--v3-xira);
+  font-weight: 750;
+}
+
+.jadvalMini {
+  display: grid;
+  grid-template-columns: repeat(18, 1fr);
+  gap: 2px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--v3-chiziq);
+  background: color-mix(in srgb, var(--v3-fon) 86%, var(--v3-yuza));
+}
+
+.katak {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--v3-matn) 10%, transparent);
+}
+
+.katak[data-bosh='true'] {
+  background: transparent;
+}
+
+.katak[data-faol='true'] {
+  background: var(--v3-urgu);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--v3-urgu) 70%, transparent);
+}
+
+@media (max-width: 560px) {
+  .bohrQobiq,
+  .variantGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .bohrSvg {
+    margin-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elektronHalqa {
+    animation: none;
+  }
+}

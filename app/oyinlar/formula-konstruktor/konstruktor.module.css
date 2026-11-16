@@ -1,0 +1,155 @@
+.maqsadQuti {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--v3-urgu) 36%, var(--v3-chiziq));
+  background: color-mix(in srgb, var(--v3-urgu) 11%, var(--v3-fon));
+}
+
+.sinfBadge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: color-mix(in srgb, var(--v3-yuza) 90%, transparent);
+  font-size: .78rem;
+  font-weight: 760;
+  color: var(--v3-urgu);
+}
+
+.formulaEkran {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: color-mix(in srgb, var(--v3-fon) 84%, var(--v3-yuza-2));
+}
+
+.formulaMatn {
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-size: clamp(1.45rem, 2.8vw, 2.05rem);
+  font-weight: 850;
+  letter-spacing: .01em;
+}
+
+.zaryadBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-inline: auto;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--v3-chiziq-2);
+  font-size: .84rem;
+  font-weight: 720;
+}
+
+.zaryadBadge[data-neytral='true'] {
+  border-color: rgba(52, 211, 153, .55);
+  background: rgba(16, 185, 129, .16);
+  color: #6ee7b7;
+}
+
+.zaryadBadge[data-neytral='false'] {
+  border-color: rgba(251, 191, 36, .45);
+  background: rgba(245, 158, 11, .14);
+}
+
+.ustunIkki {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ionBlok {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid var(--v3-chiziq);
+  background: color-mix(in srgb, var(--v3-fon) 72%, var(--v3-yuza));
+}
+
+.ionSar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .8rem;
+  font-weight: 760;
+  color: var(--v3-xira);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.ionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ionTugma {
+  display: grid;
+  gap: 1px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: color-mix(in srgb, var(--v3-yuza) 80%, transparent);
+  color: var(--v3-matn);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .14s ease, background-color .14s ease, transform .1s ease;
+}
+
+.ionTugma:hover {
+  border-color: var(--v3-urgu);
+}
+
+.ionTugma[data-tanlangan='true'] {
+  border-color: var(--v3-urgu);
+  background: color-mix(in srgb, var(--v3-urgu) 20%, var(--v3-yuza-2));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--v3-urgu) 50%, transparent);
+}
+
+.ionTugma:focus-visible,
+.indeksBtn:focus-visible {
+  outline: 3px solid var(--v3-urgu);
+  outline-offset: 2px;
+}
+
+.indeksQator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--v3-chiziq);
+}
+
+.indeksBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--v3-chiziq-2);
+  background: var(--v3-yuza);
+  color: var(--v3-matn);
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.indeksBtn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .ustunIkki {
+    grid-template-columns: 1fr;
+  }
+}

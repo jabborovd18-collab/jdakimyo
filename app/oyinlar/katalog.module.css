@@ -10,11 +10,17 @@
   overflow: hidden;
   display: flex;
   align-items: center;
-  min-height: clamp(320px, 37vw, 445px);
+  min-height: clamp(290px, 31vw, 390px);
   border: 1px solid var(--v3-chiziq-2);
   border-radius: 24px;
   background: var(--v3-fon-2);
   box-shadow: var(--v3-karta-soya);
+  transition: transform .18s ease, border-color .18s ease;
+}
+
+.muqova:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--v3-urgu) 55%, var(--v3-chiziq-2));
 }
 
 .rasm {
@@ -27,20 +33,20 @@
   position: absolute;
   inset: 0;
   content: '';
-  background: linear-gradient(90deg, var(--v3-fon) 2%, color-mix(in srgb, var(--v3-fon) 83%, transparent) 33%, transparent 66%);
+  background: linear-gradient(90deg, var(--v3-fon) 2%, color-mix(in srgb, var(--v3-fon) 84%, transparent) 34%, transparent 66%);
 }
 
 .muqovaRasmi {
   object-fit: cover;
-  object-position: center 50%;
+  object-position: right center;
 }
 
 .muqovaMatni {
   display: grid;
   justify-items: start;
-  gap: 16px;
-  max-width: 550px;
-  padding: clamp(24px, 5vw, 64px);
+  gap: 14px;
+  max-width: 560px;
+  padding: clamp(24px, 4.5vw, 56px);
 }
 
 .asosiyTugma, .telegram {
@@ -67,6 +73,19 @@
   border-radius: 18px;
   background: color-mix(in srgb, var(--v3-fon) 78%, var(--v3-yuza-2));
   color: var(--v3-matn);
+}
+
+.tayyorHolat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--v3-urgu) 52%, transparent);
+  background: color-mix(in srgb, var(--v3-urgu) 16%, transparent);
+  color: var(--v3-urgu);
+  font-size: .8rem;
+  font-weight: 760;
 }
 
 .belgi {

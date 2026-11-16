@@ -6,35 +6,60 @@ import styles from './katalog.module.css'
 
 export const metadata = { title: 'Kimyoviy o‘yinlar' }
 
+const OCHIQ_OYINLAR = [
+  {
+    id: 'formulani-top',
+    manzil: '/oyinlar/formulani-top',
+    rasm: '/oyinlar/formulani-top/muqova.webp',
+    nom: 'Formulani top',
+    ikon: 'yulduz',
+    yorliq: 'Yakka va 1v1 · 4 rejim · +Kartalar',
+    tavsif:
+      'Ovozli ishorani tinglang va 4 xil harakat rejimida (yo‘laklar, 3D shar, atom orbitallari, kvant maydon) aylanayotgan 24 ta formula orasidan moddani toping.',
+  },
+  {
+    id: 'element-duel',
+    manzil: '/oyinlar/element-duel',
+    rasm: '/oyinlar/element-duel/muqova.webp',
+    nom: 'Elementlar dueli',
+    ikon: 'atom',
+    yorliq: 'Yakka va 1v1 · Davriy jadval',
+    tavsif:
+      'Jonli Bohr elektron qobiqlari, davriy jadval o‘rni va IUPAC nisbiy atom massalari bo‘yicha elementlarni soniyalar ichida topish dueli.',
+  },
+  {
+    id: 'formula-konstruktor',
+    manzil: '/oyinlar/formula-konstruktor',
+    rasm: '/oyinlar/formula-konstruktor/muqova.webp',
+    nom: 'Formula konstruktori',
+    ikon: 'formula',
+    yorliq: 'Yakka va 1v1 · Ion sintezi',
+    tavsif:
+      'Kation va anionlarni birlashtirib, elektroneytrallik va valentlik qoidasi asosida tuz, oksid, kislota hamda asos formulalarini yig‘ing.',
+  },
+  {
+    id: 'reaksiya-balans',
+    manzil: '/oyinlar/reaksiya-balans',
+    rasm: '/oyinlar/reaksiya-balans/muqova.webp',
+    nom: 'Reaksiyani tenglashtir',
+    ikon: 'chaqmoq',
+    yorliq: 'Yakka va 1v1 · 135+ reaksiya',
+    tavsif:
+      'Haqiqiy reaksiyalar bazasida stexiometrik koeffitsientlarni jonli atom tarozisi bilan yoki imtihon rejimida tenglashtiring.',
+  },
+  {
+    id: 'sifat-detektiv',
+    manzil: '/oyinlar/sifat-detektiv',
+    rasm: '/oyinlar/sifat-detektiv/muqova.webp',
+    nom: 'Sifat reaksiyalar detektivi',
+    ikon: 'kolba',
+    yorliq: 'Yakka va 1v1 · Virtual laboratoriya',
+    tavsif:
+      'Noma’lum probirkalarga reaktivlar tomizib, cho‘kma rangi, gaz pufakchalari va hid belgilariga qarab eritmadagi moddani fosh eting.',
+  },
+]
+
 const OYINLAR_ROYXATI = [
-  {
-    id: "element-duel",
-    nom: "Elementlar dueli",
-    ikon: "atom",
-    tavsif:
-      "Davriy jadvaldagi kimyoviy elementlarning belgisi, tartib raqami, nisbiy atom massasi va guruhini 60 soniya ichida topish musobaqasi.",
-  },
-  {
-    id: "formula-konstruktor",
-    nom: "Formula konstruktori",
-    ikon: "formula",
-    tavsif:
-      "Kation va anionlarni birlashtirib, valentlik hamda oksidlanish darajalariga mos ravishda tuz, oksid, kislota va asoslarning to'g'ri formulasini yig'ish o'yini.",
-  },
-  {
-    id: "reaksiya-balans",
-    nom: "Reaksiyani tenglashtir",
-    ikon: "chaqmoq",
-    tavsif:
-      "Oddiy birikish reaksiyalaridan tortib murakkab oksidlanish-qaytarilish tenglamalarigacha stexiometrik koeffitsientlarni eng qisqa vaqtda topish.",
-  },
-  {
-    id: "sifat-detektiv",
-    nom: "Sifat reaksiyalar detektivi",
-    ikon: "kolba",
-    tavsif:
-      "Raqamlangan noma'lum probirkalardagi eritmalarni indikatorlar, cho'kma rangi va ajralayotgan gaz belgilariga qarab aniqlash.",
-  },
   {
     id: "organik-labirint",
     nom: "Organik zanjir labirinti",
@@ -65,19 +90,39 @@ export default function KimyoviyOyinlarSahifa() {
         </div>
       </header>
 
-      <div className="v3-konteyner space-y-9 py-5 sm:space-y-12 sm:py-9">
-        <section className={styles.muqova} aria-labelledby="formula-nomi">
-          <div className={styles.rasm}>
-            <Image src="/oyinlar/formulani-top/muqova.webp" alt="" fill unoptimized
-              sizes="(max-width: 1180px) 100vw, 1180px" className={styles.muqovaRasmi} />
-          </div>
-          <div className={styles.muqovaMatni}>
-            <h2 id="formula-nomi" className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">Formulani top</h2>
-            <p className="v3-xira text-base sm:text-lg">Ovozli ishorani tinglang va aylanayotgan 24 ta formula yoki model orasidan moddani toping.</p>
-            <Link href="/oyinlar/formulani-top" className={styles.asosiyTugma}>
-              O‘yinni ochish <Ikon nom="ong" olcham={18} />
-            </Link>
-          </div>
+      <div className="v3-konteyner space-y-8 py-5 sm:space-y-10 sm:py-9">
+        <section className="space-y-5" aria-labelledby="ochiq-oyinlar">
+          <h2 id="ochiq-oyinlar" className="sr-only">Ochiq kimyoviy o‘yinlar</h2>
+          {OCHIQ_OYINLAR.map((o, indeks) => (
+            <article key={o.id} className={styles.muqova} aria-labelledby={`${o.id}-nomi`}>
+              <div className={styles.rasm}>
+                <Image
+                  src={o.rasm}
+                  alt=""
+                  fill
+                  unoptimized
+                  priority={indeks === 0}
+                  sizes="(max-width: 1180px) 100vw, 1180px"
+                  className={styles.muqovaRasmi}
+                />
+              </div>
+              <div className={styles.muqovaMatni}>
+                <span className={styles.tayyorHolat}>
+                  <Ikon nom={o.ikon} olcham={15} /> {o.yorliq}
+                </span>
+                <h2
+                  id={`${o.id}-nomi`}
+                  className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl"
+                >
+                  {o.nom}
+                </h2>
+                <p className="v3-xira text-base sm:text-lg">{o.tavsif}</p>
+                <Link href={o.manzil} className={styles.asosiyTugma}>
+                  O‘yinni ochish <Ikon nom="ong" olcham={18} />
+                </Link>
+              </div>
+            </article>
+          ))}
         </section>
 
         <section className="space-y-4" aria-labelledby="yopiq-oyinlar">
