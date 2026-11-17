@@ -1,6 +1,8 @@
 // test/maktab-animatsiya.test.js
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
 import {
   canvasOlchami,
   indekslanganVariantlarniAralashtir,
@@ -184,3 +186,65 @@ test('indekslanganVariantlarniAralashtir — togri indeksni saqlaydi', () => {
   const bosh = indekslanganVariantlarniAralashtir({ savol: 'Bosh', variantlar: [] }, 0)
   assert.deepEqual(bosh, { variantlar: [], togri: 0 })
 })
+
+function jsFayllarniYig(papka) {
+  const natija = []
+  for (const kirish of fs.readdirSync(papka, { withFileTypes: true })) {
+    const manzil = path.join(papka, kirish.name)
+    if (kirish.isDirectory()) natija.push(...jsFayllarniYig(manzil))
+    else if (/\.(js|jsx)$/.test(kirish.name)) natija.push(manzil)
+  }
+  return natija
+}
+
+test("app/ va components/ dagi barcha Ikon kalitlari components/Ikon.jsx da mavjud", () => {
+  const ikonManba = fs.readFileSync('components/Ikon.jsx', 'utf8')
+  const yollarStart = ikonManba.indexOf('const YOLLAR = {')
+  const yollarEnd = ikonManba.indexOf('\n}', yollarStart)
+  assert.ok(yollarStart !== -1 && yollarEnd !== -1, 'components/Ikon.jsx ichida YOLLAR topilmadi')
+
+  const mavjudKalitlar = new Set(
+    [...ikonManba.slice(yollarStart, yollarEnd).matchAll(/^\s*(?:'([^']+)'|"([^"]+)"|([a-zA-Z0-9_]+))\s*:/gm)]
+      .map((m) => m[1] || m[2] || m[3]),
+  )
+
+  for (const zarur of ['yangilash', 'shamol', 'tajriba', 'hisob', 'jadval', 'tarozi']) {
+    assert.ok(mavjudKalitlar.has(zarur), `YOLLAR da '${zarur}' kaliti bo'lishi shart`)
+  }
+
+  const tekshiriladiganFayllar = [...jsFayllarniYig('app'), ...jsFayllarniYig('components')]
+  const xatolar = []
+
+  for (const fayl of tekshiriladiganFayllar) {
+    const matn = fs.readFileSync(fayl, 'utf8')
+    const normFayl = fayl.replace(/\\/g, '/')
+    const maktabFaylmi = normFayl.startsWith('components/maktab/')
+    const ikonImportBormi = /(?:from|import)\s+['"][^'"]*Ikon(?:\.jsx?)?['"]/.test(matn)
+    if (!ikonImportBormi && !maktabFaylmi) continue
+
+    for (const m of matn.matchAll(/<Ikon\b[\s\S]*?(?:\/>|>)/g)) {
+      const nomMos = /\bnom\s*=\s*(?:"([^"]+)"|'([^']+)'|\{\s*['"]([^'"]+)['"]\s*\})/.exec(m[0])
+      if (!nomMos) continue
+      const kalit = nomMos[1] || nomMos[2] || nomMos[3]
+      if (!mavjudKalitlar.has(kalit)) {
+        const qator = matn.slice(0, m.index).split(/\r?\n/).length
+        xatolar.push(`${normFayl}:${qator} -> <Ikon nom="${kalit}" />`)
+      }
+    }
+
+    if (maktabFaylmi) {
+      const qatorlar = matn.split(/\r?\n/)
+      qatorlar.forEach((q, idx) => {
+        for (const m of q.matchAll(/\bikon\s*:\s*['"]([a-zA-Z0-9_-]+)['"]/g)) {
+          const kalit = m[1]
+          if (!mavjudKalitlar.has(kalit)) {
+            xatolar.push(`${normFayl}:${idx + 1} -> ikon: "${kalit}"`)
+          }
+        }
+      })
+    }
+  }
+
+  assert.deepEqual(xatolar, [], `Ikon.jsx da topilmagan ikonka kalitlari:\n${xatolar.join('\n')}`)
+})
+

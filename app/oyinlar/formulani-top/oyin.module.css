@@ -1489,6 +1489,45 @@
   .molekula { scale: .78; }
 }
 
+@media (width <= 640px) {
+  .qobiq { padding: 8px 10px 22px; }
+  .sarlavha { margin-bottom: 10px; gap: 8px; }
+  .hisobPanel { padding: 8px 11px; border-radius: 14px; }
+  .ishoraPanel,
+  .ishoraDuel { padding: 10px 12px; gap: 10px; }
+  .ishoraMatn strong { font-size: .96rem; }
+  .lobbyHero,
+  .lobbyBlok { padding: 14px; border-radius: 16px; }
+  .karta { min-height: 48px; font-size: .88rem; }
+  .doskaIxcham .karta { min-height: 40px; font-size: .76rem; }
+  .sharSahna,
+  .orbitalSahna,
+  .kvantSahna { height: clamp(300px, 49dvh, 420px); border-radius: 16px; }
+  .sharSahnaIxcham,
+  .orbitalSahnaIxcham,
+  .kvantSahnaIxcham { height: clamp(220px, 33dvh, 300px); }
+  .sharKarta,
+  .orbitalKarta,
+  .kvantKarta {
+    min-width: 54px;
+    min-height: 36px;
+    padding: 3px 6px;
+    font-size: .74rem;
+    border-radius: 10px;
+  }
+  .sharSahnaIxcham .sharKarta,
+  .orbitalSahnaIxcham .orbitalKarta,
+  .kvantSahnaIxcham .kvantKarta {
+    min-width: 46px;
+    min-height: 30px;
+    padding: 2px 5px;
+    font-size: .68rem;
+  }
+  .duelTomon { padding: 8px; border-radius: 15px; }
+  .amallar > button { flex: 1 1 auto; }
+  .lobbyBoshlash .asosiy { width: 100%; justify-content: center; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .aylana,
   .previewTasma { transform: none; animation: none; }

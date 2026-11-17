@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Ikon from '@/components/Ikon'
 import { sfxChal } from '@/lib/oyinlar/sfx'
 import {
+  DuelMaydon,
   OyinSarlavha,
   UstunlikBar,
   YakunPanel,
@@ -13,20 +14,41 @@ import {
 import umumiy from '../oyin-umumiy.module.css'
 import styles from './detektiv.module.css'
 
-function Probirka({ boshRang, oxirgi }) {
+const QOLLANMA_BELGILAR = [
+  ['AgNO₃ + Cl⁻ / I⁻ / S²⁻', 'AgCl↓ (oq) · AgI↓ (sariq) · Ag₂S↓ (qora)'],
+  ['BaCl₂ + SO₄²⁻ / CO₃²⁻', 'BaSO₄↓ (kislotada erimaydigan oq cho‘kma)'],
+  ['NaOH + Cu²⁺ / Fe³⁺ / Fe²⁺', 'Zangori / Qizg‘ish-qo‘ng‘ir / Kir yashil cho‘kma'],
+  ['NaOH + NH₄⁺ (qizdirish)', 'O‘tkir nashatir (ammiak) hidi NH₃↑'],
+  ['KSCN + Fe³⁺', 'Darhol to‘q qon-qizil Fe(SCN)₃ eritmasi'],
+  ['HCl + CO₃²⁻ / SO₃²⁻ / S²⁻', 'Hidsiz CO₂↑ / Kuygan gugurt SO₂↑ / Tuxum H₂S↑'],
+]
+
+function Probirka({ boshRang, oxirgi, kalit = 'p1' }) {
   const suyuqlik = oxirgi?.suyuqlikRang || boshRang || 'rgba(186, 230, 253, 0.28)'
   const chokma = oxirgi?.chokmaRang || null
   const gaz = Boolean(oxirgi?.gaz)
+  const clipId = `probirka-ichki-${kalit}`
 
   return (
     <svg viewBox="0 0 110 200" className={styles.probirkaSvg} role="img" aria-label="Kimyoviy probirka">
       <defs>
-        <clipPath id="probirkaIchki">
+        <clipPath id={clipId}>
           <path d="M31 24 H79 V146 A24 24 0 0 1 31 146 Z" />
         </clipPath>
       </defs>
 
-      <g clipPath="url(#probirkaIchki)">
+      {oxirgi ? (
+        <circle
+          key={oxirgi.reagentId}
+          cx="55"
+          cy="36"
+          r="3.2"
+          fill="#38bdf8"
+          className={styles.tomchi}
+        />
+      ) : null}
+
+      <g clipPath={`url(#${clipId})`}>
         <rect x="28" y="82" width="54" height="94" fill={suyuqlik} />
         <ellipse cx="55" cy="82" rx="24" ry="5" fill={suyuqlik} fillOpacity="0.85" />
         {chokma ? (
@@ -68,6 +90,7 @@ export default function SifatDetektivOyini() {
   const [p1Ism, setP1Ism] = useState('Detektiv')
   const [p2Ism, setP2Ism] = useState('Raqib')
   const [ovoz, setOvoz] = useState(true)
+  const [qollanmaOchiq, setQollanmaOchiq] = useState(false)
 
   const [oyin, setOyin] = useState(null)
   const [qolganMs, setQolganMs] = useState(0)
@@ -196,7 +219,7 @@ export default function SifatDetektivOyini() {
         </div>
 
         <div className={styles.stendGrid}>
-          <Probirka boshRang={namuna.boshRang} oxirgi={oxirgi} />
+          <Probirka boshRang={namuna.boshRang} oxirgi={oxirgi} kalit={kalit} />
           <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
             <div>
               <div style={{ fontSize: '.76rem', color: 'var(--v3-xira)', fontWeight: 700 }}>DASTLABKI KO‘RINISH</div>
@@ -404,13 +427,31 @@ export default function SifatDetektivOyini() {
             <div className={umumiy.hudQator}>
               <div className={umumiy.hudGuruh}>
                 <span className={umumiy.hudChip}><Ikon nom="vaqt" olcham={16} /> {vaqtFormat(qolganMs)}</span>
-                <span className={umumiy.hudChip}><Ikon nom="kolba" olcham={16} /> Sifat tahlili</span>
+                <button
+                  type="button"
+                  className={umumiy.chip}
+                  data-faol={String(qollanmaOchiq)}
+                  onClick={() => setQollanmaOchiq((v) => !v)}
+                >
+                  <Ikon nom="yordam" olcham={15} /> {qollanmaOchiq ? 'Jadvalni yopish' : 'Sifat belgilari'}
+                </button>
               </div>
               <div className={umumiy.hudGuruh}>
                 <span className={umumiy.hudChip}>{oyin.p1.ism}: {oyin.p1.ball} ball</span>
                 {oyin.p2 ? <span className={umumiy.hudChip}>{oyin.p2.ism}: {oyin.p2.ball} ball</span> : null}
               </div>
             </div>
+
+            {qollanmaOchiq ? (
+              <div className={styles.qollanmaQuti} role="region" aria-label="Sifat reaksiyalar jadvali">
+                {QOLLANMA_BELGILAR.map(([juftlik, natija]) => (
+                  <div key={juftlik} className={styles.qollanmaItem}>
+                    <strong>{juftlik}</strong>
+                    <div style={{ color: 'var(--v3-xira)', marginTop: 2 }}>{natija}</div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
 
             {oyin.rejim !== 'yakka' && oyin.p2 ? (
               <UstunlikBar p1Ism={oyin.p1.ism} p1Ball={oyin.p1.ball} p2Ism={oyin.p2.ism} p2Ball={oyin.p2.ball} />
@@ -421,10 +462,14 @@ export default function SifatDetektivOyini() {
                 {stendChiz('p1', oyin.p1Namuna, oyin.p1)}
               </div>
             ) : (
-              <div className={umumiy.duelPanellar}>
-                {stendChiz('p1', oyin.rejim === 'duel-savol' ? oyin.umumiyNamuna : oyin.p1Namuna, oyin.p1)}
-                {stendChiz('p2', oyin.rejim === 'duel-savol' ? oyin.umumiyNamuna : oyin.p2Namuna, oyin.p2)}
-              </div>
+              <DuelMaydon
+                p1Ism={oyin.p1.ism}
+                p2Ism={oyin.p2.ism}
+                p1Ball={oyin.p1.ball}
+                p2Ball={oyin.p2.ball}
+                p1Qism={stendChiz('p1', oyin.rejim === 'duel-savol' ? oyin.umumiyNamuna : oyin.p1Namuna, oyin.p1)}
+                p2Qism={stendChiz('p2', oyin.rejim === 'duel-savol' ? oyin.umumiyNamuna : oyin.p2Namuna, oyin.p2)}
+              />
             )}
           </div>
         ) : null}

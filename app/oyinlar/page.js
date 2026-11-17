@@ -8,6 +8,26 @@ export const metadata = { title: 'Kimyoviy o‘yinlar' }
 
 const OCHIQ_OYINLAR = [
   {
+    id: 'kalloid-kimyo-amaliy',
+    manzil: '/oyinlar/kalloid-kimyo-amaliy',
+    rasm: '/oyinlar/kalloid-kimyo-amaliy/muqova.webp',
+    nom: 'Kalloid Kimyo amaliy',
+    ikon: 'kolba',
+    yorliq: 'Mavsumiy ochiq dars · Ustoz statistikasi',
+    tavsif:
+      'Ochiq dars uchun QR-kodli 20 savollik kolloid kimyo sinovi va ustoz paneli orqali kirish kodi bilan himoyalangan jonli statistika ekrani.',
+  },
+  {
+    id: 'kalloid-duel',
+    manzil: '/oyinlar/kalloid-duel',
+    rasm: '/oyinlar/kalloid-duel/muqova.webp',
+    nom: 'Kolloid kimyo: 1v1 Doska dueli',
+    ikon: 'chaqmoq',
+    yorliq: '1v1 Doska · 50 ta savol · 180 soniya',
+    tavsif:
+      'Doska ikkiga bo‘linadi: KK_M1–KK_M5 50 ta savoldan har bir ishtirokchiga alohida tasodifiy savol chiqadi. To‘g‘ri javob +1, xato javob −0.5 ball, avtomatik tezkor o‘tish.',
+  },
+  {
     id: 'formulani-top',
     manzil: '/oyinlar/formulani-top',
     rasm: '/oyinlar/formulani-top/muqova.webp',

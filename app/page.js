@@ -655,7 +655,7 @@ export default function BoshSahifa() {
               </h3>
 
               <p className="hidden sm:block text-xs text-blue-200/80 mt-2 leading-relaxed">
-                Smart doskada formulalar va molekulalarni topish o‘yini.
+                Formulani top, Elementlar dueli, Formula konstruktori, Reaksiyani tenglashtir va Sifat detektivi o‘yinlari.
               </p>
             </div>
 

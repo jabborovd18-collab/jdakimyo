@@ -12,12 +12,19 @@ export async function generateMetadata({ params }) {
   const natija = await sertifikatniTekshir(id)
 
   if (!natija) {
-    return { title: 'Sertifikat topilmadi — JDA KIMYO' }
+    return {
+      title: 'Sertifikat topilmadi — JDA KIMYO',
+      alternates: { canonical: `/milliy-sertifikat/tekshir/${encodeURIComponent(id)}` },
+      robots: { index: false, follow: false },
+    }
   }
 
   return {
     title: `${natija.certificate.fullName} — sertifikat ${natija.certificate.certId}`,
     description: `${natija.certificate.fan} — ${natija.certificate.reason}`,
+    alternates: {
+      canonical: `/milliy-sertifikat/tekshir/${encodeURIComponent(natija.certificate.certId)}`,
+    },
   }
 }
 

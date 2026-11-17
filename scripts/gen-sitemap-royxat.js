@@ -3,22 +3,22 @@
 // Sitemap uchun indekslanadigan sahifalar ro'yxatini yig'adi va
 // lib/sitemap-royxat.json ga yozadi.
 //
-// NEGA SHU SHART. Sitemap qo'lda 15 ta bo'lim sanardi, saytda esa 600 dan
-// ortiq sahifa bor — chuqurdagilariga Google oylab yetib bormasligi mumkin.
-// Lekin hammasini sanab tashlash ham noto'g'ri: sarlavhasi yo'q sahifa
-// qidiruv tizimiga "JDA KIMYO — Kompleks birikmalar kimyosi" degan o'sha
-// bitta nom bilan boradi va takroriy hujjat muammosini kuchaytiradi.
+// Mezon:
+//   1. Statik sahifalar — `page.js(x)` yoki o'sha papkadagi `layout.js(x)`
+//      o'z `metadata` / `generateMetadata` eksportiga ega bo'lishi kerak;
+//      `redirect(...)` chaqiradigan, `robots: { index: false }` qo'yilgan,
+//      `YOPIQ_BOLIMLAR` va `app/robots.js` da taqiqlangan manzillar kirmaydi.
+//   2. Dinamik `/fan/[slug]` — faqat `holat === 'ochiq'` fanlar.
+//   3. Dinamik `/maktabkimyo/[sinf]` va `/maktabkimyo/[sinf]/[mavzu]` —
+//      faqat `ochiq === true` sinflar (7–8-sinf) va `mavzuTayyormi(...)`
+//      tasdiqlagan tayyor mavzular (`ochiq !== false`).
 //
-// Shuning uchun mezon bitta: sahifa O'Z metadata'siga ega bo'lsa,
-// ro'yxatga tushadi. Bu o'z-o'zini boqadigan qoida — yangi sahifaga
-// sarlavha yozilishi bilan u sitemapda ham paydo bo'ladi, alohida
-// eslab qolish shart emas.
-//
-// Sarlavha qo'shgandan keyin ishga tushiring:
-//   node scripts/gen-sitemap-royxat.js
+// Ishga tushirish:
+//   npm run sitemap:yangila
 
 const fs = require('fs')
 const path = require('path')
+const { pathToFileURL } = require('url')
 const { execFileSync } = require('child_process')
 const esmRequire = require('./_esm-require')
 
@@ -26,48 +26,76 @@ const ROOT = path.join(__dirname, '..')
 const APP = path.join(ROOT, 'app')
 const CHIQISH = path.join(ROOT, 'lib', 'sitemap-royxat.json')
 
-// Shaxsiy yoki xizmat bo'limlari — bularda sarlavha bo'lsa ham
-// qidiruv tizimiga chiqmasligi kerak.
+const { robotsTaqiqlaganmi } = esmRequire('lib/sitemap-qoidalari.js', [
+  'robotsTaqiqlaganmi',
+])
+const {
+  FANLAR,
+  MAKTAB_SINFLARI,
+  mavzuTayyormi,
+  sinfHavolasi,
+  mavzuHavolasi,
+} = esmRequire('lib/fanlar.js', [
+  'FANLAR',
+  'MAKTAB_SINFLARI',
+  'mavzuTayyormi',
+  'sinfHavolasi',
+  'mavzuHavolasi',
+])
+
+// Shaxsiy, xizmat yoki kirish talab qiladigan bo'limlar — bularda sarlavha
+// bo'lsa ham qidiruv tizimi sitemapiga kirmaydi.
 const YOPIQ_BOLIMLAR = new Set([
   'admin',
   'api',
   'profil',
   'ustoz',
   'ustoz-profil',
+  // Auth talab qiladi (/api/plant 401 qaytaradi)
   'kochat',
-  // Shaxsiy yozishma: sarlavhasi bor (brauzer yorlig'i uchun), lekin
-  // qidiruvga chiqmaydi
+  // Shaxsiy yozishma (robots.js + metadata robots: index: false)
   'chat',
   'hamkorlar',
-  'sertifikat',
+  'login',
+  'register',
 ])
 
-/** Fayl o'z metadata'sini eksport qiladimi. */
+/** `app/robots.js` dan barcha `disallow` yo'llarini oladi. */
+async function robotsDisallowOl() {
+  const robotsFayl = path.join(ROOT, 'app', 'robots.js')
+  try {
+    const mod = await import(pathToFileURL(robotsFayl).href)
+    const natija = typeof mod.default === 'function' ? mod.default() : mod.default
+    return (natija?.rules || []).flatMap((r) => r.disallow || [])
+  } catch {
+    const kod = fs.readFileSync(robotsFayl, 'utf8')
+    const blok = /disallow:\s*\[([\s\S]*?)\]/.exec(kod)
+    if (!blok) return []
+    return [...blok[1].matchAll(/['"]([^'"]+)['"]/g)].map((m) => m[1])
+  }
+}
+
+/** Fayl o'z `metadata` yoki `generateMetadata` eksport qiladimi. */
 function metadataBormi(kod) {
-  return /export\s+(const\s+metadata\b|async\s+function\s+generateMetadata\b)/.test(kod)
+  return /export\s+(?:async\s+function\s+generateMetadata\b|(?:const|let|var)\s+metadata\b)/.test(kod)
+}
+
+/** Sahifa boshqa manzilga `redirect(...)` / `permanentRedirect(...)` qiladimi. */
+function redirectBormi(kod) {
+  return /\b(?:permanentRedirect|redirect)\s*\(/.test(kod)
+}
+
+/** Metadata ichida `robots: { index: false ... }` bormi. */
+function noindexBormi(kod) {
+  return /\brobots\s*:\s*\{[^}]*\bindex\s*:\s*false\b/.test(kod)
 }
 
 /**
  * Sahifa canonical bilan BOSHQA manzilga yo'naltirganmi.
- *
- * Takroriy birikma sahifalari shunday: o'zi turadi, lekin qidiruv
- * tizimiga "asosiy nusxa u yerda" deydi. Bunday manzilni sitemapga
- * qo'yish qarama-qarshi ishora bo'lardi.
- *
- * MUHIM FARQ: canonical o'ziga qaratilgan bo'lsa — bu takrorlanish
- * belgisi emas, aksincha to'g'ri yozilgan sahifa. Ilgari bu funksiya
- * canonical borligining O'ZIGA qarab tashlab yuborardi va o'ziga
- * canonical qo'ygan sahifa sitemapga umuman tushmasdi. Endi qiymat
- * o'qiladi va sahifaning o'z manzili bilan solishtiriladi.
- *
- * @param {string} kod   sahifa fayli
- * @param {string} ozYol sahifaning manzili ('/ishlashi')
  */
 function canonicalBoshqami(kod, ozYol) {
   const m = /canonical:\s*['"`]([^'"`]+)['"`]/.exec(kod)
   if (!m) {
-    // Canonical bor, lekin qiymati satr emas (o'zgaruvchi yoki shablon).
-    // Bunda aniqlay olmaymiz — ehtiyot yuzasidan chetda qoldiramiz.
     return /alternates:\s*\{\s*canonical:/.test(kod)
   }
 
@@ -77,9 +105,6 @@ function canonicalBoshqami(kod, ozYol) {
 
 /**
  * Yo'l bo'laklarini manzilga aylantiradi.
- * Qavsli papkalar ((auth) kabi) manzilda ko'rinmaydi — Next.js qoidasi.
- * Dinamik bo'lak ([id]) uchraydigan yo'l umuman qaytarilmaydi: uning
- * aniq qiymatlari bu yerdan bilinmaydi.
  */
 function manzil(bolaklar) {
   const chiqadi = []
@@ -91,25 +116,7 @@ function manzil(bolaklar) {
   return '/' + chiqadi.join('/')
 }
 
-const royxat = []
-
-/**
- * Sahifa oxirgi marta qachon o'zgargani — git tarixidan.
- *
- * NEGA KERAK. Sitemap ilgari HAR BIR manzilga `lastModified: hozir` deb
- * yozardi, ya'ni Google har safar so'raganda "hamma 600 sahifa hozirgina
- * o'zgardi" degan javob olardi. Bu yolg'on signal: Google bir necha marta
- * tekshirib ko'radi, o'zgarish topmaydi va shundan keyin `lastmod` ni
- * BUTUNLAY e'tiborsiz qoldiradi. Natijada haqiqatan yangilangan sahifa
- * ham navbatda turaveradi.
- *
- * Git sanasi — sahifa matni oxirgi marta o'zgargan kun. Uni o'ylab
- * topish shart emas, u allaqachon tarixda yozilgan.
- *
- * Git javob bermasa (masalan repo nusxasi tarixsiz klonlangan bo'lsa)
- * `null` qaytadi va sitemap o'sha manzil uchun yig'ilish sanasini
- * ishlatadi — bu xato emas, shunchaki aniqroq ma'lumot yo'q.
- */
+/** Faylning oxirgi git commit sanasini (`YYYY-MM-DD`) oladi. */
 function oxirgiOzgarish(faylYoli) {
   try {
     const sana = execFileSync(
@@ -123,65 +130,131 @@ function oxirgiOzgarish(faylYoli) {
   }
 }
 
-function yur(joriy, bolaklar) {
-  for (const d of fs.readdirSync(joriy, { withFileTypes: true })) {
-    const toliq = path.join(joriy, d.name)
+function engSonggiSana(fayllar) {
+  const sanalar = fayllar
+    .filter((f) => f && fs.existsSync(f))
+    .map((f) => oxirgiOzgarish(f))
+    .filter(Boolean)
+    .sort()
+  return sanalar.pop() || null
+}
 
-    if (d.isDirectory()) {
-      yur(toliq, [...bolaklar, d.name])
-      continue
+async function main() {
+  const disallowQoidalari = await robotsDisallowOl()
+  const royxat = []
+
+  function yur(joriy, bolaklar) {
+    const kirishlar = fs.readdirSync(joriy, { withFileTypes: true })
+
+    for (const d of kirishlar) {
+      if (d.isDirectory()) {
+        yur(path.join(joriy, d.name), [...bolaklar, d.name])
+      }
     }
 
-    if (d.name !== 'page.js' && d.name !== 'page.jsx') continue
+    const pageKirish = kirishlar.find(
+      (d) => d.isFile() && (d.name === 'page.js' || d.name === 'page.jsx'),
+    )
+    if (!pageKirish) return
 
-    const kod = fs.readFileSync(toliq, 'utf8')
-    if (!metadataBormi(kod)) continue
+    const pageFayl = path.join(joriy, pageKirish.name)
+    const pageKod = fs.readFileSync(pageFayl, 'utf8')
+    if (redirectBormi(pageKod)) return
+
+    const layoutKirish = kirishlar.find(
+      (d) => d.isFile() && (d.name === 'layout.js' || d.name === 'layout.jsx'),
+    )
+    const layoutFayl = layoutKirish ? path.join(joriy, layoutKirish.name) : null
+    const layoutKod = layoutFayl ? fs.readFileSync(layoutFayl, 'utf8') : ''
+
+    const pageMeta = metadataBormi(pageKod)
+    const layoutMeta = layoutKod ? metadataBormi(layoutKod) : false
+    if (!pageMeta && !layoutMeta) return
+
+    if (noindexBormi(pageKod) || (layoutKod && noindexBormi(layoutKod))) return
 
     const m = manzil(bolaklar)
-    if (m === null) continue
-    if (YOPIQ_BOLIMLAR.has(bolaklar.find((b) => !b.startsWith('(')))) continue
+    if (m === null) return
+
+    const birinchiBolak = bolaklar.find((b) => !b.startsWith('('))
+    if (birinchiBolak && YOPIQ_BOLIMLAR.has(birinchiBolak)) return
 
     const yol = m === '' ? '/' : m
-    if (canonicalBoshqami(kod, yol)) continue
+    if (robotsTaqiqlaganmi(yol, disallowQoidalari)) return
 
-    // Sahifaning o'zi bilan bir qatorda ko'rinish fayli ham hisobga
-    // olinadi: matnning katta qismi `korinish.js` da yashaydi va
-    // ko'pincha faqat o'sha o'zgaradi.
-    const papka = path.dirname(toliq)
-    const sanalar = [oxirgiOzgarish(toliq)]
-    for (const qoshni of ['korinish.js', 'korinish.jsx', 'malumot.js']) {
-      const q = path.join(papka, qoshni)
-      if (fs.existsSync(q)) sanalar.push(oxirgiOzgarish(q))
+    const metaKod = pageMeta ? pageKod : layoutKod
+    if (canonicalBoshqami(metaKod, yol)) return
+
+    const sanaFayllari = [pageFayl]
+    if (layoutFayl) sanaFayllari.push(layoutFayl)
+    if (bolaklar.length > 0) {
+      for (const d of kirishlar) {
+        if (!d.isFile() || !/\.(js|jsx)$/.test(d.name)) continue
+        if (d.name === pageKirish.name || d.name === layoutKirish?.name) continue
+        sanaFayllari.push(path.join(joriy, d.name))
+      }
     }
-    const sana = sanalar.filter(Boolean).sort().pop() || null
 
-    royxat.push({ yol, sana })
+    royxat.push({ yol, sana: engSonggiSana(sanaFayllari) })
   }
+
+  yur(APP, [])
+
+  // 1) Oliy kimyo fanlari: faqat holat === 'ochiq'
+  const fanSahifa = path.join(APP, 'fan', '[slug]', 'page.js')
+  const fanSana = engSonggiSana([fanSahifa, path.join(ROOT, 'lib', 'fanlar.js')])
+  for (const fan of FANLAR) {
+    if (fan.holat !== 'ochiq') continue
+    const yol = `/fan/${fan.slug}`
+    if (robotsTaqiqlaganmi(yol, disallowQoidalari)) continue
+    royxat.push({ yol, sana: fanSana })
+  }
+
+  // 2) Maktab kimyosi: faqat ochiq === true sinflar va tayyor mavzular
+  const sinfSana = engSonggiSana([
+    path.join(APP, 'maktabkimyo', '[sinf]', 'page.js'),
+    path.join(APP, 'maktabkimyo', '[sinf]', 'korinish.js'),
+    path.join(ROOT, 'lib', 'fanlar.js'),
+  ])
+  const mavzuSana = engSonggiSana([
+    path.join(APP, 'maktabkimyo', '[sinf]', '[mavzu]', 'page.js'),
+    path.join(APP, 'maktabkimyo', '[sinf]', '[mavzu]', 'korinish.js'),
+    path.join(ROOT, 'lib', 'fanlar.js'),
+  ])
+
+  for (const sinf of MAKTAB_SINFLARI) {
+    if (sinf.ochiq !== true) continue
+    const sinfYoli = sinfHavolasi(sinf)
+    if (!robotsTaqiqlaganmi(sinfYoli, disallowQoidalari)) {
+      royxat.push({ yol: sinfYoli, sana: sinfSana })
+    }
+
+    for (const mavzu of sinf.mavzular || []) {
+      if (!mavzu?.slug || mavzu.ochiq === false) continue
+      if (!mavzuTayyormi(sinf.sinf, mavzu.slug)) continue
+      const mavzuYoli = mavzuHavolasi(sinf, mavzu)
+      if (!robotsTaqiqlaganmi(mavzuYoli, disallowQoidalari)) {
+        royxat.push({ yol: mavzuYoli, sana: mavzuSana })
+      }
+    }
+  }
+
+  const noyob = new Map()
+  for (const r of royxat) {
+    if (!noyob.has(r.yol)) {
+      noyob.set(r.yol, r)
+    }
+  }
+
+  const yakuniy = [...noyob.values()].sort((a, b) =>
+    a.yol < b.yol ? -1 : a.yol > b.yol ? 1 : 0,
+  )
+
+  fs.writeFileSync(CHIQISH, JSON.stringify(yakuniy, null, 2) + '\n', 'utf8')
+  console.log(`lib/sitemap-royxat.json — ${yakuniy.length} ta manzil yozildi`)
 }
 
-yur(APP, [])
-
-/**
- * Dinamik marshrutlar.
- *
- * `manzil()` `[slug]` uchraydigan yo'lni tashlab yuboradi — to'g'ri qaror,
- * chunki qiymatlar fayl tizimida yo'q. Lekin `/fan/[slug]` ning qiymatlari
- * MA'LUM: ular `lib/fanlar.js` dagi ro'yxatdan keladi va sahifa
- * `generateMetadata` bilan o'z sarlavhasini beradi. Ya'ni bu sahifalar
- * ro'yxatga tushishi kerak, aks holda platformaning yangi kirish nuqtasi
- * sitemapda umuman ko'rinmay qolardi.
- *
- * Faqat OCHIQ fanlar: yopig'ining marshruti yo'q (`dynamicParams = false`)
- * va u 404 qaytaradi.
- */
-const { FANLAR } = esmRequire('lib/fanlar.js', ['FANLAR'])
-for (const fan of FANLAR) {
-  if (fan.holat !== 'ochiq') continue
-  const fayl = path.join(APP, 'fan', '[slug]', 'page.js')
-  royxat.push({ yol: `/fan/${fan.slug}`, sana: oxirgiOzgarish(fayl) })
-}
-
-royxat.sort((a, b) => (a.yol < b.yol ? -1 : a.yol > b.yol ? 1 : 0))
-
-fs.writeFileSync(CHIQISH, JSON.stringify(royxat, null, 2) + '\n', 'utf8')
-console.log(`lib/sitemap-royxat.json — ${royxat.length} ta manzil yozildi`)
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})

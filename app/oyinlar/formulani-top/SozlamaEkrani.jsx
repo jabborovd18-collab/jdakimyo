@@ -36,7 +36,7 @@ export const STANDART_SOZLAMA = {
   kartaRitm: 'orta',
   daraja: 1,
   vaqtSekund: 90,
-  savollarSoni: 7,
+  savollarSoni: 0,
   kartalar: { ...STANDART_KARTALAR },
   ovozEfekt: true,
   matnDarhol: false,
@@ -479,19 +479,18 @@ export default function SozlamaEkrani({ sozlama, onOzgartir, onQaytaTiklash, onB
 
           <div className={styles.ichkiPanel}>
             <div className={styles.ichkiQator}>
-              <span className={styles.ichkiYorliq}>Vaqt chegarasi:</span>
+              <span className={styles.ichkiYorliq}>Vaqt chegarasi (vaqt tugaguncha cheksiz topish):</span>
               <div className={styles.chipGuruh}>
                 {[
-                  [0, 'Cheksiz'],
                   [60, '60 soniya'],
                   [90, '90 soniya'],
                   [120, '120 soniya'],
+                  [180, '180 soniya'],
                 ].map(([sekund, nom]) => (
                   <button
                     key={sekund}
                     type="button"
                     className={styles.chip}
-                    disabled={vaqtMajburiy && sekund === 0}
                     data-faol={sozlama.vaqtSekund === sekund ? 'true' : undefined}
                     onClick={() => vaqtTanla(sekund)}
                   >
@@ -500,25 +499,6 @@ export default function SozlamaEkrani({ sozlama, onOzgartir, onQaytaTiklash, onB
                 ))}
               </div>
             </div>
-
-            {sozlama.rejim !== 'duel-vaqt' && (
-              <div className={styles.ichkiQator}>
-                <span className={styles.ichkiYorliq}>Savollar soni:</span>
-                <div className={styles.chipGuruh}>
-                  {[7, 10, 15].map((soni) => (
-                    <button
-                      key={soni}
-                      type="button"
-                      className={styles.chip}
-                      data-faol={sozlama.savollarSoni === soni ? 'true' : undefined}
-                      onClick={() => yangila({ savollarSoni: soni })}
-                    >
-                      {soni} ta savol
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </fieldset>
 

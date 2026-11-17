@@ -2252,3 +2252,41 @@ model KimyoKursUrinish {
   @@unique([testId, topshirishId])
   @@index([testId, topshirildi, id])
 }
+
+// ═══════════════════════════════════════════════════════════════
+// MAVSUMIY OCHIQ DARS (Kalloid Kimyo amaliy)
+// ═══════════════════════════════════════════════════════════════
+
+model OchiqDars {
+  id              String                @id @default(cuid())
+  slug            String                @unique
+  nom             String
+  kirishKodi      String                @default("KALLOID-2026")
+  vaqtLimitSoniya Int                   @default(600)
+  savolSoni       Int                   @default(20)
+  faol            Boolean               @default(true)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  ishtirokchilar  OchiqDarsIshtirokchi[]
+}
+
+model OchiqDarsIshtirokchi {
+  id               String    @id @default(cuid())
+  darsId           String
+  dars             OchiqDars @relation(fields: [darsId], references: [id], onDelete: Cascade)
+  ism              String
+  qrToken          String    @unique
+  holat            String    @default("kutmoqda")
+  savolIndekslari  Json?
+  variantTartibi   Json?
+  javoblar         Json?
+  boshlanganVaqt   DateTime?
+  yakunlanganVaqt  DateTime?
+  foiz             Float?
+  sarflanganSoniya Int?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([darsId, holat])
+  @@index([darsId, ism])
+}

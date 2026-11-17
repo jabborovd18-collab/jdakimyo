@@ -466,9 +466,9 @@ export function OrbitalDoska({
   const fazaRef = useRef(0)
   const olchamRef = useRef({ rx: 220, ry: 130 })
   const ustidaRef = useRef(false)
-  const holatRef = useRef({ tezlik, pauza, natija: Boolean(natijaTogriId) })
+  const holatRef = useRef({ tezlik, pauza, natija: Boolean(natijaTogriId), ixcham })
 
-  holatRef.current = { tezlik, pauza, natija: Boolean(natijaTogriId) }
+  holatRef.current = { tezlik, pauza, natija: Boolean(natijaTogriId), ixcham }
 
   useEffect(() => {
     const el = sahnaRef.current
@@ -476,9 +476,10 @@ export function OrbitalDoska({
 
     const yangilaOlcham = () => {
       const rect = el.getBoundingClientRect()
+      const tor = holatRef.current.ixcham || rect.width < 460
       olchamRef.current = {
-        rx: Math.max(115, rect.width * 0.405),
-        ry: Math.max(105, rect.height * 0.395),
+        rx: Math.max(82, Math.min(rect.width * 0.405, rect.width / 2 - (tor ? 34 : 48))),
+        ry: Math.max(80, Math.min(rect.height * 0.395, rect.height / 2 - (tor ? 24 : 30))),
       }
     }
 
@@ -609,8 +610,9 @@ export function KvantMaydonDoska({
     if (!el) return undefined
 
     const boshlaZarrachalar = (w, h) => {
-      const padX = ixcham ? 44 : 62
-      const padY = ixcham ? 30 : 38
+      const tor = w < 480 || ixcham
+      const padX = tor ? 36 : 62
+      const padY = tor ? 24 : 38
       const ustun = 6
       const qator = 4
       const qadamX = (w - padX * 2) / (ustun - 1 || 1)
@@ -662,12 +664,13 @@ export function KvantMaydonDoska({
       const { w, h } = olchamRef.current
       const { tezlik: jTezlik, pauza: jPauza, natija: jNatija, ixcham: jIxcham } = holatRef.current
       const zlar = zarrachalarRef.current
-      const padX = jIxcham ? 46 : 64
-      const padY = jIxcham ? 28 : 38
+      const tor = w < 480 || jIxcham
+      const padX = tor ? 34 : 64
+      const padY = tor ? 24 : 38
       const chegaraX = Math.max(40, w / 2 - padX)
       const chegaraY = Math.max(40, h / 2 - padY)
-      const minW = jIxcham ? 78 : 112
-      const minH = jIxcham ? 44 : 58
+      const minW = tor ? 66 : 112
+      const minH = tor ? 38 : 58
 
       if (!kamHarakat && !jPauza && !jNatija) {
         const asosTezlik = (KVANT_TEZLIK[jTezlik] ?? KVANT_TEZLIK.orta) * (ustidaRef.current ? 0.25 : 1)

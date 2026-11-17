@@ -1,116 +1,35 @@
 // app/sitemap.js
 //
-// Sitemap — qidiruv tizimlari uchun sahifalar ro'yxati.
+// Sitemap — qidiruv tizimlari uchun ochiq sahifalar ro'yxati.
 //
-// NEGA KERAK EDI. Saytda 700 dan ortiq sahifa bor, lekin ularning
-// ko'pchiligiga ichki havola uzun yo'l orqali boradi. Google faqat
-// havola bo'yicha yursa, chuqurdagi sahifalarni oylab topmasligi
-// mumkin. Sitemap ularning hammasini bir joyda ko'rsatadi.
-//
-// Ro'yxat ikki manbadan yig'iladi:
-//
-//   1. ASOSIY — qo'lda yozilgan kirish nuqtalari (bosh sahifa, katalog
-//      sahifalari). Ularning sarlavhasi ildiz layout'dan keladi, shuning
-//      uchun avtomatik yig'ilishga tushmaydi.
-//   2. sitemap-royxat.json — o'z metadata'siga ega mavzu sahifalari,
-//      scripts/gen-sitemap-royxat.js yig'adi.
-//
-// Nega hamma sahifa emas: sarlavhasi yo'q sahifa Google'ga saytdagi
-// o'sha bitta umumiy nom bilan boradi. Bunday sahifani sitemapga
-// qo'shish takroriy hujjatlar sonini oshiradi, foyda bermaydi.
-// Sarlavha yozilgan kuni sahifa ro'yxatga o'zi qo'shiladi.
+// Ro'yxat uch manbadan dublikatlarsiz va `app/robots.js` taqiqlariga qat'iy
+// amal qilgan holda yig'iladi (`lib/sitemap-qoidalari.js`):
+//   1. `ASOSIY_SAHIFALAR` — ustuvorlik (`priority`) va yangilanish chastotasi;
+//   2. `lib/sitemap-royxat.json` — `scripts/gen-sitemap-royxat.js` yig'gan
+//      metadata'li statik sahifalar, ochiq fanlar hamda 7–8-sinf tayyor darslari;
+//   3. Bazadagi ochiq kanallar (`/kanallar/[slug]`).
 import { prisma } from '@/lib/prisma'
 import mavzular from '@/lib/sitemap-royxat.json'
-
-// www BILAN: jdakimyo.uz 307 bilan www ga yo'naltiradi. Sitemapda
-// yo'naltiriladigan manzil turishi kraul byudjetini behuda sarflaydi —
-// robot har bir manzil uchun ikki so'rov qiladi.
-const SAYT = 'https://www.jdakimyo.uz'
-
-/** Qo'lda kiritiladigan asosiy bo'limlar */
-const ASOSIY = [
-  { yol: '', muhimlik: 1.0, yangilanish: 'daily' },
-  // "JDA KIMYO nima?" — platformaning rasmiy ta'rif sahifasi. Muhimligi
-  // bosh sahifadan keyingi o'rinda: sun'iy intellekt qidiruvi saytni
-  // aynan shu sahifadan tanishi kerak.
-  { yol: '/jda-kimyo', muhimlik: 0.9, yangilanish: 'monthly' },
-  { yol: '/milliy-sertifikat', muhimlik: 0.9, yangilanish: 'daily' },
-  { yol: '/sertifikat', muhimlik: 0.7, yangilanish: 'monthly' },
-  { yol: '/milliy-sertifikat/tekshir', muhimlik: 0.6, yangilanish: 'monthly' },
-  { yol: '/ishlashi', muhimlik: 0.6, yangilanish: 'monthly' },
-
-
-  // `/birikmalar` olib tashlandi: u endi /ilmiy/birikmalar ga 301
-  // bilan yo'naltiriladi. Katalogning o'zi sitemap-royxat.json orqali
-  // ro'yxatga tushadi, shuning uchun bu yerda takrorlash shart emas.
-
-  { yol: '/doska', muhimlik: 0.8, yangilanish: 'weekly' },
-  { yol: '/kochat', muhimlik: 0.7, yangilanish: 'weekly' },
-  { yol: '/kanallar', muhimlik: 0.7, yangilanish: 'daily' },
-  { yol: '/hamkorlik', muhimlik: 0.6, yangilanish: 'monthly' },
-  { yol: '/hamkorlik/sayt-hamkorlari', muhimlik: 0.5, yangilanish: 'monthly' },
-  { yol: '/hamkorlik/faq', muhimlik: 0.5, yangilanish: 'monthly' },
-  { yol: '/hamkorlik/yangiliklar', muhimlik: 0.5, yangilanish: 'weekly' },
-  { yol: '/qidiruv', muhimlik: 0.4, yangilanish: 'monthly' },
-  { yol: '/login', muhimlik: 0.3, yangilanish: 'yearly' },
-  { yol: '/register', muhimlik: 0.4, yangilanish: 'yearly' },
-]
+import robots from './robots'
+import { sitemapYozuvlariniTuz } from '@/lib/sitemap-qoidalari'
 
 export default async function sitemap() {
-  const hozir = new Date()
+  const robotsNatija = robots()
+  const disallowQoidalari = (robotsNatija.rules || []).flatMap((r) => r.disallow || [])
 
-  const royxat = ASOSIY.map((s) => ({
-    url: `${SAYT}${s.yol}`,
-    lastModified: hozir,
-    changeFrequency: s.yangilanish,
-    priority: s.muhimlik,
-  }))
-
-  // Mavzu sahifalari. ASOSIY da allaqachon bori qayta qo'shilmasin —
-  // bir manzil ikki marta turgan sitemap xato hisoblanadi.
-  //
-  // `lastModified` HAR BIR SAHIFA UCHUN O'ZINIKI: sana git tarixidan
-  // olinadi (`scripts/gen-sitemap-royxat.js`). Ilgari bu yerda ham
-  // `hozir` turardi, ya'ni Google har so'rovda "yuzta sahifa hozirgina
-  // o'zgardi" degan javob olardi. Bunday yolg'on signaldan keyin
-  // Google `lastmod` ni butunlay e'tiborsiz qoldiradi va haqiqatan
-  // yangilangan sahifa ham navbatda qolib ketadi.
-  const bor = new Set(royxat.map((s) => s.url))
-  for (const mavzu of mavzular) {
-    const url = `${SAYT}${mavzu.yol}`
-    if (bor.has(url)) continue
-    bor.add(url)
-    royxat.push({
-      url,
-      // Sana yo'q bo'lsa (git tarixsiz nusxa) yig'ilish vaqti qoladi.
-      lastModified: mavzu.sana ? new Date(mavzu.sana) : hozir,
-      // Mavzu matni kamdan-kam o'zgaradi, lekin butunlay qotib
-      // qolgan ham emas — oyiga bir marta so'rash haqiqatga yaqin.
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    })
-  }
-
-  // Ochiq kanallar — ular tez-tez yangilanadi va indekslanishi foydali.
-  // Baza javob bermasa sitemap baribir qaytadi: qidiruv tizimi bo'sh
-  // javob olgandan ko'ra qisqa ro'yxat olgani yaxshi.
+  let kanallar = []
   try {
-    const kanallar = await prisma.channel.findMany({
+    kanallar = await prisma.channel.findMany({
       where: { ochiq: true, faol: true },
       select: { slug: true, updatedAt: true },
     })
-
-    for (const k of kanallar) {
-      royxat.push({
-        url: `${SAYT}/kanallar/${k.slug}`,
-        lastModified: k.updatedAt,
-        changeFrequency: 'daily',
-        priority: 0.6,
-      })
-    }
   } catch (e) {
     console.error('[Sitemap] kanallar olinmadi:', e.message)
   }
 
-  return royxat
+  return sitemapYozuvlariniTuz({
+    mavzular,
+    kanallar,
+    disallowQoidalari,
+  })
 }

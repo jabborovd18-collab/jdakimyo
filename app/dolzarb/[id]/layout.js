@@ -11,6 +11,7 @@ export async function generateMetadata({ params }) {
     if (!post || post.status !== 'approved') {
       return {
         title: 'Muhokama — Dolzarb mavzular | JDA Kimyo',
+        alternates: { canonical: `/dolzarb/${encodeURIComponent(id)}` },
       }
     }
 
@@ -20,6 +21,7 @@ export async function generateMetadata({ params }) {
     return {
       title: `${sarlavha} — Dolzarb mavzular | JDA Kimyo`,
       description: tavsif,
+      alternates: { canonical: `/dolzarb/${encodeURIComponent(id)}` },
       openGraph: {
         title: sarlavha,
         description: tavsif,
@@ -28,6 +30,7 @@ export async function generateMetadata({ params }) {
   } catch {
     return {
       title: 'Dolzarb mavzular | JDA Kimyo',
+      alternates: { canonical: `/dolzarb/${encodeURIComponent(id)}` },
     }
   }
 }

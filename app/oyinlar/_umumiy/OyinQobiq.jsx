@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Ikon from '@/components/Ikon'
 import styles from '../oyin-umumiy.module.css'
@@ -71,7 +72,8 @@ export function OyinSarlavha({
           title={ovozYoqilgan ? 'Ovoz effektlarini o‘chirish' : 'Ovoz effektlarini yoqish'}
         >
           <Ikon nom="ovoz" olcham={16} />
-          <span>{ovozYoqilgan ? 'Ovoz yoqilgan' : 'Ovoz o‘chiq'}</span>
+          <span className={styles.ovozMatnToliq}>{ovozYoqilgan ? 'Ovoz yoqilgan' : 'Ovoz o‘chiq'}</span>
+          <span className={styles.ovozMatnQisqa}>{ovozYoqilgan ? 'Ovoz' : 'Jim'}</span>
         </button>
         {amallar}
       </div>
@@ -93,6 +95,58 @@ export function UstunlikBar({ p1Ism, p1Ball, p2Ism, p2Ball }) {
       <div className={styles.ustunlikChiziq}>
         <div className={styles.ustunlikChap} style={{ width: `${chapFoiz}%` }} />
         <div className={styles.ustunlikOng} style={{ width: `${ongFoiz}%` }} />
+      </div>
+    </div>
+  )
+}
+
+export function DuelMaydon({ p1Ism, p2Ism, p1Ball = 0, p2Ball = 0, p1Qism, p2Qism }) {
+  const [mobilKorinish, setMobilKorinish] = useState('ikkalasi')
+
+  return (
+    <div>
+      <div className={styles.duelMobilBar}>
+        <div className={styles.duelTablar} role="tablist" aria-label="Mobil duel ekrani">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mobilKorinish === 'ikkalasi'}
+            className={styles.duelTab}
+            data-faol={String(mobilKorinish === 'ikkalasi')}
+            onClick={() => setMobilKorinish('ikkalasi')}
+          >
+            Ikkalasi
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mobilKorinish === 'p1'}
+            className={styles.duelTab}
+            data-faol={String(mobilKorinish === 'p1')}
+            onClick={() => setMobilKorinish('p1')}
+          >
+            {p1Ism} ({p1Ball})
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mobilKorinish === 'p2'}
+            className={styles.duelTab}
+            data-faol={String(mobilKorinish === 'p2')}
+            onClick={() => setMobilKorinish('p2')}
+          >
+            {p2Ism} ({p2Ball})
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.duelPanellar} data-mobil-korinish={mobilKorinish}>
+        <div className={styles.duelSlot} data-oyinchi="p1">
+          {p1Qism}
+        </div>
+        <div className={styles.duelSlot} data-oyinchi="p2">
+          {p2Qism}
+        </div>
       </div>
     </div>
   )

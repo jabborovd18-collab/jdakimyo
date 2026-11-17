@@ -1,0 +1,460 @@
+.sahifa {
+  position: relative;
+  min-height: 100dvh;
+  background: var(--v3-fon-grad, linear-gradient(150deg, var(--v3-fon-2), var(--v3-fon)));
+  color: var(--v3-matn);
+  overflow-x: hidden;
+}
+
+.fon {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.fonNur {
+  position: absolute;
+  inset: -14% -10% auto;
+  height: 400px;
+  background:
+    radial-gradient(ellipse 50% 60% at 25% 18%, color-mix(in srgb, var(--v3-urgu) 20%, transparent), transparent 72%),
+    radial-gradient(ellipse 46% 56% at 82% 16%, rgba(16, 185, 129, 0.14), transparent 70%);
+  filter: blur(22px);
+}
+
+.qobiq {
+  position: relative;
+  width: min(100%, 760px);
+  margin-inline: auto;
+  padding: clamp(14px, 3vw, 28px);
+}
+
+.markazKarta {
+  margin-top: clamp(20px, 6vh, 64px);
+  padding: clamp(24px, 4.5vw, 38px);
+  border-radius: 24px;
+  background: var(--v3-fon-2);
+  border: 1px solid var(--v3-chiziq-2);
+  box-shadow: var(--v3-karta-soya);
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.darsYorligi {
+  display: inline-flex;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--v3-urgu) 16%, transparent);
+  color: var(--v3-urgu);
+  border: 1px solid color-mix(in srgb, var(--v3-urgu) 36%, transparent);
+}
+
+.belgiQuti,
+.belgiQutiXavf,
+.belgiQutiYashil {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+}
+
+.belgiQuti {
+  background: color-mix(in srgb, var(--v3-urgu) 16%, transparent);
+  color: var(--v3-urgu);
+}
+
+.belgiQutiXavf {
+  background: rgba(244, 63, 94, 0.16);
+  color: #fb7185;
+}
+
+.belgiQutiYashil {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+}
+
+.salomSarlavha {
+  margin: 0;
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-size: clamp(1.55rem, 4.5vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.savolBosh {
+  margin: 0;
+  font-size: clamp(1.08rem, 3vw, 1.3rem);
+  font-weight: 700;
+  color: var(--v3-urgu);
+}
+
+.oddiyMatn {
+  margin: 0;
+  color: var(--v3-xira);
+  line-height: 1.55;
+}
+
+.qoidaQatori {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.qoidaQatori span {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  background: var(--v3-yuza);
+  border: 1px solid var(--v3-chiziq);
+}
+
+.eslatma {
+  margin: 4px 0 0;
+  max-width: 440px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--v3-xira);
+}
+
+.boshlashTugma,
+.yakunlashTugma,
+.keyingiTugma,
+.ikkinchiTugma {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-size: 0.98rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.14s ease, opacity 0.14s ease;
+}
+
+.boshlashTugma {
+  width: min(100%, 280px);
+  background: linear-gradient(135deg, var(--v3-urgu), var(--v3-urgu-2, #0284c7));
+  border: none;
+  color: #06101e;
+}
+
+.yakunlashTugma {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  color: #03150e;
+}
+
+.keyingiTugma {
+  background: var(--v3-urgu);
+  border: none;
+  color: #06101e;
+}
+
+.ikkinchiTugma {
+  background: var(--v3-yuza);
+  border: 1px solid var(--v3-chiziq-2);
+  color: var(--v3-matn);
+}
+
+.boshlashTugma:disabled,
+.yakunlashTugma:disabled,
+.ikkinchiTugma:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.testHududi {
+  display: grid;
+  gap: 14px;
+}
+
+.testPanel {
+  position: sticky;
+  top: 10px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--v3-fon-2) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--v3-chiziq-2);
+}
+
+.ismBelgisi {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.sanoqBelgisi {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.belgilanganMatn {
+  margin-left: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--v3-xira);
+}
+
+.vaqtBelgisi {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  background: var(--v3-yuza);
+  border: 1px solid var(--v3-chiziq);
+}
+
+.vaqtOgoh {
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+.vaqtXavf {
+  border-color: rgba(244, 63, 94, 0.65);
+  background: rgba(244, 63, 94, 0.16);
+  color: #fb7185;
+}
+
+.raqamZanjir {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.raqamTugma {
+  flex: 0 0 auto;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  background: var(--v3-fon-2);
+  border: 1px solid var(--v3-chiziq);
+  color: var(--v3-xira);
+  cursor: pointer;
+}
+
+.raqamTanlangan {
+  background: color-mix(in srgb, #10b981 18%, var(--v3-fon-2));
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34d399;
+}
+
+.raqamAktiv {
+  border-color: var(--v3-urgu);
+  background: color-mix(in srgb, var(--v3-urgu) 20%, var(--v3-fon-2));
+  color: var(--v3-matn);
+}
+
+.savolKarta {
+  padding: clamp(18px, 3.2vw, 28px);
+  border-radius: 22px;
+  background: var(--v3-fon-2);
+  border: 1px solid var(--v3-chiziq-2);
+  display: grid;
+  gap: 18px;
+}
+
+.savolUsti {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.savolRaqamPill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  background: color-mix(in srgb, var(--v3-urgu) 16%, transparent);
+  color: var(--v3-urgu);
+}
+
+.modulBelgisi {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--v3-xira);
+}
+
+.savolMatni {
+  font-size: clamp(1.02rem, 2.4vw, 1.18rem);
+  font-weight: 600;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+
+.variantlarRoyxati {
+  display: grid;
+  gap: 10px;
+}
+
+.variantTugma {
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 14px;
+  border-radius: 15px;
+  background: var(--v3-fon);
+  border: 1px solid var(--v3-chiziq-2);
+  color: var(--v3-matn);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+.variantTugma:hover {
+  border-color: color-mix(in srgb, var(--v3-urgu) 60%, var(--v3-chiziq-2));
+}
+
+.variantAktiv {
+  background: color-mix(in srgb, var(--v3-urgu) 14%, var(--v3-fon));
+  border-color: var(--v3-urgu);
+}
+
+.harfBelgisi {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  background: var(--v3-yuza);
+  border: 1px solid var(--v3-chiziq);
+}
+
+.variantAktiv .harfBelgisi {
+  background: var(--v3-urgu);
+  color: #06101e;
+  border-color: transparent;
+}
+
+.variantMatni {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.97rem;
+  line-height: 1.55;
+  overflow-x: auto;
+}
+
+.tasdiqBlok {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.42);
+  display: grid;
+  gap: 12px;
+}
+
+.tasdiqBlok p {
+  margin: 0;
+  font-size: 0.94rem;
+}
+
+.tasdiqAmallar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pastkiNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ertaroqYakun {
+  text-align: center;
+  padding-top: 4px;
+}
+
+.matnliTugma {
+  background: transparent;
+  border: none;
+  color: var(--v3-xira);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.natijaKartalari {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.natijaKarta {
+  padding: 18px 14px;
+  border-radius: 18px;
+  background: var(--v3-fon);
+  border: 1px solid var(--v3-chiziq-2);
+  display: grid;
+  gap: 6px;
+}
+
+.natijaYorliq {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--v3-xira);
+}
+
+.natijaQiymat {
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-size: clamp(1.75rem, 5vw, 2.4rem);
+  font-weight: 800;
+  color: var(--v3-matn);
+}
+
+.xatoMatn {
+  margin: 0;
+  color: #fb7185;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .belgilanganMatn {
+    display: none;
+  }
+
+  .pastkiNav > button {
+    flex: 1 1 0;
+  }
+}

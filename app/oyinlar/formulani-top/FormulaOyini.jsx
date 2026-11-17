@@ -1158,7 +1158,9 @@ export default function FormulaOyini() {
             <div className={styles.hisobPanel}>
               <div className={styles.hisobChap}>
                 <h1>Formulani top</h1>
-                <span className={styles.holatChip}>{darajaNom} · {savol.tartib}/{savol.jami}</span>
+                <span className={styles.holatChip}>
+                  {darajaNom} · {savol.jami ? `${savol.tartib}/${savol.jami}` : `${savol.tartib}-savol`}
+                </span>
                 {savol.seriya >= 2 && (
                   <span className={styles.seriyaChip}>
                     <Ikon nom="olov" olcham={15} /> {savol.seriya}× seriya
@@ -1314,7 +1316,7 @@ export default function FormulaOyini() {
               <div className={styles.hisobChap}>
                 <h1>1v1 Poyga</h1>
                 <span className={styles.holatChip}>
-                  {darajaNom} · {savol.tartib}/{savol.jami} · {savol.duelKartaTartibi === 'har-xil' ? 'Ikki xil karta' : 'Bir xil karta'}
+                  {darajaNom} · {savol.jami ? `${savol.tartib}/${savol.jami}` : `${savol.tartib}-savol`} · {savol.duelKartaTartibi === 'har-xil' ? 'Ikki xil karta' : 'Bir xil karta'}
                 </span>
               </div>
               <div className={styles.hisobOng}>

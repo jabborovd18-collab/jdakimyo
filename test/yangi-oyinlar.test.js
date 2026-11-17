@@ -48,7 +48,19 @@ describe('Elementlar dueli', () => {
       assert.equal(el.massa, ATOM_MASSALAR[el.belgi], `${el.belgi} massasi mos kelishi shart`)
       const qobiqYigindi = el.qobiq.reduce((s, n) => s + n, 0)
       assert.equal(qobiqYigindi, el.z, `${el.belgi} qobiqlar yig‘indisi Z=${el.z} ga teng`)
+      assert.ok(el.guruh8 >= 1 && el.guruh8 <= 8, `${el.belgi} qisqa 8 guruh chegarasida bo‘lishi shart`)
+      assert.ok(el.guruhcha === 'A' || el.guruhcha === 'B')
+      assert.ok(el.qator >= 1 && el.qator <= 9)
     }
+    const cu = ELEMENT_BAZA.find((e) => e.belgi === 'Cu')
+    const fe = ELEMENT_BAZA.find((e) => e.belgi === 'Fe')
+    const s = ELEMENT_BAZA.find((e) => e.belgi === 'S')
+    assert.equal(cu.guruhNom, 'IB')
+    assert.equal(cu.qator, 5)
+    assert.equal(fe.guruhNom, 'VIIIB')
+    assert.equal(fe.qator, 4)
+    assert.equal(s.guruhNom, 'VIA')
+    assert.equal(s.qator, 3)
   })
 
   it('klientga to‘g‘ri javobni ochiq yubormaydi, 50/50 va 1v1 ishlaydi', () => {
@@ -86,6 +98,9 @@ describe('Elementlar dueli', () => {
     const yakun = elementDuelTugat({ token: togriNatija.token })
     assert.equal(yakun.tugagan, true)
     assert.equal(yakun.natija.golib, 'p2')
+
+    const filtr = elementDuelBoshla({ rejim: 'yakka', daraja: 'orta', mavzu: 'metall' })
+    assert.equal(filtr.mavzu, 'metall')
   })
 })
 
@@ -133,6 +148,7 @@ describe('Formula konstruktori', () => {
     })
     assert.equal(togri.natijaKod, 'togri')
     assert.ok(togri.p1.ball >= 30)
+    assert.match(togri.tasdiqIzoh, /M = \d+\.\d+ g\/mol/)
 
     const otkaz = konstruktorOtkaz({
       token: togri.token,
@@ -146,8 +162,9 @@ describe('Formula konstruktori', () => {
 describe('Reaksiyani tenglashtir', () => {
   it('balansTekshir va EKUB = 1 qoidasi bilan stexiometriyani tekshiradi', async () => {
     const { azoniOqi: balansOqi } = await import('../lib/chem-balance.js')
-    const bosh = reaksiyaBalansBoshla({ rejim: 'duel-vaqt', daraja: 'orta' })
+    const bosh = reaksiyaBalansBoshla({ rejim: 'duel-vaqt', daraja: 'orta', toifa: 'redoks' })
     assert.equal(bosh.p1Savol.togri, undefined)
+    assert.equal(bosh.p1Savol.toifa, 'Redoks')
     assert.ok(bosh.p1Savol.chap.length >= 1)
 
     const maxfiy = ochHolat(bosh.token, 'reaksiya-balans/v1')

@@ -148,8 +148,39 @@
   cursor: not-allowed;
 }
 
+.tayyorTekshir[data-tayyor='true'] {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  border-color: #34d399;
+  color: #052e16;
+  box-shadow: 0 0 22px rgba(16, 185, 129, .35);
+}
+
 @media (max-width: 560px) {
   .ustunIkki {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .ionGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .ionTugma {
+    padding: 6px 5px;
+  }
+
+  .indeksBtn {
+    width: 40px;
+    height: 38px;
+  }
+
+  .formulaEkran {
+    padding: 10px 12px;
+    gap: 5px;
+  }
+
+  .formulaMatn {
+    font-size: 1.48rem;
   }
 }

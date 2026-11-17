@@ -57,6 +57,10 @@ describe('Qidiruv katalogi va sahifa integratsiyasi (v4)', () => {
     for (const kerakliYol of [
       '/oyinlar',
       '/oyinlar/formulani-top',
+      '/oyinlar/element-duel',
+      '/oyinlar/formula-konstruktor',
+      '/oyinlar/reaksiya-balans',
+      '/oyinlar/sifat-detektiv',
       '/testlar/kimyo-0-dan',
       '/repititorlar',
       '/kimyogarlar',
@@ -90,6 +94,27 @@ describe('Qidiruv katalogi va sahifa integratsiyasi (v4)', () => {
     })
     assert.equal(oyinNatija[0]?.path, '/oyinlar/formulani-top')
 
+    for (const [sorov, kutilganYol] of [
+      ['Elementlar dueli', '/oyinlar/element-duel'],
+      ['element duel', '/oyinlar/element-duel'],
+      ['Formula konstruktori', '/oyinlar/formula-konstruktor'],
+      ['formula konstruktor', '/oyinlar/formula-konstruktor'],
+      ['Reaksiyani tenglashtir', '/oyinlar/reaksiya-balans'],
+      ['reaksiya balans', '/oyinlar/reaksiya-balans'],
+      ['Sifat reaksiyalar detektivi', '/oyinlar/sifat-detektiv'],
+      ['sifat detektiv', '/oyinlar/sifat-detektiv'],
+      ['/oyinlar/sifat-detektiv', '/oyinlar/sifat-detektiv'],
+      ["cho'kma", '/oyinlar/sifat-detektiv'],
+      ['chokma', '/oyinlar/sifat-detektiv'],
+    ]) {
+      const topilgan = filtrlaQidiruvNatijalari({ searchQuery: sorov })
+      assert.equal(
+        topilgan[0]?.path,
+        kutilganYol,
+        `"${sorov}" qidiruvi birinchi natija sifatida ${kutilganYol} ni qaytarishi kerak (qaytardi: ${topilgan[0]?.path})`,
+      )
+    }
+
     const tezKundaNatija = filtrlaQidiruvNatijalari({
       filters: { status: 'tez-kunda', audience: 'oliy', tagQuery: '' },
     })
@@ -117,6 +142,19 @@ describe('Qidiruv katalogi va sahifa integratsiyasi (v4)', () => {
     assert.match(boshSahifa, /useRouter/)
     assert.match(boshSahifa, /router\.push\(`\/qidiruv\?q=/)
     assert.doesNotMatch(boshSahifa, /window\.location\.href/)
+
+    for (const oyinNom of [
+      'Formulani top',
+      'Elementlar dueli',
+      'Formula konstruktori',
+      'Reaksiyani tenglashtir',
+      'Sifat detektivi',
+    ]) {
+      assert.ok(
+        boshSahifa.includes(oyinNom),
+        `app/page.js o'yinlar kartasida ${oyinNom} ko'rsatilmagan`,
+      )
+    }
 
     assert.match(qidiruvSahifa, /useSearchParams/)
     assert.match(qidiruvSahifa, /<Suspense\b/)

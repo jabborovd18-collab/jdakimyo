@@ -6,7 +6,9 @@
     "sana": "2026-05-10",
     "qisqacha": "Ushbu maqolada kobalt(III) geksaammin kompleksining UB-Vis, IQ spektrlari va kristall maydon nazariyasi asosida elektron tuzilishi batafsil tahlil qilingan. Δo qiymati hisoblangan va spektrokimyoviy qatordagi o'rni aniqlangan.",
     "kalitSozlar": ["kobalt", "spektroskopiya", "UB-Vis", "IQ", "kristall maydon"],
-    "fayl": "/maqolalar/cobalt-spektroskopiya.docx"
+    "fayl": null,
+    "faylMavjud": false,
+    "holat": "tez_kunda"
   },
   {
     "id": 2,
@@ -15,7 +17,9 @@
     "sana": "2026-05-09",
     "qisqacha": "Maqolada kristall maydon nazariyasining asosiy tushunchalari, d-orbital ajralishi, Δo energiyasi, spektrokimyoviy qator va KMBE hisoblash usullari yoritilgan. [Fe(CN)₆]⁴⁻ va [Fe(H₂O)₆]²⁺ komplekslari misolida tahlil qilingan.",
     "kalitSozlar": ["KMN", "d-orbital", "Δo", "spektrokimyoviy qator", "KMBE"],
-    "fayl": "/maqolalar/kristall-maydon.docx"
+    "fayl": null,
+    "faylMavjud": false,
+    "holat": "tez_kunda"
   },
   {
     "id": 3,
@@ -24,7 +28,9 @@
     "sana": "2026-05-08",
     "qisqacha": "Ushbu sharh maqolasida sisplatinning kashf etilish tarixi, ta'sir mexanizmi, DNK bilan bog'lanishi va yangi avlod platina komplekslarining samaradorligi muhokama qilingan.",
     "kalitSozlar": ["sisplatin", "saraton", "DNK", "platina", "kimyoterapiya"],
-    "fayl": "/maqolalar/cisplatin.docx"
+    "fayl": null,
+    "faylMavjud": false,
+    "holat": "tez_kunda"
   },
   {
     "id": 4,
@@ -33,7 +39,9 @@
     "sana": "2026-05-07",
     "qisqacha": "Maqolada Yan-Teller effektining nazariy asoslari, d⁴ va d⁹ konfiguratsiyalarda oktaedrik buzilish mexanizmi va Cu²⁺ komplekslarida kuzatiladigan strukturaviy o'zgarishlar tahlil qilingan.",
     "kalitSozlar": ["Yan-Teller", "mis", "oktaedrik", "d⁹", "buzilish"],
-    "fayl": "/maqolalar/yan-teller.docx"
+    "fayl": null,
+    "faylMavjud": false,
+    "holat": "tez_kunda"
   },
   {
     "id": 5,
@@ -42,6 +50,8 @@
     "sana": "2026-05-05",
     "qisqacha": "Ushbu maqolada d-metall komplekslarining magnit xossalari, yuqori va quyi spinli holatlar, μeff hisoblash va Gui usuli bilan magnit qabulqiluvchanlikni o'lchash yoritilgan.",
     "kalitSozlar": ["magnit", "spin", "μeff", "paramagnit", "diamagnit"],
-    "fayl": "/maqolalar/magnit.docx"
+    "fayl": null,
+    "faylMavjud": false,
+    "holat": "tez_kunda"
   }
 ]

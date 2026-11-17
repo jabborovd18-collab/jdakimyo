@@ -1,26 +1,426 @@
 [
   {
-    "yol": "/fan/analitik-kimyo",
-    "sana": "2026-08-09"
+    "yol": "/",
+    "sana": "2026-11-17"
   },
   {
-    "yol": "/fan/anorganik-kimyo",
-    "sana": "2026-08-09"
+    "yol": "/dokon",
+    "sana": "2026-11-17"
   },
   {
-    "yol": "/fan/fizikaviy-kimyo",
-    "sana": "2026-08-09"
+    "yol": "/dolzarb",
+    "sana": "2026-11-15"
   },
   {
-    "yol": "/fan/organik-kimyo",
-    "sana": "2026-08-09"
+    "yol": "/doska",
+    "sana": "2026-10-13"
+  },
+  {
+    "yol": "/hamkorlik",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/hamkorlik/boglanish",
+    "sana": "2026-05-21"
+  },
+  {
+    "yol": "/hamkorlik/faq",
+    "sana": "2026-08-08"
+  },
+  {
+    "yol": "/hamkorlik/jamoaga-taklif",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/hamkorlik/sayt-hamkorlari",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/hamkorlik/yangiliklar",
+    "sana": "2026-11-17"
   },
   {
     "yol": "/ishlashi",
-    "sana": "2026-08-22"
+    "sana": "2026-11-15"
   },
   {
     "yol": "/jda-kimyo",
-    "sana": "2026-08-23"
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/kanallar",
+    "sana": "2026-08-03"
+  },
+  {
+    "yol": "/kimyogarlar",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/laboratoriya",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/maktabkimyo",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/1-1",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/1-2",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/1-3",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/1-4",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/1-5",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/2-1",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/2-2",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/3-1",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/3-2",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/3-3",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/3-4",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/3-5",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/3-6",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/3-7",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/4-1",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/4-2",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/4-3",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/5-1",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/5-2",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/5-3",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/5-4",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/5-5",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/6-1",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/6-2",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/6-3",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/6-4",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/6-5",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/7sinf/tayanch-tushunchalar",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/1",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/10",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/11",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/12",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/13",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/14",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/15",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/16",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/17",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/18",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/19",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/2",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/20",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/21",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/22",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/23",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/24",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/25",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/26",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/27",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/28",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/29",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/3",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/30",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/31",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/32",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/33",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/34",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/35",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/36",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/37",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/38",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/39",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/4",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/40",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/41",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/42",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/43",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/44",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/5",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/6",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/7",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/8",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/9",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/maktabkimyo/8sinf/laboratoriya-ishlari",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/masala",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/milliy-sertifikat",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/milliy-sertifikat/tekshir",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/oliykimyo",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/oyinlar",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/oyinlar/element-duel",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/oyinlar/formula-konstruktor",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/oyinlar/formulani-top",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/oyinlar/kalloid-duel",
+    "sana": null
+  },
+  {
+    "yol": "/oyinlar/reaksiya-balans",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/oyinlar/sifat-detektiv",
+    "sana": "2026-11-17"
+  },
+  {
+    "yol": "/repititorlar",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/sertifikat",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/testlar",
+    "sana": "2026-11-15"
+  },
+  {
+    "yol": "/testlar/kimyo-0-dan",
+    "sana": "2026-11-15"
   }
 ]

@@ -1,0 +1,544 @@
+.sahifa {
+  position: relative;
+  min-height: 100dvh;
+  background: var(--v3-fon-grad, linear-gradient(150deg, var(--v3-fon-2), var(--v3-fon)));
+  color: var(--v3-matn);
+  overflow-x: hidden;
+}
+
+.fon {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.fonNur {
+  position: absolute;
+  inset: -12% -10% auto;
+  height: 440px;
+  background:
+    radial-gradient(ellipse 46% 62% at 18% 18%, color-mix(in srgb, var(--v3-urgu) 20%, transparent), transparent 72%),
+    radial-gradient(ellipse 42% 58% at 84% 14%, rgba(245, 158, 11, 0.16), transparent 72%);
+  filter: blur(22px);
+}
+
+.qobiq {
+  position: relative;
+  width: min(100%, 1440px);
+  margin-inline: auto;
+  padding: clamp(14px, 2.2vw, 28px);
+}
+
+.sarlavha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.sarlavhaChap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sarlavhaUst {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.mavsumiyBelgisi {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: color-mix(in srgb, var(--v3-urgu) 16%, transparent);
+  color: var(--v3-urgu);
+  border: 1px solid color-mix(in srgb, var(--v3-urgu) 36%, transparent);
+}
+
+.jonliBelgisi {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.jonliNuqta {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  animation: pulslash 1.5s infinite;
+}
+
+@keyframes pulslash {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.82); }
+}
+
+.sarlavhaNom {
+  margin: 0;
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.8vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.amallar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tugma,
+.tugmaAsosiy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.tugma {
+  background: var(--v3-yuza);
+  border: 1px solid var(--v3-chiziq-2);
+  color: var(--v3-matn);
+}
+
+.tugma:hover {
+  border-color: var(--v3-urgu);
+}
+
+.tugmaAsosiy {
+  background: linear-gradient(135deg, var(--v3-urgu), var(--v3-urgu-2, #0284c7));
+  border: 1px solid transparent;
+  color: #06101e;
+}
+
+.tugmaAsosiy:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.markazKarta {
+  width: min(100%, 460px);
+  margin: clamp(32px, 8vh, 84px) auto;
+  padding: clamp(24px, 4vw, 36px);
+  border-radius: 22px;
+  background: var(--v3-fon-2);
+  border: 1px solid var(--v3-chiziq-2);
+  box-shadow: var(--v3-karta-soya);
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.kartaIkon,
+.kartaIkonXavf {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+}
+
+.kartaIkon {
+  background: color-mix(in srgb, var(--v3-urgu) 16%, transparent);
+  color: var(--v3-urgu);
+}
+
+.kartaIkonXavf {
+  background: rgba(244, 63, 94, 0.16);
+  color: #fb7185;
+}
+
+.kartaSarlavha {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.kartaMatn {
+  margin: 0;
+  color: var(--v3-xira);
+  line-height: 1.55;
+}
+
+.kodForma {
+  width: 100%;
+  display: grid;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.kodInput {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--v3-fon);
+  border: 1px solid var(--v3-chiziq-2);
+  color: var(--v3-matn);
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+
+.kodInput:focus {
+  outline: none;
+  border-color: var(--v3-urgu);
+}
+
+.xatoMatn {
+  margin: 0;
+  color: #fb7185;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.statHududi {
+  display: grid;
+  gap: 20px;
+}
+
+.kpiTor {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kpiKarta {
+  padding: clamp(18px, 2.2vw, 26px);
+  border-radius: 20px;
+  background: var(--v3-fon-2);
+  border: 1px solid var(--v3-chiziq-2);
+  display: grid;
+  gap: 6px;
+}
+
+.kpiUrguli {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--v3-urgu) 16%, var(--v3-fon-2)),
+    var(--v3-fon-2)
+  );
+  border-color: color-mix(in srgb, var(--v3-urgu) 45%, var(--v3-chiziq-2));
+}
+
+.kpiYorliq {
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--v3-xira);
+}
+
+.kpiRaqam {
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--v3-matn);
+}
+
+.kpiIzoh {
+  font-size: 0.84rem;
+  color: var(--v3-xira);
+}
+
+.natijaPaneli {
+  border-radius: 22px;
+  background: var(--v3-fon-2);
+  border: 1px solid var(--v3-chiziq-2);
+  overflow: hidden;
+}
+
+.jadvalToliqRejim {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  border-radius: 0;
+  border: none;
+  background: var(--v3-fon, #070b14);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.jadvalToliqRejim .jadvalQobiq {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.jadvalToliqRejim .jadval {
+  font-size: clamp(1.08rem, 1.6vw, 1.35rem);
+}
+
+.natijaSarlavha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--v3-chiziq);
+}
+
+.natijaSarlavhaChap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.natijaSarlavha h2 {
+  margin: 0;
+  font-size: 1.18rem;
+  font-weight: 800;
+}
+
+.natijaSanoq {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--v3-xira);
+}
+
+.jadvalAmallar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kichikTugma,
+.xavfKichikTugma,
+.xavfTasdiqTugma {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.kichikTugma {
+  background: var(--v3-yuza);
+  border: 1px solid var(--v3-chiziq-2);
+  color: var(--v3-matn);
+}
+
+.kichikTugma:hover {
+  border-color: var(--v3-urgu);
+}
+
+.xavfKichikTugma {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #fb7185;
+}
+
+.xavfKichikTugma:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.xavfTasdiqTugma {
+  background: #e11d48;
+  border: 1px solid #f43f5e;
+  color: #ffffff;
+}
+
+.tasdiqGuruh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.28);
+}
+
+.tasdiqSavol {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fda4af;
+}
+
+.amalKatak {
+  width: 72px;
+  text-align: right;
+}
+
+.qatorOchirTugma {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fb7185;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.qatorOchirTugma:hover {
+  background: rgba(244, 63, 94, 0.24);
+}
+
+.qatorOchirTugma:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.boshHolat {
+  padding: clamp(32px, 6vw, 64px) 24px;
+  text-align: center;
+}
+
+.boshMatn {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.boshIzoh {
+  margin: 0 auto;
+  max-width: 520px;
+  color: var(--v3-xira);
+  line-height: 1.55;
+}
+
+.jadvalQobiq {
+  overflow-x: auto;
+}
+
+.jadval {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(0.98rem, 1.3vw, 1.15rem);
+}
+
+.jadval th {
+  text-align: left;
+  padding: 14px 20px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--v3-xira);
+  border-bottom: 1px solid var(--v3-chiziq);
+}
+
+.jadval td {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--v3-chiziq);
+}
+
+.jadval tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.topQator {
+  background: color-mix(in srgb, var(--v3-urgu) 5%, transparent);
+}
+
+.orinKatak {
+  width: 64px;
+}
+
+.orinBelgisi {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-weight: 800;
+  background: var(--v3-yuza);
+  color: var(--v3-xira);
+}
+
+.oltin {
+  background: rgba(245, 158, 11, 0.24);
+  color: #fbbf24;
+}
+
+.kumush {
+  background: rgba(148, 163, 184, 0.24);
+  color: #e2e8f0;
+}
+
+.bronza {
+  background: rgba(217, 119, 6, 0.24);
+  color: #fdba74;
+}
+
+.ismKatak {
+  font-weight: 700;
+}
+
+.foizBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+}
+
+.vaqtKatak {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--v3-xira);
+}
+
+@media (max-width: 900px) {
+  .kpiTor {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .tugmaMatn {
+    display: none;
+  }
+
+  .kpiTor {
+    grid-template-columns: 1fr;
+  }
+
+  .jadval th,
+  .jadval td {
+    padding: 12px 14px;
+  }
+}

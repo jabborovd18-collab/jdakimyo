@@ -261,16 +261,63 @@
 }
 
 .hudQator {
+  position: sticky;
+  top: 8px;
+  z-index: 30;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px 10px;
   margin-bottom: 14px;
   padding: 10px 14px;
   border: 1px solid var(--v3-chiziq);
   border-radius: 16px;
-  background: color-mix(in srgb, var(--v3-yuza) 84%, var(--v3-fon));
+  background: color-mix(in srgb, var(--v3-yuza) 90%, var(--v3-fon));
+  backdrop-filter: blur(12px);
+}
+
+.duelMobilBar {
+  display: none;
+}
+
+.duelTablar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid var(--v3-chiziq-2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--v3-fon) 76%, var(--v3-yuza));
+}
+
+.duelTab {
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--v3-xira);
+  font-size: .82rem;
+  font-weight: 720;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.duelTab[data-faol='true'] {
+  background: var(--v3-urgu);
+  color: var(--v3-urgu-matn);
+  font-weight: 800;
+}
+
+.duelSlot {
+  min-width: 0;
+}
+
+.ovozMatnQisqa {
+  display: none;
 }
 
 .hudGuruh {
@@ -442,5 +489,77 @@
   .sozlamaUstun,
   .duelPanellar {
     grid-template-columns: 1fr;
+  }
+
+  .duelMobilBar {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .duelPanellar[data-mobil-korinish='p1'] .duelSlot[data-oyinchi='p2'],
+  .duelPanellar[data-mobil-korinish='p2'] .duelSlot[data-oyinchi='p1'] {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .qobiq {
+    padding: 10px 12px 24px;
+  }
+
+  .sarlavha {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .sarlavhaIzoh {
+    display: none;
+  }
+
+  .karta,
+  .oyinchiPanel {
+    border-radius: 16px;
+    padding: 13px;
+  }
+
+  .hudQator {
+    top: 4px;
+    padding: 8px 10px;
+    border-radius: 13px;
+    margin-bottom: 10px;
+  }
+
+  .hudChip {
+    padding: 4px 9px;
+    font-size: .78rem;
+  }
+
+  .ovozMatnToliq {
+    display: none;
+  }
+
+  .ovozMatnQisqa {
+    display: inline;
+  }
+
+  .tugma,
+  .asosiy,
+  .xavfTugma {
+    min-height: 40px;
+    padding: 7px 11px;
+    font-size: .86rem;
+  }
+
+  .oyinchiPanel .amallar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .oyinchiPanel .amallar > button,
+  .yakunKarta .amallar > a,
+  .yakunKarta .amallar > button {
+    width: 100%;
+    justify-content: center;
   }
 }

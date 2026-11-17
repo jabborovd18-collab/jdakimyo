@@ -4,6 +4,7 @@ import { Fragment, useCallback, useEffect, useState } from 'react'
 import Ikon from '@/components/Ikon'
 import { sfxChal } from '@/lib/oyinlar/sfx'
 import {
+  DuelMaydon,
   OyinSarlavha,
   UstunlikBar,
   YakunPanel,
@@ -41,6 +42,7 @@ export default function ReaksiyaBalansOyini() {
   const [faza, setFaza] = useState('sozlama')
   const [rejim, setRejim] = useState('yakka')
   const [daraja, setDaraja] = useState('orta')
+  const [toifa, setToifa] = useState('hammasi')
   const [vaqtSoniya, setVaqtSoniya] = useState(120)
   const [hisoblagich, setHisoblagich] = useState(true)
   const [p1Ism, setP1Ism] = useState('Kimyogar')
@@ -93,7 +95,7 @@ export default function ReaksiyaBalansOyini() {
     try {
       const javob = await oyinApiPost('/api/oyinlar/reaksiya-balans', {
         amal: 'boshlash',
-        sozlama: { rejim, daraja, vaqtSoniya, hisoblagich, p1Ism, p2Ism },
+        sozlama: { rejim, daraja, toifa, vaqtSoniya, hisoblagich, p1Ism, p2Ism },
       })
       setOyin(javob)
       savolgaMosla(javob)
@@ -105,7 +107,7 @@ export default function ReaksiyaBalansOyini() {
     } finally {
       setYuklanmoqda(false)
     }
-  }, [daraja, hisoblagich, ovoz, p1Ism, p2Ism, rejim, savolgaMosla, vaqtSoniya])
+  }, [daraja, hisoblagich, ovoz, p1Ism, p2Ism, rejim, savolgaMosla, toifa, vaqtSoniya])
 
   const koeffOzgartir = (kalit, tomon, indeks, farq) => {
     sfxChal('qadam', ovoz)
@@ -212,6 +214,7 @@ export default function ReaksiyaBalansOyini() {
     if (!savol || !oyinchiMalumot) return null
     const k = koeffHolat[kalit]
     const tarozi = oyin.hisoblagich ? hisoblaAtomTarozini(savol, k.chap, k.ong) : []
+    const hammaTeng = oyin.hisoblagich && tarozi.length > 0 && tarozi.every((a) => a.teng)
     const izoh = izohlar[kalit]
 
     const qismKartalar = (qismlar, tomon) =>
@@ -286,8 +289,13 @@ export default function ReaksiyaBalansOyini() {
         ) : null}
 
         <div className={umumiy.amallar}>
-          <button type="button" className={umumiy.asosiy} onClick={() => tekshir(kalit, savol)}>
-            <Ikon nom="chaqmoq" olcham={17} /> Balansni tekshirish
+          <button
+            type="button"
+            className={`${umumiy.asosiy} ${styles.tayyorTekshir}`}
+            data-tayyor={String(Boolean(hammaTeng))}
+            onClick={() => tekshir(kalit, savol)}
+          >
+            <Ikon nom="chaqmoq" olcham={17} /> {hammaTeng ? 'Barcha atomlar teng — Tekshiring!' : 'Balansni tekshirish'}
           </button>
           <button type="button" className={umumiy.tugma} onClick={() => nolgaQaytar(kalit, savol)}>
             <Ikon nom="qayta" olcham={16} /> 1 ga tiklash
@@ -379,6 +387,24 @@ export default function ReaksiyaBalansOyini() {
                     ))}
                   </div>
                   <div className={umumiy.chipQator}>
+                    {[
+                      ['hammasi', 'Barcha reaksiyalar'],
+                      ['kislota', 'Kislota-asos'],
+                      ['metall', 'Metallar va oksidlar'],
+                      ['redoks', 'Redoks'],
+                    ].map(([id, nom]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        className={umumiy.chip}
+                        data-faol={String(toifa === id)}
+                        onClick={() => setToifa(id)}
+                      >
+                        {nom}
+                      </button>
+                    ))}
+                  </div>
+                  <div className={umumiy.chipQator}>
                     {[90, 120, 180].map((v) => (
                       <button
                         key={v}
@@ -460,10 +486,14 @@ export default function ReaksiyaBalansOyini() {
                 {panelChiz('p1', oyin.p1Savol, oyin.p1)}
               </div>
             ) : (
-              <div className={umumiy.duelPanellar}>
-                {panelChiz('p1', oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p1Savol, oyin.p1)}
-                {panelChiz('p2', oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p2Savol, oyin.p2)}
-              </div>
+              <DuelMaydon
+                p1Ism={oyin.p1.ism}
+                p2Ism={oyin.p2.ism}
+                p1Ball={oyin.p1.ball}
+                p2Ball={oyin.p2.ball}
+                p1Qism={panelChiz('p1', oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p1Savol, oyin.p1)}
+                p2Qism={panelChiz('p2', oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p2Savol, oyin.p2)}
+              />
             )}
           </div>
         ) : null}

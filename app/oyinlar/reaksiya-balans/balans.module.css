@@ -109,3 +109,37 @@
   border-color: rgba(251, 191, 36, .45);
   background: rgba(245, 158, 11, .14);
 }
+
+.tayyorTekshir[data-tayyor='true'] {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  border-color: #34d399;
+  color: #052e16;
+  box-shadow: 0 0 22px rgba(16, 185, 129, .35);
+}
+
+@media (max-width: 640px) {
+  .tenglamaMaydon {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .qismKarta {
+    padding: 5px 8px;
+    gap: 5px;
+  }
+
+  .stepBtn {
+    width: 34px;
+    height: 34px;
+    font-size: 1.05rem;
+  }
+
+  .formulaBelgisi {
+    font-size: .96rem;
+  }
+
+  .atomChip {
+    padding: 4px 8px;
+    font-size: .75rem;
+  }
+}

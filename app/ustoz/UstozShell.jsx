@@ -29,6 +29,7 @@ const NAV_GROUPS = [
     title: 'Boshqaruv',
     items: [
       { name: 'Natijalar tahlili', href: '/ustoz/natijalar', ikon: 'orin' },
+      { name: 'Ochiq dars QR', href: '/ustoz/ochiq-dars', ikon: 'kolba' },
       { name: 'Doska skaneri', href: '/doska/skaner', ikon: 'skaner' },
       { name: 'E\'lonlar', href: '/ustoz/elonlar', ikon: 'kanal' },
       { name: 'Ustoz profili', href: '/ustoz/sozlash', ikon: 'sozlama' },

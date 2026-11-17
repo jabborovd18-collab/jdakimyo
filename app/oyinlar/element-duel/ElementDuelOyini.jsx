@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Ikon from '@/components/Ikon'
-import { TOIFA_RANGLAR } from '@/lib/oyinlar/element-baza'
+import { RIM_GURUHLAR, TOIFA_RANGLAR } from '@/lib/oyinlar/element-baza'
 import { sfxChal } from '@/lib/oyinlar/sfx'
 import {
+  DuelMaydon,
   OyinSarlavha,
   UstunlikBar,
   YakunPanel,
@@ -14,9 +15,8 @@ import {
 import umumiy from '../oyin-umumiy.module.css'
 import styles from './element-duel.module.css'
 
-const KOPRINK_QATOR = (davr, guruh) => {
-  if (davr === 1) return guruh === 1 || guruh === 18
-  if (davr === 2 || davr === 3) return guruh <= 2 || guruh >= 13
+const QISQA_KATAK_BOR = (qator, guruh8) => {
+  if (qator === 1) return guruh8 === 1 || guruh8 === 8
   return true
 }
 
@@ -64,29 +64,46 @@ function BohrAtom({ korinish }) {
   )
 }
 
-function DavriyMini({ davr, guruh }) {
-  const kataklar = []
-  for (let d = 1; d <= 6; d += 1) {
-    for (let g = 1; g <= 18; g += 1) {
-      const mavjud = KOPRINK_QATOR(d, g)
-      const faol = d === davr && g === guruh
+function DavriyMini({ qator, guruh8, guruhcha }) {
+  const kataklar = [
+    <span key="burchak" className={styles.jadvalQator} />,
+    ...RIM_GURUHLAR.map((rim) => (
+      <span key={`sar-${rim}`} className={styles.jadvalBosh}>
+        {rim}
+      </span>
+    )),
+  ]
+  for (let r = 1; r <= 9; r += 1) {
+    kataklar.push(
+      <span key={`q-${r}`} className={styles.jadvalQator}>
+        {r}
+      </span>,
+    )
+    for (let g = 1; g <= 8; g += 1) {
+      const mavjud = QISQA_KATAK_BOR(r, g)
+      const faol = Boolean(guruh8) && r === qator && g === guruh8
+      const qatorYorug = !guruh8 && r === qator && mavjud
       kataklar.push(
         <span
-          key={`${d}-${g}`}
+          key={`${r}-${g}`}
           className={styles.katak}
           data-bosh={String(!mavjud)}
+          data-qator-faol={String(qatorYorug)}
           data-faol={String(faol)}
-        />,
+        >
+          {faol ? guruhcha : ''}
+        </span>,
       )
     }
   }
-  return <div className={styles.jadvalMini} aria-hidden="true">{kataklar}</div>
+  return <div className={styles.jadvalMini} aria-label="Qisqa davriy jadval">{kataklar}</div>
 }
 
 export default function ElementDuelOyini() {
   const [faza, setFaza] = useState('sozlama')
   const [rejim, setRejim] = useState('yakka')
   const [daraja, setDaraja] = useState('orta')
+  const [mavzu, setMavzu] = useState('barchasi')
   const [vaqtSoniya, setVaqtSoniya] = useState(90)
   const [p1Ism, setP1Ism] = useState('Kimyogar')
   const [p2Ism, setP2Ism] = useState('Raqib')
@@ -117,7 +134,7 @@ export default function ElementDuelOyini() {
     try {
       const javob = await oyinApiPost('/api/oyinlar/element-duel', {
         amal: 'boshlash',
-        sozlama: { rejim, daraja, vaqtSoniya, p1Ism, p2Ism },
+        sozlama: { rejim, daraja, mavzu, vaqtSoniya, p1Ism, p2Ism },
       })
       setOyin(javob)
       setQolganMs(Math.max(0, javob.tugashVaqti - Date.now()))
@@ -128,7 +145,7 @@ export default function ElementDuelOyini() {
     } finally {
       setYuklanmoqda(false)
     }
-  }, [daraja, ovoz, p1Ism, p2Ism, rejim, vaqtSoniya])
+  }, [daraja, mavzu, ovoz, p1Ism, p2Ism, rejim, vaqtSoniya])
 
   const javobBer = useCallback(async (oyinchi, variant, savolId) => {
     if (!oyin?.token || oyin.tugagan || yuklanmoqda) return
@@ -271,7 +288,11 @@ export default function ElementDuelOyini() {
             </div>
             <p className={styles.savolMatn}>{savol.savolMatni}</p>
             <div style={{ fontSize: '.84rem', color: 'var(--v3-xira)' }}>{savol.yordamMatn}</div>
-            <DavriyMini davr={savol.korinish.davr} guruh={savol.korinish.guruh} />
+            <DavriyMini
+              qator={savol.korinish.qator}
+              guruh8={savol.korinish.guruh8}
+              guruhcha={savol.korinish.guruhcha}
+            />
           </div>
         </div>
 
@@ -375,6 +396,23 @@ export default function ElementDuelOyini() {
                     ))}
                   </div>
                   <div className={umumiy.chipQator}>
+                    {[
+                      ['barchasi', 'Barcha elementlar'],
+                      ['metall', 'Metallar'],
+                      ['metallmas', 'Metallmas va gazlar'],
+                    ].map(([id, nom]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        className={umumiy.chip}
+                        data-faol={String(mavzu === id)}
+                        onClick={() => setMavzu(id)}
+                      >
+                        {nom}
+                      </button>
+                    ))}
+                  </div>
+                  <div className={umumiy.chipQator}>
                     {[60, 90, 120].map((v) => (
                       <button
                         key={v}
@@ -460,20 +498,24 @@ export default function ElementDuelOyini() {
                 {panelChiz('p1', oyin.p1Savol, oyin.p1, ['1', '2', '3', '4'])}
               </div>
             ) : (
-              <div className={umumiy.duelPanellar}>
-                {panelChiz(
+              <DuelMaydon
+                p1Ism={oyin.p1.ism}
+                p2Ism={oyin.p2.ism}
+                p1Ball={oyin.p1.ball}
+                p2Ball={oyin.p2.ball}
+                p1Qism={panelChiz(
                   'p1',
                   oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p1Savol,
                   oyin.p1,
                   ['Q', 'W', 'E', 'R'],
                 )}
-                {panelChiz(
+                p2Qism={panelChiz(
                   'p2',
                   oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p2Savol,
                   oyin.p2,
                   ['U', 'I', 'O', 'P'],
                 )}
-              </div>
+              />
             )}
           </div>
         ) : null}

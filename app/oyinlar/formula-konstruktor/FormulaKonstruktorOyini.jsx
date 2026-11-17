@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Ikon from '@/components/Ikon'
 import { sfxChal } from '@/lib/oyinlar/sfx'
 import {
+  DuelMaydon,
   OyinSarlavha,
   UstunlikBar,
   YakunPanel,
@@ -338,8 +339,13 @@ export default function FormulaKonstruktorOyini() {
         </div>
 
         <div className={umumiy.amallar}>
-          <button type="button" className={umumiy.asosiy} onClick={() => tekshir(kalit, savol)}>
-            <Ikon nom="tasdiq" olcham={17} /> Formulani tekshirish
+          <button
+            type="button"
+            className={`${umumiy.asosiy} ${styles.tayyorTekshir}`}
+            data-tayyor={String(Boolean(kObj && aObj && zaryad === 0))}
+            onClick={() => tekshir(kalit, savol)}
+          >
+            <Ikon nom="tasdiq" olcham={17} /> {kObj && aObj && zaryad === 0 ? 'Zaryad 0 — Tekshirish!' : 'Formulani tekshirish'}
           </button>
           <button
             type="button"
@@ -516,10 +522,14 @@ export default function FormulaKonstruktorOyini() {
                 {workbenchChiz('p1', oyin.p1Savol, oyin.p1)}
               </div>
             ) : (
-              <div className={umumiy.duelPanellar}>
-                {workbenchChiz('p1', oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p1Savol, oyin.p1)}
-                {workbenchChiz('p2', oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p2Savol, oyin.p2)}
-              </div>
+              <DuelMaydon
+                p1Ism={oyin.p1.ism}
+                p2Ism={oyin.p2.ism}
+                p1Ball={oyin.p1.ball}
+                p2Ball={oyin.p2.ball}
+                p1Qism={workbenchChiz('p1', oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p1Savol, oyin.p1)}
+                p2Qism={workbenchChiz('p2', oyin.rejim === 'duel-savol' ? oyin.umumiySavol : oyin.p2Savol, oyin.p2)}
+              />
             )}
           </div>
         ) : null}

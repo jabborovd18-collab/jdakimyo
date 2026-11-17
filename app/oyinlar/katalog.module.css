@@ -117,9 +117,33 @@
 }
 
 @media (width <= 640px) {
-  .muqova { display: block; }
-  .rasm { position: relative; height: clamp(158px, 55vw, 260px); }
-  .muqovaRasmi { object-position: right center; }
-  .rasm::after { background: linear-gradient(0deg, var(--v3-fon-2), transparent 45%); }
-  .muqovaMatni { padding-top: 4px; }
+  .muqova {
+    display: block;
+    min-height: 0;
+    border-radius: 20px;
+  }
+  .rasm {
+    position: relative;
+    height: clamp(148px, 44vw, 210px);
+  }
+  .muqovaRasmi {
+    object-position: right center;
+  }
+  .rasm::after {
+    background: linear-gradient(
+      0deg,
+      var(--v3-fon-2) 6%,
+      color-mix(in srgb, var(--v3-fon-2) 65%, transparent) 40%,
+      transparent 78%
+    );
+  }
+  .muqovaMatni {
+    gap: 10px;
+    max-width: none;
+    padding: 8px 18px 20px;
+  }
+  .asosiyTugma {
+    width: 100%;
+    justify-content: center;
+  }
 }
