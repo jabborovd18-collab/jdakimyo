@@ -9,7 +9,7 @@
 //
 // Ranglar app/globals.css dagi "SHAXSIY CHAT" bo'limida `--v3-*`
 // o'zgaruvchilari orqali beriladi (yakka V4 Safir foni).
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -22,9 +22,11 @@ import { xavfsizTashqiHavola } from '@/lib/profil-tahrir'
 import {
   chatKirishHavolasi,
   chatQatorFiltr,
+  chatRoyxatOzgardimi,
   dostVaQidiruvBirlashtir,
   ichkiXabarQidir,
   suhbatBolimi,
+  suhbatOzgardimi,
   suhbatQadalganmi,
   suhbatTartibla,
   xabarQisqaMatn,
@@ -51,7 +53,7 @@ const SHIKOYAT_ANDAZALAR = [
 const IJTIMOIY_HAVOLALAR = [
   { kalit: 'telegram', nom: 'Telegram', ikon: 'telegram' },
   { kalit: 'instagram', nom: 'Instagram', ikon: 'kanal' },
-  { kalit: 'twitter', nom: 'X', ikon: 'chat' },
+  { kalit: 'twitter', nom: 'X', ikon: 'xabar' },
   { kalit: 'github', nom: 'GitHub', ikon: 'kitob' },
   { kalit: 'linkedin', nom: 'LinkedIn', ikon: 'odam' },
   { kalit: 'googleScholar', nom: 'Scholar', ikon: 'kitob' },
@@ -78,14 +80,19 @@ function Yuklanish() {
   )
 }
 
-function Avatar({ odam, olcham = 42 }) {
+const Avatar = memo(function Avatar({ odam, olcham = 42 }) {
   const harf = (odam?.fullName || odam?.username || 'U')[0].toUpperCase()
   return (
     <span className="chat-avatar" style={{ width: olcham, height: olcham, fontSize: olcham * 0.4 }}>
-      {odam?.avatar ? <img src={odam.avatar} alt="" /> : harf}
+      {odam?.avatar ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={odam.avatar} alt="" decoding="async" loading="lazy" />
+      ) : (
+        harf
+      )}
     </span>
   )
-}
+})
 
 function BelgilanganMatn({ matn, sorov }) {
   const q = typeof sorov === 'string' ? sorov.trim() : ''
@@ -166,6 +173,600 @@ function royxatVaqti(qiymat) {
   return kunKaliti(qiymat) === kunKaliti(new Date()) ? soatDaqiqa(qiymat) : sanaQisqa(qiymat)
 }
 
+/** Chap suhbatlar ustuni — matn terish va scroll paytida qayta render bo'lmasligi uchun izolyatsiyalangan */
+const ChatChapYon = memo(function ChatChapYon({
+  dostPanel,
+  onDostPanelYop,
+  dostQidiruv,
+  onDostQidiruvOzgarish,
+  nomzodRoyxati,
+  qidirilmoqda,
+  ochilayotganUserId,
+  onDostBilanYoz,
+  onDostPanelniOch,
+  qidiruv,
+  onQidiruvOzgarish,
+  faqatOqilmagan,
+  onToggleOqilmagan,
+  onOqilmaganYop,
+  bolimlar,
+  bolim,
+  onBolimTanla,
+  royxat,
+  joriyRoyxat,
+  tanlangan,
+  onSuhbatniTanla,
+}) {
+  return (
+    <aside className="chat-yon">
+      {dostPanel ? (
+        <>
+          <div className="chat-yon-bosh">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onDostPanelYop}
+                className="v3-ikon-tugma"
+                aria-label="Orqaga"
+              >
+                <Ikon nom="chap" olcham={16} />
+              </button>
+              <span style={{ fontWeight: 600, fontSize: 13.5 }}>Yangi suhbat boshlash</span>
+            </div>
+            <input
+              className="chat-kirit"
+              value={dostQidiruv}
+              onChange={(e) => onDostQidiruvOzgarish(e.target.value)}
+              placeholder="Ism, @username yoki ID bo'yicha qidiring"
+              autoFocus
+            />
+          </div>
+
+          <div className="chat-royxat">
+            {nomzodRoyxati === null ? (
+              <div className="chat-bosh-holat">Yuklanmoqda...</div>
+            ) : nomzodRoyxati.length === 0 ? (
+              <div className="chat-bosh-holat">
+                <span className="chat-bosh-ikon"><Ikon nom="odamlar" olcham={24} /></span>
+                <span>
+                  {qidirilmoqda
+                    ? 'Qidirilmoqda...'
+                    : dostQidiruv.trim().length === 1
+                      ? 'Kamida 2 ta belgi yozing'
+                      : dostQidiruv
+                        ? 'Foydalanuvchi topilmadi'
+                        : "Hali do'stingiz yo'q — yuqorida ism yoki @username yozib qidiring"}
+                </span>
+                <Link href="/profil/dostlar" className="v3-tugma">Do{"'"}st qidirish</Link>
+              </div>
+            ) : (
+              <>
+                {nomzodRoyxati.map((d) => {
+                  const yuk = ochilayotganUserId === d.userId
+                  return (
+                    <button
+                      key={d.userId}
+                      type="button"
+                      disabled={Boolean(ochilayotganUserId)}
+                      onClick={() => onDostBilanYoz(d)}
+                      className="chat-qator"
+                    >
+                      <Avatar odam={d} olcham={38} />
+                      <span style={{ minWidth: 0, flex: 1 }}>
+                        <span className="chat-qator-nom">
+                          <span className="truncate">{d.fullName || d.username}</span>
+                          <TasdiqBelgisi tasdiqlangan={d.isVerified} olcham="kichik" />
+                        </span>
+                        <span className="chat-qator-matn" style={{ display: 'block' }}>
+                          @{d.username} · {d.dostmi ? "Do'stingiz" : "So'rov orqali"}
+                        </span>
+                      </span>
+                      <span style={{ fontSize: 12, color: 'var(--v3-xira)', flexShrink: 0 }}>
+                        {yuk ? '...' : <Ikon nom="jonat" olcham={15} />}
+                      </span>
+                    </button>
+                  )
+                })}
+                {qidirilmoqda && (
+                  <div style={{ textAlign: 'center', padding: '10px', fontSize: 12, color: 'var(--v3-xira)' }}>
+                    Boshqa foydalanuvchilar qidirilmoqda...
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="chat-yon-bosh">
+            <button
+              type="button"
+              onClick={onDostPanelniOch}
+              className="v3-tugma-asosiy"
+              style={{ justifyContent: 'center' }}
+            >
+              <Ikon nom="xabar" olcham={16} />
+              Yangi suhbat
+            </button>
+
+            <div className="flex items-center gap-1.5">
+              <input
+                className="chat-kirit"
+                value={qidiruv}
+                onChange={(e) => onQidiruvOzgarish(e.target.value)}
+                placeholder="Suhbat yoki xabarlardan qidirish"
+              />
+              <button
+                type="button"
+                onClick={onToggleOqilmagan}
+                className={`chat-filtr-chip ${faqatOqilmagan ? 'is-faol' : ''}`}
+                title="Faqat o'qilmagan suhbatlarni ko'rsatish"
+                aria-pressed={faqatOqilmagan}
+              >
+                <span>O{"'"}qilmagan</span>
+              </button>
+            </div>
+
+            <div className="chat-tablar">
+              {bolimlar.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => onBolimTanla(b.id)}
+                  className={`chat-tab ${bolim === b.id ? 'is-faol' : ''}`}
+                >
+                  <span>{b.nom}</span>
+                  {b.ogoh > 0 ? (
+                    <span className="chat-tab-son is-ogoh">{b.ogoh > 99 ? '99+' : b.ogoh}</span>
+                  ) : b.royxat.length > 0 ? (
+                    <span className="chat-tab-son">{b.royxat.length}</span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="chat-royxat">
+            {!royxat ? (
+              <div className="chat-bosh-holat">Yuklanmoqda...</div>
+            ) : joriyRoyxat.length === 0 ? (
+              <div className="chat-bosh-holat">
+                <span className="chat-bosh-ikon"><Ikon nom="xabar" olcham={24} /></span>
+                <span>
+                  {faqatOqilmagan
+                    ? "O'qilmagan suhbatlar yo'q"
+                    : qidiruv
+                      ? 'Hech narsa topilmadi'
+                      : bolim === 'faol'
+                        ? "Hali suhbat yo'q — yangi suhbat boshlang"
+                        : bolim === 'sorov'
+                          ? "Kiruvchi so'rovlar yo'q"
+                          : "Yuborilgan so'rovlar yo'q"}
+                </span>
+                {faqatOqilmagan ? (
+                  <button type="button" onClick={onOqilmaganYop} className="v3-tugma">
+                    Barchasini ko{"'"}rish
+                  </button>
+                ) : !qidiruv && bolim === 'faol' ? (
+                  <button type="button" onClick={onDostPanelniOch} className="v3-tugma">
+                    <Ikon nom="qidiruv" olcham={14} />
+                    Kimnidir topish
+                  </button>
+                ) : null}
+              </div>
+            ) : (
+              joriyRoyxat.map((s) => {
+                const pinmi = suhbatQadalganmi(s)
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => onSuhbatniTanla(s.id)}
+                    className={`chat-qator ${tanlangan === s.id ? 'is-tanlangan' : ''} ${
+                      s.oqilmagan > 0 ? 'is-oqilmagan' : ''
+                    } ${pinmi ? 'is-qadalgan' : ''}`}
+                  >
+                    <Avatar odam={s.odam} olcham={42} />
+                    <span style={{ minWidth: 0, flex: 1 }}>
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="chat-qator-nom">
+                          <span className="truncate">{s.odam.fullName || s.odam.username}</span>
+                          <TasdiqBelgisi tasdiqlangan={s.odam.isVerified} olcham="kichik" />
+                        </span>
+                        <span className="flex items-center gap-1.5 shrink-0">
+                          {pinmi && (
+                            <span className="chat-qadash-belgi" title="Qadalgan suhbat">
+                              <Ikon nom="qadash" olcham={12} />
+                            </span>
+                          )}
+                          <span className="chat-qator-vaqt">{royxatVaqti(s.updatedAt)}</span>
+                        </span>
+                      </span>
+                      <span className="flex items-center justify-between gap-2" style={{ marginTop: 2 }}>
+                        <span className="chat-qator-matn">
+                          {s.oxirgiXabar
+                            ? (s.oxirgiXabar.meniki ? 'Siz: ' : '') +
+                              (s.oxirgiXabar.ochirilgan ? "xabar o'chirildi" : s.oxirgiXabar.matn)
+                            : "Hali xabar yo'q"}
+                        </span>
+                        {s.oqilmagan > 0 && <span className="chat-nishon">{s.oqilmagan}</span>}
+                      </span>
+                    </span>
+                  </button>
+                )
+              })
+            )}
+          </div>
+        </>
+      )}
+    </aside>
+  )
+})
+
+const ChatXabarBand = memo(function ChatXabarBand({
+  x,
+  yangiKun,
+  yangiChegara,
+  guruhOxiri,
+  iqtibosMuallif,
+  qidiruvSorovi,
+  ajratilganmi,
+  onXabargaOt,
+  onJavobBer,
+  onNusxaOl,
+  onXabarOchir,
+}) {
+  return (
+    <div data-xabar-id={x.id}>
+      {yangiKun && (
+        <div className="chat-kun"><span>{kunSarlavhasi(x.createdAt)}</span></div>
+      )}
+
+      {yangiChegara && (
+        <div className="chat-yangi-ajratgich">
+          <span>Yangi xabarlar</span>
+        </div>
+      )}
+
+      <div className={`chat-satr ${x.meniki ? 'is-meniki' : ''} ${guruhOxiri ? 'is-oxirgi' : ''}`}>
+        <div
+          className={`chat-pufak ${x.meniki ? 'is-meniki' : 'is-uniki'} ${
+            x.ochirilgan ? 'is-ochirilgan' : ''
+          } ${ajratilganmi ? 'is-ajratilgan' : ''}`}
+        >
+          {!x.ochirilgan && x.replyTo && (
+            <button
+              type="button"
+              onClick={() => onXabargaOt(x.replyTo.id)}
+              className="chat-iqtibos"
+              title="Asl xabarga o'tish"
+            >
+              <div className="chat-iqtibos-muallif">{iqtibosMuallif}</div>
+              <div className="chat-iqtibos-matn">{xabarQisqaMatn(x.replyTo)}</div>
+            </button>
+          )}
+
+          {x.ochirilgan ? (
+            <span>Xabar o{"'"}chirildi</span>
+          ) : (
+            <XabarMazmuni matn={x.matn} qidiruvSorovi={qidiruvSorovi} />
+          )}
+
+          <span className="chat-pufak-oyoq">
+            {!x.ochirilgan && (
+              <span className="chat-pufak-amallar">
+                <button
+                  type="button"
+                  onClick={() => onJavobBer(x)}
+                  className="chat-amal-tugma"
+                  title="Javob berish"
+                  aria-label="Javob berish"
+                >
+                  <Ikon nom="javob" olcham={12} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNusxaOl(x.matn)}
+                  className="chat-amal-tugma"
+                  title="Matnni nusxalash"
+                  aria-label="Matnni nusxalash"
+                >
+                  <Ikon nom="nusxa" olcham={12} />
+                </button>
+                {x.meniki && (
+                  <button
+                    type="button"
+                    onClick={() => onXabarOchir(x.id)}
+                    className="chat-ochir"
+                    title="Xabarni o'chirish"
+                    aria-label="Xabarni o'chirish"
+                  >
+                    <Ikon nom="ochir" olcham={12} />
+                  </button>
+                )}
+              </span>
+            )}
+            <span>{soatDaqiqa(x.createdAt)}</span>
+            {x.meniki && !x.ochirilgan && (
+              <span title={x.oqilgan ? "O'qildi" : 'Yuborildi'}>
+                {x.oqilgan ? '✓✓' : '✓'}
+              </span>
+            )}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+})
+
+const ChatXabarLenta = memo(function ChatXabarLenta({
+  xabarlar,
+  odam,
+  birinchiOqilmaganId,
+  qidiruvSorovi,
+  ajratilganXabarId,
+  oynaRef,
+  oxirgiRef,
+  onSiljish,
+  onXabargaOt,
+  onJavobBer,
+  onNusxaOl,
+  onXabarOchir,
+}) {
+  const sherikIsm = odam?.fullName || odam?.username || ''
+  return (
+    <div ref={oynaRef} onScroll={onSiljish} className="chat-lenta">
+      {xabarlar.length === 0 && (
+        <div className="chat-bosh-holat">
+          <span className="chat-bosh-ikon"><Ikon nom="jonat" olcham={24} /></span>
+          <span>Birinchi xabarni yozing</span>
+        </div>
+      )}
+
+      {xabarlar.map((x, i) => {
+        const oldingi = xabarlar[i - 1]
+        const keyingi = xabarlar[i + 1]
+        const yangiKun = !oldingi || kunKaliti(oldingi.createdAt) !== kunKaliti(x.createdAt)
+        const yangiChegara = Boolean(birinchiOqilmaganId && x.id === birinchiOqilmaganId)
+        const guruhOxiri =
+          !keyingi ||
+          keyingi.meniki !== x.meniki ||
+          kunKaliti(keyingi.createdAt) !== kunKaliti(x.createdAt) ||
+          new Date(keyingi.createdAt) - new Date(x.createdAt) > GURUH_ORALIGI
+
+        const iqtibosMuallif = x.replyTo
+          ? x.replyTo.meniki
+            ? 'Siz'
+            : sherikIsm
+          : ''
+
+        return (
+          <ChatXabarBand
+            key={x.id}
+            x={x}
+            yangiKun={yangiKun}
+            yangiChegara={yangiChegara}
+            guruhOxiri={guruhOxiri}
+            iqtibosMuallif={iqtibosMuallif}
+            qidiruvSorovi={qidiruvSorovi}
+            ajratilganmi={ajratilganXabarId === x.id}
+            onXabargaOt={onXabargaOt}
+            onJavobBer={onJavobBer}
+            onNusxaOl={onNusxaOl}
+            onXabarOchir={onXabarOchir}
+          />
+        )
+      })}
+      <div ref={oxirgiRef} />
+    </div>
+  )
+})
+
+/** Yozish maydoni: `matn` state'ini lokal ushlab turadi va textarea balandligini rAF orqali moslaydi */
+const ChatYozishQatori = memo(function ChatYozishQatori({
+  tanlangan,
+  draftMatn,
+  blokMeniBlokladi,
+  blokMenBlokladim,
+  suhbatHolat,
+  menBoshladim,
+  odamIsm,
+  javobXabar,
+  yuborilmoqda,
+  maydonRef,
+  matnRef,
+  onYubor,
+  onBlokniOch,
+  onSorovga,
+  onJavobBekor,
+}) {
+  const [matn, setMatn] = useState(draftMatn || '')
+  const balandlikRafRef = useRef(0)
+  const oxirgiBalandlikRef = useRef(0)
+
+  const balandlikniMosla = useCallback(
+    (boshmi) => {
+      if (balandlikRafRef.current) {
+        cancelAnimationFrame(balandlikRafRef.current)
+        balandlikRafRef.current = 0
+      }
+      if (boshmi) {
+        const el = maydonRef.current
+        if (el && oxirgiBalandlikRef.current !== 0) {
+          el.style.height = 'auto'
+          oxirgiBalandlikRef.current = 0
+        }
+        return
+      }
+      balandlikRafRef.current = requestAnimationFrame(() => {
+        balandlikRafRef.current = 0
+        const el = maydonRef.current
+        if (!el) return
+        el.style.height = 'auto'
+        const yangi = Math.min(el.scrollHeight, 148)
+        oxirgiBalandlikRef.current = yangi
+        el.style.height = `${yangi}px`
+      })
+    },
+    [maydonRef],
+  )
+
+  useEffect(() => {
+    const bosh = draftMatn || ''
+    matnRef.current = bosh
+    setMatn(bosh)
+    oxirgiBalandlikRef.current = 0
+    if (maydonRef.current) maydonRef.current.style.height = 'auto'
+    if (bosh) balandlikniMosla(false)
+  }, [tanlangan, draftMatn, matnRef, maydonRef, balandlikniMosla])
+
+  useEffect(() => {
+    return () => {
+      if (balandlikRafRef.current) cancelAnimationFrame(balandlikRafRef.current)
+    }
+  }, [])
+
+  const yuborishniBajar = async () => {
+    const toza = matn.trim()
+    if (!toza || yuborilmoqda) return
+    const muvaffaqiyat = await onYubor(toza)
+    if (muvaffaqiyat) {
+      matnRef.current = ''
+      setMatn('')
+      balandlikniMosla(true)
+    }
+  }
+
+  const qolgan = MAX_UZUNLIK - matn.length
+
+  return (
+    <div className="chat-yozish">
+      {blokMeniBlokladi ? (
+        <p style={{ textAlign: 'center', color: 'var(--v3-xira)', fontSize: 13 }}>
+          Bu suhbatda xabar yuborib bo{"'"}lmaydi
+        </p>
+      ) : blokMenBlokladim ? (
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <span style={{ color: 'var(--v3-xira)', fontSize: 13 }}>
+            Siz bu foydalanuvchini bloklagansiz
+          </span>
+          <button type="button" onClick={onBlokniOch} className="v3-tugma text-xs py-1.5 px-3">
+            <Ikon nom="ochiq" olcham={14} />
+            Blokni ochish
+          </button>
+        </div>
+      ) : suhbatHolat === 'sorov' && !menBoshladim ? (
+        <div style={{ display: 'grid', gap: 8 }}>
+          <p style={{ textAlign: 'center', color: 'var(--v3-xira)', fontSize: 12.5 }}>
+            Bu do{"'"}st bo{"'"}lmagan foydalanuvchining so{"'"}rovi. Javob bersangiz
+            suhbat ochiladi.
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => onSorovga('qabul')}
+              className="v3-tugma-asosiy"
+              style={{ flex: 1, justifyContent: 'center' }}
+            >
+              Qabul qilish
+            </button>
+            <button
+              type="button"
+              onClick={() => onSorovga('rad')}
+              className="v3-tugma"
+              style={{ flex: 1, justifyContent: 'center' }}
+            >
+              Rad etish
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {javobXabar && (
+            <div className="chat-javob-paneli">
+              <div className="min-w-0 flex-1">
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--v3-urgu)' }}>
+                  {javobXabar.meniki
+                    ? 'O‘z xabaringizga javob'
+                    : `${odamIsm} xabariga javob`}
+                </div>
+                <div
+                  style={{
+                    fontSize: 12.5,
+                    color: 'var(--v3-xira)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {xabarQisqaMatn(javobXabar, 96)}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={onJavobBekor}
+                className="v3-ikon-tugma"
+                aria-label="Javobni bekor qilish"
+              >
+                <Ikon nom="yopish" olcham={14} />
+              </button>
+            </div>
+          )}
+
+          <div className="chat-quti">
+            <textarea
+              ref={maydonRef}
+              rows={1}
+              className="chat-matn"
+              value={matn}
+              maxLength={MAX_UZUNLIK}
+              onChange={(e) => {
+                const qiymat = e.target.value
+                matnRef.current = qiymat
+                setMatn(qiymat)
+                balandlikniMosla(qiymat.length === 0)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  yuborishniBajar()
+                }
+              }}
+              placeholder={
+                suhbatHolat === 'sorov'
+                  ? "So'rov yuborilgan — javobni kuting"
+                  : 'Xabar yozing...'
+              }
+            />
+            <button
+              type="button"
+              onClick={yuborishniBajar}
+              disabled={yuborilmoqda || !matn.trim()}
+              className="chat-jonat"
+              aria-label="Yuborish"
+              title="Yuborish (Enter)"
+            >
+              <Ikon nom="jonat" olcham={17} />
+            </button>
+          </div>
+          {qolgan <= SANAGICH_QOLGAN && (
+            <div
+              style={{
+                textAlign: 'right',
+                fontSize: 11,
+                marginTop: 4,
+                color: qolgan <= 0 ? '#f87171' : 'var(--v3-xira)',
+              }}
+            >
+              {qolgan} belgi qoldi
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+})
+
 function Chat() {
   const { data: session, status } = useSession()
   const [fon] = useFon()
@@ -190,7 +791,7 @@ function Chat() {
   const [tanlangan, setTanlangan] = useState(suhbatParam || null)
   const [suhbat, setSuhbat] = useState(null)
   const [suhbatYuklanmoqda, setSuhbatYuklanmoqda] = useState(false)
-  const [matn, setMatn] = useState('')
+  const [draftMatn, setDraftMatn] = useState('')
   const [javobXabar, setJavobXabar] = useState(null)
   const [yuborilmoqda, setYuborilmoqda] = useState(false)
   const [bolim, setBolim] = useState('faol')
@@ -231,8 +832,16 @@ function Chat() {
   const oynaRef = useRef(null)
   const maydonRef = useRef(null)
   const ichkiQidiruvRef = useRef(null)
-  const xabarReflar = useRef({})
+  const matnRef = useRef('')
+  const tanlanganRef = useRef(suhbatParam || null)
+  const suhbatRef = useRef(null)
+  const javobXabarRef = useRef(null)
   const pastdaRef = useRef(true)
+  const yangiKeldiRef = useRef(0)
+  const yuborilmoqdaRef = useRef(false)
+  const scrollRafRef = useRef(0)
+  const dostlarRef = useRef(null)
+  const ochilayotganUserIdRef = useRef(null)
   const suhbatSorovRef = useRef(0)
   const avvalgiTanlanganRef = useRef(null)
   const avvalgiOxirgiIdRef = useRef(null)
@@ -243,6 +852,21 @@ function Chat() {
   const qoralamalarRef = useRef({})
   const oqilmaganTekshirildiRef = useRef(null)
   const profilKeshRef = useRef({})
+
+  useEffect(() => {
+    tanlanganRef.current = tanlangan
+    suhbatRef.current = suhbat
+    javobXabarRef.current = javobXabar
+    yangiKeldiRef.current = yangiKeldi
+    dostlarRef.current = dostlar
+    ochilayotganUserIdRef.current = ochilayotganUserId
+  }, [tanlangan, suhbat, javobXabar, yangiKeldi, dostlar, ochilayotganUserId])
+
+  useEffect(() => {
+    return () => {
+      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current)
+    }
+  }, [])
 
   const kirgan = status === 'authenticated'
 
@@ -261,20 +885,24 @@ function Chat() {
 
   const suhbatniTanla = useCallback(
     (id, yangiBolim) => {
-      // Hozirgi suhbat qoralamasini vaqtincha saqlab qo'yamiz
-      if (tanlangan) {
-        if (matn || javobXabar) {
-          qoralamalarRef.current[tanlangan] = { matn, javobXabar }
+      // Hozirgi suhbat qoralamasini vaqtincha saqlab qo'yamiz (state bog'liqligisiz ref orqali)
+      const joriyId = tanlanganRef.current
+      const joriyMatn = matnRef.current
+      const joriyJavob = javobXabarRef.current
+      if (joriyId) {
+        if (joriyMatn || joriyJavob) {
+          qoralamalarRef.current[joriyId] = { matn: joriyMatn, javobXabar: joriyJavob }
         } else {
-          delete qoralamalarRef.current[tanlangan]
+          delete qoralamalarRef.current[joriyId]
         }
       }
+      tanlanganRef.current = id || null
       setTanlangan(id || null)
       if (!id) setSuhbat(null)
       if (yangiBolim) setBolim(yangiBolim)
       urlYangila(id || null)
     },
-    [tanlangan, matn, javobXabar, urlYangila],
+    [urlYangila],
   )
 
   // Tashqi query o'zgarganda (`?suhbat=`) sinxronlash (mahalliy replaceState aks sadosisiz)
@@ -285,6 +913,7 @@ function Chat() {
       suhbatParam !== oxirgiUrlSuhbatRef.current
     ) {
       oxirgiUrlSuhbatRef.current = suhbatParam
+      tanlanganRef.current = suhbatParam
       setTanlangan(suhbatParam)
     }
     oxirgiSuhbatParamRef.current = suhbatParam
@@ -295,7 +924,9 @@ function Chat() {
     try {
       const res = await fetch('/api/chat')
       const data = await res.json()
-      if (res.ok) setRoyxat(data)
+      if (res.ok) {
+        setRoyxat((prev) => (chatRoyxatOzgardimi(prev, data) ? data : prev))
+      }
     } catch {
       // jim — keyingi so'rovda qayta urinadi
     }
@@ -305,7 +936,8 @@ function Chat() {
     async (id, { jim = false } = {}) => {
       if (!id) return
       const sorovId = ++suhbatSorovRef.current
-      if (!jim) setSuhbatYuklanmoqda(true)
+      const allaqachonYuklangan = suhbatRef.current?.suhbat?.id === id
+      if (!jim && !allaqachonYuklangan) setSuhbatYuklanmoqda(true)
       try {
         const res = await fetch(`/api/chat/${id}`)
         const data = await res.json().catch(() => ({}))
@@ -327,14 +959,14 @@ function Chat() {
           setBirinchiOqilmaganId(birinchi ? birinchi.id : null)
         }
 
-        setSuhbat(data)
+        setSuhbat((prev) => (suhbatOzgardimi(prev, data) ? data : prev))
       } catch (e) {
         if (sorovId !== suhbatSorovRef.current) return
         if (!jim) {
           toast.error(e.message || 'Suhbat yuklanmadi')
         }
       } finally {
-        if (!jim && sorovId === suhbatSorovRef.current) {
+        if (sorovId === suhbatSorovRef.current) {
           setSuhbatYuklanmoqda(false)
         }
       }
@@ -446,8 +1078,12 @@ function Chat() {
     setPastdaTuribdi(true)
     setYangiKeldi(0)
     const saqlangan = tanlangan ? qoralamalarRef.current[tanlangan] : null
-    setMatn(saqlangan?.matn || '')
-    setJavobXabar(saqlangan?.javobXabar || null)
+    const saqlanganMatn = saqlangan?.matn || ''
+    const saqlanganJavob = saqlangan?.javobXabar || null
+    matnRef.current = saqlanganMatn
+    javobXabarRef.current = saqlanganJavob
+    setDraftMatn(saqlanganMatn)
+    setJavobXabar(saqlanganJavob)
     setAmalMenyu(false)
     setModalHolat(null)
     setProfilOchiq(false)
@@ -456,7 +1092,6 @@ function Chat() {
     setIchkiQidiruvMatn('')
     setFaolTopilmaIdx(0)
     setAjratilganXabarId(null)
-    if (maydonRef.current) maydonRef.current.style.height = 'auto'
   }, [tanlangan])
 
   // Escape va Ctrl/Cmd+F klaviatura qisqa yo'llari
@@ -548,7 +1183,10 @@ function Chat() {
   )
 
   const xabargaOt = useCallback((xabarId) => {
-    const el = xabarReflar.current[xabarId]
+    if (!xabarId || !oynaRef.current) return
+    const el = Array.from(oynaRef.current.querySelectorAll('[data-xabar-id]')).find(
+      (node) => node.getAttribute('data-xabar-id') === xabarId,
+    )
     if (!el) return
     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     setAjratilganXabarId(xabarId)
@@ -557,13 +1195,20 @@ function Chat() {
     }, 1800)
   }, [])
 
-  useEffect(() => {
-    setFaolTopilmaIdx(0)
-    if (ichkiTopilmalar.length > 0) {
-      xabargaOt(ichkiTopilmalar[ichkiTopilmalar.length - 1].id)
-      setFaolTopilmaIdx(ichkiTopilmalar.length - 1)
-    }
-  }, [ichkiQidiruvMatn]) // faqat matn o'zgarganda oxirgi mos xabarga o'tamiz
+  const ichkiQidiruvniYangila = useCallback(
+    (yangiMatn) => {
+      setIchkiQidiruvMatn(yangiMatn)
+      const topilmalar = ichkiXabarQidir(suhbatRef.current?.xabarlar, yangiMatn)
+      if (topilmalar.length > 0) {
+        const oxirgiIdx = topilmalar.length - 1
+        setFaolTopilmaIdx(oxirgiIdx)
+        xabargaOt(topilmalar[oxirgiIdx].id)
+      } else {
+        setFaolTopilmaIdx(0)
+      }
+    },
+    [xabargaOt],
+  )
 
   const qidiruvSiljit = (yonalish) => {
     if (ichkiTopilmalar.length === 0) return
@@ -573,14 +1218,22 @@ function Chat() {
     xabargaOt(ichkiTopilmalar[yangi].id)
   }
 
-  const siljish = () => {
-    const el = oynaRef.current
-    if (!el) return
-    const pastda = el.scrollHeight - el.scrollTop - el.clientHeight < 80
-    pastdaRef.current = pastda
-    setPastdaTuribdi(pastda)
-    if (pastda) setYangiKeldi(0)
-  }
+  const siljish = useCallback(() => {
+    if (scrollRafRef.current) return
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = 0
+      const el = oynaRef.current
+      if (!el) return
+      const pastda = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+      if (pastda !== pastdaRef.current) {
+        pastdaRef.current = pastda
+        setPastdaTuribdi(pastda)
+      }
+      if (pastda && yangiKeldiRef.current !== 0) {
+        setYangiKeldi(0)
+      }
+    })
+  }, [])
 
   const pastgaTushir = () => {
     pastdaRef.current = true
@@ -589,37 +1242,44 @@ function Chat() {
     oxirgiRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }
 
-  const yubor = async () => {
-    const toza = matn.trim()
-    if (!toza || !tanlangan || yuborilmoqda) return
-    setYuborilmoqda(true)
-    const yuborilayotganJavobId = javobXabar?.id || null
-    try {
-      const res = await fetch(`/api/chat/${tanlangan}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          matn: toza,
-          ...(yuborilayotganJavobId ? { replyToId: yuborilayotganJavobId } : {}),
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setMatn('')
-      setJavobXabar(null)
-      delete qoralamalarRef.current[tanlangan]
-      if (maydonRef.current) maydonRef.current.style.height = 'auto'
-      pastdaRef.current = true
-      setPastdaTuribdi(true)
-      setYangiKeldi(0)
-      setSuhbat((s) => (s ? { ...s, xabarlar: [...s.xabarlar, data.xabar] } : s))
-      royxatniYukla()
-    } catch (e) {
-      toast.error(e.message)
-    } finally {
-      setYuborilmoqda(false)
-    }
-  }
+  const yubor = useCallback(
+    async (matnQiymat) => {
+      const joriyId = tanlanganRef.current
+      const toza = (typeof matnQiymat === 'string' ? matnQiymat : matnRef.current).trim()
+      if (!toza || !joriyId || yuborilmoqdaRef.current) return false
+      yuborilmoqdaRef.current = true
+      setYuborilmoqda(true)
+      const yuborilayotganJavobId = javobXabarRef.current?.id || null
+      try {
+        const res = await fetch(`/api/chat/${joriyId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            matn: toza,
+            ...(yuborilayotganJavobId ? { replyToId: yuborilayotganJavobId } : {}),
+          }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error)
+        javobXabarRef.current = null
+        setJavobXabar(null)
+        delete qoralamalarRef.current[joriyId]
+        pastdaRef.current = true
+        setPastdaTuribdi(true)
+        setYangiKeldi(0)
+        setSuhbat((s) => (s ? { ...s, xabarlar: [...s.xabarlar, data.xabar] } : s))
+        royxatniYukla()
+        return true
+      } catch (e) {
+        toast.error(e.message)
+        return false
+      } finally {
+        yuborilmoqdaRef.current = false
+        setYuborilmoqda(false)
+      }
+    },
+    [royxatniYukla],
+  )
 
   const qadashniAlmashtir = async () => {
     if (!tanlangan || !suhbat?.suhbat || qadashJarayoni) return
@@ -678,25 +1338,30 @@ function Chat() {
     }
   }
 
-  const sorovga = async (amal) => {
-    try {
-      const res = await fetch(`/api/chat/${tanlangan}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amal }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      toast.success(data.message)
-      if (amal === 'rad') suhbatniTanla(null)
-      else suhbatniYukla(tanlangan)
-      royxatniYukla()
-    } catch (e) {
-      toast.error(e.message)
-    }
-  }
+  const sorovga = useCallback(
+    async (amal) => {
+      const joriyId = tanlanganRef.current
+      if (!joriyId) return
+      try {
+        const res = await fetch(`/api/chat/${joriyId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amal }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error)
+        toast.success(data.message)
+        if (amal === 'rad') suhbatniTanla(null)
+        else suhbatniYukla(joriyId, { jim: true })
+        royxatniYukla()
+      } catch (e) {
+        toast.error(e.message)
+      }
+    },
+    [suhbatniTanla, suhbatniYukla, royxatniYukla],
+  )
 
-  const nusxaOl = async (matnQiymat, xabarNom = 'Xabar nusxalandi') => {
+  const nusxaOl = useCallback(async (matnQiymat, xabarNom = 'Xabar nusxalandi') => {
     if (!matnQiymat) return
     try {
       await navigator.clipboard.writeText(matnQiymat)
@@ -704,7 +1369,7 @@ function Chat() {
     } catch {
       toast.error("Nusxa olib bo'lmadi")
     }
-  }
+  }, [])
 
   const xabarniOchirTasdiq = async (xabarId) => {
     if (!xabarId || modalBajarilmoqda) return
@@ -714,7 +1379,7 @@ function Chat() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setModalHolat(null)
-      suhbatniYukla(tanlangan)
+      suhbatniYukla(tanlangan, { jim: true })
       royxatniYukla()
     } catch (e) {
       toast.error(e.message)
@@ -738,7 +1403,7 @@ function Chat() {
       toast.success(data.message)
       setModalHolat(null)
       setProfilOchiq(false)
-      suhbatniYukla(tanlangan)
+      suhbatniYukla(tanlangan, { jim: true })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -746,18 +1411,21 @@ function Chat() {
     }
   }
 
-  const blokniOch = async () => {
+  const blokniOch = useCallback(async () => {
+    const joriyId = tanlanganRef.current
+    const sherikDbId = suhbatRef.current?.suhbat?.odam?.id
+    if (!joriyId || !sherikDbId) return
     setAmalMenyu(false)
     try {
-      const res = await fetch(`/api/chat/bloklash?userId=${suhbat.suhbat.odam.id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/chat/bloklash?userId=${sherikDbId}`, { method: 'DELETE' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       toast.success(data.message)
-      suhbatniYukla(tanlangan)
+      suhbatniYukla(joriyId, { jim: true })
     } catch (e) {
       toast.error(e.message)
     }
-  }
+  }, [suhbatniYukla])
 
   const shikoyatTasdiq = async (e) => {
     e?.preventDefault()
@@ -863,33 +1531,57 @@ function Chat() {
     }
   }, [])
 
-  const dostPanelniOch = () => {
+  const dostPanelniOch = useCallback(() => {
     setDostPanel(true)
     setDostQidiruv('')
     setQidiruvNatija([])
-    if (dostlar === null) dostlarniYukla()
-  }
+    if (dostlarRef.current === null) dostlarniYukla()
+  }, [dostlarniYukla])
 
-  const dostBilanYoz = async (odam) => {
-    if (!odam?.userId || ochilayotganUserId) return
-    setOchilayotganUserId(odam.userId)
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: odam.userId }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setDostPanel(false)
-      suhbatniTanla(data.suhbatId, data.holat === 'sorov' ? 'yuborilgan' : 'faol')
-      royxatniYukla()
-    } catch (e) {
-      toast.error(e.message)
-    } finally {
-      setOchilayotganUserId(null)
-    }
-  }
+  const dostPanelYop = useCallback(() => setDostPanel(false), [])
+  const oqilmaganToggle = useCallback(() => setFaqatOqilmagan((v) => !v), [])
+  const oqilmaganYop = useCallback(() => setFaqatOqilmagan(false), [])
+
+  const javobBer = useCallback((x) => {
+    javobXabarRef.current = x
+    setJavobXabar(x)
+    maydonRef.current?.focus()
+  }, [])
+
+  const javobBekor = useCallback(() => {
+    javobXabarRef.current = null
+    setJavobXabar(null)
+  }, [])
+
+  const xabarOchirOch = useCallback((xabarId) => {
+    setModalHolat({ tur: 'xabar-ochir', xabarId })
+  }, [])
+
+  const dostBilanYoz = useCallback(
+    async (odam) => {
+      if (!odam?.userId || ochilayotganUserIdRef.current) return
+      ochilayotganUserIdRef.current = odam.userId
+      setOchilayotganUserId(odam.userId)
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: odam.userId }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error)
+        setDostPanel(false)
+        suhbatniTanla(data.suhbatId, data.holat === 'sorov' ? 'yuborilgan' : 'faol')
+        royxatniYukla()
+      } catch (e) {
+        toast.error(e.message)
+      } finally {
+        ochilayotganUserIdRef.current = null
+        setOchilayotganUserId(null)
+      }
+    },
+    [suhbatniTanla, royxatniYukla],
+  )
 
   const nomzodRoyxati = useMemo(() => {
     if (dostlar === null) return null
@@ -975,7 +1667,6 @@ function Chat() {
 
   const odam = suhbat?.suhbat?.odam
   const qadalganmi = suhbatQadalganmi(suhbat?.suhbat)
-  const qolgan = MAX_UZUNLIK - matn.length
   const jamiOqilmagan = royxat?.oqilmagan || 0
 
   return (
@@ -1018,208 +1709,29 @@ function Chat() {
       <div className="chat-tana" data-korinish={tanlangan ? 'suhbat' : 'royxat'}>
 
         {/* ─── Chap ustun ─── */}
-        <aside className="chat-yon">
-          {dostPanel ? (
-            <>
-              <div className="chat-yon-bosh">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setDostPanel(false)}
-                    className="v3-ikon-tugma"
-                    aria-label="Orqaga"
-                  >
-                    <Ikon nom="chap" olcham={16} />
-                  </button>
-                  <span style={{ fontWeight: 600, fontSize: 13.5 }}>Yangi suhbat boshlash</span>
-                </div>
-                <input
-                  className="chat-kirit"
-                  value={dostQidiruv}
-                  onChange={(e) => setDostQidiruv(e.target.value)}
-                  placeholder="Ism, @username yoki ID bo'yicha qidiring"
-                  autoFocus
-                />
-              </div>
-
-              <div className="chat-royxat">
-                {nomzodRoyxati === null ? (
-                  <div className="chat-bosh-holat">Yuklanmoqda...</div>
-                ) : nomzodRoyxati.length === 0 ? (
-                  <div className="chat-bosh-holat">
-                    <span className="chat-bosh-ikon"><Ikon nom="odamlar" olcham={24} /></span>
-                    <span>
-                      {qidirilmoqda
-                        ? 'Qidirilmoqda...'
-                        : dostQidiruv.trim().length === 1
-                          ? 'Kamida 2 ta belgi yozing'
-                          : dostQidiruv
-                            ? 'Foydalanuvchi topilmadi'
-                            : "Hali do'stingiz yo'q — yuqorida ism yoki @username yozib qidiring"}
-                    </span>
-                    <Link href="/profil/dostlar" className="v3-tugma">Do{"'"}st qidirish</Link>
-                  </div>
-                ) : (
-                  <>
-                    {nomzodRoyxati.map((d) => {
-                      const yuk = ochilayotganUserId === d.userId
-                      return (
-                        <button
-                          key={d.userId}
-                          type="button"
-                          disabled={Boolean(ochilayotganUserId)}
-                          onClick={() => dostBilanYoz(d)}
-                          className="chat-qator"
-                        >
-                          <Avatar odam={d} olcham={38} />
-                          <span style={{ minWidth: 0, flex: 1 }}>
-                            <span className="chat-qator-nom">
-                              <span className="truncate">{d.fullName || d.username}</span>
-                              <TasdiqBelgisi tasdiqlangan={d.isVerified} olcham="kichik" />
-                            </span>
-                            <span className="chat-qator-matn" style={{ display: 'block' }}>
-                              @{d.username} · {d.dostmi ? "Do'stingiz" : "So'rov orqali"}
-                            </span>
-                          </span>
-                          <span style={{ fontSize: 12, color: 'var(--v3-xira)', flexShrink: 0 }}>
-                            {yuk ? '...' : <Ikon nom="jonat" olcham={15} />}
-                          </span>
-                        </button>
-                      )
-                    })}
-                    {qidirilmoqda && (
-                      <div style={{ textAlign: 'center', padding: '10px', fontSize: 12, color: 'var(--v3-xira)' }}>
-                        Boshqa foydalanuvchilar qidirilmoqda...
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="chat-yon-bosh">
-                <button
-                  type="button"
-                  onClick={dostPanelniOch}
-                  className="v3-tugma-asosiy"
-                  style={{ justifyContent: 'center' }}
-                >
-                  <Ikon nom="xabar" olcham={16} />
-                  Yangi suhbat
-                </button>
-
-                <div className="flex items-center gap-1.5">
-                  <input
-                    className="chat-kirit"
-                    value={qidiruv}
-                    onChange={(e) => setQidiruv(e.target.value)}
-                    placeholder="Suhbat yoki xabarlardan qidirish"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setFaqatOqilmagan((v) => !v)}
-                    className={`chat-filtr-chip ${faqatOqilmagan ? 'is-faol' : ''}`}
-                    title="Faqat o'qilmagan suhbatlarni ko'rsatish"
-                    aria-pressed={faqatOqilmagan}
-                  >
-                    <span>O{"'"}qilmagan</span>
-                  </button>
-                </div>
-
-                <div className="chat-tablar">
-                  {bolimlar.map((b) => (
-                    <button
-                      key={b.id}
-                      type="button"
-                      onClick={() => setBolim(b.id)}
-                      className={`chat-tab ${bolim === b.id ? 'is-faol' : ''}`}
-                    >
-                      <span>{b.nom}</span>
-                      {b.ogoh > 0 ? (
-                        <span className="chat-tab-son is-ogoh">{b.ogoh > 99 ? '99+' : b.ogoh}</span>
-                      ) : b.royxat.length > 0 ? (
-                        <span className="chat-tab-son">{b.royxat.length}</span>
-                      ) : null}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="chat-royxat">
-                {!royxat ? (
-                  <div className="chat-bosh-holat">Yuklanmoqda...</div>
-                ) : joriyRoyxat.length === 0 ? (
-                  <div className="chat-bosh-holat">
-                    <span className="chat-bosh-ikon"><Ikon nom="xabar" olcham={24} /></span>
-                    <span>
-                      {faqatOqilmagan
-                        ? "O'qilmagan suhbatlar yo'q"
-                        : qidiruv
-                          ? 'Hech narsa topilmadi'
-                          : bolim === 'faol'
-                            ? "Hali suhbat yo'q — yangi suhbat boshlang"
-                            : bolim === 'sorov'
-                              ? "Kiruvchi so'rovlar yo'q"
-                              : "Yuborilgan so'rovlar yo'q"}
-                    </span>
-                    {faqatOqilmagan ? (
-                      <button type="button" onClick={() => setFaqatOqilmagan(false)} className="v3-tugma">
-                        Barchasini ko{"'"}rish
-                      </button>
-                    ) : !qidiruv && bolim === 'faol' ? (
-                      <button type="button" onClick={dostPanelniOch} className="v3-tugma">
-                        <Ikon nom="qidiruv" olcham={14} />
-                        Kimnidir topish
-                      </button>
-                    ) : null}
-                  </div>
-                ) : (
-                  joriyRoyxat.map((s) => {
-                    const pinmi = suhbatQadalganmi(s)
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => suhbatniTanla(s.id)}
-                        className={`chat-qator ${tanlangan === s.id ? 'is-tanlangan' : ''} ${
-                          s.oqilmagan > 0 ? 'is-oqilmagan' : ''
-                        } ${pinmi ? 'is-qadalgan' : ''}`}
-                      >
-                        <Avatar odam={s.odam} olcham={42} />
-                        <span style={{ minWidth: 0, flex: 1 }}>
-                          <span className="flex items-center justify-between gap-2">
-                            <span className="chat-qator-nom">
-                              <span className="truncate">{s.odam.fullName || s.odam.username}</span>
-                              <TasdiqBelgisi tasdiqlangan={s.odam.isVerified} olcham="kichik" />
-                            </span>
-                            <span className="flex items-center gap-1.5 shrink-0">
-                              {pinmi && (
-                                <span className="chat-qadash-belgi" title="Qadalgan suhbat">
-                                  <Ikon nom="qadash" olcham={12} />
-                                </span>
-                              )}
-                              <span className="chat-qator-vaqt">{royxatVaqti(s.updatedAt)}</span>
-                            </span>
-                          </span>
-                          <span className="flex items-center justify-between gap-2" style={{ marginTop: 2 }}>
-                            <span className="chat-qator-matn">
-                              {s.oxirgiXabar
-                                ? (s.oxirgiXabar.meniki ? 'Siz: ' : '') +
-                                  (s.oxirgiXabar.ochirilgan ? "xabar o'chirildi" : s.oxirgiXabar.matn)
-                                : "Hali xabar yo'q"}
-                            </span>
-                            {s.oqilmagan > 0 && <span className="chat-nishon">{s.oqilmagan}</span>}
-                          </span>
-                        </span>
-                      </button>
-                    )
-                  })
-                )}
-              </div>
-            </>
-          )}
-        </aside>
+        <ChatChapYon
+          dostPanel={dostPanel}
+          onDostPanelYop={dostPanelYop}
+          dostQidiruv={dostQidiruv}
+          onDostQidiruvOzgarish={setDostQidiruv}
+          nomzodRoyxati={nomzodRoyxati}
+          qidirilmoqda={qidirilmoqda}
+          ochilayotganUserId={ochilayotganUserId}
+          onDostBilanYoz={dostBilanYoz}
+          onDostPanelniOch={dostPanelniOch}
+          qidiruv={qidiruv}
+          onQidiruvOzgarish={setQidiruv}
+          faqatOqilmagan={faqatOqilmagan}
+          onToggleOqilmagan={oqilmaganToggle}
+          onOqilmaganYop={oqilmaganYop}
+          bolimlar={bolimlar}
+          bolim={bolim}
+          onBolimTanla={setBolim}
+          royxat={royxat}
+          joriyRoyxat={joriyRoyxat}
+          tanlangan={tanlangan}
+          onSuhbatniTanla={suhbatniTanla}
+        />
 
         {/* ─── O'ng ustun ─── */}
         <section className="chat-oyna">
@@ -1245,7 +1757,7 @@ function Chat() {
                 </Link>
               </div>
             </div>
-          ) : !suhbat || suhbatYuklanmoqda ? (
+          ) : !suhbat || suhbat.suhbat?.id !== tanlangan || suhbatYuklanmoqda ? (
             <div className="chat-bosh-holat">
               <span className="chat-bosh-ikon"><Ikon nom="xabar" olcham={26} /></span>
               <span>Suhbat yuklanmoqda...</span>
@@ -1410,7 +1922,7 @@ function Chat() {
                     ref={ichkiQidiruvRef}
                     className="chat-kirit"
                     value={ichkiQidiruvMatn}
-                    onChange={(e) => setIchkiQidiruvMatn(e.target.value)}
+                    onChange={(e) => ichkiQidiruvniYangila(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
@@ -1459,127 +1971,20 @@ function Chat() {
               )}
 
               {/* Xabarlar */}
-              <div ref={oynaRef} onScroll={siljish} className="chat-lenta">
-                {suhbat.xabarlar.length === 0 && (
-                  <div className="chat-bosh-holat">
-                    <span className="chat-bosh-ikon"><Ikon nom="jonat" olcham={24} /></span>
-                    <span>Birinchi xabarni yozing</span>
-                  </div>
-                )}
-
-                {suhbat.xabarlar.map((x, i) => {
-                  const oldingi = suhbat.xabarlar[i - 1]
-                  const keyingi = suhbat.xabarlar[i + 1]
-                  const yangiKun = !oldingi || kunKaliti(oldingi.createdAt) !== kunKaliti(x.createdAt)
-                  const yangiChegara = birinchiOqilmaganId && x.id === birinchiOqilmaganId
-                  const guruhOxiri =
-                    !keyingi ||
-                    keyingi.meniki !== x.meniki ||
-                    kunKaliti(keyingi.createdAt) !== kunKaliti(x.createdAt) ||
-                    new Date(keyingi.createdAt) - new Date(x.createdAt) > GURUH_ORALIGI
-
-                  const iqtibosMuallif = x.replyTo
-                    ? x.replyTo.meniki
-                      ? 'Siz'
-                      : odam.fullName || odam.username
-                    : ''
-
-                  return (
-                    <div
-                      key={x.id}
-                      ref={(el) => {
-                        if (el) xabarReflar.current[x.id] = el
-                        else delete xabarReflar.current[x.id]
-                      }}
-                    >
-                      {yangiKun && (
-                        <div className="chat-kun"><span>{kunSarlavhasi(x.createdAt)}</span></div>
-                      )}
-
-                      {yangiChegara && (
-                        <div className="chat-yangi-ajratgich">
-                          <span>Yangi xabarlar</span>
-                        </div>
-                      )}
-
-                      <div className={`chat-satr ${x.meniki ? 'is-meniki' : ''} ${guruhOxiri ? 'is-oxirgi' : ''}`}>
-                        <div
-                          className={`chat-pufak ${x.meniki ? 'is-meniki' : 'is-uniki'} ${
-                            x.ochirilgan ? 'is-ochirilgan' : ''
-                          } ${ajratilganXabarId === x.id ? 'is-ajratilgan' : ''}`}
-                        >
-                          {!x.ochirilgan && x.replyTo && (
-                            <button
-                              type="button"
-                              onClick={() => xabargaOt(x.replyTo.id)}
-                              className="chat-iqtibos"
-                              title="Asl xabarga o'tish"
-                            >
-                              <div className="chat-iqtibos-muallif">{iqtibosMuallif}</div>
-                              <div className="chat-iqtibos-matn">{xabarQisqaMatn(x.replyTo)}</div>
-                            </button>
-                          )}
-
-                          {x.ochirilgan ? (
-                            <span>Xabar o{"'"}chirildi</span>
-                          ) : (
-                            <XabarMazmuni
-                              matn={x.matn}
-                              qidiruvSorovi={ichkiQidiruvOchiq ? ichkiQidiruvMatn : ''}
-                            />
-                          )}
-
-                          <span className="chat-pufak-oyoq">
-                            {!x.ochirilgan && (
-                              <span className="chat-pufak-amallar">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setJavobXabar(x)
-                                    maydonRef.current?.focus()
-                                  }}
-                                  className="chat-amal-tugma"
-                                  title="Javob berish"
-                                  aria-label="Javob berish"
-                                >
-                                  <Ikon nom="javob" olcham={12} />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => nusxaOl(x.matn)}
-                                  className="chat-amal-tugma"
-                                  title="Matnni nusxalash"
-                                  aria-label="Matnni nusxalash"
-                                >
-                                  <Ikon nom="nusxa" olcham={12} />
-                                </button>
-                                {x.meniki && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setModalHolat({ tur: 'xabar-ochir', xabarId: x.id })}
-                                    className="chat-ochir"
-                                    title="Xabarni o'chirish"
-                                    aria-label="Xabarni o'chirish"
-                                  >
-                                    <Ikon nom="ochir" olcham={12} />
-                                  </button>
-                                )}
-                              </span>
-                            )}
-                            <span>{soatDaqiqa(x.createdAt)}</span>
-                            {x.meniki && !x.ochirilgan && (
-                              <span title={x.oqilgan ? "O'qildi" : 'Yuborildi'}>
-                                {x.oqilgan ? '✓✓' : '✓'}
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-                <div ref={oxirgiRef} />
-              </div>
+              <ChatXabarLenta
+                xabarlar={suhbat.xabarlar}
+                odam={odam}
+                birinchiOqilmaganId={birinchiOqilmaganId}
+                qidiruvSorovi={ichkiQidiruvOchiq ? ichkiQidiruvMatn : ''}
+                ajratilganXabarId={ajratilganXabarId}
+                oynaRef={oynaRef}
+                oxirgiRef={oxirgiRef}
+                onSiljish={siljish}
+                onXabargaOt={xabargaOt}
+                onJavobBer={javobBer}
+                onNusxaOl={nusxaOl}
+                onXabarOchir={xabarOchirOch}
+              />
 
               {!pastdaTuribdi && (
                 <button
@@ -1594,130 +1999,23 @@ function Chat() {
               )}
 
               {/* Yozish qatori */}
-              <div className="chat-yozish">
-                {suhbat.blok.meniBlokladi ? (
-                  <p style={{ textAlign: 'center', color: 'var(--v3-xira)', fontSize: 13 }}>
-                    Bu suhbatda xabar yuborib bo{"'"}lmaydi
-                  </p>
-                ) : suhbat.blok.menBlokladim ? (
-                  <div className="flex flex-wrap items-center justify-center gap-3">
-                    <span style={{ color: 'var(--v3-xira)', fontSize: 13 }}>
-                      Siz bu foydalanuvchini bloklagansiz
-                    </span>
-                    <button type="button" onClick={blokniOch} className="v3-tugma text-xs py-1.5 px-3">
-                      <Ikon nom="ochiq" olcham={14} />
-                      Blokni ochish
-                    </button>
-                  </div>
-                ) : suhbat.suhbat.holat === 'sorov' && !suhbat.suhbat.menBoshladim ? (
-                  <div style={{ display: 'grid', gap: 8 }}>
-                    <p style={{ textAlign: 'center', color: 'var(--v3-xira)', fontSize: 12.5 }}>
-                      Bu do{"'"}st bo{"'"}lmagan foydalanuvchining so{"'"}rovi. Javob bersangiz
-                      suhbat ochiladi.
-                    </p>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button
-                        type="button"
-                        onClick={() => sorovga('qabul')}
-                        className="v3-tugma-asosiy"
-                        style={{ flex: 1, justifyContent: 'center' }}
-                      >
-                        Qabul qilish
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => sorovga('rad')}
-                        className="v3-tugma"
-                        style={{ flex: 1, justifyContent: 'center' }}
-                      >
-                        Rad etish
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {javobXabar && (
-                      <div className="chat-javob-paneli">
-                        <div className="min-w-0 flex-1">
-                          <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--v3-urgu)' }}>
-                            {javobXabar.meniki
-                              ? 'O‘z xabaringizga javob'
-                              : `${odam.fullName || odam.username} xabariga javob`}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 12.5,
-                              color: 'var(--v3-xira)',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                            }}
-                          >
-                            {xabarQisqaMatn(javobXabar, 96)}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setJavobXabar(null)}
-                          className="v3-ikon-tugma"
-                          aria-label="Javobni bekor qilish"
-                        >
-                          <Ikon nom="yopish" olcham={14} />
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="chat-quti">
-                      <textarea
-                        ref={maydonRef}
-                        rows={1}
-                        className="chat-matn"
-                        value={matn}
-                        maxLength={MAX_UZUNLIK}
-                        onChange={(e) => {
-                          setMatn(e.target.value)
-                          const el = e.target
-                          el.style.height = 'auto'
-                          el.style.height = `${Math.min(el.scrollHeight, 148)}px`
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault()
-                            yubor()
-                          }
-                        }}
-                        placeholder={
-                          suhbat.suhbat.holat === 'sorov'
-                            ? "So'rov yuborilgan — javobni kuting"
-                            : 'Xabar yozing...'
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={yubor}
-                        disabled={yuborilmoqda || !matn.trim()}
-                        className="chat-jonat"
-                        aria-label="Yuborish"
-                        title="Yuborish (Enter)"
-                      >
-                        <Ikon nom="jonat" olcham={17} />
-                      </button>
-                    </div>
-                    {qolgan <= SANAGICH_QOLGAN && (
-                      <div
-                        style={{
-                          textAlign: 'right',
-                          fontSize: 11,
-                          marginTop: 4,
-                          color: qolgan <= 0 ? '#f87171' : 'var(--v3-xira)',
-                        }}
-                      >
-                        {qolgan} belgi qoldi
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+              <ChatYozishQatori
+                tanlangan={tanlangan}
+                draftMatn={draftMatn}
+                blokMeniBlokladi={Boolean(suhbat.blok?.meniBlokladi)}
+                blokMenBlokladim={Boolean(suhbat.blok?.menBlokladim)}
+                suhbatHolat={suhbat.suhbat.holat}
+                menBoshladim={Boolean(suhbat.suhbat.menBoshladim)}
+                odamIsm={odam.fullName || odam.username}
+                javobXabar={javobXabar}
+                yuborilmoqda={yuborilmoqda}
+                maydonRef={maydonRef}
+                matnRef={matnRef}
+                onYubor={yubor}
+                onBlokniOch={blokniOch}
+                onSorovga={sorovga}
+                onJavobBekor={javobBekor}
+              />
             </>
           )}
         </section>

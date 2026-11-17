@@ -4,6 +4,8 @@
 
 import { test, describe, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { sertifikatVerifyYoli } from '../lib/sertifikat-tahlil.js'
 import {
   sessiondanZahiraProfil,
   keshdanProfilniOl,
@@ -237,5 +239,53 @@ describe('24 soatlik Ilmiy Hikoyalar (lib/hikoya-turlari.js)', () => {
     assert.equal(guruhlar[2].muallifId, 'u_korilgan')
   })
 })
+
+describe('Profil eksporti, sertifikat havolalari va ikonlar regressiyasi', () => {
+  test("app/api/profil/export/route.js Prisma Assignment.maxScore va TeacherQuizAttempt.completedAt dan foydalanadi", () => {
+    const manba = readFileSync('app/api/profil/export/route.js', 'utf8')
+    assert.equal(manba.includes('maxPoints'), false)
+    assert.equal(manba.includes('maxScore: true'), true)
+    assert.equal(manba.includes('startedAt'), false)
+    assert.equal(manba.includes("orderBy: { completedAt: 'desc' }"), true)
+  })
+
+  test("MS sertifikat havolalari /tekshirish o'rniga kanonik /sertifikat/verify/... yo'lidan foydalanadi", () => {
+    assert.equal(sertifikatVerifyYoli('jda-ms-2026-0001'), '/sertifikat/verify/JDA-MS-2026-0001')
+
+    const ommaviyProfil = readFileSync('app/profil/[userId]/page.js', 'utf8')
+    const kolleksiya = readFileSync('components/ProfileCollection.jsx', 'utf8')
+    assert.equal(ommaviyProfil.includes('/tekshirish/'), false)
+    assert.equal(kolleksiya.includes('/tekshirish/'), false)
+    assert.equal(ommaviyProfil.includes('sertifikatVerifyYoli('), true)
+    assert.equal(kolleksiya.includes('sertifikatVerifyYoli('), true)
+  })
+
+  test("Ommaviy profil HAVOLALAR ro'yxatidagi barcha ikon kalitlari components/Ikon.jsx da mavjud", () => {
+    const ikonManba = readFileSync('components/Ikon.jsx', 'utf8')
+    const yollarBlok = ikonManba.match(/const YOLLAR = \{([\s\S]*?)\n\}/)?.[1] || ''
+    const mavjudKalitlar = new Set(
+      [...yollarBlok.matchAll(/^\s{2}([a-zA-Z0-9_]+):/gm)].map((m) => m[1]),
+    )
+
+    const ommaviyProfil = readFileSync('app/profil/[userId]/page.js', 'utf8')
+    const havolalarBlok = ommaviyProfil.match(/const HAVOLALAR = \[([\s\S]*?)\]/)?.[1] || ''
+    const ishlatilganIkonlar = [...havolalarBlok.matchAll(/ikon:\s*['"]([a-zA-Z0-9_]+)['"]/g)].map(
+      (m) => m[1],
+    )
+
+    assert.ok(ishlatilganIkonlar.length > 0)
+    for (const kalit of ishlatilganIkonlar) {
+      assert.ok(mavjudKalitlar.has(kalit), `Ikon.jsx da '${kalit}' kaliti topilmadi`)
+    }
+  })
+
+  test("app/kochat/page.js dagi STAGES barcha bosqichlarda xpRequired maydonidan foydalanadi", () => {
+    const kochatManba = readFileSync('app/kochat/page.js', 'utf8')
+    assert.equal(kochatManba.includes('xpRequires'), false)
+    const matchlar = kochatManba.match(/xpRequired:/g) || []
+    assert.equal(matchlar.length, 10)
+  })
+})
+
 
 

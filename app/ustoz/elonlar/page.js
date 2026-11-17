@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -23,11 +23,7 @@ export default function ElonlarPage() {
     groupId: ''
   })
 
-  useEffect(() => {
-    fetchAnnouncements()
-  }, [filterGroup])
-
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams({ groupId: filterGroup })
@@ -45,7 +41,11 @@ export default function ElonlarPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [filterGroup])
+
+  useEffect(() => {
+    fetchAnnouncements()
+  }, [fetchAnnouncements])
 
   const handleCreate = async () => {
     if (!formData.title.trim()) {

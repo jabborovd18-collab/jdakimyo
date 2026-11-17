@@ -67,14 +67,15 @@ export default function SinfKorinish({ sinf }) {
       className="min-h-screen flex flex-col font-serif bg-gradient-to-b from-[#0b0d2d] via-[#081845] via-35% via-[#051135] to-[#020514] text-white relative overflow-x-hidden justify-between"
     >
       {/* ─── FON EFFEKTLARI (TO'Q MOVİY-SAFIR AMBIENT NURLAR) ─── */}
-      <div className="absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div aria-hidden="true" className="md:hidden absolute inset-0 pointer-events-none jda-safir-nur" />
+      <div className="hidden md:block absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* ─── 1. SARLAVHA (HEADER) ─── */}
-      <header className="border-b border-blue-900/50 bg-[#070c29]/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-blue-900/50 bg-[#070c29]/95 md:bg-[#070c29]/80 md:backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
@@ -130,7 +131,7 @@ export default function SinfKorinish({ sinf }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-6 relative z-10">
         {/* AGAR SINF QULFDA BO'LSA (8, 9, 10, 11) */}
         {!ochiqmi ? (
-          <div className="p-8 sm:p-12 rounded-3xl border border-amber-500/40 bg-gradient-to-br from-[#12163b]/70 via-[#0a1433]/70 to-[#070d25]/80 backdrop-blur-md shadow-2xl text-center max-w-2xl mx-auto my-8">
+          <div className="p-8 sm:p-12 rounded-3xl border border-amber-500/40 bg-gradient-to-br from-[#12163b]/92 via-[#0a1433]/92 to-[#070d25]/95 md:from-[#12163b]/70 md:via-[#0a1433]/70 md:to-[#070d25]/80 md:backdrop-blur-md shadow-2xl text-center max-w-2xl mx-auto my-8">
             <div className="w-20 h-20 rounded-3xl bg-amber-500/15 border-2 border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-amber-500/20">
               <Ikon nom="qulf" olcham={38} />
             </div>
@@ -168,7 +169,7 @@ export default function SinfKorinish({ sinf }) {
           /* AGAR OCHIQ SINF (7 YOKI 8) BO'LSA */
           <div className="space-y-6">
             {/* Sinf sarlavhasi va rejim tanlagich */}
-            <div className="p-4 sm:p-5 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/70 via-[#0a1738]/70 to-[#070e28]/70 backdrop-blur-md shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 sm:p-5 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/92 via-[#0a1738]/92 to-[#070e28]/92 md:from-[#121644]/70 md:via-[#0a1738]/70 md:to-[#070e28]/70 md:backdrop-blur-md shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-xl sm:text-2xl font-bold text-white">
                 {sinf.sinf}-sinf mavzulari
               </h2>
@@ -207,7 +208,7 @@ export default function SinfKorinish({ sinf }) {
               {boblar.map((bob) => (
                 <section
                   key={bob.bob}
-                  className="p-5 rounded-3xl border border-blue-900/60 bg-gradient-to-br from-[#0c173c]/60 via-[#091333]/60 to-[#060e25]/60 backdrop-blur-md shadow-lg"
+                  className="p-5 rounded-3xl border border-blue-900/60 bg-gradient-to-br from-[#0c173c]/90 via-[#091333]/90 to-[#060e25]/92 md:from-[#0c173c]/60 md:via-[#091333]/60 md:to-[#060e25]/60 md:backdrop-blur-md shadow-lg"
                 >
                   {/* Bob sarlavhasi */}
                   <div className="flex items-center gap-3 pb-3 mb-4 border-b border-blue-900/50">
@@ -229,14 +230,14 @@ export default function SinfKorinish({ sinf }) {
                             key={m.slug}
                             href={mavzuHavolasi(sinf.sinf, m)}
                             title={`${m.raqam}. ${m.nom}`}
-                            className={`group p-4 rounded-2xl border transition-all flex items-center justify-center text-center shadow-sm ${
+                            className={`group p-4 rounded-2xl border transition-[background-color,border-color] flex items-center justify-center text-center shadow-sm ${
                               tayyor
                                 ? "border-blue-800/60 bg-[#09153a]/60 hover:border-yellow-400 hover:bg-[#0f245e]/80"
                                 : "border-blue-900/40 bg-[#070f2b]/50 opacity-75 hover:border-amber-400/50"
                             }`}
                           >
                             <span
-                              className={`min-w-[3.25rem] h-12 px-2 whitespace-nowrap rounded-xl border font-bold text-base sm:text-lg flex items-center justify-center group-hover:scale-105 transition-all ${
+                              className={`min-w-[3.25rem] h-12 px-2 whitespace-nowrap rounded-xl border font-bold text-base sm:text-lg flex items-center justify-center md:group-hover:scale-105 transition-[transform,background-color,color] ${
                                 tayyor
                                   ? "bg-yellow-500/15 border-yellow-500/40 text-yellow-300 group-hover:bg-yellow-500 group-hover:text-black"
                                   : "bg-slate-800/60 border-slate-700/60 text-slate-300"
@@ -257,7 +258,7 @@ export default function SinfKorinish({ sinf }) {
                           <Link
                             key={m.slug}
                             href={mavzuHavolasi(sinf.sinf, m)}
-                            className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 group ${
+                            className={`p-3.5 sm:p-4 rounded-2xl border transition-[background-color,border-color] flex items-center justify-between gap-3 group ${
                               tayyor
                                 ? "border-blue-800/60 bg-[#09153a]/60 hover:border-yellow-400/80 hover:bg-[#0d225c]/80"
                                 : "border-blue-900/40 bg-[#070f2b]/50 opacity-80 hover:border-amber-400/50"
@@ -265,7 +266,7 @@ export default function SinfKorinish({ sinf }) {
                           >
                             <div className="flex items-center gap-3.5 min-w-0">
                               <span
-                                className={`min-w-[3rem] h-11 px-2 whitespace-nowrap rounded-xl border font-bold text-sm sm:text-base flex items-center justify-center shrink-0 transition-all ${
+                                className={`min-w-[3rem] h-11 px-2 whitespace-nowrap rounded-xl border font-bold text-sm sm:text-base flex items-center justify-center shrink-0 transition-[background-color,color] ${
                                   tayyor
                                     ? "bg-yellow-500/15 border-yellow-500/40 text-yellow-300 group-hover:bg-yellow-500 group-hover:text-black"
                                     : "bg-slate-800/60 border-slate-700/60 text-slate-300"
@@ -301,9 +302,9 @@ export default function SinfKorinish({ sinf }) {
       </div>
 
       {/* ─── 3. YARATUVCHI FOOTER (ASL ESKI USLUBDAGI YARATUVCHI KARTASI) ─── */}
-      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/90 backdrop-blur-xl py-12 text-xs text-blue-200 relative z-10">
+      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/95 md:bg-[#050920]/90 md:backdrop-blur-xl py-12 text-xs text-blue-200 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0a1738]/50 to-[#070e28]/40 backdrop-blur-md shadow-2xl">
+          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/85 via-[#0a1738]/88 to-[#070e28]/90 md:from-[#121644]/40 md:via-[#0a1738]/50 md:to-[#070e28]/40 md:backdrop-blur-md shadow-2xl">
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
               {/* Yaratuvchi ma'lumotlari */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">

@@ -107,7 +107,7 @@ export default function Hamkorlik() {
       
       {/* MOBILE OGOHLANTIRISH */}
       {showMobileWarning && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/88 md:bg-black/80 md:backdrop-blur-sm p-4 animate-fade-in">
           <div className="bg-gradient-to-br from-yellow-950/95 to-orange-950/95 border-2 border-yellow-500/60 rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-2xl">📱</div>
@@ -122,7 +122,7 @@ export default function Hamkorlik() {
             </p>
             <button
               onClick={dismissMobileWarning}
-              className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-all"
+              className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold rounded-xl transition-colors"
             >
               Tushundim, davom etish
             </button>
@@ -131,9 +131,9 @@ export default function Hamkorlik() {
       )}
 
       {/* HEADER */}
-      <header className="flex justify-between items-center px-6 py-4 border-b border-purple-800/50 sticky top-0 z-50 bg-purple-950/80 backdrop-blur-xl">
+      <header className="flex justify-between items-center px-6 py-4 border-b border-purple-800/50 sticky top-0 z-50 bg-purple-950/95 md:bg-purple-950/80 md:backdrop-blur-xl">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-purple-400 hover:text-purple-300 transition-all text-lg flex items-center gap-2">
+          <Link href="/" className="text-purple-400 hover:text-purple-300 transition-colors text-lg flex items-center gap-2">
             <span>←</span>
             <span className="hidden sm:inline">Bosh sahifa</span>
           </Link>
@@ -147,7 +147,7 @@ export default function Hamkorlik() {
         </div>
 
         <div className="flex gap-2 items-center">
-          <Link href="/qidiruv" className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
+          <Link href="/qidiruv" className="px-4 py-2 bg-purple-800/50 hover:bg-purple-700/70 border border-purple-600/50 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
             <span>🔍</span>
             <span className="hidden sm:inline">Qidiruv</span>
           </Link>
@@ -156,11 +156,12 @@ export default function Hamkorlik() {
 
       {/* HERO SECTION */}
       <section className="relative px-4 py-16 md:py-24 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-green-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-yellow-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div aria-hidden="true" className="md:hidden absolute inset-0 pointer-events-none jda-hamkor-yashil-nur"></div>
+        <div className="hidden md:block absolute top-20 left-10 w-72 h-72 bg-green-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="hidden md:block absolute bottom-20 right-10 w-96 h-96 bg-yellow-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
         
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-green-600/20 border border-green-600/30 rounded-full text-xs font-semibold text-green-300 mb-6 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-green-600/20 border border-green-600/30 rounded-full text-xs font-semibold text-green-300 mb-6 md:backdrop-blur-sm">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
             OCHIQ PLATFORMA
           </div>
@@ -194,7 +195,7 @@ export default function Hamkorlik() {
               { value: "20+", label: "Tahlil usuli", icon: "📊" },
               { value: "∞", label: "Imkoniyatlar", icon: "⚡" },
             ].map((stat, i) => (
-              <div key={i} className="bg-purple-900/40 border border-purple-700/50 rounded-2xl p-4 backdrop-blur-sm">
+              <div key={i} className="bg-purple-900/80 md:bg-purple-900/40 border border-purple-700/50 rounded-2xl p-4 md:backdrop-blur-sm">
                 <div className="text-2xl mb-1">{stat.icon}</div>
                 <div className="text-2xl md:text-3xl font-extrabold text-yellow-400">{stat.value}</div>
                 <div className="text-purple-300 text-xs mt-1">{stat.label}</div>
@@ -216,13 +217,13 @@ export default function Hamkorlik() {
             <Link 
               key={i}
               href={b.href}
-              className={`group bg-gradient-to-br ${b.gradientFrom} ${b.gradientTo} border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-2 relative overflow-hidden ${b.isGold ? 'ring-2 ring-yellow-500/30' : ''}`}
+              className={`group bg-gradient-to-br ${b.gradientFrom} ${b.gradientTo} border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-[border-color,transform] transform md:hover:-translate-y-2 relative overflow-hidden ${b.isGold ? 'ring-2 ring-yellow-500/30' : ''}`}
             >
-              <div className={`absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30 ${b.blurColor}`}></div>
+              <div className={`hidden md:block absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30 ${b.blurColor}`}></div>
               
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${b.iconBg} flex items-center justify-center text-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${b.iconBg} flex items-center justify-center text-2xl md:group-hover:scale-110 md:group-hover:rotate-6 transition-transform duration-300 shadow-lg`}>
                     {b.icon}
                   </div>
                   <span className={`text-[10px] font-mono px-2 py-1 rounded-lg ${b.numberColor}`}>
@@ -244,7 +245,7 @@ export default function Hamkorlik() {
                 </p>
 
                 <div className="flex items-center justify-between pt-4 border-t border-purple-700/30">
-                  <span className={`text-sm font-semibold ${b.rangText} group-hover:translate-x-2 transition-all flex items-center gap-2`}>
+                  <span className={`text-sm font-semibold ${b.rangText} md:group-hover:translate-x-2 transition-transform flex items-center gap-2`}>
                     <span>Batafsil</span>
                     <span>→</span>
                   </span>
@@ -257,7 +258,7 @@ export default function Hamkorlik() {
 
       {/* TEZKOR BOG'LANISH */}
       <section className="px-4 py-16 max-w-5xl mx-auto">
-        <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 md:p-10 backdrop-blur-sm">
+        <div className="bg-gradient-to-br from-purple-900/85 to-blue-900/85 md:from-purple-900/40 md:to-blue-900/40 border border-purple-700/50 rounded-3xl p-8 md:p-10 md:backdrop-blur-sm">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-3">📞 Tezkor bog'lanish</h2>
             <p className="text-purple-300">Biz bilan istalgan vaqtda bog'laning</p>
@@ -268,7 +269,7 @@ export default function Hamkorlik() {
               href="https://t.me/diyorbek_jabborov" 
               target="_blank"
               rel="noopener noreferrer"
-              className="group bg-purple-950/50 rounded-2xl p-6 border border-purple-700/30 hover:border-blue-400/50 transition-all text-center hover:-translate-y-1"
+              className="group bg-purple-950/80 md:bg-purple-950/50 rounded-2xl p-6 border border-purple-700/30 hover:border-blue-400/50 transition-[border-color,transform] text-center md:hover:-translate-y-1"
             >
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform shadow-lg shadow-blue-500/20">
                 ✈️
@@ -279,7 +280,7 @@ export default function Hamkorlik() {
 
             <a 
               href="mailto:jabborovd18@gmail.com"
-              className="group bg-purple-950/50 rounded-2xl p-6 border border-purple-700/30 hover:border-red-400/50 transition-all text-center hover:-translate-y-1"
+              className="group bg-purple-950/80 md:bg-purple-950/50 rounded-2xl p-6 border border-purple-700/30 hover:border-red-400/50 transition-[border-color,transform] text-center md:hover:-translate-y-1"
             >
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-red-600 to-orange-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform shadow-lg shadow-red-500/20">
                 📧
@@ -312,13 +313,13 @@ export default function Hamkorlik() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/hamkorlik/jamoaga-taklif"
-              className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 rounded-xl text-black font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-yellow-500/20"
+              className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 rounded-xl text-black font-bold text-lg transition-transform transform md:hover:scale-105 shadow-lg shadow-yellow-500/20"
             >
               Jamoaga qo'shilish →
             </Link>
             <Link
               href="/hamkorlik/sayt-hamkorlari"
-              className="px-8 py-4 bg-purple-800/50 hover:bg-purple-700/70 border-2 border-purple-600/50 rounded-xl text-white font-bold text-lg backdrop-blur-sm transition-all transform hover:scale-105"
+              className="px-8 py-4 bg-purple-800/85 md:bg-purple-800/50 hover:bg-purple-700/70 border-2 border-purple-600/50 rounded-xl text-white font-bold text-lg md:backdrop-blur-sm transition-[background-color,transform] transform md:hover:scale-105"
             >
               Hamkorlarni ko'rish
             </Link>

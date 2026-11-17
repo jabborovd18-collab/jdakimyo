@@ -3,7 +3,11 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAdminAuth } from '@/lib/admin-auth'
 import { toshkentSanaParsla } from '@/lib/sana'
-import { SERTIFIKAT_TURLARI } from '@/lib/sertifikat-tahlil'
+import {
+  ALCHEMIQ_LOGO,
+  SERTIFIKAT_TURLARI,
+  normallashtirHamkorLogoUrl,
+} from '@/lib/sertifikat-tahlil'
 import { foydalanuvchilargaSertifikatPdfYubor } from '@/lib/telegram-sertifikat'
 import { qaydEt } from '@/lib/qaydnoma'
 
@@ -59,7 +63,12 @@ export async function GET(req) {
         },
       })
       if (!event) return NextResponse.json({ error: 'Topilmadi' }, { status: 404 })
-      return NextResponse.json({ event })
+      return NextResponse.json({
+        event: {
+          ...event,
+          partnerLogo: normallashtirHamkorLogoUrl(event.partnerLogo),
+        },
+      })
     }
 
     const [events, attemptsCount, certsCount] = await Promise.all([
@@ -73,8 +82,13 @@ export async function GET(req) {
       prisma.certificate.count(),
     ])
 
+    const normEvents = events.map((ev) => ({
+      ...ev,
+      partnerLogo: normallashtirHamkorLogoUrl(ev.partnerLogo),
+    }))
+
     return NextResponse.json({
-      events,
+      events: normEvents,
       stats: {
         totalEvents: events.length,
         totalAttempts: attemptsCount,
@@ -152,7 +166,7 @@ export async function POST(req) {
           issuedById: admin.id,
           seals: {
             partnerName: partnership?.partnerName || 'AlchemIQ',
-            partnerLogo: partnership?.partnerLogo || '/images/alchemiq-logo.png',
+            partnerLogo: normallashtirHamkorLogoUrl(partnership?.partnerLogo) || ALCHEMIQ_LOGO,
             partnerSignName: partnership?.partnerSignName || 'AlchemIQ Sardor Ergashev',
             partnerSignUrl: partnership?.partnerSignUrl || null,
             jdaSignName: partnership?.jdaSignName || 'JDA Kimyo Jamoasi',
@@ -241,7 +255,7 @@ export async function POST(req) {
                 issuedById: admin.id,
                 seals: {
                   partnerName: event.partnerName,
-                  partnerLogo: event.partnerLogo || '/images/alchemiq-logo.png',
+                  partnerLogo: normallashtirHamkorLogoUrl(event.partnerLogo) || ALCHEMIQ_LOGO,
                   partnerSignName: event.partnerSignName || 'AlchemIQ Sardor Ergashev',
                   partnerSignUrl: event.partnerSignUrl || null,
                   jdaSignName: event.jdaSignName || 'JDA Kimyo Jamoasi',
@@ -347,7 +361,7 @@ export async function POST(req) {
       slug: cleanSlug,
       title: title.trim(),
       partnerName: partnerName.trim(),
-      partnerLogo: partnerLogo || null,
+      partnerLogo: normallashtirHamkorLogoUrl(partnerLogo),
       partnerSignName: partnerSignName ? partnerSignName.trim() : null,
       partnerSignUrl: partnerSignUrl || null,
       jdaSignName: jdaSignName ? jdaSignName.trim() : 'JDA Kimyo Jamoasi',

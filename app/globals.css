@@ -431,7 +431,7 @@ html[data-fon] body {
   border: 1px solid var(--v3-chiziq);
   background: var(--v3-yuza);
   color: var(--v3-xira);
-  transition: all .18s;
+  transition: color .18s, border-color .18s;
 }
 .v3-ikon-tugma:hover { color: var(--v3-matn); border-color: var(--v3-chiziq-2); }
 
@@ -462,7 +462,7 @@ html[data-fon] body {
   color: var(--v3-urgu);
   border: 1px solid color-mix(in srgb, var(--v3-urgu) 32%, transparent);
   background: color-mix(in srgb, var(--v3-urgu) 10%, transparent);
-  transition: all .18s; white-space: nowrap;
+  transition: background-color .18s, border-color .18s, color .18s; white-space: nowrap;
 }
 .v3-rol-tugma:hover { background: color-mix(in srgb, var(--v3-urgu) 18%, transparent); }
 
@@ -473,7 +473,7 @@ html[data-fon] body {
   color: var(--v3-xira);
   border: 1px solid var(--v3-chiziq);
   background: var(--v3-yuza);
-  transition: all .18s;
+  transition: color .18s, border-color .18s;
 }
 .v3-qidiruv:hover { color: var(--v3-matn); border-color: var(--v3-chiziq-2); }
 .v3-qidiruv kbd {
@@ -494,7 +494,7 @@ html[data-fon] body {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 15px; border-radius: 10px;
   font-size: 13.5px; font-weight: 600;
-  transition: all .2s; white-space: nowrap;
+  transition: border-color .2s, background-color .2s, color .2s, transform .2s, filter .2s, box-shadow .2s; white-space: nowrap;
 }
 .v3-tugma {
   color: var(--v3-matn);
@@ -540,13 +540,13 @@ html[data-fon] body {
   display: flex; align-items: center; gap: 11px;
   padding: 9px 11px; border-radius: 9px;
   color: var(--v3-xira);
-  transition: all .16s;
+  transition: background-color .16s, color .16s;
 }
 .v3-menyu-qator:hover { background: var(--v3-yuza-2); color: var(--v3-matn); }
 .v3-menyu-qator.is-urguli { color: var(--v3-urgu); }
 .v3-menyu-qator.is-xavf:hover { color: #f87171; background: rgba(248,113,113,.1); }
 .v3-menyu-qator.is-tanlangan { color: var(--v3-urgu); background: var(--v3-yuza); }
-.v3-menyu-qator .v3-strelka { opacity: 0; transition: all .16s; }
+.v3-menyu-qator .v3-strelka { opacity: 0; transition: opacity .16s, transform .16s; }
 .v3-menyu-qator:hover .v3-strelka { opacity: 1; transform: translateX(2px); }
 .v3-menyu-oyoq { border-top: 1px solid var(--v3-chiziq); padding: 6px; }
 
@@ -570,7 +570,7 @@ html[data-fon] body {
   font-size: 13px; font-weight: 500;
   border: 1px solid var(--v3-chiziq);
   background: var(--v3-yuza);
-  transition: all .18s;
+  transition: border-color .18s, background-color .18s;
 }
 .v3-profil-tugma:hover { border-color: var(--v3-chiziq-2); }
 
@@ -618,7 +618,7 @@ html[data-fon] body {
   background: var(--v3-yuza);
   margin-bottom: 26px;
 }
-.v3-salom { padding-left: 5px; transition: all .18s; }
+.v3-salom { padding-left: 5px; transition: border-color .18s, color .18s; }
 .v3-salom:hover { border-color: var(--v3-chiziq-2); color: var(--v3-matn); }
 .v3-salom strong { color: var(--v3-matn); }
 
@@ -819,7 +819,7 @@ html[data-fon] body {
   padding: 18px; border-radius: 14px;
   border: 1px solid var(--v3-chiziq);
   background: var(--v3-yuza);
-  transition: all .22s;
+  transition: border-color .22s, background-color .22s, transform .22s;
 }
 .v3-bolim:hover {
   border-color: var(--v3-chiziq-2);
@@ -835,14 +835,14 @@ html[data-fon] body {
   color: var(--v3-urgu-2);
   border: 1px solid var(--v3-chiziq);
   background: var(--v3-fon-2);
-  transition: all .22s;
+  transition: color .22s, border-color .22s, background-color .22s;
 }
 .v3-bolim-nom { font-size: 14.5px; font-weight: 600; }
 .v3-bolim-tavsif {
   display: block; font-size: 12.5px; line-height: 1.55;
   color: var(--v3-xira); margin-top: 5px;
 }
-.v3-bolim-ong { color: var(--v3-xira); opacity: 0; transition: all .22s; margin-top: 9px; }
+.v3-bolim-ong { color: var(--v3-xira); opacity: 0; transition: opacity .22s, transform .22s; margin-top: 9px; }
 .v3-bolim:hover .v3-bolim-ong { opacity: 1; transform: translateX(2px); }
 
 .v3-chip {
@@ -894,7 +894,7 @@ html[data-fon] body {
   font-size: 12.5px; font-weight: 500;
   color: var(--v3-xira);
   border: 1px solid var(--v3-chiziq);
-  transition: all .18s;
+  transition: color .18s, border-color .18s, background-color .18s;
 }
 .v3-oyoq-havola:hover { color: var(--v3-matn); border-color: var(--v3-chiziq-2); background: var(--v3-yuza-2); }
 
@@ -938,7 +938,7 @@ html[data-fon] body {
   padding: 24px; border-radius: 16px;
   border: 1px solid var(--v3-chiziq);
   background: var(--v3-yuza);
-  transition: all .22s;
+  transition: border-color .22s, background-color .22s, transform .22s;
 }
 .v3-yonalish:hover {
   border-color: color-mix(in srgb, var(--v3-urgu) 45%, transparent);
@@ -1237,7 +1237,11 @@ html[data-fon] body {
   color: #fff;
 }
 
-.chat-royxat { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 12px; }
+.chat-royxat {
+  flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 12px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
 
 .chat-qator {
   width: 100%;
@@ -1322,6 +1326,8 @@ html[data-fon] body {
 .chat-lenta {
   flex: 1; min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   padding: 14px 16px 18px;
   background:
     radial-gradient(60% 40% at 15% 0%, var(--v3-nur-1), transparent 70%),
@@ -1786,7 +1792,7 @@ html[data-fon] body {
   position: relative; min-height: 285px; padding: 24px;
   display: flex; flex-direction: column; overflow: hidden;
   border-radius: 18px; border: 1px solid var(--v3-chiziq);
-  background: var(--v3-yuza); transition: all .24s;
+  background: var(--v3-yuza); transition: transform .24s, border-color .24s, background-color .24s;
 }
 .v3-quiz-katalog-karta:hover {
   transform: translateY(-3px); border-color: var(--v3-chiziq-2);
@@ -1820,7 +1826,7 @@ html[data-fon] body {
 .v3-quiz-katalog-ong {
   width: 36px; height: 36px; display: grid; place-items: center;
   border-radius: 10px; color: var(--v3-urgu);
-  border: 1px solid var(--v3-chiziq); transition: all .2s;
+  border: 1px solid var(--v3-chiziq); transition: transform .2s, background-color .2s, color .2s, border-color .2s;
 }
 .v3-quiz-katalog-karta:hover .v3-quiz-katalog-ong {
   transform: translateX(3px); background: var(--v3-urgu); color: var(--v3-urgu-matn);
@@ -2193,7 +2199,7 @@ html[data-fon] body {
 .v3-oquv-format {
   min-height: 390px; padding: 23px; display: flex; flex-direction: column;
   border-radius: 18px; border: 1px solid var(--v3-chiziq);
-  background: var(--v3-yuza); transition: all .23s;
+  background: var(--v3-yuza); transition: transform .23s, border-color .23s, background-color .23s;
 }
 .v3-oquv-format.is-asosiy {
   border-color: color-mix(in srgb, var(--v3-urgu) 38%, transparent);
@@ -2415,7 +2421,7 @@ html[data-fon] body {
   background: var(--v3-fon-2);
   color: var(--v3-matn);
   text-decoration: none;
-  transition: all .2s ease;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
   min-width: 240px;
   max-width: 320px;
 }
@@ -2590,4 +2596,85 @@ html[data-fon] body {
 .ms-tugma-oltin:hover:not(:disabled) {
   filter: brightness(1.06);
   box-shadow: 0 12px 28px -6px rgba(250, 204, 21, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* ═══ MOBIL BRAUZERLAR UCHUN GPU VA SCROLL OPTIMIZATSIYASI (< 768px) ═══ */
+.jda-safir-nur {
+  background-image:
+    radial-gradient(ellipse 75% 32% at 35% 4%, rgba(37, 99, 235, 0.18), transparent 70%),
+    radial-gradient(ellipse 65% 28% at 10% 30%, rgba(79, 70, 229, 0.16), transparent 70%),
+    radial-gradient(ellipse 65% 28% at 88% 42%, rgba(8, 145, 178, 0.14), transparent 70%),
+    radial-gradient(ellipse 70% 26% at 45% 74%, rgba(29, 78, 216, 0.14), transparent 70%),
+    radial-gradient(ellipse 50% 22% at 85% 94%, rgba(217, 119, 6, 0.1), transparent 70%);
+}
+
+.jda-hamkor-yashil-nur {
+  background-image:
+    radial-gradient(ellipse 65% 48% at 20% 28%, rgba(22, 163, 74, 0.2), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 82% 76%, rgba(202, 138, 4, 0.18), transparent 70%);
+}
+
+.jda-hamkor-oltin-nur {
+  background-image:
+    radial-gradient(ellipse 65% 48% at 20% 28%, rgba(202, 138, 4, 0.2), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 82% 76%, rgba(217, 119, 6, 0.18), transparent 70%);
+}
+
+@media (max-width: 767px) {
+  .v3-nur {
+    filter: none;
+    animation: none;
+  }
+  .v3-nur-a {
+    background: radial-gradient(circle, var(--v3-nur-1) 0%, transparent 70%);
+  }
+  .v3-nur-b {
+    background: radial-gradient(circle, var(--v3-nur-2) 0%, transparent 70%);
+  }
+  .v3-quiz-kirish-asosiy::after {
+    filter: none;
+    background: radial-gradient(circle, var(--v3-nur-1) 0%, transparent 70%);
+  }
+
+  .jda-premium-dog {
+    filter: none;
+    animation: none;
+    opacity: 0.28;
+  }
+  .jda-premium-dog-1 {
+    background: radial-gradient(circle, var(--jda-1, #22d3ee) 0%, transparent 68%);
+  }
+  .jda-premium-dog-2 {
+    background: radial-gradient(circle, var(--jda-2, #a78bfa) 0%, transparent 68%);
+  }
+  .jda-premium-dog-3 {
+    background: radial-gradient(circle, var(--jda-3, #f472b6) 0%, transparent 68%);
+    opacity: 0.2;
+  }
+  [data-fon='kunduz'] .jda-premium-dog {
+    opacity: 0.14;
+  }
+  .jda-premium-shine {
+    display: none;
+    animation: none;
+  }
+
+  .v3-header {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: color-mix(in srgb, var(--v3-fon-2) 95%, transparent);
+  }
+  .v3-parda {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(2, 6, 20, 0.86);
+  }
+  .chat-modal-fon {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(5, 8, 22, 0.88);
+  }
+  .ms-header {
+    background: rgba(11, 24, 74, 0.96);
+  }
 }

@@ -83,14 +83,14 @@ export default function MilliySertifikatBoshSahifa() {
       className="ms-akademik ms-fon min-h-screen flex flex-col font-serif text-white relative overflow-x-hidden justify-between"
     >
       {/* ─── FON EFFEKTLARI (YORQIN SAFIR-ZUMRAD AMBIENT NURLAR) ─── */}
-      <div className="absolute -top-10 left-1/4 w-[42rem] h-[42rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-64 -left-24 w-[36rem] h-[36rem] bg-indigo-500/25 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-80 right-0 w-[38rem] h-[38rem] bg-cyan-400/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-8 right-10 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute -top-10 left-1/4 w-[42rem] h-[42rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-64 -left-24 w-[36rem] h-[36rem] bg-indigo-500/25 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-80 right-0 w-[38rem] h-[38rem] bg-cyan-400/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-8 right-10 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* ─── 1. YUQORI SARLAVHA (HEADER) ─── */}
-      <header className="ms-header backdrop-blur-xl sticky top-0 z-50">
+      <header className="ms-header md:backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
@@ -179,8 +179,8 @@ export default function MilliySertifikatBoshSahifa() {
             </div>
           </div>
         )}
-        <div className="ms-karta-hero p-4 sm:p-7 rounded-3xl backdrop-blur-md flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative overflow-hidden">
-          <div className="absolute -right-20 -top-20 w-64 h-64 bg-sky-400/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="ms-karta-hero p-4 sm:p-7 rounded-3xl md:backdrop-blur-md flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative overflow-hidden">
+          <div className="hidden md:block absolute -right-20 -top-20 w-64 h-64 bg-sky-400/15 rounded-full blur-3xl pointer-events-none" />
           <div className="space-y-2 max-w-2xl relative">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight leading-snug">
               Kimyo milliy sertifikat sinovlari
@@ -245,7 +245,7 @@ export default function MilliySertifikatBoshSahifa() {
               value={qidiruv}
               onChange={(e) => setQidiruv(e.target.value)}
               placeholder="Qidirish..."
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-sky-400/40 bg-[#0d1f59]/85 text-white placeholder-sky-200/55 text-xs focus:border-amber-300 focus:outline-none transition backdrop-blur-sm shadow-inner"
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-sky-400/40 bg-[#0d1f59]/95 md:bg-[#0d1f59]/85 text-white placeholder-sky-200/55 text-xs focus:border-amber-300 focus:outline-none transition-colors md:backdrop-blur-sm shadow-inner"
             />
             {qidiruv && (
               <button
@@ -267,10 +267,10 @@ export default function MilliySertifikatBoshSahifa() {
               <button
                 key={b.id}
                 onClick={() => setTanlanganBolim(b.id)}
-                className={`px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all shrink-0 flex items-center gap-2 border ${
+                className={`px-4 py-2.5 rounded-2xl text-xs font-semibold transition-[transform,background-color,border-color,color] shrink-0 flex items-center gap-2 border ${
                   faol
                     ? "ms-tugma-oltin border-amber-200 font-bold scale-[1.02]"
-                    : "bg-[#112462]/85 hover:bg-[#173184] text-sky-100 border-sky-400/30 hover:border-sky-300/60"
+                    : "bg-[#112462]/90 md:bg-[#112462]/85 hover:bg-[#173184] text-sky-100 border-sky-400/30 hover:border-sky-300/60"
                 }`}
               >
                 <Ikon nom={b.ikon || "quiz"} olcham={15} />
@@ -282,7 +282,7 @@ export default function MilliySertifikatBoshSahifa() {
 
         {/* Tanlangan bo'lim haqida tushuntirish */}
         {joriyBolim && (
-          <div className="ms-karta px-4 py-3 rounded-2xl backdrop-blur-sm flex items-center gap-3 text-xs text-sky-100">
+          <div className="ms-karta px-4 py-3 rounded-2xl md:backdrop-blur-sm flex items-center gap-3 text-xs text-sky-100">
             <Ikon nom={joriyBolim.ikon || "kuzatuv"} olcham={16} className="text-amber-300 shrink-0" />
             <span className="font-bold text-white shrink-0">{joriyBolim.nom}:</span>
             <span className="text-sky-200/90">{joriyBolim.tavsif}</span>
@@ -293,7 +293,7 @@ export default function MilliySertifikatBoshSahifa() {
       {/* ─── 4. SINOV VARIANTLARI KATALOGI (GRID) ─── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-4 w-full relative z-10 flex-1">
         {saralanganVariantlar.length === 0 ? (
-          <div className="ms-karta p-12 text-center rounded-3xl backdrop-blur-sm space-y-3">
+          <div className="ms-karta p-12 text-center rounded-3xl md:backdrop-blur-sm space-y-3">
             <div className="w-12 h-12 rounded-2xl bg-sky-400/20 border border-sky-400/40 text-sky-200 flex items-center justify-center mx-auto">
               <Ikon nom="qidiruv" olcham={24} />
             </div>
@@ -324,7 +324,7 @@ export default function MilliySertifikatBoshSahifa() {
               return (
               <div
                 key={v.id}
-                className="ms-karta ms-karta-interaktiv p-5 sm:p-7 rounded-3xl backdrop-blur-sm flex flex-col justify-between group hover:-translate-y-1 relative overflow-hidden"
+                className="ms-karta ms-karta-interaktiv p-5 sm:p-7 rounded-3xl md:backdrop-blur-sm flex flex-col justify-between group md:hover:-translate-y-1 relative overflow-hidden"
               >
                 <div className="space-y-4">
                   {/* Yuqori qator: Ikon va Badge */}
@@ -339,7 +339,7 @@ export default function MilliySertifikatBoshSahifa() {
                         </span>
                       )}
                       <span
-                        className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border backdrop-blur-sm ${
+                        className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border md:backdrop-blur-sm ${
                           v.badgeRang ||
                           "border-sky-400/45 bg-sky-400/20 text-sky-100"
                         }`}
@@ -521,7 +521,7 @@ export default function MilliySertifikatBoshSahifa() {
 
       {/* ─── 5. RASCH ILMIY BAHOLASH MODELI ─── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-4 w-full relative z-10">
-        <div className="ms-karta-oltin px-5 py-4 rounded-2xl backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div className="ms-karta-oltin px-5 py-4 rounded-2xl md:backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5 text-white font-semibold">
             <Ikon nom="kuzatuv" olcham={17} className="text-amber-300 shrink-0" />
             <span>Rasch IRT modeli — savol qiyinligiga ko&apos;ra baholash</span>
@@ -552,7 +552,7 @@ export default function MilliySertifikatBoshSahifa() {
           {SERTIFIKAT_DARAJALARI.map((d) => (
             <div
               key={d.daraja}
-              className={`p-4 sm:p-5 rounded-2xl border backdrop-blur-sm space-y-2.5 transition-all hover:-translate-y-0.5 ${d.chegaraRang}`}
+              className={`p-4 sm:p-5 rounded-2xl border md:backdrop-blur-sm space-y-2.5 transition-[transform,border-color] md:hover:-translate-y-0.5 ${d.chegaraRang}`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xl font-bold font-mono tracking-tight">

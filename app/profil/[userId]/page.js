@@ -17,11 +17,12 @@ import { birinchiOchiqTab, xavfsizTashqiHavola } from '@/lib/profil-tahrir'
 import { chatKirishHavolasi } from '@/lib/chat-interfeys'
 import { keshdanProfilniOl } from '@/lib/profil-kesh'
 import { POST_TEGLARI, tegHaqida, postlarniTartibla } from '@/lib/post-tavsiyalar'
+import { sertifikatVerifyYoli } from '@/lib/sertifikat-tahlil'
 
 const HAVOLALAR = [
   { kalit: 'telegram', nom: 'Telegram', ikon: 'telegram' },
   { kalit: 'instagram', nom: 'Instagram', ikon: 'kanal' },
-  { kalit: 'twitter', nom: 'X', ikon: 'chat' },
+  { kalit: 'twitter', nom: 'X', ikon: 'xabar' },
   { kalit: 'github', nom: 'GitHub', ikon: 'kitob' },
   { kalit: 'linkedin', nom: 'LinkedIn', ikon: 'odam' },
   { kalit: 'googleScholar', nom: 'Scholar', ikon: 'kitob' },
@@ -1180,7 +1181,7 @@ export default function FoydalanuvchiProfiliPage() {
                       <span>Theta: {u.theta > 0 ? `+${u.theta}` : u.theta}</span>
                       {u.oddiyFoiz != null && <span>Foiz: {u.oddiyFoiz}%</span>}
                       {u.certId && (
-                        <Link href={`/tekshirish/${u.certId}`} className="text-[var(--v3-urgu)] hover:underline">
+                        <Link href={sertifikatVerifyYoli(u.certId)} className="text-[var(--v3-urgu)] hover:underline">
                           {u.certId}
                         </Link>
                       )}

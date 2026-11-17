@@ -139,14 +139,15 @@ export default function LaboratoriyaMashgulotlariSahifa() {
       className="min-h-screen flex flex-col font-serif bg-gradient-to-b from-[#0b0d2d] via-[#081845] via-35% via-[#051135] to-[#020514] text-white relative overflow-x-hidden justify-between"
     >
       {/* ─── FON EFFEKTLARI (TO'Q MOVİY-SAFIR AMBIENT NURLAR) ─── */}
-      <div className="absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div aria-hidden="true" className="md:hidden absolute inset-0 pointer-events-none jda-safir-nur" />
+      <div className="hidden md:block absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* ─── 1. SARLAVHA (HEADER) ─── */}
-      <header className="border-b border-blue-900/50 bg-[#070c29]/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-blue-900/50 bg-[#070c29]/95 md:bg-[#070c29]/80 md:backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
@@ -193,7 +194,7 @@ export default function LaboratoriyaMashgulotlariSahifa() {
       {/* ─── 2. ASOSIY KONTENT ─── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 flex-1 w-full relative z-10 space-y-8">
         {/* Tez kunda asosiy ogohlantirish kartasi */}
-        <div className="max-w-4xl mx-auto p-6 sm:p-8 rounded-3xl border border-amber-500/45 bg-gradient-to-br from-[#161a4a]/80 via-[#0b183d]/80 to-[#070e28]/85 backdrop-blur-md shadow-2xl text-center space-y-4">
+        <div className="max-w-4xl mx-auto p-6 sm:p-8 rounded-3xl border border-amber-500/45 bg-gradient-to-br from-[#161a4a]/92 via-[#0b183d]/92 to-[#070e28]/95 md:from-[#161a4a]/80 md:via-[#0b183d]/80 md:to-[#070e28]/85 md:backdrop-blur-md shadow-2xl text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/45 bg-amber-500/15 text-xs font-bold text-amber-300 shadow-sm">
             <Ikon nom="soat" olcham={14} />
             <span>Tez kunda qo&apos;shiladi</span>
@@ -235,7 +236,7 @@ export default function LaboratoriyaMashgulotlariSahifa() {
           {filtrlanganIshlar.map((ish) => (
             <div
               key={ish.id}
-              className="p-6 sm:p-7 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/70 via-[#0a1738]/70 to-[#070e28]/70 backdrop-blur-md shadow-xl flex flex-col justify-between transition-all duration-300"
+              className="p-6 sm:p-7 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/92 via-[#0a1738]/92 to-[#070e28]/92 md:from-[#121644]/70 md:via-[#0a1738]/70 md:to-[#070e28]/70 md:backdrop-blur-md shadow-xl flex flex-col justify-between transition-[border-color] duration-200 md:duration-300"
             >
               <div>
                 <div className="flex items-center justify-between mb-4 gap-2">
@@ -287,7 +288,7 @@ export default function LaboratoriyaMashgulotlariSahifa() {
         </div>
 
         {/* Laboratoriya jihozlariga o'tish chaqirig'i */}
-        <div className="mt-12 p-6 sm:p-8 rounded-3xl border border-amber-500/40 bg-gradient-to-r from-amber-950/30 via-[#101b44]/70 to-[#070e28]/70 backdrop-blur-md max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5 text-center sm:text-left shadow-2xl">
+        <div className="mt-12 p-6 sm:p-8 rounded-3xl border border-amber-500/40 bg-gradient-to-r from-amber-950/60 via-[#101b44]/92 to-[#070e28]/92 md:from-amber-950/30 md:via-[#101b44]/70 md:to-[#070e28]/70 md:backdrop-blur-md max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5 text-center sm:text-left shadow-2xl">
           <div className="flex items-center gap-4">
             <span className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0">
               <Ikon nom="savat" olcham={28} />
@@ -312,9 +313,9 @@ export default function LaboratoriyaMashgulotlariSahifa() {
       </section>
 
       {/* ─── 3. YARATUVCHI FOOTER (ASL ESKI USLUBDAGI YARATUVCHI KARTASI) ─── */}
-      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/90 backdrop-blur-xl py-12 text-xs text-blue-200 relative z-10">
+      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/95 md:bg-[#050920]/90 md:backdrop-blur-xl py-12 text-xs text-blue-200 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0a1738]/50 to-[#070e28]/40 backdrop-blur-md shadow-2xl">
+          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/85 via-[#0a1738]/88 to-[#070e28]/90 md:from-[#121644]/40 md:via-[#0a1738]/50 md:to-[#070e28]/40 md:backdrop-blur-md shadow-2xl">
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
               {/* Yaratuvchi ma'lumotlari */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">

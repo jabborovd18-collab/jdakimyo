@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -31,11 +31,7 @@ export default function UstozGuruhlarPage() {
     color: 'blue'
   })
 
-  useEffect(() => {
-    fetchGroups()
-  }, [search])
-
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams({ search })
@@ -52,7 +48,11 @@ export default function UstozGuruhlarPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [search])
+
+  useEffect(() => {
+    fetchGroups()
+  }, [fetchGroups])
 
   const openAddModal = () => {
     setIsEditing(false)

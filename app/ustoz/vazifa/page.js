@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -34,29 +34,7 @@ export default function VazifaPage() {
     if (gId) setSelectedGroup(gId)
   }, [searchParams])
 
-  useEffect(() => {
-    fetchAssignments()
-  }, [selectedGroup, statusFilter, searchQuery])
-
-  const sendReminder = async (assignmentId) => {
-    setSendingReminderId(assignmentId)
-    try {
-      const res = await fetch('/api/ustoz/eslatma', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'assignment', id: assignmentId })
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Eslatma yuborib bo\'lmadi')
-      toast.success(data.message || 'Eslatma yuborildi!')
-    } catch (err) {
-      toast.error(err.message)
-    } finally {
-      setSendingReminderId(null)
-    }
-  }
-
-  const fetchAssignments = async () => {
+  const fetchAssignments = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams({
@@ -76,6 +54,28 @@ export default function VazifaPage() {
       toast.error('Xatolik yuz berdi')
     } finally {
       setIsLoading(false)
+    }
+  }, [selectedGroup, statusFilter, searchQuery])
+
+  useEffect(() => {
+    fetchAssignments()
+  }, [fetchAssignments])
+
+  const sendReminder = async (assignmentId) => {
+    setSendingReminderId(assignmentId)
+    try {
+      const res = await fetch('/api/ustoz/eslatma', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'assignment', id: assignmentId })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Eslatma yuborib bo\'lmadi')
+      toast.success(data.message || 'Eslatma yuborildi!')
+    } catch (err) {
+      toast.error(err.message)
+    } finally {
+      setSendingReminderId(null)
     }
   }
 

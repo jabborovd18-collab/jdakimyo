@@ -1,7 +1,7 @@
 // app/profil/ustozim/page.js
 "use client"
 
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -19,19 +19,21 @@ function UstozlarimIchki() {
   const [yuklanmoqda, setYuklanmoqda] = useState(true)
   const [band, setBand] = useState(null)
 
-  useEffect(() => {
-    olib()
+  const olib = useCallback(async () => {
+    try {
+      const res = await fetch('/api/profil/ustozlarim')
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setTakliflar(data.takliflar || [])
+      setGuruhlarim(data.guruhlarim || [])
+    } catch (e) {
+      toast.error(e.message || 'Yuklashda xatolik')
+    } finally {
+      setYuklanmoqda(false)
+    }
   }, [])
 
-  // Havola orqali kelganda guruhga qo'shilish (bir martalik himoya bilan)
-  useEffect(() => {
-    if (qoshilGuruhId && attemptedJoinRef.current !== qoshilGuruhId) {
-      attemptedJoinRef.current = qoshilGuruhId
-      guruhgaQoshil(qoshilGuruhId)
-    }
-  }, [qoshilGuruhId])
-
-  const guruhgaQoshil = async (groupId) => {
+  const guruhgaQoshil = useCallback(async (groupId) => {
     try {
       const res = await fetch('/api/profil/ustozlarim', {
         method: 'POST',
@@ -50,21 +52,19 @@ function UstozlarimIchki() {
     } finally {
       router.replace('/profil/ustozim')
     }
-  }
+  }, [olib, router])
 
-  const olib = async () => {
-    try {
-      const res = await fetch('/api/profil/ustozlarim')
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setTakliflar(data.takliflar || [])
-      setGuruhlarim(data.guruhlarim || [])
-    } catch (e) {
-      toast.error(e.message || 'Yuklashda xatolik')
-    } finally {
-      setYuklanmoqda(false)
+  useEffect(() => {
+    olib()
+  }, [olib])
+
+  // Havola orqali kelganda guruhga qo'shilish (bir martalik himoya bilan)
+  useEffect(() => {
+    if (qoshilGuruhId && attemptedJoinRef.current !== qoshilGuruhId) {
+      attemptedJoinRef.current = qoshilGuruhId
+      guruhgaQoshil(qoshilGuruhId)
     }
-  }
+  }, [qoshilGuruhId, guruhgaQoshil])
 
   const javobBer = async (id, javob) => {
     setBand(id)

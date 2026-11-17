@@ -3,6 +3,8 @@
 // chegaralarini tekshiradi.
 const { test, describe } = require('node:test')
 const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const path = require('node:path')
 const esmRequire = require('../scripts/_esm-require')
 
 const {
@@ -207,3 +209,85 @@ describe('bahoTekshir — baholash chegarasi', () => {
     assert.equal(ok.score, 45)
   })
 })
+
+function sahifaMavjudmi(yol) {
+  const tozaYol = String(yol || '').split('?')[0].replace(/^\//, '').replace(/\/$/, '')
+  const bazaviy = tozaYol ? path.join('app', ...tozaYol.split('/')) : 'app'
+  return fs.existsSync(path.join(bazaviy, 'page.js')) || fs.existsSync(path.join(bazaviy, 'page.jsx'))
+}
+
+function papkadagiFayllar(dir) {
+  let royxat = []
+  for (const kirish of fs.readdirSync(dir, { withFileTypes: true })) {
+    const toliq = path.join(dir, kirish.name)
+    if (kirish.isDirectory()) {
+      royxat.push(...papkadagiFayllar(toliq))
+    } else if (/\.(js|jsx)$/.test(kirish.name)) {
+      royxat.push(toliq)
+    }
+  }
+  return royxat
+}
+
+describe("UstozShell va app/ustoz navigatsiya havolalari regressiyasi", () => {
+  test("UstozShell.jsx dagi NAV_GROUPS hamda mobil pastki menyu havolalari haqiqiy app/.../page.js sahifalariga mos keladi", () => {
+    const shell = fs.readFileSync('app/ustoz/UstozShell.jsx', 'utf8')
+
+    const navGroupsMatch = shell.match(/const NAV_GROUPS = \[([\s\S]*?)\n\]/)
+    assert.ok(navGroupsMatch, 'NAV_GROUPS bloki topilmadi')
+    const navHrefs = [...navGroupsMatch[1].matchAll(/href:\s*['"]([^'"]+)['"]/g)].map((m) => m[1])
+    assert.ok(navHrefs.length >= 10)
+
+    const mobilMenuMatch = shell.match(/aria-label="Ustoz tezkor mobil menyu"[\s\S]*?<\/nav>/)
+    assert.ok(mobilMenuMatch, 'Mobil pastki menyu bloki topilmadi')
+    const mobilHrefs = [...mobilMenuMatch[0].matchAll(/href:\s*['"]([^'"]+)['"]/g)].map((m) => m[1])
+    assert.deepEqual(mobilHrefs, ['/ustoz', '/ustoz/open-quiz', '/ustoz/guruh', '/ustoz/vazifa'])
+
+    for (const href of [...navHrefs, ...mobilHrefs]) {
+      assert.ok(
+        href.startsWith('/ustoz') || href.startsWith('/doska'),
+        `Kutilmagan marshrut: ${href}`,
+      )
+      assert.ok(
+        sahifaMavjudmi(href),
+        `UstozShell havolasi mavjud bo'lmagan sahifaga olib bormoqda: ${href}`,
+      )
+    }
+  })
+
+  test("app/ustoz ichida eskirgan 404 havolalar (/ustoz/quizlar, /ustoz/guruhlar, /ustoz/vazifalar) yo'q va barcha ichki havolalar mavjud", () => {
+    const eskirganlar = ['/ustoz/quizlar', '/ustoz/guruhlar', '/ustoz/vazifalar']
+    const fayllar = papkadagiFayllar('app/ustoz')
+
+    for (const fayl of fayllar) {
+      const matn = fs.readFileSync(fayl, 'utf8')
+      for (const eski of eskirganlar) {
+        assert.equal(matn.includes(eski), false, `${fayl} ichida eskirgan havola topildi: ${eski}`)
+      }
+      for (const m of matn.matchAll(/href=['"`](\/(?:ustoz|doska)(?:\/[^'"`?$]*)?)(?:\?[^'"`]*)?['"`]/g)) {
+        const yol = m[1]
+        assert.ok(sahifaMavjudmi(yol), `${fayl} ichidagi havola sahifasi topilmadi: ${yol}`)
+      }
+    }
+  })
+
+  test("UstozShell.jsx dagi barcha ikon kalitlari components/Ikon.jsx da mavjud", () => {
+    const ikonManba = fs.readFileSync('components/Ikon.jsx', 'utf8')
+    const yollarBlok = ikonManba.match(/const YOLLAR = \{([\s\S]*?)\n\}/)?.[1] || ''
+    const mavjudKalitlar = new Set(
+      [...yollarBlok.matchAll(/^\s{2}([a-zA-Z0-9_]+):/gm)].map((m) => m[1]),
+    )
+
+    const shell = fs.readFileSync('app/ustoz/UstozShell.jsx', 'utf8')
+    const ikonlar = [
+      ...[...shell.matchAll(/ikon:\s*['"]([a-zA-Z0-9_]+)['"]/g)].map((m) => m[1]),
+      ...[...shell.matchAll(/<Ikon\s+nom=['"]([a-zA-Z0-9_]+)['"]/g)].map((m) => m[1]),
+    ]
+
+    assert.ok(ikonlar.length > 0)
+    for (const kalit of ikonlar) {
+      assert.ok(mavjudKalitlar.has(kalit), `Ikon.jsx da '${kalit}' kaliti topilmadi`)
+    }
+  })
+})
+

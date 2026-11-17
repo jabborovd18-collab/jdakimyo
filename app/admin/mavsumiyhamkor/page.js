@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import Ikon from '@/components/Ikon'
 import { sanaQisqa } from '@/lib/sana'
 import { hisobotPDFYuklab } from '@/lib/hamkorlik-hisobot-pdf'
+import { ALCHEMIQ_LOGO, normallashtirHamkorLogoUrl } from '@/lib/sertifikat-tahlil'
 
 const BOSH_HAMKORLIK = {
   id: '',
@@ -104,9 +105,9 @@ export default function AdminMavsumiyHamkorPage() {
 
   // Havoladan nusxa olish
   const havolaNusxaOlish = (slug) => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://jdakimyo.uz'
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.jdakimyo.uz'
     const link = slug === 'sea-ms-sinov' || slug === 'sea-ms-sinov-2'
-      ? `${origin}/sea-ms-sinov`
+      ? `${origin}/milliy-sertifikat`
       : `${origin}/hamkorlik/${slug}`
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(link)
@@ -214,7 +215,7 @@ export default function AdminMavsumiyHamkorPage() {
       slug: ev.slug,
       title: ev.title,
       partnerName: ev.partnerName,
-      partnerLogo: ev.partnerLogo || '',
+      partnerLogo: normallashtirHamkorLogoUrl(ev.partnerLogo) || '',
       partnerSignName: ev.partnerSignName || '',
       partnerSignUrl: ev.partnerSignUrl || '',
       jdaSignName: ev.jdaSignName || 'JDA Kimyo Jamoasi',
@@ -496,7 +497,7 @@ export default function AdminMavsumiyHamkorPage() {
 
                       {/* Sahifani ko'rish */}
                       <Link
-                        href={sinovTestimi ? '/sea-ms-sinov' : `/hamkorlik/${ev.slug}`}
+                        href="/milliy-sertifikat"
                         target="_blank"
                         className="v3-tugma text-xs py-1.5 px-3"
                       >
@@ -645,7 +646,7 @@ export default function AdminMavsumiyHamkorPage() {
                 type="text"
                 value={formData.partnerLogo}
                 onChange={(e) => setFormData({ ...formData, partnerLogo: e.target.value })}
-                placeholder="/images/alchemiq-logo.png"
+                placeholder={ALCHEMIQ_LOGO}
                 className="v3-kiritish w-full"
               />
             </div>

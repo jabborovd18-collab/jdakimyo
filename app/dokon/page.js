@@ -41,14 +41,15 @@ export default function DokonSahifa() {
       className="min-h-screen flex flex-col font-serif bg-gradient-to-b from-[#0b0d2d] via-[#081845] via-35% via-[#051135] to-[#020514] text-white relative overflow-x-hidden justify-between"
     >
       {/* ─── FON EFFEKTLARI (TO'Q MOVİY-SAFIR AMBIENT NURLAR) ─── */}
-      <div className="absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div aria-hidden="true" className="md:hidden absolute inset-0 pointer-events-none jda-safir-nur" />
+      <div className="hidden md:block absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* ─── 1. SARLAVHA (HEADER) ─── */}
-      <header className="border-b border-blue-900/50 bg-[#070c29]/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-blue-900/50 bg-[#070c29]/95 md:bg-[#070c29]/80 md:backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <Link
@@ -93,7 +94,7 @@ export default function DokonSahifa() {
 
       {/* ─── 2. ASOSIY KONTENT (BO'SH HOLAT) ─── */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-20 flex-1 w-full relative z-10 flex items-center justify-center">
-        <div className="w-full max-w-2xl p-7 sm:p-12 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/75 via-[#0a1738]/75 to-[#070e28]/75 backdrop-blur-md shadow-2xl text-center space-y-6">
+        <div className="w-full max-w-2xl p-7 sm:p-12 rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121644]/92 via-[#0a1738]/92 to-[#070e28]/95 md:from-[#121644]/75 md:via-[#0a1738]/75 md:to-[#070e28]/75 md:backdrop-blur-md shadow-2xl text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-xs font-semibold text-amber-300 shadow-sm">
             <Ikon nom="soat" olcham={14} />
             <span>Tez kunda</span>
@@ -132,9 +133,9 @@ export default function DokonSahifa() {
       </section>
 
       {/* ─── 3. YARATUVCHI FOOTER (ASL ESKI USLUBDAGI YARATUVCHI KARTASI) ─── */}
-      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/90 backdrop-blur-xl py-12 text-xs text-blue-200 relative z-10">
+      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/95 md:bg-[#050920]/90 md:backdrop-blur-xl py-12 text-xs text-blue-200 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0a1738]/50 to-[#070e28]/40 backdrop-blur-md shadow-2xl">
+          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/85 via-[#0a1738]/88 to-[#070e28]/90 md:from-[#121644]/40 md:via-[#0a1738]/50 md:to-[#070e28]/40 md:backdrop-blur-md shadow-2xl">
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
               {/* Yaratuvchi ma'lumotlari */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">

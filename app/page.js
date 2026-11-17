@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState, useEffect, useMemo, useRef } from "react"
 import { useSession, signOut } from "next-auth/react"
 import { ustozPaneliOchiqmi, isAdminRole } from "@/lib/roles"
@@ -42,6 +43,7 @@ function YaratuvchiRasmi() {
 }
 
 export default function BoshSahifa() {
+  const router = useRouter()
   const { data: session, status } = useSession()
   const [fon] = useFon()
   const [menyu, setMenyu] = useState(false)
@@ -96,8 +98,9 @@ export default function BoshSahifa() {
 
   const qidiruvBajar = (e) => {
     e.preventDefault()
-    if (!qidiruv.trim()) return
-    window.location.href = `/qidiruv?q=${encodeURIComponent(qidiruv.trim())}`
+    const toza = qidiruv.trim()
+    if (!toza) return
+    router.push(`/qidiruv?q=${encodeURIComponent(toza)}`)
   }
 
   const userStars = profilData?.stars ?? 0
@@ -111,14 +114,15 @@ export default function BoshSahifa() {
       className="v3 min-h-screen flex flex-col font-serif bg-gradient-to-b from-[#0b0d2d] via-[#081845] via-35% via-[#051135] to-[#020514] text-white relative overflow-x-hidden"
     >
       {/* ─── FON EFFEKTLARI (TO'Q MOVİY-SAFIR AMBIENT NURLAR) ─── */}
-      <div className="absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div aria-hidden="true" className="md:hidden absolute inset-0 pointer-events-none jda-safir-nur" />
+      <div className="hidden md:block absolute top-0 left-1/4 w-[42rem] h-[42rem] bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-72 -left-20 w-[36rem] h-[36rem] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-96 right-10 w-[38rem] h-[38rem] bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-48 left-1/3 w-[40rem] h-[40rem] bg-blue-700/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-10 right-10 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* ─── 1. SARLAVHA (HEADER) ─── */}
-      <header className="border-b border-blue-900/50 bg-[#070c29]/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-blue-900/50 bg-[#070c29]/95 md:bg-[#070c29]/80 md:backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
@@ -144,7 +148,7 @@ export default function BoshSahifa() {
                 value={qidiruv}
                 onChange={(e) => setQidiruv(e.target.value)}
                 placeholder="Mavzular, sinflar, formulalar qidirish..."
-                className="w-full pl-10 pr-4 py-2 rounded-xl border border-purple-700/50 bg-purple-900/30 text-white placeholder-purple-300/50 text-sm focus:border-yellow-400 focus:outline-none transition-colors backdrop-blur-sm"
+                className="w-full pl-10 pr-4 py-2 rounded-xl border border-purple-700/50 bg-purple-900/30 text-white placeholder-purple-300/50 text-sm focus:border-yellow-400 focus:outline-none transition-colors md:backdrop-blur-sm"
               />
             </div>
           </form>
@@ -153,7 +157,7 @@ export default function BoshSahifa() {
           <div className="flex items-center gap-2">
             <Link
               href="/dolzarb"
-              className="px-3.5 py-1.5 bg-[#0e163b]/60 hover:bg-[#142055]/80 border border-blue-800/50 rounded-xl text-xs font-semibold text-blue-200 hover:text-white transition-all hidden sm:inline-flex items-center gap-1.5 backdrop-blur-sm"
+              className="px-3.5 py-1.5 bg-[#0e163b]/85 md:bg-[#0e163b]/60 hover:bg-[#142055]/80 border border-blue-800/50 rounded-xl text-xs font-semibold text-blue-200 hover:text-white transition-colors hidden sm:inline-flex items-center gap-1.5 md:backdrop-blur-sm"
               title="Dolzarb mavzular"
             >
               <Ikon nom="muhokama" olcham={15} />
@@ -164,7 +168,7 @@ export default function BoshSahifa() {
               <Link
                 key={p.href}
                 href={p.href}
-                className="px-3 py-1.5 bg-[#0e163b]/60 hover:bg-[#142055]/80 border border-blue-800/50 rounded-xl text-xs font-semibold text-blue-200 hover:text-white transition-all hidden sm:inline-flex items-center gap-1.5 backdrop-blur-sm"
+                className="px-3 py-1.5 bg-[#0e163b]/85 md:bg-[#0e163b]/60 hover:bg-[#142055]/80 border border-blue-800/50 rounded-xl text-xs font-semibold text-blue-200 hover:text-white transition-colors hidden sm:inline-flex items-center gap-1.5 md:backdrop-blur-sm"
                 title={p.label}
               >
                 <Ikon nom={p.ikon} olcham={15} />
@@ -217,7 +221,7 @@ export default function BoshSahifa() {
                       className="fixed inset-0 z-40"
                       onClick={() => setMenyu(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-64 z-50 rounded-2xl border border-purple-700/60 bg-gradient-to-br from-purple-950 to-slate-950 p-2 shadow-2xl backdrop-blur-xl">
+                    <div className="absolute right-0 mt-2 w-64 z-50 rounded-2xl border border-purple-700/60 bg-gradient-to-br from-purple-950 to-slate-950 p-2 shadow-2xl md:backdrop-blur-xl">
                       <div className="flex items-center gap-3 p-2.5 border-b border-purple-800/50">
                         <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 text-slate-950 font-bold flex items-center justify-center text-base">
                           {bosHarf()}
@@ -326,7 +330,7 @@ export default function BoshSahifa() {
             value={qidiruv}
             onChange={(e) => setQidiruv(e.target.value)}
             placeholder="Mavzular, sinflar, formulalar qidirish..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl border border-blue-800/50 bg-[#0a1538]/80 text-white placeholder-blue-300/50 text-xs focus:border-yellow-400 focus:outline-none transition-colors backdrop-blur-sm"
+            className="w-full pl-9 pr-4 py-2 rounded-xl border border-blue-800/50 bg-[#0a1538]/95 text-white placeholder-blue-300/50 text-xs focus:border-yellow-400 focus:outline-none transition-colors"
           />
         </form>
       </div>
@@ -334,7 +338,7 @@ export default function BoshSahifa() {
       {/* ─── 2. SHAXSIY KABINET VIDJETI (KO'RINARLI HERO BO'LIMI) ─── */}
       <section className="max-w-7xl mx-auto px-3.5 sm:px-6 pt-3 sm:pt-6 pb-1 sm:pb-2 w-full relative z-10">
         {session ? (
-          <div className="p-3.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121646]/70 via-[#0a183d]/70 to-[#07112c]/70 backdrop-blur-md shadow-2xl shadow-blue-950/40 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-5">
+          <div className="p-3.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121646]/92 via-[#0a183d]/92 to-[#07112c]/95 md:from-[#121646]/70 md:via-[#0a183d]/70 md:to-[#07112c]/70 md:backdrop-blur-md shadow-2xl shadow-blue-950/40 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-5">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center font-bold text-base sm:text-xl text-black shadow-lg shadow-yellow-500/30 shrink-0">
                 {bosHarf()}
@@ -383,9 +387,9 @@ export default function BoshSahifa() {
             </div>
           </div>
         ) : (
-          <div className="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121646]/70 via-[#0a183d]/70 to-[#07112c]/70 backdrop-blur-md shadow-2xl shadow-blue-950/40 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+          <div className="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-blue-800/50 bg-gradient-to-br from-[#121646]/92 via-[#0a183d]/92 to-[#07112c]/95 md:from-[#121646]/70 md:via-[#0a183d]/70 md:to-[#07112c]/70 md:backdrop-blur-md shadow-2xl shadow-blue-950/40 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-yellow-600/20 border border-yellow-600/30 rounded-full text-[10px] sm:text-xs font-semibold text-yellow-300 mb-2 sm:mb-3 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-yellow-600/20 border border-yellow-600/30 rounded-full text-[10px] sm:text-xs font-semibold text-yellow-300 mb-2 sm:mb-3 md:backdrop-blur-sm">
                 <Ikon nom="atom" olcham={13} />
                 <span>ILMIY VA ZAMONAVIY TA&apos;LIM PLATFORMASI</span>
               </div>
@@ -402,7 +406,7 @@ export default function BoshSahifa() {
             <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
               <Link
                 href="/login"
-                className="flex-1 sm:flex-initial text-center px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-semibold rounded-xl border border-blue-700/60 bg-[#09153a]/60 hover:bg-[#0c1f54]/70 text-blue-200 hover:text-white transition backdrop-blur-sm"
+                className="flex-1 sm:flex-initial text-center px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-semibold rounded-xl border border-blue-700/60 bg-[#09153a]/85 md:bg-[#09153a]/60 hover:bg-[#0c1f54]/70 text-blue-200 hover:text-white transition-colors md:backdrop-blur-sm"
               >
                 Kirish
               </Link>
@@ -421,13 +425,13 @@ export default function BoshSahifa() {
       <section className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-6 w-full relative z-10 space-y-3 sm:space-y-4">
         <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-5">
           {/* 1. MAKTAB KIMYOSI */}
-          <div className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1">
+          <div className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1">
             <Link href="/maktabkimyo" className="flex flex-col items-center text-center sm:items-stretch sm:text-left flex-1">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-600/30 to-indigo-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 group-hover:text-yellow-400 transition-colors shrink-0">
                   <Ikon nom="maktab" olcham={20} />
                 </div>
-                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-emerald-600/20 text-emerald-300 border border-emerald-500/35 rounded-full text-[9px] sm:text-xs font-semibold backdrop-blur-sm truncate max-w-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-emerald-600/20 text-emerald-300 border border-emerald-500/35 rounded-full text-[9px] sm:text-xs font-semibold md:backdrop-blur-sm truncate max-w-full">
                   7–8 ochiq
                 </span>
               </div>
@@ -483,14 +487,14 @@ export default function BoshSahifa() {
           {/* 2. OLIY KIMYO */}
           <Link
             href="/oliykimyo"
-            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1"
           >
             <div className="flex flex-col items-center text-center sm:items-stretch sm:text-left">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-600/30 to-cyan-600/30 border border-blue-500/40 flex items-center justify-center text-blue-300 group-hover:text-yellow-400 transition-colors shrink-0">
                   <Ikon nom="oliy" olcham={20} />
                 </div>
-                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-amber-600/20 text-amber-300 border border-amber-500/35 rounded-full text-[9px] sm:text-xs font-semibold backdrop-blur-sm truncate max-w-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-amber-600/20 text-amber-300 border border-amber-500/35 rounded-full text-[9px] sm:text-xs font-semibold md:backdrop-blur-sm truncate max-w-full">
                   Tez kunda
                 </span>
               </div>
@@ -513,14 +517,14 @@ export default function BoshSahifa() {
           {/* 3. MILLIY SERTIFIKAT SINOV TESTI */}
           <Link
             href="/milliy-sertifikat"
-            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1"
           >
             <div className="flex flex-col items-center text-center sm:items-stretch sm:text-left">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-600/30 to-teal-600/30 border border-emerald-500/40 flex items-center justify-center text-emerald-300 group-hover:text-yellow-400 transition-colors shrink-0">
                   <Ikon nom="sertifikat" olcham={20} />
                 </div>
-                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-emerald-600/20 text-emerald-300 border border-emerald-500/35 rounded-full text-[9px] sm:text-xs font-semibold backdrop-blur-sm truncate max-w-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-emerald-600/20 text-emerald-300 border border-emerald-500/35 rounded-full text-[9px] sm:text-xs font-semibold md:backdrop-blur-sm truncate max-w-full">
                   Rasch IRT
                 </span>
               </div>
@@ -544,14 +548,14 @@ export default function BoshSahifa() {
           {/* 4. BOSHQA TESTLAR */}
           <Link
             href="/testlar"
-            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1"
           >
             <div className="flex flex-col items-center text-center sm:items-stretch sm:text-left">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-pink-600/30 to-rose-600/30 border border-pink-500/40 flex items-center justify-center text-pink-300 group-hover:text-yellow-400 transition-colors shrink-0">
                   <Ikon nom="quiz" olcham={20} />
                 </div>
-                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-pink-600/20 text-pink-300 border border-pink-500/35 rounded-full text-[9px] sm:text-xs font-semibold backdrop-blur-sm truncate max-w-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-pink-600/20 text-pink-300 border border-pink-500/35 rounded-full text-[9px] sm:text-xs font-semibold md:backdrop-blur-sm truncate max-w-full">
                   Mashqlar
                 </span>
               </div>
@@ -574,14 +578,14 @@ export default function BoshSahifa() {
           {/* 5. LABORATORIYA MASHG'ULOTLARI (TEZ KUNDA) */}
           <Link
             href="/laboratoriya"
-            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1"
           >
             <div className="flex flex-col items-center text-center sm:items-stretch sm:text-left">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-cyan-600/30 to-teal-600/30 border border-cyan-500/40 flex items-center justify-center text-cyan-300 group-hover:text-yellow-400 transition-colors shrink-0">
                   <Ikon nom="kolba" olcham={20} />
                 </div>
-                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-amber-600/20 text-amber-300 border border-amber-500/35 rounded-full text-[9px] sm:text-xs font-semibold backdrop-blur-sm truncate max-w-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-amber-600/20 text-amber-300 border border-amber-500/35 rounded-full text-[9px] sm:text-xs font-semibold md:backdrop-blur-sm truncate max-w-full">
                   Tez kunda
                 </span>
               </div>
@@ -605,14 +609,14 @@ export default function BoshSahifa() {
           {/* 6. KIMYO LABORATORIYA MAHSULOTLARINING SOTUVI (TEZ KUNDA) */}
           <Link
             href="/dokon"
-            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1"
           >
             <div className="flex flex-col items-center text-center sm:items-stretch sm:text-left">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-600/30 to-yellow-600/30 border border-amber-500/40 flex items-center justify-center text-amber-300 group-hover:text-yellow-400 transition-colors shrink-0">
                   <Ikon nom="savat" olcham={20} />
                 </div>
-                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-amber-600/20 text-amber-300 border border-amber-500/35 rounded-full text-[9px] sm:text-xs font-semibold backdrop-blur-sm truncate max-w-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-amber-600/20 text-amber-300 border border-amber-500/35 rounded-full text-[9px] sm:text-xs font-semibold md:backdrop-blur-sm truncate max-w-full">
                   Tez kunda
                 </span>
               </div>
@@ -636,7 +640,7 @@ export default function BoshSahifa() {
           {/* 7. KIMYOVIY O'YINLAR (YANGI RUKN) */}
           <Link
             href="/oyinlar"
-            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1"
           >
             <div className="flex flex-col items-center text-center sm:items-stretch sm:text-left">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
@@ -664,14 +668,14 @@ export default function BoshSahifa() {
           {/* 8. KIMYOGARLAR HAQIDA MAQOLALAR (YANGI RUKN) */}
           <Link
             href="/kimyogarlar"
-            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1"
           >
             <div className="flex flex-col items-center text-center sm:items-stretch sm:text-left">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-sky-600/30 to-indigo-600/30 border border-sky-500/40 flex items-center justify-center text-sky-300 group-hover:text-yellow-400 transition-colors shrink-0">
                   <Ikon nom="maqola" olcham={20} />
                 </div>
-                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-amber-600/20 text-amber-300 border border-amber-500/35 rounded-full text-[9px] sm:text-xs font-semibold backdrop-blur-sm truncate max-w-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-amber-600/20 text-amber-300 border border-amber-500/35 rounded-full text-[9px] sm:text-xs font-semibold md:backdrop-blur-sm truncate max-w-full">
                   Tez kunda
                 </span>
               </div>
@@ -695,14 +699,14 @@ export default function BoshSahifa() {
           {/* 9. ENG YAQIN KIMYO-BIOLOGIYA REPITITORLARI (KARTA ORQALI — YANGI RUKN) */}
           <Link
             href="/repititorlar"
-            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/55 via-[#0b1a3d]/65 to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:-translate-y-1"
+            className="p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/88 via-[#0b1a3d]/90 to-[#070f2b]/90 md:from-[#121644]/55 md:via-[#0b1a3d]/65 md:to-[#070f2b]/55 hover:border-yellow-400/50 active:scale-[0.98] transition-[border-color,transform] duration-200 md:duration-300 md:backdrop-blur-sm shadow-xl flex flex-col justify-between group md:hover:-translate-y-1"
           >
             <div className="flex flex-col items-center text-center sm:items-stretch sm:text-left">
               <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-teal-600/30 to-emerald-600/30 border border-teal-500/40 flex items-center justify-center text-teal-300 group-hover:text-yellow-400 transition-colors shrink-0">
                   <Ikon nom="xarita" olcham={20} />
                 </div>
-                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-emerald-600/20 text-emerald-300 border border-emerald-500/35 rounded-full text-[9px] sm:text-xs font-semibold backdrop-blur-sm truncate max-w-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-emerald-600/20 text-emerald-300 border border-emerald-500/35 rounded-full text-[9px] sm:text-xs font-semibold md:backdrop-blur-sm truncate max-w-full">
                   Jonli xarita
                 </span>
               </div>
@@ -725,7 +729,7 @@ export default function BoshSahifa() {
         </div>
 
         {/* Mobilda Maktab sinflariga tezkor o'tish paneli */}
-        <div className="sm:hidden p-2.5 rounded-2xl border border-blue-800/40 bg-[#0b1538]/60 backdrop-blur-sm flex items-center justify-between gap-1.5">
+        <div className="sm:hidden p-2.5 rounded-2xl border border-blue-800/40 bg-[#0b1538]/90 flex items-center justify-between gap-1.5">
           <span className="text-[11px] font-semibold text-blue-200 pl-1 shrink-0">Sinflar:</span>
           <div className="grid grid-cols-5 gap-1.5 flex-1">
             {[
@@ -751,7 +755,7 @@ export default function BoshSahifa() {
         </div>
 
         {/* 5. JDA KIMYO AI — TO'LIQ QULFLANGAN VA FAQAT PREMIUM */}
-        <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl border-2 border-yellow-500/40 bg-gradient-to-br from-yellow-950/20 via-[#0e1742]/50 to-[#060c24]/70 backdrop-blur-md shadow-2xl relative overflow-hidden">
+        <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl border-2 border-yellow-500/40 bg-gradient-to-br from-yellow-950/35 via-[#0e1742]/90 to-[#060c24]/92 md:from-yellow-950/20 md:via-[#0e1742]/50 md:to-[#060c24]/70 md:backdrop-blur-md shadow-2xl relative overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-5">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-600/30 border border-yellow-500/50 flex items-center justify-center text-yellow-400 shrink-0 shadow-lg shadow-yellow-500/20">
@@ -792,7 +796,7 @@ export default function BoshSahifa() {
         <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
           <Link
             href="/dolzarb"
-            className="p-3 sm:p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/50 active:scale-[0.98] transition-all flex flex-col sm:flex-row items-center text-center sm:text-left gap-2 sm:gap-3 backdrop-blur-sm group"
+            className="p-3 sm:p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/85 md:bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/80 md:hover:bg-[#0c1f52]/50 active:scale-[0.98] transition-[background-color,border-color,transform] flex flex-col sm:flex-row items-center text-center sm:text-left gap-2 sm:gap-3 md:backdrop-blur-sm group"
           >
             <span className="p-2 sm:p-2.5 rounded-xl bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 shrink-0 group-hover:scale-105 transition-transform">
               <Ikon nom="muhokama" olcham={18} />
@@ -807,7 +811,7 @@ export default function BoshSahifa() {
 
           <Link
             href="/kochat"
-            className="p-3 sm:p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/50 active:scale-[0.98] transition-all flex flex-col sm:flex-row items-center text-center sm:text-left gap-2 sm:gap-3 backdrop-blur-sm group"
+            className="p-3 sm:p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/85 md:bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/80 md:hover:bg-[#0c1f52]/50 active:scale-[0.98] transition-[background-color,border-color,transform] flex flex-col sm:flex-row items-center text-center sm:text-left gap-2 sm:gap-3 md:backdrop-blur-sm group"
           >
             <span className="p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
               <Ikon nom="kristall" olcham={18} />
@@ -822,7 +826,7 @@ export default function BoshSahifa() {
 
           <Link
             href="/chat"
-            className="p-3 sm:p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/50 active:scale-[0.98] transition-all flex flex-col sm:flex-row items-center text-center sm:text-left gap-2 sm:gap-3 backdrop-blur-sm group"
+            className="p-3 sm:p-4 rounded-2xl border border-blue-900/40 bg-[#091538]/85 md:bg-[#091538]/40 hover:border-yellow-400/50 hover:bg-[#0c1f52]/80 md:hover:bg-[#0c1f52]/50 active:scale-[0.98] transition-[background-color,border-color,transform] flex flex-col sm:flex-row items-center text-center sm:text-left gap-2 sm:gap-3 md:backdrop-blur-sm group"
           >
             <span className="p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
               <Ikon nom="xabar" olcham={18} />
@@ -838,9 +842,9 @@ export default function BoshSahifa() {
       </section>
 
       {/* ─── 5. YARATUVCHI FOOTER (ASL ESKI USLUBDAGI YARATUVCHI KARTASI) ─── */}
-      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/90 backdrop-blur-xl pt-10 pb-24 md:py-12 text-xs text-blue-200 relative z-10">
+      <footer className="mt-auto border-t border-blue-900/50 bg-[#050920]/95 md:bg-[#050920]/90 md:backdrop-blur-xl pt-10 pb-24 md:py-12 text-xs text-blue-200 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/40 via-[#0a1738]/50 to-[#070e28]/40 backdrop-blur-md shadow-2xl">
+          <div className="p-6 md:p-8 rounded-3xl border border-blue-800/40 bg-gradient-to-br from-[#121644]/85 via-[#0a1738]/88 to-[#070e28]/90 md:from-[#121644]/40 md:via-[#0a1738]/50 md:to-[#070e28]/40 md:backdrop-blur-md shadow-2xl">
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
               {/* Yaratuvchi ma'lumotlari */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
@@ -925,7 +929,7 @@ export default function BoshSahifa() {
       {/* ─── MOBIL PASTKI NAVIGATSIYA BAR (FAQAT MOBILDA) ─── */}
       <nav
         aria-label="Tezkor mobil navigatsiya"
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-blue-900/60 bg-[#060b26]/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-blue-900/60 bg-[#060b26]/95 pb-[env(safe-area-inset-bottom)]"
       >
         <div className="grid grid-cols-5 h-16">
           <Link

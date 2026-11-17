@@ -559,8 +559,8 @@ export default function MilliySertifikatTestXonasi({ params }) {
     return (
       <main className="ms-akademik ms-fon min-h-screen flex flex-col text-white relative overflow-x-hidden justify-between p-4 sm:p-6">
         {/* Fon nurlari */}
-        <div className="absolute top-0 left-1/4 w-[36rem] h-[36rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="hidden md:block absolute top-0 left-1/4 w-[36rem] h-[36rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="hidden md:block absolute bottom-10 right-10 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-5xl mx-auto w-full space-y-6 relative z-10">
           {/* Header */}
@@ -586,7 +586,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
 
           {/* ═══ NATIJA BANNERI ═══ */}
           <div className="ms-karta-oltin p-4 sm:p-8 rounded-3xl relative overflow-hidden">
-            <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-amber-400/15 blur-2xl pointer-events-none" />
+            <div className="hidden md:block absolute -right-16 -top-16 w-56 h-56 rounded-full bg-amber-400/15 blur-2xl pointer-events-none" />
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-3 max-w-xl">
@@ -1028,7 +1028,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
         {zoomRasm && (
           <div
             onClick={() => setZoomRasm(null)}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+            className="fixed inset-0 z-50 bg-black/95 md:bg-black/90 md:backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -1045,8 +1045,8 @@ export default function MilliySertifikatTestXonasi({ params }) {
   if (sessiyaHolat === "qabul_qilindi" && qabulQilindi) {
     return (
       <main className="ms-akademik ms-fon min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-white relative overflow-x-hidden">
-        <div className="absolute top-0 left-1/4 w-[34rem] h-[34rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-10 right-10 w-80 h-80 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="hidden md:block absolute top-0 left-1/4 w-[34rem] h-[34rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="hidden md:block absolute bottom-10 right-10 w-80 h-80 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="ms-karta-oltin max-w-2xl w-full p-6 sm:p-8 rounded-3xl space-y-6 relative z-10">
           <div className="flex items-start justify-between gap-4 border-b border-amber-300/25 pb-4">
@@ -1251,11 +1251,11 @@ export default function MilliySertifikatTestXonasi({ params }) {
   return (
     <main className="ms-akademik ms-fon min-h-screen flex flex-col text-white relative overflow-x-hidden justify-between select-none">
       {/* Fon nurlari */}
-      <div className="absolute top-0 left-1/3 w-[36rem] h-[36rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute top-0 left-1/3 w-[36rem] h-[36rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden md:block absolute bottom-20 right-10 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* ─── 1. STICKY TOP BOSHQARUV PANELI ─── */}
-      <header className="ms-header sticky top-0 z-40 backdrop-blur-xl">
+      <header className="ms-header sticky top-0 z-40 md:backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
           {/* Chap: Qaytish va Savollar palitrasi tugmasi */}
           <div className="flex items-center gap-2">
@@ -1287,7 +1287,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
           {/* O'rta: Taymer va Progress */}
           <div className="flex items-center gap-3">
             <div
-              className={`px-3.5 py-1.5 rounded-2xl border flex items-center gap-2 font-mono font-bold text-xs sm:text-sm shadow-md transition-all ${
+              className={`px-3.5 py-1.5 rounded-2xl border flex items-center gap-2 font-mono font-bold text-xs sm:text-sm shadow-md transition-colors ${
                 qolganVaqt <= 180
                   ? "bg-rose-900/80 border-rose-400 text-rose-200 animate-pulse"
                   : qolganVaqt <= 600
@@ -1302,7 +1302,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
             <div className="hidden md:flex items-center gap-2 text-xs text-sky-200">
               <div className="w-24 h-2 rounded-full bg-[#091642] overflow-hidden border border-sky-400/35">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-400 to-cyan-300 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-emerald-400 to-cyan-300 transition-[width] duration-300"
                   style={{ width: `${progressFoiz}%` }}
                 />
               </div>
@@ -1534,7 +1534,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
                                   key={`${harf}-${vIdx}`}
                                   type="button"
                                   onClick={() => javobTanla(isOptionIndex ? vIdx : variant)}
-                                  className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 active:scale-[0.98] ${
+                                  className={`p-3.5 rounded-2xl border text-left transition-[background-color,border-color,transform] flex items-center gap-3 active:scale-[0.98] ${
                                     isSelected
                                       ? "bg-gradient-to-r from-amber-400/25 via-yellow-400/20 to-amber-500/15 border-amber-300 shadow-lg shadow-amber-500/15 ring-2 ring-amber-400/40 text-white"
                                       : "bg-[#0d1f59]/90 hover:bg-[#132c7a]/95 border-sky-400/35 hover:border-amber-300/70 text-sky-50"
@@ -1663,7 +1663,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
                     key={s.id}
                     type="button"
                     onClick={() => setJoriyIndex(idx)}
-                    className={`h-9 rounded-xl border font-mono text-xs transition-all hover:scale-105 active:scale-95 flex items-center justify-center relative ${cellClass}`}
+                    className={`h-9 rounded-xl border font-mono text-xs transition-transform md:hover:scale-105 active:scale-95 flex items-center justify-center relative ${cellClass}`}
                   >
                     <span>{idx + 1}</span>
                     {isBelgilangan && (
@@ -1703,7 +1703,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
 
       {/* ─── 3. MOBIL SAVOLLAR XARITASI MODALI ─── */}
       {navigatsiyaModali && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-3 sm:p-6 animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-black/90 md:bg-black/80 md:backdrop-blur-md flex items-end sm:items-center justify-center p-3 sm:p-6 animate-fadeIn">
           <div className="ms-karta w-full max-w-lg rounded-3xl p-5 space-y-4 text-white max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-sky-400/25 pb-3">
               <h3 className="font-bold text-sm flex items-center gap-2">
@@ -1751,7 +1751,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
 
       {/* ─── 4. YAKUNLASHNI TASDIQLASH MODALI ─── */}
       {tasdiqModali && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-black/90 md:bg-black/80 md:backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
           <div className="ms-karta w-full max-w-md rounded-3xl p-6 space-y-4 text-white">
             <div className="w-12 h-12 rounded-2xl bg-amber-400/20 text-amber-300 border border-amber-300/55 flex items-center justify-center mx-auto text-xl">
               <Ikon nom="ogohlantirish" olcham={24} />
@@ -1827,7 +1827,7 @@ export default function MilliySertifikatTestXonasi({ params }) {
       {zoomRasm && (
         <div
           onClick={() => setZoomRasm(null)}
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+          className="fixed inset-0 z-50 bg-black/95 md:bg-black/90 md:backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

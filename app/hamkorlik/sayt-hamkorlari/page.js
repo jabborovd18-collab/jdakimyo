@@ -43,9 +43,9 @@ export default function SaytHamkorlari() {
     <main className="min-h-screen bg-gradient-to-b from-purple-950 via-blue-950/20 to-slate-950 text-white overflow-hidden">
       
       {/* HEADER */}
-      <header className="flex justify-between items-center px-6 py-4 border-b border-purple-800/50 sticky top-0 z-50 bg-purple-950/80 backdrop-blur-xl">
+      <header className="flex justify-between items-center px-6 py-4 border-b border-purple-800/50 sticky top-0 z-50 bg-purple-950/95 md:bg-purple-950/80 md:backdrop-blur-xl">
         <div className="flex items-center gap-4">
-          <Link href="/hamkorlik" className="text-purple-400 hover:text-purple-300 transition-all text-lg flex items-center gap-2">
+          <Link href="/hamkorlik" className="text-purple-400 hover:text-purple-300 transition-colors text-lg flex items-center gap-2">
             <span>←</span>
             <span className="hidden sm:inline">Hamkorlik</span>
           </Link>
@@ -61,11 +61,12 @@ export default function SaytHamkorlari() {
 
       {/* HERO SECTION */}
       <section className="relative px-4 py-16 md:py-24 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div aria-hidden="true" className="md:hidden absolute inset-0 pointer-events-none jda-hamkor-oltin-nur"></div>
+        <div className="hidden md:block absolute top-20 left-10 w-72 h-72 bg-yellow-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="hidden md:block absolute bottom-20 right-10 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
         
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-yellow-600/20 border border-yellow-600/30 rounded-full text-xs font-semibold text-yellow-300 mb-6 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-yellow-600/20 border border-yellow-600/30 rounded-full text-xs font-semibold text-yellow-300 mb-6 md:backdrop-blur-sm">
             <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
             ENDIGINA BOSHLANGAN YO'L
           </div>
@@ -83,7 +84,7 @@ export default function SaytHamkorlari() {
             tinimsiz ishlayapmiz. Har kuni yangi imkoniyatlar, yangi kontent va yangi g'oyalar ustida ishlamoqdamiz.
           </p>
 
-          <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 max-w-3xl mx-auto mb-10 backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-purple-900/85 to-blue-900/85 md:from-purple-900/40 md:to-blue-900/40 border border-purple-700/50 rounded-2xl p-6 md:p-8 max-w-3xl mx-auto mb-10 md:backdrop-blur-sm">
             <div className="text-4xl mb-4">🚀</div>
             <p className="text-purple-100 text-lg leading-relaxed">
               Kelajakda <strong className="text-yellow-400">xalqaro va milliy hamkorlar</strong> bilan birga ishlash orqali 
@@ -120,9 +121,9 @@ export default function SaytHamkorlari() {
               href={dost.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="group block bg-gradient-to-br from-yellow-600/10 via-amber-600/10 to-orange-600/10 border-2 border-yellow-500/30 rounded-3xl p-8 hover:border-yellow-400/70 transition-all transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/20 relative overflow-hidden"
+              className="group block bg-gradient-to-br from-yellow-600/10 via-amber-600/10 to-orange-600/10 border-2 border-yellow-500/30 rounded-3xl p-8 hover:border-yellow-400/70 transition-[border-color,transform,box-shadow] transform md:hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/20 relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl group-hover:bg-yellow-500/20 transition-all"></div>
+              <div className="hidden md:block absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl group-hover:bg-yellow-500/20 transition-colors"></div>
               
               <div className="relative z-10">
                 <div className="flex items-start gap-6">
@@ -159,7 +160,7 @@ export default function SaytHamkorlari() {
           ))}
 
           {/* MINNATDORCHILIK XABARI */}
-          <div className="mt-8 bg-gradient-to-br from-purple-900/60 to-blue-900/60 border border-purple-700/50 rounded-2xl p-6 text-center backdrop-blur-sm">
+          <div className="mt-8 bg-gradient-to-br from-purple-900/88 to-blue-900/88 md:from-purple-900/60 md:to-blue-900/60 border border-purple-700/50 rounded-2xl p-6 text-center md:backdrop-blur-sm">
             <div className="text-3xl mb-3">💝</div>
             <p className="text-purple-100 leading-relaxed">
               <strong className="text-yellow-400">JDA KIMYO guruhi nomidan</strong> barcha do'stlarimizga, 
@@ -190,9 +191,9 @@ export default function SaytHamkorlari() {
           {kelajakRejalari.map((reja, i) => (
             <div 
               key={i}
-              className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-all transform hover:-translate-y-2 relative overflow-hidden"
+              className="bg-gradient-to-br from-purple-900/85 to-blue-900/85 md:from-purple-900/40 md:to-blue-900/40 border border-purple-700/50 rounded-2xl p-6 hover:border-yellow-400/50 transition-[border-color,transform] transform md:hover:-translate-y-2 relative overflow-hidden"
             >
-              <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20 bg-yellow-500"></div>
+              <div className="hidden md:block absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20 bg-yellow-500"></div>
               
               <div className="relative z-10">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-2xl mb-4 shadow-lg shadow-yellow-500/20">
@@ -215,8 +216,8 @@ export default function SaytHamkorlari() {
       {/* HAMKOR BO'LISH TAKLIFI */}
       <section className="px-4 py-16 max-w-4xl mx-auto">
         <div className="bg-gradient-to-br from-yellow-600/10 via-amber-600/10 to-orange-600/10 border-2 border-yellow-500/30 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
+          <div className="hidden md:block absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl"></div>
+          <div className="hidden md:block absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
           
           <div className="relative z-10">
             <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-4xl mb-6 shadow-2xl shadow-yellow-500/30">
@@ -234,7 +235,7 @@ export default function SaytHamkorlari() {
             <div className="flex flex-wrap gap-4 justify-center">
               <Link
                 href="/hamkorlik/boglanish"
-                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 rounded-xl text-black font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-yellow-500/20"
+                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 rounded-xl text-black font-bold text-lg transition-transform transform md:hover:scale-105 shadow-lg shadow-yellow-500/20"
               >
                 Bog'lanish →
               </Link>
@@ -242,7 +243,7 @@ export default function SaytHamkorlari() {
                 href="https://t.me/diyorbek_jabborov"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-4 bg-purple-800/50 hover:bg-purple-700/70 border-2 border-purple-600/50 rounded-xl text-white font-bold text-lg backdrop-blur-sm transition-all transform hover:scale-105 flex items-center gap-2"
+                className="px-8 py-4 bg-purple-800/85 md:bg-purple-800/50 hover:bg-purple-700/70 border-2 border-purple-600/50 rounded-xl text-white font-bold text-lg md:backdrop-blur-sm transition-[background-color,transform] transform md:hover:scale-105 flex items-center gap-2"
               >
                 <span>✈️</span>
                 <span>Telegram orqali</span>

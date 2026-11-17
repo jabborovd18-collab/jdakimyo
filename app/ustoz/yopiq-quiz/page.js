@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -40,16 +40,7 @@ export default function YopiqQuizManagePage() {
   const [gradeData, setGradeData] = useState({ score: '', feedback: '' })
   const [isGrading, setIsGrading] = useState(false)
 
-  useEffect(() => {
-    fetchQuizzes()
-  }, [])
-
-  useEffect(() => {
-    const qId = searchParams.get('quizId')
-    if (qId) openGradeView(qId)
-  }, [searchParams])
-
-  const fetchQuizzes = async () => {
+  const fetchQuizzes = useCallback(async () => {
     setIsLoading(true)
     try {
       const res = await fetch('/api/ustoz/yopiq-quiz')
@@ -66,10 +57,18 @@ export default function YopiqQuizManagePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
+
+  const selectSubmissionToGrade = useCallback((sub) => {
+    setSelectedSubmission(sub)
+    setGradeData({
+      score: sub.score !== null ? String(sub.score) : '',
+      feedback: sub.feedback || ''
+    })
+  }, [])
 
   // Bitta quizning topshiriqlarini tekshirish uchun ochish
-  const openGradeView = async (quizId) => {
+  const openGradeView = useCallback(async (quizId) => {
     setSelectedQuizId(quizId)
     setActiveView('grade')
     setSelectedSubmission(null)
@@ -92,15 +91,16 @@ export default function YopiqQuizManagePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [selectSubmissionToGrade])
 
-  const selectSubmissionToGrade = (sub) => {
-    setSelectedSubmission(sub)
-    setGradeData({
-      score: sub.score !== null ? String(sub.score) : '',
-      feedback: sub.feedback || ''
-    })
-  }
+  useEffect(() => {
+    fetchQuizzes()
+  }, [fetchQuizzes])
+
+  useEffect(() => {
+    const qId = searchParams.get('quizId')
+    if (qId) openGradeView(qId)
+  }, [searchParams, openGradeView])
 
   // Baholash
   const handleGradeSubmit = async () => {

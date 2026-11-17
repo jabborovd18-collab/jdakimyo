@@ -1,6 +1,6 @@
 // app/ustoz/new-vazifa/page.js
 "use client"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -127,39 +127,15 @@ export default function NewVazifaPage() {
     maxFileSize: 10
   })
 
-  // ═══════════════════════════════════════════
-  // INITIAL LOAD
-  // ═══════════════════════════════════════════
-  useEffect(() => {
-    fetchGroups()
-    
-    // Default deadline: 7 kun keyin
-    if (!editId) {
-      const defaultDeadline = new Date()
-      defaultDeadline.setDate(defaultDeadline.getDate() + 7)
-      defaultDeadline.setHours(23, 59, 0, 0)
-      setFormData(prev => ({ 
-        ...prev, 
-        deadline: defaultDeadline.toISOString().slice(0, 16) 
-      }))
-    }
-  }, [])
-
-  // Tahrirlash rejimi - mavjud vazifani yuklash
-  useEffect(() => {
-    if (editId) {
-      fetchAssignment()
-    }
-  }, [editId])
-
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     try {
       const res = await fetch('/api/ustoz/guruh')
       const data = await res.json()
       if (res.ok) {
         setGroups(data.groups || [])
-        if (data.groups?.length > 0 && !formData.groupId && !editId) {
-          setFormData(prev => ({ ...prev, groupId: data.groups[0].id }))
+        if (data.groups?.length > 0 && !editId) {
+          const defaultGroupId = data.groups[0].id
+          setFormData(prev => (prev.groupId ? prev : { ...prev, groupId: defaultGroupId }))
         }
       }
     } catch (error) {
@@ -167,9 +143,9 @@ export default function NewVazifaPage() {
     } finally {
       setIsLoadingGroups(false)
     }
-  }
+  }, [editId])
 
-  const fetchAssignment = async () => {
+  const fetchAssignment = useCallback(async () => {
     try {
       const res = await fetch(`/api/ustoz/new-vazifa?id=${editId}`)
       const data = await res.json()
@@ -209,7 +185,30 @@ export default function NewVazifaPage() {
     } finally {
       setIsLoadingEdit(false)
     }
-  }
+  }, [editId, router])
+
+  // ═══════════════════════════════════════════
+  // INITIAL LOAD
+  // ═══════════════════════════════════════════
+  useEffect(() => {
+    fetchGroups()
+    
+    // Default deadline: 7 kun keyin
+    if (!editId) {
+      const defaultDeadline = new Date()
+      defaultDeadline.setDate(defaultDeadline.getDate() + 7)
+      defaultDeadline.setHours(23, 59, 0, 0)
+      const defaultIso = defaultDeadline.toISOString().slice(0, 16)
+      setFormData(prev => (prev.deadline ? prev : { ...prev, deadline: defaultIso }))
+    }
+  }, [editId, fetchGroups])
+
+  // Tahrirlash rejimi - mavjud vazifani yuklash
+  useEffect(() => {
+    if (editId) {
+      fetchAssignment()
+    }
+  }, [editId, fetchAssignment])
 
   // ═══════════════════════════════════════════
   // HANDLERS

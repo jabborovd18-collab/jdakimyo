@@ -3,60 +3,60 @@ import Link from "next/link"
 export default function Yangiliklar() {
   const yangiliklar = [
     {
-      sana: "11.05.2026",
-      badge: "Yangi",
+      sana: "Noyabr 2026",
+      badge: "v4.0",
       badgeColor: "bg-green-600/20 text-green-400 border-green-600/30",
-      title: "Ilmiy bo'lim ishga tushdi!",
-      desc: "Platformamizda ilmiy bo'lim ochildi. Endi siz chuqurlashgan mavzular, maqolalar, kompleks birikmalar bazasi va tahlil usullari bilan tanishishingiz mumkin.",
-      icon: "🔬"
+      title: "JDA KIMYO v4 va Shaxsiy profil ekotizimi",
+      desc: "Tezkor shaxsiy profil, teglar bilan tartiblanadigan ilmiy postlar, tavsiyalar lentasi hamda 24 soatlik Ilmiy Hikoyalar (Stories) ishga tushirildi.",
+      icon: "🚀"
     },
     {
-      sana: "10.05.2026",
+      sana: "Noyabr 2026",
+      badge: "Yangi",
+      badgeColor: "bg-blue-600/20 text-blue-400 border-blue-600/30",
+      title: "Kimyo-biologiya repititorlari jonli xaritasi",
+      desc: "Bosh sahifadagi 9 ta asosiy rukn kengaytirildi: interaktiv xarita orqali hududingizdagi eng yaqin kimyo va biologiya repititorlarini GPS masofa bilan topish yo'lga qo'yildi.",
+      icon: "📍"
+    },
+    {
+      sana: "Oktabr 2026",
       badge: "Muhim",
       badgeColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
-      title: "19 ta interaktiv 3D model qo'shildi",
-      desc: "Fazoviy tuzilish bo'limida 19 ta kompleks birikmaning CPK ranglardagi interaktiv 3D modellari qo'shildi. Modellarni sichqoncha bilan aylantirish, kattalashtirish mumkin.",
-      icon: "💎"
-    },
-    {
-      sana: "09.05.2026",
-      badge: "Yangi",
-      badgeColor: "bg-green-600/20 text-green-400 border-green-600/30",
-      title: "5 ta quiz test qo'shildi",
-      desc: "Bilimingizni sinash uchun 5 ta mavzu bo'yicha 75 ta savoldan iborat quiz testlar qo'shildi. Testlar bepul va qayta-qayta yechish mumkin.",
-      icon: "📝"
-    },
-    {
-      sana: "08.05.2026",
-      badge: "Premium",
-      badgeColor: "bg-purple-600/20 text-purple-400 border-purple-600/30",
-      title: "Premium tizim ishga tushdi",
-      desc: "Endi platformada premium a'zolik mavjud. Premium foydalanuvchilar video darsliklar, chuqurlashgan kontent va sertifikat imkoniyatlaridan foydalanishi mumkin.",
-      icon: "👑"
-    },
-    {
-      sana: "07.05.2026",
-      badge: "Yangi",
-      badgeColor: "bg-green-600/20 text-green-400 border-green-600/30",
-      title: "Maqolalar bo'limi ochildi",
-      desc: "Endi foydalanuvchilar o'z ilmiy maqolalarini DOCX formatida yuklab, admin tasdiqlashidan so'ng platformada chop ettirishi mumkin.",
-      icon: "📄"
-    },
-    {
-      sana: "06.05.2026",
-      badge: "Muhim",
-      badgeColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
-      title: "Sertifikat tizimi e'lon qilindi",
-      desc: "JDA KIMYO platformasi 4 darajali sertifikat tizimini e'lon qiladi: C (Asosiy), B (Ilmiy), A (Oltin) va A+ (Oltin+). Har bir daraja o'z talab va imtiyozlariga ega.",
+      title: "Milliy Sertifikat va Rasch IRT tayyorlov markazi",
+      desc: "DTM hamda Milliy Sertifikat formatidagi sinov testlari Rasch modeli asosida kalibrlanib, C dan A+ gacha darajalar va rasmiy QR-kodli sertifikatlar bilan taqdim etilmoqda.",
       icon: "🏅"
     },
     {
-      sana: "01.05.2026",
+      sana: "Oktabr 2026",
+      badge: "Ta'lim",
+      badgeColor: "bg-green-600/20 text-green-400 border-green-600/30",
+      title: "Maktab kimyosi: 7–8-sinf to'liq kurslari",
+      desc: "Davlat ta'lim standarti asosida 7- va 8-sinf kimyo mavzulari, vizual reaksiyalar hamda sinf mashqlari ochildi. 9–11-sinflar hamda Oliy kimyo fanlari bosqichma-bosqich tayyorlanmoqda.",
+      icon: "📚"
+    },
+    {
+      sana: "Sentabr 2026",
+      badge: "Ustozlar",
+      badgeColor: "bg-purple-600/20 text-purple-400 border-purple-600/30",
+      title: "Ustoz paneli va Elektron doska",
+      desc: "O'qituvchilar guruh tuzib, variantli va yozma testlar o'tkazishi, vazifa berishi hamda auditoriya uchun QR-kodli Elektron doska va Jamoalar Jangini boshqarishi mumkin.",
+      icon: "🎓"
+    },
+    {
+      sana: "Sentabr 2026",
+      badge: "Tekshiruv",
+      badgeColor: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
+      title: "QR-kodli sertifikatlar va PDF eksporti",
+      desc: "Platformada berilgan barcha sertifikatlarni /sertifikat portali va QR-kod orqali onlayn tekshirish hamda vektor PDF ko'rinishida yuklab olish tizimi yo'lga qo'yildi.",
+      icon: "📜"
+    },
+    {
+      sana: "2025",
       badge: "Boshlanish",
       badgeColor: "bg-blue-600/20 text-blue-400 border-blue-600/30",
-      title: "JDA KIMYO platformasi ishga tushdi!",
-      desc: "Oliy kimyo bo'yicha O'zbekistondagi eng yirik onlayn platforma o'z ishini boshladi. 68 ta sahifa, 19 ta 3D model, 5 ta quiz test — barchasi bir joyda!",
-      icon: "🚀"
+      title: "JDA KIMYO platformasiga asos solindi",
+      desc: "O'zbek tilidagi maktab va oliy kimyo ta'lim platformasi yaratildi: o'quv materiallari, masala yechish bo'limi, ochiq testlar va kimyogarlar hamjamiyati bir joyda jamlandi.",
+      icon: "⚗️"
     }
   ]
 
@@ -67,7 +67,7 @@ export default function Yangiliklar() {
         <Link href="/hamkorlik" className="text-purple-400 hover:text-purple-300 transition-all text-lg">← Hamkorlik</Link>
         <div>
           <h1 className="text-2xl font-bold text-pink-400">📢 Yangiliklar</h1>
-          <p className="text-purple-400 text-sm">Platformadagi eng so'nggi yangiliklar va rivojlanishlar</p>
+          <p className="text-purple-400 text-sm">Platformadagi eng so&apos;nggi yangiliklar va v4 rivojlanishi</p>
         </div>
       </header>
 
@@ -77,9 +77,9 @@ export default function Yangiliklar() {
         <div className="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-8 mb-10">
           <h2 className="text-xl font-bold text-white mb-4">📋 Platforma rivojlanishi</h2>
           <p className="text-purple-200 leading-relaxed">
-            JDA KIMYO platformasi <strong className="text-yellow-400">har hafta yangilanib</strong> boradi. 
-            Yangi bo'limlar, testlar, 3D modellar va ilmiy kontent qo'shilmoqda. 
-            Eng so'nggi o'zgarishlarni shu sahifada kuzatib boring!
+            JDA KIMYO platformasi <strong className="text-yellow-400">muntazam yangilanib</strong> boradi. 
+            Maktab darsliklari, Milliy Sertifikat sinovlari, ustoz vositalari hamda interaktiv kimyoviy o&apos;yinlar bosqichma-bosqich kengaytirilmoqda. 
+            Eng so&apos;nggi o&apos;zgarishlarni shu sahifada kuzatib boring!
           </p>
         </div>
 
@@ -122,11 +122,12 @@ export default function Yangiliklar() {
         {/* Timeline pastki */}
         <div className="mt-10 bg-gradient-to-r from-pink-600/10 to-purple-600/10 border border-pink-500/20 rounded-2xl p-6 text-center">
           <p className="text-purple-300 text-sm">
-            📢 Yangi funksiyalar va kontent haqida birinchi bo'lib xabar olish uchun Telegram kanalimizga obuna bo'ling!
+            📢 Yangi funksiyalar va kontent haqida birinchi bo&apos;lib xabar olish uchun Telegram orqali bog&apos;laning!
           </p>
           <a 
             href="https://t.me/diyorbek_jabborov" 
             target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 mt-3 text-blue-400 hover:text-blue-300 transition-colors font-semibold"
           >
             <span>✈️</span> @diyorbek_jabborov

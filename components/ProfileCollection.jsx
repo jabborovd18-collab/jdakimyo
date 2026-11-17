@@ -8,6 +8,7 @@ import TasdiqBelgisi from '@/components/TasdiqBelgisi'
 import Ikon from '@/components/Ikon'
 import { sana } from '@/lib/sana'
 import { chatKirishHavolasi } from '@/lib/chat-interfeys'
+import { sertifikatVerifyYoli } from '@/lib/sertifikat-tahlil'
 
 const CONFIG = {
   achievements: { title: 'Yutuqlar', subtitle: 'Qo‘lga kiritgan ilmiy va amaliy yutuqlaringiz', ikon: 'orin' },
@@ -258,7 +259,7 @@ export default function ProfileCollection({ type, actions = null, refreshKey = 0
                     )}
                     {item.certId && (
                       <Link
-                        href={`/tekshirish/${item.certId}`}
+                        href={sertifikatVerifyYoli(item.certId)}
                         className="v3-tugma v3-tugma-asosiy text-[11px] py-1 px-2.5 inline-flex items-center gap-1 font-bold"
                       >
                         <Ikon nom="sertifikat" olcham={12} />

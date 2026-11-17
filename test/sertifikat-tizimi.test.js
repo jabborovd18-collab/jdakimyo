@@ -1,13 +1,17 @@
 // test/sertifikat-tizimi.test.js
 import test from "node:test"
 import assert from "node:assert/strict"
+import { existsSync, readFileSync } from "node:fs"
 import { PDFDocument } from "pdf-lib"
 import {
+  ALCHEMIQ_LOGO,
   ajratSertifikatMuhrlar,
   ajratSertifikatTavsifi,
   formatAmalMuddati,
   formatMobileSertifikat,
   milliySertifikatPdfMalumoti,
+  normallashtirHamkorLogoUrl,
+  normallashtirSertifikatSeals,
   qurAdminSertifikatFiltr,
   SERTIFIKAT_TURLARI,
   sertifikatHolati,
@@ -443,4 +447,77 @@ test("ajratSertifikatMuhrlar — rasm massiv va hamkor muhr obyektini xavfsiz aj
 
   const bosh = ajratSertifikatMuhrlar(null)
   assert.deepEqual(bosh, { rasmlar: [], hamkorMuhri: null })
+})
+
+test("ajratSertifikatMuhrlar va normallashtirSertifikatSeals — eski /images/alchemiq-logo.png yo'lini haqiqiy jpg faylga o'giradi", () => {
+  assert.equal(ALCHEMIQ_LOGO, "/images/hamkorlik/alchemiq-logo.jpg")
+  assert.equal(existsSync("public/images/hamkorlik/alchemiq-logo.jpg"), true)
+
+  assert.equal(normallashtirHamkorLogoUrl("/images/alchemiq-logo.png"), ALCHEMIQ_LOGO)
+  assert.equal(normallashtirHamkorLogoUrl(" images/alchemiq-logo.png "), ALCHEMIQ_LOGO)
+  assert.equal(normallashtirHamkorLogoUrl("/images/hamkorlik/sea-kimyo-logo.png"), "/images/hamkorlik/sea-kimyo-logo.png")
+  assert.equal(normallashtirHamkorLogoUrl("  "), null)
+
+  const eskiHamkor = ajratSertifikatMuhrlar({
+    partnerName: "AlchemIQ",
+    partnerLogo: "/images/alchemiq-logo.png",
+    badgeText: "YUKORI NATIJA",
+  })
+  assert.equal(eskiHamkor.hamkorMuhri?.partnerLogo, ALCHEMIQ_LOGO)
+
+  const eskiMassiv = ajratSertifikatMuhrlar([
+    { url: "/images/alchemiq-logo.png", label: "AlchemIQ" },
+  ])
+  assert.equal(eskiMassiv.rasmlar[0].url, ALCHEMIQ_LOGO)
+
+  const normObyekt = normallashtirSertifikatSeals({ partnerLogo: "/images/alchemiq-logo.png" })
+  assert.equal(normObyekt.partnerLogo, ALCHEMIQ_LOGO)
+
+  const mobilCert = formatMobileSertifikat({
+    id: "c_ak",
+    certId: "AK-JK-2025-1247",
+    fullName: "Test Ishtirokchi",
+    fan: "Mavsumiy Hamkorlik",
+    reason: "Sinov testi",
+    seals: { partnerName: "AlchemIQ", partnerLogo: "/images/alchemiq-logo.png" },
+    status: "valid",
+    issuedAt: "2025-12-01T00:00:00.000Z",
+  })
+  assert.equal(mobilCert.seals?.partnerLogo, ALCHEMIQ_LOGO)
+})
+
+test("Admin mavsumiyhamkor, sertifikat o'qish va hamkorlik sahifalari — eskirgan logo, 307 redirect va v3 matnlar qolmagan", () => {
+  const tekshiriladiganFayllar = [
+    "app/api/admin/mavsumiyhamkor/route.js",
+    "app/admin/mavsumiyhamkor/page.js",
+    "app/api/hamkorlik/[slug]/route.js",
+    "lib/sertifikat.js",
+  ]
+  for (const f of tekshiriladiganFayllar) {
+    const manba = readFileSync(f, "utf8")
+    assert.equal(
+      manba.includes("/images/alchemiq-logo.png"),
+      false,
+      `${f} ichida mavjud bo'lmagan /images/alchemiq-logo.png qolib ketgan`,
+    )
+  }
+
+  const sertifikatManba = readFileSync("lib/sertifikat.js", "utf8")
+  assert.equal(sertifikatManba.includes("normallashtirSertifikatSeals"), true)
+
+  const adminPage = readFileSync("app/admin/mavsumiyhamkor/page.js", "utf8")
+  assert.equal(adminPage.includes("/sea-ms-sinov"), false)
+  assert.equal(adminPage.includes('href="/milliy-sertifikat"'), true)
+
+  const yangiliklar = readFileSync("app/hamkorlik/yangiliklar/page.js", "utf8")
+  for (const eskirgan of ["Ilmiy bo'lim", "kompleks birikmalar bazasi", "19 ta interaktiv 3D"]) {
+    assert.equal(yangiliklar.includes(eskirgan), false, `yangiliklar da eskirgan v3 matn bor: ${eskirgan}`)
+  }
+
+  const taklif = readFileSync("app/hamkorlik/jamoaga-taklif/page.js", "utf8")
+  for (const eskirgan of ["Kompleks birikmalar", "Firebase", "Supabase", "3D modellar"]) {
+    assert.equal(taklif.includes(eskirgan), false, `jamoaga-taklif da eskirgan v3 talab bor: ${eskirgan}`)
+  }
+  assert.equal(taklif.includes("PostgreSQL"), true)
+  assert.equal(taklif.includes("Prisma ORM"), true)
 })

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -31,20 +31,7 @@ export default function UstozTalabalarPage() {
   const [isSearching, setIsSearching] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
 
-  useEffect(() => {
-    fetchStudents()
-  }, [groupFilter, search])
-
-  useEffect(() => {
-    if (searchQuery.length >= 2 && selectedGroupId) {
-      const timeout = setTimeout(() => searchUsers(), 300)
-      return () => clearTimeout(timeout)
-    } else {
-      setSearchResults([])
-    }
-  }, [searchQuery, selectedGroupId])
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams({
@@ -66,9 +53,9 @@ export default function UstozTalabalarPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [groupFilter, search])
 
-  const searchUsers = async () => {
+  const searchUsers = useCallback(async () => {
     if (!searchQuery || searchQuery.length < 2 || !selectedGroupId) return
 
     setIsSearching(true)
@@ -88,7 +75,20 @@ export default function UstozTalabalarPage() {
     } finally {
       setIsSearching(false)
     }
-  }
+  }, [searchQuery, selectedGroupId])
+
+  useEffect(() => {
+    fetchStudents()
+  }, [fetchStudents])
+
+  useEffect(() => {
+    if (searchQuery.length >= 2 && selectedGroupId) {
+      const timeout = setTimeout(() => searchUsers(), 300)
+      return () => clearTimeout(timeout)
+    } else {
+      setSearchResults([])
+    }
+  }, [searchQuery, selectedGroupId, searchUsers])
 
   const handleAddStudent = async (studentId, studentName) => {
     if (!selectedGroupId) {

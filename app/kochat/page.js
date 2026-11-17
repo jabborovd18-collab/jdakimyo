@@ -11,7 +11,7 @@ const STAGES = [
   { min: 30, max: 39, name: 'O\'simlik', emoji: '🪴', xpRequired: 30 },
   { min: 40, max: 49, name: 'Katta o\'simlik', emoji: '🌾', xpRequired: 40 },
   { min: 50, max: 59, name: 'Daraxt', emoji: '🌲', xpRequired: 50 },
-  { min: 60, max: 69, name: 'Katta daraxt', emoji: '🌳', xpRequires: 60 },
+  { min: 60, max: 69, name: 'Katta daraxt', emoji: '🌳', xpRequired: 60 },
   { min: 70, max: 79, name: 'Gullagan', emoji: '🌸', xpRequired: 70 },
   { min: 80, max: 89, name: 'Mevali', emoji: '🍎', xpRequired: 80 },
   { min: 90, max: 100, name: 'Afsonaviy', emoji: '👑', xpRequired: 90 }

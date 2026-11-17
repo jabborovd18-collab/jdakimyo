@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -41,13 +41,7 @@ export default function NatijalarPage() {
     }
   }, [searchParams])
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchResults()
-    }
-  }, [status, selectedGroup])
-
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams()
@@ -70,7 +64,13 @@ export default function NatijalarPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [selectedGroup])
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchResults()
+    }
+  }, [status, fetchResults])
 
   const openAssignmentGradeModal = (sub) => {
     setGradingSubmission(sub)

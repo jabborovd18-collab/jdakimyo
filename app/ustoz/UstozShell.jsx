@@ -286,9 +286,9 @@ export default function UstozShell({ user, children }) {
         <div className="grid grid-cols-5 h-16">
           {[
             { href: '/ustoz', label: 'Asosiy', ikon: 'grafik', exact: true },
-            { href: '/ustoz/quizlar', label: 'Quizlar', ikon: 'quiz' },
-            { href: '/ustoz/guruhlar', label: 'Guruhlar', ikon: 'odamlar' },
-            { href: '/ustoz/vazifalar', label: 'Vazifalar', ikon: 'kitob' },
+            { href: '/ustoz/open-quiz', label: 'Testlar', ikon: 'quiz' },
+            { href: '/ustoz/guruh', label: 'Guruhlar', ikon: 'odamlar' },
+            { href: '/ustoz/vazifa', label: 'Vazifalar', ikon: 'kitob' },
           ].map((item) => {
             const active = isActive(item)
             return (

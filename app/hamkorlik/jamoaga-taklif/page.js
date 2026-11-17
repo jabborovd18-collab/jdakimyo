@@ -5,16 +5,24 @@ export default function JamoagaTaklif() {
     {
       icon: "🧪",
       title: "Kontent yaratuvchi (Kimyogar)",
-      desc: "Kompleks birikmalar bo'yicha maqolalar, testlar va o'quv materiallar tayyorlash. Ilmiy kontent sifatini nazorat qilish.",
-      talablar: ["Kimyo sohasida oliy ma'lumot", "Kompleks birikmalar bo'yicha chuqur bilim", "Ilmiy maqolalar yoza olish"],
+      desc: "Maktab kimyosi (7–11-sinflar), Oliy kimyo fanlari, Milliy Sertifikat savollari va kimyogarlar haqida maqolalar tayyorlash.",
+      talablar: [
+        "Kimyo sohasida oliy ma'lumot yoki magistratura",
+        "Maktab dasturi va Milliy Sertifikat (DTM) testologiyasini mukammal bilish",
+        "Ilmiy-uslubiy matn va masalalar yechimini tushunarli yoza olish"
+      ],
       rangi: "from-green-600 to-emerald-600",
       badge: "2 ta o'rin"
     },
     {
       icon: "💻",
-      title: "Dasturchi (Next.js/React)",
-      desc: "Platformani texnik rivojlantirish. Yangi funksiyalar qo'shish, 3D modellar, Firebase/Supabase integratsiyasi.",
-      talablar: ["Next.js va React bo'yicha tajriba", "Tailwind CSS", "Firebase yoki Supabase bilan ishlash"],
+      title: "Dasturchi (Next.js / PostgreSQL)",
+      desc: "v4 platformani texnik rivojlantirish: Next.js App Router sahifalari, Prisma ORM APIlari, interaktiv kimyoviy o'yinlar va unumdorlik.",
+      talablar: [
+        "Next.js (App Router) va React bo'yicha amaliy tajriba",
+        "Tailwind CSS hamda moslashuvchan mobil interfeys yaratish",
+        "PostgreSQL, Prisma ORM va NextAuth bilan ishlash"
+      ],
       rangi: "from-blue-600 to-cyan-600",
       badge: "1 ta o'rin"
     },
@@ -37,8 +45,12 @@ export default function JamoagaTaklif() {
     {
       icon: "🎓",
       title: "Ilmiy maslahatchi (Professor/PhD)",
-      desc: "Platformadagi ilmiy kontentni ekspertizadan o'tkazish. Maqolalarni ilmiy jihatdan tekshirish.",
-      talablar: ["PhD yoki DSc ilmiy daraja", "Kompleks birikmalar sohasida tajriba", "Ilmiy maqolalar chop ettirgan"],
+      desc: "O'quv dasturlari, Milliy Sertifikat savollar banki va kimyo masalalarini ilmiy hamda metodik ekspertizadan o'tkazish.",
+      talablar: [
+        "PhD yoki DSc ilmiy daraja",
+        "Umumiy, noorganik, organik yoki fizikaviy kimyo bo'yicha ilmiy-pedagogik tajriba",
+        "Ilmiy maqolalar va o'quv qo'llanmalar chop ettirgan"
+      ],
       rangi: "from-purple-600 to-indigo-600",
       badge: "2 ta o'rin"
     }

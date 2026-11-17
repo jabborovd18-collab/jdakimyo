@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { profilLogYoz, profilLoglarOlish } from '@/lib/profil-log'
+import { postJadvaliniTayyorla } from '@/lib/post-baza'
 
 const SAFE_USER_SELECT = {
   id: true,
@@ -30,6 +31,8 @@ export async function GET(request) {
 
     const userId = session.user.id
 
+    await postJadvaliniTayyorla().catch(() => {})
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -40,11 +43,11 @@ export async function GET(request) {
         assignmentSubmissions: {
           orderBy: { submittedAt: 'desc' },
           include: {
-            assignment: { select: { id: true, title: true, maxPoints: true } },
+            assignment: { select: { id: true, title: true, maxScore: true } },
           },
         },
         quizAttempts: {
-          orderBy: { startedAt: 'desc' },
+          orderBy: { completedAt: 'desc' },
           include: {
             quiz: { select: { id: true, title: true } },
           },

@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
+import { normallashtirHamkorLogoUrl } from '@/lib/sertifikat-tahlil'
 import { MILLIY_SERTIFIKAT_1_SAVOLLAR, javobniTekshir } from '@/data/hamkorlik/milliy-sertifikat-1-savollar'
 import { MILLIY_SERTIFIKAT_2_SAVOLLAR } from '@/data/hamkorlik/milliy-sertifikat-2-savollar'
 
@@ -128,7 +129,7 @@ export async function GET(req, { params }) {
         slug: partnership.slug,
         title: partnership.title,
         partnerName: partnership.partnerName,
-        partnerLogo: partnership.partnerLogo,
+        partnerLogo: normallashtirHamkorLogoUrl(partnership.partnerLogo),
         partnerSignName: partnership.partnerSignName,
         jdaSignName: partnership.jdaSignName,
         description: partnership.description,
